@@ -34,6 +34,8 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected final IOContext _ioContext;
 
+    protected final StreamReadConstraints _streamReadConstraints;
+
     /**
      * Flag that indicates whether parser is closed or not. Gets
      * set when parser is either closed by explicit call
@@ -215,6 +217,7 @@ public abstract class ParserBase extends ParserMinimalBase
             IOContext ctxt, int features) {
         super(readCtxt, features);
         _ioContext = ctxt;
+        _streamReadConstraints = ctxt.streamReadConstraints();
         _textBuffer = ctxt.constructTextBuffer();
     }
 
@@ -701,7 +704,7 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         // First, converting from long ought to be easy
         if ((_numTypesValid & NR_LONG) != 0) {
-            // Let's verify it's lossless conversion by simple roundtrip
+            // Let's verify its lossless conversion by simple roundtrip
             int result = (int) _numberLong;
             if (((long) result) != _numberLong) {
                 _reportOverflowInt(getText(), currentToken());
@@ -837,7 +840,9 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
-            _numberBigDecimal = NumberInput.parseBigDecimal(getText());
+            final String numStr = getText();
+            _streamReadConstraints().validateFPLength(numStr.length());
+            _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
         } else if ((_numTypesValid & NR_LONG) != 0) {
@@ -870,8 +875,6 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Internal accessor that needs to be used for accessing number value of type
      * {@link BigDecimal} which -- as of 2.14 -- is typically lazily parsed.
-     *
-     * @since 2.14
      */
     protected BigDecimal _getBigDecimal() {
         if (_numberBigDecimal != null) {
@@ -883,7 +886,11 @@ public abstract class ParserBase extends ParserMinimalBase
         _numberString = null;
         return _numberBigDecimal;
     }
- 
+
+    protected StreamReadConstraints _streamReadConstraints() {
+        return _streamReadConstraints;
+    }
+
     /*
     /**********************************************************************
     /* Base64 handling support

@@ -134,7 +134,8 @@ public class JsonFactory
      * factory instance.
      */
     public JsonFactory() {
-        super(DEFAULT_JSON_PARSER_FEATURE_FLAGS, DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
+        super(StreamReadConstraints.defaults(),
+                DEFAULT_JSON_PARSER_FEATURE_FLAGS, DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
         _characterEscapes = null;
         _maximumNonEscapedChar = 0; // disabled
@@ -350,8 +351,8 @@ public class JsonFactory
     }
 
     protected IOContext _createNonBlockingContext(Object srcRef) {
-        return new IOContext(_getBufferRecycler(),
-                ContentReference.rawReference(srcRef), false);
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
+                ContentReference.rawReference(srcRef), false, JsonEncoding.UTF8);
     }
 
     /*

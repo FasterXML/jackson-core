@@ -3,6 +3,7 @@ package tools.jackson.core.io;
 import java.io.*;
 
 import tools.jackson.core.JsonEncoding;
+import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.util.BufferRecycler;
 
 public class TestMergedStream
@@ -10,8 +11,9 @@ public class TestMergedStream
 {
     public void testSimple() throws Exception
     {
-        BufferRecycler rec = new BufferRecycler();
-        IOContext ctxt = new IOContext(rec, ContentReference.UNKNOWN_CONTENT, false);
+        IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
+                new BufferRecycler(),
+                ContentReference.UNKNOWN_CONTENT, false, JsonEncoding.UTF8);
         // bit complicated; must use recyclable buffer...
         byte[] first = ctxt.allocReadIOBuffer();
         System.arraycopy("ABCDE".getBytes("UTF-8"), 0, first, 99, 5);

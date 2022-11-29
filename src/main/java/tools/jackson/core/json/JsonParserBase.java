@@ -237,14 +237,16 @@ public abstract class JsonParserBase
          */
         try {
             if (expType == NR_BIGDECIMAL) {
-                _numberBigDecimal = _textBuffer.contentsAsDecimal();
+                _numberBigDecimal = _textBuffer.contentsAsDecimal(_streamReadConstraints);
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+                _numberFloat = _textBuffer.contentsAsFloat(_streamReadConstraints,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
-                _numberDouble = _textBuffer.contentsAsDouble(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+                _numberDouble = _textBuffer.contentsAsDouble(_streamReadConstraints,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
             }
         } catch (NumberFormatException nex) {

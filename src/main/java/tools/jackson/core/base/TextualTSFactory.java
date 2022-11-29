@@ -26,8 +26,9 @@ public abstract class TextualTSFactory
     /**********************************************************************
      */
 
-    protected TextualTSFactory(int formatPF, int formatGF) {
-        super(formatPF, formatGF);
+    protected TextualTSFactory(StreamReadConstraints src,
+            int formatPF, int formatGF) {
+        super(src, formatPF, formatGF);
     }
 
     /**

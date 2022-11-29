@@ -9,7 +9,9 @@ import tools.jackson.core.json.JsonFactory;
 public class NumberOverflowTest
     extends tools.jackson.core.BaseTest
 {
-    private final JsonFactory FACTORY = new JsonFactory();
+    private final JsonFactory FACTORY = JsonFactory.builder()
+            .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(1000000).build())
+            .build();
 
     // NOTE: this should be long enough to trigger perf problems
     private final static int BIG_NUM_LEN = 199999;
@@ -112,7 +114,7 @@ public class NumberOverflowTest
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;
-            JsonParser p = createParser(mode, doc);
+            JsonParser p = createParser(FACTORY, mode, doc);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             double d = p.getDoubleValue();
@@ -127,7 +129,7 @@ public class NumberOverflowTest
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;
-            JsonParser p = createParser(mode, doc);
+            JsonParser p = createParser(FACTORY, mode, doc);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             float f = p.getFloatValue();

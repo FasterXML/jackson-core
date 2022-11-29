@@ -6,11 +6,9 @@ import tools.jackson.core.*;
 import tools.jackson.core.filter.FilteringGeneratorDelegate;
 import tools.jackson.core.filter.JsonPointerBasedFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
-import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.UTF8JsonGenerator;
-import tools.jackson.core.util.BufferRecycler;
 
 public class UTF8GeneratorTest extends BaseTest
 {
@@ -19,8 +17,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(new BufferRecycler(),
-                ContentReference.rawReference(bytes), true);
+        IOContext ioc = ioContextForTests(bytes);
         JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"');

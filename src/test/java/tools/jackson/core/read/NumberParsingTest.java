@@ -21,8 +21,14 @@ import tools.jackson.core.json.JsonReadFeature;
 public class NumberParsingTest
     extends tools.jackson.core.BaseTest
 {
+    private final static JsonFactory VANILLA_F = JsonFactory.builder()
+            // 28-Nov-2022, tatu: Uses rather long numbers, need to tweak
+            .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(5000).build())
+            .build();
+
     protected TokenStreamFactory jsonFactory() {
-        return sharedStreamFactory();
+        return VANILLA_F;
+
     }
 
     /*
@@ -41,7 +47,7 @@ public class NumberParsingTest
 
     private void _testSimpleBoolean(int mode)
     {
-        JsonParser p = createParser(mode, "[ true ]");
+        JsonParser p = createParser(jsonFactory(), mode, "[ true ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertEquals(true, p.getBooleanValue());
@@ -68,7 +74,7 @@ public class NumberParsingTest
     private void _testSimpleInt(int EXP_I, int mode)
     {
         String DOC = "[ "+EXP_I+" ]";
-        JsonParser p = createParser(mode, DOC);
+        JsonParser p = createParser(jsonFactory(), mode, DOC);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
@@ -110,7 +116,7 @@ public class NumberParsingTest
         p.close();
 
         DOC = String.valueOf(EXP_I);
-        p = createParser(mode, DOC + " "); // DataInput requires separator
+        p = createParser(jsonFactory(), mode, DOC + " "); // DataInput requires separator
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertTrue(p.isExpectedNumberIntToken());
         assertEquals(DOC, p.getText());
@@ -125,13 +131,13 @@ public class NumberParsingTest
 
         // and finally, coercion from double to int; couple of variants
         DOC = String.valueOf(EXP_I)+".0";
-        p = createParser(mode, DOC + " ");
+        p = createParser(jsonFactory(), mode, DOC + " ");
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertFalse(p.isExpectedNumberIntToken());
         assertEquals(EXP_I, p.getValueAsInt());
         p.close();
 
-        p = createParser(mode, DOC + " ");
+        p = createParser(jsonFactory(), mode, DOC + " ");
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(EXP_I, p.getValueAsInt(0));
         p.close();
@@ -142,7 +148,7 @@ public class NumberParsingTest
         // let's test with readers and streams, separate code paths:
         for (int mode : ALL_MODES) {
             String DOC = "[ "+Integer.MAX_VALUE+","+Integer.MIN_VALUE+" ]";
-            JsonParser p = createParser(mode, DOC);
+            JsonParser p = createParser(jsonFactory(), mode, DOC);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.INT, p.getNumberType());
@@ -253,7 +259,7 @@ public class NumberParsingTest
     {
         long EXP_L = 12345678907L;
         
-        JsonParser p = createParser(mode, "[ "+EXP_L+" ]");
+        JsonParser p = createParser(jsonFactory(), mode, "[ "+EXP_L+" ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         // beyond int, should be long
@@ -541,7 +547,7 @@ public class NumberParsingTest
         }) {
             final String DOC = "[ "+asText+" ]";
 
-            JsonParser p = createParser(mode, DOC);
+            JsonParser p = createParser(jsonFactory(), mode, DOC);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             final BigDecimal exp = new BigDecimal(asText);
@@ -709,16 +715,16 @@ public class NumberParsingTest
             input.append(1);
         }
         final String DOC = input.toString();
-        JsonFactory f = new JsonFactory();
-        _testIssue160LongNumbers(f, DOC, false);
-        _testIssue160LongNumbers(f, DOC, true);
+        _testIssue160LongNumbers(DOC, false);
+        _testIssue160LongNumbers(DOC, true);
     }
 
-    private void _testIssue160LongNumbers(JsonFactory f, String doc, boolean useStream)
+    private void _testIssue160LongNumbers(String doc, boolean useStream)
     {
+        TokenStreamFactory f = jsonFactory();
         JsonParser p = useStream
-                ? jsonFactory().createParser(ObjectReadContext.empty(), utf8Bytes(doc))
-                        : jsonFactory().createParser(ObjectReadContext.empty(), doc);
+                ? f.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
+                        : f.createParser(ObjectReadContext.empty(), doc);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         BigInteger v = p.getBigIntegerValue();
         assertNull(p.nextToken());

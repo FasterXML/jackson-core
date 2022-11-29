@@ -1,20 +1,18 @@
 package tools.jackson.core.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+
 import tools.jackson.core.BaseTest;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.ObjectReadContext;
-import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.ReaderBasedJsonParser;
 import tools.jackson.core.json.UTF8StreamJsonParser;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
-
-import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Unit tests for class {@link JsonParserSequence}.
@@ -24,10 +22,8 @@ import java.io.InputStream;
 @SuppressWarnings("resource")
 public class JsonParserSequenceTest extends BaseTest
 {
-    @Test
     public void testClose() throws IOException {
-        IOContext ioContext = new IOContext(new BufferRecycler(),
-                ContentReference.rawReference(this), true);
+        IOContext ioContext = ioContextForTests(this);
         ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(
                 ObjectReadContext.empty(),
                 ioContext,
@@ -42,11 +38,9 @@ public class JsonParserSequenceTest extends BaseTest
         assertNull(jsonParserSequence.nextToken());
     }
 
-    @Test
     public void testSkipChildren() throws IOException {
         JsonParser[] jsonParserArray = new JsonParser[3];
-        IOContext ioContext = new IOContext(new BufferRecycler(),
-                ContentReference.rawReference(jsonParserArray), true);
+        IOContext ioContext = ioContextForTests(this);
         byte[] byteArray = new byte[8];
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray, 0, (byte) 58);
         UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(ObjectReadContext.empty(),

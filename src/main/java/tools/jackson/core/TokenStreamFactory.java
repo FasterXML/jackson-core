@@ -234,16 +234,18 @@ public abstract class TokenStreamFactory
      * and this reuse only works within context of a single
      * factory instance.
      *
+     * @param src StreamReadConstraints to use with parsers factory creates
      * @param formatReadFeatures Bitmask of format-specific read features enabled
      * @param formatWriteFeatures Bitmask of format-specific write features enabled
      */
-    protected TokenStreamFactory(int formatReadFeatures, int formatWriteFeatures) {
+    protected TokenStreamFactory(StreamReadConstraints src,
+            int formatReadFeatures, int formatWriteFeatures) {
+        _streamReadConstraints = src;
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
         _formatReadFeatures = formatReadFeatures;
         _formatWriteFeatures = formatWriteFeatures;
-        _streamReadConstraints = null;
     }
 
     /**
@@ -259,12 +261,12 @@ public abstract class TokenStreamFactory
      */
     protected TokenStreamFactory(TSFBuilder<?,?> baseBuilder)
     {
+        _streamReadConstraints = baseBuilder._streamReadConstraints;
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
         _streamReadFeatures = baseBuilder.streamReadFeaturesMask();
         _streamWriteFeatures = baseBuilder.streamWriteFeaturesMask();
         _formatReadFeatures = baseBuilder.formatReadFeaturesMask();
         _formatWriteFeatures = baseBuilder.formatWriteFeaturesMask();
-        _streamReadConstraints = baseBuilder._streamReadConstraints;
     }
 
     /**
@@ -275,12 +277,12 @@ public abstract class TokenStreamFactory
      */
     protected TokenStreamFactory(TokenStreamFactory src)
     {
+        _streamReadConstraints = src._streamReadConstraints;
         _factoryFeatures = src._factoryFeatures;
         _streamReadFeatures = src._streamReadFeatures;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatReadFeatures = src._formatReadFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
-        _streamReadConstraints = src._streamReadConstraints;
     }
 
     /**
@@ -1187,7 +1189,8 @@ public abstract class TokenStreamFactory
      * @return Context constructed
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(), contentRef, resourceManaged, null);
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef,
+                resourceManaged, null);
     }
 
     /**
@@ -1202,7 +1205,8 @@ public abstract class TokenStreamFactory
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged,
             JsonEncoding enc) {
-        return new IOContext(_getBufferRecycler(), contentRef, resourceManaged, enc);
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef,
+                resourceManaged, enc);
     }
 
     /**

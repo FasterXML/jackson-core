@@ -39,7 +39,9 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
 
     // // // Construction
 
-    protected TSFBuilder(int formatReadF, int formatWriteF) {
+    protected TSFBuilder(StreamReadConstraints src,
+            int formatReadF, int formatWriteF) {
+        _streamReadConstraints = src;
         _factoryFeatures = TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = TokenStreamFactory.DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -49,16 +51,19 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
 
     protected TSFBuilder(TokenStreamFactory base)
     {
-        this(base._factoryFeatures,
+        this(base._streamReadConstraints,
+                base._factoryFeatures,
                 base._streamReadFeatures, base._streamWriteFeatures,
                 base._formatReadFeatures, base._formatWriteFeatures);
         _streamReadConstraints = base._streamReadConstraints;
     }
 
-    protected TSFBuilder(int factoryFeatures,
+    protected TSFBuilder(StreamReadConstraints src,
+            int factoryFeatures,
             int streamReadFeatures, int streamWriteFeatures,
             int formatReadFeatures, int formatWriteFeatures)
     {
+        _streamReadConstraints = src;
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = streamReadFeatures;
         _streamWriteFeatures = streamWriteFeatures;

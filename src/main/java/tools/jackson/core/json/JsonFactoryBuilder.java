@@ -26,7 +26,8 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
     protected char _quoteChar = JsonFactory.DEFAULT_QUOTE_CHAR;
 
     public JsonFactoryBuilder() {
-        super(JsonFactory.DEFAULT_JSON_PARSER_FEATURE_FLAGS,
+        super(StreamReadConstraints.defaults(),
+                JsonFactory.DEFAULT_JSON_PARSER_FEATURE_FLAGS,
                 JsonFactory.DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR;
         _maximumNonEscapedChar = 0;

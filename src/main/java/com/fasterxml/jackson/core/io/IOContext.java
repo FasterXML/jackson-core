@@ -112,19 +112,18 @@ public class IOContext
     /**
      * Main constructor to use.
      *
-     * @param streamReadConstraints constraints for streaming reads
+     * @param src constraints for streaming reads
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
      * @since 2.15
      */
-    public IOContext(StreamReadConstraints streamReadConstraints, BufferRecycler br,
+    public IOContext(StreamReadConstraints src, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
     {
-        _streamReadConstraints = streamReadConstraints == null ?
-                StreamReadConstraints.builder().build() :
-                streamReadConstraints;
+        _streamReadConstraints = (src == null) ?
+                StreamReadConstraints.defaults() : src;
         _bufferRecycler = br;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();

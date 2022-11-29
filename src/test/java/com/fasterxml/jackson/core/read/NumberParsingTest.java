@@ -709,7 +709,7 @@ public class NumberParsingTest
         }
         final String DOC = input.toString();
         JsonFactory f = JsonFactory.builder()
-                .streamReadConstraints(StreamReadConstraints.builder().withMaxNumberLength(10000).build())
+                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(10000).build())
                 .build();
         _testIssue160LongNumbers(f, DOC, false);
         _testIssue160LongNumbers(f, DOC, true);

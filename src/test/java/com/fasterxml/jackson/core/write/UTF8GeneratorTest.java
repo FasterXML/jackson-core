@@ -1,6 +1,11 @@
 package com.fasterxml.jackson.core.write;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -183,6 +188,43 @@ public class UTF8GeneratorTest extends BaseTest
         }
     }
 
+    public void testWriteLargeIntegerDataOutput() throws Exception
+    {
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 2500; i++) {
+            sb.append(i % 10);
+        }
+        final BigInteger bigInt = new BigInteger(sb.toString());
+        try(
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                DataOutputStream dos = new DataOutputStream(out);
+                JsonGenerator gen = JSON_F.createGenerator((DataOutput) dos);
+        ) {
+            gen.writeStartObject();
+            gen.writeFieldName("field");
+            gen.writeNumber(bigInt);
+            gen.writeEndObject();
+            gen.close();
+
+            JsonFactory jsonFactory = JsonFactory.builder()
+                    .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
+                    .build();
+            try(
+                    ByteArrayInputStream bis = new ByteArrayInputStream(out.toByteArray());
+                    DataInputStream dis = new DataInputStream(bis);
+                    JsonParser p = jsonFactory.createParser((DataInput) dis)
+            ) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                assertEquals("field", p.getCurrentName());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(bigInt, p.getBigIntegerValue());
+                assertToken(JsonToken.END_OBJECT, p.nextToken());
+                assertNull(p.nextToken());
+            }
+        }
+    }
+
     public void testWriteLargeDecimalByteArray() throws Exception
     {
         final StringBuilder sb = new StringBuilder("0.");
@@ -236,6 +278,43 @@ public class UTF8GeneratorTest extends BaseTest
                     .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
                     .build();
             try(JsonParser p = jsonFactory.createParser(out.toString())) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                assertEquals("field", p.getCurrentName());
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(bigDec, p.getDecimalValue());
+                assertToken(JsonToken.END_OBJECT, p.nextToken());
+                assertNull(p.nextToken());
+            }
+        }
+    }
+
+    public void testWriteLargeDecimalDataOutput() throws Exception
+    {
+        final StringBuilder sb = new StringBuilder("0.");
+        for (int i = 0; i < 2500; i++) {
+            sb.append(i % 10);
+        }
+        final BigDecimal bigDec = new BigDecimal(sb.toString());
+        try(
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                DataOutputStream dos = new DataOutputStream(out);
+                JsonGenerator gen = JSON_F.createGenerator((DataOutput) dos);
+        ) {
+            gen.writeStartObject();
+            gen.writeFieldName("field");
+            gen.writeNumber(bigDec);
+            gen.writeEndObject();
+            gen.close();
+
+            JsonFactory jsonFactory = JsonFactory.builder()
+                    .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
+                    .build();
+            try(
+                    ByteArrayInputStream bis = new ByteArrayInputStream(out.toByteArray());
+                    DataInputStream dis = new DataInputStream(bis);
+                    JsonParser p = jsonFactory.createParser((DataInput) dis)
+            ) {
                 assertToken(JsonToken.START_OBJECT, p.nextToken());
                 assertToken(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("field", p.getCurrentName());

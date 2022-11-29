@@ -33,6 +33,7 @@ jobs:
     outputs:
       hashes: ${{ steps.hash.outputs.hashes }}
       artifact_name: ${{ steps.hash.outputs.artifact_name }}
+      project_version: ${{ steps.projectVersion.outputs.version }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
@@ -66,7 +67,10 @@ jobs:
       # https://github.com/slsa-framework/slsa-github-generator/issues/1225
       - name: Generate hash
         id: hash
-        if: github.event_name != 'pull_request' && matrix.java_version == '8'
+        if: |
+          github.event_name != 'pull_request' &&
+          matrix.java_version == '8' &&
+          endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
         run: |
           ARTIFACT_NAME="$( \
             ./mvnw help:evaluate \
@@ -97,6 +101,9 @@ jobs:
       actions: read # To read the workflow path.
       id-token: write # To sign the provenance.
       contents: write # To add assets to a release.
+    if: |
+      github.event_name != 'pull_request' &&
+      endsWith(needs.build.outputs.project_version, '-SNAPSHOT')
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.2.2
     with:
       base64-subjects: "${{ needs.build.outputs.hashes }}"

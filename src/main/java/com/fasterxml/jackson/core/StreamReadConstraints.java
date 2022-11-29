@@ -20,7 +20,7 @@ public class StreamReadConstraints
         new StreamReadConstraints(DEFAULT_MAX_NUM_LEN);
 
     public static final class Builder {
-        public int maxNumLen;
+        private int maxNumLen;
 
         /**
          * Sets the maximum number length (in chars or bytes, depending on input context).

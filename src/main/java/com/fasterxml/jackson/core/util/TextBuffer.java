@@ -50,8 +50,6 @@ public final class TextBuffer
 
     private final BufferRecycler _allocator;
 
-    private final StreamReadConstraints _streamReadConstraints;
-
     /*
     /**********************************************************
     /* Shared input buffers
@@ -123,16 +121,13 @@ public final class TextBuffer
     /**********************************************************
      */
 
-    public TextBuffer(StreamReadConstraints streamReadConstraints, BufferRecycler allocator) {
-        _streamReadConstraints = streamReadConstraints == null ?
-                StreamReadConstraints.builder().build() :
-                streamReadConstraints;
+    public TextBuffer( BufferRecycler allocator) {
         _allocator = allocator;
     }
 
     // @since 2.10
-    protected TextBuffer(StreamReadConstraints streamReadConstraints, BufferRecycler allocator, char[] initialSegment) {
-        this(streamReadConstraints, allocator);
+    protected TextBuffer(BufferRecycler allocator, char[] initialSegment) {
+        this(allocator);
         _currentSegment = initialSegment;
         _currentSize = initialSegment.length;
         _inputStart = -1;
@@ -150,7 +145,7 @@ public final class TextBuffer
      * @since 2.10
      */
     public static TextBuffer fromInitial(char[] initialSegment) {
-        return new TextBuffer(null, null, initialSegment);
+        return new TextBuffer(null, initialSegment);
     }
 
     /**
@@ -492,54 +487,35 @@ public final class TextBuffer
      * @return Buffered text value parsed as a {@link BigDecimal}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
+     *
+     * @since 2.15
      */
-    public BigDecimal contentsAsDecimal() throws NumberFormatException
+    public BigDecimal contentsAsDecimal(StreamReadConstraints constraints) throws NumberFormatException
     {
         // Already got a pre-cut array?
         if (_resultArray != null) {
-            if (_streamReadConstraints.getMaxNumberLength() >= 0 && _resultArray.length > _streamReadConstraints.getMaxNumberLength()) {
-                throw new NumberFormatException(
-                        "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
-            }
+            constraints.validateFPLength(_resultArray.length);
             return NumberInput.parseBigDecimal(_resultArray);
         }
         // Or a shared buffer?
         if ((_inputStart >= 0) && (_inputBuffer != null)) {
-            if (_streamReadConstraints.getMaxNumberLength() >= 0 && _inputLen > _streamReadConstraints.getMaxNumberLength()) {
-                throw new NumberFormatException(
-                        "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
-            }
+            constraints.validateFPLength(_inputLen);
             return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen);
         }
         // Or if not, just a single buffer (the usual case)
         if ((_segmentSize == 0) && (_currentSegment != null)) {
-            if (_streamReadConstraints.getMaxNumberLength() >= 0 && _currentSize > _streamReadConstraints.getMaxNumberLength()) {
-                throw new NumberFormatException(
-                        "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
-            }
+            constraints.validateFPLength(_currentSize);
             return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize);
         }
         // If not, let's just get it aggregated...
         final char[] numArray = contentsAsArray();
-        if (_streamReadConstraints.getMaxNumberLength() >= 0 && numArray.length > _streamReadConstraints.getMaxNumberLength()) {
-            throw new NumberFormatException(
-                    "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
-        }
+        constraints.validateFPLength(numArray.length);
         return NumberInput.parseBigDecimal(numArray);
     }
 
-    /**
-     * Convenience method for converting contents of the buffer
-     * into a Double value.
-     *
-     * @return Buffered text value parsed as a {@link Double}, if possible
-     *
-     * @throws NumberFormatException if contents are not a valid Java number
-     * @deprecated use {@link #contentsAsDouble(boolean)}
-     */
-    @Deprecated
-    public double contentsAsDouble() throws NumberFormatException {
-        return contentsAsDouble(false);
+    @Deprecated // @since 2.15
+    public BigDecimal contentsAsDecimal() throws NumberFormatException {
+        return contentsAsDecimal(StreamReadConstraints.defaults());
     }
 
     /**
@@ -550,29 +526,33 @@ public final class TextBuffer
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
-     * @since 2.14
+     *
+     * @since 2.15
      */
-    public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
+    public double contentsAsDouble(final StreamReadConstraints constraints,
+            final boolean useFastParser) throws NumberFormatException {
         final String numStr = contentsAsString();
-        if (_streamReadConstraints.getMaxNumberLength() >= 0 && numStr.length() > _streamReadConstraints.getMaxNumberLength()) {
-            throw new NumberFormatException(
-                    "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
-        }
+        constraints.validateFPLength(numStr.length());
         return NumberInput.parseDouble(numStr, useFastParser);
     }
 
-    /**
-     * Convenience method for converting contents of the buffer
-     * into a Float value.
-     *
-     * @return Buffered text value parsed as a {@link Float}, if possible
-     *
-     * @throws NumberFormatException if contents are not a valid Java number
-     * @since 2.14
-     * @deprecated use {@link #contentsAsFloat(boolean)}
-     */
-    @Deprecated
+    @Deprecated // @since 2.14
+    public double contentsAsDouble() throws NumberFormatException {
+        return contentsAsDouble(false);
+    }
+
+    @Deprecated // @since 2.15
+    public double contentsAsDouble(boolean useFastParser) throws NumberFormatException {
+        return contentsAsDouble(StreamReadConstraints.defaults(), false);
+    }
+
+    @Deprecated // @since 2.14
     public float contentsAsFloat() throws NumberFormatException {
+        return contentsAsFloat(false);
+    }
+
+    @Deprecated // @since 2.15
+    public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
         return contentsAsFloat(false);
     }
 
@@ -584,14 +564,12 @@ public final class TextBuffer
      * @return Buffered text value parsed as a {@link Float}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
-     * @since 2.14
+     * @since 2.15
      */
-    public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
+    public float contentsAsFloat(final StreamReadConstraints constraints,
+            final boolean useFastParser) throws NumberFormatException {
         final String numStr = contentsAsString();
-        if (_streamReadConstraints.getMaxNumberLength() >= 0 && numStr.length() > _streamReadConstraints.getMaxNumberLength()) {
-            throw new NumberFormatException(
-                    "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
-        }
+        constraints.validateFPLength(numStr.length());
         return NumberInput.parseFloat(numStr, useFastParser);
     }
 

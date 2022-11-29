@@ -201,7 +201,7 @@ public class IOContext
      */
 
     public TextBuffer constructTextBuffer() {
-        return new TextBuffer(_streamReadConstraints, _bufferRecycler);
+        return new TextBuffer(_bufferRecycler);
     }
 
     /**

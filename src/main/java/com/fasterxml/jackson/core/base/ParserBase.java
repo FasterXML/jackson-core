@@ -38,7 +38,12 @@ public abstract class ParserBase extends ParserMinimalBase
      * I/O context for this reader. It handles buffer allocation
      * for the reader.
      */
-    final protected IOContext _ioContext;
+    protected final IOContext _ioContext;
+
+    /**
+     * @since 2.15
+     */
+    protected final StreamReadConstraints _streamReadConstraints;
 
     /**
      * Flag that indicates whether parser is closed or not. Gets
@@ -250,6 +255,7 @@ public abstract class ParserBase extends ParserMinimalBase
     protected ParserBase(IOContext ctxt, int features) {
         super(features);
         _ioContext = ctxt;
+        _streamReadConstraints = ctxt.streamReadConstraints();
         _textBuffer = ctxt.constructTextBuffer();
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
@@ -904,11 +910,13 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberString = _textBuffer.contentsAsString();
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat(isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
+                _numberFloat = _textBuffer.contentsAsFloat(_streamReadConstraints(),
+                        isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
-                _numberDouble = _textBuffer.contentsAsDouble(isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
+                _numberDouble = _textBuffer.contentsAsDouble(_streamReadConstraints(),
+                        isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
             }
         } catch (NumberFormatException nex) {
@@ -938,16 +946,12 @@ public abstract class ParserBase extends ParserMinimalBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                    if (getMaxNumLen() >= 0 && numStr.length() > getMaxNumLen()) {
-                        throw new NumberFormatException("number length exceeds the max number length of " + getMaxNumLen());
-                    }
+                    _streamReadConstraints().validateFPLength(numStr.length());
                     _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {
+                    _streamReadConstraints().validateIntegerLength(numStr.length());
                     // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
-                    if (getMaxNumLen() >= 0 && numStr.length() > getMaxNumLen()) {
-                        throw new NumberFormatException("number length exceeds the max number length of " + getMaxNumLen());
-                    }
                     _numberBigInt = null;
                     _numberString = numStr;
                     _numTypesValid = NR_BIGINT;
@@ -1118,9 +1122,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
-            if (getMaxNumLen() >= 0 && numStr.length() > getMaxNumLen()) {
-                throw new NumberFormatException("number length exceeds the max number length of " + getMaxNumLen());
-            }
+            _streamReadConstraints().validateFPLength(numStr.length());
             _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
@@ -1167,7 +1169,12 @@ public abstract class ParserBase extends ParserMinimalBase
         _numberString = null;
         return _numberBigDecimal;
     }
- 
+
+    @Override // @since 2.15
+    protected StreamReadConstraints _streamReadConstraints() {
+        return _streamReadConstraints;
+    }
+
     /*
     /**********************************************************
     /* Internal/package methods: Error reporting
@@ -1404,9 +1411,4 @@ public abstract class ParserBase extends ParserMinimalBase
 
     // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
-
-    protected int getMaxNumLen() {
-        return _ioContext.streamReadConstraints().getMaxNumberLength();
-    }
-
 }

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.util;
 
-import com.fasterxml.jackson.core.io.BigDecimalParser;
-
 public class TestTextBuffer
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -11,7 +9,7 @@ public class TestTextBuffer
      */
     public void testSimple()
     {
-        TextBuffer tb = new TextBuffer(null, new BufferRecycler());
+        TextBuffer tb = new TextBuffer(new BufferRecycler());
         tb.append('a');
         tb.append(new char[] { 'X', 'b' }, 1, 1);
         tb.append("c", 0, 1);
@@ -26,7 +24,7 @@ public class TestTextBuffer
 
     public void testLonger()
     {
-        TextBuffer tb = new TextBuffer(null, null);
+        TextBuffer tb = new TextBuffer(null);
         for (int i = 0; i < 2000; ++i) {
             tb.append("abc", 0, 3);
         }
@@ -50,7 +48,7 @@ public class TestTextBuffer
         final String EXP = "a" + STR + "c";
  
         // ok: first test with String:
-        TextBuffer tb = new TextBuffer(null, new BufferRecycler());
+        TextBuffer tb = new TextBuffer(new BufferRecycler());
         tb.append('a');
         tb.append(STR, 0, len);
         tb.append('c');
@@ -58,7 +56,7 @@ public class TestTextBuffer
         assertEquals(EXP, tb.contentsAsString());
  
         // then char[]
-        tb = new TextBuffer(null, new BufferRecycler());
+        tb = new TextBuffer(new BufferRecycler());
         tb.append('a');
         tb.append(STR.toCharArray(), 0, len);
         tb.append('c');
@@ -69,7 +67,7 @@ public class TestTextBuffer
     // [core#152]
     public void testExpand()
     {
-        TextBuffer tb = new TextBuffer(null, new BufferRecycler());
+        TextBuffer tb = new TextBuffer(new BufferRecycler());
         char[] buf = tb.getCurrentSegment();
 
         while (buf.length < 500 * 1000) {
@@ -85,7 +83,7 @@ public class TestTextBuffer
 
     // [core#182]
     public void testEmpty() {
-        TextBuffer tb = new TextBuffer(null, new BufferRecycler());
+        TextBuffer tb = new TextBuffer(new BufferRecycler());
         tb.resetWithEmpty();
 
         assertTrue(tb.getTextBuffer().length == 0);
@@ -94,13 +92,13 @@ public class TestTextBuffer
     }
 
     public void testResetWithAndSetCurrentAndReturn() {
-        TextBuffer textBuffer = new TextBuffer(null, null);
+        TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWith('l');
         textBuffer.setCurrentAndReturn(349);
     }
 
     public void testGetCurrentSegment() {
-        TextBuffer textBuffer = new TextBuffer(null, null);
+        TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.emptyAndGetCurrentSegment();
         // 26-Aug-2019, tatu: Value depends on "minimum segment size":
         textBuffer.setCurrentAndReturn(500);
@@ -111,7 +109,7 @@ public class TestTextBuffer
 
     public void testAppendTakingTwoAndThreeInts() {
         BufferRecycler bufferRecycler = new BufferRecycler();
-        TextBuffer textBuffer = new TextBuffer(null, bufferRecycler);
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
         textBuffer.ensureNotShared();
         char[] charArray = textBuffer.getTextBuffer();
         textBuffer.append(charArray, 0, 200);
@@ -122,7 +120,7 @@ public class TestTextBuffer
 
     public void testEnsureNotSharedAndResetWithString() {
         BufferRecycler bufferRecycler = new BufferRecycler();
-        TextBuffer textBuffer = new TextBuffer(null, bufferRecycler);
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
         textBuffer.resetWithString("");
 
         assertFalse(textBuffer.hasTextAsCharacters());
@@ -132,20 +130,9 @@ public class TestTextBuffer
         assertEquals(0, textBuffer.getCurrentSegmentSize());
     }
 
-    public void testContentsAsDecimalThrowsNumberFormatException() {
-        TextBuffer textBuffer = new TextBuffer(null, null);
-
-        try {
-            textBuffer.contentsAsDecimal();
-            fail("Expecting exception: NumberFormatException");
-        } catch(NumberFormatException e) {
-            assertEquals(BigDecimalParser.class.getName(), e.getStackTrace()[0].getClassName());
-        }
-    }
-
     public void testGetTextBufferAndEmptyAndGetCurrentSegmentAndFinishCurrentSegment() {
         BufferRecycler bufferRecycler = new BufferRecycler();
-        TextBuffer textBuffer = new TextBuffer(null, bufferRecycler);
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
         textBuffer.emptyAndGetCurrentSegment();
         textBuffer.finishCurrentSegment();
         textBuffer.getTextBuffer();
@@ -155,7 +142,7 @@ public class TestTextBuffer
 
     public void testGetTextBufferAndAppendTakingCharAndContentsAsArray() {
         BufferRecycler bufferRecycler = new BufferRecycler();
-        TextBuffer textBuffer = new TextBuffer(null, bufferRecycler);
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
         textBuffer.append('(');
         textBuffer.contentsAsArray();
         textBuffer.getTextBuffer();
@@ -165,7 +152,7 @@ public class TestTextBuffer
 
     public void testGetTextBufferAndResetWithString() {
         BufferRecycler bufferRecycler = new BufferRecycler();
-        TextBuffer textBuffer = new TextBuffer(null, bufferRecycler);
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
         textBuffer.resetWithString("");
 
         assertFalse(textBuffer.hasTextAsCharacters());
@@ -177,7 +164,7 @@ public class TestTextBuffer
 
     public void testResetWithString() {
         BufferRecycler bufferRecycler = new BufferRecycler();
-        TextBuffer textBuffer = new TextBuffer(null, bufferRecycler);
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
         textBuffer.ensureNotShared();
         textBuffer.finishCurrentSegment();
 
@@ -189,7 +176,7 @@ public class TestTextBuffer
     }
 
     public void testGetCurrentSegmentSizeResetWith() {
-        TextBuffer textBuffer = new TextBuffer(null, null);
+        TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWith('.');
         textBuffer.resetWith('q');
 
@@ -197,7 +184,7 @@ public class TestTextBuffer
     }
 
     public void testGetSizeFinishCurrentSegmentAndResetWith() {
-        TextBuffer textBuffer = new TextBuffer(null, null);
+        TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWith('.');
         textBuffer.finishCurrentSegment();
         textBuffer.resetWith('q');

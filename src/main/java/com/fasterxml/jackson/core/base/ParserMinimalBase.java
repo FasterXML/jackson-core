@@ -456,9 +456,7 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
-                if (getMaxNumLen() >= 0 && str.length() > getMaxNumLen()) {
-                    throw new NumberFormatException("number length exceeds the max number length of " + getMaxNumLen());
-                }
+                _streamReadConstraints().validateFPLength(str.length());
                 return NumberInput.parseAsDouble(str, defaultValue);
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
@@ -545,6 +543,19 @@ public abstract class ParserMinimalBase extends JsonParser
      * @since 2.3
      */
     protected boolean _hasTextualNull(String value) { return "null".equals(value); }
+
+    /*
+    /**********************************************************************
+    /* Constraints violation checking (2.15)
+    /**********************************************************************
+     */
+
+    /**
+     * @since 2.15
+     */
+    protected StreamReadConstraints _streamReadConstraints() {
+        return StreamReadConstraints.defaults();
+    }
 
     /*
     /**********************************************************
@@ -791,6 +802,4 @@ public abstract class ParserMinimalBase extends JsonParser
             throw new RuntimeException(e);
         }
     }
-
-    protected abstract int getMaxNumLen();
 }

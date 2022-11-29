@@ -13,7 +13,7 @@ import static tools.jackson.core.io.doubleparser.FastDoubleMath.*;
 import static tools.jackson.core.io.doubleparser.FastIntegerMath.fullMultiplication;
 
 /**
- * This class complements {@link FastDoubleMath} with methods for
+ * This class complements {@code FastDoubleMath} with methods for
  * converting {@code FloatingPointLiteral} productions to floats.
  * <p>
  * See {@link JavaDoubleParser} for a description of

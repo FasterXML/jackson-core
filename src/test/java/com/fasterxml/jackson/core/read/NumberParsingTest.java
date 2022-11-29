@@ -708,7 +708,9 @@ public class NumberParsingTest
             input.append(1);
         }
         final String DOC = input.toString();
-        JsonFactory f = new JsonFactory();
+        JsonFactory f = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().withMaxNumberLength(10000).build())
+                .build();
         _testIssue160LongNumbers(f, DOC, false);
         _testIssue160LongNumbers(f, DOC, true);
     }
@@ -716,8 +718,8 @@ public class NumberParsingTest
     private void _testIssue160LongNumbers(JsonFactory f, String doc, boolean useStream) throws Exception
     {
         JsonParser p = useStream
-                ? jsonFactory().createParser(doc.getBytes("UTF-8"))
-                        : jsonFactory().createParser(doc);
+                ? f.createParser(doc.getBytes("UTF-8"))
+                : f.createParser(doc);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         BigInteger v = p.getBigIntegerValue();
         assertNull(p.nextToken());

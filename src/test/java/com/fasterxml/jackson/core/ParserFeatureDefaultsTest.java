@@ -134,6 +134,11 @@ public class ParserFeatureDefaultsTest extends BaseTest
         public BigDecimal getDecimalValue() {
             return null;
         }
+
+        @Override
+        protected int getMaxNumLen() {
+            return -1;
+        }
     }
 
     public void testParserFlagDefaults() throws Exception

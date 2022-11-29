@@ -1978,7 +1978,7 @@ public class JsonFactory
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
         }
-        return new IOContext(_getBufferRecycler(), contentRef, resourceManaged);
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef, resourceManaged);
     }
 
     /**
@@ -1993,7 +1993,7 @@ public class JsonFactory
      */
     @Deprecated // @since 2.13
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(rawContentRef),
                 resourceManaged);
     }
@@ -2011,7 +2011,7 @@ public class JsonFactory
     protected IOContext _createNonBlockingContext(Object srcRef) {
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
-        return new IOContext(_getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(srcRef),
                 false);
     }

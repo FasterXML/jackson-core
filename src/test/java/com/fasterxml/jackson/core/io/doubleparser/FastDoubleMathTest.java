@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 /**
- * Tests class {@link FastDoubleMath}.
+ * Tests class {@code FastDoubleMath}.
  */
 public class FastDoubleMathTest {
     @Test

@@ -102,7 +102,7 @@ public class JsonFactory
          * measure.
          *<p>
          * This setting is enabled by default.
-         * 
+         *
          * @since 2.4
          */
         FAIL_ON_SYMBOL_HASH_OVERFLOW(true),
@@ -144,7 +144,7 @@ public class JsonFactory
             }
             return flags;
         }
-        
+
         private Feature(boolean defaultState) { _defaultState = defaultState; }
 
         @Override
@@ -160,13 +160,13 @@ public class JsonFactory
     /* Constants
     /**********************************************************
      */
-    
+
     /**
      * Name used to identify JSON format
      * (and returned by {@link #getFormatName()}
      */
     public final static String FORMAT_NAME_JSON = "JSON";
-    
+
     /**
      * Bitfield (set of flags) of all factory features that are enabled by default.
      */
@@ -177,7 +177,7 @@ public class JsonFactory
      * by default.
      */
     protected final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
-    
+
     /**
      * Bitfield (set of flags) of all generator features that are enabled
      * by default.
@@ -225,7 +225,7 @@ public class JsonFactory
      * Currently enabled factory features.
      */
     protected int _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
-    
+
     /**
      * Currently enabled parser features.
      */
@@ -274,7 +274,7 @@ public class JsonFactory
      * Separator used between root-level values, if any; null indicates
      * "do not add separator".
      * Default separator is a single space character.
-     * 
+     *
      * @since 2.1
      */
     protected SerializableString _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
@@ -301,7 +301,7 @@ public class JsonFactory
     /* Construction
     /**********************************************************
      */
-    
+
     /**
      * Default constructor used to create factory instances.
      * Creation of a factory instance is a light-weight operation,
@@ -337,6 +337,7 @@ public class JsonFactory
         _generatorFeatures = src._generatorFeatures;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
+        _streamReadConstraints = src._streamReadConstraints;
 
         // JSON-specific
         _characterEscapes = src._characterEscapes;
@@ -361,6 +362,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
+        _streamReadConstraints = b._streamReadConstraints;
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -373,7 +375,7 @@ public class JsonFactory
      * Constructor for subtypes; needed to work around the fact that before 3.0,
      * this factory has cumbersome dual role as generic type as well as actual
      * implementation for json.
-     * 
+     *
      * @param b Builder that contains settings to use
      * @param bogus Argument only needed to separate constructor signature; ignored
      */
@@ -385,6 +387,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
+        _streamReadConstraints = b._streamReadConstraints;
 
         // JSON-specific: need to assign even if not really used
         _characterEscapes = null;
@@ -529,7 +532,7 @@ public class JsonFactory
      *
      * @return Whether access to decoded textual content can be efficiently
      *   accessed using parser method {@code getTextCharacters()}.
-     * 
+     *
      * @since 2.4
      */
     public boolean canUseCharArrays() { return true; }
@@ -627,11 +630,11 @@ public class JsonFactory
      * using {@link JsonParser} constructed by this factory
      * (which typically also implies the same for serialization
      * with {@link JsonGenerator}).
-     * 
+     *
      * @return True if custom codec is needed with parsers and
      *   generators created by this factory; false if a general
      *   {@link ObjectCodec} is enough
-     * 
+     *
      * @since 2.1
      */
     public boolean requiresCustomCodec() {
@@ -826,7 +829,7 @@ public class JsonFactory
      * @param d Decorator to configure for this factory, if any ({@code null} if none)
      *
      * @return This factory instance (to allow call chaining)
-     * 
+     *
      * @deprecated Since 2.10 use {@link JsonFactoryBuilder#inputDecorator(InputDecorator)} instead
      */
     @Deprecated
@@ -857,7 +860,7 @@ public class JsonFactory
     /**
      * Method for enabling specified generator features
      * (check {@link JsonGenerator.Feature} for list of features)
-     * 
+     *
      * @param f Feature to enable
      *
      * @return This factory instance (to allow call chaining)
@@ -904,7 +907,7 @@ public class JsonFactory
     public final boolean isEnabled(StreamWriteFeature f) {
         return (_generatorFeatures & f.mappedFeature().getMask()) != 0;
     }
-    
+
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
@@ -955,7 +958,7 @@ public class JsonFactory
     /**
      * Method that allows overriding String used for separating root-level
      * JSON values (default is single space character)
-     * 
+     *
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
      *
@@ -1020,7 +1023,7 @@ public class JsonFactory
      * the parser, since caller has no access to it.
      *
      * @param f File that contains JSON content to parse
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -1046,7 +1049,7 @@ public class JsonFactory
      * the parser, since caller has no access to it.
      *
      * @param url URL pointing to resource that contains JSON content to parse
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -1075,7 +1078,7 @@ public class JsonFactory
      * For other charsets use {@link #createParser(java.io.Reader)}.
      *
      * @param in InputStream to use for reading JSON content to parse
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -1083,7 +1086,7 @@ public class JsonFactory
         IOContext ctxt = _createContext(_createContentReference(in), false);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
-    
+
     /**
      * Method for constructing parser for parsing
      * the contents accessed via specified Reader.
@@ -1095,7 +1098,7 @@ public class JsonFactory
      * is enabled.
      *
      * @param r Reader to use for reading JSON content to parse
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -1108,7 +1111,7 @@ public class JsonFactory
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -1126,11 +1129,11 @@ public class JsonFactory
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
-     * 
+     *
      * @param data Buffer that contains data to parse
      * @param offset Offset of the first data byte within buffer
      * @param len Length of contents to parse within buffer
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -1150,7 +1153,7 @@ public class JsonFactory
     /**
      * Method for constructing parser for parsing
      * contents of given String.
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -1171,17 +1174,17 @@ public class JsonFactory
     /**
      * Method for constructing parser for parsing
      * contents of given char array.
-     * 
+     *
      * @since 2.4
      */
     @Override
     public JsonParser createParser(char[] content) throws IOException {
         return createParser(content, 0, content.length);
     }
-    
+
     /**
      * Method for constructing parser for parsing contents of given char array.
-     * 
+     *
      * @since 2.4
      */
     @Override
@@ -1294,14 +1297,14 @@ public class JsonFactory
      * Note: there are formats that use fixed encoding (like most binary data formats)
      * and that ignore passed in encoding.
      *
-     * @param out OutputStream to use for writing JSON content 
+     * @param out OutputStream to use for writing JSON content
      * @param enc Character encoding to use
-     * 
+     *
      * @since 2.1
      */
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
-        throws IOException
+            throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ctxt = _createContext(_createContentReference(out), false);
@@ -1318,14 +1321,14 @@ public class JsonFactory
      * encoding of the format (UTF-8 for JSON and most other data formats).
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats).
-     * 
+     *
      * @since 2.1
      */
     @Override
     public JsonGenerator createGenerator(OutputStream out) throws IOException {
         return createGenerator(out, JsonEncoding.UTF8);
     }
-    
+
     /**
      * Method for constructing JSON generator for writing JSON content
      * using specified Writer.
@@ -1336,17 +1339,17 @@ public class JsonFactory
      * feature,
      * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
-     * 
+     *
      * @since 2.1
      *
-     * @param w Writer to use for writing JSON content 
+     * @param w Writer to use for writing JSON content
      */
     @Override
     public JsonGenerator createGenerator(Writer w) throws IOException {
         IOContext ctxt = _createContext(_createContentReference(w), false);
         return _createGenerator(_decorate(w, ctxt), ctxt);
     }
-    
+
     /**
      * Method for constructing JSON generator for writing JSON content
      * to specified file, overwriting contents it might have (or creating
@@ -1360,7 +1363,7 @@ public class JsonFactory
      *
      * @param f File to write contents to
      * @param enc Character encoding to use
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -1375,12 +1378,12 @@ public class JsonFactory
         }
         Writer w = _createWriter(out, enc, ctxt);
         return _createGenerator(_decorate(w, ctxt), ctxt);
-    }    
+    }
 
     /**
      * Method for constructing generator for writing content using specified
      * {@link DataOutput} instance.
-     * 
+     *
      * @since 2.8
      */
     @Override
@@ -1393,7 +1396,7 @@ public class JsonFactory
      * encoding of the format (UTF-8 for JSON and most other data formats).
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats).
-     * 
+     *
      * @since 2.8
      */
     @Override
@@ -1425,7 +1428,7 @@ public class JsonFactory
      * @param f File that contains JSON content to parse
      *
      * @return Parser constructed
-     * 
+     *
      * @throws IOException if parser initialization fails due to I/O (read) problem
      * @throws JsonParseException if parser initialization fails due to content decoding problem
      *
@@ -1539,13 +1542,13 @@ public class JsonFactory
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
-     * 
+     *
      * @param data Buffer that contains data to parse
      * @param offset Offset of the first data byte within buffer
      * @param len Length of contents to parse within buffer
      *
      * @return Parser constructed
-     * 
+     *
      * @throws IOException if parser initialization fails due to I/O (read) problem
      * @throws JsonParseException if parser initialization fails due to content decoding problem
      *
@@ -1597,7 +1600,7 @@ public class JsonFactory
      * Note: there are formats that use fixed encoding (like most binary data formats)
      * and that ignore passed in encoding.
      *
-     * @param out OutputStream to use for writing JSON content 
+     * @param out OutputStream to use for writing JSON content
      * @param enc Character encoding to use
      *
      * @return Generator constructed
@@ -1622,7 +1625,7 @@ public class JsonFactory
      * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
      *
-     * @param out Writer to use for writing JSON content 
+     * @param out Writer to use for writing JSON content
      *
      * @return Generator constructed
      *
@@ -1641,7 +1644,7 @@ public class JsonFactory
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats).
      *
-     * @param out OutputStream to use for writing JSON content 
+     * @param out OutputStream to use for writing JSON content
      *
      * @return Generator constructed
      *
@@ -1713,7 +1716,7 @@ public class JsonFactory
      * @return Actual parser to use
      *
      * @throws IOException if parser initialization fails due to I/O (read) problem
-     * 
+     *
      * @since 2.1
      */
     protected JsonParser _createParser(Reader r, IOContext ctxt) throws IOException {
@@ -1801,7 +1804,7 @@ public class JsonFactory
     /* overridable by sub-classes
     /**********************************************************
      */
-    
+
     /**
      * Overridable factory method that actually instantiates generator for
      * given {@link Writer} and context object.
@@ -1975,7 +1978,7 @@ public class JsonFactory
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
         }
-        return new IOContext(_getBufferRecycler(), contentRef, resourceManaged);
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef, resourceManaged);
     }
 
     /**
@@ -1990,7 +1993,7 @@ public class JsonFactory
      */
     @Deprecated // @since 2.13
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(rawContentRef),
                 resourceManaged);
     }
@@ -2008,7 +2011,7 @@ public class JsonFactory
     protected IOContext _createNonBlockingContext(Object srcRef) {
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
-        return new IOContext(_getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(srcRef),
                 false);
     }

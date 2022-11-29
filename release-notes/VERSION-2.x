@@ -16,7 +16,8 @@ JSON library.
 
 2.15.0 (not yet released)
 
-No changes since 2.14
+- Build uses package type "jar" but still produces valid OSGi bundle
+ (changed needed to keep class timestamps with Reproducible Build)
 
 2.14.1 (21-Nov-2022)
 

@@ -18,7 +18,8 @@ public class UTF8GeneratorTest extends BaseTest
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(new BufferRecycler(),
+        IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
+                new BufferRecycler(),
                 ContentReference.rawReference(bytes), true);
         JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"');
         String str = "Natuurlijk is alles gelukt en weer een tevreden klant\uD83D\uDE04";

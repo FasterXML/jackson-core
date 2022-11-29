@@ -30,7 +30,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * by default.
      */
     protected final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
-    
+
     /**
      * Bitfield (set of flags) of all generator features that are enabled
      * by default.
@@ -76,7 +76,14 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * additional processing on output during content generation.
      */
     protected OutputDecorator _outputDecorator;
-    
+
+    /**
+     * Optional StreamReadConfig.
+     *
+     * @since 2.15
+     */
+    protected StreamReadConstraints _streamReadConstraints;
+
     /*
     /**********************************************************************
     /* Construction
@@ -95,6 +102,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     {
         this(base._factoryFeatures,
                 base._parserFeatures, base._generatorFeatures);
+        _streamReadConstraints = base._streamReadConstraints;
     }
 
     protected TSFBuilder(int factoryFeatures,
@@ -181,7 +189,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _streamWriteFeatures &= ~f.mappedFeature().getMask();
         return _this();
     }
-    
+
     public B disable(StreamWriteFeature first, StreamWriteFeature... other) {
         _streamWriteFeatures &= ~first.mappedFeature().getMask();
         for (StreamWriteFeature f : other) {
@@ -222,7 +230,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     public B configure(JsonReadFeature f, boolean state) {
         return _failNonJSON(f);
     }
-    
+
     private B _failNonJSON(Object feature) {
         throw new IllegalArgumentException("Feature "+feature.getClass().getName()
                 +"#"+feature.toString()+" not supported for non-JSON backend");
@@ -259,6 +267,18 @@ public abstract class TSFBuilder<F extends JsonFactory,
 
     public B outputDecorator(OutputDecorator dec) {
         _outputDecorator = dec;
+        return _this();
+    }
+
+    /**
+     * Sets the constraints for streaming reads.
+     *
+     * @param streamReadConstraints constraints for streaming reads
+     * @return this factory
+     * @since 2.15
+     */
+    public B streamReadConstraints(StreamReadConstraints streamReadConstraints) {
+        _streamReadConstraints = streamReadConstraints;
         return _this();
     }
 

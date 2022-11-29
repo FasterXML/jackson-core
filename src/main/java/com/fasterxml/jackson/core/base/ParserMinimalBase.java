@@ -384,7 +384,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (t != null) {
             switch (t.id()) {
             case ID_STRING:
-                String str = getText();
+                final String str = getText();
                 if (_hasTextualNull(str)) {
                     return 0;
                 }
@@ -425,7 +425,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (t != null) {
             switch (t.id()) {
             case ID_STRING:
-                String str = getText();
+                final String str = getText();
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
@@ -456,6 +456,7 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
+                _streamReadConstraints().validateFPLength(str.length());
                 return NumberInput.parseAsDouble(str, defaultValue);
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
@@ -542,6 +543,19 @@ public abstract class ParserMinimalBase extends JsonParser
      * @since 2.3
      */
     protected boolean _hasTextualNull(String value) { return "null".equals(value); }
+
+    /*
+    /**********************************************************************
+    /* Constraints violation checking (2.15)
+    /**********************************************************************
+     */
+
+    /**
+     * @since 2.15
+     */
+    protected StreamReadConstraints _streamReadConstraints() {
+        return StreamReadConstraints.defaults();
+    }
 
     /*
     /**********************************************************

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.util;
 
-import com.fasterxml.jackson.core.io.BigDecimalParser;
-
 public class TestTextBuffer
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -130,17 +128,6 @@ public class TestTextBuffer
         textBuffer.ensureNotShared();
 
         assertEquals(0, textBuffer.getCurrentSegmentSize());
-    }
-
-    public void testContentsAsDecimalThrowsNumberFormatException() {
-        TextBuffer textBuffer = new TextBuffer( null);
-
-        try {
-            textBuffer.contentsAsDecimal();
-            fail("Expecting exception: NumberFormatException");
-        } catch(NumberFormatException e) {
-            assertEquals(BigDecimalParser.class.getName(), e.getStackTrace()[0].getClassName());
-        }
     }
 
     public void testGetTextBufferAndEmptyAndGetCurrentSegmentAndFinishCurrentSegment() {

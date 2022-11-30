@@ -156,6 +156,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
         <configuration>
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
           <createDependencyReducedPom>true</createDependencyReducedPom>
+          <minimizeJar>true</minimizeJar>
         </configuration>
         <executions>
           <execution>

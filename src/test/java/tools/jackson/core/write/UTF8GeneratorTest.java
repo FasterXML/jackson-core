@@ -1,6 +1,6 @@
 package tools.jackson.core.write;
 
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.filter.FilteringGeneratorDelegate;

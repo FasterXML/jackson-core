@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.io;
 
-import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
-import ch.randelshofer.fastdoubleparser.JavaBigIntegerParser;
 import ch.randelshofer.fastdoubleparser.JavaDoubleParser;
 import ch.randelshofer.fastdoubleparser.JavaFloatParser;
 
@@ -388,7 +386,7 @@ public final class NumberInput
 
     public static BigDecimal parseBigDecimal(final String s, final boolean useFastParser) throws NumberFormatException {
         return useFastParser ?
-                JavaBigDecimalParser.parseBigDecimal(s) :
+                BigDecimalParser.parseWithFastParser(s) :
                 BigDecimalParser.parse(s);
     }
 
@@ -399,7 +397,7 @@ public final class NumberInput
     public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len, final boolean useFastParser)
             throws NumberFormatException {
         return useFastParser ?
-                JavaBigDecimalParser.parseBigDecimal(ch, off, len) :
+                BigDecimalParser.parseWithFastParser(ch, off, len) :
                 BigDecimalParser.parse(ch, off, len);
     }
 
@@ -409,7 +407,7 @@ public final class NumberInput
 
     public static BigDecimal parseBigDecimal(final char[] ch, final boolean useFastParser) throws NumberFormatException {
         return useFastParser ?
-                JavaBigDecimalParser.parseBigDecimal(ch) :
+                BigDecimalParser.parseWithFastParser(ch, 0, ch.length) :
                 BigDecimalParser.parse(ch);
     }
 
@@ -435,7 +433,7 @@ public final class NumberInput
      */
     public static BigInteger parseBigInteger(final String s, final boolean useFastParser) throws NumberFormatException {
         if (useFastParser) {
-            return JavaBigIntegerParser.parseBigInteger(s);
+            return BigDecimalParser.parseBigIntegerWithFastParser(s);
         } else {
             return parseBigInteger(s);
         }

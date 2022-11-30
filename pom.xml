@@ -132,6 +132,48 @@ tools.jackson.core.*;version=${project.version}
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <configuration>
+          <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+          <createDependencyReducedPom>true</createDependencyReducedPom>
+        </configuration>
+        <executions>
+          <execution>
+            <id>shade-jackson-core</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>ch.randelshofer:fastdoubleparser</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/versions/11/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/11/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/versions/17/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/17/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/versions/19/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/19/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <!-- 16-Nov-2022, tatu: [core#838] add verification of compatibility
            wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
            To be run from CI, but manually with:
@@ -153,6 +195,14 @@ tools.jackson.core.*;version=${project.version}
   </build>
 
   <dependencies>
+    <!-- 29-Nov-2022, tatu: As per [core#843] we now shade in fastdoubleparser
+      -->
+    <dependency>
+      <groupId>ch.randelshofer</groupId>
+      <artifactId>fastdoubleparser</artifactId>
+      <version>0.5.2</version>
+    </dependency>
+    
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.vintage</groupId>

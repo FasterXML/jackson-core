@@ -3,8 +3,8 @@ package tools.jackson.core.io;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import tools.jackson.core.io.doubleparser.JavaDoubleParser;
-import tools.jackson.core.io.doubleparser.JavaFloatParser;
+import ch.randelshofer.fastdoubleparser.JavaDoubleParser;
+import ch.randelshofer.fastdoubleparser.JavaFloatParser;
 
 public final class NumberInput
 {

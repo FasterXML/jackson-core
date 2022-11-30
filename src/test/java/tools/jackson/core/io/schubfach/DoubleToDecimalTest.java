@@ -141,6 +141,7 @@ public class DoubleToDecimalTest {
 
     @Test
     void randomNumberTests() {
-        DoubleToDecimalChecker.randomNumberTests(1_000_000, new Random());
+        // 29-Nov-2022, tatu: Reduce from 1M due to slowness
+        DoubleToDecimalChecker.randomNumberTests(250_000, new Random());
     }
 }

@@ -110,7 +110,9 @@ public class FloatToDecimalTest {
      */
     @Test
     void testInts() {
-        for (int i = 1; i < 1 << P - 1; ++i) {
+        // 29-Nov-2022, tatu: Reduce from original due to slowness
+        // for (int i = 1; i < 1 << P - 1; ++i) {
+        for (int i = 1; i < 1 << P - 1; i += 3) {
             toDec(i);
         }
     }

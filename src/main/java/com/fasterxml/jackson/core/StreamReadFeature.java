@@ -100,7 +100,18 @@ public enum StreamReadFeature
      *
      * @since 2.14
      */
-    USE_FAST_DOUBLE_PARSER(JsonParser.Feature.USE_FAST_DOUBLE_PARSER)
+    USE_FAST_DOUBLE_PARSER(JsonParser.Feature.USE_FAST_DOUBLE_PARSER),
+
+    /**
+     * Feature that determines whether we use the built-in {@link new BigDecimal(String)} code to parse
+     * <code>BigDecimal</code>s or if we use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * instead.
+     *<p>
+     * This setting is disabled by default.
+     *
+     * @since 2.15
+     */
+    USE_FAST_BIG_DECIMAL_PARSER(JsonParser.Feature.USE_FAST_BIG_DECIMAL_PARSER)
 
     ;
 

@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
+import ch.randelshofer.fastdoubleparser.JavaBigIntegerParser;
 import ch.randelshofer.fastdoubleparser.JavaDoubleParser;
 import ch.randelshofer.fastdoubleparser.JavaFloatParser;
 
@@ -380,16 +382,35 @@ public final class NumberInput
         return useFastParser ? JavaFloatParser.parseFloat(s) : Float.parseFloat(s);
     }
 
-    public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {
+    public static BigDecimal parseBigDecimal(final String s) throws NumberFormatException {
         return BigDecimalParser.parse(s);
     }
 
-    public static BigDecimal parseBigDecimal(char[] ch, int off, int len) throws NumberFormatException {
+    public static BigDecimal parseBigDecimal(final String s, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ?
+                JavaBigDecimalParser.parseBigDecimal(s) :
+                BigDecimalParser.parse(s);
+    }
+
+    public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len) throws NumberFormatException {
         return BigDecimalParser.parse(ch, off, len);
     }
 
-    public static BigDecimal parseBigDecimal(char[] ch) throws NumberFormatException {
+    public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len, final boolean useFastParser)
+            throws NumberFormatException {
+        return useFastParser ?
+                JavaBigDecimalParser.parseBigDecimal(ch, off, len) :
+                BigDecimalParser.parse(ch, off, len);
+    }
+
+    public static BigDecimal parseBigDecimal(final char[] ch) throws NumberFormatException {
         return BigDecimalParser.parse(ch);
+    }
+
+    public static BigDecimal parseBigDecimal(final char[] ch, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ?
+                JavaBigDecimalParser.parseBigDecimal(ch) :
+                BigDecimalParser.parse(ch);
     }
 
     /**
@@ -398,10 +419,25 @@ public final class NumberInput
      * @throws NumberFormatException if string cannot be represented by a BigInteger
      * @since v2.14
      */
-    public static BigInteger parseBigInteger(String s) throws NumberFormatException {
+    public static BigInteger parseBigInteger(final String s) throws NumberFormatException {
         if (s.length() > LARGE_INT_SIZE) {
             return BigDecimalParser.parse(s).toBigInteger();
         }
         return new BigInteger(s);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return a BigInteger
+     * @throws NumberFormatException if string cannot be represented by a BigInteger
+     * @since v2.15
+     */
+    public static BigInteger parseBigInteger(final String s, final boolean useFastParser) throws NumberFormatException {
+        if (useFastParser) {
+            return JavaBigIntegerParser.parseBigInteger(s);
+        } else {
+            return parseBigInteger(s);
+        }
     }
 }

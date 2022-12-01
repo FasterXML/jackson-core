@@ -138,6 +138,16 @@ tools.jackson.core.*;version=${project.version}
         <configuration>
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
           <createDependencyReducedPom>true</createDependencyReducedPom>
+          <minimizeJar>true</minimizeJar>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>**/*FromByteArray*</exclude>
+                <exclude>**/*FromCharArray*</exclude>
+              </excludes>
+            </filter>
+          </filters>
         </configuration>
         <executions>
           <execution>

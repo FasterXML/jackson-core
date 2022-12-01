@@ -392,7 +392,7 @@ public final class NumberInput
     /**
      * @param s a string representing a number to parse
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
-     * @param allowParallelParsing whether to use multiple threads when using fast parser
+     * @param allowParallelParsing whether to use parallel processing when using fast parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
@@ -420,7 +420,7 @@ public final class NumberInput
      * @param off the offset to apply when parsing the number in the char array
      * @param len the length of the number in the char array
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
-     * @param allowParallelParsing whether to use multiple threads when using fast parser
+     * @param allowParallelParsing whether to use parallel processing when using fast parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
@@ -445,7 +445,7 @@ public final class NumberInput
     /**
      * @param ch a char array with text that makes up a number
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
-     * @param allowParallelParsing whether to use multiple threads when using fast parser
+     * @param allowParallelParsing whether to use parallel processing when using fast parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
@@ -473,7 +473,7 @@ public final class NumberInput
     /**
      * @param s a string representing a number to parse
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
-     * @param allowParallelParsing whether to use multiple threads when using fast parser
+     * @param allowParallelParsing whether to use parallel processing when using fast parser
      * @return a BigInteger
      * @throws NumberFormatException if string cannot be represented by a BigInteger
      * @since v2.15

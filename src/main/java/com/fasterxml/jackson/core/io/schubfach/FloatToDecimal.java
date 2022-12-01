@@ -146,50 +146,39 @@ final public class FloatToDecimal {
     }
 
     private String toDecimalString(float v) {
-        final int intValue = toDecimal(v);
-        if (intValue == NON_SPECIAL) {
-            return charsToString();
-        } else if (intValue == PLUS_ZERO) {
-            return  "0.0";
-        } else if (intValue == MINUS_ZERO) {
-            return "-0.0";
-        } else if (intValue == PLUS_INF) {
-            return "Infinity";
-        } else if (intValue == MINUS_INF) {
-            return "-Infinity";
-        } else {
-            return "NaN";
+        switch (toDecimal(v)) {
+            case NON_SPECIAL: return charsToString();
+            case PLUS_ZERO: return "0.0";
+            case MINUS_ZERO: return "-0.0";
+            case PLUS_INF: return "Infinity";
+            case MINUS_INF: return "-Infinity";
+            default: return "NaN";
         }
     }
 
     private Appendable appendDecimalTo(float v, Appendable app)
             throws IOException {
-        final int intValue = toDecimal(v);
-        if (intValue == NON_SPECIAL) {
-            char[] chars = new char[index + 1];
-            for (int i = 0; i < chars.length; ++i) {
-                chars[i] = (char) bytes[i];
-            }
-            if (app instanceof StringBuilder) {
-                return ((StringBuilder) app).append(chars);
-            }
-            if (app instanceof StringBuffer) {
-                return ((StringBuffer) app).append(chars);
-            }
-            for (char c : chars) {
-                app.append(c);
-            }
-            return app;
-        } else if (intValue == PLUS_ZERO) {
-            return app.append("0.0");
-        } else if (intValue == MINUS_ZERO) {
-            return app.append("-0.0");
-        } else if (intValue == PLUS_INF) {
-            return app.append("Infinity");
-        } else if (intValue == MINUS_INF) {
-            return app.append("-Infinity");
-        } else {
-            return app.append("NaN");
+        switch (toDecimal(v)) {
+            case NON_SPECIAL:
+                char[] chars = new char[index + 1];
+                for (int i = 0; i < chars.length; ++i) {
+                    chars[i] = (char) bytes[i];
+                }
+                if (app instanceof StringBuilder) {
+                    return ((StringBuilder) app).append(chars);
+                }
+                if (app instanceof StringBuffer) {
+                    return ((StringBuffer) app).append(chars);
+                }
+                for (char c : chars) {
+                    app.append(c);
+                }
+                return app;
+            case PLUS_ZERO: return app.append("0.0");
+            case MINUS_ZERO: return app.append("-0.0");
+            case PLUS_INF: return app.append("Infinity");
+            case MINUS_INF: return app.append("-Infinity");
+            default: return app.append("NaN");
         }
     }
 

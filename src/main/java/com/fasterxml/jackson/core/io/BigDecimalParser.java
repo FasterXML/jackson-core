@@ -64,9 +64,11 @@ public final class BigDecimalParser
         return parse(chars, 0, chars.length);
     }
 
-    public static BigDecimal parseWithFastParser(final String valueStr) {
+    public static BigDecimal parseWithFastParser(final String valueStr, final boolean allowParallelParsing) {
         try {
-            return JavaBigDecimalParser.parseBigDecimal(valueStr);
+            return allowParallelParsing ?
+                    JavaBigDecimalParser.parallelParseBigDecimal(valueStr) :
+                    JavaBigDecimalParser.parseBigDecimal(valueStr);
         } catch (NumberFormatException nfe) {
             final String reportNum = valueStr.length() <= MAX_CHARS_TO_REPORT ?
                     valueStr : valueStr.substring(0, MAX_CHARS_TO_REPORT) + " [truncated]";
@@ -75,9 +77,12 @@ public final class BigDecimalParser
         }
     }
 
-    public static BigDecimal parseWithFastParser(final char[] ch, final int off, final int len) {
+    public static BigDecimal parseWithFastParser(final char[] ch, final int off, final int len,
+                                                 final boolean allowParallelParsing) {
         try {
-            return JavaBigDecimalParser.parseBigDecimal(ch, off, len);
+            return allowParallelParsing ?
+                    JavaBigDecimalParser.parallelParseBigDecimal(ch, off, len) :
+                    JavaBigDecimalParser.parseBigDecimal(ch, off, len);
         } catch (NumberFormatException nfe) {
             final String reportNum = len <= MAX_CHARS_TO_REPORT ?
                     new String(ch, off, len) : new String(ch, off, MAX_CHARS_TO_REPORT) + " [truncated]";
@@ -87,9 +92,11 @@ public final class BigDecimalParser
         }
     }
 
-    public static BigInteger parseBigIntegerWithFastParser(final String valueStr) {
+    public static BigInteger parseBigIntegerWithFastParser(final String valueStr, final boolean allowParallelParsing) {
         try {
-            return JavaBigIntegerParser.parseBigInteger(valueStr);
+            return allowParallelParsing ?
+                    JavaBigIntegerParser.parallelParseBigInteger(valueStr) :
+                    JavaBigIntegerParser.parseBigInteger(valueStr);
         } catch (NumberFormatException nfe) {
             final String reportNum = valueStr.length() <= MAX_CHARS_TO_REPORT ?
                     valueStr : valueStr.substring(0, MAX_CHARS_TO_REPORT) + " [truncated]";

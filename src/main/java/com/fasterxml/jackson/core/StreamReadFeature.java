@@ -111,7 +111,17 @@ public enum StreamReadFeature
      *
      * @since 2.15
      */
-    USE_FAST_BIG_DECIMAL_PARSER(JsonParser.Feature.USE_FAST_BIG_DECIMAL_PARSER)
+    USE_FAST_BIG_DECIMAL_PARSER(JsonParser.Feature.USE_FAST_BIG_DECIMAL_PARSER),
+
+     /**
+      * If <code>USE_FAST_BIG_DECIMAL_PARSER</code> is enabled, then enabling this feature can
+      * further speed up parsing by using multiple threads.
+      *<p>
+      * This setting is disabled by default for backwards compatibility.
+      *
+      * @since 2.15
+      */
+     USE_PARALLEL_FAST_BIG_DECIMAL_PARSER(JsonParser.Feature.USE_PARALLEL_FAST_BIG_DECIMAL_PARSER)
 
     ;
 

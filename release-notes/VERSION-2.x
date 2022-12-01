@@ -19,6 +19,11 @@ JSON library.
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 
+2.14.2 (not yet released)
+
+#854: Backport schubfach changes from v2.15
+ (contributed by @pjfanning)
+
 2.14.1 (21-Nov-2022)
 
 No changes since 2.14.0

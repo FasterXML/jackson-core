@@ -392,15 +392,13 @@ public final class NumberInput
     /**
      * @param s a string representing a number to parse
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
-     * @param allowParallelParsing whether to use parallel processing when using fast parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
      */
-    public static BigDecimal parseBigDecimal(final String s, final boolean useFastParser,
-                                             final boolean allowParallelParsing) throws NumberFormatException {
+    public static BigDecimal parseBigDecimal(final String s, final boolean useFastParser) throws NumberFormatException {
         return useFastParser ?
-                BigDecimalParser.parseWithFastParser(s, allowParallelParsing) :
+                BigDecimalParser.parseWithFastParser(s) :
                 BigDecimalParser.parse(s);
     }
 
@@ -420,16 +418,15 @@ public final class NumberInput
      * @param off the offset to apply when parsing the number in the char array
      * @param len the length of the number in the char array
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
-     * @param allowParallelParsing whether to use parallel processing when using fast parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
      */
     public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len,
-                                             final boolean useFastParser, final boolean allowParallelParsing)
+                                             final boolean useFastParser)
             throws NumberFormatException {
         return useFastParser ?
-                BigDecimalParser.parseWithFastParser(ch, off, len, allowParallelParsing) :
+                BigDecimalParser.parseWithFastParser(ch, off, len) :
                 BigDecimalParser.parse(ch, off, len);
     }
 
@@ -445,15 +442,13 @@ public final class NumberInput
     /**
      * @param ch a char array with text that makes up a number
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
-     * @param allowParallelParsing whether to use parallel processing when using fast parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
      */
-    public static BigDecimal parseBigDecimal(final char[] ch, final boolean useFastParser,
-                                             final boolean allowParallelParsing) throws NumberFormatException {
+    public static BigDecimal parseBigDecimal(final char[] ch, final boolean useFastParser) throws NumberFormatException {
         return useFastParser ?
-                BigDecimalParser.parseWithFastParser(ch, 0, ch.length, allowParallelParsing) :
+                BigDecimalParser.parseWithFastParser(ch, 0, ch.length) :
                 BigDecimalParser.parse(ch);
     }
 
@@ -473,15 +468,13 @@ public final class NumberInput
     /**
      * @param s a string representing a number to parse
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
-     * @param allowParallelParsing whether to use parallel processing when using fast parser
      * @return a BigInteger
      * @throws NumberFormatException if string cannot be represented by a BigInteger
      * @since v2.15
      */
-    public static BigInteger parseBigInteger(final String s, final boolean useFastParser,
-                                             final boolean allowParallelParsing) throws NumberFormatException {
+    public static BigInteger parseBigInteger(final String s, final boolean useFastParser) throws NumberFormatException {
         if (useFastParser) {
-            return BigDecimalParser.parseBigIntegerWithFastParser(s, allowParallelParsing);
+            return BigDecimalParser.parseBigIntegerWithFastParser(s);
         } else {
             return parseBigInteger(s);
         }

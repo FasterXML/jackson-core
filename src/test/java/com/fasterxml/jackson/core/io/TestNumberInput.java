@@ -35,15 +35,13 @@ public class TestNumberInput
         }
         String test1000 = stringBuilder.toString();
         assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000));
-        assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000, true, false));
-        assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000, true, true));
+        assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000, true));
         for (int i = 0; i < 1000; i++) {
             stringBuilder.append(7);
         }
         String test2000 = stringBuilder.toString();
         assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000));
-        assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, true, false));
-        assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, true, true));
+        assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, true));
     }
 }
 

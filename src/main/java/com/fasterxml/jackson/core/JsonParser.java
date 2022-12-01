@@ -357,17 +357,7 @@ public abstract class JsonParser
           *
           * @since 2.15
           */
-          USE_FAST_BIG_DECIMAL_PARSER(false),
-
-         /**
-          * If <code>USE_FAST_BIG_DECIMAL_PARSER</code> is enabled, then enabling this feature can
-          * further speed up parsing by using parallel processing.
-          *<p>
-          * This setting is disabled by default for backwards compatibility.
-          *
-          * @since 2.15
-          */
-          USE_PARALLEL_FAST_BIG_DECIMAL_PARSER(false)
+          USE_FAST_BIG_DECIMAL_PARSER(false)
 
          ;
 

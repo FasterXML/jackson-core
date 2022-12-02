@@ -351,7 +351,7 @@ public abstract class JsonParser
          /**
           * Feature that determines whether we use the built-in {@link new BigDecimal(String)} code to parse
           * <code>BigDecimal</code>s or if we use {@link com.fasterxml.jackson.core.io.doubleparser}
-          * instead.
+          * instead. This feature has a similar effect on <code>BigInteger</code> parsing.
           *<p>
           * This setting is disabled by default for backwards compatibility.
           *

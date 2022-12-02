@@ -7,7 +7,7 @@ public class FastParserNumberParsingTest extends NumberParsingTest
 {
     private final JsonFactory fastFactory = JsonFactory.builder()
             .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
-            .enable(StreamReadFeature.USE_FAST_BIG_DECIMAL_PARSER)
+            .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
             .build();
 
     @Override

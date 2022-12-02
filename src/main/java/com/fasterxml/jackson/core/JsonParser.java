@@ -349,15 +349,15 @@ public abstract class JsonParser
          USE_FAST_DOUBLE_PARSER(false),
 
          /**
-          * Feature that determines whether we use the built-in {@link new BigDecimal(String)} code to parse
-          * <code>BigDecimal</code>s or if we use {@link com.fasterxml.jackson.core.io.doubleparser}
-          * instead. This feature has a similar effect on <code>BigInteger</code> parsing.
+          * Feature that determines whether to use the built-in Java code for parsing
+          * <code>BigDecimal</code>s and <code>BigIntegers</code>s or to use
+          * {@link com.fasterxml.jackson.core.io.doubleparser} instead.
           *<p>
           * This setting is disabled by default for backwards compatibility.
           *
           * @since 2.15
           */
-          USE_FAST_BIG_DECIMAL_PARSER(false)
+          USE_FAST_BIG_NUMBER_PARSER(false)
 
          ;
 

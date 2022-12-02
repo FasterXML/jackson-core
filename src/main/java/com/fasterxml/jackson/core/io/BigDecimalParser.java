@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.core.io;
 
 import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
-import ch.randelshofer.fastdoubleparser.JavaBigIntegerParser;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Arrays;
 
 // Based on a great idea of Eric Obermühlner to use a tree of smaller BigDecimals for parsing
@@ -25,7 +23,7 @@ import java.util.Arrays;
  */
 public final class BigDecimalParser
 {
-    private final static int MAX_CHARS_TO_REPORT = 1000;
+    final static int MAX_CHARS_TO_REPORT = 1000;
 
     private BigDecimalParser() {}
 
@@ -83,17 +81,6 @@ public final class BigDecimalParser
                     new String(ch, off, len) : new String(ch, off, MAX_CHARS_TO_REPORT) + " [truncated]";
             final int reportLen = Math.min(len, MAX_CHARS_TO_REPORT);
             throw new NumberFormatException("Value \"" + new String(ch, off, reportLen)
-                    + "\" can not be represented as `java.math.BigDecimal`, reason: " + nfe.getMessage());
-        }
-    }
-
-    public static BigInteger parseBigIntegerWithFastParser(final String valueStr) {
-        try {
-            return JavaBigIntegerParser.parseBigInteger(valueStr);
-        } catch (NumberFormatException nfe) {
-            final String reportNum = valueStr.length() <= MAX_CHARS_TO_REPORT ?
-                    valueStr : valueStr.substring(0, MAX_CHARS_TO_REPORT) + " [truncated]";
-            throw new NumberFormatException("Value \"" + reportNum
                     + "\" can not be represented as `java.math.BigDecimal`, reason: " + nfe.getMessage());
         }
     }

@@ -1150,7 +1150,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _numberBigInt = NumberInput.parseBigInteger(
                 _numberString,
-                isEnabled(StreamReadFeature.USE_FAST_BIG_DECIMAL_PARSER));
+                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         _numberString = null;
         return _numberBigInt;
     }
@@ -1169,7 +1169,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _numberBigDecimal = NumberInput.parseBigDecimal(
                 _numberString,
-                isEnabled(StreamReadFeature.USE_FAST_BIG_DECIMAL_PARSER));
+                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         _numberString = null;
         return _numberBigDecimal;
     }

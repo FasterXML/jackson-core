@@ -474,7 +474,7 @@ public final class NumberInput
      */
     public static BigInteger parseBigInteger(final String s, final boolean useFastParser) throws NumberFormatException {
         if (useFastParser) {
-            return BigDecimalParser.parseBigIntegerWithFastParser(s);
+            return BigIntegerParser.parseWithFastParser(s);
         } else {
             return parseBigInteger(s);
         }

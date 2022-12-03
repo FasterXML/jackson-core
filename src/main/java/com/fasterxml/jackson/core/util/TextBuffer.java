@@ -484,38 +484,41 @@ public final class TextBuffer
      * Convenience method for converting contents of the buffer
      * into a {@link BigDecimal}.
      *
+     * @param constraints constraints for stream reading
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
      * @return Buffered text value parsed as a {@link BigDecimal}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
      *
      * @since 2.15
      */
-    public BigDecimal contentsAsDecimal(StreamReadConstraints constraints) throws NumberFormatException
+    public BigDecimal contentsAsDecimal(final StreamReadConstraints constraints,
+                                        final boolean useFastParser) throws NumberFormatException
     {
         // Already got a pre-cut array?
         if (_resultArray != null) {
             constraints.validateFPLength(_resultArray.length);
-            return NumberInput.parseBigDecimal(_resultArray);
+            return NumberInput.parseBigDecimal(_resultArray, useFastParser);
         }
         // Or a shared buffer?
         if ((_inputStart >= 0) && (_inputBuffer != null)) {
             constraints.validateFPLength(_inputLen);
-            return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen);
+            return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
         // Or if not, just a single buffer (the usual case)
         if ((_segmentSize == 0) && (_currentSegment != null)) {
             constraints.validateFPLength(_currentSize);
-            return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize);
+            return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize, useFastParser);
         }
         // If not, let's just get it aggregated...
         final char[] numArray = contentsAsArray();
         constraints.validateFPLength(numArray.length);
-        return NumberInput.parseBigDecimal(numArray);
+        return NumberInput.parseBigDecimal(numArray, useFastParser);
     }
 
     @Deprecated // @since 2.15
     public BigDecimal contentsAsDecimal() throws NumberFormatException {
-        return contentsAsDecimal(StreamReadConstraints.defaults());
+        return contentsAsDecimal(StreamReadConstraints.defaults(), false);
     }
 
     /**

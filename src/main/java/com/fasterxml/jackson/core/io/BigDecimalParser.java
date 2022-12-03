@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 
@@ -21,7 +23,7 @@ import java.util.Arrays;
  */
 public final class BigDecimalParser
 {
-    private final static int MAX_CHARS_TO_REPORT = 1000;
+    final static int MAX_CHARS_TO_REPORT = 1000;
 
     private BigDecimalParser() {}
 
@@ -58,6 +60,29 @@ public final class BigDecimalParser
 
     public static BigDecimal parse(char[] chars) {
         return parse(chars, 0, chars.length);
+    }
+
+    public static BigDecimal parseWithFastParser(final String valueStr) {
+        try {
+            return JavaBigDecimalParser.parseBigDecimal(valueStr);
+        } catch (NumberFormatException nfe) {
+            final String reportNum = valueStr.length() <= MAX_CHARS_TO_REPORT ?
+                    valueStr : valueStr.substring(0, MAX_CHARS_TO_REPORT) + " [truncated]";
+            throw new NumberFormatException("Value \"" + reportNum
+                    + "\" can not be represented as `java.math.BigDecimal`, reason: " + nfe.getMessage());
+        }
+    }
+
+    public static BigDecimal parseWithFastParser(final char[] ch, final int off, final int len) {
+        try {
+            return JavaBigDecimalParser.parseBigDecimal(ch, off, len);
+        } catch (NumberFormatException nfe) {
+            final String reportNum = len <= MAX_CHARS_TO_REPORT ?
+                    new String(ch, off, len) : new String(ch, off, MAX_CHARS_TO_REPORT) + " [truncated]";
+            final int reportLen = Math.min(len, MAX_CHARS_TO_REPORT);
+            throw new NumberFormatException("Value \"" + new String(ch, off, reportLen)
+                    + "\" can not be represented as `java.math.BigDecimal`, reason: " + nfe.getMessage());
+        }
     }
 
     private static BigDecimal parseBigDecimal(final char[] chars, final int off, final int len, final int splitLen) {

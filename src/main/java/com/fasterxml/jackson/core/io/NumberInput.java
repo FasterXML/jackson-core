@@ -380,16 +380,76 @@ public final class NumberInput
         return useFastParser ? JavaFloatParser.parseFloat(s) : Float.parseFloat(s);
     }
 
-    public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {
+    /**
+     * @param s a string representing a number to parse
+     * @return a BigDecimal
+     * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     */
+    public static BigDecimal parseBigDecimal(final String s) throws NumberFormatException {
         return BigDecimalParser.parse(s);
     }
 
-    public static BigDecimal parseBigDecimal(char[] ch, int off, int len) throws NumberFormatException {
+    /**
+     * @param s a string representing a number to parse
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return a BigDecimal
+     * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     * @since v2.15
+     */
+    public static BigDecimal parseBigDecimal(final String s, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ?
+                BigDecimalParser.parseWithFastParser(s) :
+                BigDecimalParser.parse(s);
+    }
+
+    /**
+     * @param ch a char array with text that makes up a number
+     * @param off the offset to apply when parsing the number in the char array
+     * @param len the length of the number in the char array
+     * @return a BigDecimal
+     * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     */
+    public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len) throws NumberFormatException {
         return BigDecimalParser.parse(ch, off, len);
     }
 
-    public static BigDecimal parseBigDecimal(char[] ch) throws NumberFormatException {
+    /**
+     * @param ch a char array with text that makes up a number
+     * @param off the offset to apply when parsing the number in the char array
+     * @param len the length of the number in the char array
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return a BigDecimal
+     * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     * @since v2.15
+     */
+    public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len,
+                                             final boolean useFastParser)
+            throws NumberFormatException {
+        return useFastParser ?
+                BigDecimalParser.parseWithFastParser(ch, off, len) :
+                BigDecimalParser.parse(ch, off, len);
+    }
+
+    /**
+     * @param ch a char array with text that makes up a number
+     * @return a BigDecimal
+     * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     */
+    public static BigDecimal parseBigDecimal(final char[] ch) throws NumberFormatException {
         return BigDecimalParser.parse(ch);
+    }
+
+    /**
+     * @param ch a char array with text that makes up a number
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return a BigDecimal
+     * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     * @since v2.15
+     */
+    public static BigDecimal parseBigDecimal(final char[] ch, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ?
+                BigDecimalParser.parseWithFastParser(ch, 0, ch.length) :
+                BigDecimalParser.parse(ch);
     }
 
     /**
@@ -398,10 +458,25 @@ public final class NumberInput
      * @throws NumberFormatException if string cannot be represented by a BigInteger
      * @since v2.14
      */
-    public static BigInteger parseBigInteger(String s) throws NumberFormatException {
+    public static BigInteger parseBigInteger(final String s) throws NumberFormatException {
         if (s.length() > LARGE_INT_SIZE) {
             return BigDecimalParser.parse(s).toBigInteger();
         }
         return new BigInteger(s);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return a BigInteger
+     * @throws NumberFormatException if string cannot be represented by a BigInteger
+     * @since v2.15
+     */
+    public static BigInteger parseBigInteger(final String s, final boolean useFastParser) throws NumberFormatException {
+        if (useFastParser) {
+            return BigIntegerParser.parseWithFastParser(s);
+        } else {
+            return parseBigInteger(s);
+        }
     }
 }

@@ -670,6 +670,11 @@ public abstract class ParserBase extends ParserMinimalBase
         return _getBigDecimal();
     }
 
+    @Override
+    public StreamReadConstraints streamReadConstraints() {
+        return _streamReadConstraints;
+    }
+
     /*
     /**********************************************************************
     /* Abstract methods sub-classes will need to provide
@@ -841,7 +846,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
-            _streamReadConstraints().validateFPLength(numStr.length());
+            streamReadConstraints().validateFPLength(numStr.length());
             _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
@@ -889,10 +894,6 @@ public abstract class ParserBase extends ParserMinimalBase
                 isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         _numberString = null;
         return _numberBigDecimal;
-    }
-
-    protected StreamReadConstraints _streamReadConstraints() {
-        return _streamReadConstraints;
     }
 
     /*

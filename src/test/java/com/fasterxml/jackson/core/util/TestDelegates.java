@@ -198,9 +198,16 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
      */
     public void testParserDelegate() throws IOException
     {
+        final int MAX_NUMBER_LEN = 200;
         final String TOKEN ="foo";
 
-        JsonParser parser = JSON_F.createParser("[ 1, true, null, { \"a\": \"foo\" }, \"AQI=\" ]");
+        StreamReadConstraints CUSTOM_CONSTRAINTS = StreamReadConstraints.builder()
+                .maxNumberLength(MAX_NUMBER_LEN)
+                .build();
+        JsonFactory jsonF = JsonFactory.builder()
+                .streamReadConstraints(CUSTOM_CONSTRAINTS)
+                .build();
+        JsonParser parser = jsonF.createParser("[ 1, true, null, { \"a\": \"foo\" }, \"AQI=\" ]");
         JsonParserDelegate del = new JsonParserDelegate(parser);
 
         // Basic capabilities for parser:

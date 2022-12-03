@@ -195,7 +195,9 @@ public abstract class ParserMinimalBase extends JsonParser
         super();
         _objectReadContext = readCtxt;
         _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
-        _streamReadConstraints = readCtxt.tokenStreamFactory().streamReadConstraints();
+        // 03-Dec-2022, tatu: Unfortunately "readCtxt" does not necessarily
+        //    have a TokenStreamFactory through which to access constraints so:
+        _streamReadConstraints = StreamReadConstraints.defaults();
     }
 
     @Deprecated // Not to be used in 3.0?
@@ -205,7 +207,7 @@ public abstract class ParserMinimalBase extends JsonParser
         super();
         _objectReadContext = readCtxt;
         _streamReadFeatures = streamReadFeatures;
-        _streamReadConstraints = readCtxt.tokenStreamFactory().streamReadConstraints();
+        _streamReadConstraints = StreamReadConstraints.defaults();
     }
 
     protected ParserMinimalBase(ObjectReadContext readCtxt,

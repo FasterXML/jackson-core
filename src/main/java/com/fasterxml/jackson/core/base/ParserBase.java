@@ -952,6 +952,7 @@ public abstract class ParserBase extends ParserMinimalBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
+                    streamReadConstraints().validateFPLength(numStr.length());
                     _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {

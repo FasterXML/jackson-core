@@ -800,6 +800,11 @@ public abstract class ParserBase extends ParserMinimalBase
         return _getBigDecimal();
     }
 
+    @Override // @since 2.15
+    public StreamReadConstraints streamReadConstraints() {
+        return _streamReadConstraints;
+    }
+
     /*
     /**********************************************************
     /* Conversion from textual to numeric representation
@@ -910,12 +915,12 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberString = _textBuffer.contentsAsString();
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat(_streamReadConstraints(),
+                _numberFloat = _textBuffer.contentsAsFloat(streamReadConstraints(),
                         isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
-                _numberDouble = _textBuffer.contentsAsDouble(_streamReadConstraints(),
+                _numberDouble = _textBuffer.contentsAsDouble(streamReadConstraints(),
                         isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
             }
@@ -946,11 +951,11 @@ public abstract class ParserBase extends ParserMinimalBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                    _streamReadConstraints().validateFPLength(numStr.length());
+                    streamReadConstraints().validateFPLength(numStr.length());
                     _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {
-                    _streamReadConstraints().validateIntegerLength(numStr.length());
+                    streamReadConstraints().validateIntegerLength(numStr.length());
                     // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
                     _numberBigInt = null;
                     _numberString = numStr;
@@ -1122,7 +1127,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
-            _streamReadConstraints().validateFPLength(numStr.length());
+            streamReadConstraints().validateFPLength(numStr.length());
             _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
@@ -1172,11 +1177,6 @@ public abstract class ParserBase extends ParserMinimalBase
                 isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         _numberString = null;
         return _numberBigDecimal;
-    }
-
-    @Override // @since 2.15
-    protected StreamReadConstraints _streamReadConstraints() {
-        return _streamReadConstraints;
     }
 
     /*

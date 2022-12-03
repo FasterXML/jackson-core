@@ -30,28 +30,28 @@ public interface ObjectReadContext
     public int getStreamReadFeatures(int defaults);
     public int getFormatReadFeatures(int defaults);
 
-    public TokenStreamFactory getParserFactory();
+    public TokenStreamFactory tokenStreamFactory();
 
     // // // Parser construction
 
     default JsonParser createParser(InputStream in) throws JacksonException {
-        return getParserFactory().createParser(this, in);
+        return tokenStreamFactory().createParser(this, in);
     }
 
     default JsonParser createParser(Reader r) throws JacksonException {
-        return getParserFactory().createParser(this, r);
+        return tokenStreamFactory().createParser(this, r);
     }
 
     default JsonParser createParser(String content) throws JacksonException {
-        return getParserFactory().createParser(this, content);
+        return tokenStreamFactory().createParser(this, content);
     }
 
     default JsonParser createParser(byte[] content) throws JacksonException {
-        return getParserFactory().createParser(this, content);
+        return tokenStreamFactory().createParser(this, content);
     }
 
     default JsonParser createParser(byte[] content, int offset, int length) throws JacksonException {
-        return getParserFactory().createParser(this, content, offset, length);
+        return tokenStreamFactory().createParser(this, content, offset, length);
     }
     
     // // // Databinding callbacks, tree node creation
@@ -119,7 +119,7 @@ public interface ObjectReadContext
         }
 
         @Override
-        public TokenStreamFactory getParserFactory() {
+        public TokenStreamFactory tokenStreamFactory() {
             return _reportUnsupportedOperation();
         }
 

@@ -57,21 +57,21 @@ public interface ObjectWriteContext
     public int getStreamWriteFeatures(int defaults);
     public int getFormatWriteFeatures(int defaults);
 
-    public TokenStreamFactory getGeneratorFactory();
+    public TokenStreamFactory tokenStreamFactory();
 
     // // // Generator construction: limited to targets that make sense for embedding
     // // // purposes (like "JSON in JSON" etc)
 
     default JsonGenerator createGenerator(OutputStream out) throws JacksonException {
-        return getGeneratorFactory().createGenerator(this, out);
+        return tokenStreamFactory().createGenerator(this, out);
     }
 
     default JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws JacksonException {
-        return getGeneratorFactory().createGenerator(this, out, enc);
+        return tokenStreamFactory().createGenerator(this, out, enc);
     }
 
     default JsonGenerator createGenerator(Writer w) throws JacksonException {
-        return getGeneratorFactory().createGenerator(this, w);
+        return tokenStreamFactory().createGenerator(this, w);
     }
 
     // // // Databinding callbacks, tree node creation
@@ -140,7 +140,7 @@ public interface ObjectWriteContext
         }
 
         @Override
-        public TokenStreamFactory getGeneratorFactory() {
+        public TokenStreamFactory tokenStreamFactory() {
             return _reportUnsupportedOperation();
         }
         

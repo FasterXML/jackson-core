@@ -12,6 +12,7 @@ import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.type.ResolvedType;
@@ -150,6 +151,11 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected int _streamReadFeatures;
 
+    /**
+     * Constraints to use for this parser.
+     */
+    protected final StreamReadConstraints _streamReadConstraints;
+
     /*
     /**********************************************************************
     /* Minimal generally useful state
@@ -189,14 +195,26 @@ public abstract class ParserMinimalBase extends JsonParser
         super();
         _objectReadContext = readCtxt;
         _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
+        _streamReadConstraints = readCtxt.tokenStreamFactory().streamReadConstraints();
     }
 
+    @Deprecated // Not to be used in 3.0?
     protected ParserMinimalBase(ObjectReadContext readCtxt,
             int streamReadFeatures)
     {
         super();
         _objectReadContext = readCtxt;
         _streamReadFeatures = streamReadFeatures;
+        _streamReadConstraints = readCtxt.tokenStreamFactory().streamReadConstraints();
+    }
+
+    protected ParserMinimalBase(ObjectReadContext readCtxt,
+            IOContext ctxt, int streamReadFeatures)
+    {
+        super();
+        _objectReadContext = readCtxt;
+        _streamReadFeatures = streamReadFeatures;
+        _streamReadConstraints = ctxt.streamReadConstraints();
     }
 
     /*

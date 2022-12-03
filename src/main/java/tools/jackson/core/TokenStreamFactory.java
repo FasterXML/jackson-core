@@ -484,6 +484,8 @@ public abstract class TokenStreamFactory
     // @since 3.0
     public int getFormatWriteFeatures() { return _formatWriteFeatures; }
 
+    public StreamReadConstraints streamReadConstraints() { return _streamReadConstraints; }
+
     /*
     /**********************************************************************
     /* Factory methods for helper objects

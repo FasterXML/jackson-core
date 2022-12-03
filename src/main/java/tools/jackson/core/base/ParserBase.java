@@ -34,8 +34,6 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected final IOContext _ioContext;
 
-    protected final StreamReadConstraints _streamReadConstraints;
-
     /**
      * Flag that indicates whether parser is closed or not. Gets
      * set when parser is either closed by explicit call
@@ -214,10 +212,9 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     protected ParserBase(ObjectReadContext readCtxt,
-            IOContext ctxt, int features) {
-        super(readCtxt, features);
+            IOContext ctxt, int streamReadFeatures) {
+        super(readCtxt, ctxt, streamReadFeatures);
         _ioContext = ctxt;
-        _streamReadConstraints = ctxt.streamReadConstraints();
         _textBuffer = ctxt.constructTextBuffer();
     }
 

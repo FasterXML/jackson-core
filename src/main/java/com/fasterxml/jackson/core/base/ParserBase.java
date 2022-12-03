@@ -913,6 +913,7 @@ public abstract class ParserBase extends ParserMinimalBase
             if (expType == NR_BIGDECIMAL) {
                 _numberBigDecimal = null;
                 _numberString = _textBuffer.contentsAsString();
+                streamReadConstraints().validateFPLength(_numberString.length());
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
                 _numberFloat = _textBuffer.contentsAsFloat(streamReadConstraints(),
@@ -951,7 +952,6 @@ public abstract class ParserBase extends ParserMinimalBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                    streamReadConstraints().validateFPLength(numStr.length());
                     _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {

@@ -222,16 +222,6 @@ public abstract class JsonParser
         return null;
     }
 
-    /**
-     * Accessor for getting metadata on capabilities of this parser, based on
-     * underlying data format being read (directly or indirectly).
-     *
-     * @return Set of read capabilities for content to read via this parser
-     */
-    public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() {
-        return DEFAULT_READ_CAPABILITIES;
-    }
-
     /*
     /**********************************************************************
     /* Closeable implementation
@@ -319,12 +309,6 @@ public abstract class JsonParser
     /**********************************************************************
      */
 
-    // 25-Jan-2021, tatu: Was needed by jax-rs providers until recently,
-    //  but should no longer be needed at all. Leaving here for a bit longer.
-
-//    public abstract JsonParser enable(StreamReadFeature f);
-//    public abstract JsonParser disable(StreamReadFeature f);
-
     /**
      * Method for checking whether specified {@link StreamReadFeature} is enabled.
      *
@@ -350,6 +334,21 @@ public abstract class JsonParser
      * @return {@link FormatSchema} assigned to this parser, if any; {@code null} if none
      */
     public FormatSchema getSchema() { return null; }
+
+    /**
+     * Accessor for getting metadata on capabilities of this parser, based on
+     * underlying data format being read (directly or indirectly).
+     *
+     * @return Set of read capabilities for content to read via this parser
+     */
+    public abstract JacksonFeatureSet<StreamReadCapability> streamReadCapabilities();
+
+    /**
+     * Get the constraints to apply when performing streaming reads.
+     *
+     * @return Constraints applied to this parser
+     */
+    public abstract StreamReadConstraints streamReadConstraints();
 
     /*
     /**********************************************************************

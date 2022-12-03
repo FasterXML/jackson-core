@@ -759,16 +759,6 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************************
-    /* Constraints violation checking
-    /**********************************************************************
-     */ 
-
-    public StreamReadConstraints streamReadConstraints() {
-        return StreamReadConstraints.defaults();
-    }
-
-    /*
-    /**********************************************************************
     /* Error reporting, numeric conversion/parsing issues
     /**********************************************************************
      */

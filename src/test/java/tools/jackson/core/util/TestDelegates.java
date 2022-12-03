@@ -116,17 +116,27 @@ public class TestDelegates extends tools.jackson.core.BaseTest
      */
     public void testParserDelegate() throws IOException
     {
-        final String TOKEN ="foo";
-
-        JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(),
+        final int MAX_NUMBER_LEN = 200;
+        StreamReadConstraints CUSTOM_CONSTRAINTS = StreamReadConstraints.builder()
+                .maxNumberLength(MAX_NUMBER_LEN)
+                .build();
+        JsonFactory jsonF = JsonFactory.builder()
+                .streamReadConstraints(CUSTOM_CONSTRAINTS)
+                .build();
+        JsonParser parser = jsonF.createParser(ObjectReadContext.empty(),
                 "[ 1, true, null, { \"a\": \"foo\" }, \"AQI=\" ]");
         JsonParserDelegate del = new JsonParserDelegate(parser);
+
+        final String TOKEN ="foo";
 
         // Basic capabilities for parser:
         assertFalse(del.canParseAsync());
         assertFalse(del.canReadObjectId());
         assertFalse(del.canReadTypeId());
         assertEquals(parser.version(), del.version());
+        assertSame(parser.streamReadConstraints(), del.streamReadConstraints());
+        assertEquals(MAX_NUMBER_LEN, parser.streamReadConstraints().getMaxNumberLength());
+        assertSame(parser.streamReadCapabilities(), del.streamReadCapabilities());
 
         // configuration
         assertFalse(del.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));

@@ -93,6 +93,8 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() { return delegate.streamReadCapabilities(); }
 
+    @Override public StreamReadConstraints streamReadConstraints() { return delegate.streamReadConstraints(); }
+
     /*
     /**********************************************************************
     /* Closeable impl

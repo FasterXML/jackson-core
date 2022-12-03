@@ -209,6 +209,8 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertFalse(del.canReadTypeId());
         assertFalse(del.requiresCustomCodec());
         assertEquals(parser.version(), del.version());
+        assertSame(parser.streamReadConstraints(), del.streamReadConstraints());
+        assertSame(parser.getReadCapabilities(), del.getReadCapabilities());
 
         // configuration
         assertFalse(del.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));

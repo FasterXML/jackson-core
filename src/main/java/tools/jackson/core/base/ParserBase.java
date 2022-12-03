@@ -667,11 +667,6 @@ public abstract class ParserBase extends ParserMinimalBase
         return _getBigDecimal();
     }
 
-    @Override
-    public StreamReadConstraints streamReadConstraints() {
-        return _streamReadConstraints;
-    }
-
     /*
     /**********************************************************************
     /* Abstract methods sub-classes will need to provide

@@ -545,21 +545,6 @@ public abstract class ParserMinimalBase extends JsonParser
     protected boolean _hasTextualNull(String value) { return "null".equals(value); }
 
     /*
-    /**********************************************************************
-    /* Constraints violation checking (2.15)
-    /**********************************************************************
-     */
-
-    /**
-     * Get the constraints to apply when performing streaming reads.
-     *
-     * @since 2.15
-     */
-    public StreamReadConstraints streamReadConstraints() {
-        return StreamReadConstraints.defaults();
-    }
-
-    /*
     /**********************************************************
     /* Error reporting
     /**********************************************************

@@ -77,6 +77,17 @@ public class JsonParserDelegate extends JsonParser
 
     /*
     /**********************************************************************
+    /* Constraints violation checking (2.15)
+    /**********************************************************************
+     */
+
+    @Override
+    public StreamReadConstraints streamReadConstraints() {
+        return delegate.streamReadConstraints();
+    }
+
+    /*
+    /**********************************************************************
     /* Capability introspection
     /**********************************************************************
      */

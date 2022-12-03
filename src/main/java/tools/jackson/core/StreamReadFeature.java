@@ -99,7 +99,16 @@ public enum StreamReadFeature
      *<p>
      * This setting is disabled by default.
      */
-    USE_FAST_DOUBLE_PARSER(false)
+    USE_FAST_DOUBLE_PARSER(false),
+
+    /**
+     * Feature that determines whether to use the built-in Java code for parsing
+     * <code>BigDecimal</code>s and <code>BigIntegers</code>s or to use
+     * {@link tools.jackson.core.io.doubleparser} instead.
+     *<p>
+     * This setting is disabled by default.
+     */
+    USE_FAST_BIG_NUMBER_PARSER(false)
 
     ;
 

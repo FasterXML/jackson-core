@@ -13,6 +13,7 @@ public class FastParserNonStandardNumberParsingTest
                     .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
                     .enable(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)
                     .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                    .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
                     .build();
 
     @Override

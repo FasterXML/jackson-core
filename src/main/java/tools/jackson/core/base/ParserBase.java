@@ -867,7 +867,9 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
-        _numberBigInt = NumberInput.parseBigInteger(_numberString);
+        _numberBigInt = NumberInput.parseBigInteger(
+                _numberString,
+                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         _numberString = null;
         return _numberBigInt;
     }
@@ -882,7 +884,9 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
-        _numberBigDecimal = NumberInput.parseBigDecimal(_numberString);
+        _numberBigDecimal = NumberInput.parseBigDecimal(
+                _numberString,
+                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         _numberString = null;
         return _numberBigDecimal;
     }

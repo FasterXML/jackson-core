@@ -16,6 +16,9 @@ JSON library.
 
 2.15.0 (not yet released)
 
+#851: Add `StreamReadFeature.USE_FAST_BIG_DECIMAL_PARSER` to enable
+  faster `BigDecimal`, `BigInteger` parsing
+ (contributed by @pjfanning)
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 

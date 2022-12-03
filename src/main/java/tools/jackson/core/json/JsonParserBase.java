@@ -237,7 +237,8 @@ public abstract class JsonParserBase
          */
         try {
             if (expType == NR_BIGDECIMAL) {
-                _numberBigDecimal = _textBuffer.contentsAsDecimal(_streamReadConstraints);
+                _numberBigDecimal = _textBuffer.contentsAsDecimal(_streamReadConstraints,
+                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
                 _numberFloat = _textBuffer.contentsAsFloat(_streamReadConstraints,

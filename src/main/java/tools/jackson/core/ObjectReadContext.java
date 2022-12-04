@@ -32,6 +32,8 @@ public interface ObjectReadContext
 
     public TokenStreamFactory tokenStreamFactory();
 
+    public StreamReadConstraints streamReadConstraints();
+
     // // // Parser construction
 
     default JsonParser createParser(InputStream in) throws JacksonException {
@@ -107,6 +109,11 @@ public interface ObjectReadContext
 
         @Override
         public FormatSchema getSchema() { return null; }
+
+        @Override
+        public StreamReadConstraints streamReadConstraints() {
+            return StreamReadConstraints.defaults();
+        }
 
         @Override
         public int getStreamReadFeatures(int defaults) {

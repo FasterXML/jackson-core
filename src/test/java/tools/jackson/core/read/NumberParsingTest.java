@@ -26,7 +26,7 @@ public class NumberParsingTest
             .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(5000).build())
             .build();
 
-    protected TokenStreamFactory jsonFactory() {
+    protected JsonFactory jsonFactory() {
         return VANILLA_F;
 
     }
@@ -286,7 +286,7 @@ public class NumberParsingTest
             long belowMinInt = -1L + Integer.MIN_VALUE;
             long aboveMaxInt = 1L + Integer.MAX_VALUE;
             String input = "[ "+Long.MAX_VALUE+","+Long.MIN_VALUE+","+aboveMaxInt+", "+belowMinInt+" ]";
-            JsonParser p = createParser(mode, input);
+            JsonParser p = createParser(jsonFactory(), mode, input);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
@@ -368,7 +368,7 @@ public class NumberParsingTest
             BigInteger big = new BigDecimal(Long.MAX_VALUE).toBigInteger();
             big = big.add(BigInteger.ONE);
             String input = "[ "+small+"  ,  "+big+"]";
-            JsonParser p = createParser(mode, input);
+            JsonParser p = createParser(jsonFactory(), mode, input);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
@@ -392,7 +392,7 @@ public class NumberParsingTest
         BigInteger biggie = new BigInteger(NUMBER_STR);
 
         for (int mode : ALL_MODES) {
-            JsonParser p = createParser(mode, NUMBER_STR +" ");
+            JsonParser p = createParser(jsonFactory(), mode, NUMBER_STR +" ");
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
             assertEquals(NUMBER_STR, p.getText());
@@ -423,7 +423,7 @@ public class NumberParsingTest
                 double EXP_D = Double.parseDouble(STR);
                 String DOC = "["+STR+"]";
 
-                JsonParser p = createParser(mode, DOC+" ");
+                JsonParser p = createParser(jsonFactory(), mode, DOC+" ");
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
 
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
@@ -436,7 +436,7 @@ public class NumberParsingTest
                 p.close();
 
                 // then outside
-                p = createParser(mode, STR + " ");
+                p = createParser(jsonFactory(), mode, STR + " ");
                 JsonToken t = null;
 
                 try {
@@ -495,23 +495,59 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
+    public void testBigBigDecimalsBytesFailByDefault() throws Exception
+    {
+        _testBigBigDecimals(MODE_INPUT_STREAM, true);
+        _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, true);
+    }
+
     public void testBigBigDecimalsBytes() throws Exception
     {
-        _testBigBigDecimals(MODE_INPUT_STREAM);
-        _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED);
+        try {
+            _testBigBigDecimals(MODE_INPUT_STREAM, false);
+        } catch (StreamReadException jpe) {
+            assertTrue("unexpected exception message: " + jpe.getMessage(),
+                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+        }
+        try {
+            _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, false);
+        } catch (StreamReadException jpe) {
+            assertTrue("unexpected exception message: " + jpe.getMessage(),
+                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+        }
+    }
+
+    public void testBigBigDecimalsCharsFailByDefault() throws Exception
+    {
+        try {
+            _testBigBigDecimals(MODE_READER, false);
+        } catch (StreamReadException jpe) {
+            assertTrue("unexpected exception message: " + jpe.getMessage(),
+                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+        }
     }
 
     public void testBigBigDecimalsChars() throws Exception
     {
-        _testBigBigDecimals(MODE_READER);
+        _testBigBigDecimals(MODE_READER, true);
+    }
+
+    public void testBigBigDecimalsDataInputFailByDefault() throws Exception
+    {
+        try {
+            _testBigBigDecimals(MODE_DATA_INPUT, false);
+        } catch (StreamReadException jpe) {
+            assertTrue("unexpected exception message: " + jpe.getMessage(),
+                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+        }
     }
 
     public void testBigBigDecimalsDataInput() throws Exception
     {
-        _testBigBigDecimals(MODE_DATA_INPUT);
+        _testBigBigDecimals(MODE_DATA_INPUT, true);
     }
 
-    private void _testBigBigDecimals(int mode) throws Exception
+    private void _testBigBigDecimals(final int mode, final boolean enableUnlimitedNumberLen) throws Exception
     {
         final String BASE_FRACTION =
  "01610253934481930774151441507943554511027782188707463024288149352877602369090537"
@@ -547,12 +583,20 @@ public class NumberParsingTest
         }) {
             final String DOC = "[ "+asText+" ]";
 
-            JsonParser p = createParser(jsonFactory(), mode, DOC);
-            assertToken(JsonToken.START_ARRAY, p.nextToken());
-            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            final BigDecimal exp = new BigDecimal(asText);
-            assertEquals(exp, p.getDecimalValue());
-            p.close();
+            JsonFactory jsonFactory = jsonFactory();
+            if (enableUnlimitedNumberLen) {
+                jsonFactory = jsonFactory
+                        .rebuild()
+                        .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
+                        .build();
+            }
+
+            try (JsonParser p = createParser(jsonFactory, mode, DOC)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                final BigDecimal exp = new BigDecimal(asText);
+                assertEquals(exp, p.getDecimalValue());
+            }
         }
     }
 
@@ -574,7 +618,7 @@ public class NumberParsingTest
     {
         final String DOC = "[ -13, 8100200300, 13.5, 0.00010, -2.033 ]";
 
-        JsonParser p = createParser(mode, DOC);
+        JsonParser p = createParser(jsonFactory(), mode, DOC);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         
@@ -662,7 +706,7 @@ public class NumberParsingTest
             JsonParser p;
 
             if (input == 0) {
-                p = createParserUsingStream(DOC, "UTF-8");
+                p = createParserUsingStream(jsonFactory(), DOC, "UTF-8");
             } else {
                 p = jsonFactory().createParser(ObjectReadContext.empty(), DOC);
             }
@@ -801,7 +845,7 @@ public class NumberParsingTest
 
     private void _testInvalidBooleanAccess(int mode)
     {
-        JsonParser p = createParser(mode, "[ \"abc\" ]");
+        JsonParser p = createParser(jsonFactory(), mode, "[ \"abc\" ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {
@@ -822,7 +866,7 @@ public class NumberParsingTest
     
     private void _testInvalidIntAccess(int mode)
     {
-        JsonParser p = createParser(mode, "[ \"abc\" ]");
+        JsonParser p = createParser(jsonFactory(), mode, "[ \"abc\" ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {
@@ -843,7 +887,7 @@ public class NumberParsingTest
     
     private void _testInvalidLongAccess(int mode)
     {
-        JsonParser p = createParser(mode, "[ false ]");
+        JsonParser p = createParser(jsonFactory(), mode, "[ false ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
         try {
@@ -887,7 +931,7 @@ public class NumberParsingTest
 
     public void testInvalidNumber() {
         for (int mode : ALL_MODES) {
-            JsonParser p = createParser(mode, " -foo ");
+            JsonParser p = createParser(jsonFactory(), mode, " -foo ");
             try {
                 p.nextToken();
                 fail("Should not pass");

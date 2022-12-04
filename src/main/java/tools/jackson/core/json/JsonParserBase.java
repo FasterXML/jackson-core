@@ -237,8 +237,10 @@ public abstract class JsonParserBase
          */
         try {
             if (expType == NR_BIGDECIMAL) {
-                _numberBigDecimal = _textBuffer.contentsAsDecimal(_streamReadConstraints,
-                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                // 04-Dec-2022, tatu: Defer decoding of `BigDecimal` here
+                _numberBigDecimal = null;
+                _numberString = _textBuffer.contentsAsString();
+                streamReadConstraints().validateFPLength(_numberString.length());
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
                 _numberFloat = _textBuffer.contentsAsFloat(_streamReadConstraints,
@@ -246,6 +248,8 @@ public abstract class JsonParserBase
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
+                // 04-Dec-2022, tatu: We get not just `NR_DOUBLE` but anything from
+                //    `NR_INT` to `NR_UNKNOWN`. Might want to defer decoding...
                 _numberDouble = _textBuffer.contentsAsDouble(_streamReadConstraints,
                         isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;

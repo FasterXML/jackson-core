@@ -488,23 +488,59 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
+    public void testBigBigDecimalsBytesFailByDefault() throws Exception
+    {
+        _testBigBigDecimals(MODE_INPUT_STREAM, true);
+        _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, true);
+    }
+
     public void testBigBigDecimalsBytes() throws Exception
     {
-        _testBigBigDecimals(MODE_INPUT_STREAM);
-        _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED);
+        try {
+            _testBigBigDecimals(MODE_INPUT_STREAM, false);
+        } catch (JsonParseException jpe) {
+            assertTrue("unexpected exception message: " + jpe.getMessage(),
+                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+        }
+        try {
+            _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, false);
+        } catch (JsonParseException jpe) {
+            assertTrue("unexpected exception message: " + jpe.getMessage(),
+                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+        }
+    }
+
+    public void testBigBigDecimalsCharsFailByDefault() throws Exception
+    {
+        try {
+            _testBigBigDecimals(MODE_READER, false);
+        } catch (JsonParseException jpe) {
+            assertTrue("unexpected exception message: " + jpe.getMessage(),
+                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+        }
     }
 
     public void testBigBigDecimalsChars() throws Exception
     {
-        _testBigBigDecimals(MODE_READER);
+        _testBigBigDecimals(MODE_READER, true);
+    }
+
+    public void testBigBigDecimalsDataInputFailByDefault() throws Exception
+    {
+        try {
+            _testBigBigDecimals(MODE_DATA_INPUT, false);
+        } catch (JsonParseException jpe) {
+            assertTrue("unexpected exception message: " + jpe.getMessage(),
+                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+        }
     }
 
     public void testBigBigDecimalsDataInput() throws Exception
     {
-        _testBigBigDecimals(MODE_DATA_INPUT);
+        _testBigBigDecimals(MODE_DATA_INPUT, true);
     }
 
-    private void _testBigBigDecimals(int mode) throws Exception
+    private void _testBigBigDecimals(final int mode, final boolean enableUnlimitedNumberLen) throws Exception
     {
         final String BASE_FRACTION =
  "01610253934481930774151441507943554511027782188707463024288149352877602369090537"
@@ -540,15 +576,20 @@ public class NumberParsingTest
         }) {
             final String DOC = "[ "+asText+" ]";
 
-            JsonFactory jsonFactory = jsonFactory().rebuild()
-                    .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
-                    .build();
-            JsonParser p = createParser(jsonFactory, mode, DOC);
-            assertToken(JsonToken.START_ARRAY, p.nextToken());
-            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            final BigDecimal exp = new BigDecimal(asText);
-            assertEquals(exp, p.getDecimalValue());
-            p.close();
+            JsonFactory jsonFactory = jsonFactory();
+            if (enableUnlimitedNumberLen) {
+                jsonFactory = jsonFactory
+                        .rebuild()
+                        .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
+                        .build();
+            }
+
+            try (JsonParser p = createParser(jsonFactory, mode, DOC)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                final BigDecimal exp = new BigDecimal(asText);
+                assertEquals(exp, p.getDecimalValue());
+            }
         }
     }
 

@@ -913,6 +913,7 @@ public abstract class ParserBase extends ParserMinimalBase
             if (expType == NR_BIGDECIMAL) {
                 _numberBigDecimal = null;
                 _numberString = _textBuffer.contentsAsString();
+                streamReadConstraints().validateFPLength(_numberString.length());
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
                 _numberFloat = _textBuffer.contentsAsFloat(streamReadConstraints(),

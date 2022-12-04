@@ -146,6 +146,21 @@ public abstract class TokenStreamFactory
 
     /*
     /**********************************************************************
+    /* Constraints violation checking (2.15)
+    /**********************************************************************
+     */
+
+    /**
+     * Get the constraints to apply when performing streaming reads.
+     *
+     * @since 2.15
+     */
+    public StreamReadConstraints streamReadConstraints() {
+        return _streamReadConstraints == null ? StreamReadConstraints.defaults() : _streamReadConstraints;
+    }
+
+    /*
+    /**********************************************************************
     /* Factory methods, parsers
     /**********************************************************************
      */

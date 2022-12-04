@@ -21,17 +21,15 @@ public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
         }
     }
 
-    /* there is an open issue at https://github.com/wrandelshofer/FastDoubleParser/issues/24 about this
     public void testLongStringFastParseBigInteger() {
         try {
-            BigDecimalParser.parseBigIntegerWithFastParser(genLongString());
+            System.out.println(BigIntegerParser.parseWithFastParser(genLongString()));
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
             assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
             assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));
         }
     }
-    */
 
     private String genLongString() {
         final int len = 1500;

@@ -936,6 +936,15 @@ public class NumberParsingTest
         }
     }
 
+    public void testNegativeMaxNumberLength() {
+        try {
+            StreamReadConstraints src = StreamReadConstraints.builder().maxNumberLength(-1).build();
+            fail("expected IllegalArgumentException");
+        } catch (IllegalArgumentException iae) {
+            // expected
+        }
+    }
+
     /*
     /**********************************************************
     /* Helper methods

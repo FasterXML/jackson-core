@@ -1,15 +1,14 @@
 package tools.jackson.core;
 
-/*
+/**
  * The constraints to use for streaming reads: used to guard against malicious
  * input by preventing processing of "too big" input constructs (values,
  * structures).
- *
- * @since 2.15
  */
 public class StreamReadConstraints
     implements java.io.Serializable
 {
+    // !!! TODO: (maybe?) use custom serialization to reduce overhead
     private static final long serialVersionUID = 3L;
 
     /**
@@ -17,7 +16,7 @@ public class StreamReadConstraints
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 
-    final int _maxNumLen;
+    protected final int _maxNumLen;
 
     private static final StreamReadConstraints DEFAULT =
         new StreamReadConstraints(DEFAULT_MAX_NUM_LEN);

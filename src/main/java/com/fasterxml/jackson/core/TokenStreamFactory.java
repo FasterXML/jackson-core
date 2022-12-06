@@ -19,13 +19,6 @@ public abstract class TokenStreamFactory
 {
     private static final long serialVersionUID = 2;
 
-    /**
-     * Optional StreamReadConfig.
-     *
-     * @since 2.15
-     */
-    protected StreamReadConstraints _streamReadConstraints;
-
     /*
     /**********************************************************************
     /* Capability introspection
@@ -153,11 +146,12 @@ public abstract class TokenStreamFactory
     /**
      * Get the constraints to apply when performing streaming reads.
      *
+     * @return Constraints to apply to reads done by {@link JsonParser}s constructed
+     *   by this factory.
+     *
      * @since 2.15
      */
-    public StreamReadConstraints streamReadConstraints() {
-        return _streamReadConstraints == null ? StreamReadConstraints.defaults() : _streamReadConstraints;
-    }
+    public abstract StreamReadConstraints streamReadConstraints();
 
     /*
     /**********************************************************************

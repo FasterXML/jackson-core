@@ -93,7 +93,7 @@ public enum StreamReadFeature
 
     /**
      * Feature that determines whether we use the built-in {@link Double#parseDouble(String)} code to parse
-     * doubles or if we use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * doubles or if we use {@code FastDoubleParser}
      * instead.
      *<p>
      * This setting is disabled by default.
@@ -105,7 +105,7 @@ public enum StreamReadFeature
     /**
      * Feature that determines whether to use the built-in Java code for parsing
      * <code>BigDecimal</code>s and <code>BigIntegers</code>s or to use
-     * {@link com.fasterxml.jackson.core.io.doubleparser} instead.
+     * {@code FastDoubleParser} instead.
      *<p>
      * This setting is disabled by default.
      *

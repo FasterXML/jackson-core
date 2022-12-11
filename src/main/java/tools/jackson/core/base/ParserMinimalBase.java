@@ -668,7 +668,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
-                return NumberInput.parseAsDouble(str, defaultValue);
+                return NumberInput.parseAsDouble(str, defaultValue,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
                 return getDoubleValue();

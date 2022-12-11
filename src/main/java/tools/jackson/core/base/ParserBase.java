@@ -837,7 +837,8 @@ public abstract class ParserBase extends ParserMinimalBase
             // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
             streamReadConstraints().validateFPLength(numStr.length());
-            _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
+            _numberBigDecimal = NumberInput.parseBigDecimal(numStr,
+                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
         } else if ((_numTypesValid & NR_LONG) != 0) {

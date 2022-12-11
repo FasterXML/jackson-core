@@ -31,8 +31,12 @@ public class StreamReadConstraints
          * @param maxNumLen the maximum number length (in chars or bytes, depending on input context)
          *
          * @return this builder
+         * @throws IllegalArgumentException if the maxNumLen is set to a negative value
          */
-        public Builder maxNumberLength(int maxNumLen) {
+        public Builder maxNumberLength(final int maxNumLen) {
+            if (maxNumLen < 0) {
+                throw new IllegalArgumentException("Cannot set maxNumberLength to a negative value");
+            }
             this.maxNumLen = maxNumLen;
             return this;
         }

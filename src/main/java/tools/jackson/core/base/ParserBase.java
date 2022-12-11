@@ -171,9 +171,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * Textual number representation captured from input in cases lazy-parsing
      * is desired.
      *<p>
-     * As of 2.14, this only applies to {@link BigInteger} and {@link BigDecimal}.
-     *
-     * @since 2.14
+     * Only applies to {@link BigInteger} and {@link BigDecimal}.
      */
     protected String _numberString;
 
@@ -691,7 +689,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected abstract int _parseIntValue() throws JacksonException;
 
-    /*
+/*
     /**********************************************************************
     /* Numeric conversions
     /**********************************************************************
@@ -855,8 +853,6 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Internal accessor that needs to be used for accessing number value of type
      * {@link BigInteger} which -- as of 2.14 -- is typically lazily parsed.
-     *
-     * @since 2.14
      */
     protected BigInteger _getBigInteger() {
         if (_numberBigInt != null) {
@@ -864,6 +860,7 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
+        // NOTE! Length of number string has been validated earlier
         _numberBigInt = NumberInput.parseBigInteger(
                 _numberString,
                 isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
@@ -881,6 +878,7 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
+        // NOTE! Length of number string has been validated earlier
         _numberBigDecimal = NumberInput.parseBigDecimal(
                 _numberString,
                 isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));

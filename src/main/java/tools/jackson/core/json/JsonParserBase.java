@@ -239,8 +239,9 @@ public abstract class JsonParserBase
             if (expType == NR_BIGDECIMAL) {
                 // 04-Dec-2022, tatu: Defer decoding of `BigDecimal` here
                 _numberBigDecimal = null;
-                _numberString = _textBuffer.contentsAsString();
-                streamReadConstraints().validateFPLength(_numberString.length());
+                String numStr = _textBuffer.contentsAsString();
+                streamReadConstraints().validateFPLength(numStr.length());
+                _numberString = numStr;
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
                 _numberFloat = _textBuffer.contentsAsFloat(_streamReadConstraints,
@@ -285,8 +286,10 @@ public abstract class JsonParserBase
                     _numberDouble = NumberInput.parseDouble(numStr);
                     _numTypesValid = NR_DOUBLE;
                 } else {
-                    // nope, need the heavy guns... (rare case)
-                    _numberBigInt = NumberInput.parseBigInteger(numStr);
+                    streamReadConstraints().validateIntegerLength(numStr.length());
+                    // nope, need the heavy guns... (rare case) - BigInteger parsing is lazy
+                    _numberBigInt = null;
+                    _numberString = numStr;
                     _numTypesValid = NR_BIGINT;
                 }
             }

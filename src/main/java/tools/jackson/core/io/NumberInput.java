@@ -6,6 +6,12 @@ import java.math.BigInteger;
 import ch.randelshofer.fastdoubleparser.JavaDoubleParser;
 import ch.randelshofer.fastdoubleparser.JavaFloatParser;
 
+/**
+ * Helper class for efficient parsing of various JSON numbers.
+ *<p>
+ * NOTE! Does NOT validate against maximum length limits: caller must
+ * do that if and as necessary.
+ */
 public final class NumberInput
 {
     // numbers with more than these characters are better parsed with BigDecimalParser

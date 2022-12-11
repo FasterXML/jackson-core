@@ -283,7 +283,8 @@ public abstract class JsonParserBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                    _numberDouble = NumberInput.parseDouble(numStr);
+                    streamReadConstraints().validateFPLength(numStr.length());
+                    _numberDouble = NumberInput.parseDouble(numStr, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {
                     streamReadConstraints().validateIntegerLength(numStr.length());

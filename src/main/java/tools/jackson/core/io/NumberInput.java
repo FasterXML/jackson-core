@@ -304,6 +304,7 @@ public final class NumberInput
      * @return closest matching double (or `def` if there is an issue with `s`) where useFastParser=false
      * @see #parseAsDouble(String, double, boolean)
      */
+    @Deprecated
     public static double parseAsDouble(final String s, final double def)
     {
         return parseAsDouble(s, def, false);
@@ -336,6 +337,7 @@ public final class NumberInput
      * @throws NumberFormatException if string cannot be represented by a double where useFastParser=false
      * @see #parseDouble(String, boolean)
      */
+    @Deprecated
     public static double parseDouble(final String s) throws NumberFormatException {
         return parseDouble(s, false);
     }
@@ -358,6 +360,7 @@ public final class NumberInput
      * @see #parseFloat(String, boolean)
      * @since v2.14
      */
+    @Deprecated
     public static float parseFloat(final String s) throws NumberFormatException {
         return parseFloat(s, false);
     }
@@ -378,6 +381,7 @@ public final class NumberInput
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      */
+    @Deprecated
     public static BigDecimal parseBigDecimal(final String s) throws NumberFormatException {
         return BigDecimalParser.parse(s);
     }
@@ -402,6 +406,7 @@ public final class NumberInput
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      */
+    @Deprecated
     public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len) throws NumberFormatException {
         return BigDecimalParser.parse(ch, off, len);
     }

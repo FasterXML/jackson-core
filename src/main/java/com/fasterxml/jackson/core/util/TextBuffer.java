@@ -432,11 +432,28 @@ public final class TextBuffer
      *
      * @return Aggregated buffered contents as a {@link java.lang.String}
      */
+    @Deprecated //@since 2.15
     public String contentsAsString()
+    {
+        return contentsAsString(StreamReadConstraints.defaults());
+    }
+
+
+    /**
+     * Accessor that may be used to get the contents of this buffer as a single
+     * {@code String} regardless of whether they were collected in a segmented
+     * fashion or not: this typically require construction of the result String.
+     *
+     * @param constraints constraints for stream reading
+     * @return Aggregated buffered contents as a {@link java.lang.String}
+     * @since 2.15
+     */
+    public String contentsAsString(StreamReadConstraints constraints)
     {
         if (_resultString == null) {
             // Has array been requested? Can make a shortcut, if so:
             if (_resultArray != null) {
+                constraints.validateStringLength(_resultArray.length);
                 _resultString = new String(_resultArray);
             } else {
                 // Do we use shared array?
@@ -444,6 +461,7 @@ public final class TextBuffer
                     if (_inputLen < 1) {
                         return (_resultString = "");
                     }
+                    constraints.validateStringLength(_inputLen);
                     _resultString = new String(_inputBuffer, _inputStart, _inputLen);
                 } else { // nope... need to copy
                     // But first, let's see if we have just one buffer
@@ -451,17 +469,24 @@ public final class TextBuffer
                     int currLen = _currentSize;
                     
                     if (segLen == 0) { // yup
-                        _resultString = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
+                        if (currLen == 0) {
+                            _resultString = "";
+                        } else {
+                            constraints.validateStringLength(currLen);
+                            _resultString = new String(_currentSegment, 0, currLen);
+                        }
                     } else { // no, need to combine
                         StringBuilder sb = new StringBuilder(segLen + currLen);
                         // First stored segments
                         if (_segments != null) {
                             for (int i = 0, len = _segments.size(); i < len; ++i) {
                                 char[] curr = _segments.get(i);
+                                constraints.validateStringLength(sb.length() + curr.length);
                                 sb.append(curr, 0, curr.length);
                             }
                         }
                         // And finally, current segment:
+                        constraints.validateStringLength(sb.length() + _currentSize);
                         sb.append(_currentSegment, 0, _currentSize);
                         _resultString = sb.toString();
                     }
@@ -534,7 +559,7 @@ public final class TextBuffer
      */
     public double contentsAsDouble(final StreamReadConstraints constraints,
             final boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString();
+        final String numStr = contentsAsString(constraints);
         constraints.validateFPLength(numStr.length());
         return NumberInput.parseDouble(numStr, useFastParser);
     }
@@ -571,7 +596,7 @@ public final class TextBuffer
      */
     public float contentsAsFloat(final StreamReadConstraints constraints,
             final boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString();
+        final String numStr = contentsAsString(constraints);
         constraints.validateFPLength(numStr.length());
         return NumberInput.parseFloat(numStr, useFastParser);
     }

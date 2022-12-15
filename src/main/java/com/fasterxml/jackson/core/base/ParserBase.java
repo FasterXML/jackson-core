@@ -914,7 +914,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
                 //    value is actually needed.
                 _numberBigDecimal = null;
-                String numStr = _textBuffer.contentsAsString();
+                String numStr = _textBuffer.contentsAsString(streamReadConstraints());
                 streamReadConstraints().validateFPLength(numStr.length());
                 _numberString = numStr;
                 _numTypesValid = NR_BIGDECIMAL;
@@ -933,13 +933,15 @@ public abstract class ParserBase extends ParserMinimalBase
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?
-            _wrapError("Malformed numeric value ("+_longNumberDesc(_textBuffer.contentsAsString())+")", nex);
+            _wrapError("Malformed numeric value ("
+                    +_longNumberDesc(_textBuffer.contentsAsString(streamReadConstraints()))
+                    +")", nex);
         }
     }
 
     private void _parseSlowInt(int expType) throws IOException
     {
-        final String numStr = _textBuffer.contentsAsString();
+        final String numStr = _textBuffer.contentsAsString(streamReadConstraints());
         try {
             int len = _intLength;
             char[] buf = _textBuffer.getTextBuffer();

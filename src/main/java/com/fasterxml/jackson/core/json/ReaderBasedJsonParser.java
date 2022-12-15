@@ -319,7 +319,7 @@ public class ReaderBasedJsonParser
                 _tokenIncomplete = false;
                 _finishString(); // only strings can be incomplete
             }
-            return _textBuffer.contentsAsString();
+            return _textBuffer.contentsAsString(streamReadConstraints());
         }
         return _getText2(_currToken);
     }
@@ -362,7 +362,7 @@ public class ReaderBasedJsonParser
                 _tokenIncomplete = false;
                 _finishString(); // only strings can be incomplete
             }
-            return _textBuffer.contentsAsString();
+            return _textBuffer.contentsAsString(streamReadConstraints());
         }
         if (_currToken == JsonToken.FIELD_NAME) {
             return getCurrentName();
@@ -378,7 +378,7 @@ public class ReaderBasedJsonParser
                 _tokenIncomplete = false;
                 _finishString(); // only strings can be incomplete
             }
-            return _textBuffer.contentsAsString();
+            return _textBuffer.contentsAsString(streamReadConstraints());
         }
         if (_currToken == JsonToken.FIELD_NAME) {
             return getCurrentName();
@@ -398,7 +398,7 @@ public class ReaderBasedJsonParser
             // fall through
         case ID_NUMBER_INT:
         case ID_NUMBER_FLOAT:
-            return _textBuffer.contentsAsString();
+            return _textBuffer.contentsAsString(streamReadConstraints());
         default:
             return t.asString();
         }
@@ -1229,7 +1229,7 @@ public class ReaderBasedJsonParser
                     _tokenIncomplete = false;
                     _finishString();
                 }
-                return _textBuffer.contentsAsString();
+                return _textBuffer.contentsAsString(streamReadConstraints());
             }
             if (t == JsonToken.START_ARRAY) {
                 _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);

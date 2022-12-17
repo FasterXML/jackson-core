@@ -837,8 +837,7 @@ public abstract class ParserBase extends ParserMinimalBase
             final int len = _intLength;
             // First: optimization for simple int
             if (len <= 9) {
-                int i = _textBuffer.contentsAsInt(_numberNegative);
-                _numberInt = i;
+                _numberInt = _textBuffer.contentsAsInt(_numberNegative);
                 _numTypesValid = NR_INT;
                 return;
             }
@@ -931,9 +930,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?
-            _wrapError("Malformed numeric value ("
-                    +_longNumberDesc(_textBuffer.contentsAsString())
-                    +")", nex);
+            _wrapError("Malformed numeric value ("+_longNumberDesc(_textBuffer.contentsAsString())+")", nex);
         }
     }
 

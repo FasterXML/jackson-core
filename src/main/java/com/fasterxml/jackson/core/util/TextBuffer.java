@@ -450,11 +450,7 @@ public class TextBuffer
                     int currLen = _currentSize;
                     
                     if (segLen == 0) { // yup
-                        if (currLen == 0) {
-                            _resultString = "";
-                        } else {
-                            _resultString = new String(_currentSegment, 0, currLen);
-                        }
+                        _resultString = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
                     } else { // no, need to combine
                         StringBuilder sb = new StringBuilder(segLen + currLen);
                         // First stored segments

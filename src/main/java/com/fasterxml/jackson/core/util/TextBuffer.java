@@ -546,7 +546,7 @@ public final class TextBuffer
 
     @Deprecated // @since 2.15
     public double contentsAsDouble(boolean useFastParser) throws NumberFormatException {
-        return contentsAsDouble(StreamReadConstraints.defaults(), false);
+        return contentsAsDouble(StreamReadConstraints.defaults(), useFastParser);
     }
 
     @Deprecated // @since 2.14
@@ -556,7 +556,7 @@ public final class TextBuffer
 
     @Deprecated // @since 2.15
     public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
-        return contentsAsFloat(false);
+        return contentsAsFloat(StreamReadConstraints.defaults(), useFastParser);
     }
 
     /**

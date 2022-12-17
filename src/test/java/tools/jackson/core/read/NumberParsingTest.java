@@ -211,6 +211,8 @@ public class NumberParsingTest
         assertEquals(-131, NumberInput.parseLong("-131"));
         assertEquals(2709, NumberInput.parseLong("2709"));
         assertEquals(-9999, NumberInput.parseLong("-9999"));
+        assertEquals(1234567890123456789L, NumberInput.parseLong("1234567890123456789"));
+        assertEquals(-1234567890123456789L, NumberInput.parseLong("-1234567890123456789"));
         assertEquals(Long.MIN_VALUE, NumberInput.parseLong(""+Long.MIN_VALUE));
         assertEquals(Integer.MIN_VALUE-1, NumberInput.parseLong(""+(Integer.MIN_VALUE-1)));
         assertEquals(Long.MAX_VALUE, NumberInput.parseLong(""+Long.MAX_VALUE));

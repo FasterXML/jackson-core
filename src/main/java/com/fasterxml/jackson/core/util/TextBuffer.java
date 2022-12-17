@@ -436,7 +436,6 @@ public class TextBuffer
         if (_resultString == null) {
             // Has array been requested? Can make a shortcut, if so:
             if (_resultArray != null) {
-                validateStringLength(_resultArray.length);
                 _resultString = new String(_resultArray);
             } else {
                 // Do we use shared array?
@@ -444,7 +443,6 @@ public class TextBuffer
                     if (_inputLen < 1) {
                         return (_resultString = "");
                     }
-                    validateStringLength(_inputLen);
                     _resultString = new String(_inputBuffer, _inputStart, _inputLen);
                 } else { // nope... need to copy
                     // But first, let's see if we have just one buffer
@@ -455,7 +453,6 @@ public class TextBuffer
                         if (currLen == 0) {
                             _resultString = "";
                         } else {
-                            validateStringLength(currLen);
                             _resultString = new String(_currentSegment, 0, currLen);
                         }
                     } else { // no, need to combine
@@ -464,12 +461,10 @@ public class TextBuffer
                         if (_segments != null) {
                             for (int i = 0, len = _segments.size(); i < len; ++i) {
                                 char[] curr = _segments.get(i);
-                                validateStringLength(sb.length() + curr.length);
                                 sb.append(curr, 0, curr.length);
                             }
                         }
                         // And finally, current segment:
-                        validateStringLength(sb.length() + _currentSize);
                         sb.append(_currentSegment, 0, _currentSize);
                         _resultString = sb.toString();
                     }
@@ -690,6 +685,8 @@ public class TextBuffer
     }
 
     public void append(char c) {
+        validateStringLength(_currentSize + 1);
+
         // Using shared buffer so far?
         if (_inputStart >= 0) {
             unshare(16);
@@ -707,6 +704,8 @@ public class TextBuffer
 
     public void append(char[] c, int start, int len)
     {
+        validateStringLength(_currentSize + len);
+
         // Can't append to shared buf (sanity check)
         if (_inputStart >= 0) {
             unshare(len);
@@ -743,6 +742,8 @@ public class TextBuffer
 
     public void append(String str, int offset, int len)
     {
+        validateStringLength(_currentSize + len);
+
         // Can't append to shared buf (sanity check)
         if (_inputStart >= 0) {
             unshare(len);

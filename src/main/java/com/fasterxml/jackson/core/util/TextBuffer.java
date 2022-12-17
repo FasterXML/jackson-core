@@ -4,7 +4,6 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
-import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 /**
@@ -25,7 +24,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
  *    </li>
  * </ul>
  */
-public final class TextBuffer
+public class TextBuffer
 {
     final static char[] NO_CHARS = new char[0];
 

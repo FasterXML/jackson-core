@@ -432,28 +432,12 @@ public final class TextBuffer
      *
      * @return Aggregated buffered contents as a {@link java.lang.String}
      */
-    @Deprecated //@since 2.15
     public String contentsAsString()
-    {
-        return contentsAsString(StreamReadConstraints.defaults());
-    }
-
-
-    /**
-     * Accessor that may be used to get the contents of this buffer as a single
-     * {@code String} regardless of whether they were collected in a segmented
-     * fashion or not: this typically require construction of the result String.
-     *
-     * @param constraints constraints for stream reading
-     * @return Aggregated buffered contents as a {@link java.lang.String}
-     * @since 2.15
-     */
-    public String contentsAsString(StreamReadConstraints constraints)
     {
         if (_resultString == null) {
             // Has array been requested? Can make a shortcut, if so:
             if (_resultArray != null) {
-                constraints.validateStringLength(_resultArray.length);
+                validateStringLength(_resultArray.length);
                 _resultString = new String(_resultArray);
             } else {
                 // Do we use shared array?
@@ -461,7 +445,7 @@ public final class TextBuffer
                     if (_inputLen < 1) {
                         return (_resultString = "");
                     }
-                    constraints.validateStringLength(_inputLen);
+                    validateStringLength(_inputLen);
                     _resultString = new String(_inputBuffer, _inputStart, _inputLen);
                 } else { // nope... need to copy
                     // But first, let's see if we have just one buffer
@@ -472,7 +456,7 @@ public final class TextBuffer
                         if (currLen == 0) {
                             _resultString = "";
                         } else {
-                            constraints.validateStringLength(currLen);
+                            validateStringLength(currLen);
                             _resultString = new String(_currentSegment, 0, currLen);
                         }
                     } else { // no, need to combine
@@ -481,12 +465,12 @@ public final class TextBuffer
                         if (_segments != null) {
                             for (int i = 0, len = _segments.size(); i < len; ++i) {
                                 char[] curr = _segments.get(i);
-                                constraints.validateStringLength(sb.length() + curr.length);
+                                validateStringLength(sb.length() + curr.length);
                                 sb.append(curr, 0, curr.length);
                             }
                         }
                         // And finally, current segment:
-                        constraints.validateStringLength(sb.length() + _currentSize);
+                        validateStringLength(sb.length() + _currentSize);
                         sb.append(_currentSegment, 0, _currentSize);
                         _resultString = sb.toString();
                     }
@@ -509,41 +493,39 @@ public final class TextBuffer
      * Convenience method for converting contents of the buffer
      * into a {@link BigDecimal}.
      *
-     * @param constraints constraints for stream reading
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return Buffered text value parsed as a {@link BigDecimal}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
      *
-     * @since 2.15
+     * @since 2.14
      */
-    public BigDecimal contentsAsDecimal(final StreamReadConstraints constraints,
-                                        final boolean useFastParser) throws NumberFormatException
+    public BigDecimal contentsAsDecimal(final boolean useFastParser) throws NumberFormatException
     {
         // Already got a pre-cut array?
         if (_resultArray != null) {
-            constraints.validateFPLength(_resultArray.length);
+            validateFPLength(_resultArray.length);
             return NumberInput.parseBigDecimal(_resultArray, useFastParser);
         }
         // Or a shared buffer?
         if ((_inputStart >= 0) && (_inputBuffer != null)) {
-            constraints.validateFPLength(_inputLen);
+            validateFPLength(_inputLen);
             return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
         // Or if not, just a single buffer (the usual case)
         if ((_segmentSize == 0) && (_currentSegment != null)) {
-            constraints.validateFPLength(_currentSize);
+            validateFPLength(_currentSize);
             return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize, useFastParser);
         }
         // If not, let's just get it aggregated...
         final char[] numArray = contentsAsArray();
-        constraints.validateFPLength(numArray.length);
+        validateFPLength(numArray.length);
         return NumberInput.parseBigDecimal(numArray, useFastParser);
     }
 
     @Deprecated // @since 2.15
     public BigDecimal contentsAsDecimal() throws NumberFormatException {
-        return contentsAsDecimal(StreamReadConstraints.defaults(), false);
+        return contentsAsDecimal(false);
     }
 
     /**
@@ -557,10 +539,9 @@ public final class TextBuffer
      *
      * @since 2.15
      */
-    public double contentsAsDouble(final StreamReadConstraints constraints,
-            final boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString(constraints);
-        constraints.validateFPLength(numStr.length());
+    public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
+        final String numStr = contentsAsString();
+        validateFPLength(numStr.length());
         return NumberInput.parseDouble(numStr, useFastParser);
     }
 
@@ -569,18 +550,8 @@ public final class TextBuffer
         return contentsAsDouble(false);
     }
 
-    @Deprecated // @since 2.15
-    public double contentsAsDouble(boolean useFastParser) throws NumberFormatException {
-        return contentsAsDouble(StreamReadConstraints.defaults(), false);
-    }
-
     @Deprecated // @since 2.14
     public float contentsAsFloat() throws NumberFormatException {
-        return contentsAsFloat(false);
-    }
-
-    @Deprecated // @since 2.15
-    public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
         return contentsAsFloat(false);
     }
 
@@ -592,12 +563,11 @@ public final class TextBuffer
      * @return Buffered text value parsed as a {@link Float}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
-     * @since 2.15
+     * @since 2.14
      */
-    public float contentsAsFloat(final StreamReadConstraints constraints,
-            final boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString(constraints);
-        constraints.validateFPLength(numStr.length());
+    public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
+        final String numStr = contentsAsString();
+        validateFPLength(numStr.length());
         return NumberInput.parseFloat(numStr, useFastParser);
     }
 
@@ -1049,4 +1019,58 @@ public final class TextBuffer
     }
 
     private char[] carr(int len) { return new char[len]; }
+
+    /*
+    /**********************************************************************
+    /* Convenience methods for validation
+    /**********************************************************************
+     */
+
+    /**
+     * Convenience method that can be used to verify that a floating-point
+     * number of specified length does not exceed maximum specific by this
+     * constraints object: if it does, a
+     * {@link NumberFormatException}
+     * is thrown.
+     *
+     * @param length Length of number in input units
+     *
+     * @throws NumberFormatException If length exceeds maximum
+     */
+    protected void validateFPLength(int length) throws NumberFormatException
+    {
+        // no-op
+    }
+
+    /**
+     * Convenience method that can be used to verify that an integer
+     * number of specified length does not exceed maximum specific by this
+     * constraints object: if it does, a
+     * {@link NumberFormatException}
+     * is thrown.
+     *
+     * @param length Length of number in input units
+     *
+     * @throws NumberFormatException If length exceeds maximum
+     */
+    protected void validateIntegerLength(int length) throws NumberFormatException
+    {
+        // no-op
+    }
+
+    /**
+     * Convenience method that can be used to verify that a String
+     * of specified length does not exceed maximum specific by this
+     * constraints object: if it does, an
+     * {@link IllegalStateException}
+     * is thrown.
+     *
+     * @param length Length of string in input units
+     *
+     * @throws IllegalStateException If length exceeds maximum
+     */
+    protected void validateStringLength(int length) throws IllegalStateException
+    {
+        // no-op
+    }
 }

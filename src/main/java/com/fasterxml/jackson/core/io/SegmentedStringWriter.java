@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
@@ -17,12 +16,6 @@ import com.fasterxml.jackson.core.util.TextBuffer;
 public final class SegmentedStringWriter extends Writer
 {
     final private TextBuffer _buffer;
-
-    private static final StreamReadConstraints unlimitedConstraints =
-            StreamReadConstraints.builder()
-                    .maxNumberLength(Integer.MAX_VALUE)
-                    .maxStringLength(Integer.MAX_VALUE)
-                    .build();
 
     public SegmentedStringWriter(BufferRecycler br) {
         super();
@@ -89,7 +82,7 @@ public final class SegmentedStringWriter extends Writer
      * @return String that contains all aggregated content
      */
     public String getAndClear() {
-        String result = _buffer.contentsAsString(unlimitedConstraints);
+        String result = _buffer.contentsAsString();
         _buffer.releaseBuffers();
         return result;
     }

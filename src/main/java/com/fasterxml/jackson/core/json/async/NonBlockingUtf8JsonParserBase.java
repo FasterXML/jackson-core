@@ -1248,20 +1248,20 @@ public abstract class NonBlockingUtf8JsonParserBase
                     continue;
                 }
             }
-            return _reportErrorToken(_textBuffer.contentsAsString(streamReadConstraints()));
+            return _reportErrorToken(_textBuffer.contentsAsString());
         }
         return (_currToken = JsonToken.NOT_AVAILABLE);
     }
 
     protected JsonToken _finishErrorTokenWithEOF() throws IOException
     {
-        return _reportErrorToken(_textBuffer.contentsAsString(streamReadConstraints()));
+        return _reportErrorToken(_textBuffer.contentsAsString());
     }
 
     protected JsonToken _reportErrorToken(String actualToken) throws IOException
     {
         // !!! TODO: Include non-standard ones if enabled
-        _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(streamReadConstraints()),
+        _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
                 _validJsonTokenList());
         return JsonToken.NOT_AVAILABLE; // never gets here
     }

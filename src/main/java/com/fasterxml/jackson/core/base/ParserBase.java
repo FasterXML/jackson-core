@@ -914,34 +914,32 @@ public abstract class ParserBase extends ParserMinimalBase
                 // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
                 //    value is actually needed.
                 _numberBigDecimal = null;
-                String numStr = _textBuffer.contentsAsString(streamReadConstraints());
+                String numStr = _textBuffer.contentsAsString();
                 streamReadConstraints().validateFPLength(numStr.length());
                 _numberString = numStr;
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat(streamReadConstraints(),
-                        isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
+                _numberFloat = _textBuffer.contentsAsFloat(isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
                 // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
                 //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
                 //    deferring some typing?
-                _numberDouble = _textBuffer.contentsAsDouble(streamReadConstraints(),
-                        isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
+                _numberDouble = _textBuffer.contentsAsDouble(isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?
             _wrapError("Malformed numeric value ("
-                    +_longNumberDesc(_textBuffer.contentsAsString(streamReadConstraints()))
+                    +_longNumberDesc(_textBuffer.contentsAsString())
                     +")", nex);
         }
     }
 
     private void _parseSlowInt(int expType) throws IOException
     {
-        final String numStr = _textBuffer.contentsAsString(streamReadConstraints());
+        final String numStr = _textBuffer.contentsAsString();
         try {
             int len = _intLength;
             char[] buf = _textBuffer.getTextBuffer();

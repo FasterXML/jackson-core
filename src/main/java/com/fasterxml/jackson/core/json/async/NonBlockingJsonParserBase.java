@@ -377,7 +377,7 @@ public abstract class NonBlockingJsonParserBase
     public String getText() throws IOException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
-            return _textBuffer.contentsAsString(streamReadConstraints());
+            return _textBuffer.contentsAsString();
         }
         return _getText2(_currToken);
     }
@@ -396,7 +396,7 @@ public abstract class NonBlockingJsonParserBase
             // fall through
         case ID_NUMBER_INT:
         case ID_NUMBER_FLOAT:
-            return _textBuffer.contentsAsString(streamReadConstraints());
+            return _textBuffer.contentsAsString();
         default:
           return t.asString();
         }
@@ -435,7 +435,7 @@ public abstract class NonBlockingJsonParserBase
     public String getValueAsString() throws IOException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
-            return _textBuffer.contentsAsString(streamReadConstraints());
+            return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
             return getCurrentName();
@@ -448,7 +448,7 @@ public abstract class NonBlockingJsonParserBase
     public String getValueAsString(String defValue) throws IOException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
-            return _textBuffer.contentsAsString(streamReadConstraints());
+            return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
             return getCurrentName();

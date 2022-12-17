@@ -200,7 +200,7 @@ public class UTF8DataInputJsonParser
                 _tokenIncomplete = false;
                 return _finishAndReturnString(); // only strings can be incomplete
             }
-            return _textBuffer.contentsAsString(streamReadConstraints());
+            return _textBuffer.contentsAsString();
         }
         return _getText2(_currToken);
     }
@@ -241,7 +241,7 @@ public class UTF8DataInputJsonParser
                 _tokenIncomplete = false;
                 return _finishAndReturnString(); // only strings can be incomplete
             }
-            return _textBuffer.contentsAsString(streamReadConstraints());
+            return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
             return getCurrentName();
@@ -257,7 +257,7 @@ public class UTF8DataInputJsonParser
                 _tokenIncomplete = false;
                 return _finishAndReturnString(); // only strings can be incomplete
             }
-            return _textBuffer.contentsAsString(streamReadConstraints());
+            return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
             return getCurrentName();
@@ -316,7 +316,7 @@ public class UTF8DataInputJsonParser
             // fall through
         case ID_NUMBER_INT:
         case ID_NUMBER_FLOAT:
-            return _textBuffer.contentsAsString(streamReadConstraints());
+            return _textBuffer.contentsAsString();
         default:
         	return t.asString();
         }
@@ -905,7 +905,7 @@ public class UTF8DataInputJsonParser
                     _tokenIncomplete = false;
                     return _finishAndReturnString();
                 }
-                return _textBuffer.contentsAsString(streamReadConstraints());
+                return _textBuffer.contentsAsString();
             }
             if (t == JsonToken.START_ARRAY) {
                 _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
@@ -1979,12 +1979,12 @@ public class UTF8DataInputJsonParser
                     return _textBuffer.setCurrentAndReturn(outPtr);
                 }
                 _finishString2(outBuf, outPtr, c);
-                return _textBuffer.contentsAsString(streamReadConstraints());
+                return _textBuffer.contentsAsString();
             }
             outBuf[outPtr++] = (char) c;
         } while (outPtr < outEnd);
         _finishString2(outBuf, outPtr, _inputData.readUnsignedByte());
-        return _textBuffer.contentsAsString(streamReadConstraints());
+        return _textBuffer.contentsAsString();
     }
     
     private final void _finishString2(char[] outBuf, int outPtr, int c)

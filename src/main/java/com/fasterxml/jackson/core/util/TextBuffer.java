@@ -302,6 +302,7 @@ public class TextBuffer
         _inputStart = -1;
         _inputLen = 0;
 
+        validateStringLength(value.length());
         _resultString = value;
         _resultArray = null;
 

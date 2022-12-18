@@ -1032,6 +1032,7 @@ public class TextBuffer
      * @param length Length of number in input units
      *
      * @throws NumberFormatException If length exceeds maximum
+     * @since 2.15
      */
     protected void validateFPLength(int length) throws NumberFormatException
     {
@@ -1048,6 +1049,7 @@ public class TextBuffer
      * @param length Length of number in input units
      *
      * @throws NumberFormatException If length exceeds maximum
+     * @since 2.15
      */
     protected void validateIntegerLength(int length) throws NumberFormatException
     {
@@ -1064,6 +1066,7 @@ public class TextBuffer
      * @param length Length of string in input units
      *
      * @throws IllegalStateException If length exceeds maximum
+     * @since 2.15
      */
     protected void validateStringLength(int length) throws IllegalStateException
     {

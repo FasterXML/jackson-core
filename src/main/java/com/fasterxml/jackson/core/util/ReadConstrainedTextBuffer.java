@@ -2,7 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
 
-public class ReadConstrainedTextBuffer extends TextBuffer {
+public final class ReadConstrainedTextBuffer extends TextBuffer {
 
     private final StreamReadConstraints _streamReadConstraints;
 

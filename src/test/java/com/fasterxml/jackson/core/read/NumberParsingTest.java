@@ -490,43 +490,6 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
-    public void testBigBigDecimalsBytesFailByDefault() throws Exception
-    {
-        _testBigBigDecimals(MODE_INPUT_STREAM, true);
-        _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, true);
-    }
-
-    public void testBigBigDecimalsBytes() throws Exception
-    {
-        try {
-            _testBigBigDecimals(MODE_INPUT_STREAM, false);
-        } catch (JsonParseException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
-        }
-        try {
-            _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, false);
-        } catch (JsonParseException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
-        }
-    }
-
-    public void testBigBigDecimalsCharsFailByDefault() throws Exception
-    {
-        try {
-            _testBigBigDecimals(MODE_READER, false);
-        } catch (JsonParseException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
-        }
-    }
-
-    public void testBigBigDecimalsChars() throws Exception
-    {
-        _testBigBigDecimals(MODE_READER, true);
-    }
-
     public void testBigBigDecimalsFailByDefault() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -539,7 +502,7 @@ public class NumberParsingTest
         }
     }
 
-    public void testBigBigDecimalsDataInput() throws Exception
+    public void testBigBigDecimals() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             _testBigBigDecimals(mode, true);

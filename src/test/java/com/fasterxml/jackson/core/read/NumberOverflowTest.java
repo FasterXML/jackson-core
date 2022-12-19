@@ -107,13 +107,17 @@ public class NumberOverflowTest
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;
-            JsonParser p = createParser(FACTORY, mode, doc);
-            assertToken(JsonToken.START_ARRAY, p.nextToken());
-            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-            double d = p.getDoubleValue();
-            assertEquals(Double.valueOf(BIG_POS_INTEGER), d);
-            assertToken(JsonToken.END_ARRAY, p.nextToken());
-            p.close();
+            try (JsonParser p = createParser(FACTORY, mode, doc)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                try {
+                    p.getDoubleValue();
+                    fail("expected JsonParseException");
+                } catch (JsonParseException jpe) {
+                    assertTrue("unexpected exception message: " + jpe.getMessage(),
+                            jpe.getMessage().startsWith("Malformed numeric value ([number with 199999 characters])"));
+                }
+            }
         }
     }    
 
@@ -122,13 +126,17 @@ public class NumberOverflowTest
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;
-            JsonParser p = createParser(FACTORY, mode, doc);
-            assertToken(JsonToken.START_ARRAY, p.nextToken());
-            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-            float f = p.getFloatValue();
-            assertEquals(Float.valueOf(BIG_POS_INTEGER), f);
-            assertToken(JsonToken.END_ARRAY, p.nextToken());
-            p.close();
+            try (JsonParser p = createParser(FACTORY, mode, doc)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                try {
+                    p.getFloatValue();
+                    fail("expected JsonParseException");
+                } catch (JsonParseException jpe) {
+                    assertTrue("unexpected exception message: " + jpe.getMessage(),
+                            jpe.getMessage().startsWith("Malformed numeric value ([number with 199999 characters])"));
+                }
+            }
         }
     }
 }

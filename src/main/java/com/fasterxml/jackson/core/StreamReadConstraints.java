@@ -18,6 +18,7 @@ public class StreamReadConstraints
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 
     protected final int _maxNumLen;
+    protected final int _maxFPLen;
 
     private static final StreamReadConstraints DEFAULT =
         new StreamReadConstraints(DEFAULT_MAX_NUM_LEN);
@@ -69,6 +70,9 @@ public class StreamReadConstraints
 
     StreamReadConstraints(int maxNumLen) {
         _maxNumLen = maxNumLen;
+        // 768 limit comes from Daniel Lemire, Number Parsing at a Gigabyte per Second, Software: Practice and Experience
+        // 51 (8), 2021, Chapter 11 Processing Numbers Quickly
+        _maxFPLen = Math.min(768, _maxNumLen);
     }
 
     public static Builder builder() {
@@ -108,6 +112,25 @@ public class StreamReadConstraints
     /* Convenience methods for validation
     /**********************************************************************
      */
+
+    /**
+     * Convenience method that can be used to verify that a BigDecimal or BigInteger
+     * number of specified length does not exceed maximum specific by this
+     * constraints object: if it does, a
+     * {@link NumberFormatException}
+     * is thrown.
+     *
+     * @param length Length of number in input units
+     *
+     * @throws NumberFormatException If length exceeds maximum
+     */
+    public void validateBigNumberLength(int length) throws NumberFormatException
+    {
+        if (length > _maxNumLen) {
+            throw new NumberFormatException(String.format("Number length (%d) exceeds the maximum length (%d)",
+                    length, _maxNumLen));
+        }
+    }
 
     /**
      * Convenience method that can be used to verify that a floating-point

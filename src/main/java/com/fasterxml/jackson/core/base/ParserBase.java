@@ -915,7 +915,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 //    value is actually needed.
                 _numberBigDecimal = null;
                 String numStr = _textBuffer.contentsAsString();
-                streamReadConstraints().validateFPLength(numStr.length());
+                streamReadConstraints().validateBigNumberLength(numStr.length());
                 _numberString = numStr;
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
@@ -1134,7 +1134,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
-            streamReadConstraints().validateFPLength(numStr.length());
+            streamReadConstraints().validateBigNumberLength(numStr.length());
             _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());

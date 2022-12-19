@@ -497,22 +497,22 @@ public final class TextBuffer
     {
         // Already got a pre-cut array?
         if (_resultArray != null) {
-            constraints.validateFPLength(_resultArray.length);
+            constraints.validateBigNumberLength(_resultArray.length);
             return NumberInput.parseBigDecimal(_resultArray, useFastParser);
         }
         // Or a shared buffer?
         if ((_inputStart >= 0) && (_inputBuffer != null)) {
-            constraints.validateFPLength(_inputLen);
+            constraints.validateBigNumberLength(_inputLen);
             return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
         // Or if not, just a single buffer (the usual case)
         if ((_segmentSize == 0) && (_currentSegment != null)) {
-            constraints.validateFPLength(_currentSize);
+            constraints.validateBigNumberLength(_currentSize);
             return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize, useFastParser);
         }
         // If not, let's just get it aggregated...
         final char[] numArray = contentsAsArray();
-        constraints.validateFPLength(numArray.length);
+        constraints.validateBigNumberLength(numArray.length);
         return NumberInput.parseBigDecimal(numArray, useFastParser);
     }
 

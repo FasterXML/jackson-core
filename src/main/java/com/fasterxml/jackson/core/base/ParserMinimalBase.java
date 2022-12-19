@@ -388,6 +388,7 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (_hasTextualNull(str)) {
                     return 0;
                 }
+                streamReadConstraints().validateIntegerLength(str.length());
                 return NumberInput.parseAsInt(str, defaultValue);
             case ID_TRUE:
                 return 1;
@@ -429,6 +430,7 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
+                streamReadConstraints().validateIntegerLength(str.length());
                 return NumberInput.parseAsLong(str, defaultValue);
             case ID_TRUE:
                 return 1L;

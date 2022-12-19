@@ -17,8 +17,21 @@ public class StreamReadConstraints
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 
+    /**
+     * Longest <code>int</code> or <code>long</code> allowed but <code>StreamReadConstraints</code>.
+     * See {@link Builder#maxNumberLength(int)} for full details of how this applied.
+     */
+    public static final int MAX_INT_LEN = 20;
+
+    /**
+     * Longest <code>float</code> or <code>double</code> allowed but <code>StreamReadConstraints</code>.
+     * See {@link Builder#maxNumberLength(int)} for full details of how this applied.
+     */
+    public static final int MAX_FLOAT_LEN = 768;
+
     protected final int _maxNumLen;
     protected final int _maxFPLen;
+    protected final int _maxIntLen;
 
     private static final StreamReadConstraints DEFAULT =
         new StreamReadConstraints(DEFAULT_MAX_NUM_LEN);
@@ -29,6 +42,12 @@ public class StreamReadConstraints
         /**
          * Sets the maximum number length (in chars or bytes, depending on input context).
          * The default is 1000.
+         * <ul>
+         *     <li>This limit is applied when parsing {@link java.math.BigDecimal} and {@link java.math.BigInteger}.</li>
+         *     </li>When parsing <code>float</code>s and <code>double</code>s, the limit is the lower of 768 and this value.</li>
+         *     </li>When parsing <code>int</code>s and <code>long</code>s, the limit is the lower of 20 and this value
+         *     (but the parsing code itself can fail for smaller numbers anyway, especially with ints).</li>
+         * </ul>
          *
          * @param maxNumLen the maximum number length (in chars or bytes, depending on input context)
          *
@@ -72,7 +91,8 @@ public class StreamReadConstraints
         _maxNumLen = maxNumLen;
         // 768 limit comes from Daniel Lemire, Number Parsing at a Gigabyte per Second, Software: Practice and Experience
         // 51 (8), 2021, Chapter 11 Processing Numbers Quickly
-        _maxFPLen = Math.min(768, _maxNumLen);
+        _maxFPLen = Math.min(MAX_FLOAT_LEN, _maxNumLen);
+        _maxIntLen = Math.min(MAX_INT_LEN, _maxNumLen);
     }
 
     public static Builder builder() {
@@ -164,9 +184,9 @@ public class StreamReadConstraints
      */
     public void validateIntegerLength(int length) throws NumberFormatException
     {
-        if (length > _maxNumLen) {
+        if (length > _maxIntLen) {
             throw new NumberFormatException(String.format("Number length (%d) exceeds the maximum length (%d)",
-                    length, _maxNumLen));
+                    length, _maxIntLen));
         }
     }
 }

@@ -962,7 +962,7 @@ public abstract class ParserBase extends ParserMinimalBase
                     _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {
-                    streamReadConstraints().validateIntegerLength(numStr.length());
+                    streamReadConstraints().validateBigNumberLength(numStr.length());
                     // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
                     _numberBigInt = null;
                     _numberString = numStr;

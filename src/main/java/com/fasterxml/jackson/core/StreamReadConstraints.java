@@ -18,14 +18,14 @@ public class StreamReadConstraints
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 
     /**
-     * Longest <code>int</code> or <code>long</code> allowed but <code>StreamReadConstraints</code>.
-     * See {@link Builder#maxNumberLength(int)} for full details of how this applied.
+     * Longest <code>int</code> or <code>long</code> allowed.
+     * See {@link Builder#maxNumberLength(int)} for full details of how this is applied.
      */
     public static final int MAX_INT_LEN = 20;
 
     /**
-     * Longest <code>float</code> or <code>double</code> allowed but <code>StreamReadConstraints</code>.
-     * See {@link Builder#maxNumberLength(int)} for full details of how this applied.
+     * Longest <code>float</code> or <code>double</code> allowed.
+     * See {@link Builder#maxNumberLength(int)} for full details of how this is applied.
      */
     public static final int MAX_FLOAT_LEN = 768;
 

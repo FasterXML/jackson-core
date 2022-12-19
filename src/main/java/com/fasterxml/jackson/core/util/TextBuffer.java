@@ -444,11 +444,13 @@ public class TextBuffer
                     if (_inputLen < 1) {
                         return (_resultString = "");
                     }
+                    validateStringLength(_inputLen);
                     _resultString = new String(_inputBuffer, _inputStart, _inputLen);
                 } else { // nope... need to copy
                     // But first, let's see if we have just one buffer
                     int segLen = _segmentSize;
                     int currLen = _currentSize;
+                    validateStringLength(_segmentSize + _currentSize);
                     
                     if (segLen == 0) { // yup
                         _resultString = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
@@ -693,7 +695,7 @@ public class TextBuffer
         // Room in current segment?
         char[] curr = _currentSegment;
         if (_currentSize >= curr.length) {
-            expand(1);
+            expand();
             curr = _currentSegment;
         }
         curr[_currentSize++] = c;
@@ -728,7 +730,7 @@ public class TextBuffer
         // And then allocate new segment; we are guaranteed to now
         // have enough room in segment.
         do {
-            expand(len);
+            expand();
             int amount = Math.min(_currentSegment.length, len);
             System.arraycopy(c, start, _currentSegment, 0, amount);
             _currentSize += amount;
@@ -765,7 +767,7 @@ public class TextBuffer
         // And then allocate new segment; we are guaranteed to now
         // have enough room in segment.
         do {
-            expand(len);
+            expand();
             int amount = Math.min(_currentSegment.length, len);
             str.getChars(offset, offset+amount, _currentSegment, 0);
             _currentSize += amount;
@@ -794,7 +796,7 @@ public class TextBuffer
                 _currentSegment = buf(0);
             } else if (_currentSize >= curr.length) {
                 // Plus, we better have room for at least one more char
-                expand(1);
+                expand();
             }
         }
         return _currentSegment;
@@ -845,6 +847,7 @@ public class TextBuffer
         }
         // more common case: single segment
         int currLen = _currentSize;
+        validateStringLength(currLen);
         String str = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
         _resultString = str;
         return str;
@@ -859,6 +862,7 @@ public class TextBuffer
         int oldLen = _currentSegment.length;
         _segmentSize += oldLen;
         _currentSize = 0;
+        validateStringLength(_segmentSize);
 
         // Let's grow segments by 50%
         int newLen = oldLen + (oldLen >> 1);
@@ -956,7 +960,7 @@ public class TextBuffer
     }
 
     // Method called when current segment is full, to allocate new segment.
-    private void expand(int minNewSegmentSize)
+    private void expand()
     {
         // First, let's move current segment to segment list:
         if (_segments == null) {
@@ -1001,6 +1005,7 @@ public class TextBuffer
         if (size < 1) {
             return NO_CHARS;
         }
+        validateStringLength(size);
         int offset = 0;
         final char[] result = carr(size);
         if (_segments != null) {

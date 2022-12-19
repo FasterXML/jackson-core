@@ -485,7 +485,7 @@ public final class TextBuffer
      * into a {@link BigDecimal}.
      *
      * @param constraints constraints for stream reading
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use {@code FastDoubleParser}
      * @return Buffered text value parsed as a {@link BigDecimal}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
@@ -525,7 +525,7 @@ public final class TextBuffer
      * Convenience method for converting contents of the buffer
      * into a Double value.
      *
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use {@code FastDoubleParser}
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
@@ -546,7 +546,7 @@ public final class TextBuffer
 
     @Deprecated // @since 2.15
     public double contentsAsDouble(boolean useFastParser) throws NumberFormatException {
-        return contentsAsDouble(StreamReadConstraints.defaults(), false);
+        return contentsAsDouble(StreamReadConstraints.defaults(), useFastParser);
     }
 
     @Deprecated // @since 2.14
@@ -556,14 +556,14 @@ public final class TextBuffer
 
     @Deprecated // @since 2.15
     public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
-        return contentsAsFloat(false);
+        return contentsAsFloat(StreamReadConstraints.defaults(), useFastParser);
     }
 
     /**
      * Convenience method for converting contents of the buffer
      * into a Float value.
      *
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use {@code FastDoubleParser}
      * @return Buffered text value parsed as a {@link Float}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number

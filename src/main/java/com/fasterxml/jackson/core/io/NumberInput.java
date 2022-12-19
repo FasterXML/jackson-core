@@ -6,6 +6,12 @@ import ch.randelshofer.fastdoubleparser.JavaFloatParser;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/**
+ * Helper class for efficient parsing of various JSON numbers.
+ *<p>
+ * NOTE! Does NOT validate against maximum length limits: caller must
+ * do that if and as necessary.
+ */
 public final class NumberInput
 {
     // numbers with more than these characters are better parsed with BigDecimalParser
@@ -319,7 +325,7 @@ public final class NumberInput
     /**
      * @param s a string representing a number to parse
      * @param def the default to return if `s` is not a parseable number
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching double (or `def` if there is an issue with `s`)
      * @since 2.14
      */
@@ -349,7 +355,7 @@ public final class NumberInput
     
     /**
      * @param s a string representing a number to parse
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching double
      * @throws NumberFormatException if string cannot be represented by a double
      * @since v2.14
@@ -371,7 +377,7 @@ public final class NumberInput
 
     /**
      * @param s a string representing a number to parse
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching float
      * @throws NumberFormatException if string cannot be represented by a float
      * @since v2.14
@@ -391,7 +397,7 @@ public final class NumberInput
 
     /**
      * @param s a string representing a number to parse
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use custom fast parser (true) or JDK default (false) parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
@@ -417,7 +423,7 @@ public final class NumberInput
      * @param ch a char array with text that makes up a number
      * @param off the offset to apply when parsing the number in the char array
      * @param len the length of the number in the char array
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use custom fast parser (true) or JDK default (false) parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
@@ -441,7 +447,7 @@ public final class NumberInput
 
     /**
      * @param ch a char array with text that makes up a number
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use custom fast parser (true) or JDK default (false) parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      * @since v2.15
@@ -467,7 +473,7 @@ public final class NumberInput
 
     /**
      * @param s a string representing a number to parse
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use custom fast parser (true) or JDK default (false) parser
      * @return a BigInteger
      * @throws NumberFormatException if string cannot be represented by a BigInteger
      * @since v2.15

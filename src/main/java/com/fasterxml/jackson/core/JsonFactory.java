@@ -259,6 +259,14 @@ public class JsonFactory
     protected CharacterEscapes _characterEscapes;
 
     /**
+     * Read constraints to use for {@link JsonParser}s constructed using
+     * this factory.
+     *
+     * @since 2.15
+     */
+    final protected StreamReadConstraints _streamReadConstraints;
+
+    /**
      * Optional helper object that may decorate input sources, to do
      * additional processing on input during parsing.
      */
@@ -317,6 +325,7 @@ public class JsonFactory
     public JsonFactory(ObjectCodec oc) {
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
+        _streamReadConstraints = StreamReadConstraints.defaults();
     }
 
     /**
@@ -741,6 +750,17 @@ public class JsonFactory
     @Override
     public int getFormatGeneratorFeatures() {
         return 0;
+    }
+
+    /*
+    /**********************************************************************
+    /* Constraints violation checking (2.15)
+    /**********************************************************************
+     */
+
+    @Override
+    public StreamReadConstraints streamReadConstraints() {
+        return _streamReadConstraints;
     }
 
     /*

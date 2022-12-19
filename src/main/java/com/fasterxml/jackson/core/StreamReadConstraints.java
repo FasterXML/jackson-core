@@ -8,13 +8,16 @@ package com.fasterxml.jackson.core;
  * @since 2.15
  */
 public class StreamReadConstraints
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Default setting for maximum length: see {@link Builder#maxNumberLength(int)} for details.
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 
-    final int _maxNumLen;
+    protected final int _maxNumLen;
 
     private static final StreamReadConstraints DEFAULT =
         new StreamReadConstraints(DEFAULT_MAX_NUM_LEN);
@@ -29,10 +32,14 @@ public class StreamReadConstraints
          * @param maxNumLen the maximum number length (in chars or bytes, depending on input context)
          *
          * @return this builder
+         * @throws IllegalArgumentException if the maxNumLen is set to a negative value
          *
          * @since 2.15
          */
-        public Builder maxNumberLength(int maxNumLen) {
+        public Builder maxNumberLength(final int maxNumLen) {
+            if (maxNumLen < 0) {
+                throw new IllegalArgumentException("Cannot set maxNumberLength to a negative value");
+            }
             this.maxNumLen = maxNumLen;
             return this;
         }

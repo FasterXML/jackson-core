@@ -911,8 +911,12 @@ public abstract class ParserBase extends ParserMinimalBase
          */
         try {
             if (expType == NR_BIGDECIMAL) {
+                // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
+                //    value is actually needed.
                 _numberBigDecimal = null;
-                _numberString = _textBuffer.contentsAsString();
+                String numStr = _textBuffer.contentsAsString();
+                streamReadConstraints().validateFPLength(numStr.length());
+                _numberString = numStr;
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
                 _numberFloat = _textBuffer.contentsAsFloat(streamReadConstraints(),
@@ -920,6 +924,9 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
+                // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
+                //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
+                //    deferring some typing?
                 _numberDouble = _textBuffer.contentsAsDouble(streamReadConstraints(),
                         isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
@@ -1153,6 +1160,7 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
+        // NOTE! Length of number string has been validated earlier
         _numberBigInt = NumberInput.parseBigInteger(
                 _numberString,
                 isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
@@ -1172,6 +1180,7 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
+        // NOTE! Length of number string has been validated earlier
         _numberBigDecimal = NumberInput.parseBigDecimal(
                 _numberString,
                 isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));

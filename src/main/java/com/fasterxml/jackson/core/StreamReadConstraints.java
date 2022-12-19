@@ -145,9 +145,9 @@ public class StreamReadConstraints
      */
     public void validateFPLength(int length) throws NumberFormatException
     {
-        if (length > _maxNumLen) {
+        if (length > _maxFPLen) {
             throw new NumberFormatException(String.format("Number length (%d) exceeds the maximum length (%d)",
-                    length, _maxNumLen));
+                    length, _maxFPLen));
         }
     }
 

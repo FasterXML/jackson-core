@@ -23,7 +23,7 @@ public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
 
     public void testLongStringFastParseBigInteger() {
         try {
-            System.out.println(BigIntegerParser.parseWithFastParser(genLongString()));
+            BigIntegerParser.parseWithFastParser(genLongString());
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
             assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));

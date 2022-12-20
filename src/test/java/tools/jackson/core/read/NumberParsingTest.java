@@ -21,10 +21,12 @@ import tools.jackson.core.json.JsonReadFeature;
 public class NumberParsingTest
     extends tools.jackson.core.BaseTest
 {
-    private final static JsonFactory VANILLA_F = JsonFactory.builder()
+    private final static JsonFactory VANILLA_F = JsonFactory.builder().build();
+    /*
             // 28-Nov-2022, tatu: Uses rather long numbers, need to tweak
             .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(5000).build())
             .build();
+            */
 
     protected JsonFactory jsonFactory() {
         return VANILLA_F;
@@ -507,15 +509,15 @@ public class NumberParsingTest
     {
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM, false);
-        } catch (StreamReadException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, false);
+            fail("Should not pass");
         } catch (StreamReadException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 
@@ -523,9 +525,9 @@ public class NumberParsingTest
     {
         try {
             _testBigBigDecimals(MODE_READER, false);
+            fail("Should not pass");
         } catch (StreamReadException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 
@@ -538,9 +540,9 @@ public class NumberParsingTest
     {
         try {
             _testBigBigDecimals(MODE_DATA_INPUT, false);
+            fail("Should not pass");
         } catch (StreamReadException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 
@@ -587,8 +589,7 @@ public class NumberParsingTest
 
             JsonFactory jsonFactory = jsonFactory();
             if (enableUnlimitedNumberLen) {
-                jsonFactory = jsonFactory
-                        .rebuild()
+                jsonFactory = jsonFactory.rebuild()
                         .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
                         .build();
             }
@@ -726,10 +727,11 @@ public class NumberParsingTest
     }
 
     // [jackson-core#157]
+    // 19-Dec-2022, tatu: Reduce length so as not to hit too-long-number limit
     public void testLongNumbers()
     {
-        StringBuilder sb = new StringBuilder(9000);
-        for (int i = 0; i < 9000; ++i) {
+        StringBuilder sb = new StringBuilder(900);
+        for (int i = 0; i < 900; ++i) {
             sb.append('9');
         }
         String NUM = sb.toString();
@@ -749,32 +751,6 @@ public class NumberParsingTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(num, p.getText());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-    }
-
-    // and alternate take on for #157 (with negative num)
-    public void testLongNumbers2()
-    {
-        StringBuilder input = new StringBuilder();
-        // test this with negative
-        input.append('-');
-        for (int i = 0; i < 2100; i++) {
-            input.append(1);
-        }
-        final String DOC = input.toString();
-        _testIssue160LongNumbers(DOC, false);
-        _testIssue160LongNumbers(DOC, true);
-    }
-
-    private void _testIssue160LongNumbers(String doc, boolean useStream)
-    {
-        TokenStreamFactory f = jsonFactory();
-        JsonParser p = useStream
-                ? f.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
-                        : f.createParser(ObjectReadContext.empty(), doc);
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        BigInteger v = p.getBigIntegerValue();
-        assertNull(p.nextToken());
-        assertEquals(doc, v.toString());
     }
 
     // for [jackson-core#181]
@@ -947,9 +923,9 @@ public class NumberParsingTest
     public void testNegativeMaxNumberLength() {
         try {
             StreamReadConstraints src = StreamReadConstraints.builder().maxNumberLength(-1).build();
-            fail("expected IllegalArgumentException");
+            fail("expected IllegalArgumentException; instead built: "+src);
         } catch (IllegalArgumentException iae) {
-            // expected
+            verifyException(iae, "Cannot set maxNumberLength to a negative value");
         }
     }
 

@@ -427,24 +427,39 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return resetFloat(negative, intLen, fractLen, expLen);
     }
-        
+
     protected final JsonToken resetInt(boolean negative, int intLen)
     {
+        // Inelegant but we know how to create StreamReadExceptions,
+        // constraints object doesn't. May refactor in near future.
+        try {
+            _streamReadConstraints.validateIntegerLength(intLen);
+        } catch (NumberFormatException e) {
+            _reportInvalidNumber(e.getMessage());
+        }
         _numberNegative = negative;
         _intLength = intLen;
         _fractLength = 0;
         _expLength = 0;
-        _numTypesValid = NR_UNKNOWN; // to force parsing
+        _numTypesValid = NR_UNKNOWN; // to force decoding
         return JsonToken.VALUE_NUMBER_INT;
     }
     
     protected final JsonToken resetFloat(boolean negative, int intLen, int fractLen, int expLen)
     {
+        // Inelegant but we know how to create StreamReadExceptions,
+        // constraints object doesn't. May refactor in near future.
+        // Length is approximate, good enough for validation
+        try {
+            _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
+        } catch (NumberFormatException e) {
+            _reportInvalidNumber(e.getMessage());
+        }
         _numberNegative = negative;
         _intLength = intLen;
         _fractLength = fractLen;
         _expLength = expLen;
-        _numTypesValid = NR_UNKNOWN; // to force parsing
+        _numTypesValid = NR_UNKNOWN; // to force decoding
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
     
@@ -689,7 +704,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected abstract int _parseIntValue() throws JacksonException;
 
-/*
+    /*
     /**********************************************************************
     /* Numeric conversions
     /**********************************************************************
@@ -836,7 +851,6 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
-            streamReadConstraints().validateFPLength(numStr.length());
             _numberBigDecimal = NumberInput.parseBigDecimal(numStr,
                     isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         } else if ((_numTypesValid & NR_BIGINT) != 0) {

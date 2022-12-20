@@ -244,14 +244,14 @@ public abstract class JsonParserBase
                 _numberString = numStr;
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat(_streamReadConstraints,
+                _numberFloat = _textBuffer.contentsAsFloat(
                         isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
                 // 04-Dec-2022, tatu: We get not just `NR_DOUBLE` but anything from
                 //    `NR_INT` to `NR_UNKNOWN`. Might want to defer decoding...
-                _numberDouble = _textBuffer.contentsAsDouble(_streamReadConstraints,
+                _numberDouble = _textBuffer.contentsAsDouble(
                         isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
             }

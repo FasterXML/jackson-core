@@ -1,11 +1,9 @@
 package tools.jackson.core.util;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.*;
 
 import tools.jackson.core.io.NumberInput;
-import tools.jackson.core.StreamReadConstraints;
 
 /**
  * TextBuffer is a class similar to {@link java.lang.StringBuffer}, with
@@ -474,40 +472,6 @@ public final class TextBuffer
 
     /**
      * Convenience method for converting contents of the buffer
-     * into a {@link BigDecimal}.
-     *
-     * @param constraints constraints for stream reading
-     * @param useFastParser whether to use {@code FastDoubleParser}
-     * @return Buffered text value parsed as a {@link BigDecimal}, if possible
-     *
-     * @throws NumberFormatException if contents are not a valid Java number
-     */
-    public BigDecimal contentsAsDecimal(final StreamReadConstraints constraints,
-                                        final boolean useFastParser) throws NumberFormatException
-    {
-        // Already got a pre-cut array?
-        if (_resultArray != null) {
-            constraints.validateFPLength(_resultArray.length);
-            return NumberInput.parseBigDecimal(_resultArray, useFastParser);
-        }
-        // Or a shared buffer?
-        if ((_inputStart >= 0) && (_inputBuffer != null)) {
-            constraints.validateFPLength(_inputLen);
-            return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen, useFastParser);
-        }
-        // Or if not, just a single buffer (the usual case)
-        if ((_segmentSize == 0) && (_currentSegment != null)) {
-            constraints.validateFPLength(_currentSize);
-            return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize, useFastParser);
-        }
-        // If not, let's just get it aggregated...
-        final char[] numArray = contentsAsArray();
-        constraints.validateFPLength(numArray.length);
-        return NumberInput.parseBigDecimal(numArray, useFastParser);
-    }
-
-    /**
-     * Convenience method for converting contents of the buffer
      * into a Double value.
      *
      * @param useFastParser whether to use {@code FastDoubleParser}
@@ -515,11 +479,8 @@ public final class TextBuffer
      *
      * @throws NumberFormatException if contents are not a valid Java number
      */
-    public double contentsAsDouble(final StreamReadConstraints constraints,
-            final boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString();
-        constraints.validateFPLength(numStr.length());
-        return NumberInput.parseDouble(numStr, useFastParser);
+    public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
+        return NumberInput.parseDouble(contentsAsString(), useFastParser);
     }
 
     /**
@@ -531,11 +492,8 @@ public final class TextBuffer
      *
      * @throws NumberFormatException if contents are not a valid Java number
      */
-    public float contentsAsFloat(final StreamReadConstraints constraints,
-            final boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString();
-        constraints.validateFPLength(numStr.length());
-        return NumberInput.parseFloat(numStr, useFastParser);
+    public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
+        return NumberInput.parseFloat(contentsAsString(), useFastParser);
     }
 
     /**

@@ -555,34 +555,53 @@ public abstract class ParserBase extends ParserMinimalBase
     // // // Life-cycle of number-parsing
     
     protected final JsonToken reset(boolean negative, int intLen, int fractLen, int expLen)
+        throws JsonParseException
     {
         if (fractLen < 1 && expLen < 1) { // integer
             return resetInt(negative, intLen);
         }
         return resetFloat(negative, intLen, fractLen, expLen);
     }
-        
+
     protected final JsonToken resetInt(boolean negative, int intLen)
+        throws JsonParseException
     {
+        // Inelegant but we know how to create StreamReadExceptions,
+        // constraints object doesn't. May refactor in near future.
+        try {
+            _streamReadConstraints.validateIntegerLength(intLen);
+        } catch (NumberFormatException e) {
+            reportInvalidNumber(e.getMessage());
+        }
         _numberNegative = negative;
         _intLength = intLen;
         _fractLength = 0;
         _expLength = 0;
-        _numTypesValid = NR_UNKNOWN; // to force parsing
+        _numTypesValid = NR_UNKNOWN; // to force decoding
         return JsonToken.VALUE_NUMBER_INT;
     }
     
     protected final JsonToken resetFloat(boolean negative, int intLen, int fractLen, int expLen)
+        throws JsonParseException
     {
+        // Inelegant but we know how to create StreamReadExceptions,
+        // constraints object doesn't. May refactor in near future.
+        // Length is approximate, good enough for validation
+        try {
+            _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
+        } catch (NumberFormatException e) {
+            reportInvalidNumber(e.getMessage());
+        }
         _numberNegative = negative;
         _intLength = intLen;
         _fractLength = fractLen;
         _expLength = expLen;
-        _numTypesValid = NR_UNKNOWN; // to force parsing
+        _numTypesValid = NR_UNKNOWN; // to force decoding
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
     
     protected final JsonToken resetAsNaN(String valueStr, double value)
+        throws JsonParseException
     {
         _textBuffer.resetWithString(valueStr);
         _numberDouble = value;
@@ -914,12 +933,10 @@ public abstract class ParserBase extends ParserMinimalBase
                 // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
                 //    value is actually needed.
                 _numberBigDecimal = null;
-                String numStr = _textBuffer.contentsAsString();
-                streamReadConstraints().validateFPLength(numStr.length());
-                _numberString = numStr;
+                _numberString = _textBuffer.contentsAsString();
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat(streamReadConstraints(),
+                _numberFloat = _textBuffer.contentsAsFloat(
                         isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_FLOAT;
             } else {
@@ -927,7 +944,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
                 //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
                 //    deferring some typing?
-                _numberDouble = _textBuffer.contentsAsDouble(streamReadConstraints(),
+                _numberDouble = _textBuffer.contentsAsDouble(
                         isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
             }
@@ -958,11 +975,9 @@ public abstract class ParserBase extends ParserMinimalBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                    streamReadConstraints().validateFPLength(numStr.length());
                     _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {
-                    streamReadConstraints().validateIntegerLength(numStr.length());
                     // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
                     _numberBigInt = null;
                     _numberString = numStr;
@@ -1134,7 +1149,6 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
-            streamReadConstraints().validateFPLength(numStr.length());
             _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());

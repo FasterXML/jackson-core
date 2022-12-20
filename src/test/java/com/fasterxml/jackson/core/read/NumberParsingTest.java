@@ -9,6 +9,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -500,15 +501,15 @@ public class NumberParsingTest
     {
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM, false);
-        } catch (JsonParseException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, false);
-        } catch (JsonParseException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+            fail("Should not pass");
+        } catch (StreamReadException jpe) {
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 
@@ -516,9 +517,9 @@ public class NumberParsingTest
     {
         try {
             _testBigBigDecimals(MODE_READER, false);
-        } catch (JsonParseException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+            fail("Should not pass");
+        } catch (StreamReadException jpe) {
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 
@@ -531,9 +532,9 @@ public class NumberParsingTest
     {
         try {
             _testBigBigDecimals(MODE_DATA_INPUT, false);
-        } catch (JsonParseException jpe) {
-            assertTrue("unexpected exception message: " + jpe.getMessage(),
-                    jpe.getMessage().startsWith("Malformed numeric value ([number with 1824 characters])"));
+            fail("Should not pass");
+        } catch (StreamReadException jpe) {
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 
@@ -719,10 +720,11 @@ public class NumberParsingTest
     }
 
     // [jackson-core#157]
+    // 19-Dec-2022, tatu: Reduce length so as not to hit too-long-number limit
     public void testLongNumbers() throws Exception
     {
-        StringBuilder sb = new StringBuilder(9000);
-        for (int i = 0; i < 9000; ++i) {
+        StringBuilder sb = new StringBuilder(900);
+        for (int i = 0; i < 900; ++i) {
             sb.append('9');
         }
         String NUM = sb.toString();
@@ -941,9 +943,9 @@ public class NumberParsingTest
     public void testNegativeMaxNumberLength() {
         try {
             StreamReadConstraints src = StreamReadConstraints.builder().maxNumberLength(-1).build();
-            fail("expected IllegalArgumentException");
+            fail("expected IllegalArgumentException; instead built: "+src);
         } catch (IllegalArgumentException iae) {
-            // expected
+            verifyException(iae, "Cannot set maxNumberLength to a negative value");
         }
     }
 

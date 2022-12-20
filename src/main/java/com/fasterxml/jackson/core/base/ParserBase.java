@@ -956,7 +956,6 @@ public abstract class ParserBase extends ParserMinimalBase
 
     private void _parseSlowInt(int expType) throws IOException
     {
-        final String numStr = _textBuffer.contentsAsString();
         try {
             int len = _intLength;
             char[] buf = _textBuffer.getTextBuffer();
@@ -966,10 +965,10 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             // Some long cases still...
             if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
-                // Probably faster to construct a String, call parse, than to use BigInteger
-                _numberLong = NumberInput.parseLong(numStr);
+                _numberLong = NumberInput.parseLong19(buf, offset, _numberNegative);
                 _numTypesValid = NR_LONG;
             } else {
+                String numStr = _textBuffer.contentsAsString();
                 // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
                 if ((expType == NR_INT) || (expType == NR_LONG)) {
                     _reportTooLongIntegral(expType, numStr);
@@ -985,6 +984,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 }
             }
         } catch (NumberFormatException nex) {
+            String numStr = _textBuffer.contentsAsString();
             // Can this ever occur? Due to overflow, maybe?
             _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
         }

@@ -487,6 +487,7 @@ public final class TextBuffer
      *
      * @throws NumberFormatException if contents are not a valid Java number
      */
+    @Deprecated // @since 2.14.2
     public BigDecimal contentsAsDecimal() throws NumberFormatException
     {
         // Already got a pre-cut array?

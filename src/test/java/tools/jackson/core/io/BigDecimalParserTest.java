@@ -1,5 +1,7 @@
 package tools.jackson.core.io;
 
+import java.math.BigInteger;
+
 public class BigDecimalParserTest extends tools.jackson.core.BaseTest {
     public void testLongStringParse() {
         try {
@@ -23,8 +25,8 @@ public class BigDecimalParserTest extends tools.jackson.core.BaseTest {
 
     public void testLongStringFastParseBigInteger() {
         try {
-            BigIntegerParser.parseWithFastParser(genLongString());
-            fail("expected NumberFormatException");
+            BigInteger result = BigIntegerParser.parseWithFastParser(genLongString());
+            fail("expected NumberFormatException, instead got: "+result);
         } catch (NumberFormatException nfe) {
             assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
             assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));

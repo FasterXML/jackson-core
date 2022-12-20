@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.core.util;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.*;
 
-import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 /**
@@ -482,47 +480,6 @@ public final class TextBuffer
 
     /**
      * Convenience method for converting contents of the buffer
-     * into a {@link BigDecimal}.
-     *
-     * @param constraints constraints for stream reading
-     * @param useFastParser whether to use {@code FastDoubleParser}
-     * @return Buffered text value parsed as a {@link BigDecimal}, if possible
-     *
-     * @throws NumberFormatException if contents are not a valid Java number
-     *
-     * @since 2.15
-     */
-    public BigDecimal contentsAsDecimal(final StreamReadConstraints constraints,
-                                        final boolean useFastParser) throws NumberFormatException
-    {
-        // Already got a pre-cut array?
-        if (_resultArray != null) {
-            constraints.validateFPLength(_resultArray.length);
-            return NumberInput.parseBigDecimal(_resultArray, useFastParser);
-        }
-        // Or a shared buffer?
-        if ((_inputStart >= 0) && (_inputBuffer != null)) {
-            constraints.validateFPLength(_inputLen);
-            return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen, useFastParser);
-        }
-        // Or if not, just a single buffer (the usual case)
-        if ((_segmentSize == 0) && (_currentSegment != null)) {
-            constraints.validateFPLength(_currentSize);
-            return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize, useFastParser);
-        }
-        // If not, let's just get it aggregated...
-        final char[] numArray = contentsAsArray();
-        constraints.validateFPLength(numArray.length);
-        return NumberInput.parseBigDecimal(numArray, useFastParser);
-    }
-
-    @Deprecated // @since 2.15
-    public BigDecimal contentsAsDecimal() throws NumberFormatException {
-        return contentsAsDecimal(StreamReadConstraints.defaults(), false);
-    }
-
-    /**
-     * Convenience method for converting contents of the buffer
      * into a Double value.
      *
      * @param useFastParser whether to use {@code FastDoubleParser}
@@ -532,11 +489,8 @@ public final class TextBuffer
      *
      * @since 2.15
      */
-    public double contentsAsDouble(final StreamReadConstraints constraints,
-            final boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString();
-        constraints.validateFPLength(numStr.length());
-        return NumberInput.parseDouble(numStr, useFastParser);
+    public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
+        return NumberInput.parseDouble(contentsAsString(), useFastParser);
     }
 
     @Deprecated // @since 2.14
@@ -544,19 +498,9 @@ public final class TextBuffer
         return contentsAsDouble(false);
     }
 
-    @Deprecated // @since 2.15
-    public double contentsAsDouble(boolean useFastParser) throws NumberFormatException {
-        return contentsAsDouble(StreamReadConstraints.defaults(), useFastParser);
-    }
-
     @Deprecated // @since 2.14
     public float contentsAsFloat() throws NumberFormatException {
         return contentsAsFloat(false);
-    }
-
-    @Deprecated // @since 2.15
-    public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
-        return contentsAsFloat(StreamReadConstraints.defaults(), useFastParser);
     }
 
     /**
@@ -569,10 +513,8 @@ public final class TextBuffer
      * @throws NumberFormatException if contents are not a valid Java number
      * @since 2.15
      */
-    public float contentsAsFloat(final StreamReadConstraints constraints,
-            final boolean useFastParser) throws NumberFormatException {
+    public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
         final String numStr = contentsAsString();
-        constraints.validateFPLength(numStr.length());
         return NumberInput.parseFloat(numStr, useFastParser);
     }
 

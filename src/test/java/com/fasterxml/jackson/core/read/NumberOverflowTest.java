@@ -13,6 +13,7 @@ public class NumberOverflowTest
             .build();
 
     // NOTE: this should be long enough to trigger perf problems
+    // 19-
     private final static int BIG_NUM_LEN = 199999;
     private final static String BIG_POS_INTEGER;
     static {
@@ -67,7 +68,7 @@ public class NumberOverflowTest
     {
         for (int mode : ALL_STREAMING_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
-                JsonParser p = createParser(mode, doc);
+                JsonParser p = createParser(FACTORY, mode, doc);
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 try {
@@ -87,7 +88,7 @@ public class NumberOverflowTest
     {
         for (int mode : ALL_STREAMING_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
-                JsonParser p = createParser(mode, doc);
+                JsonParser p = createParser(FACTORY, mode, doc);
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 try {

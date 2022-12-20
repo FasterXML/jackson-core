@@ -278,7 +278,9 @@ public class NumberParsingTest
         for (int mode : ALL_MODES) {
             long belowMinInt = -1L + Integer.MIN_VALUE;
             long aboveMaxInt = 1L + Integer.MAX_VALUE;
-            String input = "[ "+Long.MAX_VALUE+","+Long.MIN_VALUE+","+aboveMaxInt+", "+belowMinInt+" ]";
+            long belowMaxLong = -1L + Long.MAX_VALUE;
+            long aboveMinLong = 1L + Long.MIN_VALUE;
+            String input = "[ "+Long.MAX_VALUE+","+Long.MIN_VALUE+","+aboveMaxInt+", "+belowMinInt+","+belowMaxLong+", "+aboveMinLong+" ]";
             JsonParser p = createParser(jsonFactory(), mode, input);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -296,6 +298,14 @@ public class NumberParsingTest
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
             assertEquals(belowMinInt, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(belowMaxLong, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(aboveMinLong, p.getLongValue());
 
             
             assertToken(JsonToken.END_ARRAY, p.nextToken());        

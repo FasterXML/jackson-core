@@ -196,6 +196,8 @@ Philippe Marschall (marschall@github)
   (2.10.0)
   * Contributed #798: Avoid copy when parsing `BigDecimal`
   (2.14.0)
+  * Contributed #865: Optimize parsing 19 digit longs
+  (2.15.0)
 
 David Nault (dnault@github)
   * Reported #531: Non-blocking parser reports incorrect locations when fed with

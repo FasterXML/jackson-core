@@ -167,10 +167,12 @@ public final class NumberInput
      * @param off Offset of the first digit character in buffer
      * @param negative Whether original number had a minus sign
      * @return Decoded {@code long} value
+     *
+     * @since 2.15.0
      */
     public static long parseLong19(char[] ch, int off, boolean negative)
     {
-        // Note: caller must ensure length is [10, 18]
+        // Note: caller must ensure length is 19
         long num = 0L;
         for (int i = 0; i < 19; i++) {
             char c = ch[off + i];

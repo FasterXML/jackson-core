@@ -145,6 +145,32 @@ public final class NumberInput
     }
 
     /**
+     * Parses an unsigned long made up of exactly 19 digits.
+     * <p>
+     * It is the callers responsibility to make sure the input is exactly 19 digits.
+     * and fits into a 64bit long by calling {@link #inLongRange(char[], int, int, boolean)}
+     * first.
+     * <p>
+     * Note that input String must NOT contain leading minus sign (even
+     * if {@code negative} is set to true).
+     *
+     * @param ch Buffer that contains integer value to decode
+     * @param off Offset of the first digit character in buffer
+     * @param negative Whether original number had a minus sign
+     * @return Decoded {@code long} value
+     */
+    public static long parseLong19(char[] ch, int off, boolean negative)
+    {
+        // Note: caller must ensure length is 19
+        long num = 0L;
+        for (int i = 0; i < 19; i++) {
+            char c = ch[off + i];
+            num = (num * 10) + (c - '0');
+        }
+        return negative ? -num : num;
+    }
+
+    /**
      * Similar to {@link #parseInt(String)} but for {@code long} values.
      *
      * @param s String that contains {@code long} value to decode

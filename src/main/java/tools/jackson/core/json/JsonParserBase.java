@@ -196,6 +196,19 @@ public abstract class JsonParserBase
                 _numTypesValid = NR_LONG;
                 return;
             }
+             // For [core#865]: handle remaining 19-char cases as well
+            if (len == 19) {
+                char[] buf = _textBuffer.getTextBuffer();
+                int offset = _textBuffer.getTextOffset();
+                if (_numberNegative) {
+                    ++offset;
+                }
+                if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
+                    _numberLong = NumberInput.parseLong19(buf, offset, _numberNegative);
+                    _numTypesValid = NR_LONG;
+                    return;
+                }
+            }
             _parseSlowInt(expType);
             return;
         }
@@ -266,33 +279,20 @@ public abstract class JsonParserBase
     {
         String numStr = _textBuffer.contentsAsString();
         try {
-            int len = _intLength;
-            char[] buf = _textBuffer.getTextBuffer();
-            int offset = _textBuffer.getTextOffset();
-            if (_numberNegative) {
-                ++offset;
+            // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
+            if ((expType == NR_INT) || (expType == NR_LONG)) {
+                _reportTooLongIntegral(expType, numStr);
             }
-            // Some long cases still...
-            if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
-                // Probably faster to construct a String, call parse, than to use BigInteger
-                _numberLong = NumberInput.parseLong(numStr);
-                _numTypesValid = NR_LONG;
+            if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
+                streamReadConstraints().validateFPLength(numStr.length());
+                _numberDouble = NumberInput.parseDouble(numStr, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+                _numTypesValid = NR_DOUBLE;
             } else {
-                // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
-                if ((expType == NR_INT) || (expType == NR_LONG)) {
-                    _reportTooLongIntegral(expType, numStr);
-                }
-                if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                    streamReadConstraints().validateFPLength(numStr.length());
-                    _numberDouble = NumberInput.parseDouble(numStr, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                    _numTypesValid = NR_DOUBLE;
-                } else {
-                    streamReadConstraints().validateIntegerLength(numStr.length());
-                    // nope, need the heavy guns... (rare case) - BigInteger parsing is lazy
-                    _numberBigInt = null;
-                    _numberString = numStr;
-                    _numTypesValid = NR_BIGINT;
-                }
+                streamReadConstraints().validateIntegerLength(numStr.length());
+                // nope, need the heavy guns... (rare case) - BigInteger parsing is lazy
+                _numberBigInt = null;
+                _numberString = numStr;
+                _numTypesValid = NR_BIGINT;
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?

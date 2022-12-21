@@ -1,6 +1,7 @@
 package tools.jackson.core.util;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 import tools.jackson.core.io.NumberInput;
@@ -494,6 +495,19 @@ public final class TextBuffer
      */
     public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
         return NumberInput.parseFloat(contentsAsString(), useFastParser);
+    }
+
+    /**
+     * @return Buffered text value parsed as a {@link BigDecimal}, if possible
+     *
+     * @deprecated Since 2.15 just access String contents if necessary, call
+     *   {@link NumberInput#parseBigDecimal(String, boolean)} (or other overloads)
+     *   directly instead
+     */
+    @Deprecated
+    public BigDecimal contentsAsDecimal() throws NumberFormatException {
+        // Was more optimized earlier, removing special handling due to deprecation
+        return NumberInput.parseBigDecimal(contentsAsArray());
     }
 
     /**

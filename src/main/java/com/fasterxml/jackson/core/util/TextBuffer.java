@@ -488,7 +488,7 @@ public final class TextBuffer
      *
      * @throws NumberFormatException if contents are not a valid Java number
      *
-     * @since 2.15
+     * @since 2.14
      */
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
         return NumberInput.parseDouble(contentsAsString(), useFastParser);
@@ -512,7 +512,7 @@ public final class TextBuffer
      * @return Buffered text value parsed as a {@link Float}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
-     * @since 2.15
+     * @since 2.14
      */
     public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
         final String numStr = contentsAsString();

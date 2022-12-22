@@ -221,6 +221,40 @@ public class NumberParsingTest
         assertEquals(Integer.MAX_VALUE+1, NumberInput.parseLong(""+(Integer.MAX_VALUE+1)));
     }
 
+    public void testIntOverflow() {
+        try {
+            // Integer.MAX_VALUE + 1
+            NumberInput.parseInt("2147483648");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"2147483648\"");
+        }
+        try {
+            // Integer.MIN_VALUE - 1
+            NumberInput.parseInt("-2147483649");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"-2147483649\"");
+        }
+    }
+
+    public void testLongOverflow() {
+        try {
+            // Long.MAX_VALUE + 1
+            NumberInput.parseLong("9223372036854775808");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"9223372036854775808\"");
+        }
+        try {
+            // Long.MIN_VALUE - 1
+            NumberInput.parseLong("-9223372036854775809");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"-9223372036854775809\"");
+        }
+    }
+
     // Found by oss-fuzzer
     public void testVeryLongIntRootValue() throws Exception
     {

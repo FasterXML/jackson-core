@@ -213,6 +213,40 @@ public class NumberParsingTest
         assertEquals(Integer.MAX_VALUE+1, NumberInput.parseLong(""+(Integer.MAX_VALUE+1)));
     }
 
+    public void testIntOverflow() {
+        try {
+            // Integer.MAX_VALUE + 1
+            NumberInput.parseInt("2147483648");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"2147483648\"");
+        }
+        try {
+            // Integer.MIN_VALUE - 1
+            NumberInput.parseInt("-2147483649");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"-2147483649\"");
+        }
+    }
+
+    public void testLongOverflow() {
+        try {
+            // Long.MAX_VALUE + 1
+            NumberInput.parseLong("9223372036854775808");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"9223372036854775808\"");
+        }
+        try {
+            // Long.MIN_VALUE - 1
+            NumberInput.parseLong("-9223372036854775809");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"-9223372036854775809\"");
+        }
+    }
+
     // Found by oss-fuzzer
     public void testVeryLongIntRootValue() throws Exception
     {
@@ -281,7 +315,9 @@ public class NumberParsingTest
         for (int mode : ALL_MODES) {
             long belowMinInt = -1L + Integer.MIN_VALUE;
             long aboveMaxInt = 1L + Integer.MAX_VALUE;
-            String input = "[ "+Long.MAX_VALUE+","+Long.MIN_VALUE+","+aboveMaxInt+", "+belowMinInt+" ]";
+            long belowMaxLong = -1L + Long.MAX_VALUE;
+            long aboveMinLong = 1L + Long.MIN_VALUE;
+            String input = "[ "+Long.MAX_VALUE+","+Long.MIN_VALUE+","+aboveMaxInt+", "+belowMinInt+","+belowMaxLong+", "+aboveMinLong+" ]";
             JsonParser p = createParser(jsonFactory(), mode, input);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -299,6 +335,14 @@ public class NumberParsingTest
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
             assertEquals(belowMinInt, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(belowMaxLong, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(aboveMinLong, p.getLongValue());
 
             
             assertToken(JsonToken.END_ARRAY, p.nextToken());        

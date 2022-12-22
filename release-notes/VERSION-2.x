@@ -21,6 +21,8 @@ JSON library.
 #851: Add `StreamReadFeature.USE_FAST_BIG_DECIMAL_PARSER` to enable
   faster `BigDecimal`, `BigInteger` parsing
  (contributed by @pjfanning)
+#865: Optimize parsing 19 digit longs
+ (contributed by Phillipe M)
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 
@@ -56,7 +58,7 @@ No changes since 2.14.0
 #745: Change minimum Java version to 8
 #749: Allow use of faster floating-point number serialization
   (`StreamWriteFeature.USE_FAST_DOUBLE_WRITER`)
- (contributed by @pjfanning)
+ (contributed by @rgiulietti and @pjfanning)
 #751: Remove workaround for old issue with a particular double
  (contributed by @pjfanning)
 #753: Add `NumberInput.parseFloat()`

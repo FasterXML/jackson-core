@@ -621,7 +621,7 @@ public final class TextBuffer
         // Room in current segment?
         char[] curr = _currentSegment;
         if (_currentSize >= curr.length) {
-            expand(1);
+            expand();
             curr = _currentSegment;
         }
         curr[_currentSize++] = c;
@@ -654,7 +654,7 @@ public final class TextBuffer
         // And then allocate new segment; we are guaranteed to now
         // have enough room in segment.
         do {
-            expand(len);
+            expand();
             int amount = Math.min(_currentSegment.length, len);
             System.arraycopy(c, start, _currentSegment, 0, amount);
             _currentSize += amount;
@@ -689,7 +689,7 @@ public final class TextBuffer
         // And then allocate new segment; we are guaranteed to now
         // have enough room in segment.
         do {
-            expand(len);
+            expand();
             int amount = Math.min(_currentSegment.length, len);
             str.getChars(offset, offset+amount, _currentSegment, 0);
             _currentSize += amount;
@@ -718,7 +718,7 @@ public final class TextBuffer
                 _currentSegment = buf(0);
             } else if (_currentSize >= curr.length) {
                 // Plus, we better have room for at least one more char
-                expand(1);
+                expand();
             }
         }
         return _currentSegment;
@@ -876,7 +876,7 @@ public final class TextBuffer
     }
 
     // Method called when current segment is full, to allocate new segment.
-    private void expand(int minNewSegmentSize)
+    private void expand()
     {
         // First, let's move current segment to segment list:
         if (_segments == null) {

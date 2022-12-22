@@ -211,7 +211,7 @@ public final class NumberInput
             }
         }
         if (c > '9' || c < '0') {
-            return Integer.parseInt(s);
+            return Long.parseLong(s);
         }
         long num = c - '0';
         if (offset < len) {

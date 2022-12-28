@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.filter;
 
+import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -719,4 +721,72 @@ public class BasicParserFilteringTest extends BaseTest
         );
         assertEquals(a2q("[{'empty_array':[]}]"), readAndWrite(JSON_F, p));
     }
+
+    public void testExcludeObjectAtTheBeginningOfArray() throws Exception {
+        JsonFactory factory = new JsonFactory();
+
+        JsonParser p0 = factory.createParser(a2q(
+                "{'a':[{'to_exclude':'value'},{'b':'c'}]}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                filter("a", "b"),
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true // multipleMatches
+        );
+        assertTrue(p.nextToken().isStructStart());
+
+        StringWriter writer = new StringWriter();
+        JsonGenerator generator = factory.createGenerator(writer);
+        generator.copyCurrentStructure(p);
+        generator.flush();
+        assertEquals(a2q("{'a':[{'b':'c'}]}"), writer.toString());
+    }
+
+    public void testExcludeObjectAtTheEndOfArray() throws Exception {
+        JsonFactory factory = new JsonFactory();
+
+        JsonParser p0 = factory.createParser(a2q(
+                "{'a':[{'b':'c'},{'to_exclude':'value'}]}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                filter("a", "b"),
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true // multipleMatches
+        );
+        assertTrue(p.nextToken().isStructStart());
+
+        StringWriter writer = new StringWriter();
+        JsonGenerator generator = factory.createGenerator(writer);
+        generator.copyCurrentStructure(p);
+        generator.flush();
+        assertEquals(a2q("{'a':[{'b':'c'}]}"), writer.toString());
+    }
+    private TokenFilter filter(String... path) {
+        return new PathFilter(path);
+    }
+
+    private class PathFilter extends TokenFilter {
+        private String[] path;
+
+        public PathFilter(String[] path) {
+            this.path = path;
+        }
+
+        @Override
+        public TokenFilter includeProperty(String name) {
+            System.err.format("Include property (%s) ~ %s\n", name, Arrays.toString(path));
+            if (path.length == 1) {
+                if (name.equals(path[0])) {
+                    return TokenFilter.INCLUDE_ALL;
+                } else {
+                    return null;
+                }
+            } else {
+                if (name.equals(path[0])) {
+                    return new PathFilter(Arrays.copyOfRange(path, 1, path.length));
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
 }

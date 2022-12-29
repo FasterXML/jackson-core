@@ -753,4 +753,14 @@ public class BasicParserFilteringTest extends BaseTest
         );
         assertEquals(a2q("{'parent':[{'include-1':1},{'include-2':2}]}"), readAndWrite(JSON_F, p));
     }
+    public void testExcludeLastArrayInsideArray() throws Exception {
+        JsonParser p0 = JSON_F.createParser(a2q(
+                "['skipped', [], ['skipped']]"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true // multipleMatches
+        );
+        assertEquals(a2q("[[]]"), readAndWrite(JSON_F, p));
+    }
 }

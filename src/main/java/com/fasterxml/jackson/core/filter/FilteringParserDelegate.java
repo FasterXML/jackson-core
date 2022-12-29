@@ -754,11 +754,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     if (returnEnd) {
                         return t;
                     }
-                    if (gotEnd /*|| (_headContext == buffRoot)
-                    this makes BasicParserFilteringTest.testNotAllowMultipleMatchesWithPath4 fail
-                    */) {
-                        return null;
-                    }
                 }
                 continue main_loop;
             case ID_END_OBJECT:
@@ -786,9 +781,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (returnEnd) {
                     return t;
                 }
-                if (gotEnd /*|| (_headContext == buffRoot)
-                    this makes BasicParserFilteringTest.testNotAllowMultipleMatchesWithPath4 fail
-                */) {
+                if (gotEnd) {
                     return null;
                 }
             }

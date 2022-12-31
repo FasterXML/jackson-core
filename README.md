@@ -120,7 +120,7 @@ List is incomplete due to recent addition of compatibility checker.
 * 2.13: Android SDK 19+
 * 2.14: Android SDK 26+
 
-for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
+for information on Android SDK versions to Android Release names see [Android version history](https://en.wikipedia.org/wiki/Android_version_history)
 
 -----
 

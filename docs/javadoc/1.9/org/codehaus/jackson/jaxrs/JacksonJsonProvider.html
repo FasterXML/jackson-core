@@ -116,14 +116,14 @@ implements <a href="http://jackson.codehaus.org/javadoc/jax-rs/1.0/javax/ws/rs/e
  mapper to use can be configured in multiple ways:
  <ul>
   <li>By explicitly passing mapper to use in constructor
-  <li>By explictly setting mapper to use by <a href="../../../../org/codehaus/jackson/jaxrs/JacksonJsonProvider.html#setMapper(org.codehaus.jackson.map.ObjectMapper)"><code>setMapper(org.codehaus.jackson.map.ObjectMapper)</code></a>
+  <li>By explicitly setting mapper to use by <a href="../../../../org/codehaus/jackson/jaxrs/JacksonJsonProvider.html#setMapper(org.codehaus.jackson.map.ObjectMapper)"><code>setMapper(org.codehaus.jackson.map.ObjectMapper)</code></a>
   <li>By defining JAX-RS <code>Provider</code> that returns <a href="../../../../org/codehaus/jackson/map/ObjectMapper.html" title="class in org.codehaus.jackson.map"><code>ObjectMapper</code></a>s.
   <li>By doing none of above, in which case a default mapper instance is
      constructed (and configured if configuration methods are called)
  </ul>
  The last method ("do nothing specific") is often good enough; explicit passing
  of Mapper is simple and explicit; and Provider-based method may make sense
- with Depedency Injection frameworks, or if Mapper has to be configured differently
+ with Dependency Injection frameworks, or if Mapper has to be configured differently
  for different media types.
 <p>
  Note that the default mapper instance will be automatically created if

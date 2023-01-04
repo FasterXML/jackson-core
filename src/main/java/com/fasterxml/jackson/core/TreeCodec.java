@@ -24,7 +24,7 @@ public abstract class TreeCodec
     }
 
     /**
-     * @return Node that represents explict {@code null} value in content
+     * @return Node that represents explicit {@code null} value in content
      * 
      * @since 2.10
      */

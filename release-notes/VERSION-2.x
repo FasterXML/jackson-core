@@ -16,7 +16,8 @@ JSON library.
 
 2.15.0 (not yet released)
 
-#827: Add numeric value size limits via `StreamReadConstraints`
+#827: Add numeric value size limits via `StreamReadConstraints` (fixes
+  `sonatype-2022-6438`)
  (contributed by @pjfanning)
 #851: Add `StreamReadFeature.USE_FAST_BIG_DECIMAL_PARSER` to enable
   faster `BigDecimal`, `BigInteger` parsing

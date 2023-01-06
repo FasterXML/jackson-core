@@ -15,6 +15,8 @@ package com.fasterxml.jackson.core.io.doubleparser;
  */
 public class FastDoubleParser {
 
+    private static final DoubleBitsFromCharArray CHAR_ARRAY_PARSER = new DoubleBitsFromCharArray();
+    private static final DoubleBitsFromCharSequence CHAR_SEQ_PARSER = new DoubleBitsFromCharSequence();
 
     /**
      * Don't let anyone instantiate this class.
@@ -47,7 +49,7 @@ public class FastDoubleParser {
      * @throws NumberFormatException if the string can not be parsed
      */
     public static double parseDouble(CharSequence str, int offset, int length) throws NumberFormatException {
-        long bitPattern = new DoubleBitsFromCharSequence().parseFloatingPointLiteral(str, offset, length);
+        long bitPattern = CHAR_SEQ_PARSER.parseFloatingPointLiteral(str, offset, length);
         if (bitPattern == AbstractFloatValueParser.PARSE_ERROR) {
             throw new NumberFormatException("Illegal input");
         }
@@ -79,7 +81,7 @@ public class FastDoubleParser {
      * @throws NumberFormatException if the string can not be parsed
      */
     public static double parseDouble(char[] str, int offset, int length) throws NumberFormatException {
-        long bitPattern = new DoubleBitsFromCharArray().parseFloatingPointLiteral(str, offset, length);
+        long bitPattern = CHAR_ARRAY_PARSER.parseFloatingPointLiteral(str, offset, length);
         if (bitPattern == AbstractFloatValueParser.PARSE_ERROR) {
             throw new NumberFormatException("Illegal input");
         }
@@ -109,7 +111,7 @@ public class FastDoubleParser {
      * otherwise, {@code -1L}.
      */
     public static long parseDoubleBits(CharSequence str, int offset, int length) {
-        return new DoubleBitsFromCharSequence().parseFloatingPointLiteral(str, offset, length);
+        return CHAR_SEQ_PARSER.parseFloatingPointLiteral(str, offset, length);
     }
 
     /**
@@ -128,6 +130,6 @@ public class FastDoubleParser {
      * otherwise, {@code -1L}.
      */
     public static long parseDoubleBits(char[] str, int offset, int length) {
-        return new DoubleBitsFromCharArray().parseFloatingPointLiteral(str, offset, length);
+        return CHAR_ARRAY_PARSER.parseFloatingPointLiteral(str, offset, length);
     }
 }

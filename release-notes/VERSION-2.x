@@ -20,7 +20,9 @@ No changes since 2.14
 
 2.14.2 (not yet released)
 
-#854: Backport schubfach changes from v2.15
+#854: Backport schubfach changes from v2.15#8
+ (contributed by @pjfanning)
+#886: Avoid instance creations in fast parser code
  (contributed by @pjfanning)
 
 2.14.1 (21-Nov-2022)

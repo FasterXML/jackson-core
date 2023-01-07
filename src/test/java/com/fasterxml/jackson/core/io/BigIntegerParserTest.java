@@ -8,7 +8,8 @@ public class BigIntegerParserTest extends com.fasterxml.jackson.core.BaseTest {
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
             assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
-            assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));
+            assertTrue("exception message value contains: truncated", nfe.getMessage().contains("truncated"));
+            assertTrue("exception message value contains: BigInteger", nfe.getMessage().contains("BigInteger"));
         }
     }
 
@@ -18,7 +19,9 @@ public class BigIntegerParserTest extends com.fasterxml.jackson.core.BaseTest {
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
             assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
-            assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));
+            assertTrue("exception message value contains: truncated", nfe.getMessage().contains("truncated"));
+            assertTrue("exception message value contains: radix 8", nfe.getMessage().contains("radix 8"));
+            assertTrue("exception message value contains: BigInteger", nfe.getMessage().contains("BigInteger"));
         }
     }
 

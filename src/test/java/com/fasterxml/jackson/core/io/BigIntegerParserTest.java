@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.core.io;
 
-public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
-    public void testLongStringParse() {
+public class BigIntegerParserTest extends com.fasterxml.jackson.core.BaseTest {
+
+    public void testLongStringFastParseBigInteger() {
         try {
-            BigDecimalParser.parse(genLongString());
+            BigIntegerParser.parseWithFastParser(genLongString());
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
             assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
@@ -11,9 +12,9 @@ public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
         }
     }
 
-    public void testLongStringFastParse() {
+    public void testLongStringFastParseBigIntegerRadix() {
         try {
-            BigDecimalParser.parseWithFastParser(genLongString());
+            BigIntegerParser.parseWithFastParser(genLongString(), 8);
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
             assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
@@ -21,7 +22,12 @@ public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
         }
     }
 
-    private String genLongString() {
-        return BigIntegerParserTest.genLongString();
+    static String genLongString() {
+        final int len = 1500;
+        final StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append("A");
+        }
+        return sb.toString();
     }
 }

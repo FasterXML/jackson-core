@@ -724,6 +724,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     if (returnEnd) {
                         return t;
                     }
+                    if (gotEnd) {
+                        return null;
+                    }
                 }
                 continue main_loop;
             case ID_END_OBJECT:
@@ -750,6 +753,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
                 if (returnEnd) {
                     return t;
+                }
+                if (gotEnd) {
+                    return null;
                 }
             }
             continue main_loop;

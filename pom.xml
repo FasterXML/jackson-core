@@ -157,14 +157,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
           <createDependencyReducedPom>true</createDependencyReducedPom>
           <minimizeJar>true</minimizeJar>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>**/*FromCharArray*</exclude>
-              </excludes>
-            </filter>
-          </filters>
         </configuration>
         <executions>
           <execution>

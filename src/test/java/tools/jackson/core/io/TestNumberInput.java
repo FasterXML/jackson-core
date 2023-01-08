@@ -43,5 +43,14 @@ public class TestNumberInput
         assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000));
         assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, true));
     }
+
+    public void testBigIntegerWithRadix()
+    {
+        final String val = "1ABCDEF";
+        final int radix = 16;
+        BigInteger expected = new BigInteger(val, radix);
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(val, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(val, radix, false));
+    }
 }
 

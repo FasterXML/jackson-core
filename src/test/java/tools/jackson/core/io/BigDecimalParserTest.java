@@ -34,11 +34,6 @@ public class BigDecimalParserTest extends tools.jackson.core.BaseTest {
     }
 
     private String genLongString() {
-        final int len = 1500;
-        final StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            sb.append("A");
-        }
-        return sb.toString();
+        return BigIntegerParserTest.genLongString();
     }
 }

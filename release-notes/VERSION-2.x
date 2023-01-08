@@ -22,6 +22,8 @@ No changes since 2.14
 
 #854: Backport schubfach changes from v2.15#8
  (contributed by @pjfanning)
+#882: Allow TokenFIlter to skip last elements in arrays
+ (contributed by Przemyslaw G)
 #886: Avoid instance creations in fast parser code
  (contributed by @pjfanning)
 

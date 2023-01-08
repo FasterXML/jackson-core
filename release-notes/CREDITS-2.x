@@ -331,3 +331,7 @@ Chris Rankin (chrisr3@github)
   * Contributed #822: Declare osgi.serviceloader.registrar requirement as optional
   (2.14.0)
 
+Przemyslaw Gomulka (pgomulka@github)
+  * Contributed #882: Allow TokenFIlter to skip last elements in arrays
+  (2.14.2)
+

@@ -161,7 +161,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
             <filter>
               <artifact>*:*</artifact>
               <excludes>
-                <exclude>**/*FromByteArray*</exclude>
                 <exclude>**/*FromCharArray*</exclude>
               </excludes>
             </filter>

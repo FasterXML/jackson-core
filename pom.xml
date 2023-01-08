@@ -239,7 +239,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <dependency>
       <groupId>ch.randelshofer</groupId>
       <artifactId>fastdoubleparser</artifactId>
-      <version>0.5.4</version>
+      <version>0.6.0</version>
     </dependency>
     <!-- Test dependencies -->
     <dependency>

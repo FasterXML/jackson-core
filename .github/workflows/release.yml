@@ -18,6 +18,10 @@ jobs:
     runs-on: "ubuntu-20.04"
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+    outputs:
+      hash: ${{ steps.hash.outputs.hash }}
+      artifact_name: ${{ steps.hash.outputs.artifact_name }}
+      project_version: ${{ steps.projectVersion.outputs.version }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
@@ -36,3 +40,30 @@ jobs:
         # The following command will only succeed if the preparation was done via the
         # release.sh script.
         run: ./mvnw -B -q -ff -ntp release:perform -DlocalCheckout=true
+      - name: Generate hash
+        id: hash
+        run: |
+          ARTIFACT_NAME="$( \
+            ./mvnw help:evaluate \
+              -Dexpression=project.artifactId -q -DforceStdout)-$( \
+            ./mvnw help:evaluate \
+              -Dexpression=project.version -q -DforceStdout)"
+          echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+
+          cd ./target
+          echo "hash=$( \
+            sha256sum $ARTIFACT_NAME*.jar | \
+            base64 -w0 \
+          )" >> "$GITHUB_OUTPUT"
+
+  provenance:
+    needs: [release]
+    permissions:
+      actions: read # To read the workflow path.
+      id-token: write # To sign the provenance.
+      contents: write # To add assets to a release.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+    with:
+      base64-subjects: "${{ needs.release.outputs.hash }}"
+      provenance-name: "${{ needs.release.outputs.artifact_name }}.jar.intoto.jsonl"
+      upload-assets: true # Optional: Upload to a new release

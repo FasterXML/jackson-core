@@ -831,7 +831,10 @@ public abstract class ParserBase extends ParserMinimalBase
                 _parseNumericValue(NR_BIGDECIMAL);
             }
             if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
-                if ((_numTypesValid & NR_DOUBLE) != 0) {
+                if (_numberString != null) {
+                    lazyNumber = new LazyBigDecimal(_numberString,
+                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                } else if ((_numTypesValid & NR_DOUBLE) != 0) {
                     // Let's actually parse from String representation, to avoid
                     // rounding errors that non-decimal floating operations could incur
                     _numberString = getText();
@@ -856,7 +859,10 @@ public abstract class ParserBase extends ParserMinimalBase
                 _parseNumericValue(NR_BIGINT);
             }
             if ((_numTypesValid & NR_BIGINT) == 0) {
-                if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
+                if (_numberString != null) {
+                    lazyNumber = new LazyBigInteger(_numberString,
+                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
                     _numberString = getText();
                     lazyNumber = new LazyBigInteger(_numberString,
                             isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));

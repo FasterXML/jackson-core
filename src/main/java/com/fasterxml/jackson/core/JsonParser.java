@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.io.LazyNumber;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.RequestPayload;
@@ -1855,6 +1856,19 @@ public abstract class JsonParser
      *   {@link JsonParseException} for decoding problems
      */
     public abstract BigDecimal getDecimalValue() throws IOException;
+
+    /**
+     * Numeric accessor that can be called when the current
+     * token is of type {@link JsonToken#VALUE_NUMBER_FLOAT} or
+     * {@link JsonToken#VALUE_NUMBER_INT}.
+     *
+     * @return Current number value as {@link LazyNumber} (if numeric token);
+     *   otherwise exception thrown
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     */
+    public abstract LazyNumber getLazyNumber() throws IOException;
 
     /*
     /**********************************************************

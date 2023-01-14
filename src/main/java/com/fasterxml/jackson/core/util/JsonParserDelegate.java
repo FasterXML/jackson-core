@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.LazyNumber;
 
 /**
  * Helper class that implements
@@ -204,6 +205,9 @@ public class JsonParserDelegate extends JsonParser
 
     @Override
     public BigDecimal getDecimalValue() throws IOException { return delegate.getDecimalValue(); }
+
+    @Override
+    public LazyNumber getLazyNumber() throws IOException { return delegate.getLazyNumber(); }
 
     @Override
     public double getDoubleValue() throws IOException { return delegate.getDoubleValue(); }

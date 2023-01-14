@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
+import com.fasterxml.jackson.core.io.LazyNumber;
 
 public class ParserFeatureDefaultsTest extends BaseTest
 {
@@ -132,6 +133,11 @@ public class ParserFeatureDefaultsTest extends BaseTest
 
         @Override
         public BigDecimal getDecimalValue() {
+            return null;
+        }
+
+        @Override
+        public LazyNumber getLazyNumber() {
             return null;
         }
     }

@@ -337,3 +337,8 @@ Przemyslaw Gomulka (pgomulka@github)
   * Contributed #882: Allow TokenFIlter to skip last elements in arrays
   (2.14.2)
 
+Markus Spika  (DemonicTutor@github)
+  * Contributed #890: `FilteringGeneratorDelegate` does not create new `filterContext`
+   if `tokenFilter` is null
+  (2.14.2)
+

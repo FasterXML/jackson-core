@@ -26,6 +26,10 @@ No changes since 2.14
  (contributed by Przemyslaw G)
 #886: Avoid instance creations in fast parser code
  (contributed by @pjfanning)
+#890: `FilteringGeneratorDelegate` does not create new `filterContext`
+  if `tokenFilter` is null
+ (contributed by @DemonicTutor)
+
 
 2.14.1 (21-Nov-2022)
 

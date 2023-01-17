@@ -833,28 +833,11 @@ public abstract class ParserBase extends ParserMinimalBase
             if (_numberString != null) {
                 lazyNumber = new LazyBigDecimal(_numberString,
                         isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                _numTypesValid |= NR_BIGDECIMAL;
-            } else if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
-                if ((_numTypesValid & NR_DOUBLE) != 0) {
-                    // Let's actually parse from String representation, to avoid
-                    // rounding errors that non-decimal floating operations could incur
-                    _numberString = getText();
-                    lazyNumber = new LazyBigDecimal(_numberString,
-                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                } else if ((_numTypesValid & NR_BIGINT) != 0) {
-                    _numberBigDecimal = new BigDecimal(_getBigInteger());
-                    lazyNumber = new LazyBigDecimal(_numberBigDecimal);
-                } else if ((_numTypesValid & NR_LONG) != 0) {
-                    _numberBigDecimal = BigDecimal.valueOf(_numberLong);
-                    lazyNumber = new LazyBigDecimal(_numberBigDecimal);
-                } else if ((_numTypesValid & NR_INT) != 0) {
-                    _numberBigDecimal = BigDecimal.valueOf(_numberInt);
-                    lazyNumber = new LazyBigDecimal(_numberBigDecimal);
-                } else {
-                    _throwInternal();
-                }
-                _numTypesValid |= NR_BIGDECIMAL;
+            } else {
+                lazyNumber = new LazyBigDecimal(getText(),
+                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             }
+            _numTypesValid |= NR_BIGDECIMAL;
         } else if ((_numTypesValid & NR_BIGINT) == 0) {
             if (_numTypesValid == NR_UNKNOWN) {
                 _parseNumericValue(NR_BIGINT);
@@ -862,27 +845,11 @@ public abstract class ParserBase extends ParserMinimalBase
             if (_numberString != null) {
                 lazyNumber = new LazyBigInteger(_numberString,
                         isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                _numTypesValid |= NR_BIGINT;
-            } else if ((_numTypesValid & NR_BIGINT) == 0) {
-                if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-                    _numberString = getText();
-                    lazyNumber = new LazyBigInteger(_numberString,
-                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                } else if ((_numTypesValid & NR_LONG) != 0) {
-                    _numberString = getText();
-                    lazyNumber = new LazyBigInteger(_numberString,
-                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                } else if ((_numTypesValid & NR_INT) != 0) {
-                    _numberBigInt = BigInteger.valueOf(_numberInt);
-                    lazyNumber = new LazyBigInteger(_numberBigInt);
-                } else if ((_numTypesValid & NR_DOUBLE) != 0) {
-                    _numberBigInt = BigDecimal.valueOf(_numberDouble).toBigInteger();
-                    lazyNumber = new LazyBigInteger(_numberBigInt);
-                } else {
-                    _throwInternal();
-                }
-                _numTypesValid |= NR_BIGINT;
+            } else {
+                lazyNumber = new LazyBigInteger(getText(),
+                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             }
+            _numTypesValid |= NR_BIGINT;
         } else {
             throw new JsonParseException(this, "unable to convert value to LazyNumber: " + getText());
         }

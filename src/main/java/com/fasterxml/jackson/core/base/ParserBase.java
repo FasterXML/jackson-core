@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.LazyBigDecimal;
 import com.fasterxml.jackson.core.io.LazyBigInteger;
+import com.fasterxml.jackson.core.io.LazyDouble;
+import com.fasterxml.jackson.core.io.LazyFloat;
 import com.fasterxml.jackson.core.io.LazyNumber;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.DupDetector;
@@ -826,7 +828,31 @@ public abstract class ParserBase extends ParserMinimalBase
     public LazyNumber getLazyNumber() throws IOException
     {
         LazyNumber lazyNumber = null;
-        if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
+        if ((_numTypesValid & NR_DOUBLE) == 0) {
+            if (_numTypesValid == NR_UNKNOWN) {
+                _parseNumericValue(NR_DOUBLE);
+            }
+            if (_numberString != null) {
+                lazyNumber = new LazyDouble(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } else {
+                lazyNumber = new LazyDouble(getText(),
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            }
+            _numTypesValid |= NR_DOUBLE;
+        } else if ((_numTypesValid & NR_FLOAT) == 0) {
+            if (_numTypesValid == NR_UNKNOWN) {
+                _parseNumericValue(NR_FLOAT);
+            }
+            if (_numberString != null) {
+                lazyNumber = new LazyFloat(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } else {
+                lazyNumber = new LazyFloat(getText(),
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            }
+            _numTypesValid |= NR_FLOAT;
+        } else if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
             if (_numTypesValid == NR_UNKNOWN) {
                 _parseNumericValue(NR_BIGDECIMAL);
             }

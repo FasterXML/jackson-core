@@ -42,12 +42,14 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         // double->int
         p = createParser("2");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(2.0, p.getLazyNumber().getNumber().doubleValue());
         assertEquals(2.0, p.getDoubleValue());
         assertEquals(2, p.getIntValue());
         p.close();
 
         p = createParser("0.1");
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(0.1, p.getLazyNumber().getNumber().doubleValue());
         assertEquals(0.1, p.getDoubleValue());
         assertEquals(0, p.getIntValue());
         p.close();
@@ -55,6 +57,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         // BigDecimal->int
         p = createParser("10");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(10, p.getLazyNumber().getNumber().intValue());
         assertEquals(BigDecimal.TEN, p.getDecimalValue());
         assertEquals(10, p.getIntValue());
         p.close();

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.io.LazyNumber;
 
 public abstract class AsyncReaderWrapper
 {
@@ -64,6 +65,7 @@ public abstract class AsyncReaderWrapper
     public double getDoubleValue() throws IOException { return _streamReader.getDoubleValue(); }
     public BigInteger getBigIntegerValue() throws IOException { return _streamReader.getBigIntegerValue(); }
     public BigDecimal getDecimalValue() throws IOException { return _streamReader.getDecimalValue(); }
+    public LazyNumber getLazyNumber() throws IOException { return _streamReader.getLazyNumber(); }
     public byte[] getBinaryValue() throws IOException { return _streamReader.getBinaryValue(); }
 
     public Number getNumberValue() throws IOException { return _streamReader.getNumberValue(); }

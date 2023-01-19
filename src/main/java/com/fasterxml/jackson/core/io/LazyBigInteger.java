@@ -9,7 +9,7 @@ import java.math.BigInteger;
  * @since 2.15
  */
 public class LazyBigInteger implements LazyNumber {
-    private final String _value;
+    private String _value;
     private final boolean _useFastParser;
     private BigInteger _integer;
 
@@ -35,6 +35,9 @@ public class LazyBigInteger implements LazyNumber {
 
     @Override
     public String getText() {
+        if (_value == null) {
+            _value = getNumber().toString();
+        }
         return _value;
     }
 }

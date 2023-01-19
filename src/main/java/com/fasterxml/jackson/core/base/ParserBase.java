@@ -838,11 +838,6 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numTypesValid |= NR_BIGDECIMAL;
             } else {
                 lazyNumber = lazyNumberFromParsedPrimitiveNumber();
-                if (lazyNumber == null) {
-                    lazyNumber = new LazyBigDecimal(getText(),
-                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                    _numTypesValid |= NR_BIGDECIMAL;
-                }
             }
         } else if ((_numTypesValid & NR_DOUBLE) == 0) {
             if (_numTypesValid == NR_UNKNOWN) {
@@ -854,11 +849,6 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numTypesValid |= NR_DOUBLE;
             } else {
                 lazyNumber = lazyNumberFromParsedPrimitiveNumber();
-                if (lazyNumber == null) {
-                    lazyNumber = new LazyDouble(getText(),
-                            isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                    _numTypesValid |= NR_DOUBLE;
-                }
             }
         } else if ((_numTypesValid & NR_FLOAT) == 0) {
             if (_numTypesValid == NR_UNKNOWN) {
@@ -870,11 +860,6 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numTypesValid |= NR_FLOAT;
             } else {
                 lazyNumber = lazyNumberFromParsedPrimitiveNumber();
-                if (lazyNumber == null) {
-                    lazyNumber = new LazyFloat(getText(),
-                            isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                    _numTypesValid |= NR_FLOAT;
-                }
             }
         } else if ((_numTypesValid & NR_BIGINT) == 0) {
             if (_numTypesValid == NR_UNKNOWN) {
@@ -886,11 +871,6 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numTypesValid |= NR_BIGINT;
             } else {
                 lazyNumber = lazyNumberFromParsedPrimitiveNumber();
-                if (lazyNumber == null) {
-                    lazyNumber = new LazyBigInteger(getText(),
-                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                    _numTypesValid |= NR_BIGINT;
-                }
             }
         } else {
             throw new JsonParseException(this, "unable to convert value to LazyNumber: " + getText());
@@ -898,7 +878,7 @@ public abstract class ParserBase extends ParserMinimalBase
         return lazyNumber;
     }
 
-    private LazyNumber lazyNumberFromParsedPrimitiveNumber() {
+    private LazyNumber lazyNumberFromParsedPrimitiveNumber() throws IOException {
         if (_numTypesValid == NR_INT) {
             return new LazyBigInteger(BigInteger.valueOf(_numberInt));
         } else if (_numTypesValid == NR_LONG) {
@@ -908,7 +888,7 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numTypesValid == NR_FLOAT) {
             return new LazyBigDecimal(BigDecimal.valueOf(_numberFloat));
         }
-        return null;
+        throw new JsonParseException(this, "unable to convert value to LazyNumber: " + getText());
     }
 
     @Override // @since 2.15

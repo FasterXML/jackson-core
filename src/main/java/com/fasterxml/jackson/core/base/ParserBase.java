@@ -884,9 +884,9 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numTypesValid == NR_LONG) {
             return new LazyBigInteger(BigInteger.valueOf(_numberLong));
         } else if (_numTypesValid == NR_DOUBLE) {
-            return new LazyBigDecimal(BigDecimal.valueOf(_numberDouble));
+            return new LazyDouble(_numberDouble);
         } else if (_numTypesValid == NR_FLOAT) {
-            return new LazyBigDecimal(BigDecimal.valueOf(_numberFloat));
+            return new LazyFloat(_numberFloat);
         }
         throw new JsonParseException(this, "unable to convert value to LazyNumber: " + getText());
     }
@@ -928,8 +928,7 @@ public abstract class ParserBase extends ParserMinimalBase
             final int len = _intLength;
             // First: optimization for simple int
             if (len <= 9) {
-                int i = _textBuffer.contentsAsInt(_numberNegative);
-                _numberInt = i;
+                _numberInt = _textBuffer.contentsAsInt(_numberNegative);
                 _numTypesValid = NR_INT;
                 return;
             }

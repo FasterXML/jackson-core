@@ -13,7 +13,6 @@ public class LazyBigInteger implements LazyNumber {
     private final boolean _useFastParser;
     private BigInteger _integer;
 
-
     public LazyBigInteger(final String value, final boolean useFastParser) {
         this._value = value;
         this._useFastParser = useFastParser;

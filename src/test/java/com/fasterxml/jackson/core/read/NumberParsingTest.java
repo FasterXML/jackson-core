@@ -106,6 +106,7 @@ public class NumberParsingTest
         assertEquals((long) EXP_I, p.getLongValue());
         assertEquals((double) EXP_I, p.getDoubleValue());
         assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
+        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getLazyNumber().getNumber());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 

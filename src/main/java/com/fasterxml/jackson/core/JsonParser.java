@@ -1867,6 +1867,8 @@ public abstract class JsonParser
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
+     *
+     * @since 2.15
      */
     public abstract LazyNumber getLazyNumber() throws IOException;
 

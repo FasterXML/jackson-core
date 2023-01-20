@@ -879,18 +879,21 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     private LazyNumber lazyNumberFromParsedPrimitiveNumber() throws IOException {
-        if (_numTypesValid == NR_INT) {
-            return new LazyBigInteger(BigInteger.valueOf(_numberInt));
-        } else if (_numTypesValid == NR_LONG) {
-            return new LazyBigInteger(BigInteger.valueOf(_numberLong));
-        } else if (_numTypesValid == NR_DOUBLE) {
-            return new LazyDouble(_numberDouble);
-        } else if (_numTypesValid == NR_FLOAT) {
-            return new LazyFloat(_numberFloat);
-        } else if (_numberBigDecimal != null) {
-            return new LazyBigDecimal(_numberBigDecimal);
-        } else if (_numberBigInt != null) {
-            return new LazyBigInteger(_numberBigInt);
+        switch (_numTypesValid) {
+            case NR_INT:
+                return new LazyBigInteger(BigInteger.valueOf(_numberInt));
+            case NR_LONG:
+                return new LazyBigInteger(BigInteger.valueOf(_numberLong));
+            case NR_DOUBLE:
+                return new LazyDouble(_numberDouble);
+            case NR_FLOAT:
+                return new LazyFloat(_numberFloat);
+            default:
+                if (_numberBigDecimal != null) {
+                    return new LazyBigDecimal(_numberBigDecimal);
+                } else if (_numberBigInt != null) {
+                    return new LazyBigInteger(_numberBigInt);
+                }
         }
         throw new JsonParseException(this, "unable to convert value to LazyNumber: " + getText());
     }

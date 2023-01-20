@@ -175,6 +175,7 @@ public class LargeNumberWriteTest extends BaseTest
         assertEquals("field", p.getCurrentName());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(bigValue, p.getDecimalValue());
+        assertEquals(bigValue, p.getLazyNumber().getNumber());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertNull(p.nextToken());
     }

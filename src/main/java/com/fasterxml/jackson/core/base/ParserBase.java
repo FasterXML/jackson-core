@@ -887,6 +887,10 @@ public abstract class ParserBase extends ParserMinimalBase
             return new LazyDouble(_numberDouble);
         } else if (_numTypesValid == NR_FLOAT) {
             return new LazyFloat(_numberFloat);
+        } else if (_numberBigDecimal != null) {
+            return new LazyBigDecimal(_numberBigDecimal);
+        } else if (_numberBigInt != null) {
+            return new LazyBigInteger(_numberBigInt);
         }
         throw new JsonParseException(this, "unable to convert value to LazyNumber: " + getText());
     }

@@ -786,7 +786,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 convertNumberToFloat();
             }
         }
-        return _numberFloat;
+        return _getNumberFloat();
     }
     
     @Override
@@ -800,7 +800,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 convertNumberToDouble();
             }
         }
-        return _numberDouble;
+        return _getNumberDouble();
     }
     
     @Override

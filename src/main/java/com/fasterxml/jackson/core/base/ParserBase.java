@@ -612,7 +612,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
             if ((_numTypesValid & NR_DOUBLE) != 0) {
                 // 10-Mar-2017, tatu: Alas, `Double.isFinite(d)` only added in JDK 8
-                double d = _numberDouble;
+                final double d = _getNumberDouble();
                 return Double.isNaN(d) || Double.isInfinite(d);              
             }
         }
@@ -651,12 +651,12 @@ public abstract class ParserBase extends ParserMinimalBase
             return _getBigDecimal();
         }
         if ((_numTypesValid & NR_FLOAT) != 0) {
-            return _numberFloat;
+            return _getNumberFloat();
         }
         if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
             _throwInternal();
         }
-        return _numberDouble;
+        return _getNumberDouble();
     }
 
     // NOTE: mostly copied from above
@@ -686,12 +686,12 @@ public abstract class ParserBase extends ParserMinimalBase
             return _getBigDecimal();
         }
         if ((_numTypesValid & NR_FLOAT) != 0) {
-            return _numberFloat;
+            return _getNumberFloat();
         }
         if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
             _throwInternal();
         }
-        return _numberDouble;
+        return _getNumberDouble();
     }
 
     @Override
@@ -852,12 +852,34 @@ public abstract class ParserBase extends ParserMinimalBase
                     isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         }
         if ((_numTypesValid & NR_FLOAT) != 0) {
+            if (_numberString != null) {
+                return new LazyFloat(_numberString, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            }
             return new LazyFloat(_numberFloat);
         }
         if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
             _throwInternal();
         }
+        if (_numberString != null) {
+            return new LazyDouble(_numberString, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+        }
         return new LazyDouble(_numberDouble);
+    }
+
+    private double _getNumberDouble() {
+        if (_numberString != null) {
+            _numberDouble = NumberInput.parseDouble(_numberString, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            _numberString = null;
+        }
+        return _numberDouble;
+    }
+
+    private float _getNumberFloat() {
+        if (_numberString != null) {
+            _numberFloat = NumberInput.parseFloat(_numberString, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            _numberString = null;
+        }
+        return _numberFloat;
     }
 
     @Override // @since 2.15
@@ -989,16 +1011,14 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberString = _textBuffer.contentsAsString();
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat(
-                        isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
+                _numberString = _textBuffer.contentsAsString();
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
                 // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
                 //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
                 //    deferring some typing?
-                _numberDouble = _textBuffer.contentsAsDouble(
-                        isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
+                _numberString = _textBuffer.contentsAsString();
                 _numTypesValid = NR_DOUBLE;
             }
         } catch (NumberFormatException nex) {
@@ -1065,10 +1085,11 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberInt = bigInteger.intValue();
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Need to check boundaries
-            if (_numberDouble < MIN_INT_D || _numberDouble > MAX_INT_D) {
+            final double d = _getNumberDouble();
+            if (d < MIN_INT_D || d > MAX_INT_D) {
                 reportOverflowInt();
             }
-            _numberInt = (int) _numberDouble;
+            _numberInt = (int) _getNumberDouble();
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             final BigDecimal bigDecimal = _getBigDecimal();
             if (BD_MIN_INT.compareTo(bigDecimal) > 0
@@ -1095,10 +1116,11 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberLong = bigInteger.longValue();
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Need to check boundaries
-            if (_numberDouble < MIN_LONG_D || _numberDouble > MAX_LONG_D) {
+            final double d = _getNumberDouble();
+            if (d < MIN_LONG_D || d > MAX_LONG_D) {
                 reportOverflowLong();
             }
-            _numberLong = (long) _numberDouble;
+            _numberLong = (long) d;
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             final BigDecimal bigDecimal = _getBigDecimal();
             if (BD_MIN_LONG.compareTo(bigDecimal) > 0
@@ -1122,7 +1144,7 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberInt);
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
-            _numberBigInt = BigDecimal.valueOf(_numberDouble).toBigInteger();
+            _numberBigInt = BigDecimal.valueOf(_getNumberDouble()).toBigInteger();
         } else {
             _throwInternal();
         }
@@ -1146,7 +1168,9 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberDouble = (double) _numberInt;
         } else if ((_numTypesValid & NR_FLOAT) != 0) {
-            _numberDouble = (double) _numberFloat;
+            _numberDouble = (double) _getNumberFloat();
+        } else if (_numberString != null) {
+            _getNumberDouble();
         } else {
             _throwInternal();
         }
@@ -1170,7 +1194,9 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberFloat = (float) _numberInt;
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
-            _numberFloat = (float) _numberDouble;
+            _numberFloat = (float) _getNumberDouble();
+        } else if (_numberString != null) {
+            _getNumberFloat();
         } else {
             _throwInternal();
         }
@@ -1189,7 +1215,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
-            _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
+            _numberBigDecimal = NumberInput.parseBigDecimal(numStr, isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
         } else if ((_numTypesValid & NR_LONG) != 0) {

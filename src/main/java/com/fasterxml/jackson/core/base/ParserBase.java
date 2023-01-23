@@ -608,12 +608,12 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     @Override
-    public boolean isNaN() {
+    public boolean isNaN() throws IOException {
         if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
             if ((_numTypesValid & NR_DOUBLE) != 0) {
                 // 10-Mar-2017, tatu: Alas, `Double.isFinite(d)` only added in JDK 8
                 final double d = _getNumberDouble();
-                return Double.isNaN(d) || Double.isInfinite(d);              
+                return Double.isNaN(d) || Double.isInfinite(d);
             }
         }
         return false;
@@ -866,17 +866,27 @@ public abstract class ParserBase extends ParserMinimalBase
         return new LazyDouble(_numberDouble);
     }
 
-    private double _getNumberDouble() {
+    private double _getNumberDouble() throws JsonParseException {
         if (_numberString != null) {
-            _numberDouble = NumberInput.parseDouble(_numberString, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            try {
+                _numberDouble = NumberInput.parseDouble(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (NumberFormatException nex) {
+                _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            }
             _numberString = null;
         }
         return _numberDouble;
     }
 
-    private float _getNumberFloat() {
+    private float _getNumberFloat() throws JsonParseException {
         if (_numberString != null) {
-            _numberFloat = NumberInput.parseFloat(_numberString, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            try {
+                _numberFloat = NumberInput.parseFloat(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (NumberFormatException nex) {
+                _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            }
             _numberString = null;
         }
         return _numberFloat;
@@ -1003,27 +1013,22 @@ public abstract class ParserBase extends ParserMinimalBase
          * still be constructed correctly at any point since we do
          * retain textual representation
          */
-        try {
-            if (expType == NR_BIGDECIMAL) {
-                // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
-                //    value is actually needed.
-                _numberBigDecimal = null;
-                _numberString = _textBuffer.contentsAsString();
-                _numTypesValid = NR_BIGDECIMAL;
-            } else if (expType == NR_FLOAT) {
-                _numberString = _textBuffer.contentsAsString();
-                _numTypesValid = NR_FLOAT;
-            } else {
-                // Otherwise double has to do
-                // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
-                //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
-                //    deferring some typing?
-                _numberString = _textBuffer.contentsAsString();
-                _numTypesValid = NR_DOUBLE;
-            }
-        } catch (NumberFormatException nex) {
-            // Can this ever occur? Due to overflow, maybe?
-            _wrapError("Malformed numeric value ("+_longNumberDesc(_textBuffer.contentsAsString())+")", nex);
+        if (expType == NR_BIGDECIMAL) {
+            // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
+            //    value is actually needed.
+            _numberBigDecimal = null;
+            _numberString = _textBuffer.contentsAsString();
+            _numTypesValid = NR_BIGDECIMAL;
+        } else if (expType == NR_FLOAT) {
+            _numberString = _textBuffer.contentsAsString();
+            _numTypesValid = NR_FLOAT;
+        } else {
+            // Otherwise double has to do
+            // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
+            //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
+            //    deferring some typing?
+            _numberString = _textBuffer.contentsAsString();
+            _numTypesValid = NR_DOUBLE;
         }
     }
 
@@ -1236,16 +1241,20 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @since 2.14
      */
-    protected BigInteger _getBigInteger() {
+    protected BigInteger _getBigInteger() throws JsonParseException {
         if (_numberBigInt != null) {
             return _numberBigInt;
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
         // NOTE! Length of number string has been validated earlier
-        _numberBigInt = NumberInput.parseBigInteger(
+        try {
+            _numberBigInt = NumberInput.parseBigInteger(
                 _numberString,
                 isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        } catch (NumberFormatException nex) {
+            _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+        }
         _numberString = null;
         return _numberBigInt;
     }
@@ -1256,16 +1265,20 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @since 2.14
      */
-    protected BigDecimal _getBigDecimal() {
+    protected BigDecimal _getBigDecimal() throws JsonParseException {
         if (_numberBigDecimal != null) {
             return _numberBigDecimal;
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
         // NOTE! Length of number string has been validated earlier
-        _numberBigDecimal = NumberInput.parseBigDecimal(
-                _numberString,
-                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        try {
+            _numberBigDecimal = NumberInput.parseBigDecimal(
+                    _numberString,
+                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        } catch (NumberFormatException nex) {
+            _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+        }
         _numberString = null;
         return _numberBigDecimal;
     }

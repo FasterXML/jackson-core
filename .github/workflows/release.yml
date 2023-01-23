@@ -21,7 +21,6 @@ jobs:
     outputs:
       hash: ${{ steps.hash.outputs.hash }}
       artifact_name: ${{ steps.hash.outputs.artifact_name }}
-      project_version: ${{ steps.projectVersion.outputs.version }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK

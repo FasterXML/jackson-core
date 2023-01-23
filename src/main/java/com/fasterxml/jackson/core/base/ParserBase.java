@@ -1020,6 +1020,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberString = _textBuffer.contentsAsString();
             _numTypesValid = NR_BIGDECIMAL;
         } else if (expType == NR_FLOAT) {
+            _numberFloat = 0.0f;
             _numberString = _textBuffer.contentsAsString();
             _numTypesValid = NR_FLOAT;
         } else {
@@ -1027,6 +1028,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
             //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
             //    deferring some typing?
+            _numberDouble = 0.0;
             _numberString = _textBuffer.contentsAsString();
             _numTypesValid = NR_DOUBLE;
         }
@@ -1041,7 +1043,9 @@ public abstract class ParserBase extends ParserMinimalBase
                 _reportTooLongIntegral(expType, numStr);
             }
             if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
+                _numberDouble = 0.0;
+                _numberFloat = 0.0f;
+                _numberString = numStr;
                 _numTypesValid = NR_DOUBLE;
             } else {
                 // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy

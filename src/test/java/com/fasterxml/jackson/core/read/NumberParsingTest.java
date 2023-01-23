@@ -103,10 +103,10 @@ public class NumberParsingTest
         assertEquals(EXP_I, p.getIntValue());
         assertEquals(EXP_I, p.getValueAsInt(EXP_I + 3));
         assertEquals(EXP_I, p.getValueAsInt());
-        assertEquals((long) EXP_I, p.getLongValue());
+        assertEquals(EXP_I, p.getLongValue());
         assertEquals((double) EXP_I, p.getDoubleValue());
-        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
-        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getLazyNumber().getNumber());
+        assertEquals(BigDecimal.valueOf(EXP_I), p.getDecimalValue());
+        assertEquals(Integer.valueOf(EXP_I), p.getLazyNumber().getNumber());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 

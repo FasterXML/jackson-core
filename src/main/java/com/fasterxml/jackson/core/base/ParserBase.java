@@ -6,14 +6,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.ContentReference;
-import com.fasterxml.jackson.core.io.LazyBigDecimal;
-import com.fasterxml.jackson.core.io.LazyBigInteger;
-import com.fasterxml.jackson.core.io.LazyDouble;
-import com.fasterxml.jackson.core.io.LazyFloat;
-import com.fasterxml.jackson.core.io.LazyNumber;
-import com.fasterxml.jackson.core.io.NumberInput;
+import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.PackageVersion;
@@ -827,75 +820,44 @@ public abstract class ParserBase extends ParserMinimalBase
     @Override
     public LazyNumber getLazyNumber() throws IOException
     {
-        LazyNumber lazyNumber = null;
-        if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
-            if (_numTypesValid == NR_UNKNOWN) {
-                _parseNumericValue(NR_BIGDECIMAL);
-            }
-            if (_numberString != null) {
-                lazyNumber = new LazyBigDecimal(_numberString,
-                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                _numTypesValid |= NR_BIGDECIMAL;
-            } else {
-                lazyNumber = lazyNumberFromParsedPrimitiveNumber();
-            }
-        } else if ((_numTypesValid & NR_DOUBLE) == 0) {
-            if (_numTypesValid == NR_UNKNOWN) {
-                _parseNumericValue(NR_DOUBLE);
-            }
-            if (_numberString != null) {
-                lazyNumber = new LazyDouble(_numberString,
-                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                _numTypesValid |= NR_DOUBLE;
-            } else {
-                lazyNumber = lazyNumberFromParsedPrimitiveNumber();
-            }
-        } else if ((_numTypesValid & NR_FLOAT) == 0) {
-            if (_numTypesValid == NR_UNKNOWN) {
-                _parseNumericValue(NR_FLOAT);
-            }
-            if (_numberString != null) {
-                lazyNumber = new LazyFloat(_numberString,
-                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                _numTypesValid |= NR_FLOAT;
-            } else {
-                lazyNumber = lazyNumberFromParsedPrimitiveNumber();
-            }
-        } else if ((_numTypesValid & NR_BIGINT) == 0) {
-            if (_numTypesValid == NR_UNKNOWN) {
-                _parseNumericValue(NR_BIGINT);
-            }
-            if (_numberString != null) {
-                lazyNumber = new LazyBigInteger(_numberString,
-                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-                _numTypesValid |= NR_BIGINT;
-            } else {
-                lazyNumber = lazyNumberFromParsedPrimitiveNumber();
-            }
-        } else {
-            throw new JsonParseException(this, "unable to convert value to LazyNumber: " + getText());
+        // based on getNumberValue()
+        if (_numTypesValid == NR_UNKNOWN) {
+            _parseNumericValue(NR_UNKNOWN); // will also check event type
         }
-        return lazyNumber;
-    }
-
-    private LazyNumber lazyNumberFromParsedPrimitiveNumber() throws IOException {
-        switch (_numTypesValid) {
-            case NR_INT:
-                return new LazyBigInteger(BigInteger.valueOf(_numberInt));
-            case NR_LONG:
-                return new LazyBigInteger(BigInteger.valueOf(_numberLong));
-            case NR_DOUBLE:
-                return new LazyDouble(_numberDouble);
-            case NR_FLOAT:
-                return new LazyFloat(_numberFloat);
-            default:
-                if (_numberBigDecimal != null) {
-                    return new LazyBigDecimal(_numberBigDecimal);
-                } else if (_numberBigInt != null) {
+        // Separate types for int types
+        if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            if ((_numTypesValid & NR_INT) != 0) {
+                return new LazyInteger(_numberInt);
+            }
+            if ((_numTypesValid & NR_LONG) != 0) {
+                return new LazyLong(_numberLong);
+            }
+            if ((_numTypesValid & NR_BIGINT) != 0) {
+                if (_numberBigInt != null) {
                     return new LazyBigInteger(_numberBigInt);
                 }
+                return new LazyBigInteger(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+            }
+            _throwInternal();
         }
-        throw new JsonParseException(this, "unable to convert value to LazyNumber: " + getText());
+
+        // And then floating point types. But here optimal type
+        // needs to be big decimal, to avoid losing any data?
+        if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
+            if (_numberBigDecimal != null) {
+                return new LazyBigDecimal(_numberBigDecimal);
+            }
+            return new LazyBigDecimal(_numberString,
+                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        }
+        if ((_numTypesValid & NR_FLOAT) != 0) {
+            return new LazyFloat(_numberFloat);
+        }
+        if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
+            _throwInternal();
+        }
+        return new LazyDouble(_numberDouble);
     }
 
     @Override // @since 2.15

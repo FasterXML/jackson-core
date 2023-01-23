@@ -84,6 +84,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         p = createParser(String.valueOf(small));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(Long.valueOf(small), p.getNumberValue());
+        assertEquals(Long.valueOf(small), p.getLazyNumber().getNumber());
         assertEquals(small, p.getLongValue());
         try {
             p.getIntValue();
@@ -187,6 +188,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
         assertEquals(big, p.getBigIntegerValue());
+        assertEquals(big, p.getLazyNumber().getNumber());
         assertEquals(big, p.getNumberValue());
         try {
             p.getLongValue();

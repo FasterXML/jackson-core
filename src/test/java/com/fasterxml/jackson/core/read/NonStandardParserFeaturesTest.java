@@ -139,6 +139,8 @@ public class NonStandardParserFeaturesTest
         assertEquals(Integer.MAX_VALUE, p.getIntValue());
         Number nr = p.getNumberValue();
         assertSame(Integer.class, nr.getClass());
+        Number nr2 = p.getLazyNumber().getNumber();
+        assertSame(Integer.class, nr2.getClass());
         p.close();
 
         // and also check non-root "long zero"

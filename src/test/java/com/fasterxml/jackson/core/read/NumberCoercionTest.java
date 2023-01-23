@@ -72,6 +72,7 @@ public class NumberCoercionTest extends BaseTest
             long small = -1L + Integer.MIN_VALUE;
             p = createParser(mode, String.valueOf(small));
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(Long.valueOf(small), p.getLazyNumber().getNumber());
             assertEquals(Long.valueOf(small), p.getNumberValue());
             assertEquals(small, p.getLongValue());
             try {
@@ -181,6 +182,7 @@ public class NumberCoercionTest extends BaseTest
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
             assertEquals(big, p.getBigIntegerValue());
+            assertEquals(big, p.getLazyNumber().getNumber());
             assertEquals(big, p.getNumberValue());
             try {
                 p.getLongValue();

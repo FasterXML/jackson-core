@@ -263,6 +263,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertFalse(del.isNaN());
         assertTrue(del.isExpectedNumberIntToken());
         assertEquals(NumberType.INT, del.getNumberType());
+        assertEquals(Integer.valueOf(1), del.getLazyNumber().getNumber());
         assertEquals(Integer.valueOf(1), del.getNumberValue());
         assertNull(del.getEmbeddedObject());
         

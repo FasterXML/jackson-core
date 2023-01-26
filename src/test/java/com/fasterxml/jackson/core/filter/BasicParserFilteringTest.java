@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+import com.fasterxml.jackson.core.io.LazyInteger;
 
 @SuppressWarnings("resource")
 public class BasicParserFilteringTest extends BaseTest
@@ -585,6 +586,7 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals((float)3, p.getFloatValue());
         assertEquals(BigInteger.valueOf(3L), p.getBigIntegerValue());
         assertEquals(Integer.valueOf(3), p.getNumberValue());
+        assertEquals(Integer.valueOf(3), p.getLazyNumber().getNumber());
         assertTrue(p.getValueAsBoolean());
         assertTrue(p.getValueAsBoolean(false));
 

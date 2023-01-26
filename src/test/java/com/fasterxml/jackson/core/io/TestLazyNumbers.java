@@ -42,7 +42,7 @@ public class TestLazyNumbers
         BigDecimal bd = new BigDecimal(num);
         LazyBigDecimal ld2 = new LazyBigDecimal(bd);
         assertEquals(bd.toString(), ld2.getText());
-        assertEquals(bd, ld.getNumber());
+        assertEquals(bd, ld2.getNumber());
     }
 
     public void testLazyBigInteger()
@@ -54,6 +54,22 @@ public class TestLazyNumbers
 
         LazyBigInteger ln2 = new LazyBigInteger(new BigInteger(num));
         assertEquals(num, ln2.getText());
-        assertEquals(new BigInteger(num), ln.getNumber());
+        assertEquals(new BigInteger(num), ln2.getNumber());
+    }
+
+    public void testLazyInteger()
+    {
+        String num = "1234567890";
+        LazyInteger ln = new LazyInteger(Integer.parseInt(num));
+        assertEquals(num, ln.getText());
+        assertEquals(Integer.valueOf(num), ln.getNumber());
+    }
+
+    public void testLazyLong()
+    {
+        String num = "123456789012345678";
+        LazyLong ln = new LazyLong(Long.parseLong(num));
+        assertEquals(num, ln.getText());
+        assertEquals(Long.valueOf(num), ln.getNumber());
     }
 }

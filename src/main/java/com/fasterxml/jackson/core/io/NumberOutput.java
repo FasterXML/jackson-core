@@ -330,8 +330,7 @@ public final class NumberOutput
      * Since 2.10
      */
     public static boolean notFinite(double value) {
-        // before Java 8 need separate checks
-        return Double.isNaN(value) || Double.isInfinite(value);
+        return !Double.isFinite(value);
     }
 
     /**
@@ -345,8 +344,7 @@ public final class NumberOutput
      * Since 2.10
      */
     public static boolean notFinite(float value) {
-        // before Java 8 need separate checks
-        return Float.isNaN(value) || Float.isInfinite(value);
+        return !Float.isFinite(value);
     }
 
     /*

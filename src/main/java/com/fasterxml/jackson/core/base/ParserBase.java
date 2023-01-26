@@ -611,9 +611,7 @@ public abstract class ParserBase extends ParserMinimalBase
     public boolean isNaN() throws IOException {
         if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
             if ((_numTypesValid & NR_DOUBLE) != 0) {
-                // 10-Mar-2017, tatu: Alas, `Double.isFinite(d)` only added in JDK 8
-                final double d = _getNumberDouble();
-                return Double.isNaN(d) || Double.isInfinite(d);
+                return !Double.isFinite(_getNumberDouble());
             }
         }
         return false;

@@ -929,7 +929,7 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberInt;
     }
 
-    private void _parseSlowFloat(int expType) throws IOException
+    private void _parseSlowFloat(int expType)
     {
         /* Nope: floating point. Here we need to be careful to get
          * optimal parsing strategy: choice is between accurate but

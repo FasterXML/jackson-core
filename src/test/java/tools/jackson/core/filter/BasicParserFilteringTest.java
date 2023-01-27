@@ -740,7 +740,7 @@ public class BasicParserFilteringTest extends BaseTest
     }
 
     public void testExcludeObjectAtTheBeginningOfArray() throws Exception {
-        JsonParser p0 = JSON_F.createParser(a2q(
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), a2q(
                 "{'parent':[{'exclude':false},{'include':true}]}"));
         JsonParser p = new FilteringParserDelegate(p0,
                 new NameMatchFilter(new String[] { "include" } ),
@@ -751,7 +751,7 @@ public class BasicParserFilteringTest extends BaseTest
     }
 
     public void testExcludeObjectAtTheEndOfArray() throws Exception {
-        JsonParser p0 = JSON_F.createParser(a2q(
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), a2q(
                 "{'parent':[{'include':true},{'exclude':false}]}"));
         JsonParser p = new FilteringParserDelegate(p0,
                 new NameMatchFilter(new String[] { "include" } ),
@@ -762,7 +762,7 @@ public class BasicParserFilteringTest extends BaseTest
     }
 
     public void testExcludeObjectInMiddleOfArray() throws Exception {
-        JsonParser p0 = JSON_F.createParser(a2q(
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), a2q(
                 "{'parent':[{'include-1':1},{'skip':0},{'include-2':2}]}"));
         JsonParser p = new FilteringParserDelegate(p0,
                 new NameMatchFilter(new String[]{"include-1", "include-2"}),
@@ -773,7 +773,7 @@ public class BasicParserFilteringTest extends BaseTest
     }
 
     public void testExcludeLastArrayInsideArray() throws Exception {
-        JsonParser p0 = JSON_F.createParser(a2q(
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), a2q(
                 "['skipped', [], ['skipped']]"));
         JsonParser p = new FilteringParserDelegate(p0,
                 INCLUDE_EMPTY_IF_NOT_FILTERED,

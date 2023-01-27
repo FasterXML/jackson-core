@@ -475,7 +475,7 @@ public abstract class ParserBase extends ParserMinimalBase
     public boolean isNaN() {
         if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
             if ((_numTypesValid & NR_DOUBLE) != 0) {
-                return !Double.isFinite(_numberDouble);
+                return !Double.isFinite(_getNumberDouble());
             }
         }
         return false;
@@ -513,12 +513,12 @@ public abstract class ParserBase extends ParserMinimalBase
             return _getBigDecimal();
         }
         if ((_numTypesValid & NR_FLOAT) != 0) {
-            return _numberFloat;
+            return _getNumberFloat();
         }
         if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
             _throwInternal();
         }
-        return _numberDouble;
+        return _getNumberDouble();
     }
 
     // NOTE: mostly copied from above
@@ -548,12 +548,12 @@ public abstract class ParserBase extends ParserMinimalBase
             return _getBigDecimal();
         }
         if ((_numTypesValid & NR_FLOAT) != 0) {
-            return _numberFloat;
+            return _getNumberFloat();
         }
         if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
             _throwInternal();
         }
-        return _numberDouble;
+        return _getNumberDouble();
     }
 
     @Override
@@ -647,7 +647,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 convertNumberToFloat();
             }
         }
-        return _numberFloat;
+        return _getNumberFloat();
     }
 
     @Override
@@ -661,7 +661,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 convertNumberToDouble();
             }
         }
-        return _numberDouble;
+        return _getNumberDouble();
     }
     
     @Override
@@ -727,10 +727,11 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberInt = bigInteger.intValue();
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Need to check boundaries
-            if (_numberDouble < MIN_INT_D || _numberDouble > MAX_INT_D) {
+            final double d = _getNumberDouble();
+            if (d < MIN_INT_D || d > MAX_INT_D) {
                 _reportOverflowInt();
             }
-            _numberInt = (int) _numberDouble;
+            _numberInt = (int) d;
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             final BigDecimal bigDecimal = _getBigDecimal();
             if (BD_MIN_INT.compareTo(bigDecimal) > 0
@@ -757,10 +758,11 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberLong = bigInteger.longValue();
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Need to check boundaries
-            if (_numberDouble < MIN_LONG_D || _numberDouble > MAX_LONG_D) {
+            final double d = _getNumberDouble();
+            if (d < MIN_LONG_D || d > MAX_LONG_D) {
                 _reportOverflowLong();
             }
-            _numberLong = (long) _numberDouble;
+            _numberLong = (long) d;
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             final BigDecimal bigDecimal = _getBigDecimal();
             if (BD_MIN_LONG.compareTo(bigDecimal) > 0
@@ -784,7 +786,11 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberInt);
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
-            _numberBigInt = BigDecimal.valueOf(_numberDouble).toBigInteger();
+            if (_numberString != null) {
+                _numberBigInt = _getBigDecimal().toBigInteger();
+            } else {
+                _numberBigInt = BigDecimal.valueOf(_getNumberDouble()).toBigInteger();
+            }
         } else {
             _throwInternal();
         }
@@ -800,15 +806,27 @@ public abstract class ParserBase extends ParserMinimalBase
          */
     
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            _numberDouble = _getBigDecimal().doubleValue();
+            if (_numberString != null) {
+                _numberDouble = _getNumberFloat();
+            } else {
+                _numberDouble = _getBigDecimal().doubleValue();
+            }
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberDouble = _getBigInteger().doubleValue();
+            if (_numberString != null) {
+                _numberDouble = _getNumberFloat();
+            } else {
+                _numberDouble = _getBigInteger().doubleValue();
+            }
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberDouble = (double) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberDouble = (double) _numberInt;
         } else if ((_numTypesValid & NR_FLOAT) != 0) {
-            _numberDouble = (double) _numberFloat;
+            if (_numberString != null) {
+                _numberDouble = _getNumberDouble();
+            } else {
+                _numberDouble = (double) _getNumberFloat();
+            }
         } else {
             _throwInternal();
         }
@@ -824,15 +842,27 @@ public abstract class ParserBase extends ParserMinimalBase
          */
 
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            _numberFloat = _getBigDecimal().floatValue();
+            if (_numberString != null) {
+                _numberFloat = _getNumberFloat();
+            } else {
+                _numberFloat = _getBigDecimal().floatValue();
+            }
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberFloat = _getBigInteger().floatValue();
+            if (_numberString != null) {
+                _numberFloat = _getNumberFloat();
+            } else {
+                _numberFloat = _getBigInteger().floatValue();
+            }
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberFloat = (float) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberFloat = (float) _numberInt;
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
-            _numberFloat = (float) _numberDouble;
+            if (_numberString != null) {
+                _numberFloat = _getNumberFloat();
+            } else {
+                _numberFloat = (float) _getNumberDouble();
+            }
         } else {
             _throwInternal();
         }
@@ -848,7 +878,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
-            final String numStr = getText();
+            final String numStr = _numberString == null ? getText() : _numberString;
             _numberBigDecimal = NumberInput.parseBigDecimal(
                     numStr,
                     isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
@@ -874,10 +904,14 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
-        // NOTE! Length of number string has been validated earlier
-        _numberBigInt = NumberInput.parseBigInteger(
-                _numberString,
-                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        try {
+            // NOTE! Length of number string has been validated earlier
+            _numberBigInt = NumberInput.parseBigInteger(
+                    _numberString,
+                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        } catch (NumberFormatException nex) {
+            throw _constructReadException("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+        }
         _numberString = null;
         return _numberBigInt;
     }
@@ -892,12 +926,42 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
-        // NOTE! Length of number string has been validated earlier
-        _numberBigDecimal = NumberInput.parseBigDecimal(
-                _numberString,
-                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        try {
+            // NOTE! Length of number string has been validated earlier
+            _numberBigDecimal = NumberInput.parseBigDecimal(
+                    _numberString,
+                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        } catch (NumberFormatException nex) {
+            throw _constructReadException("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+        }
         _numberString = null;
         return _numberBigDecimal;
+    }
+
+    private double _getNumberDouble() {
+        if (_numberString != null) {
+            try {
+                _numberDouble = NumberInput.parseDouble(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (NumberFormatException nex) {
+                throw _constructReadException("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            }
+            _numberString = null;
+        }
+        return _numberDouble;
+    }
+
+    private float _getNumberFloat() {
+        if (_numberString != null) {
+            try {
+                _numberFloat = NumberInput.parseFloat(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (NumberFormatException nex) {
+                throw _constructReadException("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            }
+            _numberString = null;
+        }
+        return _numberFloat;
     }
 
     /*

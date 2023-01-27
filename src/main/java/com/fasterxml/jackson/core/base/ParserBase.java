@@ -864,32 +864,6 @@ public abstract class ParserBase extends ParserMinimalBase
         return new LazyDouble(_numberDouble);
     }
 
-    private double _getNumberDouble() throws JsonParseException {
-        if (_numberString != null) {
-            try {
-                _numberDouble = NumberInput.parseDouble(_numberString,
-                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-            } catch (NumberFormatException nex) {
-                _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
-            }
-            _numberString = null;
-        }
-        return _numberDouble;
-    }
-
-    private float _getNumberFloat() throws JsonParseException {
-        if (_numberString != null) {
-            try {
-                _numberFloat = NumberInput.parseFloat(_numberString,
-                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-            } catch (NumberFormatException nex) {
-                _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
-            }
-            _numberString = null;
-        }
-        return _numberFloat;
-    }
-
     @Override // @since 2.15
     public StreamReadConstraints streamReadConstraints() {
         return _streamReadConstraints;
@@ -1002,7 +976,7 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberInt;
     }
 
-    private void _parseSlowFloat(int expType) throws IOException
+    private void _parseSlowFloat(int expType)
     {
         /* Nope: floating point. Here we need to be careful to get
          * optimal parsing strategy: choice is between accurate but
@@ -1035,25 +1009,18 @@ public abstract class ParserBase extends ParserMinimalBase
     private void _parseSlowInt(int expType) throws IOException
     {
         final String numStr = _textBuffer.contentsAsString();
-        try {
-            // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
-            if ((expType == NR_INT) || (expType == NR_LONG)) {
-                _reportTooLongIntegral(expType, numStr);
-            }
-            if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                _numberDouble = 0.0;
-                _numberFloat = 0.0f;
-                _numberString = numStr;
-                _numTypesValid = NR_DOUBLE;
-            } else {
-                // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
-                _numberBigInt = null;
-                _numberString = numStr;
-                _numTypesValid = NR_BIGINT;
-            }
-        } catch (NumberFormatException nex) {
-            // Can this ever occur? Due to overflow, maybe?
-            _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
+        // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
+        if ((expType == NR_INT) || (expType == NR_LONG)) {
+            _reportTooLongIntegral(expType, numStr);
+        }
+        if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
+            _numberString = numStr;
+            _numTypesValid = NR_DOUBLE;
+        } else {
+            // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
+            _numberBigInt = null;
+            _numberString = numStr;
+            _numTypesValid = NR_BIGINT;
         }
     }
 
@@ -1096,7 +1063,7 @@ public abstract class ParserBase extends ParserMinimalBase
             if (d < MIN_INT_D || d > MAX_INT_D) {
                 reportOverflowInt();
             }
-            _numberInt = (int) _getNumberDouble();
+            _numberInt = (int) d;
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             final BigDecimal bigDecimal = _getBigDecimal();
             if (BD_MIN_INT.compareTo(bigDecimal) > 0
@@ -1151,7 +1118,11 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberInt);
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
-            _numberBigInt = BigDecimal.valueOf(_getNumberDouble()).toBigInteger();
+            if (_numberString != null) {
+                _numberBigInt = _getBigDecimal().toBigInteger();
+            } else {
+                _numberBigInt = BigDecimal.valueOf(_getNumberDouble()).toBigInteger();
+            }
         } else {
             _throwInternal();
         }
@@ -1167,17 +1138,27 @@ public abstract class ParserBase extends ParserMinimalBase
          */
     
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            _numberDouble = _getBigDecimal().doubleValue();
+            if (_numberString != null) {
+                _numberDouble = _getNumberFloat();
+            } else {
+                _numberDouble = _getBigDecimal().doubleValue();
+            }
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberDouble = _getBigInteger().doubleValue();
+            if (_numberString != null) {
+                _numberDouble = _getNumberFloat();
+            } else {
+                _numberDouble = _getBigInteger().doubleValue();
+            }
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberDouble = (double) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberDouble = (double) _numberInt;
         } else if ((_numTypesValid & NR_FLOAT) != 0) {
-            _numberDouble = (double) _getNumberFloat();
-        } else if (_numberString != null) {
-            _getNumberDouble();
+            if (_numberString != null) {
+                _numberDouble = _getNumberDouble();
+            } else {
+                _numberDouble = (double) _getNumberFloat();
+            }
         } else {
             _throwInternal();
         }
@@ -1193,17 +1174,27 @@ public abstract class ParserBase extends ParserMinimalBase
          */
 
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            _numberFloat = _getBigDecimal().floatValue();
+            if (_numberString != null) {
+                _numberFloat = _getNumberFloat();
+            } else {
+                _numberFloat = _getBigDecimal().floatValue();
+            }
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberFloat = _getBigInteger().floatValue();
+            if (_numberString != null) {
+                _numberFloat = _getNumberFloat();
+            } else {
+                _numberFloat = _getBigInteger().floatValue();
+            }
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberFloat = (float) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberFloat = (float) _numberInt;
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
-            _numberFloat = (float) _getNumberDouble();
-        } else if (_numberString != null) {
-            _getNumberFloat();
+            if (_numberString != null) {
+                _numberFloat = _getNumberFloat();
+            } else {
+                _numberFloat = (float) _getNumberDouble();
+            }
         } else {
             _throwInternal();
         }
@@ -1221,7 +1212,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
-            final String numStr = getText();
+            final String numStr = _numberString == null ? getText() : _numberString;
             _numberBigDecimal = NumberInput.parseBigDecimal(
                     numStr,
                     isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
@@ -1249,11 +1240,11 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
-        // NOTE! Length of number string has been validated earlier
         try {
+            // NOTE! Length of number string has been validated earlier
             _numberBigInt = NumberInput.parseBigInteger(
-                _numberString,
-                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                    _numberString,
+                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         } catch (NumberFormatException nex) {
             _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
         }
@@ -1273,8 +1264,8 @@ public abstract class ParserBase extends ParserMinimalBase
         } else if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
-        // NOTE! Length of number string has been validated earlier
         try {
+            // NOTE! Length of number string has been validated earlier
             _numberBigDecimal = NumberInput.parseBigDecimal(
                     _numberString,
                     isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
@@ -1283,6 +1274,32 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _numberString = null;
         return _numberBigDecimal;
+    }
+
+    private double _getNumberDouble() throws JsonParseException {
+        if (_numberString != null) {
+            try {
+                _numberDouble = NumberInput.parseDouble(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (NumberFormatException nex) {
+                _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            }
+            _numberString = null;
+        }
+        return _numberDouble;
+    }
+
+    private float _getNumberFloat() throws JsonParseException {
+        if (_numberString != null) {
+            try {
+                _numberFloat = NumberInput.parseFloat(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (NumberFormatException nex) {
+                _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            }
+            _numberString = null;
+        }
+        return _numberFloat;
     }
 
     /*

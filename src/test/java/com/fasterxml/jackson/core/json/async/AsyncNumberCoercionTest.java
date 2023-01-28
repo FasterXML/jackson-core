@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 public class AsyncNumberCoercionTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     /*
     /**********************************************************

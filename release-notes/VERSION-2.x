@@ -26,6 +26,8 @@ JSON library.
  (contributed by Phillipe M)
 #897: Note that jackson-core 2.15 is now a multi-release jar
   (for more optimized number parsing for JDKs beyond 8)
+#898: Possible flaw in `TokenFilterContext#skipParentChecks()`
+ (reported by @robotmrv)
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 

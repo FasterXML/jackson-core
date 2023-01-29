@@ -18,7 +18,7 @@ JSON library.
 
 No changes since 2.14
 
-2.14.2 (not yet released)
+2.14.2 (28-Jan-2023)
 
 #854: Backport schubfach changes from v2.15#8
  (contributed by @pjfanning)
@@ -29,7 +29,6 @@ No changes since 2.14
 #890: `FilteringGeneratorDelegate` does not create new `filterContext`
   if `tokenFilter` is null
  (contributed by @DemonicTutor)
-
 
 2.14.1 (21-Nov-2022)
 

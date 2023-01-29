@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.core.JsonToken;
 
 public abstract class AsyncReaderWrapper
+    implements AutoCloseable
 {
     protected final JsonParser _streamReader;
 
@@ -69,6 +70,9 @@ public abstract class AsyncReaderWrapper
     public Number getNumberValue() throws IOException { return _streamReader.getNumberValue(); }
     public NumberType getNumberType() throws IOException { return _streamReader.getNumberType(); }
 
+    public Object getNumberValueDeferred() throws IOException { return _streamReader.getNumberValueDeferred(); }
+
+    @Override
     public void close() throws IOException { _streamReader.close(); }
 
     public boolean isClosed() {

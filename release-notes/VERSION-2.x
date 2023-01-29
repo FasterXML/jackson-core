@@ -31,7 +31,7 @@ JSON library.
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 
-2.14.2 (not yet released)
+2.14.2 (28-Jan-2023)
 
 #854: Backport schubfach changes from v2.15#8
  (contributed by @pjfanning)
@@ -42,7 +42,6 @@ JSON library.
 #890: `FilteringGeneratorDelegate` does not create new `filterContext`
   if `tokenFilter` is null
  (contributed by @DemonicTutor)
-
 
 2.14.1 (21-Nov-2022)
 

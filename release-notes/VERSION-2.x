@@ -28,6 +28,8 @@ JSON library.
   (for more optimized number parsing for JDKs beyond 8)
 #898: Possible flaw in `TokenFilterContext#skipParentChecks()`
  (reported by @robotmrv)
+#902: Add `Object JsonParser.getNumberValueDeferred()` method to
+  allow for deferred decoding in some cases
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 

@@ -949,6 +949,30 @@ public abstract class JsonParser
     public abstract Number getNumberValueExact() throws InputCoercionException;
 
     /**
+     * Method similar to {@link #getNumberValue} but that returns
+     * <b>either</b> same {@link Number} value as {@link #getNumberValue()}
+     * (if already decoded), <b>or</b> {@code String} representation of
+     * as-of-yet undecoded number.
+     * Typically textual formats allow deferred decoding from String, whereas
+     * binary formats either decode numbers eagerly or have binary representation
+     * from which to decode value to return.
+     *<p>
+     * Same constraints apply to calling this method as to {@link #getNumberValue()}:
+     * current token must be either
+     * {@link JsonToken#VALUE_NUMBER_INT} or
+     * {@link JsonToken#VALUE_NUMBER_FLOAT};
+     * otherwise an exception is thrown
+     *<p>
+     * Default implementation simply returns {@link #getNumberValue()}
+     * 
+     * @return Either {@link Number} (for already decoded numbers) or
+     *   {@link String} (for deferred decoding).
+     *
+     * @throws InputCoercionException If the current token is not of numeric type
+     */
+    public abstract Object getNumberValueDeferred() throws InputCoercionException;
+
+    /**
      * If current token is of type 
      * {@link JsonToken#VALUE_NUMBER_INT} or
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns

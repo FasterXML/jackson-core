@@ -220,6 +220,9 @@ public class JsonParserDelegate extends JsonParser
     @Override
     public Number getNumberValueExact() throws InputCoercionException { return delegate.getNumberValueExact(); }
 
+    @Override
+    public Object getNumberValueDeferred() throws InputCoercionException { return delegate.getNumberValueDeferred(); }
+
     /*
     /**********************************************************************
     /* Public API, access to token information, coercion/conversion

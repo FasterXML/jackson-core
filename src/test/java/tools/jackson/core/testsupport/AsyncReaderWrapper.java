@@ -10,6 +10,7 @@ import tools.jackson.core.TokenStreamContext;
 import tools.jackson.core.JsonParser.NumberType;
 
 public abstract class AsyncReaderWrapper
+    implements AutoCloseable
 {
     protected final JsonParser _streamReader;
 
@@ -66,8 +67,10 @@ public abstract class AsyncReaderWrapper
     public byte[] getBinaryValue() { return _streamReader.getBinaryValue(); }
 
     public Number getNumberValue() { return _streamReader.getNumberValue(); }
+    public Object getNumberValueDeferred() { return _streamReader.getNumberValueDeferred(); }
     public NumberType getNumberType() { return _streamReader.getNumberType(); }
 
+    @Override
     public void close() { _streamReader.close(); }
 
     public boolean isClosed() {

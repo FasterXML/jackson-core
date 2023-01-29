@@ -54,6 +54,7 @@ tools.jackson.core.*;version=${project.version}
 
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2022-11-27T00:00:00Z</project.build.outputTimestamp>
+    <junit.version>5.9.2</junit.version>
   </properties>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
@@ -67,6 +68,18 @@ tools.jackson.core.*;version=${project.version}
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
   </repositories>
+
+  <dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.junit</groupId>
+      <artifactId>junit-bom</artifactId>
+       <version>${junit.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>
@@ -208,13 +221,11 @@ tools.jackson.core.*;version=${project.version}
     <dependency>
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>
-      <version>5.8.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.8.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

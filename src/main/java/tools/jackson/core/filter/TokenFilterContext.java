@@ -278,7 +278,7 @@ public class TokenFilterContext extends TokenStreamContext
     public void skipParentChecks() {
         _filter = null;
         for (TokenFilterContext ctxt = _parent; ctxt != null; ctxt = ctxt._parent) {
-            _parent._filter = null;
+            ctxt._filter = null;
         }
     }
 

@@ -481,6 +481,11 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     @Override
+    public Number getNumberValueDeferred() throws InputCoercionException {
+        return getNumberValue();
+    }
+
+    @Override
     public byte getByteValue() throws InputCoercionException {
         int value = getIntValue();
         // So far so good: but does it fit?

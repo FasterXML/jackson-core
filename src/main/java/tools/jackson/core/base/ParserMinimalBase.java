@@ -481,7 +481,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     @Override
-    public Number getNumberValueDeferred() throws InputCoercionException {
+    public Object getNumberValueDeferred() throws InputCoercionException {
         return getNumberValue();
     }
 

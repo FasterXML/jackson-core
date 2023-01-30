@@ -57,7 +57,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
 
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2022-11-05T20:35:16Z</project.build.outputTimestamp>
-    <junit.version>5.9.2</junit.version>
   </properties>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
@@ -77,7 +76,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>${junit.version}</version>
+        <version>5.9.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

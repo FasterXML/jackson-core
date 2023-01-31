@@ -513,4 +513,21 @@ public final class NumberInput
             return parseBigInteger(s);
         }
     }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param radix for parse
+     * @param useFastParser whether to use custom fast parser (true) or JDK default (false) parser
+     * @return a BigInteger
+     * @throws NumberFormatException if string cannot be represented by a BigInteger
+     * @since v2.15
+     */
+    public static BigInteger parseBigIntegerWithRadix(final String s, final int radix,
+                                                      final boolean useFastParser) throws NumberFormatException {
+        if (useFastParser) {
+            return BigIntegerParser.parseWithFastParser(s, radix);
+        } else {
+            return new BigInteger(s, radix);
+        }
+    }
 }

@@ -16,20 +16,34 @@ JSON library.
 
 2.15.0 (not yet released)
 
-#827: Add numeric value size limits via `StreamReadConstraints`
+#827: Add numeric value size limits via `StreamReadConstraints` (fixes
+  `sonatype-2022-6438`)
  (contributed by @pjfanning)
 #851: Add `StreamReadFeature.USE_FAST_BIG_DECIMAL_PARSER` to enable
   faster `BigDecimal`, `BigInteger` parsing
  (contributed by @pjfanning)
 #865: Optimize parsing 19 digit longs
  (contributed by Phillipe M)
+#897: Note that jackson-core 2.15 is now a multi-release jar
+  (for more optimized number parsing for JDKs beyond 8)
+#898: Possible flaw in `TokenFilterContext#skipParentChecks()`
+ (reported by @robotmrv)
+#902: Add `Object JsonParser.getNumberValueDeferred()` method to
+  allow for deferred decoding in some cases
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 
-2.14.2 (not yet released)
+2.14.2 (28-Jan-2023)
 
-#854: Backport schubfach changes from v2.15
+#854: Backport schubfach changes from v2.15#8
  (contributed by @pjfanning)
+#882: Allow TokenFIlter to skip last elements in arrays
+ (contributed by Przemyslaw G)
+#886: Avoid instance creations in fast parser code
+ (contributed by @pjfanning)
+#890: `FilteringGeneratorDelegate` does not create new `filterContext`
+  if `tokenFilter` is null
+ (contributed by @DemonicTutor)
 
 2.14.1 (21-Nov-2022)
 
@@ -95,6 +109,7 @@ No changes since 2.14.0
  (contributed by @pjfanning)
 #834: ReaderBaseJsonParser._verifyRootSpace() can cause buffer boundary failure
 
+2.13.5 (23-Jan-2023)
 2.13.4 (03-Sep-2022)
 
 No changes since 2.13.3

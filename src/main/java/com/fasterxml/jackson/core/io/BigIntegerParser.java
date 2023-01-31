@@ -23,7 +23,19 @@ public final class BigIntegerParser
             final String reportNum = valueStr.length() <= MAX_CHARS_TO_REPORT ?
                     valueStr : valueStr.substring(0, MAX_CHARS_TO_REPORT) + " [truncated]";
             throw new NumberFormatException("Value \"" + reportNum
-                    + "\" can not be represented as `java.math.BigDecimal`, reason: " + nfe.getMessage());
+                    + "\" can not be represented as `java.math.BigInteger`, reason: " + nfe.getMessage());
+        }
+    }
+
+    public static BigInteger parseWithFastParser(final String valueStr, final int radix) {
+        try {
+            return JavaBigIntegerParser.parseBigInteger(valueStr, radix);
+        } catch (NumberFormatException nfe) {
+            final String reportNum = valueStr.length() <= MAX_CHARS_TO_REPORT ?
+                    valueStr : valueStr.substring(0, MAX_CHARS_TO_REPORT) + " [truncated]";
+            throw new NumberFormatException("Value \"" + reportNum
+                    + "\" can not be represented as `java.math.BigInteger` with radix " + radix +
+                    ", reason: " + nfe.getMessage());
         }
     }
 }

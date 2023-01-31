@@ -313,6 +313,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
+            _filterContext = _filterContext.createChildObjectContext(null, false);
             return;
         }
         
@@ -347,6 +348,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
+            _filterContext = _filterContext.createChildObjectContext(null, false);
             return;
         }
 
@@ -381,6 +383,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
+            _filterContext = _filterContext.createChildObjectContext(null, false);
             return;
         }
 

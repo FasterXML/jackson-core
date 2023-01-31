@@ -157,15 +157,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
           <createDependencyReducedPom>true</createDependencyReducedPom>
           <minimizeJar>true</minimizeJar>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>**/*FromByteArray*</exclude>
-                <exclude>**/*FromCharArray*</exclude>
-              </excludes>
-            </filter>
-          </filters>
         </configuration>
         <executions>
           <execution>
@@ -239,7 +230,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <dependency>
       <groupId>ch.randelshofer</groupId>
       <artifactId>fastdoubleparser</artifactId>
-      <version>0.5.4</version>
+      <version>0.6.0</version>
     </dependency>
     <!-- Test dependencies -->
     <dependency>

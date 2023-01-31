@@ -21,25 +21,6 @@ public final class ReadConstrainedTextBuffer extends TextBuffer {
      * {@inheritDoc}
      */
     @Override
-    protected void validateFPLength(int length) throws NumberFormatException
-    {
-        _streamReadConstraints.validateFPLength(length);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateIntegerLength(int length) throws NumberFormatException
-    {
-        _streamReadConstraints.validateIntegerLength(length);
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void validateStringLength(int length) throws IllegalStateException
     {
         _streamReadConstraints.validateStringLength(length);

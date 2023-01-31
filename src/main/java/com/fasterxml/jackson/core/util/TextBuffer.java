@@ -518,9 +518,7 @@ public class TextBuffer
      * @since 2.14
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString();
-        validateFPLength(numStr.length());
-        return NumberInput.parseFloat(numStr, useFastParser);
+        return NumberInput.parseFloat(contentsAsString(), useFastParser);
     }
 
     /**
@@ -993,40 +991,6 @@ public class TextBuffer
     /* Convenience methods for validation
     /**********************************************************************
      */
-
-    /**
-     * Convenience method that can be used to verify that a floating-point
-     * number of specified length does not exceed maximum specific by this
-     * constraints object: if it does, a
-     * {@link NumberFormatException}
-     * is thrown.
-     *
-     * @param length Length of number in input units
-     *
-     * @throws NumberFormatException If length exceeds maximum
-     * @since 2.15
-     */
-    protected void validateFPLength(int length) throws NumberFormatException
-    {
-        // no-op
-    }
-
-    /**
-     * Convenience method that can be used to verify that an integer
-     * number of specified length does not exceed maximum specific by this
-     * constraints object: if it does, a
-     * {@link NumberFormatException}
-     * is thrown.
-     *
-     * @param length Length of number in input units
-     *
-     * @throws NumberFormatException If length exceeds maximum
-     * @since 2.15
-     */
-    protected void validateIntegerLength(int length) throws NumberFormatException
-    {
-        // no-op
-    }
 
     /**
      * Convenience method that can be used to verify that a String

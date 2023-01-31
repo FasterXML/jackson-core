@@ -656,8 +656,6 @@ public class TextBuffer
     }
 
     public void append(char c) {
-        validateStringLength(_segmentSize + _currentSize + 1);
-
         // Using shared buffer so far?
         if (_inputStart >= 0) {
             unshare(16);
@@ -675,8 +673,6 @@ public class TextBuffer
 
     public void append(char[] c, int start, int len)
     {
-        validateStringLength(_segmentSize + _currentSize + len);
-
         // Can't append to shared buf (sanity check)
         if (_inputStart >= 0) {
             unshare(len);
@@ -713,8 +709,6 @@ public class TextBuffer
 
     public void append(String str, int offset, int len)
     {
-        validateStringLength(_segmentSize + _currentSize + len);
-
         // Can't append to shared buf (sanity check)
         if (_inputStart >= 0) {
             unshare(len);

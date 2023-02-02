@@ -1273,7 +1273,13 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberBigDecimal;
     }
 
-    private double _getNumberDouble() throws JsonParseException {
+    /**
+     * Internal accessor that needs to be used for accessing number value of type
+     * {@code double} which -- as of 2.15 -- will be lazily parsed.
+     *
+     * @since 2.15
+     */
+    protected double _getNumberDouble() throws JsonParseException {
         if (_numberString != null) {
             try {
                 _numberDouble = NumberInput.parseDouble(_numberString,
@@ -1286,7 +1292,13 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberDouble;
     }
 
-    private float _getNumberFloat() throws JsonParseException {
+    /**
+     * Internal accessor that needs to be used for accessing number value of type
+     * {@code float} which -- as of 2.15 -- will be lazily parsed.
+     *
+     * @since 2.15
+     */
+    protected float _getNumberFloat() throws JsonParseException {
         if (_numberString != null) {
             try {
                 _numberFloat = NumberInput.parseFloat(_numberString,

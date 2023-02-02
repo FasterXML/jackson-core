@@ -105,10 +105,6 @@ final public class DoubleToDecimal {
     private static final int MINUS_INF = 4;
     private static final int NAN = 5;
 
-    // For thread-safety, each thread gets its own instance of this class.
-    private static final ThreadLocal<DoubleToDecimal> threadLocal =
-            ThreadLocal.withInitial(DoubleToDecimal::new);
-
     /*
     Room for the longer of the forms
         -ddddd.dddddddddddd         H + 2 characters
@@ -241,11 +237,7 @@ final public class DoubleToDecimal {
      * @return a string rendering of the argument.
      */
     public static String toString(double v) {
-        return threadLocalInstance().toDecimalString(v);
-    }
-
-    private static DoubleToDecimal threadLocalInstance() {
-        return threadLocal.get();
+        return new DoubleToDecimal().toDecimalString(v);
     }
 
     private String toDecimalString(double v) {

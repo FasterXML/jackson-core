@@ -104,10 +104,6 @@ final public class FloatToDecimal {
     private static final int MINUS_INF = 4;
     private static final int NAN = 5;
 
-    // For thread-safety, each thread gets its own instance of this class.
-    private static final ThreadLocal<FloatToDecimal> threadLocal =
-            ThreadLocal.withInitial(FloatToDecimal::new);
-
     /*
     Room for the longer of the forms
         -ddddd.dddd         H + 2 characters
@@ -240,11 +236,7 @@ final public class FloatToDecimal {
      * @return a string rendering of the argument.
      */
     public static String toString(float v) {
-        return threadLocalInstance().toDecimalString(v);
-    }
-
-    private static FloatToDecimal threadLocalInstance() {
-        return threadLocal.get();
+        return new FloatToDecimal().toDecimalString(v);
     }
 
     private String toDecimalString(float v) {

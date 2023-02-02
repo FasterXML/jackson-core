@@ -18,6 +18,11 @@ JSON library.
 
 No changes since 2.14
 
+2.14.3 (not yet released)
+
+#909: Revert schubfach changes in #854
+ (contributed by @pjfanning)
+
 2.14.2 (28-Jan-2023)
 
 #854: Backport schubfach changes from v2.15#8

@@ -22,8 +22,6 @@
 
 package tools.jackson.core.io.schubfach;
 
-import java.io.IOException;
-
 import static tools.jackson.core.io.schubfach.MathUtils.flog10pow2;
 import static tools.jackson.core.io.schubfach.MathUtils.flog10threeQuartersPow2;
 import static tools.jackson.core.io.schubfach.MathUtils.flog2pow10;
@@ -107,10 +105,6 @@ final public class FloatToDecimal {
     private static final int MINUS_INF = 4;
     private static final int NAN = 5;
 
-    // For thread-safety, each thread gets its own instance of this class.
-    private static final ThreadLocal<FloatToDecimal> threadLocal =
-            ThreadLocal.withInitial(FloatToDecimal::new);
-
     /*
     Room for the longer of the forms
         -ddddd.dddd         H + 2 characters
@@ -122,9 +116,6 @@ final public class FloatToDecimal {
 
     // Numerical results are created here...
     private final byte[] bytes = new byte[MAX_CHARS];
-
-    // ... and copied here in appendTo()
-    private final char[] chars = new char[MAX_CHARS];
 
     // Index into buf of rightmost valid character.
     private int index;
@@ -246,27 +237,7 @@ final public class FloatToDecimal {
      * @return a string rendering of the argument.
      */
     public static String toString(float v) {
-        return threadLocalInstance().toDecimalString(v);
-    }
-
-    /**
-     * Appends the rendering of the {@code v} to {@code app}.
-     *
-     * <p>The outcome is the same as if {@code v} were first
-     * {@link #toString(float) rendered} and the resulting string were then
-     * {@link Appendable#append(CharSequence) appended} to {@code app}.
-     *
-     * @param v the {@code float} whose rendering is appended.
-     * @param app the {@link Appendable} to append to.
-     * @throws IOException If an I/O error occurs
-     */
-    public static Appendable appendTo(float v, Appendable app)
-            throws IOException {
-        return threadLocalInstance().appendDecimalTo(v, app);
-    }
-
-    private static FloatToDecimal threadLocalInstance() {
-        return threadLocal.get();
+        return new FloatToDecimal().toDecimalString(v);
     }
 
     private String toDecimalString(float v) {
@@ -277,31 +248,6 @@ final public class FloatToDecimal {
             case PLUS_INF: return "Infinity";
             case MINUS_INF: return "-Infinity";
             default: return "NaN";
-        }
-    }
-
-    private Appendable appendDecimalTo(float v, Appendable app)
-            throws IOException {
-        switch (toDecimal(v)) {
-            case NON_SPECIAL:
-                for (int i = 0; i <= index; ++i) {
-                    chars[i] = (char) bytes[i];
-                }
-                if (app instanceof StringBuilder) {
-                    return ((StringBuilder) app).append(chars, 0, index + 1);
-                }
-                if (app instanceof StringBuffer) {
-                    return ((StringBuffer) app).append(chars, 0, index + 1);
-                }
-                for (int i = 0; i <= index; ++i) {
-                    app.append(chars[i]);
-                }
-                return app;
-            case PLUS_ZERO: return app.append("0.0");
-            case MINUS_ZERO: return app.append("-0.0");
-            case PLUS_INF: return app.append("Infinity");
-            case MINUS_INF: return app.append("-Infinity");
-            default: return app.append("NaN");
         }
     }
 

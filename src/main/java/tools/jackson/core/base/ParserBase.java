@@ -982,7 +982,11 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberBigDecimal;
     }
 
-    private double _getNumberDouble() {
+    /**
+     * Internal accessor that needs to be used for accessing number value of type
+     * {@code double} which will be lazily parsed.
+     */
+    protected double _getNumberDouble() {
         if (_numberString != null) {
             try {
                 _numberDouble = NumberInput.parseDouble(_numberString,
@@ -995,7 +999,13 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberDouble;
     }
 
-    private float _getNumberFloat() {
+    /**
+     * Internal accessor that needs to be used for accessing number value of type
+     * {@code float} which will be lazily parsed.
+     *
+     * @since 2.15
+     */
+    protected float _getNumberFloat() {
         if (_numberString != null) {
             try {
                 _numberFloat = NumberInput.parseFloat(_numberString,

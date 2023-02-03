@@ -149,7 +149,7 @@ public class UTF8JsonGenerator
             OutputStream out, char quoteChar,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
-        
+
         super(ctxt, features, codec);
         _outputStream = out;
         _quoteChar = (byte) quoteChar;
@@ -254,7 +254,7 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = _quoteChar;
     }
-    
+
     @Override
     public void writeFieldName(SerializableString name) throws IOException
     {
@@ -290,7 +290,7 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
-    }    
+    }
 
     private final void _writeUnq(SerializableString name) throws IOException {
         int len = name.appendQuotedUTF8(_outputBuffer, _outputTail);
@@ -300,7 +300,7 @@ public class UTF8JsonGenerator
             _outputTail += len;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Output method implementations, structural
@@ -496,7 +496,7 @@ public class UTF8JsonGenerator
             _outputBuffer[_outputTail++] = _quoteChar;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Output method implementations, textual
@@ -614,7 +614,7 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = _quoteChar;
     }
-    
+
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int len) throws IOException
     {
@@ -809,7 +809,7 @@ public class UTF8JsonGenerator
         final int end = _outputEnd;
         final byte[] bbuf = _outputBuffer;
         final int inputEnd = offset + len;
-        
+
         main_loop:
         while (offset < inputEnd) {
             inner_loop:
@@ -934,7 +934,7 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
         return bytes;
     }
-    
+
     /*
     /**********************************************************
     /* Output method implementations, primitive
@@ -955,7 +955,7 @@ public class UTF8JsonGenerator
         }
         _outputTail = NumberOutput.outputInt(s, _outputBuffer, _outputTail);
     }
-    
+
     private final void _writeQuotedShort(short s) throws IOException {
         if ((_outputTail + 8) >= _outputEnd) {
             _flushBuffer();
@@ -963,8 +963,8 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
         _outputTail = NumberOutput.outputInt(s, _outputBuffer, _outputTail);
         _outputBuffer[_outputTail++] = _quoteChar;
-    } 
-    
+    }
+
     @Override
     public void writeNumber(int i) throws IOException
     {
@@ -988,7 +988,7 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
         _outputTail = NumberOutput.outputInt(i, _outputBuffer, _outputTail);
         _outputBuffer[_outputTail++] = _quoteChar;
-    }    
+    }
 
     @Override
     public void writeNumber(long l) throws IOException
@@ -1079,7 +1079,7 @@ public class UTF8JsonGenerator
         if (encodedValue == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
-            _writeQuotedRaw(encodedValue);            
+            _writeQuotedRaw(encodedValue);
         } else {
             writeRaw(encodedValue);
         }
@@ -1317,7 +1317,7 @@ public class UTF8JsonGenerator
     /* Internal methods, mid-level writing, String segments
     /**********************************************************
      */
-    
+
     /**
      * Method called when String to write is long enough not to fit
      * completely in temporary copy buffer. If so, we will actually
@@ -1331,7 +1331,7 @@ public class UTF8JsonGenerator
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
-            _outputBuffer[_outputTail++] = _quoteChar;        
+            _outputBuffer[_outputTail++] = _quoteChar;
         }
 
         int left = text.length();
@@ -1405,7 +1405,7 @@ public class UTF8JsonGenerator
         throws IOException
     {
         // note: caller MUST ensure (via flushing) there's room for ASCII only
-        
+
         // Fast+tight loop for ASCII-only, no-escaping-needed output
         len += offset; // becomes end marker, then
 
@@ -1481,7 +1481,7 @@ public class UTF8JsonGenerator
 
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
-        
+
         while (offset < end) {
             int ch = cbuf[offset++];
             if (ch <= 0x7F) {
@@ -1519,7 +1519,7 @@ public class UTF8JsonGenerator
 
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
-        
+
         while (offset < end) {
             int ch = text.charAt(offset++);
             if (ch <= 0x7F) {
@@ -1546,7 +1546,7 @@ public class UTF8JsonGenerator
         }
         _outputTail = outputPtr;
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, low-level writing, text segment
@@ -1565,11 +1565,11 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         int outputPtr = _outputTail;
-    
+
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
         final int maxUnescaped = _maximumNonEscapedChar;
-        
+
         while (offset < end) {
             int ch = cbuf[offset++];
             if (ch <= 0x7F) {
@@ -1607,13 +1607,13 @@ public class UTF8JsonGenerator
         if ((_outputTail +  6 * (end - offset)) > _outputEnd) {
             _flushBuffer();
         }
-    
+
         int outputPtr = _outputTail;
-    
+
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
         final int maxUnescaped = _maximumNonEscapedChar;
-        
+
         while (offset < end) {
             int ch = text.charAt(offset++);
             if (ch <= 0x7F) {
@@ -1644,7 +1644,7 @@ public class UTF8JsonGenerator
         }
         _outputTail = outputPtr;
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, low-level writing, text segment
@@ -1663,13 +1663,13 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         int outputPtr = _outputTail;
-    
+
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
         // may or may not have this limit
         final int maxUnescaped = (_maximumNonEscapedChar <= 0) ? 0xFFFF : _maximumNonEscapedChar;
         final CharacterEscapes customEscapes = _characterEscapes; // non-null
-        
+
         while (offset < end) {
             int ch = cbuf[offset++];
             if (ch <= 0x7F) {
@@ -1720,13 +1720,13 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         int outputPtr = _outputTail;
-    
+
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
         // may or may not have this limit
         final int maxUnescaped = (_maximumNonEscapedChar <= 0) ? 0xFFFF : _maximumNonEscapedChar;
         final CharacterEscapes customEscapes = _characterEscapes; // non-null
-        
+
         while (offset < end) {
             int ch = text.charAt(offset++);
             if (ch <= 0x7F) {
@@ -1782,7 +1782,7 @@ public class UTF8JsonGenerator
         System.arraycopy(raw, 0, outputBuffer, outputPtr, len);
         return (outputPtr + len);
     }
-    
+
     private final int _handleLongCustomEscape(byte[] outputBuffer, int outputPtr, int outputEnd,
             byte[] raw, int remainingChars)
         throws IOException, JsonGenerationException
@@ -1813,7 +1813,7 @@ public class UTF8JsonGenerator
     /* Internal methods, low-level writing, "raw UTF-8" segments
     /**********************************************************
      */
-    
+
     /**
      * Method called when UTF-8 encoded (but NOT yet escaped!) content is not guaranteed
      * to fit in the output buffer after escaping; as such, we just need to
@@ -1829,7 +1829,7 @@ public class UTF8JsonGenerator
             totalLen -= len;
         } while (totalLen > 0);
     }
-    
+
     private final void _writeUTF8Segment(byte[] utf8, final int offset, final int len)
         throws IOException, JsonGenerationException
     {
@@ -1844,7 +1844,7 @@ public class UTF8JsonGenerator
                 return;
             }
         }
-        
+
         // yes, fine, just copy the sucker
         if ((_outputTail + len) > _outputEnd) { // enough room or need to flush?
             _flushBuffer(); // but yes once we flush (caller guarantees length restriction)
@@ -1863,11 +1863,11 @@ public class UTF8JsonGenerator
             _flushBuffer();
             outputPtr = _outputTail;
         }
-        
+
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
         len += offset; // so 'len' becomes 'end'
-        
+
         while (offset < len) {
             byte b = utf8[offset++];
             int ch = b;
@@ -1886,13 +1886,13 @@ public class UTF8JsonGenerator
         }
         _outputTail = outputPtr;
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, low-level writing, base64 encoded
     /**********************************************************
      */
-    
+
     protected final void _writeBinary(Base64Variant b64variant,
             byte[] input, int inputPtr, final int inputEnd)
         throws IOException, JsonGenerationException
@@ -1942,8 +1942,8 @@ public class UTF8JsonGenerator
     {
         int inputPtr = 0;
         int inputEnd = 0;
-        int lastFullOffset = -3;       
-        
+        int lastFullOffset = -3;
+
         // Let's also reserve room for possible (and quoted) LF char each round
         int safeOutputEnd = _outputEnd - 6;
         int chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
@@ -1971,7 +1971,7 @@ public class UTF8JsonGenerator
                 chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
             }
         }
-        
+
         // And then we may have 1 or 2 leftover bytes to encode
         if (bytesLeft > 0) {
             inputEnd = _readMore(data, readBuffer, inputPtr, inputEnd, bytesLeft);
@@ -2004,7 +2004,7 @@ public class UTF8JsonGenerator
         int inputEnd = 0;
         int lastFullOffset = -3;
         int bytesDone = 0;
-        
+
         // Let's also reserve room for possible (and quoted) LF char each round
         int safeOutputEnd = _outputEnd - 6;
         int chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
@@ -2051,7 +2051,7 @@ public class UTF8JsonGenerator
         }
         return bytesDone;
     }
-    
+
     private final int _readMore(InputStream in,
             byte[] readBuffer, int inputPtr, int inputEnd,
             int maxRead) throws IOException
@@ -2064,13 +2064,13 @@ public class UTF8JsonGenerator
         inputPtr = 0;
         inputEnd = i;
         maxRead = Math.min(maxRead, readBuffer.length);
-        
+
         do {
             int length = maxRead - inputEnd;
             if (length == 0) {
                 break;
             }
-            int count = in.read(readBuffer, inputEnd, length);            
+            int count = in.read(readBuffer, inputEnd, length);
             if (count < 0) {
                 return inputEnd;
             }
@@ -2078,16 +2078,16 @@ public class UTF8JsonGenerator
         } while (inputEnd < 3);
         return inputEnd;
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, character escapes/encoding
     /**********************************************************
      */
-    
+
     /**
      * Method called to output a character that is beyond range of
-     * 1- and 2-byte UTF-8 encodings, when outputting "raw" 
+     * 1- and 2-byte UTF-8 encodings, when outputting "raw"
      * text (meaning it is not to be escaped or quoted)
      */
     private final int _outputRawMultiByteChar(int ch, char[] cbuf, int inputOffset, int inputEnd)
@@ -2125,14 +2125,14 @@ public class UTF8JsonGenerator
         bbuf[_outputTail++] = (byte) (0x80 | ((c >> 6) & 0x3f));
         bbuf[_outputTail++] = (byte) (0x80 | (c & 0x3f));
     }
-    
+
     /**
-     * 
+     *
      * @param ch
      * @param outputPtr Position within output buffer to append multi-byte in
-     * 
+     *
      * @return New output position after appending
-     * 
+     *
      * @throws IOException
      */
     private final int _outputMultiByteChar(int ch, int outputPtr) throws IOException
@@ -2146,7 +2146,7 @@ public class UTF8JsonGenerator
 //            if (Feature.ESCAPE_UTF8_SURROGATES.enabledIn(_features)) {
                 bbuf[outputPtr++] = BYTE_BACKSLASH;
                 bbuf[outputPtr++] = BYTE_u;
-                
+
                 bbuf[outputPtr++] = HEX_CHARS[(ch >> 12) & 0xF];
                 bbuf[outputPtr++] = HEX_CHARS[(ch >> 8) & 0xF];
                 bbuf[outputPtr++] = HEX_CHARS[(ch >> 4) & 0xF];
@@ -2168,10 +2168,10 @@ public class UTF8JsonGenerator
         System.arraycopy(NULL_BYTES, 0, _outputBuffer, _outputTail, 4);
         _outputTail += 4;
     }
-        
+
     /**
      * Method called to write a generic Unicode escape for given character.
-     * 
+     *
      * @param charToEscape Character to escape using escape sequence (\\uXXXX)
      */
     private int _writeGenericEscape(int charToEscape, int outputPtr) throws IOException

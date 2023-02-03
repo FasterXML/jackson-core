@@ -46,7 +46,7 @@ public class JsonParserDelegate extends JsonParser
         delegate.disable(f);
         return this;
     }
- 
+
     @Override public boolean isEnabled(Feature f) { return delegate.isEnabled(f); }
     @Override public int getFeatureMask() { return delegate.getFeatureMask(); }
 
@@ -189,13 +189,13 @@ public class JsonParserDelegate extends JsonParser
     /* Public API, access to token numeric values
     /**********************************************************************
      */
-    
+
     @Override
     public BigInteger getBigIntegerValue() throws IOException { return delegate.getBigIntegerValue(); }
 
     @Override
     public boolean getBooleanValue() throws IOException { return delegate.getBooleanValue(); }
-    
+
     @Override
     public byte getByteValue() throws IOException { return delegate.getByteValue(); }
 
@@ -261,7 +261,7 @@ public class JsonParserDelegate extends JsonParser
     @Override public JsonToken nextValue() throws IOException { return delegate.nextValue(); }
 
     @Override public void finishToken() throws IOException { delegate.finishToken(); }
-    
+
     @Override
     public JsonParser skipChildren() throws IOException {
         delegate.skipChildren();

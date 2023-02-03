@@ -65,7 +65,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * @since 2.9
      */
     protected final static int[] NO_INTS = new int[0];
-    
+
     /*
     /**********************************************************
     /* Constants and fields of former 'JsonNumericParserBase'
@@ -209,7 +209,7 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override public boolean hasToken(JsonToken t) {
         return (_currToken == t);
     }
-    
+
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
     @Override public boolean isExpectedNumberIntToken() { return _currToken == JsonToken.VALUE_NUMBER_INT; }
@@ -300,7 +300,7 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override public JsonToken getLastClearedToken() { return _lastClearedToken; }
 
     @Override public abstract void overrideCurrentName(String name);
-    
+
     /*
     /**********************************************************
     /* Public API, access to token information, text
@@ -311,7 +311,7 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override public abstract char[] getTextCharacters() throws IOException;
     @Override public abstract boolean hasTextCharacters();
     @Override public abstract int getTextLength() throws IOException;
-    @Override public abstract int getTextOffset() throws IOException;  
+    @Override public abstract int getTextOffset() throws IOException;
 
     /*
     /**********************************************************
@@ -414,7 +414,7 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return getValueAsLong(0L);
     }
-    
+
     @Override
     public long getValueAsLong(long defaultValue) throws IOException
     {
@@ -481,7 +481,7 @@ public abstract class ParserMinimalBase extends JsonParser
         // sub-classes tend to override so...
         return getValueAsString(null);
     }
-    
+
     @Override
     public String getValueAsString(String defaultValue) throws IOException {
         if (_currToken == JsonToken.VALUE_STRING) {
@@ -495,7 +495,7 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return getText();
     }
-    
+
     /*
     /**********************************************************
     /* Base64 decoding
@@ -706,7 +706,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected void _reportInvalidEOFInValue() throws JsonParseException {
         _reportInvalidEOF(" in a value");
     }
-    
+
     /**
      * @param msg Addition message snippet to append to base exception message
      * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
@@ -717,11 +717,11 @@ public abstract class ParserMinimalBase extends JsonParser
     protected void _reportInvalidEOF(String msg) throws JsonParseException {
         throw new JsonEOFException(this, null, "Unexpected end-of-input"+msg);
     }
-    
+
     protected void _reportMissingRootWS(int ch) throws JsonParseException {
         _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
-    
+
     protected void _throwInvalidSpace(int i) throws JsonParseException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";

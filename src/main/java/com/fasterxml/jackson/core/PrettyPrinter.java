@@ -32,7 +32,7 @@ public interface PrettyPrinter
 
     /**
      * Default String used for separating root values is single space.
-     * 
+     *
      * @since 2.9
      */
     public final static SerializedString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(" ");

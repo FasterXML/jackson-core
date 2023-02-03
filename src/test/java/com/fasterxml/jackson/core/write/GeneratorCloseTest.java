@@ -25,7 +25,7 @@ public class GeneratorCloseTest extends BaseTest
     /* Unit tests
     /**********************************************************
      */
-    
+
     /**
      * This unit test checks the default behaviour; with no auto-close, no
      * automatic closing should occur, nor explicit one unless specific
@@ -138,7 +138,7 @@ public class GeneratorCloseTest extends BaseTest
         jg.flush();
         assertEquals(1, sw.flushCount);
         jg.close();
-        
+
         // ditto with stream
         ByteOutputStreamForTesting bytes = new ByteOutputStreamForTesting();
         jg = f.createGenerator(bytes, JsonEncoding.UTF8);

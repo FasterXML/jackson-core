@@ -81,7 +81,7 @@ public class JsonProcessingException extends JacksonException
      * to set it; this means that caller needs to take care to check for nulls.
      * Subtypes override this method with co-variant return type, for more
      * type-safe access.
-     * 
+     *
      * @return Originating processor, if available; null if not.
      *
      * @since 2.7
@@ -94,7 +94,7 @@ public class JsonProcessingException extends JacksonException
     /* Methods for sub-classes to use, override
     /**********************************************************************
      */
-    
+
     /**
      * Accessor that sub-classes can override to append additional
      * information right after the main message, but before

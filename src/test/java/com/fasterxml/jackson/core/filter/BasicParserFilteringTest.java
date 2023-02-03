@@ -12,7 +12,7 @@ public class BasicParserFilteringTest extends BaseTest
     static class NameMatchFilter extends TokenFilter
     {
         private final Set<String> _names;
-        
+
         public NameMatchFilter(String... names) {
             _names = new HashSet<String>(Arrays.asList(names));
         }
@@ -54,7 +54,7 @@ public class BasicParserFilteringTest extends BaseTest
     static class IndexMatchFilter extends TokenFilter
     {
         private final BitSet _indices;
-        
+
         public IndexMatchFilter(int... ixs) {
             _indices = new BitSet();
             for (int ix : ixs) {
@@ -66,7 +66,7 @@ public class BasicParserFilteringTest extends BaseTest
         public TokenFilter includeProperty(String name) {
             return this;
         }
-        
+
         @Override
         public TokenFilter includeElement(int index) {
             if (_indices.get(index)) {
@@ -503,7 +503,7 @@ public class BasicParserFilteringTest extends BaseTest
                 new IndexMatchFilter(0, 1), Inclusion.INCLUDE_ALL_AND_PATH, true);
         assertEquals(a2q("{'array':[1,2]}"), readAndWrite(JSON_F, p));
         assertEquals(2, p.getMatchCount());
-    
+
         String JSON = a2q("{'a':123,'array':[1,2,3,4,5],'b':[1,2,3]}");
         p = new FilteringParserDelegate(JSON_F.createParser(JSON),
                 new IndexMatchFilter(1, 3), Inclusion.INCLUDE_ALL_AND_PATH, true);
@@ -563,7 +563,7 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals("ob", p.getCurrentName());
 
         assertEquals(p0.getCurrentLocation(), p.getCurrentLocation());
-        
+
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("value", p.getCurrentName());
         assertEquals("value", p.getText());

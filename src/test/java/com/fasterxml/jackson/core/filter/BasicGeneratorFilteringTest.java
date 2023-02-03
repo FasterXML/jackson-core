@@ -88,7 +88,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     static class IndexMatchFilter extends TokenFilter
     {
         private final BitSet _indices;
-        
+
         public IndexMatchFilter(int... ixs) {
             _indices = new BitSet();
             for (int ix : ixs) {
@@ -100,7 +100,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         public TokenFilter includeProperty(String name) {
             return this;
         }
-        
+
         @Override
         public TokenFilter includeElement(int index) {
             if (_indices.get(index)) {
@@ -287,7 +287,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.writeBooleanField("b", true);
-        
+
         gen.writeEndObject();
         gen.close();
 
@@ -320,7 +320,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeRawValue(new SerializedString("1"));
         gen.writeRawValue("2");
         gen.writeEndArray();
-        
+
         gen.writeFieldName("array");
 
         gen.writeStartArray();
@@ -345,14 +345,14 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeNumber(6.25f);
         gen.writeNumber(7.5);
         gen.writeEndArray();
-        
+
         gen.writeEndObject();
         gen.close();
 
         assertEquals(a2q("{'array':['AQ==',1,2,3,4 ,5.0 /*x*/,6.25,7.5]}"), w.toString());
         assertEquals(1, gen.getMatchCount());
     }
-    
+
     public void testMultipleMatchFilteringWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();

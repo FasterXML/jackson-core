@@ -66,7 +66,7 @@ public class ContentReference
     /**
      * Marker flag to indicate whether included content is textual or not:
      * this is taken to mean, by default, that a snippet of content may be
-     * displayed for exception messages. 
+     * displayed for exception messages.
      */
     protected final boolean _isContentTextual;
 
@@ -139,8 +139,8 @@ public class ContentReference
     /**********************************************************************
     /* Serializable overrides
     /**********************************************************************
-     */    
-    
+     */
+
     // For JDK serialization: can/should not retain raw content, so need
     // not read or write anything
 
@@ -160,7 +160,7 @@ public class ContentReference
     /**********************************************************************
     /* Basic accessors
     /**********************************************************************
-     */    
+     */
 
     public boolean hasTextualContent() {
         return _isContentTextual;
@@ -188,7 +188,7 @@ public class ContentReference
     /**********************************************************************
     /* Method for constructing descriptions
     /**********************************************************************
-     */    
+     */
 
     /**
      * Method for constructing a "source description" when content represented
@@ -342,12 +342,12 @@ public class ContentReference
         sb.append(CharTypes.hexToChar(ctrlChar & 0xF));
         return true;
     }
-    
+
     /*
     /**********************************************************************
     /* Standard method overrides
     /**********************************************************************
-     */    
+     */
 
     // Just needed for JsonLocation#equals(): although it'd seem we only need
     // to care about identity, for backwards compatibility better compare

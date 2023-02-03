@@ -55,7 +55,7 @@ public final class CharsToNameCanonicalizer
     /**
      * Default initial table size. Shouldn't be miniscule (as there's
      * cost to both array realloc and rehashing), but let's keep
-     * it reasonably small. For systems that properly 
+     * it reasonably small. For systems that properly
      * reuse factories it doesn't matter either way; but when
      * recreating factories often, initial overhead may dominate.
      */
@@ -85,7 +85,7 @@ public final class CharsToNameCanonicalizer
      * Note: longest chain we have been able to produce without malicious
      * intent has been 38 (with "com.fasterxml.jackson.core.main.TestWithTonsaSymbols");
      * our setting should be reasonable here.
-     * 
+     *
      * @since 2.1 (changed in 2.13)
      */
     static final int MAX_COLL_CHAIN_LENGTH = 150;
@@ -118,7 +118,7 @@ public final class CharsToNameCanonicalizer
      * instance.
      * This is done for security reasons, to avoid potential DoS attack via
      * hash collisions.
-     * 
+     *
      * @since 2.1
      */
     final protected int _seed;
@@ -178,7 +178,7 @@ public final class CharsToNameCanonicalizer
      * We need to keep track of the longest collision list; this is needed
      * both to indicate problems with attacks and to allow flushing for
      * other cases.
-     * 
+     *
      * @since 2.1
      */
     protected int _longestCollisionList;
@@ -213,7 +213,7 @@ public final class CharsToNameCanonicalizer
      * collision buckets that have overflowed once: this is used
      * to detect likely attempts at denial-of-service attacks that
      * uses hash collisions.
-     * 
+     *
      * @since 2.4
      */
     protected BitSet _overflows;
@@ -231,7 +231,7 @@ public final class CharsToNameCanonicalizer
     {
         _parent = null;
         _seed = seed;
-        
+
         // these settings don't really matter for the bootstrap instance
         _canonicalize = true;
         _flags = -1;
@@ -285,7 +285,7 @@ public final class CharsToNameCanonicalizer
      * instance. Root instance is never used directly; its main use is for
      * storing and sharing underlying symbol arrays as needed.
      *
-     * @return Root instance to use for constructing new child instances 
+     * @return Root instance to use for constructing new child instances
      */
     public static CharsToNameCanonicalizer createRoot() {
         // Need to use a variable seed, to thwart hash-collision based attacks.
@@ -387,7 +387,7 @@ public final class CharsToNameCanonicalizer
     /**
      * Method for checking number of primary hash buckets this symbol
      * table uses.
-     * 
+     *
      * @return number of primary slots table has currently
      */
     public int bucketCount() {  return _symbols.length; }
@@ -398,14 +398,14 @@ public final class CharsToNameCanonicalizer
      * Method mostly needed by unit tests; calculates number of
      * entries that are in collision list. Value can be at most
      * ({@link #size} - 1), but should usually be much lower, ideally 0.
-     * 
+     *
      * @since 2.1
      *
      * @return Number of collisions in the primary hash area
      */
     public int collisionCount() {
         int count = 0;
-        
+
         for (Bucket bucket : _buckets) {
             if (bucket != null) {
                 count += bucket.length;
@@ -597,7 +597,7 @@ public final class CharsToNameCanonicalizer
     public int calcHash(String key)
     {
         final int len = key.length();
-        
+
         int hash = _seed;
         for (int i = 0; i < len; ++i) {
             hash = (hash * HASH_MULT) + (int) key.charAt(i);
@@ -758,7 +758,7 @@ public final class CharsToNameCanonicalizer
         for (String s : _symbols) {
             if (s != null) ++primaryCount;
         }
-        
+
         sb.append("[BytesToNameCanonicalizer, size: ");
         sb.append(_size);
         sb.append('/');
@@ -837,7 +837,7 @@ public final class CharsToNameCanonicalizer
      * Immutable value class used for sharing information as efficiently
      * as possible, by only require synchronization of reference manipulation
      * but not access to contents.
-     * 
+     *
      * @since 2.8.7
      */
     private final static class TableInfo

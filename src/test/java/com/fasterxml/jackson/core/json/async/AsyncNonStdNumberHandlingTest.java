@@ -45,7 +45,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         JsonFactory f = new JsonFactory();
         String JSON = valueStr;
         AsyncReaderWrapper p = createParser(f, JSON);
-        try {      
+        try {
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
@@ -54,7 +54,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         } finally {
             p.close();
         }
-        
+
         // and then verify it's ok when enabled
         f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
@@ -83,7 +83,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         JsonFactory f = new JsonFactory();
         String JSON = valueStr;
         AsyncReaderWrapper p = createParser(f, JSON);
-        try {      
+        try {
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
@@ -92,7 +92,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         } finally {
             p.close();
         }
-        
+
         // and then verify it's ok when enabled
         f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
@@ -126,7 +126,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         JsonFactory f = new JsonFactory();
         String JSON = valueStr;
         AsyncReaderWrapper p = createParser(f, JSON, bytesPerRead);
-        try {      
+        try {
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
@@ -136,7 +136,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         } finally {
             p.close();
         }
-        
+
         // and then verify it's ok when enabled
         f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
@@ -152,7 +152,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
     {
         return createParser(f, doc, 1);
     }
-    
+
     private AsyncReaderWrapper createParser(JsonFactory f, String doc, int bytesPerRead)
             throws IOException
     {

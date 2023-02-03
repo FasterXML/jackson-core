@@ -13,7 +13,7 @@ public enum JsonWriteFeature
     // // // Support for non-standard data format constructs: comments
 
     // // Quoting/ecsaping-related features
-    
+
     /**
      * Feature that determines whether JSON Object field names are
      * quoted using double-quotes, as specified by JSON specification
@@ -30,7 +30,7 @@ public enum JsonWriteFeature
      * Feature that determines whether "NaN" ("not a number", that is, not
      * real number) float/double values are output as JSON strings.
      * The values checked are Double.Nan,
-     * Double.POSITIVE_INFINITY and Double.NEGATIVE_INIFINTY (and 
+     * Double.POSITIVE_INFINITY and Double.NEGATIVE_INIFINTY (and
      * associated Float values).
      * If feature is disabled, these numbers are still output using
      * associated literal values, resulting in non-conforming
@@ -59,7 +59,7 @@ public enum JsonWriteFeature
      */
     @SuppressWarnings("deprecation")
     WRITE_NUMBERS_AS_STRINGS(false, JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS),
-    
+
     /**
      * Feature that specifies that all characters beyond 7-bit ASCII
      * range (i.e. code points of 128 and above) need to be output
@@ -118,7 +118,7 @@ public enum JsonWriteFeature
      * if so, this is the feature to enable/disable.
      */
     final private JsonGenerator.Feature _mappedFeature;
-    
+
     /**
      * Method that calculates bit set (flags) of all features that
      * are enabled by default.
@@ -135,7 +135,7 @@ public enum JsonWriteFeature
         }
         return flags;
     }
-    
+
     private JsonWriteFeature(boolean defaultState,
             JsonGenerator.Feature  mapTo) {
         _defaultState = defaultState;

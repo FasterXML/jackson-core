@@ -21,7 +21,7 @@ public final class ByteSourceJsonBootstrapper
     public final static byte UTF8_BOM_1 = (byte) 0xEF;
     public final static byte UTF8_BOM_2 = (byte) 0xBB;
     public final static byte UTF8_BOM_3 = (byte) 0xBF;
-    
+
     /*
     /**********************************************************
     /* Configuration
@@ -109,7 +109,7 @@ public final class ByteSourceJsonBootstrapper
     /*  Encoding detection during bootstrapping
     /**********************************************************
      */
-    
+
     /**
      * Method that should be called after constructing an instace.
      * It will figure out encoding that content uses, to allow
@@ -135,7 +135,7 @@ public final class ByteSourceJsonBootstrapper
                 | ((_inputBuffer[_inputPtr+1] & 0xFF) << 16)
                 | ((_inputBuffer[_inputPtr+2] & 0xFF) << 8)
                 | (_inputBuffer[_inputPtr+3] & 0xFF);
-            
+
             if (handleBOM(quad)) {
                 foundEncoding = true;
             } else {
@@ -217,7 +217,7 @@ public final class ByteSourceJsonBootstrapper
     /* Constructing a Reader
     /**********************************************************
      */
-    
+
     @SuppressWarnings("resource")
     public Reader constructReader() throws IOException
     {
@@ -278,7 +278,7 @@ public final class ByteSourceJsonBootstrapper
 
     /**
      * Current implementation is not as thorough as other functionality
-     * ({@link com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper}); 
+     * ({@link com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper});
      * supports UTF-8, for example. But it should work, for now, and can
      * be improved as necessary.
      *
@@ -292,7 +292,7 @@ public final class ByteSourceJsonBootstrapper
     {
         // Ideally we should see "[" or "{"; but if not, we'll accept double-quote (String)
         // in future could also consider accepting non-standard matches?
-        
+
         if (!acc.hasMoreBytes()) {
             return MatchStrength.INCONCLUSIVE;
         }
@@ -335,7 +335,7 @@ public final class ByteSourceJsonBootstrapper
             return MatchStrength.NO_MATCH;
         }
         MatchStrength strength;
-        
+
         if (ch == '[') {
             ch = skipSpace(acc);
             if (ch < 0) {

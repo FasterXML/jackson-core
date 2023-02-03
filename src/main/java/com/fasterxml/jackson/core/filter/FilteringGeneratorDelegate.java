@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
  * Specialized {@link JsonGeneratorDelegate} that allows use of
  * {@link TokenFilter} for outputting a subset of content that
  * caller tries to generate.
- * 
+ *
  * @since 2.6
  */
 public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
@@ -25,7 +25,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /* Configuration
     /**********************************************************
      */
-    
+
     /**
      * Object consulted to determine whether to write parts of content generator
      * is asked to write or not.
@@ -68,7 +68,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * property, and also used for array elements.
      */
     protected TokenFilter _itemFilter;
-    
+
     /**
      * Number of tokens for which {@link TokenFilter#INCLUDE_ALL}
      * has been returned
@@ -129,7 +129,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public JsonStreamContext getFilterContext() {
         return _filterContext;
     }
-    
+
     /**
      * Accessor for finding number of matches, where specific token and sub-tree
      * starting (if structured type) are passed.
@@ -145,7 +145,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /* Public API, accessors
     /**********************************************************
      */
-    
+
     @Override
     public JsonStreamContext getOutputContext() {
         /* 11-Apr-2015, tatu: Choice is between pre- and post-filter context;
@@ -154,13 +154,13 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
          */
         return _filterContext;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, structural
     /**********************************************************
      */
-    
+
     @Override
     public void writeStartArray() throws IOException
     {
@@ -287,7 +287,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
         }
     }
-    
+
     @Override
     public void writeEndArray() throws IOException
     {
@@ -316,7 +316,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(null, false);
             return;
         }
-        
+
         if (f != TokenFilter.INCLUDE_ALL) {
             f = f.filterStartObject();
         }
@@ -900,7 +900,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeOmittedField(fieldName);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, Native Ids
@@ -909,7 +909,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     // 25-Mar-2015, tatu: These are tricky as they sort of predate actual filtering calls.
     //   Let's try to use current state as a clue at least...
-    
+
     @Override
     public void writeObjectId(Object id) throws IOException {
         if (_itemFilter != null) {
@@ -923,7 +923,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeObjectRef(id);
         }
     }
-    
+
     @Override
     public void writeTypeId(Object id) throws IOException {
         if (_itemFilter != null) {
@@ -946,7 +946,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeObject(pojo);
             return;
         }
-        // NOTE: copied from 
+        // NOTE: copied from
         if (pojo == null) {
             writeNull();
         } else {
@@ -957,7 +957,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _writeSimpleObject(pojo);
         }
     }
-    
+
     @Override
     public void writeTree(TreeNode rootNode) throws IOException {
         if (delegateCopyMethods) {
@@ -1051,7 +1051,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext.skipParentChecks();
         }
     }
-    
+
     protected boolean _checkBinaryWrite() throws IOException
     {
         if (_itemFilter == null) {
@@ -1066,7 +1066,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         return false;
     }
-    
+
     protected boolean _checkRawValueWrite() throws IOException
     {
         if (_itemFilter == null) {

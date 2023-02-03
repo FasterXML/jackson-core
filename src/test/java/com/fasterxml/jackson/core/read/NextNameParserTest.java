@@ -21,7 +21,7 @@ public class NextNameParserTest
     {
         _testBasicNextName(MODE_DATA_INPUT);
     }
-    
+
     private void _testBasicNextName(int mode) throws Exception
     {
         final String DOC = a2q(

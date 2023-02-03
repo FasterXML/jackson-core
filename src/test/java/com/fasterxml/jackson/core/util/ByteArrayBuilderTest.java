@@ -23,7 +23,7 @@ public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
         for (int i = 0; i < 100; ++i) {
             assertEquals(i, (int) result[i]);
         }
-        
+
         b.release();
         b.close();
     }

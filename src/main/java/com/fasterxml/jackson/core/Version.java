@@ -135,7 +135,7 @@ public class Version
     public int compareTo(Version other)
     {
         if (other == this) return 0;
-        
+
         int diff = _groupId.compareTo(other._groupId);
         if (diff == 0) {
             diff = _artifactId.compareTo(other._artifactId);

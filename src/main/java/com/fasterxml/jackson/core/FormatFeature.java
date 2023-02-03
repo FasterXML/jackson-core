@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.util.JacksonFeature;
  *<p>
  * Since 2.12 this is more of an extra marker feature, as its core API is now
  * defined in more general {@link JacksonFeature}.
- * 
+ *
  * @since 2.6
  */
 public interface FormatFeature
@@ -21,7 +21,7 @@ public interface FormatFeature
      */
     @Override
     public boolean enabledByDefault();
-    
+
     /**
      * Returns bit mask for this feature instance; must be a single bit,
      * that is of form <code>(1 &lt;&lt; N)</code>

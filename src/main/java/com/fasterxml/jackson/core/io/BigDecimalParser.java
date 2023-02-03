@@ -19,7 +19,7 @@ import java.util.Arrays;
  * <a href="https://github.com/eobermuhlner/big-math/commit/7a5419aac8b2adba2aa700ccf00197f97b2ad89f">this
  * git commit</a>.
  *
- * @since 2.13 
+ * @since 2.13
  */
 public final class BigDecimalParser
 {

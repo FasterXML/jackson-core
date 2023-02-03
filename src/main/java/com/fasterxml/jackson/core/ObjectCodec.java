@@ -29,7 +29,7 @@ public abstract class ObjectCodec
     // Since 2.3
     @Override
     public abstract Version version();
-    
+
     /*
     /**********************************************************
     /* API for de-serialization (JSON-to-Object)
@@ -62,8 +62,8 @@ public abstract class ObjectCodec
     /**
      * Method to deserialize JSON content into a Java type, reference
      * to which is passed as argument. Type is passed using so-called
-     * "super type token" 
-     * and specifically needs to be used if the root type is a 
+     * "super type token"
+     * and specifically needs to be used if the root type is a
      * parameterized (generic) container type.
      *
      * @param <T> Nominal parameter for target type
@@ -131,7 +131,7 @@ public abstract class ObjectCodec
      */
     public abstract <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef)
         throws IOException;
-    
+
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
@@ -201,7 +201,7 @@ public abstract class ObjectCodec
      */
     @Override
     public abstract void writeTree(JsonGenerator gen, TreeNode tree) throws IOException;
-    
+
     /**
      * Method for construct root level Object nodes
      * for Tree Model instances.
@@ -237,7 +237,7 @@ public abstract class ObjectCodec
     /* Extended tree conversions beyond TreeCodec
     /**********************************************************
      */
-    
+
     /**
      * Convenience method for converting given JSON tree into instance of specified
      * value type. This is equivalent to first constructing a {@link JsonParser} to

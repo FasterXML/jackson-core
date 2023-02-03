@@ -31,7 +31,7 @@ public class JsonParserSequence extends JsonParserDelegate
      *<p>
      * Default setting is <code>false</code> (for backwards-compatibility)
      * so that possible existing token is not considered for parsers.
-     * 
+     *
      * @since 2.8
      */
     protected final boolean _checkForExistingToken;
@@ -112,7 +112,7 @@ public class JsonParserSequence extends JsonParserDelegate
     public static JsonParserSequence createFlattened(JsonParser first, JsonParser second) {
         return createFlattened(false, first, second);
     }
-    
+
     @SuppressWarnings("resource")
     protected void addFlattenedActiveParsers(List<JsonParser> listToAddIn)
     {
@@ -213,7 +213,7 @@ public class JsonParserSequence extends JsonParserDelegate
      * Method that will switch active delegate parser from the current one
      * to the next parser in sequence, if there is another parser left:
      * if so, the next parser will become the active delegate parser.
-     * 
+     *
      * @return True if switch succeeded; false otherwise
      *
      * @since 2.8

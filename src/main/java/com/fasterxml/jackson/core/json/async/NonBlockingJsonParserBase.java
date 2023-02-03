@@ -133,7 +133,7 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_COMMENT_C = 53;
     protected final static int MINOR_COMMENT_CPP = 54;
     protected final static int MINOR_COMMENT_YAML = 55;
-    
+
     /*
     /**********************************************************************
     /* Helper objects, symbols (field names)
@@ -216,7 +216,7 @@ public abstract class NonBlockingJsonParserBase
             Double.NaN,
             Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
     };
-    
+
     /**
      * When tokenizing non-standard ("odd") tokens, this is the type to consider;
      * also works as index to actual textual representation.
@@ -235,7 +235,7 @@ public abstract class NonBlockingJsonParserBase
      * logical offset within input "stream"
      */
     protected int _currBufferStart = 0;
-    
+
     /**
      * Alternate row tracker, used to keep track of position by `\r` marker
      * (whereas <code>_currInputRow</code> tracks `\n`). Used to simplify
@@ -244,7 +244,7 @@ public abstract class NonBlockingJsonParserBase
      * case we can simply choose max of two row candidates.
      */
     protected int _currInputRowAlt = 1;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -429,7 +429,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     // // // Let's override default impls for improved performance
-    
+
     // @since 2.1
     @Override
     public String getValueAsString() throws IOException
@@ -442,7 +442,7 @@ public abstract class NonBlockingJsonParserBase
         }
         return super.getValueAsString(null);
     }
-    
+
     // @since 2.1
     @Override
     public String getValueAsString(String defValue) throws IOException
@@ -461,7 +461,7 @@ public abstract class NonBlockingJsonParserBase
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
-                
+
             case ID_FIELD_NAME:
                 if (!_nameCopied) {
                     String name = _parsingContext.getCurrentName();
@@ -475,13 +475,13 @@ public abstract class NonBlockingJsonParserBase
                     _nameCopied = true;
                 }
                 return _nameCopyBuffer;
-    
+
             case ID_STRING:
                 // fall through
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
                 return _textBuffer.getTextBuffer();
-                
+
             default:
                 return _currToken.asCharArray();
             }
@@ -494,7 +494,7 @@ public abstract class NonBlockingJsonParserBase
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
-                
+
             case ID_FIELD_NAME:
                 return _parsingContext.getCurrentName().length();
             case ID_STRING:
@@ -502,7 +502,7 @@ public abstract class NonBlockingJsonParserBase
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
                 return _textBuffer.size();
-                
+
             default:
                 return _currToken.asCharArray().length;
             }
@@ -733,13 +733,13 @@ public abstract class NonBlockingJsonParserBase
                 if ((ix + needed) > byteLen) {
                     _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
                 }
-                
+
                 // Ok, always need at least one more:
                 int ch2 = quads[ix >> 2]; // current quad, need to shift+mask
                 byteIx = (ix & 3);
                 ch2 = (ch2 >> ((3 - byteIx) << 3));
                 ++ix;
-                
+
                 if ((ch2 & 0xC0) != 0x080) {
                     _reportInvalidOther(ch2);
                 }
@@ -749,7 +749,7 @@ public abstract class NonBlockingJsonParserBase
                     byteIx = (ix & 3);
                     ch2 = (ch2 >> ((3 - byteIx) << 3));
                     ++ix;
-                    
+
                     if ((ch2 & 0xC0) != 0x080) {
                         _reportInvalidOther(ch2);
                     }

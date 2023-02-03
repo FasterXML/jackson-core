@@ -43,7 +43,7 @@ public final class JsonReadContext extends JsonStreamContext
      * @since 2.5
      */
     protected Object _currentValue;
-    
+
     protected int _lineNr;
     protected int _columnNr;
 

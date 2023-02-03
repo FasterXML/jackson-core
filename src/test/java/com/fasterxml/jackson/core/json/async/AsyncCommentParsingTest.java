@@ -104,7 +104,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
                 ":\t%s123",
         }) {
             String commented = String.format(arg, comment);
-            
+
             final String DOC = "{\"abc\"" + commented + "}";
             AsyncReaderWrapper p = _createParser(f, DOC, bytesPerRead);
             assertEquals(JsonToken.START_OBJECT, p.nextToken());
@@ -143,7 +143,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
                 "%s\n,",
         }) {
             String commented = String.format(tmpl, comment);
-            
+
             final String DOC = "[1"+commented+"2]";
             AsyncReaderWrapper p = _createParser(f, DOC, bytesPerRead);
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
@@ -166,9 +166,9 @@ public class AsyncCommentParsingTest extends AsyncTestBase
             assertEquals(JsonToken.END_ARRAY, p.nextToken());
             p.close();
         }
-        
+
     }
-    
+
     private void _testYAMLComments(JsonFactory f, int bytesPerRead) throws Exception
     {
         final String DOC = "# foo\n"

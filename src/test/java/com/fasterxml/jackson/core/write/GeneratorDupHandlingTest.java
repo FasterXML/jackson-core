@@ -41,11 +41,11 @@ public class GeneratorDupHandlingTest
         JsonGenerator g1;
 
         if (lazySetting) {
-            g1 = _generator(f, useStream);            
+            g1 = _generator(f, useStream);
             g1.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
         } else {
             f.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
-            g1 = _generator(f, useStream);            
+            g1 = _generator(f, useStream);
         }
         try {
             _writeSimple0(g1, "a");
@@ -56,10 +56,10 @@ public class GeneratorDupHandlingTest
 
         JsonGenerator g2;
         if (lazySetting) {
-            g2 = _generator(f, useStream);            
+            g2 = _generator(f, useStream);
             g2.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
         } else {
-            g2 = _generator(f, useStream);            
+            g2 = _generator(f, useStream);
         }
         try {
             _writeSimple1(g2, "x");

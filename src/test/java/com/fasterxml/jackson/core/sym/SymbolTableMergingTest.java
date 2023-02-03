@@ -54,7 +54,7 @@ public class SymbolTableMergingTest
 
         assertEquals(sym.calcHash(str1, 0, 3), sym.calcHash(str2, 1, 3));
     }
-    
+
     public void testCharSymbolsWithClose() throws Exception
     {
         _testWithClose(false);

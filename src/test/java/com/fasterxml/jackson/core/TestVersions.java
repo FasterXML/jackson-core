@@ -34,13 +34,13 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
         assertEquals("2.8.4", other.toString());
         assertEquals("groupId/artifactId/2.8.4", other.toFullString());
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
-    
+
     private void assertVersion(Version v)
     {
         assertEquals(PackageVersion.VERSION, v);

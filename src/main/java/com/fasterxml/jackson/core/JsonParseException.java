@@ -110,9 +110,9 @@ public class JsonParseException
     public String getRequestPayloadAsString() {
         return super.getRequestPayloadAsString();
     }
-    
+
     // NOTE: overloaded in 2.10 just to retain binary compatibility with 2.9 (remove from 3.0)
-    @Override 
+    @Override
     public String getMessage() {
         return super.getMessage();
     }

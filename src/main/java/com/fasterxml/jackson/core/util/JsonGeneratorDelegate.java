@@ -37,7 +37,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
      * @param d Underlying generator to delegate calls to
      * @param delegateCopyMethods Flag assigned to <code>delagateCopyMethod</code>
      *   and which defines whether copy methods are handled locally (false), or
-     *   delegated to configured 
+     *   delegated to configured
      */
     public JsonGeneratorDelegate(JsonGenerator d, boolean delegateCopyMethods) {
         delegate = d;
@@ -49,14 +49,14 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /* Public API, metadata/state access
     /**********************************************************************
      */
-    
+
     @Override public ObjectCodec getCodec() { return delegate.getCodec(); }
 
     @Override public JsonGenerator setCodec(ObjectCodec oc) {
         delegate.setCodec(oc);
         return this;
     }
-    
+
     @Override public void setSchema(FormatSchema schema) { delegate.setSchema(schema); }
     @Override public FormatSchema getSchema() { return delegate.getSchema(); }
     @Override public Version version() { return delegate.version(); }
@@ -91,7 +91,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public boolean canWriteBinaryNatively() { return delegate.canWriteBinaryNatively(); }
-    
+
     @Override
     public boolean canOmitFields() { return delegate.canOmitFields(); }
 
@@ -114,7 +114,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         delegate.enable(f);
         return this;
     }
-    
+
     @Override
     public JsonGenerator disable(Feature f) {
         delegate.disable(f);
@@ -163,7 +163,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public PrettyPrinter getPrettyPrinter() { return delegate.getPrettyPrinter(); }
-    
+
     @Override
     public JsonGenerator useDefaultPrettyPrinter() { delegate.useDefaultPrettyPrinter();
         return this; }
@@ -297,7 +297,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void writeRaw(SerializableString raw) throws IOException { delegate.writeRaw(raw); }
-    
+
     @Override
     public void writeRaw(char[] text, int offset, int len) throws IOException { delegate.writeRaw(text, offset, len); }
 
@@ -354,7 +354,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void writeBoolean(boolean state) throws IOException { delegate.writeBoolean(state); }
-    
+
     @Override
     public void writeNull() throws IOException { delegate.writeNull(); }
 
@@ -379,7 +379,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 //    public void writePOJOField(String fieldName, Object pojo) throws IOException {
 
     // Sole exception being this method as it is not a "combo" method
-    
+
     @Override
     public void writeOmittedField(String fieldName) throws IOException {
         delegate.writeOmittedField(fieldName);
@@ -431,7 +431,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
             _writeSimpleObject(pojo);
         }
     }
-    
+
     @Override
     public void writeTree(TreeNode tree) throws IOException {
         if (delegateCopyMethods) {
@@ -489,7 +489,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /* Public API, buffer handling
     /**********************************************************************
      */
-    
+
     @Override public void flush() throws IOException { delegate.flush(); }
     @Override public void close() throws IOException { delegate.close(); }
 

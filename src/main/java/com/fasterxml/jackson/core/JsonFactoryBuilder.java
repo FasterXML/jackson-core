@@ -129,7 +129,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
     }
 
     // // // JSON-specific helper objects, settings
-    
+
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
@@ -146,7 +146,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
     /**
      * Method that allows overriding String used for separating root-level
      * JSON values (default is single space character)
-     * 
+     *
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
      *
@@ -160,7 +160,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
     /**
      * Method that allows overriding String used for separating root-level
      * JSON values (default is single space character)
-     * 
+     *
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
      *
@@ -182,7 +182,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
      * NOTE! Lowest legal value (aside from marker 0) is 127: for ASCII range, other checks apply
      * and this threshold is ignored. If value between [1, 126] is specified, 127 will be
      * used instead.
-     * 
+     *
      * @param maxNonEscaped Highest character code that is NOT automatically escaped; if
      *    positive value above 0, or 0 to indicate that no automatic escaping is applied
      *    beside from what JSON specification requires (and possible custom escape settings).
@@ -222,7 +222,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
     }
 
     // // // Accessors for JSON-specific settings
-    
+
     public CharacterEscapes characterEscapes() { return _characterEscapes; }
     public SerializableString rootValueSeparator() { return _rootValueSeparator; }
 

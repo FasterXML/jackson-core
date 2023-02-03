@@ -8,7 +8,7 @@ import java.io.Serializable;
  *
  * @see com.fasterxml.jackson.core.util.DefaultPrettyPrinter
  * @see com.fasterxml.jackson.core.util.MinimalPrettyPrinter
- * 
+ *
  * @since 2.9
  */
 public class Separators implements Serializable
@@ -33,7 +33,7 @@ public class Separators implements Serializable
         this.objectEntrySeparator = objectEntrySeparator;
         this.arrayValueSeparator = arrayValueSeparator;
     }
-    
+
     public Separators withObjectFieldValueSeparator(char sep) {
         return (objectFieldValueSeparator == sep) ? this
                 : new Separators(sep, objectEntrySeparator, arrayValueSeparator);

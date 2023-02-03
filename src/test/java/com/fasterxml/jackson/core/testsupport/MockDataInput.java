@@ -17,7 +17,7 @@ public class MockDataInput implements DataInput
     public MockDataInput(InputStream in) {
         _input = in;
     }
-    
+
     @Override
     public void readFully(byte[] b) throws IOException {
         throw new UnsupportedOperationException();

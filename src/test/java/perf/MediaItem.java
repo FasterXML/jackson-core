@@ -27,7 +27,7 @@ public class MediaItem
         }
         _photos.add(p);
     }
-    
+
     public List<Photo> getImages() { return _photos; }
     public void setImages(List<Photo> p) { _photos = p; }
 
@@ -43,7 +43,7 @@ public class MediaItem
         w.close();
         return w.toString();
     }
-    
+
     public void write(JsonGenerator gen) throws IOException
     {
         gen.writeStartObject();
@@ -66,7 +66,7 @@ public class MediaItem
         }
         gen.writeEndObject();
     }
-    
+
     /*
     /**********************************************************
     /* Helper types
@@ -80,7 +80,7 @@ public class MediaItem
         private int _width;
         private int _height;
         private Size _size;
-    
+
         public Photo() {}
         public Photo(String uri, String title, int w, int h, Size s)
         {
@@ -90,13 +90,13 @@ public class MediaItem
           _height = h;
           _size = s;
         }
-    
+
       public String getUri() { return _uri; }
       public String getTitle() { return _title; }
       public int getWidth() { return _width; }
       public int getHeight() { return _height; }
       public Size getSize() { return _size; }
-    
+
       public void setUri(String u) { _uri = u; }
       public void setTitle(String t) { _title = t; }
       public void setWidth(int w) { _width = w; }
@@ -133,11 +133,11 @@ public class MediaItem
         private Player _player;
 
         private List<String> _persons;
-        
+
         public void write(JsonGenerator gen) throws IOException
         {
             gen.writeStartObject();
-            
+
             gen.writeStringField("uri", _uri);
             gen.writeStringField("title", _title);
 
@@ -169,7 +169,7 @@ public class MediaItem
             }
             gen.writeEndObject();
         }
-        
+
         public Content() { }
 
         public void addPerson(String p) {
@@ -178,7 +178,7 @@ public class MediaItem
             }
             _persons.add(p);
         }
-        
+
         public Player getPlayer() { return _player; }
         public String getUri() { return _uri; }
         public String getTitle() { return _title; }
@@ -190,7 +190,7 @@ public class MediaItem
         public int getBitrate() { return _bitrate; }
         public List<String> getPersons() { return _persons; }
         public String getCopyright() { return _copyright; }
-    
+
         public void setPlayer(Player p) { _player = p; }
         public void setUri(String u) {  _uri = u; }
         public void setTitle(String t) {  _title = t; }

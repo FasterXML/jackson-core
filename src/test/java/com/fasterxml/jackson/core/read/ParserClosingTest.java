@@ -132,7 +132,7 @@ public class ParserClosingTest
         assertEquals(0, jp.releaseBuffered(sw));
         jp.close();
     }
-    
+
     /*
     /**********************************************************
     /* Helper classes

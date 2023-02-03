@@ -59,7 +59,7 @@ public interface InputAccessor
          * End of valid bytes in the buffer (points to one past last valid)
          */
         protected int _bufferedEnd;
-        
+
         /**
          * Pointer to next available buffered byte in {@link #_buffer}.
          */
@@ -92,7 +92,7 @@ public interface InputAccessor
             _bufferedStart = start;
             _bufferedEnd = start+len;
         }
-        
+
         @Override
         public boolean hasMoreBytes() throws IOException
         {

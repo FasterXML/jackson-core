@@ -93,10 +93,10 @@ public enum JsonReadFeature
     ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false, JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER),
 
     // // // Support for non-standard data format constructs: number representations
-    
+
     /**
      * Feature that determines whether parser will allow
-     * JSON integral numbers to start with additional (ignorable) 
+     * JSON integral numbers to start with additional (ignorable)
      * zeroes (like: 000001). If enabled, no exception is thrown, and extra
      * nulls are silently ignored (and not included in textual representation
      * exposed via {@link JsonParser#getText}).
@@ -172,7 +172,7 @@ public enum JsonReadFeature
     ALLOW_NON_NUMERIC_NUMBERS(false, JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS),
 
     // // // Support for non-standard data format constructs: array/value separators
-     
+
     /**
      * Feature allows the support for "missing" values in a JSON array: missing
      * value meaning sequence of two commas, without value in-between but only
@@ -182,7 +182,7 @@ public enum JsonReadFeature
      * in data-binding.
      * <p>
      * For example, enabling this feature will represent a JSON array <code>["value1",,"value3",]</code>
-     * as <code>["value1", null, "value3", null]</code> 
+     * as <code>["value1", null, "value3", null]</code>
      * <p>
      * Since the JSON specification does not allow missing values this is a non-compliant JSON
      * feature and is disabled by default.
@@ -221,7 +221,7 @@ public enum JsonReadFeature
      * if so, this is the feature to enable/disable.
      */
     final private JsonParser.Feature _mappedFeature;
-    
+
     /**
      * Method that calculates bit set (flags) of all features that
      * are enabled by default.
@@ -238,7 +238,7 @@ public enum JsonReadFeature
         }
         return flags;
     }
-    
+
     private JsonReadFeature(boolean defaultState,
             JsonParser.Feature  mapTo) {
         _defaultState = defaultState;

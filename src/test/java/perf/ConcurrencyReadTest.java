@@ -12,13 +12,13 @@ import com.fasterxml.jackson.core.*;
 public class ConcurrencyReadTest
 {
     private final static int THREADS = 50;
-    
+
     private void test() throws Exception
     {
         final JsonFactory jf = new JsonFactory();
         final byte[] INPUT = "{\"a\":1}".getBytes("UTF-8");
         final AtomicInteger count = new AtomicInteger();
-        
+
         for (int i = 0; i < THREADS; ++i) {
             new Thread(new Runnable() {
                 @Override
@@ -38,7 +38,7 @@ public class ConcurrencyReadTest
 
         // wait slightly....
         Thread.sleep(200L);
-        
+
         double totalTime = 0.0;
         double totalCount = 0.0;
 
@@ -47,13 +47,13 @@ public class ConcurrencyReadTest
             int startCount = count.get();
 
             Thread.sleep(1000L);
-            
+
             int done = count.get() - startCount;
             long time = System.currentTimeMillis() - start;
 
             totalTime += time;
             totalCount += done;
-            
+
             double rate = (double) done / (double) time;
             System.out.printf("Rate: %.1f (avg: %.1f)\n", rate, totalCount/totalTime);
         }
@@ -67,7 +67,7 @@ public class ConcurrencyReadTest
         }
         jp.close();
     }
-    
+
     public static void main(String[] args) throws Exception
     {
         if (args.length != 0) {

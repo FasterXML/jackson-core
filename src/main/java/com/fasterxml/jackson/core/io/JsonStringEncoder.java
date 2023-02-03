@@ -47,7 +47,7 @@ public final class JsonStringEncoder
 
     // Since 2.10 we have stateless singleton and NO fancy ThreadLocal/SofRef caching!!!
     private final static JsonStringEncoder instance = new JsonStringEncoder();
-    
+
     public JsonStringEncoder() { }
 
     /**
@@ -105,7 +105,7 @@ public final class JsonStringEncoder
                     break outer;
                 }
             }
-            // something to escape; 2 or 6-char variant? 
+            // something to escape; 2 or 6-char variant?
             if (qbuf == null) {
                 qbuf = _qbuf();
             }
@@ -165,7 +165,7 @@ public final class JsonStringEncoder
         int inPtr = 0;
         int outPtr = 0;
         char[] qbuf = null;
- 
+
         outer:
         while (inPtr < inputLen) {
             tight_loop:
@@ -186,7 +186,7 @@ public final class JsonStringEncoder
                     break outer;
                 }
             }
-            // something to escape; 2 or 6-char variant? 
+            // something to escape; 2 or 6-char variant?
             if (qbuf == null) {
                 qbuf = _qbuf();
             }
@@ -282,7 +282,7 @@ public final class JsonStringEncoder
         int outputPtr = 0;
         byte[] outputBuffer = new byte[_initialByteBufSize(inputEnd)];
         ByteArrayBuilder bb = null;
-        
+
         main:
         while (inputPtr < inputEnd) {
             final int[] escCodes = CharTypes.get7BitOutputEscapes();

@@ -5,14 +5,14 @@ import com.fasterxml.jackson.core.*;
 public class ManualReadPerfWithMedia extends ManualPerfTestBase
 {
     protected final JsonFactory _factory;
-    
+
     protected final String _json;
-    
+
     private ManualReadPerfWithMedia(JsonFactory f, String json) throws Exception {
         _factory = f;
         _json = json;
     }
- 
+
     public static void main(String[] args) throws Exception
     {
         if (args.length != 0) {

@@ -54,7 +54,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
         _testSimpleEscaping(1, 3);
         _testSimpleEscaping(1, 1);
     }
-    
+
     private void _testSimpleEscaping(int offset, int readSize) throws Exception
     {
         byte[] doc = _jsonDoc(a2q("['LF=\\n']"));

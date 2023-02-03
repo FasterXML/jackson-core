@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 public class DataFormatMatcherTest extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
-    
+
   public void testGetDataStream() throws IOException {
     byte[] byteArray = new byte[2];
     MatchStrength matchStrength = MatchStrength.WEAK_MATCH;

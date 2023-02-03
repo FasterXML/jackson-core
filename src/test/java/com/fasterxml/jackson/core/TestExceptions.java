@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 public class TestExceptions extends BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
-    
+
     // For [core#10]
     public void testOriginalMesssage()
     {
@@ -101,7 +101,7 @@ public class TestExceptions extends BaseTest
             p.nextToken();
             fail("Should get exception");
         } catch (JsonEOFException e) {
-            
+
             verifyException(e, "in field name");
             assertEquals(JsonToken.FIELD_NAME, e.getTokenBeingDecoded());
         }

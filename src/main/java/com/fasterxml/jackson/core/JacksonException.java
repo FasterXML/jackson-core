@@ -72,7 +72,7 @@ public abstract class JacksonException extends java.io.IOException
      * to set it; this means that caller needs to take care to check for nulls.
      * Subtypes override this method with co-variant return type, for more
      * type-safe access.
-     * 
+     *
      * @return Originating processor, if available; {@code null} if not.
      */
     public abstract Object getProcessor();

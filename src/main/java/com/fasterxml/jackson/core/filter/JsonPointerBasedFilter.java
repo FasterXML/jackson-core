@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonPointer;
  * {@link JsonPointer} and matches a single value accordingly.
  * Instances are immutable and fully thread-safe, shareable,
  * and efficient to use.
- * 
+ *
  * @since 2.6
  */
 public class JsonPointerBasedFilter extends TokenFilter
@@ -50,12 +50,12 @@ public class JsonPointerBasedFilter extends TokenFilter
     public TokenFilter filterStartArray() {
         return this;
     }
-    
+
     @Override
     public TokenFilter filterStartObject() {
         return this;
     }
-    
+
     @Override
     protected boolean _includeScalar() {
         // should only occur for root-level scalars, path "/"

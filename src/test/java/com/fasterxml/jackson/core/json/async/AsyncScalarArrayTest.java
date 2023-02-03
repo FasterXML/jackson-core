@@ -54,7 +54,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         assertEquals("null", r.currentTextViaCharacters());
         assertToken(JsonToken.VALUE_FALSE, r.nextToken());
         assertToken(JsonToken.VALUE_NULL, r.nextToken());
-        
+
         assertToken(JsonToken.END_ARRAY, r.nextToken());
 
         // and end up with "no token" as well

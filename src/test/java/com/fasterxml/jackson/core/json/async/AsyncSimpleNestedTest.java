@@ -54,7 +54,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         assertEquals("emptyObject", r.currentName());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
-        
+
 
         assertToken(JsonToken.FIELD_NAME, r.nextToken());
         assertEquals("emptyArray", r.currentName());
@@ -68,7 +68,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         assertEquals("", r.currentName());
         assertToken(JsonToken.VALUE_NULL, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
-        
+
         assertToken(JsonToken.END_OBJECT, r.nextToken());
 
         // another twist: close in the middle, verify
@@ -125,7 +125,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
     final static String SHORT_NAME = String.format("u-%s", UNICODE_SEGMENT);
     final static String LONG_NAME = String.format("Unicode-with-some-longer-name-%s", UNICODE_SEGMENT);
-    
+
     public void testStuffInArray2() throws Exception
     {
         byte[] data = _jsonDoc(a2q(String.format(
@@ -174,7 +174,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
         assertToken(JsonToken.END_ARRAY, r.nextToken());
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods, fail checking

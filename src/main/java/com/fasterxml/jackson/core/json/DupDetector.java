@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.*;
  * scopes with large number of entries). Another consideration is trying to limit
  * actual number of compiled classes as it contributes significantly to overall
  * jar size (due to linkage etc).
- * 
+ *
  * @since 2.3
  */
 public class DupDetector
@@ -27,7 +27,7 @@ public class DupDetector
     protected String _firstName;
 
     protected String _secondName;
-    
+
     /**
      * Lazily constructed set of names already seen within this context.
      */
@@ -44,7 +44,7 @@ public class DupDetector
     public static DupDetector rootDetector(JsonGenerator g) {
         return new DupDetector(g);
     }
-    
+
     public DupDetector child() {
         return new DupDetector(_source);
     }

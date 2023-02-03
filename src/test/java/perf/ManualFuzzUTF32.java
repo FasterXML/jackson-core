@@ -16,7 +16,7 @@ public class ManualFuzzUTF32
         final byte[] doc = readResource("/data/fuzz-json-utf32-32208.json", 0);
 
         System.out.println("Read input, "+doc.length+" bytes...");
-        
+
         JsonParser p = f.createParser(/*ObjectReadContext.empty(), */ doc);
 
         JsonToken t = p.nextToken();

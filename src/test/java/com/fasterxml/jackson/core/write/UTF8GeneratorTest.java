@@ -31,7 +31,7 @@ public class UTF8GeneratorTest extends BaseTest
         gen.writeString(str);
         gen.flush();
         gen.close();
-        
+
         // Also verify it's parsable?
         JsonParser p = JSON_F.createParser(bytes.toByteArray());
         for (int i = 1; i <= length; ++i) {

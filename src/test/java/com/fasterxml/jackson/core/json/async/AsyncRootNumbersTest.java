@@ -73,7 +73,7 @@ public class AsyncRootNumbersTest extends AsyncTestBase
         _testRootDoubles("9e-2", 9e-2);
         _testRootDoubles("  9e-2", 9e-2);
         _testRootDoubles("9e-2  ", 9e-2);
-        
+
         _testRootDoubles("-12.5e3", -12.5e3);
         _testRootDoubles("  -12.5e3", -12.5e3);
         _testRootDoubles(" -12.5e3  ", -12.5e3);

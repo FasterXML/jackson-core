@@ -43,7 +43,7 @@ public class VersionUtil
     /* Static load methods
     /**********************************************************************
      */
-    
+
     /**
      * Loads version information by introspecting a class named
      * "PackageVersion" in the same package as the given class.
@@ -54,7 +54,7 @@ public class VersionUtil
      *
      * @param cls Class for which to look version information
      *
-     * @return Version information discovered if any; 
+     * @return Version information discovered if any;
      *  {@link Version#unknownVersion()} if none
      */
     public static Version versionFor(Class<?> cls)
@@ -80,7 +80,7 @@ public class VersionUtil
      *
      * @param cls Class for which to look version information
      *
-     * @return Version information discovered if any; 
+     * @return Version information discovered if any;
      *  {@link Version#unknownVersion()} if none
      *
      * @deprecated Since 2.12 simply use {@link #versionFor(Class)} instead
@@ -100,7 +100,7 @@ public class VersionUtil
      * @param groupId the groupId of the library
      * @param artifactId the artifactId of the library
      * @return The version
-     * 
+     *
      * @deprecated Since 2.6: functionality not used by any official Jackson component, should be
      *   moved out if anyone needs it
      */

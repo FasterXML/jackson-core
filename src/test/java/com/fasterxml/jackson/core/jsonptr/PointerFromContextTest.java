@@ -20,7 +20,7 @@ public class PointerFromContextTest extends BaseTest
     private final JsonFactory JSON_F = new JsonFactory();
 
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
-    
+
     public void testViaParser() throws Exception
     {
         final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
@@ -249,7 +249,7 @@ public class PointerFromContextTest extends BaseTest
 
         // as earlier, not optimal result, but verify it's stable:
         assertEquals("/2", g.getOutputContext().pathAsPointer(true).toString());
-        
+
         g.close();
     }
 }

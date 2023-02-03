@@ -56,7 +56,7 @@ public class SimpleParserTest extends BaseTest
         _testIntern(false, true, "c");
         _testIntern(false, false, "d");
     }
-    
+
     private void _testIntern(boolean useStream, boolean enableIntern, String expName) throws IOException
     {
         JsonFactory f = JsonFactory.builder()
@@ -66,7 +66,7 @@ public class SimpleParserTest extends BaseTest
         final String JSON = "{ \""+expName+"\" : 1}";
         JsonParser p = useStream ?
             createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
-            
+
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         // needs to be same of cours
@@ -205,7 +205,7 @@ public class SimpleParserTest extends BaseTest
         assertTrue(ctxt.inArray());
         assertNull(ctxt.getCurrentName());
         assertEquals("key4", ctxt.getParent().getCurrentName());
-        
+
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
         assertEquals("[0]", ctxt.toString());
 
@@ -330,7 +330,7 @@ public class SimpleParserTest extends BaseTest
             p.close();
         }
     }
-    
+
     /**
      * Unit test that verifies that long text segments are handled
      * correctly; mostly to stress-test underlying segment-based
@@ -370,7 +370,7 @@ public class SimpleParserTest extends BaseTest
             }
         }
         final String VALUE = sb.toString();
-        
+
         // Let's use real generator to get JSON done right
         StringWriter sw = new StringWriter(LEN + (LEN >> 2));
         JsonGenerator g = JSON_FACTORY.createGenerator(sw);
@@ -379,7 +379,7 @@ public class SimpleParserTest extends BaseTest
         g.writeString(VALUE);
         g.writeEndObject();
         g.close();
-        
+
         final String DOC = sw.toString();
 
         for (int type = 0; type < 4; ++type) {
@@ -506,7 +506,7 @@ public class SimpleParserTest extends BaseTest
         _testGetValueAsText(MODE_DATA_INPUT, false);
         _testGetValueAsText(MODE_DATA_INPUT, true);
     }
-    
+
     public void testGetValueAsTextChars() throws Exception
     {
         _testGetValueAsText(MODE_READER, false);
@@ -520,7 +520,7 @@ public class SimpleParserTest extends BaseTest
         if (delegate) {
             p = new JsonParserDelegate(p);
         }
-        
+
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertNull(p.getValueAsString());
         assertEquals("foobar", p.getValueAsString("foobar"));
@@ -623,7 +623,7 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
         assertEquals("a", parser.getCurrentName());
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
-        
+
         Writer writer = new StringWriter();
         int len = parser.getText(writer);
         String resultString = writer.toString();
@@ -643,7 +643,7 @@ public class SimpleParserTest extends BaseTest
         _testHandlingOfInvalidSpace(MODE_INPUT_STREAM);
         _testHandlingOfInvalidSpaceFromResource(true);
     }
-    
+
     // [core#142]
     public void testHandlingOfInvalidSpaceChars() throws Exception {
         _testHandlingOfInvalidSpace(MODE_READER);
@@ -692,7 +692,7 @@ public class SimpleParserTest extends BaseTest
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
             // ... and from there on, just loop
-            
+
             while (p.nextToken()  != null) { }
             fail("Should have failed");
         } catch (JsonParseException e) {

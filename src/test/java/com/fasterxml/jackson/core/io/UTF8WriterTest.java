@@ -57,16 +57,16 @@ public class UTF8WriterTest
         String act = utf8String(out);
         assertEquals(str, act);
     }
-    
+
     public void testFlushAfterClose() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
-        
+
         w.write('X');
         char[] ch = { 'Y' };
         w.write(ch);
-        
+
         w.close();
         assertEquals(2, out.size());
 
@@ -134,7 +134,7 @@ public class UTF8WriterTest
         } catch (IOException e) {
             verifyException(e, "Unmatched second part");
         }
-        
+
         out = new ByteArrayOutputStream();
         w = new UTF8Writer(_ioContext(rec), out);
         try {

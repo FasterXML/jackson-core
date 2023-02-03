@@ -62,7 +62,7 @@ public class GeneratorMiscTest
         gen.close();
         String act = sw.toString().trim();
         assertEquals("[1,-2,3,-4,0.25,-0.125,true]", act);
-        
+
         // then other basic types
         sw = new StringWriter();
         gen = JSON_F.createGenerator(sw);
@@ -86,7 +86,7 @@ public class GeneratorMiscTest
         act = sw.toString().trim();
         assertEquals("[false,13,-127]", act);
     }
-    
+
     /*
     /**********************************************************
     /* Tests for raw output
@@ -103,7 +103,7 @@ public class GeneratorMiscTest
         gen.writeEndArray();
         gen.close();
 
-                
+
         JsonParser jp = createParserUsingReader(sw.toString());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -173,7 +173,7 @@ public class GeneratorMiscTest
                 DataOutputStream dout = new DataOutputStream(bout);
                 g = jf.createGenerator((DataOutput) dout);
             }
-        
+
             break;
         default:
             fail("Unknown mode "+mode);

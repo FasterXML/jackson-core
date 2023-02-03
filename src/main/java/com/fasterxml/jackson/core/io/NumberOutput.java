@@ -112,7 +112,7 @@ public final class NumberOutput
         v = newValue;
         newValue /= 1000;
         int thousands = (v - (newValue * 1000));
-        
+
         off = _leading3(newValue, b, off);
         off = _full3(thousands, b, off);
         return _full3(ones, b, off);
@@ -382,7 +382,7 @@ public final class NumberOutput
 
         return off;
     }
-    
+
     private static int _outputFullBillion(int v, char[] b, int off)
     {
         int thousands = v / 1000;
@@ -407,7 +407,7 @@ public final class NumberOutput
 
         return off;
     }
-    
+
     private static int _outputUptoBillion(int v, byte[] b, int off)
     {
         if (v < MILLION) { // at most 2 triplets...
@@ -498,7 +498,7 @@ public final class NumberOutput
         b[off++] = (byte) enc;
         return off;
     }
-    
+
     private static int _leading3(int t, char[] b, int off)
     {
         int enc = TRIPLET_TO_CHARS[t];

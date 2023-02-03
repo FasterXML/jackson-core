@@ -46,7 +46,7 @@ public class TestTextBuffer
         }
         final String STR = sb.toString();
         final String EXP = "a" + STR + "c";
- 
+
         // ok: first test with String:
         TextBuffer tb = new TextBuffer(new BufferRecycler());
         tb.append('a');
@@ -54,7 +54,7 @@ public class TestTextBuffer
         tb.append('c');
         assertEquals(len+2, tb.size());
         assertEquals(EXP, tb.contentsAsString());
- 
+
         // then char[]
         tb = new TextBuffer(new BufferRecycler());
         tb.append('a');

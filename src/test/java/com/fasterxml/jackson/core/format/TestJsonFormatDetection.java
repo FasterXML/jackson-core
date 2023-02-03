@@ -79,7 +79,7 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
         assertNull(jp.nextToken());
         jp.close();
     }
-    
+
     public void testSimpleInvalid() throws Exception
     {
         DataFormatDetector detector = new DataFormatDetector(new JsonFactory());

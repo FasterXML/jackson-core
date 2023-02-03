@@ -31,7 +31,7 @@ public enum StreamReadFeature
     AUTO_CLOSE_SOURCE(JsonParser.Feature.AUTO_CLOSE_SOURCE),
 
     // // // Validity checks
-    
+
     /**
      * Feature that determines whether {@link JsonParser} will explicitly
      * check that no duplicate JSON Object field names are encountered.

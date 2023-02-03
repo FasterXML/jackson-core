@@ -106,7 +106,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         assertToken(JsonToken.FIELD_NAME, r.nextToken());
         assertEquals(expName, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
-        
+
         r.close();
         assertNull(r.nextToken());
     }
@@ -120,7 +120,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         assertToken(JsonToken.FIELD_NAME, r.nextToken());
         assertEquals(expName, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
-        
+
         r.close();
         assertNull(r.nextToken());
     }

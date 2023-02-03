@@ -57,7 +57,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
     /* Root-level sequences
     /**********************************************************************
      */
-    
+
     public void testTokenRootSequence() throws Exception
     {
         byte[] input = _jsonDoc("\n[ true, false,\nnull  ,null\n,true,false]");
@@ -125,7 +125,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
         assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
         assertEquals(4, r.getIntValue());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
-        
+
         // [ 12, -987, false]
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());

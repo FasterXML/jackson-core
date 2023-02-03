@@ -24,7 +24,7 @@ public class InputCoercionException extends StreamReadException {
      * Target type that input value failed to coerce to.
      */
     protected final Class<?> _targetType;
-    
+
     /**
      * Constructor that uses current parsing location as location, and
      * sets processor (accessible via {@link #getProcessor()}) to

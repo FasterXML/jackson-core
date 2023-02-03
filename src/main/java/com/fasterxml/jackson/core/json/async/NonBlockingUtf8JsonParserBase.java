@@ -74,7 +74,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     public final boolean needMoreInput() {
         return (_inputPtr >=_inputEnd) && !_endOfInput;
     }
-    
+
     public void endOfInput() {
         _endOfInput = true;
     }
@@ -180,7 +180,7 @@ public abstract class NonBlockingUtf8JsonParserBase
      * @since v2.14
      */
     protected abstract int getNextUnsignedByteFromBuffer();
-    
+
     /**
      * @param ptr pointer to byte that is required
      * @return byte from the buffer at the given pointer
@@ -301,7 +301,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishErrorToken();
 
         // Comments
-            
+
         case MINOR_COMMENT_LEADING_SLASH:
             return _startSlashComment(_pending32);
         case MINOR_COMMENT_CLOSING_ASTERISK:
@@ -375,7 +375,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_NUMBER_EXPONENT_MARKER:
             _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
 
-            // How about comments? 
+            // How about comments?
             // Inside C-comments; not legal
 
 //        case MINOR_COMMENT_LEADING_SLASH: // not legal, but use default error
@@ -387,7 +387,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_COMMENT_YAML:
             // within C++/YAML comments, ok, as long as major state agrees...
             return _eofAsNextToken();
-            
+
         default:
         }
         _reportInvalidEOF(": was expecting rest of token (internal state: "+_minorState+")", _currToken);
@@ -567,7 +567,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     /* Second-level decoding, value decoding
     /**********************************************************************
      */
-    
+
     /**
      * Helper method called to detect type of a value token (at any level), and possibly
      * decode it if contained in input buffer.
@@ -599,7 +599,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _startNegativeNumber();
         case '/': // c/c++ comments
             return _startSlashComment(MINOR_VALUE_LEADING_WS);
-            
+
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
         // and could be indicate by a more specific error message.
@@ -916,7 +916,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case '+':
             return _finishNonStdToken(NON_STD_TOKEN_PLUS_INFINITY, 1);
         case 'N':
-            return _finishNonStdToken(NON_STD_TOKEN_NAN, 1);            
+            return _finishNonStdToken(NON_STD_TOKEN_NAN, 1);
         case 'I':
             return _finishNonStdToken(NON_STD_TOKEN_INFINITY, 1);
         }
@@ -930,7 +930,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     /* Second-level decoding, skipping white-space, comments
     /**********************************************************************
      */
-    
+
     private final int _skipWS(int ch) throws IOException
     {
         do {
@@ -1280,7 +1280,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         return _startFloat(outBuf, 0, INT_PERIOD);
     }
-    
+
     protected JsonToken _startPositiveNumber(int ch) throws IOException
     {
         _numberNegative = false;
@@ -1501,7 +1501,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             // Ok; unfortunately we have closing bracket/curly that are valid so need
             // (colon not possible since this is within value, not after key)
-            // 
+            //
             if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
                 _reportUnexpectedNumberChar(ch,
                         "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
@@ -1598,7 +1598,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 // Ok; unfortunately we have closing bracket/curly that are valid so need
                 // (colon not possible since this is within value, not after key)
-                // 
+                //
                 if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
                     _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
@@ -1841,7 +1841,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 loop = false;
             }
         }
-        
+
         // Ok, fraction done; what have we got next?
         // must be followed by sequence of ints, one minimum
         if (fractLen == 0) {
@@ -2230,7 +2230,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     /**
      * Parsing of optionally supported non-standard "unquoted" names: names without
      * either double-quotes or apostrophes surrounding them.
-     * Unlike other 
+     * Unlike other
      */
     private JsonToken _finishUnquotedName(int qlen, int currQuad, int currQuadBytes)
         throws IOException
@@ -2450,16 +2450,16 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return '\f';
             case 'r':
                 return '\r';
-    
+
                 // And these are to be returned as they are
             case '"':
             case '/':
             case '\\':
                 return c;
-    
+
             case 'u': // and finally hex-escaped
                 break;
-    
+
             default:
                 {
                  // !!! TODO: Decode UTF-8 characters properly...
@@ -2748,7 +2748,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             outBuf[outPtr++] = (char) c;
         }
     }
-    
+
     private final boolean _decodeSplitMultiByte(int c, int type, boolean gotNext)
             throws IOException
     {

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonToken;
 public class Surrogate223Test extends BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
-    
+
     // for [core#223]
     public void testSurrogatesByteBacked() throws Exception
     {
@@ -39,7 +39,7 @@ public class Surrogate223Test extends BaseTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
-        
+
         // but may revert back to original behavior
         out = new ByteArrayOutputStream();
         g = JSON_F.createGenerator(out);
@@ -76,7 +76,7 @@ public class Surrogate223Test extends BaseTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
-        
+
         // but may revert back to original behavior
         out = new StringWriter();
         g = JSON_F.createGenerator(out);

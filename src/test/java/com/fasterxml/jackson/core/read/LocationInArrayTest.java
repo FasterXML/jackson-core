@@ -11,11 +11,11 @@ public class LocationInArrayTest extends com.fasterxml.jackson.core.BaseTest
     public void testOffsetInArraysBytes() throws Exception {
         _testOffsetInArrays(true);
     }
-    
+
     // for [core#229]
     public void testOffsetInArraysChars() throws Exception {
         _testOffsetInArrays(false);
-    }        
+    }
 
     private void _testOffsetInArrays(boolean useBytes) throws Exception
     {
@@ -48,7 +48,7 @@ public class LocationInArrayTest extends com.fasterxml.jackson.core.BaseTest
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         _assertLocation(useBytes, p.getTokenLocation(), 18L, 2, 7);
         _assertLocation(useBytes, p.getCurrentLocation(), 19L, 2, 8);
-        
+
         p.close();
     }
 

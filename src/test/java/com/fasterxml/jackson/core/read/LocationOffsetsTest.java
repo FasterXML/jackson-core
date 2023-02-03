@@ -35,7 +35,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         p.close();
 
         // then byte-based
-        
+
         p = JSON_F.createParser(DOC.getBytes("UTF-8"));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 

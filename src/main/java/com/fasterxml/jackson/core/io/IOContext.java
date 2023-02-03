@@ -75,7 +75,7 @@ public class IOContext
      * encoding-related buffering.
      */
     protected byte[] _writeEncodingBuffer;
-    
+
     /**
      * Reference to the buffer allocated for temporary use with
      * base64 encoding or decoding.
@@ -178,7 +178,7 @@ public class IOContext
     /**
      * Accessor for getting (some) information about input source, mostly
      * usable for error reporting purposes.
-     * 
+     *
      * @return Reference to input source
      *
      * @since 2.13
@@ -291,7 +291,7 @@ public class IOContext
         _verifyAlloc(_base64Buffer);
         return (_base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_BASE64_CODEC_BUFFER, minSize));
     }
-    
+
     public char[] allocTokenBuffer() {
         _verifyAlloc(_tokenCBuffer);
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER));
@@ -302,7 +302,7 @@ public class IOContext
         _verifyAlloc(_tokenCBuffer);
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, minSize));
     }
-    
+
     public char[] allocConcatBuffer() {
         _verifyAlloc(_concatCBuffer);
         return (_concatCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_CONCAT_BUFFER));
@@ -346,7 +346,7 @@ public class IOContext
             _bufferRecycler.releaseByteBuffer(BufferRecycler.BYTE_BASE64_CODEC_BUFFER, buf);
         }
     }
-    
+
     public void releaseTokenBuffer(char[] buf) {
         if (buf != null) {
             _verifyRelease(buf, _tokenCBuffer);

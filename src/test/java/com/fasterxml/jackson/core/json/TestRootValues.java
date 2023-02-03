@@ -21,7 +21,7 @@ public class TestRootValues
         public int read() throws IOException {
             throw new UnsupportedOperationException();
         }
-    
+
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
             if (currentRead >= reads.length) {
@@ -53,7 +53,7 @@ public class TestRootValues
         public int read() throws IOException {
             throw new UnsupportedOperationException();
         }
-    
+
         @Override
         public int read(char[] b, int off, int len) throws IOException {
             if (currentRead >= reads.length) {
@@ -170,7 +170,7 @@ public class TestRootValues
     /* Test methods, writes
     /**********************************************************
      */
-    
+
     public void testSimpleWrites() throws Exception
     {
         _testSimpleWrites(false);
@@ -191,7 +191,7 @@ public class TestRootValues
         gen.writeNumber(123);
         gen.writeString("abc");
         gen.writeBoolean(true);
-        
+
         gen.close();
         out.close();
         w.close();
@@ -206,7 +206,7 @@ public class TestRootValues
     /* Test methods, other
     /**********************************************************
      */
-    
+
     // [core#516]: Off-by-one read problem
     public void testRootOffsetIssue516Bytes() throws Exception
     {

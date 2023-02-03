@@ -114,7 +114,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals(-1, EMPTY_PTR.getMatchingIndex());
         assertNull(EMPTY_PTR.getMatchingProperty());
     }
-    
+
     public void testPointerWithEmptyPropertyName()
     {
         // note: this is acceptable, to match property in '{"":3}', for example
@@ -144,7 +144,7 @@ public class JsonPointerTest extends BaseTest
 
         assertEquals(JsonPointer.compile("/a/b/c").tail(),
                 JsonPointer.compile("/foo/b/c").tail());
-        
+
         JsonPointer abcDef = JsonPointer.compile("/abc/def");
         JsonPointer def = JsonPointer.compile("/def");
         assertEquals(abcDef.tail(), def);
@@ -252,7 +252,7 @@ public class JsonPointerTest extends BaseTest
     public void testLongNumbers() throws Exception
     {
         final long LONG_ID = ((long) Integer.MAX_VALUE) + 1L;
-        
+
         final String INPUT = "/User/"+LONG_ID;
 
         JsonPointer ptr = JsonPointer.compile(INPUT);

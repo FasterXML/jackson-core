@@ -84,7 +84,7 @@ public class AsyncStringObjectTest extends AsyncTestBase
         if (verifyContents) {
             assertEquals(ASCII_SHORT_NAME, r.currentText());
         }
-        
+
         assertToken(JsonToken.END_OBJECT, r.nextToken());
         assertNull(r.nextToken());
 

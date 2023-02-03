@@ -124,7 +124,7 @@ public class ArrayGenerationTest extends BaseTest
         for (int i = pre, end = pre+elements; i < end; ++i) {
             values[i] = i-pre;
         }
-        
+
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
@@ -165,7 +165,7 @@ public class ArrayGenerationTest extends BaseTest
         for (int i = pre, end = pre+elements; i < end; ++i) {
             values[i] = i-pre;
         }
-        
+
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 

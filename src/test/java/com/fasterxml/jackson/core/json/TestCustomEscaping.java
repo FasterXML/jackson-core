@@ -13,7 +13,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 
     final static SerializedString TWO_BYTE_ESCAPED_STRING = new SerializedString("&111;");
     final static SerializedString THREE_BYTE_ESCAPED_STRING = new SerializedString("&1111;");
-    
+
     /*
     /********************************************************
     /* Helper types
@@ -36,7 +36,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
             _asciiEscapes['b'] = CharacterEscapes.ESCAPE_STANDARD; // to force "\u0062"
             _asciiEscapes['d'] = CharacterEscapes.ESCAPE_CUSTOM;
         }
-        
+
         @Override
         public int[] getEscapeCodesForAscii() {
             return _asciiEscapes;
@@ -168,7 +168,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         g.writeEndArray();
         g.close();
         String json = bytes.toString("UTF-8");
-        
+
         assertEquals("["+quote(VALUE)+"]", json);
 
         // And then with forced ASCII; first, values
@@ -213,7 +213,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         final String STR_OUT = "[\\A\\u0062c"+customRepl+"/"+TWO_BYTE_ESCAPED_STRING+"/"+THREE_BYTE_ESCAPED_STRING+"]";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator g;
-        
+
         // First: output normally; should not add escaping
         if (useStream) {
             g = f.createGenerator(bytes, JsonEncoding.UTF8);

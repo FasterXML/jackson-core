@@ -48,7 +48,7 @@ public class ParserSymbolHandlingTest
         }
         assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(2, parser.getIntValue());
-        
+
         assertToken(JsonToken.END_OBJECT, parser.nextToken());
         parser.close();
     }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 /**
  * Alternative variant of {@link JsonStreamContext}, used when filtering
  * content being read or written (based on {@link TokenFilter}).
- * 
+ *
  * @since 2.6
  */
 public class TokenFilterContext extends JsonStreamContext
@@ -32,7 +32,7 @@ public class TokenFilterContext extends JsonStreamContext
     /* Location/state information
     /**********************************************************
      */
-    
+
     /**
      * Name of the field of which value is to be parsed; only
      * used for OBJECT contexts
@@ -58,7 +58,7 @@ public class TokenFilterContext extends JsonStreamContext
      * included leaf is to be exposed.
      */
     protected boolean _needToHandleName;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -123,7 +123,7 @@ public class TokenFilterContext extends JsonStreamContext
     /* State changes
     /**********************************************************
      */
-    
+
     public TokenFilter setFieldName(String name) throws JsonProcessingException {
         _currentName = name;
         _needToHandleName = true;
@@ -270,7 +270,7 @@ public class TokenFilterContext extends JsonStreamContext
         }
         return _parent;
     }
-    
+
     public void skipParentChecks() {
         _filter = null;
         for (TokenFilterContext ctxt = _parent; ctxt != null; ctxt = ctxt._parent) {
@@ -330,7 +330,7 @@ public class TokenFilterContext extends JsonStreamContext
         // should never occur but...
         return null;
     }
-    
+
     // // // Internally used abstract methods
 
     protected void appendDesc(StringBuilder sb) {

@@ -57,23 +57,23 @@ public final class NumberInput
         }
 
         int num = ch[off + len - 1] - '0';
-        
+
         switch(len) {
-        case 9: 
+        case 9:
           num += (ch[off++] - '0') * 100000000;
-        case 8: 
+        case 8:
           num += (ch[off++] - '0') * 10000000;
-        case 7: 
+        case 7:
           num += (ch[off++] - '0') * 1000000;
-        case 6: 
+        case 6:
           num += (ch[off++] - '0') * 100000;
-        case 5: 
+        case 5:
           num += (ch[off++] - '0') * 10000;
-        case 4: 
+        case 4:
           num += (ch[off++] - '0') * 1000;
-        case 3: 
+        case 3:
           num += (ch[off++] - '0') * 100;
-        case 2: 
+        case 2:
           num += (ch[off] - '0') * 10;
         }
         return num;
@@ -152,7 +152,7 @@ public final class NumberInput
         long val = parseInt(ch, off, len1) * L_BILLION;
         return val + (long) parseInt(ch, off+len1, 9);
     }
-    
+
     /**
      * Parses an unsigned long made up of exactly 19 digits.
      * <p>
@@ -162,7 +162,7 @@ public final class NumberInput
      * <p>
      * Note that input String must NOT contain leading minus sign (even
      * if {@code negative} is set to true).
-     * 
+     *
      * @param ch Buffer that contains integer value to decode
      * @param off Offset of the first digit character in buffer
      * @param negative Whether original number had a minus sign
@@ -380,7 +380,7 @@ public final class NumberInput
     public static double parseDouble(final String s) throws NumberFormatException {
         return parseDouble(s, false);
     }
-    
+
     /**
      * @param s a string representing a number to parse
      * @param useFastParser whether to use {@code FastDoubleParser}

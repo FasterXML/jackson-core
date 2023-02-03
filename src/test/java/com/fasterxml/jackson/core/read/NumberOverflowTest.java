@@ -81,7 +81,7 @@ public class NumberOverflowTest
                 p.close();
             }
         }
-    }    
+    }
 
     // [jackson-core#488]
     public void testMaliciousIntOverflow() throws Exception
@@ -101,7 +101,7 @@ public class NumberOverflowTest
                 p.close();
             }
         }
-    }    
+    }
 
     // [jackson-core#488]
     public void testMaliciousBigIntToDouble() throws Exception
@@ -116,7 +116,7 @@ public class NumberOverflowTest
             assertToken(JsonToken.END_ARRAY, p.nextToken());
             p.close();
         }
-    }    
+    }
 
     // [jackson-core#488]
     public void testMaliciousBigIntToFloat() throws Exception

@@ -19,7 +19,7 @@ abstract class ManualPerfTestBase
         final int WARMUP_ROUNDS = 5;
 
         final long[] times = new long[TYPES];
-        
+
         while (true) {
             try {  Thread.sleep(100L); } catch (InterruptedException ie) { }
             int round = (i++ % TYPES);
@@ -28,7 +28,7 @@ abstract class ManualPerfTestBase
             boolean lf = (round == 0);
 
             long msecs;
-            
+
             switch (round) {
             case 0:
                 msg = desc1;
@@ -46,7 +46,7 @@ abstract class ManualPerfTestBase
             if (roundsDone >= WARMUP_ROUNDS) {
                 times[round] += msecs;
             }
-            
+
             System.out.printf("Test '%s' [hash: 0x%s] -> %d msecs\n", msg, this.hash, msecs);
             if (lf) {
                 ++roundsDone;
@@ -55,7 +55,7 @@ abstract class ManualPerfTestBase
                     System.out.printf("Averages after %d rounds ("+desc1+" / "+desc2+"): %.1f / %.1f msecs\n",
                             (int) den,
                             times[0] / den, times[1] / den);
-                            
+
                 }
                 System.out.println();
             }
@@ -79,7 +79,7 @@ abstract class ManualPerfTestBase
         testRead2(reps);
         return System.currentTimeMillis() - start;
     }
-    
+
     protected abstract void testRead1(int reps) throws Exception;
 
     protected abstract void testRead2(int reps) throws Exception;

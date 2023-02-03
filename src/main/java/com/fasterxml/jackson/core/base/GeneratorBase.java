@@ -25,7 +25,7 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * Set of feature masks related to features that need updates of other
      * local configuration or state.
-     * 
+     *
      * @since 2.5
      */
     @SuppressWarnings("deprecation")
@@ -49,7 +49,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * in "plain" (non-engineering) notation; intent is to prevent asymmetric
      * attack whereupon simple eng-notation with big scale is used to generate
      * huge "plain" serialization. See [core#315] for details.
-     * 
+     *
      * @since 2.7.7
      */
     protected final static int MAX_BIG_DECIMAL_SCALE = 9999;
@@ -257,7 +257,7 @@ public abstract class GeneratorBase extends JsonGenerator
         }
         return setPrettyPrinter(_constructDefaultPrettyPrinter());
     }
-    
+
     @Override public JsonGenerator setCodec(ObjectCodec oc) {
         _objectCodec = oc;
         return this;
@@ -432,7 +432,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * Method called before trying to write a value (scalar or structured),
      * to verify that this is legal in current output state, as well as to
      * output separators if and as necessary.
-     * 
+     *
      * @param typeMsg Additional message used for generating exception message
      *   if value output is NOT legal in current generator output state.
      *

@@ -13,7 +13,7 @@ public enum MatchStrength
      * Value that indicates that given data can not be in given format.
      */
     NO_MATCH,
-    
+
     /**
      * Value that indicates that detector can not find out whether could
      * be a match or not.
@@ -35,7 +35,7 @@ public enum MatchStrength
      * non-standard JSON usage).
      */
     WEAK_MATCH,
-    
+
     /**
      * Value that indicates that given data conforms to (one of) canonical form(s) of
      * the data format.

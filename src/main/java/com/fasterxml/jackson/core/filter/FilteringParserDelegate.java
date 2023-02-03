@@ -15,7 +15,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * Specialized {@link JsonParserDelegate} that allows use of
  * {@link TokenFilter} for outputting a subset of content that
  * is visible to caller
- * 
+ *
  * @since 2.6
  */
 public class FilteringParserDelegate extends JsonParserDelegate
@@ -25,7 +25,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /* Configuration
     /**********************************************************
      */
-    
+
     /**
      * Object consulted to determine whether to write parts of content generator
      * is asked to write or not.
@@ -67,7 +67,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * effect when {@link #clearCurrentToken} was called.
      */
     protected JsonToken _lastClearedToken;
-    
+
     /**
      * During traversal this is the actual "open" parse tree, which sometimes
      * is the same as {@link #_exposedContext}, and at other times is ahead
@@ -88,7 +88,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * property, and also used for array elements.
      */
     protected TokenFilter _itemFilter;
-    
+
     /**
      * Number of tokens for which {@link TokenFilter#INCLUDE_ALL}
      * has been returned.
@@ -174,7 +174,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public final boolean hasToken(JsonToken t) {
         return (_currToken == t);
     }
-    
+
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
 
@@ -244,7 +244,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         // 23-May-2017, tatu: To be honest, code here is rather hairy and I don't like all
         //    conditionals; and it seems odd to return `null` but NOT considering input
         //    as closed... would love a rewrite to simplify/clear up logic here.
-        
+
         // Check for _allowMultipleMatches - false and at least there is one token - which is _currToken
         // check for no buffered context _exposedContext - null
         // If all the conditions matches then check for scalar / non-scalar property
@@ -314,7 +314,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
         // otherwise... to include or not?
         TokenFilter f;
-        
+
         switch (t.id()) {
         case ID_START_ARRAY:
             f = _itemFilter;
@@ -920,7 +920,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Public API, access to token information, text
@@ -971,13 +971,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /* Public API, access to token information, numeric
     /**********************************************************
      */
-    
+
     @Override
     public BigInteger getBigIntegerValue() throws IOException { return delegate.getBigIntegerValue(); }
 
     @Override
     public boolean getBooleanValue() throws IOException { return delegate.getBooleanValue(); }
-    
+
     @Override
     public byte getByteValue() throws IOException { return delegate.getByteValue(); }
 
@@ -1010,7 +1010,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /* Public API, access to token information, coercion/conversion
     /**********************************************************
      */
-    
+
     @Override public int getValueAsInt() throws IOException { return delegate.getValueAsInt(); }
     @Override public int getValueAsInt(int defaultValue) throws IOException { return delegate.getValueAsInt(defaultValue); }
     @Override public long getValueAsLong() throws IOException { return delegate.getValueAsLong(); }

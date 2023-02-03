@@ -55,7 +55,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
             symbols.addName(name, quads, quads.length);
         }
         p.close();
-        
+
         assertEquals(13, symbols.size());
         assertEquals(12, symbols.primaryCount()); // 80% primary hit rate
         assertEquals(1, symbols.secondaryCount()); // 13% secondary
@@ -81,7 +81,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
             symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(name));
         }
         p.close();
-        
+
         assertEquals(13, symbols.size());
         assertEquals(13, symbols.size());
         assertEquals(64, symbols.bucketCount());

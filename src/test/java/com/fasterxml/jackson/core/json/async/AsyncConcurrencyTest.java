@@ -103,7 +103,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
             _testConcurrentAsyncOnce(i, MAX_ROUNDS);
         }
     }
-    
+
     void _testConcurrentAsyncOnce(final int round, final int maxRounds) throws Exception
     {
         final int numThreads = 3;
@@ -140,7 +140,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
                     }
                     return null;
                 }
-                
+
             };
             futures.add(executor.submit(c));
         }

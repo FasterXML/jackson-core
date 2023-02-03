@@ -21,7 +21,7 @@ public class JsonEOFException extends JsonParseException
      * to recognize type (such as starting double-quote for Strings)
      */
     protected final JsonToken _token;
-    
+
     public JsonEOFException(JsonParser p, JsonToken token, String msg) {
         super(p, msg);
         _token = token;

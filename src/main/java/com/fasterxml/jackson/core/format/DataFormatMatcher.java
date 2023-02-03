@@ -23,7 +23,7 @@ public class DataFormatMatcher
      * Pointer to the first byte in buffer available for reading
      */
     protected final int _bufferedStart;
-    
+
     /**
      * Number of bytes available in buffer.
      */
@@ -38,7 +38,7 @@ public class DataFormatMatcher
      * Strength of match with {@link #_match}
      */
     protected final MatchStrength _matchStrength;
-    
+
     protected DataFormatMatcher(InputStream in, byte[] buffered,
             int bufferedStart, int bufferedLength,
             JsonFactory match, MatchStrength strength)
@@ -101,13 +101,13 @@ public class DataFormatMatcher
     public String getMatchedFormatName() {
         return hasMatch() ? getMatch().getFormatName() : null;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, factory methods
     /**********************************************************
      */
-    
+
     // Convenience method for trying to construct a {@link JsonParser} for
     // parsing content which is assumed to be in detected data format.
     // If no match was found, returns null.
@@ -120,7 +120,7 @@ public class DataFormatMatcher
         }
         return _match.createParser(getDataStream());
     }
-    
+
     /**
      * Method to use for accessing input for which format detection has been done.
      * This <b>must</b> be used instead of using stream passed to detector

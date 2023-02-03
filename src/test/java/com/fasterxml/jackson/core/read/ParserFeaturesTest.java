@@ -29,7 +29,7 @@ public class ParserFeaturesTest
         assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES));
         assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_SINGLE_QUOTES));
     }
-    
+
     public void testQuotesRequired() throws Exception
     {
         _testQuotesRequired(false);
@@ -47,7 +47,7 @@ public class ParserFeaturesTest
         _testTabsEnabled(false);
         _testTabsEnabled(true);
     }
-    
+
     /*
     /****************************************************************
     /* Secondary test methods

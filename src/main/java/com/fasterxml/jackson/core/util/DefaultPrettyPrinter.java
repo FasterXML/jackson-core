@@ -25,7 +25,7 @@ public class DefaultPrettyPrinter
     /**
      * Constant that specifies default "root-level" separator to use between
      * root values: a single space character.
-     * 
+     *
      * @since 2.1
      */
     public final static SerializedString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(" ");
@@ -127,7 +127,7 @@ public class DefaultPrettyPrinter
         _rootSeparator = rootSeparator;
         withSeparators(DEFAULT_SEPARATORS);
     }
-    
+
     public DefaultPrettyPrinter(DefaultPrettyPrinter base) {
         this(base, base._rootSeparator);
     }

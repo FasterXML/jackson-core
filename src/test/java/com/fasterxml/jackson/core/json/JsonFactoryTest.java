@@ -111,7 +111,7 @@ public class JsonFactoryTest
      */
 
     final JsonFactory JSON_F = sharedStreamFactory();
-    
+
     @SuppressWarnings("deprecation")
     public void testGeneratorFeatures() throws Exception
     {
@@ -177,7 +177,7 @@ public class JsonFactoryTest
             gen.close();
             assertEquals("{}", w.toString());
         }
-    
+
         for (int i = 0; i < 3; ++i) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             JsonGenerator gen = f.createGenerator(bytes);
@@ -207,7 +207,7 @@ public class JsonFactoryTest
     {
         File file = File.createTempFile("jackson-test", null);
         file.deleteOnExit();
-        
+
         JsonFactory f = new JsonFactory();
 
         // First: create file via generator.. and use an odd encoding

@@ -60,7 +60,7 @@ public class ParserDupHandlingTest
             _testSimpleDupsFail(doc, nonDupF, MODE_DATA_INPUT, "a", true);
         }
     }
-    
+
     public void testSimpleDupsChars() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
@@ -71,7 +71,7 @@ public class ParserDupHandlingTest
             _testSimpleDupsFail(doc, nonDupF, MODE_READER, "a", true);
         }
     }
-    
+
     private void _testSimpleDupsOk(final String doc, JsonFactory f,
             int mode) throws Exception
     {

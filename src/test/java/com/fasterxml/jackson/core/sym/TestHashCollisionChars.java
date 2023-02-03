@@ -37,7 +37,7 @@ public class TestHashCollisionChars
     {
         StringBuilder sb = new StringBuilder();
         List<String> coll = collisions();
-        
+
         for (String field : coll) {
             if (sb.length() == 0) {
                 sb.append("{");
@@ -87,9 +87,9 @@ public class TestHashCollisionChars
     static List<String> collisions() {
         // we'll get 6^4, which is bit over 1k
         ArrayList<String> result = new ArrayList<String>(36 * 36);
-        
+
         final String[] FRAGMENTS = MULT_COLLISION_FRAGMENTS;
-        
+
         for (String str1 : FRAGMENTS) {
             for (String str2 : FRAGMENTS) {
                 for (String str3 : FRAGMENTS) {
@@ -107,7 +107,7 @@ public class TestHashCollisionChars
     /* Helper class(es)
     /**********************************************************
      */
-    
+
     /**
      * Helper class to use for generating substrings to use for substring
      * substitution collisions.
@@ -124,7 +124,7 @@ public class TestHashCollisionChars
           int p0 = MULT * MULT;
 
           // Generate chars in printable ASCII range
-          
+
           final char minChar = (char) 32;
 //        final char maxChar = (char) 127;
         final char maxChar = (char) 127;
@@ -133,7 +133,7 @@ public class TestHashCollisionChars
           int h1 = h0 - c0 * p0;
           for (char c1 = minChar; c1 <= maxChar && c1 <= h1 / p1; c1++) {
             int h2 = h1 - c1 * p1;
-            
+
             if (h2 < minChar || h2 > maxChar) {
                 continue;
             }

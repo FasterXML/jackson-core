@@ -75,7 +75,7 @@ public abstract class StreamReadException
      * @return This exception instance to allow call chaining
      */
     public abstract StreamReadException withRequestPayload(RequestPayload payload);
-    
+
     @Override
     public JsonParser getProcessor() {
         return _processor;
@@ -94,7 +94,7 @@ public abstract class StreamReadException
     /**
      * The method returns the String representation of the request payload if
      * one was specified for parser that threw this Exception.
-     * 
+     *
      * @return request body as String, if payload was specified; `null` otherwise
      */
     public String getRequestPayloadAsString() {
@@ -104,7 +104,7 @@ public abstract class StreamReadException
     /**
      * Overriding the getMessage() to include the request body
      */
-    @Override 
+    @Override
     public String getMessage() {
         String msg = super.getMessage();
         if (_requestPayload != null) {

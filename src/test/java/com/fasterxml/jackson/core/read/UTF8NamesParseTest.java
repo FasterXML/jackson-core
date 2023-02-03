@@ -78,7 +78,7 @@ public class UTF8NamesParseTest
 
             assertTrue(p.hasToken(JsonToken.FIELD_NAME));
             assertTrue(p.hasTokenId(JsonTokenId.ID_FIELD_NAME));
-            
+
             assertEquals(NAME, p.getCurrentName());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertTrue(p.hasToken(JsonToken.VALUE_NUMBER_INT));
@@ -86,7 +86,7 @@ public class UTF8NamesParseTest
 
             // should retain name during value entry, too
             assertEquals(NAME, p.getCurrentName());
-            
+
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             p.close();
         }
@@ -109,14 +109,14 @@ public class UTF8NamesParseTest
 
             JsonParser p = createParser(mode, DOC);
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            
+
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
             assertEquals(NAME, p.getCurrentName());
             assertToken(JsonToken.VALUE_TRUE, p.nextToken());
             assertEquals(NAME, p.getCurrentName());
-            
+
             assertToken(JsonToken.END_OBJECT, p.nextToken());
-            
+
             p.close();
         }
     }
@@ -129,7 +129,7 @@ public class UTF8NamesParseTest
         _testUtf8StringTrivial(MODE_DATA_INPUT);
         _testUtf8StringTrivial(MODE_INPUT_STREAM_THROTTLED);
     }
-    
+
     public void _testUtf8StringTrivial(int mode) throws Exception
     {
         String[] VALUES = UTF8_2BYTE_STRINGS;
@@ -232,7 +232,7 @@ public class UTF8NamesParseTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(42, p.getIntValue());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        
+
         p.close();
     }
 

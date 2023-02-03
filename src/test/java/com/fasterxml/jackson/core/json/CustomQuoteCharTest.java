@@ -23,7 +23,7 @@ public class CustomQuoteCharTest
             verifyException(e, "Can only use Unicode characters up to 0x7F");
         }
     }
-    
+
     public void testBasicAposWithCharBased() throws Exception
     {
         StringWriter w;
@@ -105,7 +105,7 @@ public class CustomQuoteCharTest
         g.close();
         assertEquals("['It\\u0027s a sin']", out.toString("UTF-8"));
     }
-    
+
     private void _writeObject(JsonGenerator g, String key, String value) throws Exception {
         g.writeStartObject();
         g.writeStringField(key, value);

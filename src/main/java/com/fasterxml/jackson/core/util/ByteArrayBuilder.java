@@ -29,10 +29,10 @@ import java.util.*;
 public final class ByteArrayBuilder extends OutputStream
 {
     public final static byte[] NO_BYTES = new byte[0];
-    
+
     // Size of the first block we will allocate.
     private final static int INITIAL_BLOCK_SIZE = 500;
-    
+
     // Maximum block size we will use for individual non-aggregated blocks.
     // For 2.10, let's limit to using 128k chunks (was 256k up to 2.9)
     private final static int MAX_BLOCK_SIZE = (1 << 17);
@@ -42,7 +42,7 @@ public final class ByteArrayBuilder extends OutputStream
     // Optional buffer recycler instance that we can use for allocating the first block.
     private final BufferRecycler _bufferRecycler;
     private final LinkedList<byte[]> _pastBlocks = new LinkedList<byte[]>();
-    
+
     // Number of bytes within byte arrays in {@link _pastBlocks}.
     private int _pastLen;
     private byte[] _currBlock;
@@ -71,7 +71,7 @@ public final class ByteArrayBuilder extends OutputStream
     public static ByteArrayBuilder fromInitial(byte[] initialBlock, int length) {
         return new ByteArrayBuilder(null, initialBlock, length);
     }
-    
+
     public void reset() {
         _pastLen = 0;
         _currBlockPtr = 0;
@@ -146,7 +146,7 @@ public final class ByteArrayBuilder extends OutputStream
             append(b32);
         }
     }
-    
+
     /**
      * Method called when results are finalized and we can get the
      * full aggregated result buffer to return to the caller
@@ -156,7 +156,7 @@ public final class ByteArrayBuilder extends OutputStream
     public byte[] toByteArray()
     {
         int totalLen = _pastLen + _currBlockPtr;
-        
+
         if (totalLen == 0) { // quick check: nothing aggregated?
             return NO_BYTES;
         }
@@ -212,10 +212,10 @@ public final class ByteArrayBuilder extends OutputStream
     /**
      * Method that will complete "manual" output process, coalesce
      * content (if necessary) and return results as a contiguous buffer.
-     * 
+     *
      * @param lastBlockLength Amount of content in the current segment
      * buffer.
-     * 
+     *
      * @return Coalesced contents
      */
     public byte[] completeAndCoalesce(int lastBlockLength) {
@@ -274,7 +274,7 @@ public final class ByteArrayBuilder extends OutputStream
         final int newPastLen = _pastLen + _currBlock.length;
 
         // 13-Feb-2016, tatu: As per [core#351] let's try to catch problem earlier;
-        //     for now we are strongly limited by 2GB limit of Java arrays        
+        //     for now we are strongly limited by 2GB limit of Java arrays
         if (newPastLen < 0) {
             throw new IllegalStateException("Maximum Java array size (2GB) exceeded by `ByteArrayBuilder`");
         }

@@ -120,7 +120,7 @@ public abstract class JsonStreamContext
 
     /**
      * @return Type description String
-     * 
+     *
      * @deprecated Since 2.8 use {@link #typeDesc} instead
      */
     @Deprecated // since 2.8
@@ -137,7 +137,7 @@ public abstract class JsonStreamContext
      * Method for accessing simple type description of current context;
      * either ROOT (for root-level values), OBJECT (for field names and
      * values of JSON Objects) or ARRAY (for values of JSON Arrays)
-     * 
+     *
      * @return Type description String
      *
      * @since 2.8
@@ -199,7 +199,7 @@ public abstract class JsonStreamContext
         }
         return false;
     }
-    
+
     /**
      * Method for accessing name associated with the current location.
      * Non-null for <code>FIELD_NAME</code> and value events that directly
@@ -226,9 +226,9 @@ public abstract class JsonStreamContext
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
-     * 
+     *
      * @return Currently active value, if one has been assigned.
-     * 
+     *
      * @since 2.5
      */
     public Object getCurrentValue() {
@@ -310,7 +310,7 @@ public abstract class JsonStreamContext
      *
      * @return Simple developer-readable description this context layer
      *   (note: NOT constructed with parents, unlike {@link #pathAsPointer})
-     * 
+     *
      * @since 2.9
      */
     @Override

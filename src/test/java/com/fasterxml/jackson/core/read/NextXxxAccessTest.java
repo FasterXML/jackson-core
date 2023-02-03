@@ -27,8 +27,8 @@ public class NextXxxAccessTest
         _testIsNextTokenName2(MODE_INPUT_STREAM_THROTTLED);
         _testIsNextTokenName2(MODE_DATA_INPUT);
         _testIsNextTokenName2(MODE_READER);
-    }        
-    
+    }
+
     public void testIsNextTokenName3() throws Exception {
         _testIsNextTokenName3(MODE_INPUT_STREAM);
         _testIsNextTokenName3(MODE_INPUT_STREAM_THROTTLED);
@@ -49,7 +49,7 @@ public class NextXxxAccessTest
         _testIsNextTokenName5(MODE_DATA_INPUT);
         _testIsNextTokenName5(MODE_READER);
     }
-    
+
     // [jackson-core#34]
     public void testIssue34() throws Exception
     {
@@ -84,7 +84,7 @@ public class NextXxxAccessTest
         _testNextFieldNameIndent(MODE_DATA_INPUT);
         _testNextFieldNameIndent(MODE_READER);
     }
-    
+
     public void testNextTextValue() throws Exception
     {
         _textNextText(MODE_INPUT_STREAM);
@@ -116,7 +116,7 @@ public class NextXxxAccessTest
         _textNextBoolean(MODE_DATA_INPUT);
         _textNextBoolean(MODE_READER);
     }
-    
+
     /*
     /********************************************************
     /* Actual test code
@@ -302,7 +302,7 @@ public class NextXxxAccessTest
         }
         p.close();
     }
-    
+
     private void _testNextFieldNameIndent(int mode) throws Exception
     {
         final String DOC = "{\n  \"name\" : \n  [\n  ]\n   }";
@@ -337,13 +337,13 @@ public class NextXxxAccessTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
 
         assertEquals("c", p.nextFieldName());
-        
+
         assertNull(p.nextTextValue());
         assertToken(JsonToken.START_ARRAY, p.currentToken());
         assertNull(p.nextTextValue());
         assertToken(JsonToken.VALUE_FALSE, p.currentToken());
         assertEquals("foo", p.nextTextValue());
-        
+
         assertNull(p.nextTextValue());
         assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertNull(p.nextTextValue());
@@ -373,13 +373,13 @@ public class NextXxxAccessTest
         assertEquals(5, p.nextIntValue(0));
 
         assertEquals("c", p.nextFieldName());
-        
+
         assertEquals(0, p.nextIntValue(0));
         assertToken(JsonToken.START_ARRAY, p.currentToken());
         assertEquals(0, p.nextIntValue(0));
         assertToken(JsonToken.VALUE_FALSE, p.currentToken());
         assertEquals(456, p.nextIntValue(0));
-        
+
         assertEquals(0, p.nextIntValue(0));
         assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertEquals(0, p.nextIntValue(0));
@@ -409,13 +409,13 @@ public class NextXxxAccessTest
         assertEquals(-59L, p.nextLongValue(0L));
 
         assertEquals("c", p.nextFieldName());
-        
+
         assertEquals(0L, p.nextLongValue(0L));
         assertToken(JsonToken.START_ARRAY, p.currentToken());
         assertEquals(0L, p.nextLongValue(0L));
         assertToken(JsonToken.VALUE_FALSE, p.currentToken());
         assertEquals(-1L, p.nextLongValue(0L));
-        
+
         assertEquals(0L, p.nextLongValue(0L));
         assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertEquals(0L, p.nextLongValue(0L));
@@ -445,14 +445,14 @@ public class NextXxxAccessTest
         assertEquals(Boolean.TRUE, p.nextBooleanValue());
 
         assertEquals("c", p.nextFieldName());
-        
+
         assertNull(p.nextBooleanValue());
         assertToken(JsonToken.START_ARRAY, p.currentToken());
         assertEquals(Boolean.FALSE, p.nextBooleanValue());
         assertNull(p.nextBooleanValue());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(0, p.getIntValue());
-        
+
         assertNull(p.nextBooleanValue());
         assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertNull(p.nextBooleanValue());
@@ -463,7 +463,7 @@ public class NextXxxAccessTest
         }
         p.close();
     }
-    
+
     private void _testIssue34(int mode) throws Exception
     {
         final int TESTROUNDS = 223;
@@ -534,7 +534,7 @@ public class NextXxxAccessTest
         }
         sb.append("}");
         final String DOC = sb.toString();
-    
+
         JsonParser parser = createParser(mode, DOC);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
         rnd = new Random(1);

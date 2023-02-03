@@ -42,7 +42,7 @@ public class JsonGenerationException
         super(msg, g);
         _processor = g;
     }
-    
+
     // @since 2.7
     public JsonGenerationException(String msg, Throwable rootCause, JsonGenerator g) {
         super(msg, rootCause, g);

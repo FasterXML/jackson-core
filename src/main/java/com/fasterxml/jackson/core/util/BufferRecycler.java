@@ -115,7 +115,7 @@ public class BufferRecycler
     /* Public API, byte buffers
     /**********************************************************
      */
-    
+
     /**
      * @param ix One of <code>READ_IO_BUFFER</code> constants.
      *
@@ -146,7 +146,7 @@ public class BufferRecycler
     /* Public API, char buffers
     /**********************************************************
      */
-    
+
     public final char[] allocCharBuffer(int ix) {
         return allocCharBuffer(ix, 0);
     }

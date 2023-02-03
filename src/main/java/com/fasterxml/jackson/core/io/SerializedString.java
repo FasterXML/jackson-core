@@ -20,7 +20,7 @@ public class SerializedString
     private static final long serialVersionUID = 1L;
 
     private static final JsonStringEncoder JSON_ENCODER = JsonStringEncoder.getInstance();
-    
+
     protected final String _value;
 
     /* 13-Dec-2010, tatu: Whether use volatile or not is actually an important
@@ -41,7 +41,7 @@ public class SerializedString
      *   area, or anything pointing to it. So I think we are safe up to JDK7
      *   and hopefully beyond.
      */
-    
+
     protected /*volatile*/ byte[] _quotedUTF8Ref;
 
     protected /*volatile*/ byte[] _unquotedUTF8Ref;
@@ -54,7 +54,7 @@ public class SerializedString
         }
         _value = v;
     }
-    
+
     /*
     /**********************************************************
     /* Serializable overrides
@@ -64,7 +64,7 @@ public class SerializedString
     /**
      * Ugly hack, to work through the requirement that _value is indeed final,
      * and that JDK serialization won't call ctor(s).
-     * 
+     *
      * @since 2.1
      */
     protected transient String _jdkSerializeValue;
@@ -89,7 +89,7 @@ public class SerializedString
 
     @Override
     public final String getValue() { return _value; }
-    
+
     /**
      * Returns length of the String as characters
      */
@@ -253,7 +253,7 @@ public class SerializedString
 
     @Override
     public final String toString() { return _value; }
-    
+
     @Override
     public final int hashCode() { return _value.hashCode(); }
 

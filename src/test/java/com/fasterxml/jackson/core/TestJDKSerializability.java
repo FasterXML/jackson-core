@@ -88,7 +88,7 @@ public class TestJDKSerializability extends BaseTest
         byte[] stuff = jdkSerialize(loc);
         JsonLocation loc2 = jdkDeserialize(stuff);
         assertNotNull(loc2);
-        
+
         assertEquals(loc.getLineNr(), loc2.getLineNr());
         assertEquals(loc.getColumnNr(), loc2.getColumnNr());
         jp.close();
@@ -97,7 +97,7 @@ public class TestJDKSerializability extends BaseTest
     public void testSourceReference() throws Exception
     {
         ContentReference ref = ContentReference.construct(true, "text");
-        
+
         byte[] stuff = jdkSerialize(ref);
         ContentReference ref2 = jdkDeserialize(stuff);
         assertNotNull(ref2);
@@ -197,7 +197,7 @@ public class TestJDKSerializability extends BaseTest
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected byte[] jdkSerialize(Object o) throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(1000);
@@ -235,7 +235,7 @@ public class TestJDKSerializability extends BaseTest
         _copyJson(f, json, jg);
         return sw.toString();
     }
-        
+
     protected void _copyJson(JsonFactory f, String json, JsonGenerator g) throws IOException
     {
         JsonParser p = f.createParser(json);

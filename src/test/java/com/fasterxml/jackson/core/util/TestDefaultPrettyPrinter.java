@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
 public class TestDefaultPrettyPrinter extends BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
-    
+
     public void testSystemLinefeed() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter();
@@ -129,7 +129,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         // no root separator, nor array, object
         assertEquals("1[2]{\"a\":3}", sw.toString());
     }
-    
+
     private String _printTestData(PrettyPrinter pp, boolean useBytes) throws IOException
     {
         JsonGenerator gen;

@@ -47,7 +47,7 @@ public class ParserErrorHandlingTest
     /* Helper methods
     /**********************************************************
      */
-    
+
     private void _testInvalidKeywords(int mode) throws Exception
     {
         doTestInvalidKeyword1(mode, "nul");

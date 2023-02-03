@@ -92,7 +92,7 @@ public class PrettyPrinterTest
             assertEquals(EXP, json);
         }
     }
-    
+
     public void testSimpleDocWithDefault() throws Exception
     {
         StringWriter sw = new StringWriter();

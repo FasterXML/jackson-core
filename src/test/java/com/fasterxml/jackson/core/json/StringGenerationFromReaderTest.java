@@ -21,7 +21,7 @@ public class StringGenerationFromReaderTest
     };
 
     private final JsonFactory FACTORY = new JsonFactory();
-    
+
     public void testBasicEscaping() throws Exception
     {
         doTestBasicEscaping();
@@ -101,7 +101,7 @@ public class StringGenerationFromReaderTest
         } while (sb.length() < minLen);
         return sb.toString();
     }
-    
+
     private String generateRandom(int len)
     {
         StringBuilder sb = new StringBuilder(len+1000); // pad for surrogates
@@ -220,7 +220,7 @@ public class StringGenerationFromReaderTest
         gen.writeString(reader, -1);
         gen.writeEndArray();
         gen.close();
-        
+
         gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         gen.writeStartArray();
@@ -257,7 +257,7 @@ public class StringGenerationFromReaderTest
             String act = p.getText();
             String exp = text.substring(offset, offset+act.length());
             if (act.length() != exp.length()) {
-                fail("String segment ["+offset+" - "+(offset+act.length())+"[ differs; exp length "+exp+", actual "+act);                
+                fail("String segment ["+offset+" - "+(offset+act.length())+"[ differs; exp length "+exp+", actual "+act);
             }
             if (!act.equals(exp)) {
                 int i = 0;

@@ -40,7 +40,7 @@ public class TextBuffer
      * For 2.10, let's limit to using 64kc chunks (128 kB) -- was 256kC/512kB up to 2.9
      */
     final static int MAX_SEGMENT_LEN = 0x10000;
-    
+
     /*
     /**********************************************************
     /* Configuration:
@@ -230,7 +230,7 @@ public class TextBuffer
         _currentSegment[0] = ch; // lgtm [java/dereferenced-value-may-be-null]
         _currentSize = _segmentSize = 1;
     }
-    
+
     /**
      * Method called to initialize the buffer with a shared copy of data;
      * this means that buffer will just have pointers to actual data. It
@@ -310,7 +310,7 @@ public class TextBuffer
             clearSegments();
         }
         _currentSize = 0;
-        
+
     }
 
     /**
@@ -450,8 +450,7 @@ public class TextBuffer
                     // But first, let's see if we have just one buffer
                     int segLen = _segmentSize;
                     int currLen = _currentSize;
-                    validateStringLength(_segmentSize + _currentSize);
-                    
+
                     if (segLen == 0) { // yup
                         _resultString = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
                     } else { // no, need to combine
@@ -473,7 +472,7 @@ public class TextBuffer
 
         return _resultString;
     }
- 
+
     public char[] contentsAsArray() {
         char[] result = _resultArray;
         if (result == null) {
@@ -681,7 +680,7 @@ public class TextBuffer
         // Room in current segment?
         char[] curr = _currentSegment;
         int max = curr.length - _currentSize;
-            
+
         if (max >= len) {
             System.arraycopy(c, start, curr, _currentSize, len);
             _currentSize += len;
@@ -816,7 +815,7 @@ public class TextBuffer
         _resultString = str;
         return str;
     }
-    
+
     public char[] finishCurrentSegment() {
         if (_segments == null) {
             _segments = new ArrayList<char[]>();
@@ -865,7 +864,7 @@ public class TextBuffer
      * Method called to expand size of the current segment, to
      * accommodate for more contiguous content. Usually only
      * used when parsing tokens like names if even then.
-     * 
+     *
      * @param minSize Required minimum strength of the current segment
      *
      * @return Expanded current segment
@@ -936,7 +935,7 @@ public class TextBuffer
         _segmentSize += curr.length;
         _currentSize = 0;
         int oldLen = curr.length;
-        
+
         // Let's grow segments by 50% minimum
         int newLen = oldLen + (oldLen >> 1);
         if (newLen < MIN_SEGMENT_LEN) {

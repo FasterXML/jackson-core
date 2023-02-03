@@ -13,7 +13,7 @@ public class ThrottledInputStream extends FilterInputStream
     {
         this(new ByteArrayInputStream(data), maxBytes);
     }
-    
+
     public ThrottledInputStream(InputStream in, int maxBytes)
     {
         super(in);
@@ -24,7 +24,7 @@ public class ThrottledInputStream extends FilterInputStream
     public int read(byte[] buf) throws IOException {
         return read(buf, 0, buf.length);
     }
-    
+
     @Override
     public int read(byte[] buf, int offset, int len) throws IOException {
         return in.read(buf, offset, Math.min(_maxBytes, len));

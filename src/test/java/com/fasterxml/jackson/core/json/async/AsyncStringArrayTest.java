@@ -20,7 +20,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
         }
         LONG_ASCII = sb.toString();
     }
-    
+
     private final JsonFactory JSON_F = new JsonFactory();
 
     public void testShortAsciiStrings() throws IOException

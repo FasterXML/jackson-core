@@ -29,7 +29,7 @@ public class GeneratorFeaturesTest
         assertTrue(g.canWriteFormattedNumbers());
         assertFalse(g.canWriteObjectId());
         assertFalse(g.canWriteTypeId());
-        
+
         g.close();
     }
 
@@ -107,7 +107,7 @@ public class GeneratorFeaturesTest
         assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\",\"12.3\",null,null,null]",
                 _writeNumbers(f, true));
 
-        
+
     }
 
     public void testBigDecimalAsPlain() throws IOException
@@ -167,7 +167,7 @@ public class GeneratorFeaturesTest
         for (boolean useBytes : new boolean[] { false, true } ) {
             for (boolean asString : new boolean[] { false, true } ) {
                 JsonGenerator g;
-                
+
                 if (useBytes) {
                     g = f.createGenerator(new ByteArrayOutputStream());
                 } else {
@@ -217,7 +217,7 @@ public class GeneratorFeaturesTest
         } else {
             g = f.createGenerator(sw);
         }
-    
+
         g.writeStartArray();
         g.writeNumber(1);
         g.writeNumber(2L);
@@ -241,7 +241,7 @@ public class GeneratorFeaturesTest
     public void testFieldNameQuotingEnabled() throws IOException
     {
         // // First, test with default factory, with quoting enabled by default
-        
+
         // First, default, with quotes
         _testFieldNameQuotingEnabled(JSON_F, true, true, "{\"foo\":1}");
         _testFieldNameQuotingEnabled(JSON_F, false, true, "{\"foo\":1}");
@@ -346,7 +346,7 @@ public class GeneratorFeaturesTest
         g.writeNumber(Float.NaN);
         g.writeEndObject();
         g.close();
-	
+
         String result = sw.toString();
         if (quoted) {
             assertEquals("{\"double\":\"NaN\"} {\"float\":\"NaN\"}", result);

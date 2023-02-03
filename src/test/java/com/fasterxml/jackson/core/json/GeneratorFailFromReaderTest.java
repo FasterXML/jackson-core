@@ -23,7 +23,7 @@ public class GeneratorFailFromReaderTest
 
     // [core#177]
     public void testFailOnWritingStringNotFieldNameChars() throws Exception {
-        _testFailOnWritingStringNotFieldName(F, true);        
+        _testFailOnWritingStringNotFieldName(F, true);
     }
 
     public void testFailOnWritingStringFromReaderWithTooFewCharacters() throws Exception {
@@ -35,7 +35,7 @@ public class GeneratorFailFromReaderTest
         _testFailOnWritingStringFromNullReader(F, true);
         _testFailOnWritingStringFromNullReader(F, false);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods
@@ -53,7 +53,7 @@ public class GeneratorFailFromReaderTest
             gen = f.createGenerator(bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
-        
+
         try {
             StringReader reader = new StringReader("a");
             gen.writeString(reader, -1);

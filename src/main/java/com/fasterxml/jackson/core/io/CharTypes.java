@@ -130,7 +130,7 @@ public final class CharTypes
 
     /**
      * Decoding table used for skipping white space and comments.
-     * 
+     *
      * @since 2.3
      */
     protected final static int[] sInputCodesWS;
@@ -151,7 +151,7 @@ public final class CharTypes
         buf['#'] = '#'; // start marker for YAML comments
         sInputCodesWS = buf;
     }
-    
+
     /**
      * Lookup table used for determining which output characters in
      * 7-bit ASCII range need to be quoted.

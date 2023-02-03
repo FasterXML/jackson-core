@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 /**
  * Default linefeed-based indenter, used by {@link DefaultPrettyPrinter} (unless
  * overridden). Uses system-specific linefeeds and 2 spaces for indentation per level.
- * 
+ *
  * @since 2.5
  */
 public class DefaultIndenter
@@ -43,7 +43,7 @@ public class DefaultIndenter
     public DefaultIndenter() {
         this("  ", SYS_LF);
     }
-    
+
     /**
      * Create an indenter which uses the <code>indent</code> string to indent one level
      * and the <code>eol</code> string to separate lines.
@@ -64,7 +64,7 @@ public class DefaultIndenter
 
         this.eol = eol;
     }
-    
+
     public DefaultIndenter withLinefeed(String lf)
     {
         if (lf.equals(eol)) {
@@ -72,7 +72,7 @@ public class DefaultIndenter
         }
         return new DefaultIndenter(getIndent(), lf);
     }
-    
+
     public DefaultIndenter withIndent(String indent)
     {
         if (indent.equals(getIndent())) {
@@ -91,17 +91,17 @@ public class DefaultIndenter
         if (level > 0) { // should we err on negative values (as there's some flaw?)
             level *= charsPerLevel;
             while (level > indents.length) { // unlike to happen but just in case
-                jg.writeRaw(indents, 0, indents.length); 
+                jg.writeRaw(indents, 0, indents.length);
                 level -= indents.length;
             }
             jg.writeRaw(indents, 0, level);
         }
     }
-    
+
     public String getEol() {
         return eol;
     }
-    
+
     public String getIndent() {
         return new String(indents, 0, charsPerLevel);
     }

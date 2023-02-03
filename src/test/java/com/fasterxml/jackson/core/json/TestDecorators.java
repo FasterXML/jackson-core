@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.io.OutputDecorator;
 /**
  * Unit tests to verify that input and output decorators work as
  * expected
- * 
+ *
  * @since 1.8
  */
 @SuppressWarnings("serial")
@@ -62,7 +62,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
             return new StringWriter();
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests

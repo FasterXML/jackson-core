@@ -9,10 +9,10 @@ import com.fasterxml.jackson.core.*;
 public class ManualSmallTokenRead extends ManualPerfTestBase
 {
     protected final JsonFactory _factory;
-    
+
     protected final byte[] _jsonBytes;
     protected final char[] _jsonChars;
-    
+
     private ManualSmallTokenRead(JsonFactory f, String json) throws Exception {
         _factory = f;
         _jsonChars = json.toCharArray();

@@ -101,7 +101,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         @Override
         public <T> T treeToValue(TreeNode n, Class<T> valueType) {
             return null;
-        } 
+        }
     }
 
     static class BogusTree implements TreeNode {
@@ -265,7 +265,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertEquals(NumberType.INT, del.getNumberType());
         assertEquals(Integer.valueOf(1), del.getNumberValue());
         assertNull(del.getEmbeddedObject());
-        
+
         assertToken(JsonToken.VALUE_TRUE, del.nextToken());
         assertTrue(del.getBooleanValue());
         assertEquals(parser.getCurrentLocation(), del.getCurrentLocation());
@@ -285,13 +285,13 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
         assertTrue(del.hasTextCharacters());
         assertEquals("foo", del.getText());
-        
+
         assertToken(JsonToken.END_OBJECT, del.nextToken());
         assertEquals(TOKEN, del.getCurrentValue());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
         assertArrayEquals(new byte[] { 1, 2 }, del.getBinaryValue());
-        
+
         assertToken(JsonToken.END_ARRAY, del.nextToken());
 
         del.close();
@@ -332,7 +332,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         // initial state
         assertNull(del.getSchema());
         assertNull(del.getPrettyPrinter());
-        
+
         del.writeStartArray();
 
         assertEquals(1, del.getOutputBuffered());
@@ -358,11 +358,11 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         del.writeEndArray();
 
         del.writeEndArray();
-        
+
         del.flush();
         del.close();
-        assertTrue(del.isClosed());        
-        assertTrue(g0.isClosed());        
+        assertTrue(del.isClosed());
+        assertTrue(g0.isClosed());
         assertEquals("[13,1,0.5,137,null,false,\"foo\",{},[]]", sw.toString());
 
         g0.close();
@@ -388,7 +388,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
         g0.close();
     }
-    
+
     public void testGeneratorDelegateComments() throws IOException
     {
         StringWriter sw = new StringWriter();
@@ -429,13 +429,13 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
         del.copyCurrentEvent(p);
         g0.writeEndArray();
-        
+
         del.close();
         g0.close();
         p.close();
         assertEquals("[123,false]", sw.toString());
     }
-    
+
     public void testNotDelegateCopyMethods() throws IOException
     {
         JsonParser jp = JSON_F.createParser("[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");

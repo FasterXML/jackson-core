@@ -17,7 +17,7 @@ public class PlaceholderSymbolTableTest extends tools.jackson.core.BaseTest
         assertFalse(placeholder.isCanonicalizing());
 
         final int[] quads = calcQuads("abcd1234efgh5678"); // 4 ints
-        
+
         assertNull(placeholder.findName(quads[0]));
         assertNull(placeholder.findName(quads[0], quads[1]));
         assertNull(placeholder.findName(quads[0], quads[1], quads[2]));
@@ -62,7 +62,7 @@ public class PlaceholderSymbolTableTest extends tools.jackson.core.BaseTest
             verifyException(e, "Cannot add names to Placeholder");
         }
 
-    
+
         // Verify nothing changed about state
         assertEquals(-1, placeholder.size());
         assertFalse(placeholder.isCanonicalizing());

@@ -164,7 +164,7 @@ public class Base64BinaryParsingTest
 
     private void _testFailDueToMissingPadding(String doc, int mode) {
         final String EXP_EXCEPTION_MATCH = "Unexpected end of base64-encoded String: base64 variant 'MIME' expects padding";
-        
+
         // First, without getting text value first:
         JsonParser p = createParser(mode, doc);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -199,7 +199,7 @@ public class Base64BinaryParsingTest
     public void _testBase64Text(int mode)
     {
         // let's actually iterate over sets of encoding modes, lengths
-        
+
         final int[] LENS = { 1, 2, 3, 4, 7, 9, 32, 33, 34, 35 };
         final Base64Variant[] VARIANTS = {
                 Base64Variants.MIME,
@@ -240,7 +240,7 @@ public class Base64BinaryParsingTest
                 if ((len & 1) == 0) {
                     assertNotNull(p.getText());
                 }
-                
+
                 byte[] data = null;
                 try {
                     data = p.getBinaryValue(variant);
@@ -306,7 +306,7 @@ public class Base64BinaryParsingTest
                 p = createParser(jsonFactory, mode, bytes.toByteArray());
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-    
+
             assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("b", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -330,7 +330,7 @@ public class Base64BinaryParsingTest
         final byte[] RESULT_BYTES = RESULT.getBytes(StandardCharsets.US_ASCII);
 
         // And here's what should produce it...
-        String INPUT_STR = 
+        String INPUT_STR =
  "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz"
 +"IHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c3Qgb2Yg"
 +"dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu"

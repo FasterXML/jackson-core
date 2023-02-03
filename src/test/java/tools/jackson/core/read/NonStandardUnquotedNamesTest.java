@@ -67,7 +67,7 @@ public class NonStandardUnquotedNamesTest
         _testNonStandardNameChars(MODE_DATA_INPUT);
         _testNonStandardNameChars(MODE_READER);
     }
-    
+
     private void _testNonStandardNameChars(int mode) throws Exception
     {
         String JSON = "{ @type : \"mytype\", #color : 123, *error* : true, "
@@ -99,7 +99,7 @@ public class NonStandardUnquotedNamesTest
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("me+my", p.getText());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
-    
+
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }

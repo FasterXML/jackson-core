@@ -80,7 +80,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc(JSON), 0);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-            
+
         try {
             p.nextToken();
             fail("Expected an exception for incorrectly closed OBJECT");

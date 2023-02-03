@@ -101,7 +101,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         _formatWriteFeatures &= ~f.getMask();
         return this;
     }
-    
+
     public JsonFactoryBuilder disable(JsonWriteFeature first, JsonWriteFeature... other) {
         _formatWriteFeatures &= ~first.getMask();
         for (JsonWriteFeature f : other) {
@@ -132,7 +132,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
     /**
      * Method that allows overriding String used for separating root-level
      * JSON values (default is single space character)
-     * 
+     *
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
      *
@@ -146,7 +146,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
     /**
      * Method that allows overriding String used for separating root-level
      * JSON values (default is single space character)
-     * 
+     *
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
      *
@@ -168,7 +168,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
      * NOTE! Lowest legal value (aside from marker 0) is 127: for ASCII range, other checks apply
      * and this threshold is ignored. If value between [1, 126] is specified, 127 will be
      * used instead.
-     * 
+     *
      * @param maxNonEscaped Highest character code that is NOT automatically escaped; if
      *    positive value above 0, or 0 to indicate that no automatic escaping is applied
      *    beside from what JSON specification requires (and possible custom escape settings).
@@ -208,7 +208,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
     }
 
     // // // Accessors for JSON-specific settings
-    
+
     public CharacterEscapes characterEscapes() { return _characterEscapes; }
     public SerializableString rootValueSeparator() { return _rootValueSeparator; }
 

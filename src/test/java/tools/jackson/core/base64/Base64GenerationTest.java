@@ -30,7 +30,7 @@ public class Base64GenerationTest
 +"ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="
         ;
 
-    
+
     private final static Base64Variant[] VARIANTS = {
             Base64Variants.MIME,
             Base64Variants.MIME_NO_LINEFEEDS,
@@ -45,7 +45,7 @@ public class Base64GenerationTest
      */
 
     private final JsonFactory JSON_F = new JsonFactory();
-    
+
     public void testStreamingBinaryWrites() throws Exception
     {
         _testStreamingWrites(JSON_F, true);
@@ -62,21 +62,21 @@ public class Base64GenerationTest
 
         JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
         ByteArrayInputStream data = new ByteArrayInputStream(new byte[2000]);
-        gen.writeBinary(data, 1999);       
+        gen.writeBinary(data, 1999);
         gen.close();
 
         final int EXP_LEN = 2670;
-        
+
         assertEquals(EXP_LEN, bytes.size());
 
         // Then char-backed
         StringWriter sw = new StringWriter();
-        
+
         gen = f.createGenerator(ObjectWriteContext.empty(), sw);
         data = new ByteArrayInputStream(new byte[2000]);
-        gen.writeBinary(data, 1999);       
+        gen.writeBinary(data, 1999);
         gen.close();
-        
+
         assertEquals(EXP_LEN, sw.toString().length());
     }
 
@@ -114,7 +114,7 @@ public class Base64GenerationTest
     /* Helper methods
     /**********************************************************
      */
-    
+
     private void _testSimpleBinaryWrite(boolean useCharBased) throws Exception
     {
         /* Let's only test the standard base64 variant; but write
@@ -151,7 +151,7 @@ public class Base64GenerationTest
             gen.close();
 
             JsonParser jp = jf.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(bout.toByteArray()));
-            
+
             // Need to skip other events before binary data:
             switch (i) {
             case 0:
@@ -184,9 +184,9 @@ public class Base64GenerationTest
             for (boolean passLength : new boolean[] { true, false }) {
                 for (int chunkSize : new int[] { 1, 2, 3, 4, 7, 11, 29, 5000 }) {
 //System.err.println(""+variant+", length "+passLength+", chunk "+chunkSize);
-                    
+
                     JsonGenerator jgen;
-                    
+
                     final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                     if (useBytes) {
                         jgen = jf.createGenerator(ObjectWriteContext.empty(), bytes);

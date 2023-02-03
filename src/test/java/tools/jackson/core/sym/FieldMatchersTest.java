@@ -34,7 +34,7 @@ public class FieldMatchersTest extends BaseTest
         _testMatching("a", "b", "c", "d", "E", "f", "G", "h");
         _testMatching("a", "b", null, "d", "E", "f", "G", null);
     }
-        
+
     public void testLargeMatching()
     {
         // And then generate even bigger
@@ -92,7 +92,7 @@ public class FieldMatchersTest extends BaseTest
                 _expectAnyMatch(matcher, names, i, new String(name));
                 _expectAnyMatch(matcher, names, i, name.toLowerCase());
                 _expectAnyMatch(matcher, names, i, name.toUpperCase());
-    
+
                 // but not if different
                 _expectNonMatch(matcher, name+"FOOBAR");
             }
@@ -100,7 +100,7 @@ public class FieldMatchersTest extends BaseTest
     }
 
     private void _expectAnyMatch(PropertyNameMatcher matcher, List<String> names, int index)
-    {     
+    {
         String name = names.get(index);
         if (name != null) {
             _expectAnyMatch(matcher, names, index, name);
@@ -142,7 +142,7 @@ public class FieldMatchersTest extends BaseTest
             }
         }
     }
-    
+
     private List<Named> named(List<String> names) {
         return names.stream().map(Named::fromString)
                 .collect(Collectors.toList());

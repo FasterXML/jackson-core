@@ -56,7 +56,7 @@ public class TestWithTonsaSymbols
             p.close();
         }
     }
-        
+
     private String buildDoc(int len)
     {
         StringBuilder sb = new StringBuilder(len * 12);

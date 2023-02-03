@@ -20,20 +20,20 @@ public class JsonPointerGeneratorFilteringTest extends tools.jackson.core.BaseTe
         _assert(SIMPLE_INPUT, "/c/d/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}", false);
 
         _assert(SIMPLE_INPUT, "/c/d/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}", false);
-        
+
         _assert(SIMPLE_INPUT, "/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'a':1}", false);
         _assert(SIMPLE_INPUT, "/d", Inclusion.INCLUDE_ALL_AND_PATH, "{'d':null}", false);
 
         // and then non-match
         _assert(SIMPLE_INPUT, "/x", Inclusion.INCLUDE_ALL_AND_PATH, "", false);
     }
-    
+
     public void testSimplePropertyWithoutPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.ONLY_INCLUDE_ALL, "{'d':{'a':true}}", false);
         _assert(SIMPLE_INPUT, "/c/d", Inclusion.ONLY_INCLUDE_ALL, "{'a':true}", false);
         _assert(SIMPLE_INPUT, "/c/d/a", Inclusion.ONLY_INCLUDE_ALL, "true", false);
-        
+
         _assert(SIMPLE_INPUT, "/a", Inclusion.ONLY_INCLUDE_ALL, "1", false);
         _assert(SIMPLE_INPUT, "/d", Inclusion.ONLY_INCLUDE_ALL, "null", false);
 
@@ -46,7 +46,7 @@ public class JsonPointerGeneratorFilteringTest extends tools.jackson.core.BaseTe
         _assert(SIMPLE_INPUT, "/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[1,2,3]}", false);
         _assert(SIMPLE_INPUT, "/b/1", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[2]}", false);
         _assert(SIMPLE_INPUT, "/b/2", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[3]}", false);
-        
+
         // and then non-match
         _assert(SIMPLE_INPUT, "/b/8", Inclusion.INCLUDE_ALL_AND_PATH, "", false);
     }
@@ -75,9 +75,9 @@ public class JsonPointerGeneratorFilteringTest extends tools.jackson.core.BaseTe
         _assert("[true,[1,2,[true],3],0]", "/1/2/0", Inclusion.ONLY_INCLUDE_ALL, "true", false);
         _assert("[true,[1,2,[true],3],0]", "/1/3/0", Inclusion.ONLY_INCLUDE_ALL, "", false);
     }
-    
+
 //    final String SIMPLE_INPUT = aposToQuotes("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
-    
+
     public void testArrayElementWithoutPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/b", Inclusion.ONLY_INCLUDE_ALL, "[1,2,3]", false);

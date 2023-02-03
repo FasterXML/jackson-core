@@ -41,7 +41,7 @@ public class SimpleStreamReadContext extends TokenStreamContext
     protected String _currentName;
 
     protected Object _currentValue;
-    
+
     protected int _lineNr;
     protected int _columnNr;
 
@@ -97,7 +97,7 @@ public class SimpleStreamReadContext extends TokenStreamContext
     public static SimpleStreamReadContext createRootContext(DupDetector dups) {
         return createRootContext(1, 0, dups);
     }
-    
+
     public SimpleStreamReadContext createChildArrayContext(int lineNr, int colNr) {
         SimpleStreamReadContext ctxt = _childToRecycle;
         if (ctxt == null) {
@@ -189,7 +189,7 @@ public class SimpleStreamReadContext extends TokenStreamContext
     /**
      * Method called to indicate what the "current" name (Object property name
      * just decoded) is: may also trigger duplicate detection.
-     * 
+     *
      * @param name Name of Object property encountered
      *
      * @throws StreamReadException If there is a duplicate name violation
@@ -209,5 +209,5 @@ public class SimpleStreamReadContext extends TokenStreamContext
             throw new StreamReadException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
                     "Duplicate Object property \""+name+"\"");
         }
-    }    
+    }
 }

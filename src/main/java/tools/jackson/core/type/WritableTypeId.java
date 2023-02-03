@@ -95,7 +95,7 @@ public class WritableTypeId
             return (this == METADATA_PROPERTY) || (this == PAYLOAD_PROPERTY);
         }
     }
-    
+
     /**
      * Java object for which type id is being written. Not needed by default handling,
      * but may be useful for customized format handling.
@@ -152,7 +152,7 @@ public class WritableTypeId
      * to be available on matching "suffix write".
      */
     public Object extra;
-    
+
     public WritableTypeId() { }
 
     /**

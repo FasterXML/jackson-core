@@ -71,7 +71,7 @@ public class NonStandardAposQuotedNamesTest
             verifyException(e, "Unexpected character ('''");
         }
     }
-    
+
     /**
      * Test to verify optional handling of single quotes,
      * to allow handling invalid (but, alas, common) JSON.

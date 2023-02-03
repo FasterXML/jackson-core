@@ -22,7 +22,7 @@ public class BoundsChecksWithGeneratorTest
                     new ByteArrayOutputStream());
         }
     };
-    
+
     private final GeneratorCreator CHAR_GENERATOR_CREATOR = new GeneratorCreator() {
         @Override
         public JsonGenerator create() throws Exception {
@@ -153,7 +153,7 @@ public class BoundsChecksWithGeneratorTest
             g.writeRawValue(data, offset, len);
         }
     };
-    
+
     public void testBoundsWithCharArrayInputFromBytes() throws Exception {
         _testBoundsWithCharArrayInput(BYTE_GENERATOR_CREATOR);
     }
@@ -223,7 +223,7 @@ public class BoundsChecksWithGeneratorTest
             g.writeRawValue(data, offset, len);
         }
     };
-    
+
     public void testBoundsWithStringInputFromBytes() throws Exception {
         _testBoundsWithStringInput(BYTE_GENERATOR_CREATOR);
     }

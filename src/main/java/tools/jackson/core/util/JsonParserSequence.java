@@ -232,7 +232,7 @@ public class JsonParserSequence extends JsonParserDelegate
      * Method that will switch active delegate parser from the current one
      * to the next parser in sequence, if there is another parser left:
      * if so, the next parser will become the active delegate parser.
-     * 
+     *
      * @return True if switch succeeded; false otherwise
      */
     protected boolean switchToNext()

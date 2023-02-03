@@ -46,7 +46,7 @@ public class TestCharEscaping
         }
     }
 
-    
+
     private void _testMissingEscaping(int readMode) throws Exception
     {
         // Invalid: control chars, including lf, must be escaped
@@ -134,7 +134,7 @@ public class TestCharEscaping
 
         }
     }
-    
+
     public void testInvalid() throws Exception {
         for (int mode : ALL_MODES) {
             _testInvalid(mode);

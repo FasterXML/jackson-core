@@ -78,7 +78,7 @@ public class MinimalPrettyPrinter
     {
         g.writeRaw('{');
     }
-    
+
     @Override
     public void beforeObjectEntries(JsonGenerator g) throws JacksonException
     {
@@ -97,7 +97,7 @@ public class MinimalPrettyPrinter
     {
         g.writeRaw(_separators.getObjectNameValueSeparator());
     }
-    
+
     /**
      * Method called after an object entry (field:value) has been completely
      * output, and before another value is to be output.
@@ -116,13 +116,13 @@ public class MinimalPrettyPrinter
     {
         g.writeRaw('}');
     }
-    
+
     @Override
     public void writeStartArray(JsonGenerator g) throws JacksonException
     {
         g.writeRaw('[');
     }
-    
+
     @Override
     public void beforeArrayValues(JsonGenerator g) throws JacksonException
     {
@@ -141,7 +141,7 @@ public class MinimalPrettyPrinter
     {
         g.writeRaw(_separators.getArrayValueSeparator());
     }
-    
+
     @Override
     public void writeEndArray(JsonGenerator g, int nrOfValues) throws JacksonException
     {

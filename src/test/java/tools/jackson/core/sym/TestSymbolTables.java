@@ -29,12 +29,12 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
 
         assertEquals(16384, symbols.bucketCount());
         assertEquals(COUNT, symbols.size());
-        
+
 //System.out.printf("Char stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
-        
+
         // holy guacamoley... there are way too many. 31 gives 3567 (!), 33 gives 2747
         // ... at least before shuffling. Shuffling helps quite a lot, so:
-        
+
         assertEquals(3431, symbols.collisionCount());
 
         assertEquals(6, symbols.maxCollisionLength());
@@ -78,7 +78,7 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
 
         CharsToNameCanonicalizer symbolsCRoot = CharsToNameCanonicalizer.createRoot(SEED);
         int exp = 0;
-        
+
         for (int doc = 0; doc < 100; ++doc) {
             CharsToNameCanonicalizer symbolsC =
                     symbolsCRoot.makeChild(JsonFactory.Feature.collectDefaults());
@@ -113,20 +113,20 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
         int exp = 0;
         ByteQuadsCanonicalizer symbolsB = null;
 
-        // loop to get 
+        // loop to get
         for (int doc = 0; doc < 100; ++doc) {
             symbolsB = symbolsBRoot.makeChild(JsonFactory.Feature.collectDefaults());
             for (int i = 0; i < 250; ++i) {
                 String name = "f_"+doc+"_"+i;
 
                 int[] quads = calcQuads(name.getBytes(utf8));
-                
+
                 symbolsB.addName(name, quads, quads.length);
                 String n = symbolsB.findName(quads, quads.length);
                 assertEquals(name, n);
             }
             symbolsB.release();
-            
+
             exp += 250;
             if (exp > ByteQuadsCanonicalizer.MAX_ENTRIES_FOR_REUSE) {
                 exp = 0;
@@ -142,7 +142,7 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
         assertEquals(299, symbolsB.tertiaryCount()); // 7% tertiary
         assertEquals(0, symbolsB.spilloverCount()); // and couple of leftovers
     }
-    
+
     // And then one more test just for Bytes-based symbol table
     public void testByteBasedSymbolTable() throws Exception
     {
@@ -247,11 +247,11 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
             symbols.addName(id, quads, quads.length);
         }
         assertEquals(COUNT, symbols.size());
-        
+
         assertEquals(16384, symbols.bucketCount());
 
         // fragile, but essential to verify low collision counts;
-        // here bit low primary, 55% 
+        // here bit low primary, 55%
         assertEquals(5402, symbols.primaryCount());
         // secondary higher than usual, above 25%
         assertEquals(2744, symbols.secondaryCount());
@@ -298,12 +298,12 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
         sb.append("}\n");
         return sb.toString();
     }
-    
+
     // [core#191]
     public void testShortQuotedDirectChars() throws IOException
     {
         final int COUNT = 400;
-        
+
         CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1).makeChild(-1);
         for (int i = 0; i < COUNT; ++i) {
             String id = String.format("\\u%04x", i);
@@ -335,7 +335,7 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
         assertEquals(25, symbols.tertiaryCount());
         assertEquals(0, symbols.spilloverCount());
     }
-    
+
     // [core#191]
     public void testShortNameCollisionsDirect() throws IOException
     {
@@ -351,7 +351,7 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
             }
             assertEquals(COUNT, symbols.size());
             assertEquals(1024, symbols.bucketCount());
-    
+
             assertEquals(16, symbols.collisionCount());
             assertEquals(1, symbols.maxCollisionLength());
         }

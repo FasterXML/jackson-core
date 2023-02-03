@@ -45,7 +45,7 @@ public class WriterBasedJsonGenerator
     /* Output buffering
     /**********************************************************************
      */
-    
+
     /**
      * Intermediate buffer in which contents are buffered before
      * being written using {@link #_writer}.
@@ -218,7 +218,7 @@ public class WriterBasedJsonGenerator
         // we know there's room for at least one more char
         _outputBuffer[_outputTail++] = _quoteChar;
         // The beef:
-        
+
         int len = name.appendQuoted(_outputBuffer, _outputTail);
         if (len < 0) {
             _writeNameTail(name);
@@ -294,7 +294,7 @@ public class WriterBasedJsonGenerator
         }
         return this;
     }
-    
+
     @Override
     public JsonGenerator writeEndArray() throws JacksonException
     {
@@ -393,7 +393,7 @@ public class WriterBasedJsonGenerator
 
         if (_cfgUnqNames) {// non-standard, omit quotes
             _writeString(name);
-        } else { 
+        } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
@@ -561,7 +561,7 @@ public class WriterBasedJsonGenerator
         }
         _outputBuffer[_outputTail++] = _quoteChar;
     }
-    
+
     @Override
     public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException {
         // could add support for buffering if we really want it...
@@ -617,7 +617,7 @@ public class WriterBasedJsonGenerator
         if (room >= len) {
             text.getChars(offset, offset+len, _outputBuffer, _outputTail);
             _outputTail += len;
-        } else {            	
+        } else {
             writeRawLong(text.substring(offset, offset+len));
         }
         return this;
@@ -784,7 +784,7 @@ public class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
         _outputTail = NumberOutput.outputInt(s, _outputBuffer, _outputTail);
         _outputBuffer[_outputTail++] = _quoteChar;
-    }    
+    }
 
     @Override
     public JsonGenerator writeNumber(int i) throws JacksonException
@@ -809,7 +809,7 @@ public class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
         _outputTail = NumberOutput.outputInt(i, _outputBuffer, _outputTail);
         _outputBuffer[_outputTail++] = _quoteChar;
-    }    
+    }
 
     @Override
     public JsonGenerator writeNumber(long l) throws JacksonException
@@ -1200,7 +1200,7 @@ public class WriterBasedJsonGenerator
         // First things first: let's flush the buffer to get some more room
         _flushBuffer();
 
-        // Then we can write 
+        // Then we can write
         final int textLen = text.length();
         int offset = 0;
         do {
@@ -1232,7 +1232,7 @@ public class WriterBasedJsonGenerator
     {
         final int[] escCodes = _outputEscapes;
         final int escLen = escCodes.length;
-    
+
         int ptr = 0;
         int start = ptr;
 
@@ -1270,7 +1270,7 @@ public class WriterBasedJsonGenerator
             start = _prependOrWriteCharacterEscape(_outputBuffer, ptr, end, c, escCodes[c]);
         }
     }
-    
+
     /**
      * This method called when the string content is already in
      * a char buffer, and need not be copied for processing.
@@ -1330,7 +1330,7 @@ public class WriterBasedJsonGenerator
             }
             // Nope, need to escape the char.
             char c = text[offset++];
-            _appendCharacterEscape(c, escCodes[c]);          
+            _appendCharacterEscape(c, escCodes[c]);
         }
     }
 
@@ -1352,7 +1352,7 @@ public class WriterBasedJsonGenerator
         final int[] escCodes = _outputEscapes;
         final int escLimit = Math.min(escCodes.length, maxNonEscaped+1);
         int escCode = 0;
-        
+
         output_loop:
         while (_outputTail < end) {
             char c;
@@ -1391,11 +1391,11 @@ public class WriterBasedJsonGenerator
     {
         final int[] escCodes = _outputEscapes;
         final int escLimit = Math.min(escCodes.length, maxNonEscaped+1);
-    
+
         int ptr = 0;
         int escCode = 0;
         int start = ptr;
-    
+
         output_loop:
         while (ptr < end) {
             // Fast loop for chars not needing escaping
@@ -1440,11 +1440,11 @@ public class WriterBasedJsonGenerator
         final int escLimit = Math.min(escCodes.length, maxNonEscaped+1);
 
         int escCode = 0;
-        
+
         while (offset < len) {
             int start = offset;
             char c;
-            
+
             while (true) {
                 c = text[offset];
                 if (c < escLimit) {
@@ -1556,11 +1556,11 @@ public class WriterBasedJsonGenerator
         final int maxNonEscaped = (_maximumNonEscapedChar < 1) ? 0xFFFF : _maximumNonEscapedChar;
         final int escLimit = Math.min(escCodes.length, maxNonEscaped+1);
         final CharacterEscapes customEscapes = _characterEscapes;
-    
+
         int ptr = 0;
         int escCode = 0;
         int start = ptr;
-    
+
         output_loop:
         while (ptr < end) {
             // Fast loop for chars not needing escaping
@@ -1611,11 +1611,11 @@ public class WriterBasedJsonGenerator
         final CharacterEscapes customEscapes = _characterEscapes;
 
         int escCode = 0;
-        
+
         while (offset < len) {
             int start = offset;
             char c;
-            
+
             while (true) {
                 c = text[offset];
                 if (c < escLimit) {
@@ -1636,7 +1636,7 @@ public class WriterBasedJsonGenerator
                     break;
                 }
             }
-    
+
             // Short span? Better just copy it to buffer first:
             int newAmount = offset - start;
             if (newAmount < SHORT_WRITE) {
@@ -1671,7 +1671,7 @@ public class WriterBasedJsonGenerator
     /* Internal methods, low-level writing; binary
     /**********************************************************************
      */
-    
+
     protected final void _writeBinary(Base64Variant b64variant, byte[] input, int inputPtr, final int inputEnd)
         throws JacksonException
     {
@@ -1720,8 +1720,8 @@ public class WriterBasedJsonGenerator
     {
         int inputPtr = 0;
         int inputEnd = 0;
-        int lastFullOffset = -3;       
-        
+        int lastFullOffset = -3;
+
         // Let's also reserve room for possible (and quoted) lf char each round
         int safeOutputEnd = _outputEnd - 6;
         int chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
@@ -1749,7 +1749,7 @@ public class WriterBasedJsonGenerator
                 chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
             }
         }
-        
+
         // And then we may have 1 or 2 leftover bytes to encode
         if (bytesLeft > 0) {
             inputEnd = _readMore(data, readBuffer, inputPtr, inputEnd, bytesLeft);
@@ -1772,7 +1772,7 @@ public class WriterBasedJsonGenerator
         }
         return bytesLeft;
     }
-    
+
     // write method when length is unknown
     protected final int _writeBinary(Base64Variant b64variant,
             InputStream data, byte[] readBuffer)
@@ -1782,7 +1782,7 @@ public class WriterBasedJsonGenerator
         int inputEnd = 0;
         int lastFullOffset = -3;
         int bytesDone = 0;
-        
+
         // Let's also reserve room for possible (and quoted) LF char each round
         int safeOutputEnd = _outputEnd - 6;
         int chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
@@ -1829,7 +1829,7 @@ public class WriterBasedJsonGenerator
         }
         return bytesDone;
     }
-    
+
     private int _readMore(InputStream in,
             byte[] readBuffer, int inputPtr, int inputEnd,
             int maxRead) throws JacksonException
@@ -1842,7 +1842,7 @@ public class WriterBasedJsonGenerator
         inputPtr = 0;
         inputEnd = i;
         maxRead = Math.min(maxRead, readBuffer.length);
-        
+
         do {
             int length = maxRead - inputEnd;
             if (length == 0) {
@@ -1851,7 +1851,7 @@ public class WriterBasedJsonGenerator
             int count;
 
             try {
-                count = in.read(readBuffer, inputEnd, length);            
+                count = in.read(readBuffer, inputEnd, length);
             } catch (IOException e) {
                 throw _wrapIOFailure(e);
             }
@@ -1868,7 +1868,7 @@ public class WriterBasedJsonGenerator
     /* Internal methods, low-level writing, other
     /**********************************************************************
      */
-    
+
     private final void _writeNull() throws JacksonException
     {
         if ((_outputTail + 4) >= _outputEnd) {
@@ -1993,7 +1993,7 @@ public class WriterBasedJsonGenerator
     /**
      * Method called to try to either prepend character escape at front of
      * given buffer; or if not possible, to write it out directly.
-     * 
+     *
      * @return Pointer to start of prepended entity (if prepended); or 'ptr'
      *   if not.
      */
@@ -2148,7 +2148,7 @@ public class WriterBasedJsonGenerator
         escape.getChars(0, len, _outputBuffer, _outputTail);
         _outputTail += len;
     }
-    
+
     private char[] _allocateEntityBuffer()
     {
         char[] buf = new char[14];

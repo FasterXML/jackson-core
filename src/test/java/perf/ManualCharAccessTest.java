@@ -25,7 +25,7 @@ public class ManualCharAccessTest
         SMALL_BYTE_CODES['\\'] = 2;
         SMALL_INT_CODES['\\'] = 2;
     }
-    
+
     protected String generateString(int len)
     {
         int counter = 0;
@@ -44,12 +44,12 @@ public class ManualCharAccessTest
         final String INPUT_STR = generateString(23000);
         final char[] INPUT_CHARS = INPUT_STR.toCharArray();
         final char[] OUTPUT = new char[INPUT_CHARS.length];
-        
+
         // Let's try to guestimate suitable size, N megs of output
         final int REPS = (int) ((double) (80 * 1000 * 1000) / (double) INPUT_CHARS.length);
         System.out.printf("%d bytes to scan, will do %d repetitions\n",
                 INPUT_CHARS.length, REPS);
-        
+
         int i = 0;
         int roundsDone = 0;
         final int TYPES = 3;
@@ -64,7 +64,7 @@ public class ManualCharAccessTest
             boolean lf = (round == 0);
 
             long msecs;
-            
+
             switch (round) {
             case 0:
                 msg = "Read classic";
@@ -85,7 +85,7 @@ public class ManualCharAccessTest
             if (roundsDone >= WARMUP_ROUNDS) {
                 times[round] += msecs;
             }
-            
+
             System.out.printf("Test '%s' [hash: 0x%s] -> %d msecs\n", msg, this.hash, msecs);
             if (lf) {
                 ++roundsDone;
@@ -96,7 +96,7 @@ public class ManualCharAccessTest
                             (int) den
                             ,times[0] / den, times[1] / den, times[2] / den
                             );
-                            
+
                 }
                 System.out.println();
             }
@@ -125,7 +125,7 @@ public class ManualCharAccessTest
                 }
                 if (ch == '\\') {
                     output[outPtr++] = '_';
-                } else if (ch == '\n') { 
+                } else if (ch == '\n') {
                     output[outPtr++] = '_';
                 }
             }
@@ -148,7 +148,7 @@ public class ManualCharAccessTest
                 }
                 if (ch == '\\') {
                     output[outPtr++] = '_';
-                } else if (ch == '\n') { 
+                } else if (ch == '\n') {
                     output[outPtr++] = '_';
                 }
             }
@@ -158,14 +158,14 @@ public class ManualCharAccessTest
     }
 
     final static byte NULL_BYTE = (byte) 0;
-    
+
     private final long readWithInt(int REPS, char[] input, char[] output) throws Exception
     {
         long start = System.currentTimeMillis();
         final int[] codes = INT_CODES;
         while (--REPS >= 0) {
             int outPtr = 0;
-    
+
             for (int i = 0, end = input.length; i < end; ++i) {
                 char ch = input[i];
                 if (codes[ch] == 0) {
@@ -174,7 +174,7 @@ public class ManualCharAccessTest
                 }
                 if (ch == '\\') {
                     output[outPtr++] = '_';
-                } else if (ch == '\n') { 
+                } else if (ch == '\n') {
                     output[outPtr++] = '_';
                 }
             }
@@ -182,7 +182,7 @@ public class ManualCharAccessTest
         long time = System.currentTimeMillis() - start;
         return time;
     }
-    
+
     public static void main(String[] args) throws Exception
     {
         if (args.length != 0) {

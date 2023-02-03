@@ -27,7 +27,7 @@ public class NextNameWithMatcherTest
     private final String DOC_1 = a2q(
             "{ 'a' : 4, 'enabled' : true, 'longerName' : 'Billy-Bob Burger', 'extra' : [ 0], 'otherStuff3' : 0.25 }"
             );
-    
+
     private final String DOC_1_CASE_MISMATCH = a2q(
             "{ 'A' : 4, 'ENABLED' : true, 'LongerName' : 'Billy-Bob Burger', 'extra' : [0 ], 'otherStuff3' : 0.25 }");
 

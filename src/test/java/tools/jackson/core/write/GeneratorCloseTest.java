@@ -134,7 +134,7 @@ public class GeneratorCloseTest extends BaseTest
         g.flush();
         assertEquals(1, sw.flushCount);
         g.close();
-        
+
         // ditto with stream
         ByteOutputStreamForTesting bytes = new ByteOutputStreamForTesting();
         g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);

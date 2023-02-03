@@ -43,7 +43,7 @@ public class ValueConversionsTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(0, p.getValueAsLong());
         assertEquals(9, p.getValueAsLong(9));
-        
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertEquals(0, p.getValueAsLong());
         assertEquals(9, p.getValueAsLong(9));
@@ -86,7 +86,7 @@ public class ValueConversionsTest
         assertEquals(false, p.getValueAsBoolean());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(false, p.getValueAsBoolean());
-        
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertEquals(false, p.getValueAsBoolean());
         assertEquals(true, p.getValueAsBoolean(true));
@@ -100,7 +100,7 @@ public class ValueConversionsTest
             _testAsLong(mode);
         }
     }
-        
+
     public void _testAsLong(int mode) throws Exception
     {
         final String input = "[ 1, -3, 4.98, true, false, null, \"-17\", \"foo\" ]";
@@ -131,7 +131,7 @@ public class ValueConversionsTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(0L, p.getValueAsLong());
         assertEquals(9L, p.getValueAsLong(9L));
-        
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertEquals(0L, p.getValueAsLong());
         assertEquals(9L, p.getValueAsLong(9L));
@@ -176,12 +176,12 @@ public class ValueConversionsTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(0.0, p.getValueAsDouble());
         assertEquals(1.25, p.getValueAsDouble(1.25));
-        
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertEquals(0.0, p.getValueAsDouble());
         assertEquals(7.5, p.getValueAsDouble(7.5));
 
         p.close();
     }
-    
+
 }

@@ -6,7 +6,7 @@ import tools.jackson.core.*;
 public class FloatParsingTest extends BaseTest
 {
     private final byte[] FLOATS_DOC = readResource("/data/floats-755.json");
-    
+
     public void testFloatArrayViaInputStream() throws Exception
     {
         _testFloatArray(MODE_INPUT_STREAM, false);
@@ -47,7 +47,7 @@ public class FloatParsingTest extends BaseTest
         JsonParser p = createParser(jsonF, mode, FLOATS_DOC);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        
+
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(7.038531e-26f, p.getFloatValue());
 
@@ -61,7 +61,7 @@ public class FloatParsingTest extends BaseTest
         assertEquals(7.006492321624086e-46f, p.getFloatValue());
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        
+
         p.close();
     }
 }

@@ -25,7 +25,7 @@ public abstract class ResolvedType
     public abstract boolean hasRawClass(Class<?> clz);
 
     public abstract boolean isAbstract();
-    
+
     public abstract boolean isConcrete();
 
     public abstract boolean isThrowable();
@@ -64,7 +64,7 @@ public abstract class ResolvedType
     /* Public API, type parameter access
     /**********************************************************************
      */
-    
+
     /**
      * Method that can be used to find out if the type directly declares generic
      * parameters (for its direct super-class and/or super-interfaces).
@@ -93,11 +93,11 @@ public abstract class ResolvedType
     /**
      * Method for accessing type of value that instances of this
      * type references, if any.
-     * 
+     *
      * @return Referenced type, if any; {@code null} if not.
      */
     public abstract ResolvedType getReferencedType();
-    
+
     /**
      * Method for checking how many contained types this type
      * has. Contained types are usually generic types, so that
@@ -110,9 +110,9 @@ public abstract class ResolvedType
     /**
      * Method for accessing definitions of contained ("child")
      * types.
-     * 
+     *
      * @param index Index of contained type to return
-     * 
+     *
      * @return Contained type at index, or null if no such type
      *    exists (no exception thrown)
      */

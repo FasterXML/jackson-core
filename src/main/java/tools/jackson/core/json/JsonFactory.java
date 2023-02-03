@@ -320,7 +320,7 @@ public class JsonFactory
 
     public String getRootValueSeparator() {
         return (_rootValueSeparator == null) ? null : _rootValueSeparator.getValue();
-    }    
+    }
 
     /*
     /**********************************************************************

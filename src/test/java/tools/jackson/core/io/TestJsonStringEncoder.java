@@ -49,7 +49,7 @@ public class TestJsonStringEncoder
         char[] result = encoder.quoteAsCharArray(input);
         assertEquals(2*input.length(), result.length);
         assertEquals(exp, new String(result));
-        
+
     }
 
     public void testQuoteLongCharSequenceAsString() throws Exception

@@ -25,7 +25,7 @@ public class StreamWriteFeaturesTest
         assertTrue(g.canOmitProperties());
         assertFalse(g.canWriteObjectId());
         assertFalse(g.canWriteTypeId());
-        
+
         g.close();
     }
 
@@ -182,7 +182,7 @@ public class StreamWriteFeaturesTest
         } else {
             g = f.createGenerator(ObjectWriteContext.empty(), sw);
         }
-    
+
         g.writeStartArray();
         g.writeNumber(1);
         g.writeNumber(2L);
@@ -206,7 +206,7 @@ public class StreamWriteFeaturesTest
     public void testFieldNameQuotingEnabled()
     {
         // // First, test with default factory, with quoting enabled by default
-        
+
         // First, default, with quotes
         _testFieldNameQuotingEnabled(JSON_F, true, true, "{\"foo\":1}");
         _testFieldNameQuotingEnabled(JSON_F, false, true, "{\"foo\":1}");
@@ -293,7 +293,7 @@ public class StreamWriteFeaturesTest
         g.writeNumber(Float.NaN);
         g.writeEndObject();
         g.close();
-	
+
         String result = sw.toString();
         if (quoted) {
             assertEquals("{\"double\":\"NaN\"} {\"float\":\"NaN\"}", result);

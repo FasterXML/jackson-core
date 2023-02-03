@@ -108,7 +108,7 @@ public class UTF32Reader extends Reader
         }
         return _tmpBuf[0];
     }
-    
+
     @Override
     public int read(char[] cbuf, int start, int len) throws IOException
     {
@@ -145,7 +145,7 @@ public class UTF32Reader extends Reader
 
         // 02-Jun-2017, tatu: Must ensure we don't try to read past buffer end:
         final int lastValidInputStart = (_length - 4);
-        
+
         main_loop:
         while ((outPtr < outEnd) && (_ptr <= lastValidInputStart)) {
             int ptr = _ptr;

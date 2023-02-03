@@ -14,7 +14,7 @@ import tools.jackson.core.util.Named;
  * variant of Base64 encoding/decoding is to be used. Although there is
  * somewhat standard basic version (so-called "MIME Base64"), other variants
  * exists, see <a href="http://en.wikipedia.org/wiki/Base64">Base64 Wikipedia entry</a> for details.
- * 
+ *
  * @author Tatu Saloranta
  */
 public final class Base64Variant
@@ -48,7 +48,7 @@ public final class Base64Variant
     }
 
     private final static int INT_SPACE = 0x20;
-    
+
     // We'll only serialize name
     private static final long serialVersionUID = 1L;
 
@@ -368,7 +368,7 @@ public final class Base64Variant
     /**
      * @param c Character to decode
      *
-     * @return 6-bit decoded value, if valid character; 
+     * @return 6-bit decoded value, if valid character;
      */
     public int decodeBase64Char(char c)
     {
@@ -537,12 +537,12 @@ public final class Base64Variant
     /* Convenience conversion methods for String to/from bytes use case
     /**********************************************************
      */
-    
+
     /**
      * Convenience method for converting given byte array as base64 encoded
      * String using this variant's settings.
      * Resulting value is "raw", that is, not enclosed in double-quotes.
-     * 
+     *
      * @param input Byte array to encode
      *
      * @return Base64 encoded String of encoded {@code input} bytes, not surrounded by quotes
@@ -557,7 +557,7 @@ public final class Base64Variant
      * using this variant's settings, optionally enclosed in double-quotes.
      * Linefeeds added, if needed, are expressed as 2-character JSON (and Java source)
      * escape sequence of backslash + `n`.
-     * 
+     *
      * @param input Byte array to encode
      * @param addQuotes Whether to surround resulting value in double quotes or not
      *
@@ -612,7 +612,7 @@ public final class Base64Variant
      * Convenience method for converting given byte array as base64 encoded String
      * using this variant's settings, optionally enclosed in double-quotes.
      * Linefeed character to use is passed explicitly.
-     * 
+     *
      * @param input Byte array to encode
      * @param addQuotes Whether to surround resulting value in double quotes or not
      * @param linefeed Linefeed to use for encoded content
@@ -731,7 +731,7 @@ public final class Base64Variant
             }
             ch = str.charAt(ptr++);
             bits = decodeBase64Char(ch);
-            
+
             // First branch: can get padding (-> 1 byte)
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {

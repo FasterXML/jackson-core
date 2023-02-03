@@ -14,12 +14,12 @@ public class SerializedStringWriteTest
 
     final static String VALUE_WITH_QUOTES = "\"Value\"";
     final static String VALUE2 = _generateLongName(9000);
-    
+
     private final TokenStreamFactory JSON_F = newStreamFactory();
-    
+
     private final SerializedString quotedName = new SerializedString(NAME_WITH_QUOTES);
     private final SerializedString latin1Name = new SerializedString(NAME_WITH_LATIN1);
-    
+
     public void testSimpleFieldNames() throws Exception
     {
         // First using char-backed generator
@@ -82,7 +82,7 @@ public class SerializedStringWriteTest
         gen.writeName(quotedName);
         gen.writeString("d");
         gen.writeEndObject();
-        
+
         gen.writeEndArray();
     }
 
@@ -132,7 +132,7 @@ public class SerializedStringWriteTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("d", p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertNull(p.nextToken());
     }
@@ -162,7 +162,7 @@ public class SerializedStringWriteTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE2, p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertNull(p.nextToken());
     }

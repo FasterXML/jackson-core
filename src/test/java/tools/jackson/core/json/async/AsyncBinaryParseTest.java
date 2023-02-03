@@ -60,12 +60,12 @@ public class AsyncBinaryParseTest extends AsyncTestBase
     /* Helper methods
     /**********************************************************
      */
-    
+
     private void _testBinaryAsRoot2(JsonFactory f, int offset, int readSize) throws IOException
     {
         for (int size : SIZES) {
             byte[] binary = _generateData(size);
-            ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
+            ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);
             JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
             g.writeBinary(binary);
             g.close();
@@ -88,20 +88,20 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             p.close();
         }
     }
-    
+
     private void _testBinaryAsArray2(JsonFactory f, int offset, int readSize) throws IOException
     {
         for (int size : SIZES) {
             byte[] binary = _generateData(size);
-            ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
+            ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);
             JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
             g.writeStartArray();
             g.writeBinary(binary);
             g.writeNumber(1); // just to verify there's no overrun
             g.writeEndArray();
             g.close();
-            byte[] smile = bo.toByteArray();            
-            
+            byte[] smile = bo.toByteArray();
+
             // and verify
             AsyncReaderWrapper p = asyncForBytes(f, readSize, smile, offset);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -126,12 +126,12 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             p.close();
         }
     }
-    
+
     private void _testBinaryAsObject2(JsonFactory f, int offset, int readSize) throws IOException
     {
         for (int size : SIZES) {
             byte[] data = _generateData(size);
-            ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
+            ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);
             JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
             g.writeStartObject();
             g.writeName("binary");
@@ -139,7 +139,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             g.writeEndObject();
             g.close();
             byte[] smile = bo.toByteArray();
-            
+
             AsyncReaderWrapper p = asyncForBytes(f, readSize, smile, offset);
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
@@ -153,7 +153,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             ByteArrayOutputStream bytes = new ByteArrayOutputStream(result.length);
             assertEquals(result.length, p.parser().readBinaryValue(bytes));
             assertArrayEquals(data, bytes.toByteArray());
-            
+
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             assertNull(p.nextToken());
             p.close();

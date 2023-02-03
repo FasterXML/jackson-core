@@ -41,7 +41,7 @@ public final class JsonReadContext extends TokenStreamContext
     protected String _currentName;
 
     protected Object _currentValue;
-    
+
     protected int _lineNr;
     protected int _columnNr;
 

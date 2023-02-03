@@ -59,7 +59,7 @@ public class GeneratorMiscTest
         gen.writeEndArray();
         gen.close();
 
-                
+
         JsonParser jp = createParserUsingReader(sw.toString());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -134,7 +134,7 @@ public class GeneratorMiscTest
                 DataOutputStream dout = new DataOutputStream(bout);
                 g = jf.createGenerator(writeCtxt, (DataOutput) dout);
             }
-        
+
             break;
         default:
             fail("Unknown mode "+mode);

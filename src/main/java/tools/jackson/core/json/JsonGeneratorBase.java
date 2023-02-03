@@ -206,7 +206,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /* Overridden output state handling methods
     /**********************************************************************
      */
-    
+
     @Override
     public final TokenStreamContext streamWriteContext() { return _streamWriteContext; }
 

@@ -20,7 +20,7 @@ public abstract class JsonParserBase
     extends ParserBase
 {
     private final static char[] NO_CHARS = new char[0];
-    
+
     /*
     /**********************************************************************
     /* JSON-specific configuration
@@ -135,7 +135,7 @@ public abstract class JsonParserBase
 
     @Override
     public boolean hasTextCharacters() {
-        if (_currToken == JsonToken.VALUE_STRING) { return true; } // usually true        
+        if (_currToken == JsonToken.VALUE_STRING) { return true; } // usually true
         if (_currToken == JsonToken.PROPERTY_NAME) { return _nameCopied; }
         return false;
     }
@@ -168,7 +168,7 @@ public abstract class JsonParserBase
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
             int len = _intLength;
             // First: optimization for simple int
-            if (len <= 9) { 
+            if (len <= 9) {
                 int i = _textBuffer.contentsAsInt(_numberNegative);
                 _numberInt = i;
                 _numTypesValid = NR_INT;

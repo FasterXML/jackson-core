@@ -22,7 +22,7 @@ public interface TreeNode
     /* Minimal introspection methods
     /**********************************************************************
      */
-    
+
     /**
      * Method that can be used for efficient type detection
      * when using stream abstraction for traversing nodes.
@@ -38,7 +38,7 @@ public interface TreeNode
      * If this node is a numeric type (as per {@link JsonToken#isNumeric}),
      * returns native type that node uses to store the numeric value;
      * otherwise returns null.
-     * 
+     *
      * @return Type of number contained, if any; or null if node does not
      *  contain numeric value.
      */
@@ -55,7 +55,7 @@ public interface TreeNode
     int size();
 
     /**
-     * Method that returns true for all value nodes: ones that 
+     * Method that returns true for all value nodes: ones that
      * are not containers, and that do not represent "missing" nodes
      * in the path. Such value nodes represent String, Number, Boolean
      * and null values from JSON.
@@ -79,7 +79,7 @@ public interface TreeNode
      * @return {@code True} for Array and Object nodes, {@code false} otherwise
      */
     boolean isContainerNode();
-    
+
     /**
      * Method that returns true for "virtual" nodes which represent
      * missing entries constructed by path accessor methods when
@@ -92,7 +92,7 @@ public interface TreeNode
      * @return {@code True} if this node represents a "missing" node
      */
     boolean isMissingNode();
-    
+
     /**
      * Method that returns true if this node is an Array node, false
      * otherwise.
@@ -216,7 +216,7 @@ public interface TreeNode
      *   otherwise "missing node" is returned.
      */
     TreeNode path(int index);
-    
+
     /**
      * Method for accessing names of all properties for this node, iff
      * this node is an Object node. Number of property names accessible
@@ -229,7 +229,7 @@ public interface TreeNode
 
     /**
      * Method for locating node specified by given JSON pointer instances.
-     * Method will never return null; if no matching node exists, 
+     * Method will never return null; if no matching node exists,
      * will return a node for which {@link TreeNode#isMissingNode()} returns true.
      *
      * @param ptr {@link JsonPointer} expression for descendant node to return
@@ -249,7 +249,7 @@ public interface TreeNode
      * Note that if the same expression is used often, it is preferable to construct
      * {@link JsonPointer} instance once and reuse it: this method will not perform
      * any caching of compiled expressions.
-     * 
+     *
      * @param ptrExpr Expression to compile as a {@link JsonPointer}
      *   instance
      *

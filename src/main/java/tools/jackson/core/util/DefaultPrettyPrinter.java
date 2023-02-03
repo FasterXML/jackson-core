@@ -116,7 +116,7 @@ public class DefaultPrettyPrinter
         _rootSeparator = rootSeparator;
         withSeparators(DEFAULT_SEPARATORS);
     }
-    
+
     public DefaultPrettyPrinter(DefaultPrettyPrinter base) {
         this(base, base._rootSeparator);
     }

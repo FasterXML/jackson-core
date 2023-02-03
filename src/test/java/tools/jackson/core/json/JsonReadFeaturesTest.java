@@ -27,7 +27,7 @@ public class JsonReadFeaturesTest
         assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES));
         assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES));
     }
-    
+
     public void testQuotesRequired() throws Exception
     {
         _testQuotesRequired(false);
@@ -47,7 +47,7 @@ public class JsonReadFeaturesTest
     public void testTabsEnabledChars() throws Exception {
         _testTabsEnabled(false);
     }
-    
+
     /*
     /****************************************************************
     /* Secondary test methods

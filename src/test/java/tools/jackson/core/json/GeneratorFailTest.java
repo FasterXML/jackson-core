@@ -18,7 +18,7 @@ public class GeneratorFailTest
     public void testDupFieldNameWrites() throws IOException
     {
         _testDupFieldNameWrites(F, false);
-        _testDupFieldNameWrites(F, true);        
+        _testDupFieldNameWrites(F, true);
     }
 
     // [core#177]
@@ -30,7 +30,7 @@ public class GeneratorFailTest
 
     // [core#177]
     public void testFailOnWritingStringNotFieldNameChars() throws IOException {
-        _testFailOnWritingStringNotFieldName(F, true);        
+        _testFailOnWritingStringNotFieldName(F, true);
     }
 
     // for [core#282]
@@ -38,7 +38,7 @@ public class GeneratorFailTest
         _testFailOnWritingFieldNameInRoot(F, false);
         _testFailOnWritingFieldNameInRoot(F, true);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods
@@ -56,7 +56,7 @@ public class GeneratorFailTest
         }
         gen.writeStartObject();
         gen.writeName("a");
-        
+
         try {
             gen.writeName("b");
             gen.flush();
@@ -78,7 +78,7 @@ public class GeneratorFailTest
             gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
-        
+
         try {
             gen.writeString("a");
             gen.flush();

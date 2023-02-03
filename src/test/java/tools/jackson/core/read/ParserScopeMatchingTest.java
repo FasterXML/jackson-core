@@ -15,7 +15,7 @@ public class ParserScopeMatchingTest extends BaseTest
             _testUnclosedArray(mode);
         }
     }
-        
+
     public void _testUnclosedArray(int mode)
     {
         JsonParser p = createParser(mode, "[ 1, 2 ");
@@ -39,7 +39,7 @@ public class ParserScopeMatchingTest extends BaseTest
             _testUnclosedObject(mode);
         }
     }
-    
+
     private void _testUnclosedObject(int mode)
     {
         JsonParser p = createParser(mode, "{ \"key\" : 3  ");
@@ -62,7 +62,7 @@ public class ParserScopeMatchingTest extends BaseTest
             _testEOFInName(mode);
         }
     }
-    
+
     public void _testEOFInName(int mode)
     {
         final String JSON = "{ \"abcd";
@@ -90,7 +90,7 @@ public class ParserScopeMatchingTest extends BaseTest
             _testWeirdToken(mode);
         }
     }
-    
+
     private void _testWeirdToken(int mode)
     {
         final String JSON = "[ nil ]";
@@ -134,14 +134,14 @@ public class ParserScopeMatchingTest extends BaseTest
             _testMismatchObjectToArray(mode);
         }
     }
-    
+
     private void _testMismatchObjectToArray(int mode)
     {
         final String JSON = "{ ]";
         JsonParser p = createParser(mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-            
+
         try {
             p.nextToken();
             fail("Expected an exception for incorrectly closed OBJECT");

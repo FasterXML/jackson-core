@@ -56,7 +56,7 @@ public final class CharsToNameCanonicalizer
     /**
      * Default initial table size. Shouldn't be miniscule (as there's
      * cost to both array realloc and rehashing), but let's keep
-     * it reasonably small. For systems that properly 
+     * it reasonably small. For systems that properly
      * reuse factories it doesn't matter either way; but when
      * recreating factories often, initial overhead may dominate.
      */
@@ -99,7 +99,7 @@ public final class CharsToNameCanonicalizer
      * defined, and child instance is released (call to <code>release</code>),
      * parent's shared tables may be updated from the child instance.
      */
-    final protected CharsToNameCanonicalizer _parent;
+    protected final CharsToNameCanonicalizer _parent;
 
     /**
      * Member that is only used by the root table instance: root
@@ -107,7 +107,7 @@ public final class CharsToNameCanonicalizer
      * may return new state if they add entries to the table.
      * Child tables do NOT use the reference.
      */
-    final protected AtomicReference<TableInfo> _tableInfo;
+    protected final AtomicReference<TableInfo> _tableInfo;
 
     /**
      * Seed value we use as the base to make hash codes non-static between
@@ -116,9 +116,9 @@ public final class CharsToNameCanonicalizer
      * This is done for security reasons, to avoid potential DoS attack via
      * hash collisions.
      */
-    final protected int _seed;
+    protected final int _seed;
 
-    final protected int _flags;
+    protected final int _flags;
 
     /**
      * Whether any canonicalization should be attempted (whether using
@@ -222,7 +222,7 @@ public final class CharsToNameCanonicalizer
     {
         _parent = null;
         _seed = seed;
-        
+
         // these settings don't really matter for the bootstrap instance
         _canonicalize = true;
         _flags = -1;
@@ -276,7 +276,7 @@ public final class CharsToNameCanonicalizer
      * instance. Root instance is never used directly; its main use is for
      * storing and sharing underlying symbol arrays as needed.
      *
-     * @return Root instance to use for constructing new child instances 
+     * @return Root instance to use for constructing new child instances
      */
     public static CharsToNameCanonicalizer createRoot() {
         // Need to use a variable seed, to thwart hash-collision based attacks.
@@ -378,7 +378,7 @@ public final class CharsToNameCanonicalizer
     /**
      * Method for checking number of primary hash buckets this symbol
      * table uses.
-     * 
+     *
      * @return number of primary slots table has currently
      */
     public int bucketCount() {  return _symbols.length; }
@@ -389,14 +389,14 @@ public final class CharsToNameCanonicalizer
      * Method mostly needed by unit tests; calculates number of
      * entries that are in collision list. Value can be at most
      * ({@link #size} - 1), but should usually be much lower, ideally 0.
-     * 
+     *
      * @since 2.1
      *
      * @return Number of collisions in the primary hash area
      */
     public int collisionCount() {
         int count = 0;
-        
+
         for (Bucket bucket : _buckets) {
             if (bucket != null) {
                 count += bucket.length;
@@ -588,7 +588,7 @@ public final class CharsToNameCanonicalizer
     public int calcHash(String key)
     {
         final int len = key.length();
-        
+
         int hash = _seed;
         for (int i = 0; i < len; ++i) {
             hash = (hash * HASH_MULT) + (int) key.charAt(i);
@@ -742,7 +742,7 @@ public final class CharsToNameCanonicalizer
         for (String s : _symbols) {
             if (s != null) ++primaryCount;
         }
-        
+
         sb.append("[BytesToNameCanonicalizer, size: ");
         sb.append(_size);
         sb.append('/');

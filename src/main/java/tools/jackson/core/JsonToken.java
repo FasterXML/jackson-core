@@ -35,7 +35,7 @@ public enum JsonToken
      * which signals starting of an Object value.
      */
     START_OBJECT("{", JsonTokenId.ID_START_OBJECT),
-        
+
     /**
      * END_OBJECT is returned when encountering '}'
      * which signals ending of an Object value
@@ -97,7 +97,7 @@ public enum JsonToken
      * has internal floating-point representation).
      */
     VALUE_NUMBER_FLOAT(null, JsonTokenId.ID_NUMBER_FLOAT),
-    
+
     /**
      * VALUE_TRUE is returned when encountering literal "true" in
      * value context
@@ -116,7 +116,7 @@ public enum JsonToken
      */
     VALUE_NULL("null", JsonTokenId.ID_NULL),
         ;
-    
+
     final String _serialized;
 
     final char[] _serializedChars;
@@ -124,7 +124,7 @@ public enum JsonToken
     final byte[] _serializedBytes;
 
     final int _id;
-    
+
     final boolean _isStructStart, _isStructEnd;
 
     final boolean _isNumber;
@@ -155,7 +155,7 @@ public enum JsonToken
             }
         }
         _id = id;
-        
+
         _isBoolean = (id == JsonTokenId.ID_FALSE || id == JsonTokenId.ID_TRUE);
         _isNumber = (id == JsonTokenId.ID_NUMBER_INT || id == JsonTokenId.ID_NUMBER_FLOAT);
 
@@ -168,7 +168,7 @@ public enum JsonToken
     }
 
     public final int id() { return _id; }
-    
+
     public final String asString() { return _serialized; }
     public final char[] asCharArray() { return _serializedChars; }
     public final byte[] asByteArray() { return _serializedBytes; }

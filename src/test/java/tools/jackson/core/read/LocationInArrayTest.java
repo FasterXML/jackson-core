@@ -12,11 +12,11 @@ public class LocationInArrayTest extends tools.jackson.core.BaseTest
     public void testOffsetInArraysBytes() throws Exception {
         _testOffsetInArrays(true);
     }
-    
+
     // for [core#229]
     public void testOffsetInArraysChars() throws Exception {
         _testOffsetInArrays(false);
-    }        
+    }
 
     private void _testOffsetInArrays(boolean useBytes) throws Exception
     {
@@ -49,7 +49,7 @@ public class LocationInArrayTest extends tools.jackson.core.BaseTest
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         _assertLocation(useBytes, p.currentTokenLocation(), 18L, 2, 7);
         _assertLocation(useBytes, p.currentLocation(), 19L, 2, 8);
-        
+
         p.close();
     }
 

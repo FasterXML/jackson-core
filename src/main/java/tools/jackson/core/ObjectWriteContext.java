@@ -89,7 +89,7 @@ public interface ObjectWriteContext
      * @return Object node created
      */
     public ObjectTreeNode createObjectNode();
-    
+
     // // // Databinding callbacks, value serialization
 
     /**
@@ -114,7 +114,7 @@ public interface ObjectWriteContext
         protected static Base EMPTY_CONTEXT = new Base();
 
         // // // Config access methods
-        
+
         @Override
         public FormatSchema getSchema() { return null; }
 
@@ -143,7 +143,7 @@ public interface ObjectWriteContext
         public TokenStreamFactory tokenStreamFactory() {
             return _reportUnsupportedOperation();
         }
-        
+
         @Override
         public int getFormatWriteFeatures(int defaults) {
             return defaults;
@@ -160,7 +160,7 @@ public interface ObjectWriteContext
         public ArrayTreeNode createArrayNode() {
             return _reportUnsupportedOperation();
         }
-        
+
         @Override
         public void writeValue(JsonGenerator g, Object value) {
             _reportUnsupportedOperation();
@@ -170,7 +170,7 @@ public interface ObjectWriteContext
         public void writeTree(JsonGenerator g, TreeNode value) {
             _reportUnsupportedOperation();
         }
-        
+
         protected <T> T _reportUnsupportedOperation() {
             throw new UnsupportedOperationException("Operation not supported by `ObjectWriteContext` of type "+getClass().getName());
         }

@@ -204,7 +204,7 @@ public class NumberCoercionTest extends BaseTest
             }
         }
     }
-    
+
     public void testToBigIntegerCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -223,7 +223,7 @@ public class NumberCoercionTest extends BaseTest
             assertEquals(2.0, p.getDoubleValue());
             assertEquals(BigInteger.valueOf(2L), p.getBigIntegerValue());
             p.close();
-            
+
             p = createParser(mode, String.valueOf(Long.MAX_VALUE));
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             // long to BigInteger
@@ -233,19 +233,19 @@ public class NumberCoercionTest extends BaseTest
 
             p = createParser(mode, " 200.0");
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            // BigDecimal to BigInteger 
+            // BigDecimal to BigInteger
             assertEquals(new BigDecimal("200.0"), p.getDecimalValue());
             assertEquals(BigInteger.valueOf(200L), p.getBigIntegerValue());
             p.close();
         }
     }
-    
+
     /*
     /**********************************************************
     /* Numeric coercions, floating point
     /**********************************************************
      */
-    
+
     public void testToDoubleCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -265,7 +265,7 @@ public class NumberCoercionTest extends BaseTest
             p.close();
         }
     }
-    
+
     public void testToBigDecimalCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {

@@ -67,7 +67,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static byte[] NO_BYTES = new byte[0];
 
     protected final static int[] NO_INTS = new int[0];
-    
+
     /*
     /**********************************************************************
     /* Constants and fields wrt number handling
@@ -112,7 +112,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final static int MIN_SHORT_I = (int) Short.MIN_VALUE;
     protected final static int MAX_SHORT_I = (int) Short.MAX_VALUE;
-    
+
     protected final static long MIN_INT_L = (long) Integer.MIN_VALUE;
     protected final static long MAX_INT_L = (long) Integer.MAX_VALUE;
 
@@ -271,7 +271,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     // public JsonToken getCurrentToken()
     // public boolean hasCurrentToken()
-  
+
     // public abstract void close();
     // public abstract boolean isClosed();
 
@@ -330,7 +330,7 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override public boolean hasToken(JsonToken t) {
         return (_currToken == t);
     }
-    
+
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
     @Override public boolean isExpectedNumberIntToken() { return _currToken == JsonToken.VALUE_NUMBER_INT; }
@@ -631,7 +631,7 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return getValueAsLong(0L);
     }
-    
+
     @Override
     public long getValueAsLong(long defaultValue)
     {
@@ -1046,7 +1046,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected JacksonException _wrapIOFailure(IOException e) {
         return WrappedIOException.construct(e, this);
     }
-    
+
     protected <T> T _throwInternal() {
         VersionUtil.throwInternal();
         return null; // never gets here

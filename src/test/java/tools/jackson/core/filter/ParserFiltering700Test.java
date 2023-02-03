@@ -146,7 +146,7 @@ public class ParserFiltering700Test extends BaseTest
     /* Helper methods
     /**********************************************************************
      */
-    
+
     private JsonParser _createParser(TokenStreamFactory f, String json) throws Exception {
         return f.createParser(ObjectReadContext.empty(), json);
     }

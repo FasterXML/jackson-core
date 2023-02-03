@@ -52,13 +52,13 @@ public abstract class BinaryTSFactory
     /* Default introspection
     /**********************************************************************
      */
-    
+
     @Override
     public boolean canHandleBinaryNatively() {
         // binary formats tend to support native inclusion:
         return true;
     }
-    
+
     /*
     /**********************************************************************
     /* Factory methods: parsers
@@ -109,7 +109,7 @@ public abstract class BinaryTSFactory
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, 
+    public JsonParser createParser(ObjectReadContext readCtxt,
             byte[] data, int offset, int len) throws JacksonException
     {
         IOContext ioCtxt = _createContext(_createContentReference(data, offset, len),
@@ -124,19 +124,19 @@ public abstract class BinaryTSFactory
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, 
+    public JsonParser createParser(ObjectReadContext readCtxt,
             String content) throws JacksonException {
         return _nonByteSource();
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, 
+    public JsonParser createParser(ObjectReadContext readCtxt,
             char[] content, int offset, int len) throws JacksonException {
         return _nonByteSource();
     }
-    
+
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, 
+    public JsonParser createParser(ObjectReadContext readCtxt,
             DataInput in) throws JacksonException {
         IOContext ioCtxt = _createContext(_createContentReference(in), false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
@@ -145,7 +145,7 @@ public abstract class BinaryTSFactory
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
             IOContext ioCtxt, InputStream in) throws JacksonException;
 
-    protected abstract JsonParser _createParser(ObjectReadContext readCtxt, 
+    protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
             IOContext ioCtxt, byte[] data, int offset, int len) throws JacksonException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
@@ -212,7 +212,7 @@ public abstract class BinaryTSFactory
     {
         // false -> not textual
         return ContentReference.construct(false, contentRef, offset, length);
-    }    
+    }
 
     /*
     /**********************************************************************

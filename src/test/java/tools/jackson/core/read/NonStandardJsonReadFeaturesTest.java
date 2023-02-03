@@ -76,7 +76,7 @@ public class NonStandardJsonReadFeaturesTest
         // first: verify that we get an exception
         final String JSON = q("\\'");
         JsonParser p = createParser(STD_F, mode, JSON);
-        try {      
+        try {
             p.nextToken();
             p.getText();
             fail("Should have thrown an exception for doc <"+JSON+">");
@@ -103,7 +103,7 @@ public class NonStandardJsonReadFeaturesTest
             JSON += " ";
         }
         JsonParser p = createParser(STD_F, mode, JSON);
-        try {      
+        try {
             p.nextToken();
             p.getText();
             fail("Should have thrown an exception for doc <"+JSON+">");
@@ -115,21 +115,21 @@ public class NonStandardJsonReadFeaturesTest
         // but not just as root value
         p = createParser(STD_F, mode, "[ -000 ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        try {      
+        try {
             p.nextToken();
             fail("Should have thrown an exception for doc <"+JSON+">");
         } catch (StreamReadException e) {
             verifyException(e, "invalid numeric value");
         }
         p.close();
-        
+
         // and then verify it's ok when enabled
         p = createParser(LEADING_ZERO_F, mode, JSON);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
         assertEquals("3", p.getText());
         p.close();
-    
+
         // Plus, also: verify that leading zero magnitude is ok:
         JSON = "0"+Integer.MAX_VALUE;
         if (appendSpace) {
@@ -178,7 +178,7 @@ public class NonStandardJsonReadFeaturesTest
         p = createParser(f, mode, JSON);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        
+
         double d = p.getDoubleValue();
         assertTrue(Double.isNaN(d));
         assertEquals("NaN", p.getText());
@@ -190,7 +190,7 @@ public class NonStandardJsonReadFeaturesTest
         } catch (NumberFormatException e) {
             verifyException(e, "can not be represented as `java.math.BigDecimal`");
         }
-       
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 
@@ -266,7 +266,7 @@ public class NonStandardJsonReadFeaturesTest
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        
+
         p.close();
     }
 }

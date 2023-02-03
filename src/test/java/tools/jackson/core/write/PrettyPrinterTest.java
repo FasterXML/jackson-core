@@ -54,7 +54,7 @@ public class PrettyPrinterTest
                 @Override
                 public PrettyPrinter getPrettyPrinter() { return new CountPrinter(); }
             };
-            
+
             JsonGenerator gen = useBytes ? JSON_F.createGenerator(ppContext, bytes)
                     : JSON_F.createGenerator(ppContext, sw);
             gen.writeStartObject();
@@ -202,7 +202,7 @@ public class PrettyPrinterTest
                         .withArrayValueSeparator('|'));
             }
         };
-        
+
         JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw);
         _writeTestDocument(gen);
         gen.close();

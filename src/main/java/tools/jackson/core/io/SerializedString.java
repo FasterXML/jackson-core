@@ -20,7 +20,7 @@ public class SerializedString
     private static final long serialVersionUID = 1L;
 
     private static final JsonStringEncoder JSON_ENCODER = JsonStringEncoder.getInstance();
-    
+
     protected final String _value;
 
     /* 13-Dec-2010, tatu: Whether use volatile or not is actually an important
@@ -39,7 +39,7 @@ public class SerializedString
     // 22-Sep-2013, tatu: FWIW, there have been no reports of problems in this
     //  area, or anything pointing to it. So I think we are safe up to JDK7
     //   and hopefully beyond.
-    
+
     // 09-Dec-2017, tatu: ... fine up until Java 8, Jackson 2.9, no reports.
 
     protected /*volatile*/ byte[] _quotedUTF8Ref;
@@ -54,7 +54,7 @@ public class SerializedString
         }
         _value = v;
     }
-    
+
     /*
     /**********************************************************************
     /* Serializable overrides
@@ -87,7 +87,7 @@ public class SerializedString
 
     @Override
     public final String getValue() { return _value; }
-    
+
     /**
      * Returns length of the String as characters
      */
@@ -251,7 +251,7 @@ public class SerializedString
 
     @Override
     public final String toString() { return _value; }
-    
+
     @Override
     public final int hashCode() { return _value.hashCode(); }
 

@@ -117,7 +117,7 @@ public class ParserWithObjectsTest
     {
         // first array, no change to default
         JsonParser jp;
-    
+
         // then object with sub-objects...
         jp = _getParser("{\"a\": { \"b\" : true, \"c\": false }, \"d\": 3 }", useStream);
 

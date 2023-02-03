@@ -107,7 +107,7 @@ public class AsyncPropertyNamesTest extends AsyncTestBase
         assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(expName, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
-        
+
         r.close();
         assertNull(r.nextToken());
     }
@@ -121,7 +121,7 @@ public class AsyncPropertyNamesTest extends AsyncTestBase
         assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(expName, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
-        
+
         r.close();
         assertNull(r.nextToken());
     }

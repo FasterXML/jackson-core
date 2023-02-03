@@ -67,9 +67,9 @@ public abstract class TokenStreamFactory
     public enum Feature
         implements JacksonFeature
     {
-        
+
         // // // Symbol handling (interning etc)
-        
+
         /**
          * Feature that determines whether JSON object property names are
          * to be canonicalized using {@link String#intern} or not:
@@ -157,7 +157,7 @@ public abstract class TokenStreamFactory
         public int getMask() { return (1 << ordinal()); }
     }
 
-    
+
 
     /*
     /**********************************************************************
@@ -175,7 +175,7 @@ public abstract class TokenStreamFactory
      * by default.
      */
     protected final static int DEFAULT_STREAM_READ_FEATURE_FLAGS = StreamReadFeature.collectDefaults();
-    
+
     /**
      * Bitfield (set of flags) of all generator features that are enabled
      * by default.
@@ -216,7 +216,7 @@ public abstract class TokenStreamFactory
     /**
      * Active StreamReadConstraints to use.
      */
-    protected final StreamReadConstraints _streamReadConstraints;    
+    protected final StreamReadConstraints _streamReadConstraints;
 
     /*
     /**********************************************************************
@@ -333,7 +333,7 @@ public abstract class TokenStreamFactory
     /* Capability introspection
     /**********************************************************************
      */
-    
+
     /**
      * Introspection method that higher-level functionality may call
      * to see whether underlying data format requires a stable ordering
@@ -728,7 +728,7 @@ public abstract class TokenStreamFactory
     /*
     /**********************************************************************
     /* Parser factories, convenience methods that do not specify
-    /* `ObjectReadContext` 
+    /* `ObjectReadContext`
     /**********************************************************************
      */
 
@@ -899,7 +899,7 @@ public abstract class TokenStreamFactory
      */
     public <P extends JsonParser & ByteArrayFeeder> P createNonBlockingByteArrayParser(ObjectReadContext readCtxt)
             throws JacksonException {
-        return _unsupported("Non-blocking source not (yet?) support for this format ("+getFormatName()+")");        
+        return _unsupported("Non-blocking source not (yet?) support for this format ("+getFormatName()+")");
     }
 
     /**
@@ -1004,7 +1004,7 @@ public abstract class TokenStreamFactory
      *
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
      *    configuration
-     * @param w Writer to use for writing content 
+     * @param w Writer to use for writing content
      *
      * @return Generator constructed
      *
@@ -1085,10 +1085,10 @@ public abstract class TokenStreamFactory
     /*
     /**********************************************************************
     /* Generator factories, convenience methods that do not specify
-    /* `ObjectWriteContext` 
+    /* `ObjectWriteContext`
     /**********************************************************************
      */
-    
+
     /**
      * Method for constructing JSON generator for writing content
      * using specified output stream.
@@ -1106,7 +1106,7 @@ public abstract class TokenStreamFactory
      * Note: there are formats that use fixed encoding (like most binary data formats)
      * and that ignore passed in encoding.
      *
-     * @param out OutputStream to use for writing content 
+     * @param out OutputStream to use for writing content
      * @param enc Character encoding to use
      *
      * @return Generator constructed
@@ -1123,7 +1123,7 @@ public abstract class TokenStreamFactory
      * Convenience method for constructing generator that uses default
      * encoding of the format (UTF-8 for JSON and most other data formats),
      *
-     * @param out OutputStream to use for writing content 
+     * @param out OutputStream to use for writing content
      *
      * @return Generator constructed
      *
@@ -1133,7 +1133,7 @@ public abstract class TokenStreamFactory
     public JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         return createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
     }
-    
+
     /**
      * Method for constructing JSON generator for writing content
      * using specified Writer.
@@ -1145,7 +1145,7 @@ public abstract class TokenStreamFactory
      * {@link tools.jackson.core.StreamWriteFeature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
      *
-     * @param w Writer to use for writing content 
+     * @param w Writer to use for writing content
      *
      * @return Generator constructed
      *
@@ -1395,7 +1395,7 @@ offset, len, dataLen));
     /* Error reporting methods
     /**********************************************************************
      */
-    
+
     protected JacksonException _wrapIOFailure(IOException e) {
         return WrappedIOException.construct(e, this);
     }
@@ -1403,7 +1403,7 @@ offset, len, dataLen));
     protected <T> T _unsupported() {
         return _unsupported("Operation not supported for this format (%s)", getFormatName());
     }
-    
+
     protected <T> T _unsupported(String str, Object... args) {
         throw new UnsupportedOperationException(String.format(str, args));
     }

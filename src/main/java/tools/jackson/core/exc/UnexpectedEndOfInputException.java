@@ -19,7 +19,7 @@ public class UnexpectedEndOfInputException
      * to recognize type (such as starting double-quote for Strings)
      */
     protected final JsonToken _token;
-    
+
     public UnexpectedEndOfInputException(JsonParser p, JsonToken token, String msg) {
         super(p, msg);
         _token = token;

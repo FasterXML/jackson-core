@@ -198,7 +198,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * Length of the exponent part of the number, if any, not
-     * including 'e' marker or sign, just digits. 
+     * including 'e' marker or sign, just digits.
      * Not used for  pure integer values.
      */
     protected int _expLength;
@@ -419,7 +419,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     // // // Life-cycle of number-parsing
-    
+
     protected final JsonToken reset(boolean negative, int intLen, int fractLen, int expLen)
     {
         if (fractLen < 1 && expLen < 1) { // integer
@@ -444,7 +444,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _numTypesValid = NR_UNKNOWN; // to force decoding
         return JsonToken.VALUE_NUMBER_INT;
     }
-    
+
     protected final JsonToken resetFloat(boolean negative, int intLen, int fractLen, int expLen)
     {
         // Inelegant but we know how to create StreamReadExceptions,
@@ -462,7 +462,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _numTypesValid = NR_UNKNOWN; // to force decoding
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
-    
+
     protected final JsonToken resetAsNaN(String valueStr, double value)
     {
         _textBuffer.resetWithString(valueStr);
@@ -615,7 +615,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             return NumberType.BIG_INTEGER;
         }
-    
+
         /* And then floating point types. Here optimal type
          * needs to be big decimal, to avoid losing any data?
          * However... using BD is slow, so let's allow returning
@@ -630,7 +630,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return NumberType.DOUBLE;
     }
-    
+
     @Override
     public int getIntValue() throws JacksonException
     {
@@ -644,7 +644,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return _numberInt;
     }
-    
+
     @Override
     public long getLongValue() throws JacksonException
     {
@@ -658,7 +658,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return _numberLong;
     }
-    
+
     @Override
     public BigInteger getBigIntegerValue()
     {
@@ -672,7 +672,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return _getBigInteger();
     }
-    
+
     @Override
     public float getFloatValue() throws JacksonException
     {
@@ -707,7 +707,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return _getNumberDouble();
     }
-    
+
     @Override
     public BigDecimal getDecimalValue()
     {
@@ -819,7 +819,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _numTypesValid |= NR_LONG;
     }
-    
+
     protected void convertNumberToBigInteger()
     {
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
@@ -840,7 +840,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _numTypesValid |= NR_BIGINT;
     }
-    
+
     protected void convertNumberToDouble() throws InputCoercionException
     {
         /* 05-Aug-2008, tatus: Important note: this MUST start with
@@ -848,7 +848,7 @@ public abstract class ParserBase extends ParserMinimalBase
          *   value is the original one (others get generated when
          *   requested)
          */
-    
+
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             if (_numberString != null) {
                 _numberDouble = _getNumberFloat();
@@ -912,7 +912,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _numTypesValid |= NR_FLOAT;
     }
-    
+
     protected void convertNumberToBigDecimal()
     {
         // 05-Aug-2008, tatus: Important note: this MUST start with more
@@ -1036,7 +1036,7 @@ public abstract class ParserBase extends ParserMinimalBase
     protected char _decodeEscaped() throws JacksonException {
         throw new UnsupportedOperationException();
     }
-    
+
     protected final int _decodeBase64Escape(Base64Variant b64variant, int ch, int index)
         throws JacksonException
     {
@@ -1060,7 +1060,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return bits;
     }
-    
+
     protected final int _decodeBase64Escape(Base64Variant b64variant, char ch, int index)
         throws JacksonException
     {
@@ -1085,7 +1085,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return bits;
     }
-    
+
     protected <T> T _reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex)
             throws StreamReadException {
         return _reportInvalidBase64Char(b64variant, ch, bindex, null);

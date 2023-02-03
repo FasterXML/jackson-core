@@ -31,7 +31,7 @@ public class BinaryNameHashTest extends BaseTest
         // similarly, not so great...
         _testSpillEfficiency(generate("SlartiBartFast#", 3000), 1112, 761, 897, 230);
     }
-        
+
     public void testPrefix1() {
         _testSpillEfficiency(generate2("", 99), 77, 16, 6, 0);
     }
@@ -62,7 +62,7 @@ public class BinaryNameHashTest extends BaseTest
         _testSpillEfficiency(Arrays.asList("content", "images"),
                 2, 0, 0, 0);
     }
-    
+
     private void _testSpillEfficiency(List<String> names,
             int prim, int sec, int ter,
             int expSpills)

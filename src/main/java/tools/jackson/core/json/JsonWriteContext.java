@@ -214,7 +214,7 @@ public class JsonWriteContext extends TokenStreamContext
             ++_index;
             return (ix < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
         }
-        
+
         // Nope, root context
         // No commas within root context, but need space
         ++_index;

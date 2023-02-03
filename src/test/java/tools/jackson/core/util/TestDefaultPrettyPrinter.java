@@ -10,7 +10,7 @@ import tools.jackson.core.json.JsonFactory;
 public class TestDefaultPrettyPrinter extends BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
-    
+
     public void testSystemLinefeed() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter();
@@ -94,7 +94,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
                     .withRootSeparator("|");
             }
         };
-        
+
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ppContext, sw);
 
@@ -124,7 +124,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
                         .withoutSpacesInObjectEntries();
             }
         };
-        
+
         sw = new StringWriter();
         gen = JSON_F.createGenerator(ppContext, sw);
 
@@ -140,7 +140,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         // no root separator, nor array, object
         assertEquals("1[2]{\"a\":3}", sw.toString());
     }
-    
+
     private String _printTestData(final PrettyPrinter pp, boolean useBytes) throws IOException
     {
         JsonGenerator gen;
@@ -151,7 +151,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
             @Override
             public PrettyPrinter getPrettyPrinter() { return pp; }
         };
-        
+
         if (useBytes) {
             sw = null;
             bytes = new ByteArrayOutputStream();

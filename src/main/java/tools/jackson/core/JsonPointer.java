@@ -16,12 +16,12 @@ import tools.jackson.core.io.NumberInput;
  * nested instances.
  *<p>
  * Instances are fully immutable and can be cached, shared between threads.
- * 
+ *
  * @author Tatu Saloranta
  */
 public class JsonPointer implements Serializable
 {
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     /**
      * Character used to separate segments.
@@ -34,7 +34,7 @@ public class JsonPointer implements Serializable
      * {@link #matches()}).
      */
     protected final static JsonPointer EMPTY = new JsonPointer();
-    
+
     /**
      * Reference to rest of the pointer beyond currently matching
      * segment (if any); null if this pointer refers to the matching
@@ -66,7 +66,7 @@ public class JsonPointer implements Serializable
     protected final String _asString;
 
     protected final int _asStringOffset;
-    
+
     protected final String _matchingPropertyName;
 
     protected final int _matchingElementIndex;
@@ -339,7 +339,7 @@ public class JsonPointer implements Serializable
      *    of `this`, followed by all segments of `tail`.
      *  </li>
      *</ul>
-     * 
+     *
      * @param tail {@link JsonPointer} instance to append to this one, to create a new pointer instance
      *
      * @return Either `this` instance, `tail`, or a newly created combination, as per description above.
@@ -459,7 +459,7 @@ public class JsonPointer implements Serializable
      * @param index Index of Array element to match
      *
      * @return {@code True} if the pointer head matches specified Array index
-     * 
+     *
      * @since 2.5
      */
     public boolean matchesElement(int index) {
@@ -672,12 +672,12 @@ public class JsonPointer implements Serializable
         }
         return curr;
     }
-    
+
     /**
      * Method called to extract the next segment of the path, in case
      * where we seem to have encountered a (tilde-)escaped character
      * within segment.
-     * 
+     *
      * @param input Full input for the tail being parsed
      * @param firstCharOffset Offset of the first character of segment (one
      *    after slash)
@@ -801,7 +801,7 @@ public class JsonPointer implements Serializable
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Support for JDK serialization (2.14+)

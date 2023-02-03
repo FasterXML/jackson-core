@@ -17,7 +17,7 @@ public abstract class HashedMatcherBase
     protected final int _mask;
 
     // // // Main hash area (ints) along with Strings it maps (sparse)
-    
+
     protected final int[] _offsets;
     protected final String[] _names;
 
@@ -26,7 +26,7 @@ public abstract class HashedMatcherBase
     /* Construction
     /**********************************************************************
      */
-    
+
     protected HashedMatcherBase(Locale locale, String[] names, int[] offsets, int mask,
             PropertyNameMatcher backup, String[] nameLookup)
     {
@@ -56,7 +56,7 @@ public abstract class HashedMatcherBase
         // Logic here is that it is expected most names to match are intern()ed
         // anyway; as are (typically) contents. So identity check is likely to
         // work, just not guaranteed. So do fast checks for primary, secondary here
-        
+
         int ix = _hash(toMatch.hashCode(), _mask);
         if (_names[ix] == toMatch) {
             return _offsets[ix];

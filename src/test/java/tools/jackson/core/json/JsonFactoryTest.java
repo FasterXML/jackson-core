@@ -47,7 +47,7 @@ public class JsonFactoryTest
                 .build();
         assertFalse(f.isEnabled(JsonWriteFeature.QUOTE_PROPERTY_NAMES));
     }
-    
+
     public void testFactoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -100,7 +100,7 @@ public class JsonFactoryTest
             gen.close();
             assertEquals("{}", w.toString());
         }
-    
+
         for (int i = 0; i < 3; ++i) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
@@ -130,7 +130,7 @@ public class JsonFactoryTest
     {
         File file = File.createTempFile("jackson-test", null);
         file.deleteOnExit();
-        
+
         JsonFactory f = new JsonFactory();
 
         // First: create file via generator.. and use an odd encoding

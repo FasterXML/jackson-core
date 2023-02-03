@@ -89,7 +89,7 @@ public enum StreamWriteFeature
      * Feature is disabled by default.
      */
     STRICT_DUPLICATE_DETECTION(false),
-    
+
     /**
      * Feature that determines what to do if the underlying data format requires knowledge
      * of all properties to output, and if no definition is found for a property that

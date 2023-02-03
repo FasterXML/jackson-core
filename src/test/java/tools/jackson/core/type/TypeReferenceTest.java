@@ -117,7 +117,7 @@ public class TypeReferenceTest extends BaseTest
             return null;
         }
     }
-    
+
     public void testSimple()
     {
         TypeReference<?> ref = new TypeReference<List<String>>() { };
@@ -128,7 +128,7 @@ public class TypeReferenceTest extends BaseTest
     @SuppressWarnings("rawtypes")
     public void testInvalid()
     {
-        try { 
+        try {
             Object ob = new TypeReference() { };
             fail("Should not pass, got: "+ob);
         } catch (IllegalArgumentException e) {

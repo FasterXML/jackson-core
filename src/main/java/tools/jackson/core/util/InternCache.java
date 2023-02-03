@@ -33,7 +33,7 @@ public final class InternCache
      * flush the map.
      */
     private final Object lock = new Object();
-    
+
     private InternCache() { super(MAX_ENTRIES, 0.8f, 4); }
 
     public String intern(String input) {

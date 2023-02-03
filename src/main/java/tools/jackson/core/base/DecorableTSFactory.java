@@ -99,7 +99,7 @@ public abstract class DecorableTSFactory
     /* Construction
     /**********************************************************************
      */
-    
+
     protected DecorableTSFactory(StreamReadConstraints src,
             int formatPF, int formatGF) {
         super(src, formatPF, formatGF);

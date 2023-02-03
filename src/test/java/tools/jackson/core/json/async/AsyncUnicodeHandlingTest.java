@@ -44,7 +44,7 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
         _testUnicodeWithSurrogates(f, 700, 1);
         _testUnicodeWithSurrogates(f, 9600, 1);
     }
-    
+
     private void _testUnicodeWithSurrogates(JsonFactory f,
             int length, int readSize) throws IOException
     {
@@ -74,7 +74,7 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
         assertToken(JsonToken.VALUE_STRING, r.nextToken());
         assertNull(r.nextToken());
         r.close();
-        
+
         // Also, verify that it works as field name
         data = _jsonDoc("{"+quoted+":true}");
         r = asyncForBytes(f, readSize, data, 0);

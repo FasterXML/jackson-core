@@ -97,7 +97,7 @@ public abstract class JacksonException
      *<p>
      * NOTE: In Jackson 2.x, accessor was {@code getProcessor()}: in 3.0 changed to
      * non-getter to avoid having to annotate for serialization.
-     * 
+     *
      * @return Originating processor, if available; {@code null} if not.
      */
     public abstract Object processor();
@@ -107,7 +107,7 @@ public abstract class JacksonException
     /* Methods for sub-classes to use, override
     /**********************************************************************
      */
-    
+
     /**
      * Accessor that sub-classes can override to append additional
      * information right after the main message, but before
@@ -126,7 +126,7 @@ public abstract class JacksonException
     /* Overrides of standard methods
     /**********************************************************************
      */
-    
+
     /**
      * Default method overridden so that we can add location information
      *

@@ -10,10 +10,10 @@ import tools.jackson.core.json.JsonFactory;
 public class ManualIntRead extends ManualPerfTestBase
 {
     protected final JsonFactory _factory;
-    
+
     protected final byte[] _jsonBytes;
     protected final char[] _jsonChars;
-    
+
     private ManualIntRead(JsonFactory f, String json) throws Exception {
         _factory = f;
         _jsonChars = json.toCharArray();

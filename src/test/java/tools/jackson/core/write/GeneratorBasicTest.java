@@ -46,7 +46,7 @@ public class GeneratorBasicTest
                     gen.close();
                     JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(),
                             new ByteArrayInputStream(bout.toByteArray()));
-                
+
                     JsonToken t = jp.nextToken();
                     assertNotNull("Document \""+utf8String(bout)+"\" yielded no tokens", t);
                     assertEquals(JsonToken.VALUE_STRING, t);
@@ -127,7 +127,7 @@ public class GeneratorBasicTest
             jp.close();
         }
     }
-    
+
     // // Then root-level output testing
 
     public void testRootIntsWrite() throws Exception {
@@ -140,7 +140,7 @@ public class GeneratorBasicTest
          StringWriter sw = new StringWriter();
          ByteArrayOutputStream bytes = new ByteArrayOutputStream();
          JsonGenerator gen;
-         
+
          if (useBytes) {
              gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
          } else {
@@ -162,7 +162,7 @@ public class GeneratorBasicTest
              assertEquals(-13, jp.getIntValue());
          }
      }
-    
+
     // Convenience methods
 
     public void testFieldValueWrites() throws Exception {
@@ -175,7 +175,7 @@ public class GeneratorBasicTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator gen;
-        
+
         if (useBytes) {
             gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
         } else {
@@ -194,7 +194,7 @@ public class GeneratorBasicTest
         gen.close();
 
         String docStr = useBytes ? utf8String(bytes) : sw.toString();
-        
+
         assertEquals("{\"short\":3,\"int\":3,\"long\":3,\"big\":1707,\"double\":0.25,\"float\":-0.25,\"decimal\":17.07}",
                 docStr.trim());
     }
@@ -253,10 +253,10 @@ public class GeneratorBasicTest
         assertTrue(ctxt.inArray());
         assertEquals(1, ctxt.getCurrentIndex());
         assertEquals(2, ctxt.getEntryCount());
-        
+
         gen.writeEndArray();
         assertTrue(gen.streamWriteContext().inObject());
-        
+
         gen.writeEndObject();
         assertTrue(gen.streamWriteContext().inArray());
 
@@ -266,7 +266,7 @@ public class GeneratorBasicTest
         gen.writeEndObject();
 
         assertTrue(gen.streamWriteContext().inRoot());
-        
+
         gen.close();
     }
 

@@ -37,7 +37,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
      * @param d Underlying generator to delegate calls to
      * @param delegateCopyMethods Flag assigned to <code>delagateCopyMethod</code>
      *   and which defines whether copy methods are handled locally (false), or
-     *   delegated to configured 
+     *   delegated to configured
      */
     public JsonGeneratorDelegate(JsonGenerator d, boolean delegateCopyMethods) {
         delegate = d;
@@ -276,7 +276,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         delegate.writeRaw(raw);
         return this;
     }
-    
+
     @Override
     public JsonGenerator writeRaw(char[] text, int offset, int len) throws JacksonException {
         delegate.writeRaw(text, offset, len);
@@ -383,7 +383,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         delegate.writeBoolean(state);
         return this;
     }
-    
+
     @Override
     public JsonGenerator writeNull() throws JacksonException {
         delegate.writeNull();
@@ -410,7 +410,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 //    public JsonGenerator writePOJOProperty(String propName, Object pojo) throws JacksonException {
 
     // Sole exception being this method as it is not a "combo" method
-    
+
     @Override
     public JsonGenerator writeOmittedProperty(String propName) throws JacksonException {
         delegate.writeOmittedProperty(propName);
@@ -452,7 +452,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /* Public API, write methods, serializing Java objects
     /**********************************************************************
      */
-    
+
     @Override
     public JsonGenerator writePOJO(Object pojo) throws JacksonException {
         if (delegateCopyMethods) {
@@ -466,7 +466,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         }
         return this;
     }
-    
+
     @Override
     public JsonGenerator writeTree(TreeNode tree) throws JacksonException {
         if (delegateCopyMethods) {
@@ -522,7 +522,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /* Public API, buffer handling
     /**********************************************************************
      */
-    
+
     @Override public void flush() { delegate.flush(); }
     @Override public void close() { delegate.close(); }
 
@@ -531,7 +531,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /* Closeable implementation
     /**********************************************************************
      */
-    
+
     @Override public boolean isClosed() { return delegate.isClosed(); }
 
     /*

@@ -300,7 +300,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * Method called before trying to write a value (scalar or structured),
      * to verify that this is legal in current output state, as well as to
      * output separators if and as necessary.
-     * 
+     *
      * @param typeMsg Additional message used for generating exception message
      *   if value output is NOT legal in current generator output state.
      *

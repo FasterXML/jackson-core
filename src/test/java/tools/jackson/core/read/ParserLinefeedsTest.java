@@ -45,10 +45,10 @@ public class ParserLinefeedsTest
         JsonParser jp = useStream ?
             createParserUsingStream(DOC, "UTF-8")
             : createParserUsingReader(DOC);
-            
+
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertEquals(1, jp.currentLocation().getLineNr());
-        
+
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(1, jp.getIntValue());
         assertEquals(1, jp.currentLocation().getLineNr());
@@ -60,7 +60,7 @@ public class ParserLinefeedsTest
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(-478, jp.getIntValue());
         assertEquals(3, jp.currentLocation().getLineNr());
-        
+
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         assertEquals(4, jp.currentLocation().getLineNr());
 

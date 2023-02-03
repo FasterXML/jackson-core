@@ -8,7 +8,7 @@ package tools.jackson.core.util;
  *<p>
  * Note that some implementations may choose to implement {@link #createInstance}
  * by simply returning 'this': this is acceptable if instances are stateless.
- * 
+ *
  * @see DefaultPrettyPrinter
  */
 public interface Instantiatable<T>

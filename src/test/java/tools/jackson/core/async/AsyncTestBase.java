@@ -34,7 +34,7 @@ public abstract class AsyncTestBase extends BaseTest
                 bytesPerRead, bytes, padding);
     }
 
-    protected static String spaces(int count) 
+    protected static String spaces(int count)
     {
         return SPACES.substring(0, Math.min(SPACES.length(), count));
     }

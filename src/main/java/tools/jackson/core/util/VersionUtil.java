@@ -41,7 +41,7 @@ public class VersionUtil
      *
      * @param cls Class for which to look version information
      *
-     * @return Version information discovered if any; 
+     * @return Version information discovered if any;
      *  {@link Version#unknownVersion()} if none
      */
     public static Version versionFor(Class<?> cls)

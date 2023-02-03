@@ -16,7 +16,7 @@ public class AsyncReaderWrapperForByteArray extends AsyncReaderWrapper
 
     private int _offset;
     private int _end;
-    
+
     public AsyncReaderWrapperForByteArray(JsonParser sr, int bytesPerCall,
                                           byte[] doc, int padding)
     {

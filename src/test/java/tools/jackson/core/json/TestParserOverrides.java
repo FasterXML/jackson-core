@@ -58,7 +58,7 @@ public class TestParserOverrides extends tools.jackson.core.BaseTest
         }
         jp.close();
     }
-    
+
     private void _testCurrentName(JsonFactory jf, boolean useStream) throws Exception
     {
         final String DOC = "{\"first\":{\"second\":3, \"third\":false}}";

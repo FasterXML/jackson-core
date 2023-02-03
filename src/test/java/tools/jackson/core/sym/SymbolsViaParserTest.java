@@ -30,7 +30,7 @@ public class SymbolsViaParserTest
     public void testSymbolTableExpansionBytes() throws Exception {
         _testSymbolTableExpansion(true);
     }
-    
+
     /*
     /**********************************************************
     /* Secondary test methods
@@ -41,7 +41,7 @@ public class SymbolsViaParserTest
     {
         String doc = _createDoc17();
         JsonFactory f = new JsonFactory();
-        
+
         JsonParser p = useBytes
                 ? f.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"))
                 : f.createParser(ObjectReadContext.empty(), doc);

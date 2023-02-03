@@ -25,7 +25,7 @@ public class DupDetector
     protected String _firstName;
 
     protected String _secondName;
-    
+
     /**
      * Lazily constructed set of names already seen within this context.
      */
@@ -42,7 +42,7 @@ public class DupDetector
     public static DupDetector rootDetector(JsonGenerator g) {
         return new DupDetector(g);
     }
-    
+
     public DupDetector child() {
         return new DupDetector(_source);
     }

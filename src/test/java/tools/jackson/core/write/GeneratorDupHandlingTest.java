@@ -26,7 +26,7 @@ public class GeneratorDupHandlingTest
         JsonGenerator g1;
 
         f = f.rebuild().enable(StreamWriteFeature.STRICT_DUPLICATE_DETECTION).build();
-        g1 = _generator(f, useStream);            
+        g1 = _generator(f, useStream);
         try {
             _writeSimple0(g1, "a");
             fail("Should have gotten exception");
@@ -35,7 +35,7 @@ public class GeneratorDupHandlingTest
         }
 
         JsonGenerator g2;
-        g2 = _generator(f, useStream);            
+        g2 = _generator(f, useStream);
         try {
             _writeSimple1(g2, "x");
             fail("Should have gotten exception");

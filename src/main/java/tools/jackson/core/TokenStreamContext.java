@@ -123,7 +123,7 @@ public abstract class TokenStreamContext
      * Method for accessing simple type description of current context;
      * either ROOT (for root-level values), OBJECT (for Object property names and
      * values) or ARRAY (for elements of JSON Arrays)
-     * 
+     *
      * @return Type description String
      */
     public String typeDesc() {
@@ -179,7 +179,7 @@ public abstract class TokenStreamContext
         }
         return false;
     }
-    
+
     /**
      * Method for accessing name associated with the current location.
      * Non-null for <code>PROPERTY_NAME</code> and value events that directly
@@ -200,7 +200,7 @@ public abstract class TokenStreamContext
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
-     * 
+     *
      * @return Currently active value, if one has been assigned.
      */
     public Object currentValue() {

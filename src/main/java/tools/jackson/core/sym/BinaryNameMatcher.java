@@ -306,7 +306,7 @@ public final class BinaryNameMatcher
         _longNameOffset += qlen;
         return start;
     }
-    
+
     /*
     /**********************************************************************
     /* API, accessors, mostly for Unit Tests
@@ -484,7 +484,7 @@ public final class BinaryNameMatcher
 
         final int[] hashArea = _hashArea;
         final int lenAndIndex = hashArea[offset+3];
-        
+
         if ((hash == hashArea[offset]) && ((lenAndIndex & 0xFFFF) == qlen)) {
             // probable but not guaranteed: verify
             if (_verifyLongName(q, qlen, hashArea[offset+1])) {
@@ -631,7 +631,7 @@ public final class BinaryNameMatcher
         }
         return -1;
     }
-    
+
     private boolean _verifyLongName(int[] q, int qlen, int spillOffset)
     {
         final int[] hashArea = _hashArea;
@@ -676,11 +676,11 @@ public final class BinaryNameMatcher
      */
 
     // // Copied straight frmo big quads canonicalizer: look comments there
-    
+
     private final static int MULT = 33;
     private final static int MULT2 = 65599;
     private final static int MULT3 = 31;
-    
+
     public int calcHash(int q1)
     {
         int hash = q1 + (q1 >>> 16) ^ (q1 << 3);
@@ -724,7 +724,7 @@ public final class BinaryNameMatcher
             hash += next;
         }
         hash *= MULT2;
-        
+
         // and finally shuffle some more once done
         hash += (hash >>> 19);
         hash ^= (hash << 5);
@@ -742,7 +742,7 @@ public final class BinaryNameMatcher
                 getClass().getName(), _count, _hashSize,
                 pri, sec, tert, spill, (pri+sec+tert+spill), total);
     }
-    
+
     /*
     /**********************************************************************
     /* Helper methods

@@ -64,7 +64,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * property, and also used for array elements.
      */
     protected TokenFilter _itemFilter;
-    
+
     /**
      * Number of tokens for which {@link TokenFilter#INCLUDE_ALL}
      * has been returned
@@ -107,7 +107,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public TokenStreamContext getFilterContext() {
         return _filterContext;
     }
-    
+
     /**
      * Accessor for finding number of matches, where specific token and sub-tree
      * starting (if structured type) are passed.
@@ -123,7 +123,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /* Public API, accessors
     /**********************************************************************
      */
-    
+
     @Override
     public TokenStreamContext streamWriteContext() {
         /* 11-Apr-2015, tatu: Choice is between pre- and post-filter context;
@@ -132,13 +132,13 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
          */
         return _filterContext;
     }
-    
+
     /*
     /**********************************************************************
     /* Public API, write methods, structural
     /**********************************************************************
      */
-    
+
     @Override
     public JsonGenerator writeStartArray() throws JacksonException
     {
@@ -268,7 +268,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, null, false);
             return this;
         }
-        
+
         if (f != TokenFilter.INCLUDE_ALL) {
             f = f.filterStartObject();
         }
@@ -894,7 +894,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     // 25-Mar-2015, tatu: These are tricky as they sort of predate actual filtering calls.
     //   Let's try to use current state as a clue at least...
-    
+
     @Override
     public JsonGenerator writeObjectId(Object id) throws JacksonException {
         if (_itemFilter != null) {
@@ -910,7 +910,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         return this;
     }
-    
+
     @Override
     public JsonGenerator writeTypeId(Object id) throws JacksonException {
         if (_itemFilter != null) {
@@ -932,10 +932,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public JsonGenerator writeObject(Object pojo) {
 ...
     }
-    
+
     @Override
     public JsonGenerator writeTree(TreeNode rootNode) {
-...    
+...
     }
     */
 
@@ -1013,7 +1013,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext.skipParentChecks();
         }
     }
-    
+
     protected boolean _checkBinaryWrite() throws JacksonException
     {
         if (_itemFilter == null) {
@@ -1028,7 +1028,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         return false;
     }
-    
+
     protected boolean _checkRawValueWrite() throws JacksonException
     {
         if (_itemFilter == null) {

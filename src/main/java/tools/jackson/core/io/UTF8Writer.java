@@ -194,7 +194,7 @@ public final class UTF8Writer extends Writer
         }
         _outPtr = outPtr;
     }
-    
+
     @Override
     public void write(int c) throws IOException
     {
@@ -370,11 +370,11 @@ public final class UTF8Writer extends Writer
         }
         return 0x10000 + ((firstPart - SURR1_FIRST) << 10) + (secondPart - SURR2_FIRST);
     }
-    
+
     protected static void illegalSurrogate(int code) throws IOException {
         throw new IOException(illegalSurrogateDesc(code));
     }
-    
+
     protected static String illegalSurrogateDesc(int code)
     {
         if (code > 0x10FFFF) { // over max?

@@ -24,7 +24,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     private final static String UNICODE_SHORT_NAME = "Unicode"+UNICODE_3BYTES+"RlzOk";
 
     private final static String UNICODE_LONG_NAME = "Unicode-with-"+UNICODE_3BYTES+"-much-longer";
-    
+
     public void testBooleans()
     {
         final JsonFactory f = JSON_F;
@@ -54,13 +54,13 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         assertEquals("a", r.currentText());
         // by default no cheap access to char[] version:
         assertFalse(r.parser().hasTextCharacters());
-        // but... 
+        // but...
         char[] ch = r.parser().getTextCharacters();
         assertEquals(0, r.parser().getTextOffset());
         assertEquals(1, r.parser().getTextLength());
         assertEquals("a", new String(ch, 0, 1));
         assertTrue(r.parser().hasTextCharacters());
-        
+
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
@@ -82,7 +82,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(UNICODE_LONG_NAME, r.currentText());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
-        
+
         // and for fun let's verify can't access this as number or binary
         try {
             r.getDoubleValue();

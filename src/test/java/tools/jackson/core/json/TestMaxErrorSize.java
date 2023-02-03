@@ -10,7 +10,7 @@ public class TestMaxErrorSize
     extends tools.jackson.core.BaseTest
 {
     private final static int EXPECTED_MAX_TOKEN_LEN = 256; // ParserBase.MAX_ERROR_TOKEN_LENGTH
-    
+
     private final JsonFactory JSON_F = newStreamFactory();
 
     public void testLongErrorMessage()

@@ -147,7 +147,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
         _streamWriteFeatures &= ~f.getMask();
         return _this();
     }
-    
+
     public B disable(StreamWriteFeature first, StreamWriteFeature... other) {
         _streamWriteFeatures &= ~first.getMask();
         for (StreamWriteFeature f : other) {

@@ -30,7 +30,7 @@ public class TextualNameHashTest extends BaseTest
         // similarly, not so great...
         _testSpillEfficiency(generate("SlartiBartFast#", 3000), 479, 291);
     }
-        
+
     public void testPrefix1() {
         _testSpillEfficiency(generate2("", 99), 0, 0);
     }

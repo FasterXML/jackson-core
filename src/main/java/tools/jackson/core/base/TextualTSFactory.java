@@ -53,7 +53,7 @@ public abstract class TextualTSFactory
     /* Default introspection
     /**********************************************************************
      */
-    
+
     @Override
     public boolean canHandleBinaryNatively() {
         // typically textual formats need escaping like Base64 so:
@@ -65,7 +65,7 @@ public abstract class TextualTSFactory
     /* Extended capabilities for textual formats (only)
     /**********************************************************************
      */
-    
+
     /**
      * Introspection method that can be used by base factory to check
      * whether access using <code>char[]</code> is something that actual
@@ -183,7 +183,7 @@ public abstract class TextualTSFactory
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, 
+    public JsonParser createParser(ObjectReadContext readCtxt,
             DataInput in) throws JacksonException
     {
         IOContext ioCtxt = _createContext(_createContentReference(in), false);

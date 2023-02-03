@@ -29,7 +29,7 @@ public class RawStringWriteTest extends tools.jackson.core.BaseTest
         g.writeEndArray();
         g.close();
         byte[] json = out.toByteArray();
-        
+
         // Ok: let's verify that stuff was written out ok
         JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), json);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
@@ -63,7 +63,7 @@ public class RawStringWriteTest extends tools.jackson.core.BaseTest
         g.writeEndArray();
         g.close();
         byte[] json = out.toByteArray();
-        
+
         // Ok: let's verify that stuff was written out ok
         JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), json);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
@@ -84,7 +84,7 @@ public class RawStringWriteTest extends tools.jackson.core.BaseTest
         _testWriteRawWithSerializable(JSON_F, true);
         _testWriteRawWithSerializable(JSON_F, false);
     }
-    
+
     private void _testWriteRawWithSerializable(JsonFactory f, boolean useBytes) throws Exception
     {
         JsonGenerator g;
@@ -142,7 +142,7 @@ public class RawStringWriteTest extends tools.jackson.core.BaseTest
         } while (totalLength > 0);
         return strings;
     }
-        
+
     private String generateString(Random rnd, int length, boolean includeCtrlChars)
     {
         StringBuilder sb = new StringBuilder(length);

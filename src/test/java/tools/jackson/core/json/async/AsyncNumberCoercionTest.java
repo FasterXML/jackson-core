@@ -51,7 +51,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         assertEquals(0.1, p.getDoubleValue());
         assertEquals(0, p.getIntValue());
         p.close();
-        
+
         // BigDecimal->int
         p = createParser("10");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -206,7 +206,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             assertEquals(Long.TYPE, e.getTargetType());
         }
     }
-    
+
     public void testToBigIntegerCoercion() throws Exception
     {
         AsyncReaderWrapper p;
@@ -224,7 +224,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         assertEquals(2.0, p.getDoubleValue());
         assertEquals(BigInteger.valueOf(2L), p.getBigIntegerValue());
         p.close();
-        
+
         p = createParser(String.valueOf(Long.MAX_VALUE));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         // long to BigInteger
@@ -234,7 +234,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
 
         p = createParser(" 200.0");
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        // BigDecimal to BigInteger 
+        // BigDecimal to BigInteger
         assertEquals(new BigDecimal("200.0"), p.getDecimalValue());
         assertEquals(BigInteger.valueOf(200L), p.getBigIntegerValue());
         p.close();
@@ -263,7 +263,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         assertEquals(10.0, p.getDoubleValue());
         p.close();
     }
-    
+
     public void testToBigDecimalCoercion() throws Exception
     {
         AsyncReaderWrapper p;

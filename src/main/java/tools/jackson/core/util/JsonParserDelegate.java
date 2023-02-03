@@ -36,7 +36,7 @@ public class JsonParserDelegate extends JsonParser
 
     @Override
     public TokenStreamContext streamReadContext() { return delegate.streamReadContext(); }
-    
+
     @Override
     public ObjectReadContext objectReadContext() { return delegate.objectReadContext(); }
 
@@ -75,7 +75,7 @@ public class JsonParserDelegate extends JsonParser
         return this;
     }
     */
- 
+
     @Override public boolean isEnabled(StreamReadFeature f) { return delegate.isEnabled(f); }
     @Override public int streamReadFeatures() { return delegate.streamReadFeatures(); }
 
@@ -189,7 +189,7 @@ public class JsonParserDelegate extends JsonParser
 
     @Override
     public boolean getBooleanValue() throws InputCoercionException { return delegate.getBooleanValue(); }
-    
+
     @Override
     public byte getByteValue() throws InputCoercionException { return delegate.getByteValue(); }
 

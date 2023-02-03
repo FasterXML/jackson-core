@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
 public abstract class TypeReference<T> implements Comparable<TypeReference<T>>
 {
     protected final Type _type;
-    
+
     protected TypeReference()
     {
         Type superClass = getClass().getGenericSuperclass();
@@ -45,7 +45,7 @@ public abstract class TypeReference<T> implements Comparable<TypeReference<T>>
     }
 
     public Type getType() { return _type; }
-    
+
     /**
      * The only reason we define this method (and require implementation
      * of <code>Comparable</code>) is to prevent constructing a

@@ -241,7 +241,7 @@ public class ReaderBasedJsonParser
     protected void _loadMoreGuaranteed() throws JacksonException {
         if (!_loadMore()) { _reportInvalidEOF(); }
     }
-    
+
     protected boolean _loadMore() throws JacksonException
     {
         if (_reader != null) {
@@ -332,7 +332,7 @@ public class ReaderBasedJsonParser
         }
         return 0;
     }
-    
+
     // // // Let's override default impls for improved performance
 
     @Override
@@ -802,7 +802,7 @@ public class ReaderBasedJsonParser
         _nextToken = null;
 
 // !!! 16-Nov-2015, tatu: TODO: fix [databind#37], copy next location to current here
-        
+
         // Also: may need to start new context?
         if (t == JsonToken.START_ARRAY) {
             _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
@@ -953,7 +953,7 @@ public class ReaderBasedJsonParser
             _nextToken = JsonToken.VALUE_STRING;
             return name;
         }
-        
+
         // Ok: we must have a value... what is it?
 
         JsonToken t;
@@ -1178,10 +1178,10 @@ public class ReaderBasedJsonParser
         /*
          * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
          * The Check is for missing values. In case of missing values in an array, the next token will be either ',' or ']'.
-         * This case, decrements the already incremented _inputPtr in the buffer in case of comma(,) 
+         * This case, decrements the already incremented _inputPtr in the buffer in case of comma(,)
          * so that the existing flow goes back to checking the next token which will be comma again and
          * it continues the parsing.
-         * Also the case returns NULL as current token in case of ',' or ']'.    
+         * Also the case returns NULL as current token in case of ',' or ']'.
          */
 // case ']':  // 11-May-2020, tatu: related to [core#616], this should never be reached
         case ',':
@@ -1189,7 +1189,7 @@ public class ReaderBasedJsonParser
             if (!_streamReadContext.inRoot()) {
                 if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
                     --_inputPtr;
-                    return (_currToken = JsonToken.VALUE_NULL);  
+                    return (_currToken = JsonToken.VALUE_NULL);
                 }
             }
         }
@@ -2783,7 +2783,7 @@ public class ReaderBasedJsonParser
             }
             ++_inputPtr;
         } while (++i < len);
-    
+
         // but let's also ensure we either get EOF, or non-alphanum char...
         if (_inputPtr >= _inputEnd && !_loadMore()) {
             return;

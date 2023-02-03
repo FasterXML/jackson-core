@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  *<p>
  * Note that "quoted" in methods means quoting of 'special' characters using
  * JSON backlash notation (and not use of actual double quotes).
- * 
+ *
  * @see tools.jackson.core.io.SerializedString
  */
 public interface SerializableString
@@ -30,7 +30,7 @@ public interface SerializableString
      * @return Unquoted String
      */
     String getValue();
-    
+
     /**
      * Returns length of the (unquoted) String as characters.
      * Functionally equivalent to:
@@ -46,7 +46,8 @@ public interface SerializableString
     /**********************************************************************
     /* Accessors for byte sequences
     /**********************************************************************
-    
+     */
+
     /**
      * Returns JSON quoted form of the String, as character array.
      * Result can be embedded as-is in textual JSON as property name or JSON String.
@@ -111,11 +112,11 @@ public interface SerializableString
      *
      * @param buffer Buffer to append JSON-escaped String into
      * @param offset Offset in {@code buffer} to append String at
-     * 
+     *
      * @return Number of characters appended, if successful, otherwise -1
      */
     int appendQuoted(char[] buffer, int offset);
-    
+
     /**
      * Method that will append unquoted ('raw') UTF-8 bytes of this String into given
      * buffer. Functionally equivalent to:
@@ -127,7 +128,7 @@ public interface SerializableString
      *
      * @param buffer Buffer to append literal (unescaped) String into
      * @param offset Offset in {@code buffer} to append String at
-     * 
+     *
      * @return Number of bytes appended, if successful, otherwise -1
      */
     int appendUnquotedUTF8(byte[] buffer, int offset);
@@ -143,7 +144,7 @@ public interface SerializableString
      *
      * @param buffer Buffer to append literal (unescaped) String into
      * @param offset Offset in {@code buffer} to append String at
-     * 
+     *
      * @return Number of characters appended, if successful, otherwise -1
      */
     int appendUnquoted(char[] buffer, int offset);

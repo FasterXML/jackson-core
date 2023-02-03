@@ -42,7 +42,7 @@ public final class JacksonFeatureSet<F extends JacksonFeature>
 "Cannot use type `%s` with JacksonFeatureSet: too many entries (%d > 31)",
 desc, allFeatures.length));
         }
-        
+
         int flags = 0;
         for (F f : allFeatures) {
             if (f.enabledByDefault()) {
@@ -97,7 +97,7 @@ desc, allFeatures.length));
 
     /**
      * Accessor for underlying bitmask
-     * 
+     *
      * @return Bitmask of enabled features
      */
     public int asBitmask() {

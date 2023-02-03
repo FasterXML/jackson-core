@@ -27,7 +27,7 @@ public class TokenFilterContext extends TokenStreamContext
     /* Location/state information
     /**********************************************************************
      */
-    
+
     /**
      * Name of the property of which value is to be parsed; only
      * used for OBJECT contexts
@@ -127,7 +127,7 @@ public class TokenFilterContext extends TokenStreamContext
     /* State changes
     /**********************************************************************
      */
-    
+
     public TokenFilter setPropertyName(String name) {
         _currentName = name;
         _needToHandleName = true;
@@ -274,7 +274,7 @@ public class TokenFilterContext extends TokenStreamContext
         }
         return _parent;
     }
-    
+
     public void skipParentChecks() {
         _filter = null;
         for (TokenFilterContext ctxt = _parent; ctxt != null; ctxt = ctxt._parent) {
@@ -334,7 +334,7 @@ public class TokenFilterContext extends TokenStreamContext
         // should never occur but...
         return null;
     }
-    
+
     // // // Internally used abstract methods
 
     protected void appendDesc(StringBuilder sb) {

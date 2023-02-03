@@ -114,7 +114,7 @@ public final class ByteSourceJsonBootstrapper
     /*  Encoding detection during bootstrapping
     /**********************************************************************
      */
-    
+
     /**
      * Method that should be called after constructing an instace.
      * It will figure out encoding that content uses, to allow
@@ -140,7 +140,7 @@ public final class ByteSourceJsonBootstrapper
                 | ((_inputBuffer[_inputPtr+1] & 0xFF) << 16)
                 | ((_inputBuffer[_inputPtr+2] & 0xFF) << 8)
                 | (_inputBuffer[_inputPtr+3] & 0xFF);
-            
+
             if (handleBOM(quad)) {
                 foundEncoding = true;
             } else {
@@ -224,7 +224,7 @@ public final class ByteSourceJsonBootstrapper
     /* Constructing a Reader
     /**********************************************************************
      */
-    
+
     @SuppressWarnings("resource")
     public Reader constructReader() throws JacksonException
     {

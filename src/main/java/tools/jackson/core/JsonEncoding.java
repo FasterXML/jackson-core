@@ -28,7 +28,7 @@ public enum JsonEncoding {
     private final boolean _bigEndian;
 
     private final int _bits;
-    
+
     JsonEncoding(String javaName, boolean bigEndian, int bits)
     {
         _javaName = javaName;

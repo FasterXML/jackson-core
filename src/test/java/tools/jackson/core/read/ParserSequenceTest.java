@@ -60,7 +60,7 @@ public class ParserSequenceTest
         assertToken(JsonToken.END_ARRAY, seq.nextToken());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, seq.nextToken());
-        
+
         assertToken(JsonToken.START_OBJECT, seq.nextToken());
         assertToken(JsonToken.END_OBJECT, seq.nextToken());
 
@@ -70,7 +70,7 @@ public class ParserSequenceTest
         assertTrue(p3.isClosed());
         assertTrue(seq.isClosed());
     }
-    
+
     // for [jackson-core#296]
     public void testInitializationDisabled() throws Exception
     {
@@ -84,7 +84,7 @@ public class ParserSequenceTest
         assertEquals(3, p2.getIntValue());
 
         // with legacy settings, will see neither '1' nor '3'
-        
+
         JsonParserSequence seq = JsonParserSequence.createFlattened(false, p1, p2);
         assertToken(JsonToken.VALUE_NUMBER_INT, seq.nextToken());
         assertEquals(2, seq.getIntValue());
@@ -105,7 +105,7 @@ public class ParserSequenceTest
         assertEquals(3, p2.getIntValue());
 
         // with new settings, both '1' and '3' will be visible
-        
+
         JsonParserSequence seq = JsonParserSequence.createFlattened(true, p1, p2);
         assertToken(JsonToken.VALUE_NUMBER_INT, seq.nextToken());
         assertEquals(1, seq.getIntValue());

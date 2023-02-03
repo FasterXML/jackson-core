@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link ClassLoader} would have dangling reference via {@link ThreadLocal}s.
  * When gc clears a SoftReference, it puts it on a newly introduced referenceQueue.
  * We use this queue to release the inactive SoftReferences from the Set.
- * 
+ *
  * @since 2.9.6
  */
 class ThreadLocalBufferManager

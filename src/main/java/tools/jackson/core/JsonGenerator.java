@@ -186,7 +186,7 @@ public abstract class JsonGenerator
     /**
      * Bulk access method for getting state of all standard (format-agnostic)
      * {@link StreamWriteFeature}s.
-     * 
+     *
      * @return Bit mask that defines current states of all standard {@link StreamWriteFeature}s.
      *
      * @since 3.0
@@ -215,7 +215,7 @@ public abstract class JsonGenerator
      * Some generators may not support additional escaping: for example,
      * generators for binary formats that do not use escaping should
      * simply return 0.
-     * 
+     *
      * @return Currently active limitation for highest non-escaped character,
      *   if defined; or 0 to indicate no additional escaping is performed.
      */
@@ -347,7 +347,7 @@ public abstract class JsonGenerator
      * Java object that the Array Object being written represents (if any)
      * and how many elements will be written for the array before calling
      * {@link #writeEndArray()}.
-     * 
+     *
      * @param currentValue Java Object that Array being written represents, if any
      *    (or {@code null} if not known or not applicable)
      * @param size Number of elements this Array will have: actual
@@ -908,7 +908,7 @@ public abstract class JsonGenerator
 
     /**
      * Similar to {@link #writeBinary(Base64Variant,byte[],int,int)},
-     * but default to using the Jackson default Base64 variant 
+     * but default to using the Jackson default Base64 variant
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}).
      *
      * @param data Buffer that contains binary data to write
@@ -924,7 +924,7 @@ public abstract class JsonGenerator
 
     /**
      * Similar to {@link #writeBinary(Base64Variant,byte[],int,int)},
-     * but assumes default to using the Jackson default Base64 variant 
+     * but assumes default to using the Jackson default Base64 variant
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}). Also
      * assumes that whole byte array is to be output.
      *
@@ -939,9 +939,9 @@ public abstract class JsonGenerator
 
     /**
      * Similar to {@link #writeBinary(Base64Variant,InputStream,int)},
-     * but assumes default to using the Jackson default Base64 variant 
+     * but assumes default to using the Jackson default Base64 variant
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}).
-     * 
+     *
      * @param data InputStream to use for reading binary data to write.
      *    Will not be closed after successful write operation
      * @param dataLength (optional) number of bytes that will be available;
@@ -958,12 +958,12 @@ public abstract class JsonGenerator
     public int writeBinary(InputStream data, int dataLength) throws JacksonException {
         return writeBinary(Base64Variants.getDefaultVariant(), data, dataLength);
     }
-    
+
     /**
      * Method similar to {@link #writeBinary(Base64Variant,byte[],int,int)},
      * but where input is provided through a stream, allowing for incremental
      * writes without holding the whole input in memory.
-     * 
+     *
      * @param bv Base64 variant to use
      * @param data InputStream to use for reading binary data to write.
      *    Will not be closed after successful write operation
@@ -975,7 +975,7 @@ public abstract class JsonGenerator
      *    need not support cases where length is not known in advance; this
      *    depends on underlying data format: JSON output does NOT require length,
      *    other formats may.
-     * 
+     *
      * @return Number of bytes read from <code>data</code> and written as binary payload
      *
      * @throws WrappedIOException if there is an underlying I/O problem
@@ -1103,7 +1103,7 @@ public abstract class JsonGenerator
      * for generator-wrappers around Java objects or JSON nodes.
      * If implementation does not implement this method,
      * it needs to throw {@link UnsupportedOperationException}.
-     * 
+     *
      * @param encodedValue Textual (possibly format) number representation to write
      *
      * @throws UnsupportedOperationException If underlying data format does not
@@ -1233,7 +1233,7 @@ public abstract class JsonGenerator
     public JsonGenerator writeObjectRef(Object referenced) throws JacksonException {
         throw _constructWriteException("No native support for writing Object Ids");
     }
-    
+
     /**
      * Method that can be called to output so-called native Type Id.
      * Note that it may only be called after ensuring this is legal
@@ -1294,7 +1294,7 @@ public abstract class JsonGenerator
                     && incl.requiresObjectContext()) {
                 typeIdDef.include = incl = WritableTypeId.Inclusion.WRAPPER_ARRAY;
             }
-            
+
             switch (incl) {
             case PARENT_PROPERTY:
                 // nothing to do here, as it has to be written in suffix...
@@ -1691,7 +1691,7 @@ public abstract class JsonGenerator
     }
 
     // // // But this method does need to be delegate so...
-    
+
     /**
      * Method called to indicate that a property in this position was
      * skipped. It is usually only called for generators that return

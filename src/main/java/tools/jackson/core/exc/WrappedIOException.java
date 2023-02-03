@@ -46,7 +46,7 @@ public class WrappedIOException extends JacksonException
 
     @Override
     public Object processor() { return _processor; }
-    
+
     @Override // just for co-variant type
     public IOException getCause() {
         return (IOException) super.getCause();

@@ -93,10 +93,10 @@ public enum JsonReadFeature
     ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false),
 
     // // // Support for non-standard data format constructs: number representations
-    
+
     /**
      * Feature that determines whether parser will allow
-     * JSON integral numbers to start with additional (ignorable) 
+     * JSON integral numbers to start with additional (ignorable)
      * zeroes (like: {@code 000001}). If enabled, no exception is thrown, and extra
      * nulls are silently ignored (and not included in textual representation
      * exposed via {@link JsonParser#getText}).
@@ -170,7 +170,7 @@ public enum JsonReadFeature
      * in data-binding.
      * <p>
      * For example, enabling this feature will represent a JSON array <code>["value1",,"value3",]</code>
-     * as <code>["value1", null, "value3", null]</code> 
+     * as <code>["value1", null, "value3", null]</code>
      * <p>
      * Since the JSON specification does not allow missing values this is a non-compliant JSON
      * feature and is disabled by default.
@@ -218,7 +218,7 @@ public enum JsonReadFeature
         }
         return flags;
     }
-    
+
     private JsonReadFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());

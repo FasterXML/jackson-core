@@ -58,7 +58,7 @@ public class BinaryNameMatcherTest extends BaseTest
         }
         return result;
     }
-    
+
     private void _testMatching(String... nameArray) {
         _testMatching(Arrays.asList(nameArray));
     }
@@ -83,7 +83,7 @@ public class BinaryNameMatcherTest extends BaseTest
     }
 
     private void _expectMatch(BinaryNameMatcher matcher, List<String> names, int index)
-    {     
+    {
         String name = names.get(index);
         _expectMatch(matcher, names, index, name);
     }

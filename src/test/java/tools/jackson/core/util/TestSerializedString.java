@@ -18,7 +18,7 @@ public class TestSerializedString
     {
         final String INPUT = "\"quo\\ted\"";
         final String QUOTED = "\\\"quo\\\\ted\\\"";
-        
+
         SerializableString sstr = new SerializedString(INPUT);
         // sanity checks first:
         assertEquals(sstr.getValue(), INPUT);
@@ -47,7 +47,7 @@ public class TestSerializedString
         final byte[] buffer = new byte[INPUT.length() - 2];
         final char[] ch = new char[INPUT.length() - 2];
         final ByteBuffer bbuf = ByteBuffer.allocate(INPUT.length() - 2);
-        
+
         assertEquals(-1, sstr.appendQuotedUTF8(buffer, 0));
         assertEquals(-1, sstr.appendQuoted(ch, 0));
         assertEquals(-1, sstr.putQuotedUTF8(bbuf));

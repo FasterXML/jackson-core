@@ -9,7 +9,7 @@ public enum JsonWriteFeature
     implements FormatFeature
 {
     // // // Support for non-standard JSON constructs: Quoting/escaping
-    
+
     /**
      * Feature that determines whether JSON Object property names are
      * quoted using double-quotes, as specified by JSON specification
@@ -27,7 +27,7 @@ public enum JsonWriteFeature
      * Feature that determines whether "NaN" ("not a number", that is, not
      * real number) float/double values are output as JSON strings.
      * The values checked are Double.Nan,
-     * Double.POSITIVE_INFINITY and Double.NEGATIVE_INIFINTY (and 
+     * Double.POSITIVE_INFINITY and Double.NEGATIVE_INIFINTY (and
      * associated Float values).
      * If feature is disabled, these numbers are still output using
      * associated literal values, resulting in non-conforming
@@ -38,7 +38,7 @@ public enum JsonWriteFeature
     WRITE_NAN_AS_STRINGS(true),
 
     // // // Support for escaping variations
-    
+
     /**
      * Feature that forces all regular number values to be written as JSON Strings,
      * instead of as JSON Numbers.
@@ -121,7 +121,7 @@ public enum JsonWriteFeature
         }
         return flags;
     }
-    
+
     private JsonWriteFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());

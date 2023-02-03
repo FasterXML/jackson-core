@@ -73,7 +73,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         _testSimpleUnquoted(f, 1, 3);
         _testSimpleUnquoted(f, 1, 1);
     }
-    
+
     private void _testSimpleUnquoted(JsonFactory f,
             int offset, int readSize)
     {
@@ -222,7 +222,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         assertEquals(UNINAME, p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(UNIVALUE, p.currentText());
-        
+
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
 
@@ -280,7 +280,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         _testSingleQuotesEscaped(f, 1, 99);
         _testSingleQuotesEscaped(f, 1, 1);
     }
-        
+
     private void _testSingleQuotesEscaped(JsonFactory f,
             int offset, int readSize)
     {
@@ -340,7 +340,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("me+my", p.currentText());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
-    
+
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }
@@ -363,7 +363,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         JsonFactory f = new JsonFactory();
         final String JSON = q("\\'");
         AsyncReaderWrapper p = createParser(f, JSON, offset, readSize);
-        try {      
+        try {
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");

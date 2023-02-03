@@ -46,7 +46,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
         byte[] doc = bytes.toByteArray();
 
         AsyncReaderWrapper p = asyncForBytes(JSON_F, readSize, doc, offset);
-        
+
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         // should also have skipped first 3 bytes of BOM; but do we have offset available?
         /* Alas, due to [core#111], we have to omit BOM in calculations
@@ -70,7 +70,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
-    
+
     private void _testUTF8BomFail(int offset, int readSize,
             int okBytes, String verify) throws Exception
     {

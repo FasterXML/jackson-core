@@ -15,7 +15,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
     public void testDefaultsForAsync() throws Exception {
         assertFalse(DEFAULT_F.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
     }
-    
+
     public void testDisallowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
@@ -45,13 +45,13 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         _testAllowNaN(f, JSON, 2);
         _testAllowNaN(f, JSON, 1);
     }
-    
+
     private void _testAllowNaN(JsonFactory f, String doc, int readBytes) throws Exception
     {
         AsyncReaderWrapper p = createParser(f, doc, readBytes);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        
+
         double d = p.getDoubleValue();
         assertTrue(Double.isNaN(d));
         assertEquals("NaN", p.currentText());
@@ -62,7 +62,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         } catch (NumberFormatException e) {
             verifyException(e, "can not be represented as `java.math.BigDecimal`");
         }
-       
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 
@@ -111,7 +111,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
             p.close();
         }
     }
-    
+
     public void testAllowInf() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -174,7 +174,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        
+
         p.close();
     }
 

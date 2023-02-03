@@ -252,7 +252,7 @@ public class ObjectWriteTest
         // no native binary indicator in JSON, so:
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("AQI=", p.getText());
-        
+
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }

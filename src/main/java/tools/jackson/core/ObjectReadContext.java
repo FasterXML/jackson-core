@@ -55,7 +55,7 @@ public interface ObjectReadContext
     default JsonParser createParser(byte[] content, int offset, int length) throws JacksonException {
         return tokenStreamFactory().createParser(this, content, offset, length);
     }
-    
+
     // // // Databinding callbacks, tree node creation
 
     /**
@@ -150,7 +150,7 @@ public interface ObjectReadContext
         }
 
         // // // Databind integration, other values
-        
+
         @Override
         public <T> T readValue(JsonParser p, Class<T> valueType) {
             return _reportUnsupportedOperation();
@@ -167,7 +167,7 @@ public interface ObjectReadContext
         }
 
         // // // Helper methods
-        
+
         protected <T> T _reportUnsupportedOperation() {
             throw new UnsupportedOperationException("Operation not supported by `ObjectReadContext` of type "+getClass().getName());
         }

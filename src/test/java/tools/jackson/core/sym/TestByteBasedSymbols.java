@@ -53,7 +53,7 @@ public class TestByteBasedSymbols
 
             assertToken(JsonToken.START_OBJECT, jp1.nextToken());
             assertToken(JsonToken.START_OBJECT, jp2.nextToken());
-            
+
             int len = PROPERTY_NAMES.length;
             for (int i = 0; i < len; ++i) {
                 assertToken(JsonToken.PROPERTY_NAME, jp1.nextToken());
@@ -65,10 +65,10 @@ public class TestByteBasedSymbols
                 assertEquals(i, jp1.getIntValue());
                 assertEquals(i, jp2.getIntValue());
             }
-            
+
             assertToken(JsonToken.END_OBJECT, jp1.nextToken());
             assertToken(JsonToken.END_OBJECT, jp2.nextToken());
-            
+
             jp1.close();
             jp2.close();
         }

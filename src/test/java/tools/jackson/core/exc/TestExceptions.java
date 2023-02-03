@@ -8,7 +8,7 @@ import tools.jackson.core.json.JsonFactory;
 public class TestExceptions extends BaseTest
 {
     private final JsonFactory JSON_F = newStreamFactory();
-    
+
     // For [core#10]
     public void testOriginalMesssage()
     {
@@ -101,7 +101,7 @@ public class TestExceptions extends BaseTest
             p.nextToken();
             fail("Should get exception");
         } catch (UnexpectedEndOfInputException e) {
-            
+
             verifyException(e, "in property name");
             assertEquals(JsonToken.PROPERTY_NAME, e.getTokenBeingDecoded());
         }

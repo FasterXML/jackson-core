@@ -27,7 +27,7 @@ public class CommentParsingTest
     /* Test method wrappers
     /**********************************************************
      */
-    
+
     /**
      * Unit test for verifying that by default comments are not
      * recognized.
@@ -143,7 +143,7 @@ public class CommentParsingTest
                 ":\t%s123",
         }) {
             String commented = String.format(arg, comment);
-            
+
             final String DOC = "{\"abc\"" + commented + "}";
             JsonParser p = createParser(f, mode, DOC);
             assertEquals(JsonToken.START_OBJECT, p.nextToken());
@@ -165,7 +165,7 @@ public class CommentParsingTest
             assertEquals(JsonToken.END_OBJECT, p.nextToken());
             p.close();
         }
-        
+
     }
 
     @SuppressWarnings("resource")
@@ -184,7 +184,7 @@ public class CommentParsingTest
                 "%s\n,",
         }) {
             String commented = String.format(tmpl, comment);
-            
+
             final String DOC = "[1"+commented+"2]";
             JsonParser p = createParser(f, mode, DOC);
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
@@ -207,9 +207,9 @@ public class CommentParsingTest
             assertEquals(JsonToken.END_ARRAY, p.nextToken());
             p.close();
         }
-        
+
     }
-    
+
     private void _testYAMLComments(JsonFactory f, int mode)
     {
         final String DOC = "# foo\n"
@@ -258,7 +258,7 @@ public class CommentParsingTest
         }
         p.close();
     }
-    
+
     private void _testDisabled(String doc, int mode)
     {
         JsonParser p = _createParser(doc, mode, false);

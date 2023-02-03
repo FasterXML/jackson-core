@@ -139,7 +139,7 @@ public class AsyncParserNamesTest extends AsyncTestBase
         assertEquals(3, symbols1.size());
         p.close();
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods

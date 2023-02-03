@@ -127,7 +127,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
     /* Accessors
     /**********************************************************************
      */
-    
+
     @Override public final SimpleStreamWriteContext getParent() { return _parent; }
     @Override public final String currentName() {
         // 15-Aug-2019, tatu: Should NOT check this status because otherwise name
@@ -163,7 +163,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
     /* State changing
     /**********************************************************************
      */
-    
+
     /**
      * Method that writer is to call before it writes an Object Property name.
      *

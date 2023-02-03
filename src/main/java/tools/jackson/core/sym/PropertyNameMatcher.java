@@ -22,7 +22,7 @@ public abstract class PropertyNameMatcher
     private static final long serialVersionUID = 1L;
 
     private final static InternCache INTERNER = InternCache.instance;
-    
+
     /**
      * Marker for case where <code>JsonToken.END_OBJECT</code> encountered.
      */

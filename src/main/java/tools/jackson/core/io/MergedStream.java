@@ -6,7 +6,7 @@ import java.io.*;
  * Simple {@link InputStream} implementation that is used to "unwind" some
  * data previously read from an input stream; so that as long as some of
  * that data remains, it's returned; but as long as it's read, we'll
- * just use data from the underlying original stream. 
+ * just use data from the underlying original stream.
  * This is similar to {@link java.io.PushbackInputStream}, but here there's
  * only one implicit pushback, when instance is constructed.
  */
@@ -46,12 +46,12 @@ public final class MergedStream extends InputStream
     @Override public synchronized void mark(int readlimit) {
         if (_b == null) { _in.mark(readlimit); }
     }
-    
+
     @Override public boolean markSupported() {
         // Only supports marks past the initial rewindable section...
         return (_b == null) && _in.markSupported();
     }
-    
+
     @Override public int read() throws IOException {
         if (_b != null) {
             int c = _b[_ptr++] & 0xFF;
@@ -62,7 +62,7 @@ public final class MergedStream extends InputStream
         }
         return _in.read();
     }
-    
+
     @Override public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }

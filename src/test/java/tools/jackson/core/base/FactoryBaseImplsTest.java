@@ -29,7 +29,7 @@ public class FactoryBaseImplsTest extends BaseTest
         }
 
         @Override
-        protected JsonParser _createParser(ObjectReadContext readCtxt, 
+        protected JsonParser _createParser(ObjectReadContext readCtxt,
                 IOContext ioCtxt, byte[] data, int offset, int len) throws JacksonException {
             return null;
         }

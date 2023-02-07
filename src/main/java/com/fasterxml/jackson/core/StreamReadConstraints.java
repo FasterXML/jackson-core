@@ -20,7 +20,7 @@ public class StreamReadConstraints
     /**
      * Default setting for maximum string length: see {@link Builder#maxStringLength(int)} for details.
      */
-    public static final int DEFAULT_MAX_STRING_LEN = 1000000;
+    public static final int DEFAULT_MAX_STRING_LEN = 10_000_000;
 
     protected final int _maxNumLen;
     protected final int _maxStringLen;
@@ -53,8 +53,12 @@ public class StreamReadConstraints
 
         /**
          * Sets the maximum string length (in chars or bytes, depending on input context).
-         * The default is 1,000,000.
-         * Setting this value to lower than the {@link #maxNumberLength(int)} is not recommended.
+         * The default is 10,000,000. This limit is not exact, the limit is applied when we increase
+         * internal buffer sizes and an exception will happen at sizes greater than or sometimes equal to
+         * this limit.
+         * <p>
+         *   Setting this value to lower than the {@link #maxNumberLength(int)} is not recommended.
+         * </p>
          *
          * @param maxStringLen the maximum string length (in chars or bytes, depending on input context)
          *

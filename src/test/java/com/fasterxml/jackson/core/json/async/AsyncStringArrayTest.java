@@ -131,10 +131,10 @@ public class AsyncStringArrayTest extends AsyncTestBase
     public void testLongAsciiStringsSmallLimit() throws IOException
     {
         final String[] input = new String[] {
-                // ~100 chars for long(er) content
-                String.format("%s %s %s %s %s %s %s %s %s %s %s %s",
-                        str0to9,str0to9,"...",str0to9,"/", str0to9,
-                        str0to9,"",str0to9,str0to9,"...",str0to9),
+                LONG_ASCII,
+                LONG_ASCII,
+                LONG_ASCII,
+                LONG_ASCII,
                 LONG_ASCII
         };
         JsonFactory f = JsonFactory.builder()

@@ -329,6 +329,7 @@ public final class TextBuffer
      *    could be 0 in the case of first character is
      *    delimiter or end-of-line
      * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
+     * @return token as text
      * @since 2.15
      */
     public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces)

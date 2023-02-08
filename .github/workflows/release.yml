@@ -9,7 +9,6 @@ on:
   push:
     tags:
       - "*"
-      - "!*-rc*"
       - "!*.pr*"
       - "!*b"
 
@@ -18,10 +17,14 @@ jobs:
     runs-on: "ubuntu-20.04"
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+      TAG: ${{ github.ref_name }}
     outputs:
       hash: ${{ steps.hash.outputs.hash }}
       artifact_name: ${{ steps.hash.outputs.artifact_name }}
     steps:
+      - name: Validate version name
+        run: |
+          [[ "$TAG" =~ jackson-core-[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)? ]] || exit 1
       - uses: actions/checkout@v3
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -29,7 +32,7 @@ jobs:
           distribution: "temurin"
           java-version: "8"
           cache: "maven"
-          server-id: sonatype-nexus-snapshots
+          server-id: sonatype-nexus-staging
           server-username: CI_DEPLOY_USERNAME
           server-password: CI_DEPLOY_PASSWORD
           # See https://github.com/actions/setup-java/blob/v2/docs/advanced-usage.md#Publishing-using-Apache-Maven

@@ -481,6 +481,7 @@ public class TextBuffer
         if (_resultString == null) {
             // Has array been requested? Can make a shortcut, if so:
             if (_resultArray != null) {
+                // _resultArray length should already be validated, no need to check again
                 _resultString = new String(_resultArray);
             } else {
                 // Do we use shared array?
@@ -496,8 +497,14 @@ public class TextBuffer
                     int currLen = _currentSize;
 
                     if (segLen == 0) { // yup
-                        _resultString = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
+                        if (currLen == 0) {
+                            _resultString = "";
+                        } else {
+                            validateStringLength(currLen);
+                            _resultString = new String(_currentSegment, 0, currLen);
+                        }
                     } else { // no, need to combine
+                        validateStringLength(segLen + currLen);
                         StringBuilder sb = new StringBuilder(segLen + currLen);
                         // First stored segments
                         if (_segments != null) {
@@ -1001,6 +1008,7 @@ public class TextBuffer
             if (len < 1) {
                 return NO_CHARS;
             }
+            validateStringLength(len);
             final int start = _inputStart;
             if (start == 0) {
                 return Arrays.copyOf(_inputBuffer, len);

@@ -138,7 +138,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
                 LONG_ASCII
         };
         JsonFactory f = JsonFactory.builder()
-                .streamReadConstraints(StreamReadConstraints.builder().maxStringLength(5).build())
+                .streamReadConstraints(StreamReadConstraints.builder().maxStringLength(100).build())
                 .build();
         byte[] data = _stringDoc(f, input);
 
@@ -152,7 +152,10 @@ public class AsyncStringArrayTest extends AsyncTestBase
             }
             fail("expected IllegalStateException");
         } catch (IllegalStateException ise) {
-            assertEquals("String length (200) exceeds the maximum length (5)", ise.getMessage());
+            assertTrue("unexpected exception message: " + ise.getMessage(),
+                    ise.getMessage().startsWith("String length"));
+            assertTrue("unexpected exception message: " + ise.getMessage(),
+                    ise.getMessage().endsWith("exceeds the maximum length (100)"));
         }
     }
 

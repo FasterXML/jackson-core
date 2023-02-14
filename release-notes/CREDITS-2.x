@@ -351,3 +351,6 @@ Markus Spika  (DemonicTutor@github)
    if `tokenFilter` is null
   (2.14.2)
 
+Pedro Nacht (pnacht@github)
+  * Contributed #844: Add SLSA provenance via build script
+  (2.15.0)

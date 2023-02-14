@@ -253,7 +253,7 @@ public final class ByteSourceJsonBootstrapper
             int factoryFeatures) throws IOException
     {
         int prevInputPtr = _inputPtr;
-        JsonEncoding enc = detectEncoding();
+        JsonEncoding enc = JsonFactory.Feature.CHARSET_DETECTION.enabledIn(factoryFeatures) ? detectEncoding() : JsonEncoding.UTF8;
         int bytesProcessed = _inputPtr - prevInputPtr;
 
         if (enc == JsonEncoding.UTF8) {

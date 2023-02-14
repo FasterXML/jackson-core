@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
@@ -701,6 +702,20 @@ public class SimpleParserTest extends BaseTest
             verifyException(e, "code 160");
         }
         p.close();
+    }
+
+    public void testInvalidUtf8ValidUtf16() throws IOException {
+        JsonFactory factory = new JsonFactoryBuilder()
+                .disable(JsonFactory.Feature.CHARSET_DETECTION)
+                .build();
+        JsonParser parser = factory.createParser(new byte[]{0x22, 0x00, 0x22, 0x5b, 0x22, 0x00});
+        try {
+            //noinspection StatementWithEmptyBody
+            while (parser.nextToken() != null) {}
+            fail("Should have failed");
+        } catch (JsonParseException e) {
+            verifyException(e, "unquoted character");
+        }
     }
 
     /*

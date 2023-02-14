@@ -24,7 +24,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
  *    </li>
  * </ul>
  */
-public final class TextBuffer
+public class TextBuffer
 {
     final static char[] NO_CHARS = new char[0];
 
@@ -302,6 +302,7 @@ public final class TextBuffer
         _inputStart = -1;
         _inputLen = 0;
 
+        validateStringLength(value.length());
         _resultString = value;
         _resultArray = null;
 
@@ -480,6 +481,7 @@ public final class TextBuffer
         if (_resultString == null) {
             // Has array been requested? Can make a shortcut, if so:
             if (_resultArray != null) {
+                // _resultArray length should already be validated, no need to check again
                 _resultString = new String(_resultArray);
             } else {
                 // Do we use shared array?
@@ -487,6 +489,7 @@ public final class TextBuffer
                     if (_inputLen < 1) {
                         return (_resultString = "");
                     }
+                    validateStringLength(_inputLen);
                     _resultString = new String(_inputBuffer, _inputStart, _inputLen);
                 } else { // nope... need to copy
                     // But first, let's see if we have just one buffer
@@ -494,8 +497,14 @@ public final class TextBuffer
                     int currLen = _currentSize;
 
                     if (segLen == 0) { // yup
-                        _resultString = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
+                        if (currLen == 0) {
+                            _resultString = "";
+                        } else {
+                            validateStringLength(currLen);
+                            _resultString = new String(_currentSegment, 0, currLen);
+                        }
                     } else { // no, need to combine
+                        validateStringLength(segLen + currLen);
                         StringBuilder sb = new StringBuilder(segLen + currLen);
                         // First stored segments
                         if (_segments != null) {
@@ -558,9 +567,8 @@ public final class TextBuffer
      * @throws NumberFormatException if contents are not a valid Java number
      * @since 2.14
      */
-    public float contentsAsFloat(boolean useFastParser) throws NumberFormatException {
-        final String numStr = contentsAsString();
-        return NumberInput.parseFloat(numStr, useFastParser);
+    public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
+        return NumberInput.parseFloat(contentsAsString(), useFastParser);
     }
 
     /**
@@ -853,6 +861,7 @@ public final class TextBuffer
         }
         // more common case: single segment
         int currLen = _currentSize;
+        validateStringLength(currLen);
         String str = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
         _resultString = str;
         return str;
@@ -867,6 +876,7 @@ public final class TextBuffer
         int oldLen = _currentSegment.length;
         _segmentSize += oldLen;
         _currentSize = 0;
+        validateStringLength(_segmentSize);
 
         // Let's grow segments by 50%
         int newLen = oldLen + (oldLen >> 1);
@@ -998,6 +1008,7 @@ public final class TextBuffer
             if (len < 1) {
                 return NO_CHARS;
             }
+            validateStringLength(len);
             final int start = _inputStart;
             if (start == 0) {
                 return Arrays.copyOf(_inputBuffer, len);
@@ -1009,6 +1020,7 @@ public final class TextBuffer
         if (size < 1) {
             return NO_CHARS;
         }
+        validateStringLength(size);
         int offset = 0;
         final char[] result = carr(size);
         if (_segments != null) {
@@ -1024,4 +1036,27 @@ public final class TextBuffer
     }
 
     private char[] carr(int len) { return new char[len]; }
+
+    /*
+    /**********************************************************************
+    /* Convenience methods for validation
+    /**********************************************************************
+     */
+
+    /**
+     * Convenience method that can be used to verify that a String
+     * of specified length does not exceed maximum specific by this
+     * constraints object: if it does, an
+     * {@link IllegalStateException}
+     * is thrown.
+     *
+     * @param length Length of string in input units
+     *
+     * @throws IllegalStateException If length exceeds maximum
+     * @since 2.15
+     */
+    protected void validateStringLength(int length) throws IllegalStateException
+    {
+        // no-op
+    }
 }

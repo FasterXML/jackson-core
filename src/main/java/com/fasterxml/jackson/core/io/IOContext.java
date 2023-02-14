@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.io;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.ReadConstrainedTextBuffer;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
 /**
@@ -201,6 +202,10 @@ public class IOContext
 
     public TextBuffer constructTextBuffer() {
         return new TextBuffer(_bufferRecycler);
+    }
+
+    public TextBuffer constructReadConstrainedTextBuffer() {
+        return new ReadConstrainedTextBuffer(_streamReadConstraints, _bufferRecycler);
     }
 
     /**

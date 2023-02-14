@@ -6,6 +6,10 @@ core component, version 2.x
 
 Tatu Saloranta, tatu.saloranta@iki.fi: author
 
+PJ Fanning (pjfanning@github): co-author (2.15+)
+
+----------------------------------------------------------------------------
+
 Pascal G�linas:
   * Reported [JACKSON-827]: 2.0.0 was accidentally requiring JDK 1.6
     (should still be 1.5)
@@ -305,6 +309,11 @@ PJ Fanning (pjfanning@github)
   * Contributed #774:  Add a feature to allow leading plus sign
     (`JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS`)
   (2.14.0)
+  * Contributed #827: Add numeric value size limits via `StreamReadConstraints`
+  (2.15.0)
+  * Contributed #863: Add `StreamReadConstraints` limit for longest textual value to
+  (2.15.0)
+  * ... and countless more
 
 Ilya Golovin (ilgo0413@github)
   * Contributed #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"

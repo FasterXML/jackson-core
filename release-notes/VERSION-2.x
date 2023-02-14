@@ -22,6 +22,9 @@ JSON library.
 #851: Add `StreamReadFeature.USE_FAST_BIG_DECIMAL_PARSER` to enable
   faster `BigDecimal`, `BigInteger` parsing
  (contributed by @pjfanning)
+#863: Add `StreamReadConstraints` limit for longest textual value to
+  allow (default: 1M)
+ (contributed by @pjfanning)
 #865: Optimize parsing 19 digit longs
  (contributed by Phillipe M)
 #897: Note that jackson-core 2.15 is now a multi-release jar

@@ -129,6 +129,37 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
+    public void testLongAsciiStringsSmallLimit() throws IOException
+    {
+        final String[] input = new String[] {
+                LONG_ASCII,
+                LONG_ASCII,
+                LONG_ASCII,
+                LONG_ASCII,
+                LONG_ASCII
+        };
+        JsonFactory f = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxStringLength(100).build())
+                .build();
+        byte[] data = _stringDoc(f, input);
+
+        try (AsyncReaderWrapper r = asyncForBytes(f, 9000, data, 0)) {
+            // start with "no token"
+            assertNull(r.currentToken());
+            assertToken(JsonToken.START_ARRAY, r.nextToken());
+            for (int i = 0; i < input.length; ++i) {
+                r.nextToken();
+                r.currentText();
+            }
+            fail("expected IllegalStateException");
+        } catch (IllegalStateException ise) {
+            assertTrue("unexpected exception message: " + ise.getMessage(),
+                    ise.getMessage().startsWith("String length"));
+            assertTrue("unexpected exception message: " + ise.getMessage(),
+                    ise.getMessage().endsWith("exceeds the maximum length (100)"));
+        }
+    }
+
     private void _testStrings(JsonFactory f, String[] values,
             byte[] data, int offset, int readSize) throws IOException
     {

@@ -213,7 +213,7 @@ public abstract class ParserBase extends ParserMinimalBase
             IOContext ctxt, int streamReadFeatures) {
         super(readCtxt, ctxt, streamReadFeatures);
         _ioContext = ctxt;
-        _textBuffer = ctxt.constructTextBuffer();
+        _textBuffer = ctxt.constructReadConstrainedTextBuffer();
     }
 
     /*

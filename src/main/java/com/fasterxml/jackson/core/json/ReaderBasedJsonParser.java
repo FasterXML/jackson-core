@@ -594,7 +594,7 @@ public class ReaderBasedJsonParser
                     if (ch == '"') {
                         decodedData >>= 4;
                         buffer[outputPtr++] = (byte) decodedData;
-                        if (b64variant.usesPadding()) {
+                        if (b64variant.requiresPaddingOnRead()) {
                             --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
@@ -634,7 +634,7 @@ public class ReaderBasedJsonParser
                         decodedData >>= 2;
                         buffer[outputPtr++] = (byte) (decodedData >> 8);
                         buffer[outputPtr++] = (byte) decodedData;
-                        if (b64variant.usesPadding()) {
+                        if (b64variant.requiresPaddingOnRead()) {
                             --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
@@ -2896,7 +2896,7 @@ public class ReaderBasedJsonParser
                     if (ch == '"') {
                         decodedData >>= 4;
                         builder.append(decodedData);
-                        if (b64variant.usesPadding()) {
+                        if (b64variant.requiresPaddingOnRead()) {
                             --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
@@ -2936,7 +2936,7 @@ public class ReaderBasedJsonParser
                     if (ch == '"') {
                         decodedData >>= 2;
                         builder.appendTwoBytes(decodedData);
-                        if (b64variant.usesPadding()) {
+                        if (b64variant.requiresPaddingOnRead()) {
                             --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }

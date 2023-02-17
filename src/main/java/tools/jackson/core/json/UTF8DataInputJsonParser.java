@@ -473,7 +473,7 @@ public class UTF8DataInputJsonParser
                     if (ch == INT_QUOTE) {
                         decodedData >>= 4;
                         buffer[outputPtr++] = (byte) decodedData;
-                        if (b64variant.usesPadding()) {
+                        if (b64variant.requiresPaddingOnRead()) {
                             _handleBase64MissingPadding(b64variant);
                         }
                         break;
@@ -507,7 +507,7 @@ public class UTF8DataInputJsonParser
                         decodedData >>= 2;
                         buffer[outputPtr++] = (byte) (decodedData >> 8);
                         buffer[outputPtr++] = (byte) decodedData;
-                        if (b64variant.usesPadding()) {
+                        if (b64variant.requiresPaddingOnRead()) {
                             _handleBase64MissingPadding(b64variant);
                         }
                         break;
@@ -2898,7 +2898,7 @@ public class UTF8DataInputJsonParser
                     if (ch == INT_QUOTE) {
                         decodedData >>= 4;
                         builder.append(decodedData);
-                        if (b64variant.usesPadding()) {
+                        if (b64variant.requiresPaddingOnRead()) {
                             _handleBase64MissingPadding(b64variant);
                         }
                         return builder.toByteArray();
@@ -2930,7 +2930,7 @@ public class UTF8DataInputJsonParser
                     if (ch == INT_QUOTE) {
                         decodedData >>= 2;
                         builder.appendTwoBytes(decodedData);
-                        if (b64variant.usesPadding()) {
+                        if (b64variant.requiresPaddingOnRead()) {
                             _handleBase64MissingPadding(b64variant);
                         }
                         return builder.toByteArray();

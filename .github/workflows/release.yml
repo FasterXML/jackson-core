@@ -1,0 +1,71 @@
+# This workflow publishes a new release to Maven central.
+#
+# The release MUST be initiated by running the release.sh script. That script will run
+# ./mvnw release:prepare and make the necessary changes for this workflow to then take
+# over and perform the actual release.
+
+name: Publish new release
+on:
+  push:
+    tags:
+      - "*"
+      - "!*.pr*"
+      - "!*b"
+
+jobs:
+  release:
+    runs-on: "ubuntu-20.04"
+    env:
+      JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+      TAG: ${{ github.ref_name }}
+    outputs:
+      hash: ${{ steps.hash.outputs.hash }}
+      artifact_name: ${{ steps.hash.outputs.artifact_name }}
+    steps:
+      - name: Validate version name
+        run: |
+          [[ "$TAG" =~ jackson-core-[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)? ]] || exit 1
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "8"
+          cache: "maven"
+          server-id: sonatype-nexus-staging
+          server-username: CI_DEPLOY_USERNAME
+          server-password: CI_DEPLOY_PASSWORD
+          # See https://github.com/actions/setup-java/blob/v2/docs/advanced-usage.md#Publishing-using-Apache-Maven
+          # gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
+          # gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
+      - name: Perform release
+        # The following command will only succeed if the preparation was done via the
+        # release.sh script.
+        run: ./mvnw -B -q -ff -ntp release:perform -DlocalCheckout=true
+      - name: Generate hash
+        id: hash
+        run: |
+          ARTIFACT_NAME="$( \
+            ./mvnw help:evaluate \
+              -Dexpression=project.artifactId -q -DforceStdout)-$( \
+            ./mvnw help:evaluate \
+              -Dexpression=project.version -q -DforceStdout)"
+          echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+
+          cd ./target
+          echo "hash=$( \
+            sha256sum $ARTIFACT_NAME*.jar | \
+            base64 -w0 \
+          )" >> "$GITHUB_OUTPUT"
+
+  provenance:
+    needs: [release]
+    permissions:
+      actions: read # To read the workflow path.
+      id-token: write # To sign the provenance.
+      contents: write # To add assets to a release.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.4.0
+    with:
+      base64-subjects: "${{ needs.release.outputs.hash }}"
+      provenance-name: "${{ needs.release.outputs.artifact_name }}.jar.intoto.jsonl"
+      upload-assets: true # Optional: Upload to a new release

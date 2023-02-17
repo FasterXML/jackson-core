@@ -104,6 +104,7 @@ instance of which is constructed by `JsonFactory`:
 An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 -----
+
 ## Compatibility
 
 ### JDK
@@ -121,6 +122,18 @@ List is incomplete due to recent addition of compatibility checker.
 * 2.14: Android SDK 26+
 
 for information on Android SDK versions to Android Release names see [Android version history](https://en.wikipedia.org/wiki/Android_version_history)
+
+-----
+
+## Release Process
+
+Starting with Jackson 2.15, releases of this module will be [SLSA](https://slsa.dev/) compliant: see issue #844 for details.
+
+Release process is triggered by
+
+    ./release.sh
+
+script which uses Maven Release plug-in under the hood (earlier release plug-in was directly invoked).
 
 -----
 

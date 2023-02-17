@@ -42,6 +42,9 @@ JSON library.
 
 #909: Revert schubfach changes in #854
  (contributed by @pjfanning)
+#912: Optional padding Base64Variant still throws exception on missing
+  padding character
+ (reported by @Vity01)
 
 2.14.2 (28-Jan-2023)
 

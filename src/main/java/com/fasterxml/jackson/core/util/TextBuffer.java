@@ -710,6 +710,9 @@ public class TextBuffer
         }
         _resultString = null;
         _resultArray = null;
+
+        validateAppend(1);
+
         // Room in current segment?
         char[] curr = _currentSegment;
         if (_currentSize >= curr.length) {
@@ -727,6 +730,8 @@ public class TextBuffer
         }
         _resultString = null;
         _resultArray = null;
+
+        validateAppend(len);
 
         // Room in current segment?
         char[] curr = _currentSegment;
@@ -764,6 +769,8 @@ public class TextBuffer
         _resultString = null;
         _resultArray = null;
 
+        validateAppend(len);
+
         // Room in current segment?
         char[] curr = _currentSegment;
         int max = curr.length - _currentSize;
@@ -788,6 +795,15 @@ public class TextBuffer
             offset += amount;
             len -= amount;
         } while (len > 0);
+    }
+
+    private void validateAppend(int toAppend) {
+        int newTotalLength = _segmentSize + _currentSize + toAppend;
+        // guard against overflow
+        if (newTotalLength < 0) {
+            newTotalLength = Integer.MAX_VALUE;
+        }
+        validateStringLength(newTotalLength);
     }
 
     /*

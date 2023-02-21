@@ -711,11 +711,10 @@ public class TextBuffer
         _resultString = null;
         _resultArray = null;
 
-        validateAppend(1);
-
         // Room in current segment?
         char[] curr = _currentSegment;
         if (_currentSize >= curr.length) {
+            validateAppend(1);
             expand();
             curr = _currentSegment;
         }
@@ -731,8 +730,6 @@ public class TextBuffer
         _resultString = null;
         _resultArray = null;
 
-        validateAppend(len);
-
         // Room in current segment?
         char[] curr = _currentSegment;
         int max = curr.length - _currentSize;
@@ -742,6 +739,9 @@ public class TextBuffer
             _currentSize += len;
             return;
         }
+
+        validateAppend(len);
+
         // No room for all, need to copy part(s):
         if (max > 0) {
             System.arraycopy(c, start, curr, _currentSize, max);
@@ -769,8 +769,6 @@ public class TextBuffer
         _resultString = null;
         _resultArray = null;
 
-        validateAppend(len);
-
         // Room in current segment?
         char[] curr = _currentSegment;
         int max = curr.length - _currentSize;
@@ -779,6 +777,9 @@ public class TextBuffer
             _currentSize += len;
             return;
         }
+
+        validateAppend(len);
+
         // No room for all, need to copy part(s):
         if (max > 0) {
             str.getChars(offset, offset+max, curr, _currentSize);

@@ -9,30 +9,32 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 class ReadConstrainedTextBufferTest {
+    private static final int SEGMENT_SIZE = TextBuffer.MIN_SEGMENT_LEN;
+
     @Test
     public void appendCharArray() {
-        TextBuffer constrained = makeConstrainedBuffer(100);
-        char[] chars = new char[100];
+        TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
+        char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
-        constrained.append(chars, 0, 100);
-        Assertions.assertThrows(IllegalStateException.class, () -> constrained.append(chars, 0, 100));
+        constrained.append(chars, 0, SEGMENT_SIZE);
+        Assertions.assertThrows(IllegalStateException.class, () -> constrained.append(chars, 0, SEGMENT_SIZE));
     }
 
     @Test
     public void appendString() {
-        TextBuffer constrained = makeConstrainedBuffer(100);
-        char[] chars = new char[100];
+        TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
+        char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
-        constrained.append(new String(chars), 0, 100);
-        Assertions.assertThrows(IllegalStateException.class, () -> constrained.append(new String(chars), 0, 100));
+        constrained.append(new String(chars), 0, SEGMENT_SIZE);
+        Assertions.assertThrows(IllegalStateException.class, () -> constrained.append(new String(chars), 0, SEGMENT_SIZE));
     }
 
     @Test
     public void appendSingle() {
-        TextBuffer constrained = makeConstrainedBuffer(100);
-        char[] chars = new char[100];
+        TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
+        char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
-        constrained.append(chars, 0, 100);
+        constrained.append(chars, 0, SEGMENT_SIZE);
         Assertions.assertThrows(IllegalStateException.class, () -> constrained.append('x'));
     }
 
@@ -44,7 +46,6 @@ class ReadConstrainedTextBufferTest {
                 constraints,
                 new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true);
-        TextBuffer constrained = ioContext.constructReadConstrainedTextBuffer();
-        return constrained;
+        return ioContext.constructReadConstrainedTextBuffer();
     }
 }

@@ -122,7 +122,17 @@ public class JsonFactory
          *
          * @since 2.6
          */
-        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true)
+        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true),
+
+        /**
+         * Feature to control charset detection for byte-based inputs ({@code byte[]}, {@link InputStream}...). When
+         * this feature is enabled (the default), the factory will allow UTF-16 and UTF-32 inputs and try to detect
+         * them, as specified by RFC 4627. When this feature is disabled the factory will assume UTF-8, as specified
+         * by RFC 8259.
+         *
+         * @since 2.15
+         */
+        CHARSET_DETECTION(true),
 
         ;
 

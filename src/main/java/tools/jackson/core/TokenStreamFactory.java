@@ -124,8 +124,17 @@ public abstract class TokenStreamFactory
          *<p>
          * This setting is enabled by default.
          */
-        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true)
+        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true),
 
+        /**
+         * Feature to control charset detection for byte-based inputs ({@code byte[]}, {@link InputStream}...). When
+         * this feature is enabled (the default), the factory will allow UTF-16 and UTF-32 inputs and try to detect
+         * them, as specified by RFC 4627. When this feature is disabled the factory will assume UTF-8, as specified
+         * by RFC 8259.
+         *<p>
+         * NOTE: only applies to some implementations: most notable for {@code JsonFactory}.
+         */
+        CHARSET_DETECTION(true),        
         ;
 
         /**

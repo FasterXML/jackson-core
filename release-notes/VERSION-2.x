@@ -35,6 +35,8 @@ JSON library.
  (reported by @robotmrv)
 #902: Add `Object JsonParser.getNumberValueDeferred()` method to
   allow for deferred decoding in some cases
+#921: Add `JsonFactory.Feature` to disable charset detection
+ (contributed by @yawkat) 
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 

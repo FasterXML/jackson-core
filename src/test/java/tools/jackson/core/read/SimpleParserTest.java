@@ -1,15 +1,15 @@
 package tools.jackson.core.read;
 
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.MockDataInput;
 import tools.jackson.core.util.JsonParserDelegate;
-
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
@@ -697,6 +697,21 @@ public class SimpleParserTest extends BaseTest
             verifyException(e, "code 160");
         }
         p.close();
+    }
+
+    public void testInvalidUtf8ValidUtf16() throws IOException {
+        JsonFactory factory = JsonFactory.builder()
+                .disable(JsonFactory.Feature.CHARSET_DETECTION)
+                .build();
+        JsonParser parser = factory.createParser(ObjectReadContext.empty(),
+                new byte[]{0x22, 0x00, 0x22, 0x5b, 0x22, 0x00});
+        try {
+            //noinspection StatementWithEmptyBody
+            while (parser.nextToken() != null) {}
+            fail("Should have failed");
+        } catch (StreamReadException e) {
+            verifyException(e, "unquoted character");
+        }
     }
 
     /*

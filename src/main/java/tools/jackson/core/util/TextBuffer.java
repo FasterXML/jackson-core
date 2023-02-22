@@ -32,14 +32,14 @@ public class TextBuffer
      *<p>
      * Reduced from 1000 down to 500 in 2.10.
      */
-    private final static int MIN_SEGMENT_LEN = 500;
+    protected final static int MIN_SEGMENT_LEN = 500;
 
     // Non-private to access from a test
     /*
      * Let's limit maximum segment length to something sensible.
      * For 2.10, let's limit to using 64kc chunks (128 kB) -- was 256kC/512kB up to 2.9
      */
-    final static int MAX_SEGMENT_LEN = 0x10000;
+    protected final static int MAX_SEGMENT_LEN = 0x10000;
 
     /*
     /**********************************************************************
@@ -671,9 +671,11 @@ public class TextBuffer
         }
         _resultString = null;
         _resultArray = null;
+
         // Room in current segment?
         char[] curr = _currentSegment;
         if (_currentSize >= curr.length) {
+            validateAppend(1);
             expand();
             curr = _currentSegment;
         }
@@ -698,6 +700,9 @@ public class TextBuffer
             _currentSize += len;
             return;
         }
+
+        validateAppend(len);
+
         // No room for all, need to copy part(s):
         if (max > 0) {
             System.arraycopy(c, start, curr, _currentSize, max);
@@ -733,6 +738,9 @@ public class TextBuffer
             _currentSize += len;
             return;
         }
+
+        validateAppend(len);
+
         // No room for all, need to copy part(s):
         if (max > 0) {
             str.getChars(offset, offset+max, curr, _currentSize);
@@ -749,6 +757,15 @@ public class TextBuffer
             offset += amount;
             len -= amount;
         } while (len > 0);
+    }
+
+    private void validateAppend(int toAppend) {
+        int newTotalLength = _segmentSize + _currentSize + toAppend;
+        // guard against overflow
+        if (newTotalLength < 0) {
+            newTotalLength = Integer.MAX_VALUE;
+        }
+        validateStringLength(newTotalLength);
     }
 
     /*

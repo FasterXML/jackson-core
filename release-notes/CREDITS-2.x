@@ -354,3 +354,7 @@ Markus Spika  (DemonicTutor@github)
 Pedro Nacht (pnacht@github)
   * Contributed #844: Add SLSA provenance via build script
   (2.15.0)
+
+Jonas Konrad (yawkat@github)
+  * Contributed #921: Add `JsonFactory.Feature` to disable charset detection
+  (2.15.0)

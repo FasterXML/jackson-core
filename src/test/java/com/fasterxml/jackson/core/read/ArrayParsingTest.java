@@ -94,6 +94,19 @@ public class ArrayParsingTest
     	_testMissingValueNotEnablingFeature(false);
     }
 
+    public void testDeepNesting() throws Exception
+    {
+        final String DOC = createDeepNestedDoc(1000);
+        try (JsonParser jp = createParserUsingStream(new JsonFactory(), DOC, "UTF-8")) {
+            JsonToken jt;
+            while ((jt = jp.nextToken()) != null) {
+                if (jt.id() == JsonTokenId.ID_STRING) {
+                    System.out.println(jt);
+                }
+            }
+        }
+    }
+
     /**
      * Tests the not missing any value in an array by enabling the
      * Feature.ALLOW_MISSING_VALUES in JsonParser
@@ -181,5 +194,20 @@ public class ArrayParsingTest
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
 
         jp.close();
+    }
+
+    private String createDeepNestedDoc(final int depth) {
+        String DOC = "[{ \"a\": [{ \"a\": [{ \"a\": [{ \"a\": [{ \"a\": [{ \"a\": [ \"a\" ]}]}]}]}]}]}] ";
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < depth; i++) {
+            sb.append("{ \"a\": [");
+        }
+        sb.append(" \"val\" ");
+        for (int i = 0; i < depth; i++) {
+            sb.append("]}");
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }

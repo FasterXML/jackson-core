@@ -245,6 +245,8 @@ public abstract class ParserBase extends ParserMinimalBase
      * Not used for  pure integer values.
      */
     protected int _expLength;
+    
+    private int _depth;
 
     /*
     /**********************************************************
@@ -1547,4 +1549,19 @@ public abstract class ParserBase extends ParserMinimalBase
 
     // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
+
+    protected final void createChildArrayContext(final int lineNr, final int colNr) {
+        _depth++;
+        _parsingContext = _parsingContext.createChildArrayContext(lineNr, colNr);
+    }
+
+    protected final void createChildObjectContext(final int lineNr, final int colNr) {
+        _depth++;
+        _parsingContext = _parsingContext.createChildObjectContext(lineNr, colNr);
+    }
+
+    protected final void popParsingContext() {
+        _depth--;
+        _parsingContext = _parsingContext.clearAndGetParent();
+    }
 }

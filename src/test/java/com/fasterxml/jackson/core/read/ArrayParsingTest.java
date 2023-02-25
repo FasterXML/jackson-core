@@ -96,14 +96,15 @@ public class ArrayParsingTest
 
     public void testDeepNesting() throws Exception
     {
-        final String DOC = createDeepNestedDoc(1000);
+        final String DOC = createDeepNestedDoc(1050);
         try (JsonParser jp = createParserUsingStream(new JsonFactory(), DOC, "UTF-8")) {
             JsonToken jt;
             while ((jt = jp.nextToken()) != null) {
-                if (jt.id() == JsonTokenId.ID_STRING) {
-                    System.out.println(jt);
-                }
+
             }
+            fail("expected IllegalStateException");
+        } catch (IllegalStateException ise) {
+            assertEquals("Depth (1001) exceeds the maximum allowed depth (1000)", ise.getMessage());
         }
     }
 

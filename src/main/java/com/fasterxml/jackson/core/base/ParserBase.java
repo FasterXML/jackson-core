@@ -1551,12 +1551,12 @@ public abstract class ParserBase extends ParserMinimalBase
     protected void _finishString() throws IOException { }
 
     protected final void createChildArrayContext(final int lineNr, final int colNr) {
-        _depth++;
+        _streamReadConstraints.validateDepth(++_depth);
         _parsingContext = _parsingContext.createChildArrayContext(lineNr, colNr);
     }
 
     protected final void createChildObjectContext(final int lineNr, final int colNr) {
-        _depth++;
+        _streamReadConstraints.validateDepth(++_depth);
         _parsingContext = _parsingContext.createChildObjectContext(lineNr, colNr);
     }
 

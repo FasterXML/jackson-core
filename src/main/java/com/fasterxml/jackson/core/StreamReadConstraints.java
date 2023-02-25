@@ -13,6 +13,11 @@ public class StreamReadConstraints
     private static final long serialVersionUID = 1L;
 
     /**
+     * Default setting for maximum depth: see {@link Builder#maxDepth(int)} for details.
+     */
+    public static final int DEFAULT_MAX_DEPTH = 1000;
+
+    /**
      * Default setting for maximum number length: see {@link Builder#maxNumberLength(int)} for details.
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
@@ -22,15 +27,36 @@ public class StreamReadConstraints
      */
     public static final int DEFAULT_MAX_STRING_LEN = 1_000_000;
 
+    protected final int _maxDepth;
     protected final int _maxNumLen;
     protected final int _maxStringLen;
 
     private static final StreamReadConstraints DEFAULT =
-        new StreamReadConstraints(DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+        new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
 
     public static final class Builder {
+        private int maxDepth;
         private int maxNumLen;
         private int maxStringLen;
+
+        /**
+         * Sets the maximum depth. The depth is a count of objects and arrays that have not been closed,
+         * `{` and `[` respectively.
+         *
+         * @param maxDepth the maximum depth
+         *
+         * @return this builder
+         * @throws IllegalArgumentException if the maxDepth is set to a negative value
+         *
+         * @since 2.15
+         */
+        public Builder maxDepth(final int maxDepth) {
+            if (maxDepth < 0) {
+                throw new IllegalArgumentException("Cannot set maxDEpth to a negative value");
+            }
+            this.maxDepth = maxDepth;
+            return this;
+        }
 
         /**
          * Sets the maximum number length (in chars or bytes, depending on input context).
@@ -77,21 +103,23 @@ public class StreamReadConstraints
         }
 
         Builder() {
-            this(DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+            this(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
         }
 
-        Builder(final int maxNumLen, final int maxStringLen) {
+        Builder(final int maxDepth, final int maxNumLen, final int maxStringLen) {
+            this.maxDepth = maxDepth;
             this.maxNumLen = maxNumLen;
             this.maxStringLen = maxStringLen;
         }
 
         Builder(StreamReadConstraints src) {
+            maxDepth = src._maxDepth;
             maxNumLen = src._maxNumLen;
             maxStringLen = src._maxStringLen;
         }
 
         public StreamReadConstraints build() {
-            return new StreamReadConstraints(maxNumLen, maxStringLen);
+            return new StreamReadConstraints(maxDepth, maxNumLen, maxStringLen);
         }
     }
 
@@ -101,7 +129,8 @@ public class StreamReadConstraints
     /**********************************************************************
      */
 
-    StreamReadConstraints(final int maxNumLen, final int maxStringLen) {
+    StreamReadConstraints(final int maxDepth, final int maxNumLen, final int maxStringLen) {
+        _maxDepth = maxDepth;
         _maxNumLen = maxNumLen;
         _maxStringLen = maxStringLen;
     }
@@ -127,6 +156,16 @@ public class StreamReadConstraints
     /* Accessors
     /**********************************************************************
      */
+
+    /**
+     * Accessor for maximum depth.
+     * see {@link Builder#maxDepth(int)} for details.
+     *
+     * @return Maximum allowed depth
+     */
+    public int getMaxDepth() {
+        return _maxDepth;
+    }
 
     /**
      * Accessor for maximum length of numbers to decode.
@@ -156,7 +195,7 @@ public class StreamReadConstraints
 
     /**
      * Convenience method that can be used to verify that a floating-point
-     * number of specified length does not exceed maximum specific by this
+     * number of specified length does not exceed maximum specified by this
      * constraints object: if it does, a
      * {@link NumberFormatException}
      * is thrown.
@@ -194,7 +233,7 @@ public class StreamReadConstraints
 
     /**
      * Convenience method that can be used to verify that a String
-     * of specified length does not exceed maximum specific by this
+     * of specified length does not exceed maximum specified by this
      * constraints object: if it does, an
      * {@link IllegalStateException}
      * is thrown.
@@ -208,6 +247,25 @@ public class StreamReadConstraints
         if (length > _maxStringLen) {
             throw new IllegalStateException(String.format("String length (%d) exceeds the maximum length (%d)",
                     length, _maxStringLen));
+        }
+    }
+
+    /**
+     * Convenience method that can be used to verify that the depth
+     * does not exceed the maximum specified by this
+     * constraints object: if it does, an
+     * {@link IllegalStateException}
+     * is thrown.
+     *
+     * @param depth count of unclosed objects and arrays
+     *
+     * @throws IllegalStateException If depth exceeds maximum
+     */
+    public void validateDepth(int depth) throws IllegalStateException
+    {
+        if (depth > _maxDepth) {
+            throw new IllegalStateException(String.format("Depth (%d) exceeds the maximum allowed depth (%d)",
+                    depth, _maxDepth));
         }
     }
 }

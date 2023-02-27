@@ -198,7 +198,6 @@ public class ArrayParsingTest
     }
 
     private String createDeepNestedDoc(final int depth) {
-        String DOC = "[{ \"a\": [{ \"a\": [{ \"a\": [{ \"a\": [{ \"a\": [{ \"a\": [ \"a\" ]}]}]}]}]}]}] ";
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         for (int i = 0; i < depth; i++) {

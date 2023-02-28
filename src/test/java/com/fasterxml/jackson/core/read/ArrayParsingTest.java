@@ -104,7 +104,7 @@ public class ArrayParsingTest
             }
             fail("expected IllegalStateException");
         } catch (IllegalStateException ise) {
-            assertEquals("Depth (1001) exceeds the maximum allowed depth (1000)", ise.getMessage());
+            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", ise.getMessage());
         }
     }
 

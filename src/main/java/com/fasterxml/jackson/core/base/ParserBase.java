@@ -245,8 +245,12 @@ public abstract class ParserBase extends ParserMinimalBase
      * Not used for  pure integer values.
      */
     protected int _expLength;
-    
-    private int _depth;
+
+    /**
+     * The depth is a count of objects and arrays that have not
+     * been closed, `{` and `[` respectively.
+     */
+    private int _nestingDepth;
 
     /*
     /**********************************************************
@@ -1551,17 +1555,17 @@ public abstract class ParserBase extends ParserMinimalBase
     protected void _finishString() throws IOException { }
 
     protected final void createChildArrayContext(final int lineNr, final int colNr) {
-        _streamReadConstraints.validateDepth(++_depth);
+        _streamReadConstraints.validateNestingDepth(++_nestingDepth);
         _parsingContext = _parsingContext.createChildArrayContext(lineNr, colNr);
     }
 
     protected final void createChildObjectContext(final int lineNr, final int colNr) {
-        _streamReadConstraints.validateDepth(++_depth);
+        _streamReadConstraints.validateNestingDepth(++_nestingDepth);
         _parsingContext = _parsingContext.createChildObjectContext(lineNr, colNr);
     }
 
     protected final void popParsingContext() {
-        _depth--;
+        _nestingDepth--;
         _parsingContext = _parsingContext.clearAndGetParent();
     }
 }

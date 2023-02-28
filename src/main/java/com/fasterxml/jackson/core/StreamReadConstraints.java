@@ -13,7 +13,7 @@ public class StreamReadConstraints
     private static final long serialVersionUID = 1L;
 
     /**
-     * Default setting for maximum depth: see {@link Builder#maxDepth(int)} for details.
+     * Default setting for maximum depth: see {@link Builder#maxNestingDepth(int)} for details.
      */
     public static final int DEFAULT_MAX_DEPTH = 1000;
 
@@ -27,7 +27,7 @@ public class StreamReadConstraints
      */
     public static final int DEFAULT_MAX_STRING_LEN = 1_000_000;
 
-    protected final int _maxDepth;
+    protected final int _maxNestingDepth;
     protected final int _maxNumLen;
     protected final int _maxStringLen;
 
@@ -35,26 +35,26 @@ public class StreamReadConstraints
         new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
 
     public static final class Builder {
-        private int maxDepth;
+        private int maxNestingDepth;
         private int maxNumLen;
         private int maxStringLen;
 
         /**
-         * Sets the maximum depth. The depth is a count of objects and arrays that have not been closed,
-         * `{` and `[` respectively.
+         * Sets the maximum nesting depth. The depth is a count of objects and arrays that have not
+         * been closed, `{` and `[` respectively.
          *
-         * @param maxDepth the maximum depth
+         * @param maxNestingDepth the maximum depth
          *
          * @return this builder
-         * @throws IllegalArgumentException if the maxDepth is set to a negative value
+         * @throws IllegalArgumentException if the maxNestingDepth is set to a negative value
          *
          * @since 2.15
          */
-        public Builder maxDepth(final int maxDepth) {
-            if (maxDepth < 0) {
-                throw new IllegalArgumentException("Cannot set maxDEpth to a negative value");
+        public Builder maxNestingDepth(final int maxNestingDepth) {
+            if (maxNestingDepth < 0) {
+                throw new IllegalArgumentException("Cannot set maxNestingDepth to a negative value");
             }
-            this.maxDepth = maxDepth;
+            this.maxNestingDepth = maxNestingDepth;
             return this;
         }
 
@@ -106,20 +106,20 @@ public class StreamReadConstraints
             this(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
         }
 
-        Builder(final int maxDepth, final int maxNumLen, final int maxStringLen) {
-            this.maxDepth = maxDepth;
+        Builder(final int maxNestingDepth, final int maxNumLen, final int maxStringLen) {
+            this.maxNestingDepth = maxNestingDepth;
             this.maxNumLen = maxNumLen;
             this.maxStringLen = maxStringLen;
         }
 
         Builder(StreamReadConstraints src) {
-            maxDepth = src._maxDepth;
+            maxNestingDepth = src._maxNestingDepth;
             maxNumLen = src._maxNumLen;
             maxStringLen = src._maxStringLen;
         }
 
         public StreamReadConstraints build() {
-            return new StreamReadConstraints(maxDepth, maxNumLen, maxStringLen);
+            return new StreamReadConstraints(maxNestingDepth, maxNumLen, maxStringLen);
         }
     }
 
@@ -129,8 +129,8 @@ public class StreamReadConstraints
     /**********************************************************************
      */
 
-    StreamReadConstraints(final int maxDepth, final int maxNumLen, final int maxStringLen) {
-        _maxDepth = maxDepth;
+    StreamReadConstraints(final int maxNestingDepth, final int maxNumLen, final int maxStringLen) {
+        _maxNestingDepth = maxNestingDepth;
         _maxNumLen = maxNumLen;
         _maxStringLen = maxStringLen;
     }
@@ -159,12 +159,12 @@ public class StreamReadConstraints
 
     /**
      * Accessor for maximum depth.
-     * see {@link Builder#maxDepth(int)} for details.
+     * see {@link Builder#maxNestingDepth(int)} for details.
      *
      * @return Maximum allowed depth
      */
-    public int getMaxDepth() {
-        return _maxDepth;
+    public int getMaxNestingDepth() {
+        return _maxNestingDepth;
     }
 
     /**
@@ -251,8 +251,8 @@ public class StreamReadConstraints
     }
 
     /**
-     * Convenience method that can be used to verify that the depth
-     * does not exceed the maximum specified by this
+     * Convenience method that can be used to verify that the
+     * nesting depth does not exceed the maximum specified by this
      * constraints object: if it does, an
      * {@link IllegalStateException}
      * is thrown.
@@ -261,11 +261,11 @@ public class StreamReadConstraints
      *
      * @throws IllegalStateException If depth exceeds maximum
      */
-    public void validateDepth(int depth) throws IllegalStateException
+    public void validateNestingDepth(int depth) throws IllegalStateException
     {
-        if (depth > _maxDepth) {
-            throw new IllegalStateException(String.format("Depth (%d) exceeds the maximum allowed depth (%d)",
-                    depth, _maxDepth));
+        if (depth > _maxNestingDepth) {
+            throw new IllegalStateException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",
+                    depth, _maxNestingDepth));
         }
     }
 }

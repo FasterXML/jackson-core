@@ -17,7 +17,7 @@ public class Fuzz34435ParseTest extends BaseTest
                 .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
                 .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
                 .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
-                .streamReadConstraints(StreamReadConstraints.builder().maxDepth(Integer.MAX_VALUE).build())
+                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
                 .build();
 
         JsonParser p = f.createParser(/*ObjectReadContext.empty(), */ DOC);

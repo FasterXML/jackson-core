@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.jsonptr;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 public class JsonPointerOOME736Test extends BaseTest
 {
@@ -12,7 +11,7 @@ public class JsonPointerOOME736Test extends BaseTest
         // Create nesting of 120k arrays
         String INPUT = new String(new char[MAX_DEPTH]).replace("\0", "[");
         final JsonFactory f = JsonFactory.builder()
-                .streamReadConstraints(StreamReadConstraints.builder().maxDepth(Integer.MAX_VALUE).build())
+                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
                 .build();
         JsonParser parser = createParser(f, MODE_READER, INPUT);
         try {

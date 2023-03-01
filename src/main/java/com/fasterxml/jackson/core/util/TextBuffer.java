@@ -259,6 +259,12 @@ public class TextBuffer
         }
     }
 
+    /**
+     * @param buf Buffer that contains new contents
+     * @param offset Offset of the first content character in {@code buf}
+     * @param len Length of content in {@code buf}
+     * @throws IllegalStateException if the buffer has grown too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
     public void resetWithCopy(char[] buf, int offset, int len)
     {
         _inputBuffer = null;
@@ -278,7 +284,13 @@ public class TextBuffer
         append(buf, offset, len);
     }
 
-    // @since 2.9
+    /**
+     * @param text String that contains new contents
+     * @param start Offset of the first content character in {@code text}
+     * @param len Length of content in {@code text}
+     * @throws IllegalStateException if the buffer has grown too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @since 2.9
+     */
     public void resetWithCopy(String text, int start, int len)
     {
         _inputBuffer = null;
@@ -298,7 +310,7 @@ public class TextBuffer
     }
 
     /**
-     * @param value to replace
+     * @param value to replace existing buffer
      * @throws IllegalStateException if the value is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     public void resetWithString(String value)

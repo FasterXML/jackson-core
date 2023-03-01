@@ -1503,6 +1503,7 @@ public abstract class JsonParser
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
+     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     public abstract String getText() throws IOException;
 
@@ -1567,6 +1568,7 @@ public abstract class JsonParser
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
+     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     public abstract char[] getTextCharacters() throws IOException;
 

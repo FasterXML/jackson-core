@@ -340,10 +340,10 @@ public class TextBuffer
      *    delimiter or end-of-line
      * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
      * @return token as text
-     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JsonParseException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      * @since 2.15
      */
-    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces)
+    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces) throws JsonParseException
     {
         if (trimTrailingSpaces) {
             // First, see if it's enough to trim end of current segment:
@@ -353,17 +353,17 @@ public class TextBuffer
             }
         }
         _currentSize = lastSegmentEnd;
-        return contentsAsString();
+        return _contentsAsString();
     }
 
-    private String _doTrim(int ptr) throws IllegalStateException
+    private String _doTrim(int ptr) throws JsonParseException
     {
         while (true) {
             final char[] curr = _currentSegment;
             while (--ptr >= 0) {
                 if (curr[ptr] > 0x0020) { // found the ending non-space char, all done:
                     _currentSize = ptr+1;
-                    return contentsAsString();
+                    return _contentsAsString();
                 }
             }
             // nope: need to handle previous segment; if there is one:
@@ -376,7 +376,7 @@ public class TextBuffer
         // we get here if everything was trimmed, so:
         _currentSize = 0;
         _hasSegments = false;
-        return contentsAsString();
+        return _contentsAsString();
     }
 
     // Helper method used to find a buffer to use, ideally one
@@ -456,6 +456,7 @@ public class TextBuffer
      * fashion or not: this typically require allocation of the result buffer.
      *
      * @return Aggregated {@code char[]} that contains all buffered content
+     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     public char[] getTextBuffer()
     {
@@ -488,6 +489,15 @@ public class TextBuffer
      * @throws IllegalStateException if the contents are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     public String contentsAsString()
+    {
+        try {
+            return _contentsAsString();
+        } catch (JsonParseException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
+    }
+
+    private String _contentsAsString() throws JsonParseException
     {
         if (_resultString == null) {
             // Has array been requested? Can make a shortcut, if so:

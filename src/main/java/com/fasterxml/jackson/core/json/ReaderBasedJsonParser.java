@@ -310,6 +310,9 @@ public class ReaderBasedJsonParser
      * if no current event (before first call to {@link #nextToken}, or
      * after encountering end-of-input), returns null.
      * Method can be called for any event.
+     *
+     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws IOException if there are general I/O or parse issues
      */
     @Override
     public final String getText() throws IOException

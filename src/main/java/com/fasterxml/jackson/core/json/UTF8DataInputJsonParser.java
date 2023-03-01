@@ -2347,7 +2347,7 @@ public class UTF8DataInputJsonParser
 
     /**
      * Alternative to {@link #_skipWS} that handles possible {@link EOFException}
-     * caused by trying to read past the end of {@link InputData}.
+     * caused by trying to read past the end of the {@link DataInput}.
      *
      * @since 2.9
      */

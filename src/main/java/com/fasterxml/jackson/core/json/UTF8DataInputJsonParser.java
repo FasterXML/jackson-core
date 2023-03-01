@@ -754,7 +754,7 @@ public class UTF8DataInputJsonParser
         return (_currToken = _handleUnexpectedValue(i));
     }
 
-    private final JsonToken _nextAfterName()
+    private final JsonToken _nextAfterName() throws JsonParseException
     {
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;

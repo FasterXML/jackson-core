@@ -259,12 +259,12 @@ public class StreamReadConstraints
      *
      * @param depth count of unclosed objects and arrays
      *
-     * @throws IllegalStateException If depth exceeds maximum
+     * @throws JsonParseException If depth exceeds maximum
      */
-    public void validateNestingDepth(int depth) throws IllegalStateException
+    public void validateNestingDepth(int depth) throws JsonParseException
     {
         if (depth > _maxNestingDepth) {
-            throw new IllegalStateException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",
+            throw new JsonParseException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",
                     depth, _maxNestingDepth));
         }
     }

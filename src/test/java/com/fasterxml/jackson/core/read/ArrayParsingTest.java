@@ -102,9 +102,9 @@ public class ArrayParsingTest
             while ((jt = jp.nextToken()) != null) {
 
             }
-            fail("expected IllegalStateException");
-        } catch (IllegalStateException ise) {
-            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", ise.getMessage());
+            fail("expected JsonParseException");
+        } catch (JsonParseException e) {
+            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
         }
     }
 

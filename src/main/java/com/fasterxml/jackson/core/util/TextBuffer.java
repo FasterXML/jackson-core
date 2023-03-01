@@ -4,6 +4,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 /**
@@ -296,13 +297,21 @@ public class TextBuffer
         append(text, start, len);
     }
 
+    /**
+     * @param value to replace
+     * @throws IllegalStateException if the value is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
     public void resetWithString(String value)
     {
         _inputBuffer = null;
         _inputStart = -1;
         _inputLen = 0;
 
-        validateStringLength(value.length());
+        try {
+            validateStringLength(value.length());
+        } catch (JsonParseException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
         _resultString = value;
         _resultArray = null;
 
@@ -331,6 +340,7 @@ public class TextBuffer
      *    delimiter or end-of-line
      * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
      * @return token as text
+     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      * @since 2.15
      */
     public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces)
@@ -346,7 +356,7 @@ public class TextBuffer
         return contentsAsString();
     }
 
-    private String _doTrim(int ptr)
+    private String _doTrim(int ptr) throws IllegalStateException
     {
         while (true) {
             final char[] curr = _currentSegment;
@@ -475,6 +485,7 @@ public class TextBuffer
      * fashion or not: this typically require construction of the result String.
      *
      * @return Aggregated buffered contents as a {@link java.lang.String}
+     * @throws IllegalStateException if the contents are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     public String contentsAsString()
     {
@@ -489,7 +500,11 @@ public class TextBuffer
                     if (_inputLen < 1) {
                         return (_resultString = "");
                     }
-                    validateStringLength(_inputLen);
+                    try {
+                        validateStringLength(_inputLen);
+                    } catch (JsonParseException e) {
+                        throw new IllegalStateException(e.getMessage());
+                    }
                     _resultString = new String(_inputBuffer, _inputStart, _inputLen);
                 } else { // nope... need to copy
                     // But first, let's see if we have just one buffer
@@ -500,11 +515,19 @@ public class TextBuffer
                         if (currLen == 0) {
                             _resultString = "";
                         } else {
-                            validateStringLength(currLen);
+                            try {
+                                validateStringLength(currLen);
+                            } catch (JsonParseException e) {
+                                throw new IllegalStateException(e.getMessage());
+                            }
                             _resultString = new String(_currentSegment, 0, currLen);
                         }
                     } else { // no, need to combine
-                        validateStringLength(segLen + currLen);
+                        try {
+                            validateStringLength(segLen + currLen);
+                        } catch (JsonParseException e) {
+                            throw new IllegalStateException(e.getMessage());
+                        }
                         StringBuilder sb = new StringBuilder(segLen + currLen);
                         // First stored segments
                         if (_segments != null) {
@@ -524,10 +547,18 @@ public class TextBuffer
         return _resultString;
     }
 
+    /**
+     * @return char array
+     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
     public char[] contentsAsArray() {
         char[] result = _resultArray;
         if (result == null) {
-            _resultArray = result = resultArray();
+            try {
+                _resultArray = result = resultArray();
+            } catch (JsonParseException e) {
+                throw new IllegalStateException(e.getMessage());
+            }
         }
         return result;
     }
@@ -540,6 +571,7 @@ public class TextBuffer
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
+     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      *
      * @since 2.14
      */
@@ -547,11 +579,32 @@ public class TextBuffer
         return NumberInput.parseDouble(contentsAsString(), useFastParser);
     }
 
+    /**
+     * Convenience method for converting contents of the buffer
+     * into a Double value.
+     *
+     * @return Buffered text value parsed as a {@link Double}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid Java number
+     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     *
+     * @deprecated use {@link #contentsAsDouble(boolean)}
+     */
     @Deprecated // @since 2.14
     public double contentsAsDouble() throws NumberFormatException {
         return contentsAsDouble(false);
     }
 
+    /**
+     * Convenience method for converting contents of the buffer
+     * into a Float value.
+     *
+     * @return Buffered text value parsed as a {@link Float}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid Java number
+     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @deprecated use {@link #contentsAsFloat(boolean)}
+     */
     @Deprecated // @since 2.14
     public float contentsAsFloat() throws NumberFormatException {
         return contentsAsFloat(false);
@@ -565,6 +618,7 @@ public class TextBuffer
      * @return Buffered text value parsed as a {@link Float}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
+     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      * @since 2.14
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
@@ -573,6 +627,8 @@ public class TextBuffer
 
     /**
      * @return Buffered text value parsed as a {@link BigDecimal}, if possible
+     * @throws NumberFormatException if contents are not a valid Java number
+     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      *
      * @deprecated Since 2.15 just access String contents if necessary, call
      *   {@link NumberInput#parseBigDecimal(String, boolean)} (or other overloads)
@@ -675,14 +731,14 @@ public class TextBuffer
             for (int i = 0, end = _segments.size(); i < end; ++i) {
                 char[] curr = _segments.get(i);
                 int currLen = curr.length;
-                w.write(curr, 0, currLen);
                 total += currLen;
+                w.write(curr, 0, currLen);
             }
         }
         int len = _currentSize;
         if (len > 0) {
-            w.write(_currentSegment, 0, len);
             total += len;
+            w.write(_currentSegment, 0, len);
         }
         return total;
     }
@@ -703,6 +759,10 @@ public class TextBuffer
         }
     }
 
+    /**
+     * @param c char to append
+     * @throws IllegalStateException if the buffer has grown too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
     public void append(char c) {
         // Using shared buffer so far?
         if (_inputStart >= 0) {
@@ -721,6 +781,12 @@ public class TextBuffer
         curr[_currentSize++] = c;
     }
 
+    /**
+     * @param c char array to append
+     * @param start the start index within the array (from which we read chars to append)
+     * @param len number of chars to take from the array
+     * @throws IllegalStateException if the buffer has grown too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
     public void append(char[] c, int start, int len)
     {
         // Can't append to shared buf (sanity check)
@@ -760,6 +826,12 @@ public class TextBuffer
         } while (len > 0);
     }
 
+    /**
+     * @param str string to append
+     * @param offset the start index within the string (from which we read chars to append)
+     * @param len number of chars to take from the string
+     * @throws IllegalStateException if the buffer has grown too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
     public void append(String str, int offset, int len)
     {
         // Can't append to shared buf (sanity check)
@@ -798,13 +870,17 @@ public class TextBuffer
         } while (len > 0);
     }
 
-    private void validateAppend(int toAppend) {
+    private void validateAppend(int toAppend) throws IllegalStateException {
         int newTotalLength = _segmentSize + _currentSize + toAppend;
         // guard against overflow
         if (newTotalLength < 0) {
             newTotalLength = Integer.MAX_VALUE;
         }
-        validateStringLength(newTotalLength);
+        try {
+            validateStringLength(newTotalLength);
+        } catch (JsonParseException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
     }
 
     /*
@@ -867,6 +943,7 @@ public class TextBuffer
      * @param len Length of content (in characters) of the current active segment
      *
      * @return String that contains all buffered content
+     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      *
      * @since 2.6
      */
@@ -878,12 +955,20 @@ public class TextBuffer
         }
         // more common case: single segment
         int currLen = _currentSize;
-        validateStringLength(currLen);
+        try {
+            validateStringLength(currLen);
+        } catch (JsonParseException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
         String str = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
         _resultString = str;
         return str;
     }
 
+    /**
+     * @return char array
+     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
     public char[] finishCurrentSegment() {
         if (_segments == null) {
             _segments = new ArrayList<char[]>();
@@ -893,7 +978,11 @@ public class TextBuffer
         int oldLen = _currentSegment.length;
         _segmentSize += oldLen;
         _currentSize = 0;
-        validateStringLength(_segmentSize);
+        try {
+            validateStringLength(_segmentSize);
+        } catch (JsonParseException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
 
         // Let's grow segments by 50%
         int newLen = oldLen + (oldLen >> 1);
@@ -957,7 +1046,14 @@ public class TextBuffer
      * {@link #contentsAsString}, since it's not guaranteed that resulting
      * String is cached.
      */
-    @Override public String toString() { return contentsAsString(); }
+    @Override public String toString() {
+        try {
+            return contentsAsString();
+        } catch (IllegalStateException e) {
+            // can fail if the string is too large, use the default Object `toString()` if this happens
+            return super.toString();
+        }
+    }
 
     /*
     /**********************************************************
@@ -1014,7 +1110,7 @@ public class TextBuffer
         _currentSegment = carr(newLen);
     }
 
-    private char[] resultArray()
+    private char[] resultArray() throws JsonParseException
     {
         if (_resultString != null) { // Can take a shortcut...
             return _resultString.toCharArray();
@@ -1063,16 +1159,16 @@ public class TextBuffer
     /**
      * Convenience method that can be used to verify that a String
      * of specified length does not exceed maximum specific by this
-     * constraints object: if it does, an
-     * {@link IllegalStateException}
+     * constraints object: if it does, a
+     * {@link JsonParseException}
      * is thrown.
      *
      * @param length Length of string in input units
      *
-     * @throws IllegalStateException If length exceeds maximum
+     * @throws JsonParseException If length exceeds maximum
      * @since 2.15
      */
-    protected void validateStringLength(int length) throws IllegalStateException
+    protected void validateStringLength(int length) throws JsonParseException
     {
         // no-op
     }

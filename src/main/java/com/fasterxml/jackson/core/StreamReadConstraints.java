@@ -195,18 +195,18 @@ public class StreamReadConstraints
     /**
      * Convenience method that can be used to verify that a String
      * of specified length does not exceed maximum specific by this
-     * constraints object: if it does, an
-     * {@link IllegalStateException}
+     * constraints object: if it does, a
+     * {@link JsonParseException}
      * is thrown.
      *
      * @param length Length of string in input units
      *
-     * @throws IllegalStateException If length exceeds maximum
+     * @throws JsonParseException If length exceeds maximum
      */
-    public void validateStringLength(int length) throws IllegalStateException
+    public void validateStringLength(int length) throws JsonParseException
     {
         if (length > _maxStringLen) {
-            throw new IllegalStateException(String.format("String length (%d) exceeds the maximum length (%d)",
+            throw new JsonParseException(String.format("String length (%d) exceeds the maximum length (%d)",
                     length, _maxStringLen));
         }
     }

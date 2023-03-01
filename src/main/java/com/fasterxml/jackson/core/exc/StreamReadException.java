@@ -52,6 +52,11 @@ public abstract class StreamReadException
         super(msg, loc, rootCause);
     }
 
+    // @since 2.15
+    protected StreamReadException(String msg) {
+        super(msg);
+    }
+
     /**
      * Fluent method that may be used to assign originating {@link JsonParser},
      * to be accessed using {@link #getProcessor()}.

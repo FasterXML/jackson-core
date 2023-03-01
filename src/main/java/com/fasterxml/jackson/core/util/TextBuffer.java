@@ -581,12 +581,16 @@ public class TextBuffer
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
-     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      *
      * @since 2.14
      */
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
-        return NumberInput.parseDouble(contentsAsString(), useFastParser);
+        try {
+            return NumberInput.parseDouble(_contentsAsString(), useFastParser);
+        } catch (JsonParseException e) {
+            // JsonParseException is used to denote a string that is too long
+            throw new NumberFormatException(e.getMessage());
+        }
     }
 
     /**
@@ -596,7 +600,6 @@ public class TextBuffer
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
-     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      *
      * @deprecated use {@link #contentsAsDouble(boolean)}
      */
@@ -612,7 +615,6 @@ public class TextBuffer
      * @return Buffered text value parsed as a {@link Float}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
-     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      * @deprecated use {@link #contentsAsFloat(boolean)}
      */
     @Deprecated // @since 2.14
@@ -628,11 +630,15 @@ public class TextBuffer
      * @return Buffered text value parsed as a {@link Float}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
-     * @throws IllegalStateException if the number of chars in the number are too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      * @since 2.14
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
-        return NumberInput.parseFloat(contentsAsString(), useFastParser);
+        try {
+            return NumberInput.parseFloat(_contentsAsString(), useFastParser);
+        } catch (JsonParseException e) {
+            // JsonParseException is used to denote a string that is too long
+            throw new NumberFormatException(e.getMessage());
+        }
     }
 
     /**
@@ -647,7 +653,12 @@ public class TextBuffer
     @Deprecated
     public BigDecimal contentsAsDecimal() throws NumberFormatException {
         // Was more optimized earlier, removing special handling due to deprecation
-        return NumberInput.parseBigDecimal(contentsAsArray());
+        try {
+            return NumberInput.parseBigDecimal(contentsAsArray());
+        } catch (IllegalStateException e) {
+            // IllegalStateException is used to denote a string that is too long
+            throw new NumberFormatException(e.getMessage());
+        }
     }
 
     /**

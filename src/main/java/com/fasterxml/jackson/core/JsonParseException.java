@@ -54,7 +54,7 @@ public class JsonParseException
 
     // @since 2.7
     public JsonParseException(JsonParser p, String msg, JsonLocation loc, Throwable root) {
-        super(msg, loc, root);
+        super(p, msg, loc, root);
     }
 
     /**

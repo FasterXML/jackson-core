@@ -13,8 +13,7 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  * if so, instance of this class can be given as the writer to
  * <code>JsonGenerator</code>.
  */
-public final class SegmentedStringWriter extends Writer
-{
+public final class SegmentedStringWriter extends Writer {
     final private TextBuffer _buffer;
 
     public SegmentedStringWriter(BufferRecycler br) {
@@ -37,34 +36,84 @@ public final class SegmentedStringWriter extends Writer
     @Override
     public Writer append(CharSequence csq) {
         String str = csq.toString();
-        _buffer.append(str, 0, str.length());
+        try {
+            _buffer.append(str, 0, str.length());
+        } catch (IOException e) {
+            // IOException will not happen here
+            throw new IllegalStateException(e);
+        }
         return this;
     }
 
     @Override
     public Writer append(CharSequence csq, int start, int end) {
         String str = csq.subSequence(start, end).toString();
-        _buffer.append(str, 0, str.length());
+        try {
+            _buffer.append(str, 0, str.length());
+        } catch (IOException e) {
+            // IOException will not happen here
+            throw new IllegalStateException(e);
+        }
         return this;
     }
 
-    @Override public void close() { } // NOP
-    @Override public void flush() { } // NOP
+    @Override
+    public void close() {
+    } // NOP
 
     @Override
-    public void write(char[] cbuf) { _buffer.append(cbuf, 0, cbuf.length); }
+    public void flush() {
+    } // NOP
 
     @Override
-    public void write(char[] cbuf, int off, int len) { _buffer.append(cbuf, off, len); }
+    public void write(char[] cbuf) {
+        try {
+            _buffer.append(cbuf, 0, cbuf.length);
+        } catch (IOException e) {
+            // IOException will not happen here
+            throw new IllegalStateException(e);
+        }
+    }
 
     @Override
-    public void write(int c) { _buffer.append((char) c); }
+    public void write(char[] cbuf, int off, int len) {
+        try {
+            _buffer.append(cbuf, off, len);
+        } catch (IOException e) {
+            // IOException will not happen here
+            throw new IllegalStateException(e);
+        }
+    }
 
     @Override
-    public void write(String str) { _buffer.append(str, 0, str.length()); }
+    public void write(int c) {
+        try {
+            _buffer.append((char) c);
+        } catch (IOException e) {
+            // IOException will not happen here
+            throw new IllegalStateException(e);
+        }    
+    }
 
     @Override
-    public void write(String str, int off, int len) { _buffer.append(str, off, len); }
+    public void write(String str) {
+        try {
+            _buffer.append(str, 0, str.length());
+        } catch (IOException e) {
+            // IOException will not happen here
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Override
+    public void write(String str, int off, int len) {
+        try {
+            _buffer.append(str, off, len);
+        } catch (IOException e) {
+            // IOException will not happen here
+            throw new IllegalStateException(e);
+        }
+    }
 
     /*
     /**********************************************************
@@ -82,8 +131,13 @@ public final class SegmentedStringWriter extends Writer
      * @return String that contains all aggregated content
      */
     public String getAndClear() {
-        String result = _buffer.contentsAsString();
-        _buffer.releaseBuffers();
-        return result;
+        try {
+            String result = _buffer.contentsAsString();
+            _buffer.releaseBuffers();
+            return result;
+        } catch (IOException e) {
+            // IOException will not happen here
+            throw new IllegalStateException(e);
+        }
     }
 }

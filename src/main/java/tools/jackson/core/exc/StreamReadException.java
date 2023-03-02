@@ -13,6 +13,11 @@ public class StreamReadException
 
     protected transient JsonParser _processor;
 
+    public StreamReadException(String msg) {
+        super(msg);
+        _processor = null;
+    }
+
     public StreamReadException(JsonParser p, String msg) {
         super(msg, (p == null) ? null : p.currentLocation(), null);
         _processor = p;
@@ -43,7 +48,7 @@ public class StreamReadException
      * Fluent method that may be used to assign originating {@link JsonParser},
      * to be accessed using {@link #processor()}.
      *<p>
-     * NOTE: `this` instance is modified and no new instance is constructed.
+     * NOTE: {@code this} instance is modified and no new instance is constructed.
      *
      * @param p Parser instance to assign to this exception
      *

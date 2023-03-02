@@ -373,8 +373,8 @@ public abstract class NonBlockingJsonParserBase
      * after encountering end-of-input), returns null.
      * Method can be called for any event.
      *
-     * @throws IllegalStateException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
-     * @throws IOException if there are general I/O or parse issues
+     * @throws IOException if there are general I/O or parse issues, including if the text is too large,
+     * see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     @Override
     public String getText() throws IOException

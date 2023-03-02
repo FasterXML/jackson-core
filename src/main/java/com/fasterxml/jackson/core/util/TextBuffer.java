@@ -325,27 +325,6 @@ public class TextBuffer
         return _currentSegment;
     }
 
-    /**
-     * @param lastSegmentEnd End offset in the currently active segment,
-     *    could be 0 in the case of first character is
-     *    delimiter or end-of-line
-     * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
-     * @return token as text
-     * @since 2.15
-     */
-    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces)
-    {
-        if (trimTrailingSpaces) {
-            // First, see if it's enough to trim end of current segment:
-            int ptr = lastSegmentEnd - 1;
-            if (ptr < 0 || _currentSegment[ptr] <= 0x0020) {
-                return _doTrim(ptr);
-            }
-        }
-        _currentSize = lastSegmentEnd;
-        return contentsAsString();
-    }
-
     private String _doTrim(int ptr)
     {
         while (true) {
@@ -905,6 +884,27 @@ public class TextBuffer
         char[] curr = carr(newLen);
         _currentSegment = curr;
         return curr;
+    }
+
+    /**
+     * @param lastSegmentEnd End offset in the currently active segment,
+     *    could be 0 in the case of first character is
+     *    delimiter or end-of-line
+     * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
+     * @return token as text
+     * @since 2.15
+     */
+    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces)
+    {
+        if (trimTrailingSpaces) {
+            // First, see if it's enough to trim end of current segment:
+            int ptr = lastSegmentEnd - 1;
+            if (ptr < 0 || _currentSegment[ptr] <= 0x0020) {
+                return _doTrim(ptr);
+            }
+        }
+        _currentSize = lastSegmentEnd;
+        return contentsAsString();
     }
 
     /**

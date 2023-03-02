@@ -346,51 +346,6 @@ public class TextBuffer
         return _currentSegment;
     }
 
-    /**
-     * @param lastSegmentEnd End offset in the currently active segment,
-     *    could be 0 in the case of first character is
-     *    delimiter or end-of-line
-     * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
-     * @return token as text
-     * @throws JsonParseException if the text is too large, see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
-     * @since 2.15
-     */
-    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces) throws JsonParseException
-    {
-        if (trimTrailingSpaces) {
-            // First, see if it's enough to trim end of current segment:
-            int ptr = lastSegmentEnd - 1;
-            if (ptr < 0 || _currentSegment[ptr] <= 0x0020) {
-                return _doTrim(ptr);
-            }
-        }
-        _currentSize = lastSegmentEnd;
-        return _contentsAsString();
-    }
-
-    private String _doTrim(int ptr) throws JsonParseException
-    {
-        while (true) {
-            final char[] curr = _currentSegment;
-            while (--ptr >= 0) {
-                if (curr[ptr] > 0x0020) { // found the ending non-space char, all done:
-                    _currentSize = ptr+1;
-                    return _contentsAsString();
-                }
-            }
-            // nope: need to handle previous segment; if there is one:
-            if (_segments == null || _segments.isEmpty()) {
-                break;
-            }
-            _currentSegment = _segments.remove(_segments.size() - 1);
-            ptr = _currentSegment.length;
-        }
-        // we get here if everything was trimmed, so:
-        _currentSize = 0;
-        _hasSegments = false;
-        return _contentsAsString();
-    }
-
     // Helper method used to find a buffer to use, ideally one
     // recycled earlier.
     private char[] buf(int needed)
@@ -1027,6 +982,51 @@ public class TextBuffer
         char[] curr = carr(newLen);
         _currentSegment = curr;
         return curr;
+    }
+
+    /**
+     * @param lastSegmentEnd End offset in the currently active segment,
+     *    could be 0 in the case of first character is
+     *    delimiter or end-of-line
+     * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
+     * @return token as text
+     * @since 2.15
+     */
+    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces) throws JsonParseException
+    {
+        if (trimTrailingSpaces) {
+            // First, see if it's enough to trim end of current segment:
+            int ptr = lastSegmentEnd - 1;
+            if (ptr < 0 || _currentSegment[ptr] <= 0x0020) {
+                return _doTrim(ptr);
+            }
+        }
+        _currentSize = lastSegmentEnd;
+        return _contentsAsString();
+    }
+
+    // @since 2.15
+    private String _doTrim(int ptr) throws JsonParseException
+    {
+        while (true) {
+            final char[] curr = _currentSegment;
+            while (--ptr >= 0) {
+                if (curr[ptr] > 0x0020) { // found the ending non-space char, all done:
+                    _currentSize = ptr+1;
+                    return _contentsAsString();
+                }
+            }
+            // nope: need to handle previous segment; if there is one:
+            if (_segments == null || _segments.isEmpty()) {
+                break;
+            }
+            _currentSegment = _segments.remove(_segments.size() - 1);
+            ptr = _currentSegment.length;
+        }
+        // we get here if everything was trimmed, so:
+        _currentSize = 0;
+        _hasSegments = false;
+        return _contentsAsString();
     }
 
     /**

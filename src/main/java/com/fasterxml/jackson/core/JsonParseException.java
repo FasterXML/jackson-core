@@ -57,6 +57,11 @@ public class JsonParseException
         super(p, msg, loc, root);
     }
 
+    // @since 2.15
+    public JsonParseException(String msg) {
+        super(msg);
+    }
+
     /**
      * Fluent method that may be used to assign originating {@link JsonParser},
      * to be accessed using {@link #getProcessor()}.

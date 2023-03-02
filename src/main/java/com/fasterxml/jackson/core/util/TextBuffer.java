@@ -325,29 +325,6 @@ public class TextBuffer
         return _currentSegment;
     }
 
-    private String _doTrim(int ptr)
-    {
-        while (true) {
-            final char[] curr = _currentSegment;
-            while (--ptr >= 0) {
-                if (curr[ptr] > 0x0020) { // found the ending non-space char, all done:
-                    _currentSize = ptr+1;
-                    return contentsAsString();
-                }
-            }
-            // nope: need to handle previous segment; if there is one:
-            if (_segments == null || _segments.isEmpty()) {
-                break;
-            }
-            _currentSegment = _segments.remove(_segments.size() - 1);
-            ptr = _currentSegment.length;
-        }
-        // we get here if everything was trimmed, so:
-        _currentSize = 0;
-        _hasSegments = false;
-        return contentsAsString();
-    }
-
     // Helper method used to find a buffer to use, ideally one
     // recycled earlier.
     private char[] buf(int needed)
@@ -904,6 +881,30 @@ public class TextBuffer
             }
         }
         _currentSize = lastSegmentEnd;
+        return contentsAsString();
+    }
+
+    // @since 2.15
+    private String _doTrim(int ptr)
+    {
+        while (true) {
+            final char[] curr = _currentSegment;
+            while (--ptr >= 0) {
+                if (curr[ptr] > 0x0020) { // found the ending non-space char, all done:
+                    _currentSize = ptr+1;
+                    return contentsAsString();
+                }
+            }
+            // nope: need to handle previous segment; if there is one:
+            if (_segments == null || _segments.isEmpty()) {
+                break;
+            }
+            _currentSegment = _segments.remove(_segments.size() - 1);
+            ptr = _currentSegment.length;
+        }
+        // we get here if everything was trimmed, so:
+        _currentSize = 0;
+        _hasSegments = false;
         return contentsAsString();
     }
 

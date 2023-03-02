@@ -814,7 +814,7 @@ public class ReaderBasedJsonParser
         return t;
     }
 
-    private final JsonToken _nextAfterName() throws JsonParseException
+    private final JsonToken _nextAfterName() throws IOException
     {
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;

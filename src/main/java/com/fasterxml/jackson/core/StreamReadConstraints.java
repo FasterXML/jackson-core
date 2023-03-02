@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core;
 
+import java.io.IOException;
+
 /**
  * The constraints to use for streaming reads: used to guard against malicious
  * input by preventing processing of "too big" input constructs (values,
@@ -261,7 +263,7 @@ public class StreamReadConstraints
      *
      * @throws JsonParseException If depth exceeds maximum
      */
-    public void validateNestingDepth(int depth) throws JsonParseException
+    public void validateNestingDepth(int depth) throws IOException
     {
         if (depth > _maxNestingDepth) {
             throw new JsonParseException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",

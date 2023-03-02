@@ -1554,12 +1554,12 @@ public abstract class ParserBase extends ParserMinimalBase
     // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
 
-    protected final void createChildArrayContext(final int lineNr, final int colNr) throws JsonParseException {
+    protected final void createChildArrayContext(final int lineNr, final int colNr) throws IOException {
         _streamReadConstraints.validateNestingDepth(++_nestingDepth);
         _parsingContext = _parsingContext.createChildArrayContext(lineNr, colNr);
     }
 
-    protected final void createChildObjectContext(final int lineNr, final int colNr) throws JsonParseException {
+    protected final void createChildObjectContext(final int lineNr, final int colNr) throws IOException {
         _streamReadConstraints.validateNestingDepth(++_nestingDepth);
         _parsingContext = _parsingContext.createChildObjectContext(lineNr, colNr);
     }

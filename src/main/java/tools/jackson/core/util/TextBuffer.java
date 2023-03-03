@@ -915,7 +915,13 @@ public class TextBuffer
      * {@link #contentsAsString}, since it's not guaranteed that resulting
      * String is cached.
      */
-    @Override public String toString() { return contentsAsString(); }
+    @Override public String toString() {
+        try {
+            return contentsAsString();
+        } catch (RuntimeException e) {
+            return "TextBuffer: Exception when reading contents";
+        }
+    }
 
     /*
     /**********************************************************************

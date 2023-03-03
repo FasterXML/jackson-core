@@ -28,91 +28,54 @@ public final class SegmentedStringWriter extends Writer {
      */
 
     @Override
-    public Writer append(char c) {
+    public Writer append(char c) throws IOException {
         write(c);
         return this;
     }
 
     @Override
-    public Writer append(CharSequence csq) {
+    public Writer append(CharSequence csq) throws IOException {
         String str = csq.toString();
-        try {
-            _buffer.append(str, 0, str.length());
-        } catch (IOException e) {
-            // IOException will not happen here
-            throw new IllegalStateException(e);
-        }
+        _buffer.append(str, 0, str.length());
         return this;
     }
 
     @Override
-    public Writer append(CharSequence csq, int start, int end) {
+    public Writer append(CharSequence csq, int start, int end) throws IOException {
         String str = csq.subSequence(start, end).toString();
-        try {
-            _buffer.append(str, 0, str.length());
-        } catch (IOException e) {
-            // IOException will not happen here
-            throw new IllegalStateException(e);
-        }
+        _buffer.append(str, 0, str.length());
         return this;
     }
 
     @Override
-    public void close() {
-    } // NOP
+    public void close() { } // NOP
 
     @Override
-    public void flush() {
-    } // NOP
+    public void flush() { } // NOP
 
     @Override
-    public void write(char[] cbuf) {
-        try {
-            _buffer.append(cbuf, 0, cbuf.length);
-        } catch (IOException e) {
-            // IOException will not happen here
-            throw new IllegalStateException(e);
-        }
+    public void write(char[] cbuf) throws IOException {
+        _buffer.append(cbuf, 0, cbuf.length);
     }
 
     @Override
-    public void write(char[] cbuf, int off, int len) {
-        try {
-            _buffer.append(cbuf, off, len);
-        } catch (IOException e) {
-            // IOException will not happen here
-            throw new IllegalStateException(e);
-        }
+    public void write(char[] cbuf, int off, int len) throws IOException {
+        _buffer.append(cbuf, off, len);
     }
 
     @Override
-    public void write(int c) {
-        try {
-            _buffer.append((char) c);
-        } catch (IOException e) {
-            // IOException will not happen here
-            throw new IllegalStateException(e);
-        }    
+    public void write(int c) throws IOException {
+        _buffer.append((char) c);
     }
 
     @Override
-    public void write(String str) {
-        try {
-            _buffer.append(str, 0, str.length());
-        } catch (IOException e) {
-            // IOException will not happen here
-            throw new IllegalStateException(e);
-        }
+    public void write(String str) throws IOException {
+        _buffer.append(str, 0, str.length());
     }
 
     @Override
-    public void write(String str, int off, int len) {
-        try {
-            _buffer.append(str, off, len);
-        } catch (IOException e) {
-            // IOException will not happen here
-            throw new IllegalStateException(e);
-        }
+    public void write(String str, int off, int len) throws IOException {
+        _buffer.append(str, off, len);
     }
 
     /*
@@ -129,15 +92,12 @@ public final class SegmentedStringWriter extends Writer {
      * will just return an empty String.
      *
      * @return String that contains all aggregated content
+     * @throws IOException if there are general I/O or parse issues, including if the text is too large,
+     * see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
-    public String getAndClear() {
-        try {
-            String result = _buffer.contentsAsString();
-            _buffer.releaseBuffers();
-            return result;
-        } catch (IOException e) {
-            // IOException will not happen here
-            throw new IllegalStateException(e);
-        }
+    public String getAndClear() throws IOException {
+        String result = _buffer.contentsAsString();
+        _buffer.releaseBuffers();
+        return result;
     }
 }

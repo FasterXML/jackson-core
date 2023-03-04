@@ -303,7 +303,7 @@ public class UTF8DataInputJsonParser
         return super.getValueAsInt(defValue);
     }
 
-    protected final String _getText2(JsonToken t)
+    protected final String _getText2(JsonToken t) throws IOException
     {
         if (t == null) {
             return null;

@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.core;
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 /**
  * The constraints to use for streaming reads: used to guard against malicious
@@ -199,17 +199,17 @@ public class StreamReadConstraints
      * Convenience method that can be used to verify that a floating-point
      * number of specified length does not exceed maximum specified by this
      * constraints object: if it does, a
-     * {@link NumberFormatException}
+     * {@link StreamConstraintsException}
      * is thrown.
      *
      * @param length Length of number in input units
      *
-     * @throws NumberFormatException If length exceeds maximum
+     * @throws StreamConstraintsException If length exceeds maximum
      */
-    public void validateFPLength(int length) throws NumberFormatException
+    public void validateFPLength(int length) throws StreamConstraintsException
     {
         if (length > _maxNumLen) {
-            throw new NumberFormatException(String.format("Number length (%d) exceeds the maximum length (%d)",
+            throw new StreamConstraintsException(String.format("Number length (%d) exceeds the maximum length (%d)",
                     length, _maxNumLen));
         }
     }
@@ -218,36 +218,36 @@ public class StreamReadConstraints
      * Convenience method that can be used to verify that an integer
      * number of specified length does not exceed maximum specific by this
      * constraints object: if it does, a
-     * {@link NumberFormatException}
+     * {@link StreamConstraintsException}
      * is thrown.
      *
      * @param length Length of number in input units
      *
-     * @throws NumberFormatException If length exceeds maximum
+     * @throws StreamConstraintsException If length exceeds maximum
      */
-    public void validateIntegerLength(int length) throws NumberFormatException
+    public void validateIntegerLength(int length) throws StreamConstraintsException
     {
         if (length > _maxNumLen) {
-            throw new NumberFormatException(String.format("Number length (%d) exceeds the maximum length (%d)",
+            throw new StreamConstraintsException(String.format("Number length (%d) exceeds the maximum length (%d)",
                     length, _maxNumLen));
         }
     }
 
     /**
      * Convenience method that can be used to verify that a String
-     * of specified length does not exceed maximum specified by this
-     * constraints object: if it does, an
-     * {@link IllegalStateException}
+     * of specified length does not exceed maximum specific by this
+     * constraints object: if it does, a
+     * {@link StreamConstraintsException}
      * is thrown.
      *
      * @param length Length of string in input units
      *
-     * @throws IllegalStateException If length exceeds maximum
+     * @throws StreamConstraintsException If length exceeds maximum
      */
-    public void validateStringLength(int length) throws IllegalStateException
+    public void validateStringLength(int length) throws StreamConstraintsException
     {
         if (length > _maxStringLen) {
-            throw new IllegalStateException(String.format("String length (%d) exceeds the maximum length (%d)",
+            throw new StreamConstraintsException(String.format("String length (%d) exceeds the maximum length (%d)",
                     length, _maxStringLen));
         }
     }
@@ -256,17 +256,17 @@ public class StreamReadConstraints
      * Convenience method that can be used to verify that the
      * nesting depth does not exceed the maximum specified by this
      * constraints object: if it does, an
-     * {@link IllegalStateException}
+     * {@link StreamConstraintsException}
      * is thrown.
      *
      * @param depth count of unclosed objects and arrays
      *
-     * @throws JsonParseException If depth exceeds maximum
+     * @throws StreamConstraintsException If depth exceeds maximum
      */
-    public void validateNestingDepth(int depth) throws IOException
+    public void validateNestingDepth(int depth) throws StreamConstraintsException
     {
         if (depth > _maxNestingDepth) {
-            throw new JsonParseException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",
+            throw new StreamConstraintsException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",
                     depth, _maxNestingDepth));
         }
     }

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 public final class ReadConstrainedTextBuffer extends TextBuffer {
 
@@ -21,7 +22,7 @@ public final class ReadConstrainedTextBuffer extends TextBuffer {
      * {@inheritDoc}
      */
     @Override
-    protected void validateStringLength(int length) throws IllegalStateException
+    protected void validateStringLength(int length) throws StreamConstraintsException
     {
         _streamReadConstraints.validateStringLength(length);
     }

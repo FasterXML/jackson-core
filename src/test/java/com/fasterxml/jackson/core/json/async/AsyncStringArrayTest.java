@@ -150,12 +150,12 @@ public class AsyncStringArrayTest extends AsyncTestBase
                 r.nextToken();
                 r.currentText();
             }
-            fail("expected IllegalStateException");
-        } catch (IllegalStateException ise) {
-            assertTrue("unexpected exception message: " + ise.getMessage(),
-                    ise.getMessage().startsWith("String length"));
-            assertTrue("unexpected exception message: " + ise.getMessage(),
-                    ise.getMessage().endsWith("exceeds the maximum length (100)"));
+            fail("expected IOException");
+        } catch (IOException ie) {
+            assertTrue("unexpected exception message: " + ie.getMessage(),
+                    ie.getMessage().startsWith("String length"));
+            assertTrue("unexpected exception message: " + ie.getMessage(),
+                    ie.getMessage().endsWith("exceeds the maximum length (100)"));
         }
     }
 

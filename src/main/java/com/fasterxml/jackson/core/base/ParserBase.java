@@ -601,7 +601,7 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     protected final JsonToken resetAsNaN(String valueStr, double value)
-        throws JsonParseException
+        throws IOException
     {
         _textBuffer.resetWithString(valueStr);
         _numberDouble = value;
@@ -973,7 +973,7 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberInt;
     }
 
-    private void _parseSlowFloat(int expType)
+    private void _parseSlowFloat(int expType) throws IOException
     {
         /* Nope: floating point. Here we need to be careful to get
          * optimal parsing strategy: choice is between accurate but

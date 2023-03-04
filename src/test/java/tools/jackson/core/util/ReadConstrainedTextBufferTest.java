@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
-import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
 
@@ -20,7 +20,7 @@ class ReadConstrainedTextBufferTest {
         char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
         constrained.append(chars, 0, SEGMENT_SIZE);
-        Assertions.assertThrows(StreamReadException.class, () -> constrained.append(chars, 0, SEGMENT_SIZE));
+        Assertions.assertThrows(StreamConstraintsException.class, () -> constrained.append(chars, 0, SEGMENT_SIZE));
     }
 
     @Test
@@ -29,7 +29,7 @@ class ReadConstrainedTextBufferTest {
         char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
         constrained.append(new String(chars), 0, SEGMENT_SIZE);
-        Assertions.assertThrows(StreamReadException.class, () -> constrained.append(new String(chars), 0, SEGMENT_SIZE));
+        Assertions.assertThrows(StreamConstraintsException.class, () -> constrained.append(new String(chars), 0, SEGMENT_SIZE));
     }
 
     @Test
@@ -38,7 +38,7 @@ class ReadConstrainedTextBufferTest {
         char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
         constrained.append(chars, 0, SEGMENT_SIZE);
-        Assertions.assertThrows(StreamReadException.class, () -> constrained.append('x'));
+        Assertions.assertThrows(StreamConstraintsException.class, () -> constrained.append('x'));
     }
 
     private static TextBuffer makeConstrainedBuffer(int maxStringLen) {

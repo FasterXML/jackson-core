@@ -3,6 +3,7 @@ package tools.jackson.core.util;
 import java.io.*;
 import java.util.*;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.io.NumberInput;
 
 /**
@@ -251,7 +252,13 @@ public class TextBuffer
         }
     }
 
-    public void resetWithCopy(char[] buf, int offset, int len)
+    /**
+     * @param buf Buffer that contains new contents
+     * @param offset Offset of the first content character in {@code buf}
+     * @param len Length of content in {@code buf}
+     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
+    public void resetWithCopy(char[] buf, int offset, int len) throws JacksonException
     {
         _inputBuffer = null;
         _inputStart = -1; // indicates shared buffer not used
@@ -270,7 +277,13 @@ public class TextBuffer
         append(buf, offset, len);
     }
 
-    public void resetWithCopy(String text, int start, int len)
+    /**
+     * @param text String that contains new contents
+     * @param start Offset of the first content character in {@code text}
+     * @param len Length of content in {@code text}
+     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
+    public void resetWithCopy(String text, int start, int len) throws JacksonException
     {
         _inputBuffer = null;
         _inputStart = -1;
@@ -288,7 +301,11 @@ public class TextBuffer
         append(text, start, len);
     }
 
-    public void resetWithString(String value)
+    /**
+     * @param value to replace existing buffer
+     * @throws JacksonException if the value is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
+    public void resetWithString(String value) throws JacksonException
     {
         _inputBuffer = null;
         _inputStart = -1;
@@ -393,8 +410,9 @@ public class TextBuffer
      * fashion or not: this typically require allocation of the result buffer.
      *
      * @return Aggregated {@code char[]} that contains all buffered content
+     * @throws JacksonException if the text is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
-    public char[] getTextBuffer()
+    public char[] getTextBuffer() throws JacksonException
     {
         // Are we just using shared input buffer?
         if (_inputStart >= 0) return _inputBuffer;
@@ -422,8 +440,9 @@ public class TextBuffer
      * fashion or not: this typically require construction of the result String.
      *
      * @return Aggregated buffered contents as a {@link java.lang.String}
+     * @throws JacksonException if the contents are too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
-    public String contentsAsString()
+    public String contentsAsString() throws JacksonException
     {
         if (_resultString == null) {
             // Has array been requested? Can make a shortcut, if so:
@@ -471,7 +490,11 @@ public class TextBuffer
         return _resultString;
     }
 
-    public char[] contentsAsArray() {
+    /**
+     * @return char array
+     * @throws JacksonException if the text is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
+    public char[] contentsAsArray() throws JacksonException {
         char[] result = _resultArray;
         if (result == null) {
             _resultArray = result = resultArray();
@@ -489,7 +512,12 @@ public class TextBuffer
      * @throws NumberFormatException if contents are not a valid Java number
      */
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
-        return NumberInput.parseDouble(contentsAsString(), useFastParser);
+        try {
+            return NumberInput.parseDouble(contentsAsString(), useFastParser);
+        } catch (JacksonException e) {
+            // JsonParseException is used to denote a string that is too long
+            throw new NumberFormatException(e.getMessage());
+        }
     }
 
     /**
@@ -502,7 +530,12 @@ public class TextBuffer
      * @throws NumberFormatException if contents are not a valid Java number
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
-        return NumberInput.parseFloat(contentsAsString(), useFastParser);
+        try {
+            return NumberInput.parseFloat(contentsAsString(), useFastParser);
+        } catch (JacksonException e) {
+            // JsonParseException is used to denote a string that is too long
+            throw new NumberFormatException(e.getMessage());
+        }
     }
 
     /**
@@ -566,9 +599,9 @@ public class TextBuffer
      *
      * @return Number of characters written (same as {@link #size()})
      *
-     * @throws IOException If write using {@link Writer} parameter fails
+     * @throws JacksonException If write using {@link Writer} parameter fails
      */
-    public int contentsToWriter(Writer w) throws IOException
+    public int contentsToWriter(Writer w) throws IOException, JacksonException
     {
         if (_resultArray != null) {
             w.write(_resultArray);
@@ -592,14 +625,14 @@ public class TextBuffer
             for (int i = 0, end = _segments.size(); i < end; ++i) {
                 char[] curr = _segments.get(i);
                 int currLen = curr.length;
-                w.write(curr, 0, currLen);
                 total += currLen;
+                w.write(curr, 0, currLen);
             }
         }
         int len = _currentSize;
         if (len > 0) {
-            w.write(_currentSegment, 0, len);
             total += len;
+            w.write(_currentSegment, 0, len);
         }
         return total;
     }
@@ -620,7 +653,11 @@ public class TextBuffer
         }
     }
 
-    public void append(char c) {
+    /**
+     * @param c char to append
+     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
+    public void append(char c) throws JacksonException {
         // Using shared buffer so far?
         if (_inputStart >= 0) {
             unshare(16);
@@ -638,7 +675,13 @@ public class TextBuffer
         curr[_currentSize++] = c;
     }
 
-    public void append(char[] c, int start, int len)
+    /**
+     * @param c char array to append
+     * @param start the start index within the array (from which we read chars to append)
+     * @param len number of chars to take from the array
+     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
+    public void append(char[] c, int start, int len) throws JacksonException
     {
         // Can't append to shared buf (sanity check)
         if (_inputStart >= 0) {
@@ -677,7 +720,13 @@ public class TextBuffer
         } while (len > 0);
     }
 
-    public void append(String str, int offset, int len)
+    /**
+     * @param str string to append
+     * @param offset the start index within the string (from which we read chars to append)
+     * @param len number of chars to take from the string
+     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
+    public void append(String str, int offset, int len) throws JacksonException
     {
         // Can't append to shared buf (sanity check)
         if (_inputStart >= 0) {
@@ -715,7 +764,7 @@ public class TextBuffer
         } while (len > 0);
     }
 
-    private void validateAppend(int toAppend) {
+    private void validateAppend(int toAppend) throws JacksonException {
         int newTotalLength = _segmentSize + _currentSize + toAppend;
         // guard against overflow
         if (newTotalLength < 0) {
@@ -784,8 +833,9 @@ public class TextBuffer
      * @param len Length of content (in characters) of the current active segment
      *
      * @return String that contains all buffered content
+     * @throws JacksonException if the text is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
-    public String setCurrentAndReturn(int len) {
+    public String setCurrentAndReturn(int len) throws JacksonException {
         _currentSize = len;
         // We can simplify handling here compared to full `contentsAsString()`:
         if (_segmentSize > 0) { // longer text; call main method
@@ -799,7 +849,11 @@ public class TextBuffer
         return str;
     }
 
-    public char[] finishCurrentSegment() {
+    /**
+     * @return char array
+     * @throws JacksonException if the text is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     */
+    public char[] finishCurrentSegment() throws JacksonException {
         if (_segments == null) {
             _segments = new ArrayList<>(4);
         }
@@ -830,7 +884,7 @@ public class TextBuffer
      * @return token as text
      * @since 2.15
      */
-    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces)
+    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces) throws JacksonException
     {
         if (trimTrailingSpaces) {
             // First, see if it's enough to trim end of current segment:
@@ -844,7 +898,7 @@ public class TextBuffer
     }
 
     // @since 2.15
-    private String _doTrim(int ptr)
+    private String _doTrim(int ptr) throws JacksonException
     {
         while (true) {
             final char[] curr = _currentSegment;
@@ -918,7 +972,7 @@ public class TextBuffer
     @Override public String toString() {
         try {
             return contentsAsString();
-        } catch (RuntimeException e) {
+        } catch (JacksonException e) {
             return "TextBuffer: Exception when reading contents";
         }
     }
@@ -978,7 +1032,7 @@ public class TextBuffer
         _currentSegment = carr(newLen);
     }
 
-    private char[] resultArray()
+    private char[] resultArray() throws JacksonException
     {
         if (_resultString != null) { // Can take a shortcut...
             return _resultString.toCharArray();
@@ -1027,16 +1081,16 @@ public class TextBuffer
     /**
      * Convenience method that can be used to verify that a String
      * of specified length does not exceed maximum specific by this
-     * constraints object: if it does, an
-     * {@link IllegalStateException}
+     * constraints object: if it does, a
+     * {@link JacksonException}
      * is thrown.
      *
      * @param length Length of string in input units
      *
-     * @throws IllegalStateException If length exceeds maximum
+     * @throws JacksonException If length exceeds maximum
      * @since 2.15
      */
-    protected void validateStringLength(int length) throws IllegalStateException
+    protected void validateStringLength(int length) throws JacksonException
     {
         // no-op
     }

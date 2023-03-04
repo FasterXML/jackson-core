@@ -1,5 +1,7 @@
 package tools.jackson.core;
 
+import tools.jackson.core.exc.StreamReadException;
+
 /**
  * The constraints to use for streaming reads: used to guard against malicious
  * input by preventing processing of "too big" input constructs (values,
@@ -192,18 +194,18 @@ public class StreamReadConstraints
     /**
      * Convenience method that can be used to verify that a String
      * of specified length does not exceed maximum specific by this
-     * constraints object: if it does, an
-     * {@link IllegalStateException}
+     * constraints object: if it does, a
+     * {@link StreamReadException}
      * is thrown.
      *
      * @param length Length of string in input units
      *
-     * @throws IllegalStateException If length exceeds maximum
+     * @throws StreamReadException If length exceeds maximum
      */
-    public void validateStringLength(int length) throws IllegalStateException
+    public void validateStringLength(int length) throws StreamReadException
     {
         if (length > _maxStringLen) {
-            throw new IllegalStateException(String.format("String length (%d) exceeds the maximum length (%d)",
+            throw new StreamReadException(String.format("String length (%d) exceeds the maximum length (%d)",
                     length, _maxStringLen));
         }
     }

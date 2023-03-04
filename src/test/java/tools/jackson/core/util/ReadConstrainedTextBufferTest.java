@@ -1,43 +1,44 @@
 package tools.jackson.core.util;
 
+import java.util.Arrays;
+
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
 class ReadConstrainedTextBufferTest {
     private static final int SEGMENT_SIZE = TextBuffer.MIN_SEGMENT_LEN;
 
     @Test
-    public void appendCharArray() {
+    public void appendCharArray() throws Exception {
         TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
         char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
         constrained.append(chars, 0, SEGMENT_SIZE);
-        Assertions.assertThrows(IllegalStateException.class, () -> constrained.append(chars, 0, SEGMENT_SIZE));
+        Assertions.assertThrows(StreamReadException.class, () -> constrained.append(chars, 0, SEGMENT_SIZE));
     }
 
     @Test
-    public void appendString() {
+    public void appendString() throws Exception {
         TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
         char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
         constrained.append(new String(chars), 0, SEGMENT_SIZE);
-        Assertions.assertThrows(IllegalStateException.class, () -> constrained.append(new String(chars), 0, SEGMENT_SIZE));
+        Assertions.assertThrows(StreamReadException.class, () -> constrained.append(new String(chars), 0, SEGMENT_SIZE));
     }
 
     @Test
-    public void appendSingle() {
+    public void appendSingle() throws Exception {
         TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
         char[] chars = new char[SEGMENT_SIZE];
         Arrays.fill(chars, 'A');
         constrained.append(chars, 0, SEGMENT_SIZE);
-        Assertions.assertThrows(IllegalStateException.class, () -> constrained.append('x'));
+        Assertions.assertThrows(StreamReadException.class, () -> constrained.append('x'));
     }
 
     private static TextBuffer makeConstrainedBuffer(int maxStringLen) {

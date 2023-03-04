@@ -255,7 +255,7 @@ public class StreamReadConstraints
     /**
      * Convenience method that can be used to verify that the
      * nesting depth does not exceed the maximum specified by this
-     * constraints object: if it does, an
+     * constraints object: if it does, a
      * {@link StreamConstraintsException}
      * is thrown.
      *

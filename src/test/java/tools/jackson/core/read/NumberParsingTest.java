@@ -8,6 +8,7 @@ import java.math.BigInteger;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.InputCoercionException;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.json.JsonFactory;
@@ -554,13 +555,13 @@ public class NumberParsingTest
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM, false);
             fail("Should not pass");
-        } catch (StreamReadException e) {
+        } catch (StreamConstraintsException e) {
             verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, false);
             fail("Should not pass");
-        } catch (StreamReadException jpe) {
+        } catch (StreamConstraintsException jpe) {
             verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
@@ -570,7 +571,7 @@ public class NumberParsingTest
         try {
             _testBigBigDecimals(MODE_READER, false);
             fail("Should not pass");
-        } catch (StreamReadException jpe) {
+        } catch (StreamConstraintsException jpe) {
             verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
@@ -585,7 +586,7 @@ public class NumberParsingTest
         try {
             _testBigBigDecimals(MODE_DATA_INPUT, false);
             fail("Should not pass");
-        } catch (StreamReadException jpe) {
+        } catch (StreamConstraintsException jpe) {
             verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
         }
     }

@@ -163,12 +163,12 @@ public class StreamReadConstraints
      *
      * @param length Length of number in input units
      *
-     * @throws NumberFormatException If length exceeds maximum
+     * @throws StreamConstraintsException If length exceeds maximum
      */
-    public void validateFPLength(int length) throws NumberFormatException
+    public void validateFPLength(int length) throws StreamConstraintsException
     {
         if (length > _maxNumLen) {
-            throw new NumberFormatException(String.format("Number length (%d) exceeds the maximum length (%d)",
+            throw new StreamConstraintsException(String.format("Number length (%d) exceeds the maximum length (%d)",
                     length, _maxNumLen));
         }
     }
@@ -182,12 +182,12 @@ public class StreamReadConstraints
      *
      * @param length Length of number in input units
      *
-     * @throws NumberFormatException If length exceeds maximum
+     * @throws StreamConstraintsException If length exceeds maximum
      */
-    public void validateIntegerLength(int length) throws NumberFormatException
+    public void validateIntegerLength(int length) throws StreamConstraintsException
     {
         if (length > _maxNumLen) {
-            throw new NumberFormatException(String.format("Number length (%d) exceeds the maximum length (%d)",
+            throw new StreamConstraintsException(String.format("Number length (%d) exceeds the maximum length (%d)",
                     length, _maxNumLen));
         }
     }

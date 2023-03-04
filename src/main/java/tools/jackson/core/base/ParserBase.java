@@ -421,6 +421,7 @@ public abstract class ParserBase extends ParserMinimalBase
     // // // Life-cycle of number-parsing
 
     protected final JsonToken reset(boolean negative, int intLen, int fractLen, int expLen)
+        throws JacksonException
     {
         if (fractLen < 1 && expLen < 1) { // integer
             return resetInt(negative, intLen);
@@ -429,14 +430,10 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     protected final JsonToken resetInt(boolean negative, int intLen)
+        throws JacksonException
     {
-        // Inelegant but we know how to create StreamReadExceptions,
-        // constraints object doesn't. May refactor in near future.
-        try {
-            _streamReadConstraints.validateIntegerLength(intLen);
-        } catch (NumberFormatException e) {
-            _reportInvalidNumber(e.getMessage());
-        }
+        // May throw StreamConstraintsException:
+        _streamReadConstraints.validateIntegerLength(intLen);
         _numberNegative = negative;
         _intLength = intLen;
         _fractLength = 0;
@@ -446,15 +443,10 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     protected final JsonToken resetFloat(boolean negative, int intLen, int fractLen, int expLen)
+        throws JacksonException
     {
-        // Inelegant but we know how to create StreamReadExceptions,
-        // constraints object doesn't. May refactor in near future.
-        // Length is approximate, good enough for validation
-        try {
-            _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
-        } catch (NumberFormatException e) {
-            _reportInvalidNumber(e.getMessage());
-        }
+        // May throw StreamConstraintsException:
+        _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
         _numberNegative = negative;
         _intLength = intLen;
         _fractLength = fractLen;

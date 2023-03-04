@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 
 public final class ReadConstrainedTextBuffer extends TextBuffer {
@@ -21,7 +22,7 @@ public final class ReadConstrainedTextBuffer extends TextBuffer {
      * {@inheritDoc}
      */
     @Override
-    protected void validateStringLength(int length) throws IllegalStateException
+    protected void validateStringLength(int length) throws JsonParseException
     {
         _streamReadConstraints.validateStringLength(length);
     }

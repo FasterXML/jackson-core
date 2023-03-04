@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -97,7 +98,12 @@ public final class JsonStringEncoder
                     if (textBuffer == null) {
                         textBuffer = TextBuffer.fromInitial(outputBuffer);
                     }
-                    outputBuffer = textBuffer.finishCurrentSegment();
+                    try {
+                        outputBuffer = textBuffer.finishCurrentSegment();
+                    } catch (IOException e) {
+                        // IOException won't happen here, can only occur when ReadConstrainedTextBuffer is used
+                        throw new IllegalStateException(e);
+                    }
                     outPtr = 0;
                 }
                 outputBuffer[outPtr++] = c;
@@ -123,7 +129,12 @@ public final class JsonStringEncoder
                 if (textBuffer == null) {
                     textBuffer = TextBuffer.fromInitial(outputBuffer);
                 }
-                outputBuffer = textBuffer.finishCurrentSegment();
+                try {
+                    outputBuffer = textBuffer.finishCurrentSegment();
+                } catch (IOException e) {
+                    // IOException won't happen here, can only occur when ReadConstrainedTextBuffer is used
+                    throw new IllegalStateException(e);
+                }
                 int second = length - first;
                 System.arraycopy(qbuf, first, outputBuffer, 0, second);
                 outPtr = second;
@@ -137,7 +148,12 @@ public final class JsonStringEncoder
             return Arrays.copyOfRange(outputBuffer, 0, outPtr);
         }
         textBuffer.setCurrentLength(outPtr);
-        return textBuffer.contentsAsArray();
+        try {
+            return textBuffer.contentsAsArray();
+        } catch (IOException e) {
+            // IOException won't happen here, can only occur when ReadConstrainedTextBuffer is used
+            throw new IllegalStateException(e);
+        }
     }
 
     /**
@@ -178,7 +194,12 @@ public final class JsonStringEncoder
                     if (textBuffer == null) {
                         textBuffer = TextBuffer.fromInitial(outputBuffer);
                     }
-                    outputBuffer = textBuffer.finishCurrentSegment();
+                    try {
+                        outputBuffer = textBuffer.finishCurrentSegment();
+                    } catch (IOException e) {
+                        // IOException won't happen here, can only occur when ReadConstrainedTextBuffer is used
+                        throw new IllegalStateException(e);
+                    }
                     outPtr = 0;
                 }
                 outputBuffer[outPtr++] = c;
@@ -204,7 +225,12 @@ public final class JsonStringEncoder
                 if (textBuffer == null) {
                     textBuffer = TextBuffer.fromInitial(outputBuffer);
                 }
-                outputBuffer = textBuffer.finishCurrentSegment();
+                try {
+                    outputBuffer = textBuffer.finishCurrentSegment();
+                } catch (IOException e) {
+                    // IOException won't happen here, can only occur when ReadConstrainedTextBuffer is used
+                    throw new IllegalStateException(e);
+                }
                 int second = length - first;
                 System.arraycopy(qbuf, first, outputBuffer, 0, second);
                 outPtr = second;
@@ -218,7 +244,12 @@ public final class JsonStringEncoder
             return Arrays.copyOfRange(outputBuffer, 0, outPtr);
         }
         textBuffer.setCurrentLength(outPtr);
-        return textBuffer.contentsAsArray();
+        try {
+            return textBuffer.contentsAsArray();
+        } catch (IOException e) {
+            // IOException won't happen here, can only occur when ReadConstrainedTextBuffer is used
+            throw new IllegalStateException(e);
+        }
     }
 
     /**

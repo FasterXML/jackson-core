@@ -372,6 +372,9 @@ public abstract class NonBlockingJsonParserBase
      * if no current event (before first call to {@link #nextToken}, or
      * after encountering end-of-input), returns null.
      * Method can be called for any event.
+     *
+     * @throws IOException if there are general I/O or parse issues, including if the text is too large,
+     * see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     @Override
     public String getText() throws IOException

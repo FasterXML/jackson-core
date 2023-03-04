@@ -1502,7 +1502,8 @@ public abstract class JsonParser
      *   by {@link #nextToken()} or other iteration methods)
      *
      * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     *   {@link JsonParseException} for decoding problems, including if the text is too large,
+     *   see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     public abstract String getText() throws IOException;
 
@@ -1566,7 +1567,8 @@ public abstract class JsonParser
      *    at offset 0, and not necessarily until the end of buffer)
      *
      * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     *   {@link JsonParseException} for decoding problems, including if the text is too large,
+     *   see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     public abstract char[] getTextCharacters() throws IOException;
 

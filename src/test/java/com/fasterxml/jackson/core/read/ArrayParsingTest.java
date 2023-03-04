@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
@@ -102,8 +103,8 @@ public class ArrayParsingTest
             while ((jt = jp.nextToken()) != null) {
 
             }
-            fail("expected JsonParseException");
-        } catch (JsonParseException e) {
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
             assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
         }
     }

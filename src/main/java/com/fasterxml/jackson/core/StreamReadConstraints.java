@@ -160,7 +160,7 @@ public class StreamReadConstraints
      * Convenience method that can be used to verify that a floating-point
      * number of specified length does not exceed maximum specific by this
      * constraints object: if it does, a
-     * {@link NumberFormatException}
+     * {@link StreamConstraintsException}
      * is thrown.
      *
      * @param length Length of number in input units
@@ -179,7 +179,7 @@ public class StreamReadConstraints
      * Convenience method that can be used to verify that an integer
      * number of specified length does not exceed maximum specific by this
      * constraints object: if it does, a
-     * {@link NumberFormatException}
+     * {@link StreamConstraintsException}
      * is thrown.
      *
      * @param length Length of number in input units
@@ -198,7 +198,7 @@ public class StreamReadConstraints
      * Convenience method that can be used to verify that a String
      * of specified length does not exceed maximum specific by this
      * constraints object: if it does, a
-     * {@link JsonParseException}
+     * {@link StreamConstraintsException}
      * is thrown.
      *
      * @param length Length of string in input units

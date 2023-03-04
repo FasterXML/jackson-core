@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core;
 
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
+
 /**
  * The constraints to use for streaming reads: used to guard against malicious
  * input by preventing processing of "too big" input constructs (values,
@@ -201,12 +203,12 @@ public class StreamReadConstraints
      *
      * @param length Length of string in input units
      *
-     * @throws JsonParseException If length exceeds maximum
+     * @throws StreamConstraintsException If length exceeds maximum
      */
-    public void validateStringLength(int length) throws JsonParseException
+    public void validateStringLength(int length) throws StreamConstraintsException
     {
         if (length > _maxStringLen) {
-            throw new JsonParseException(String.format("String length (%d) exceeds the maximum length (%d)",
+            throw new StreamConstraintsException(String.format("String length (%d) exceeds the maximum length (%d)",
                     length, _maxStringLen));
         }
     }

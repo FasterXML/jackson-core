@@ -246,12 +246,6 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected int _expLength;
 
-    /**
-     * The depth is a count of objects and arrays that have not
-     * been closed, `{` and `[` respectively.
-     */
-    private int _nestingDepth;
-
     /*
     /**********************************************************
     /* Life-cycle

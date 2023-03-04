@@ -150,6 +150,12 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected JsonToken _lastClearedToken;
 
+    /**
+     * The depth is a count of objects and arrays that have not
+     * been closed, `{` and `[` respectively.
+     */
+    protected int _nestingDepth;
+
     /*
     /**********************************************************
     /* Life-cycle

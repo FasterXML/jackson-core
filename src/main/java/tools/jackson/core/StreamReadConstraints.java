@@ -1,5 +1,6 @@
 package tools.jackson.core;
 
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
 
 /**
@@ -202,7 +203,7 @@ public class StreamReadConstraints
      *
      * @throws StreamReadException If length exceeds maximum
      */
-    public void validateStringLength(int length) throws StreamReadException
+    public void validateStringLength(int length) throws StreamConstraintsException
     {
         if (length > _maxStringLen) {
             throw new StreamReadException(String.format("String length (%d) exceeds the maximum length (%d)",

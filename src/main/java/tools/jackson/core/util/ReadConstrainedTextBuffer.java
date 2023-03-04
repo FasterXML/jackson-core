@@ -2,6 +2,7 @@ package tools.jackson.core.util;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamConstraintsException;
 
 public final class ReadConstrainedTextBuffer extends TextBuffer {
 
@@ -22,7 +23,7 @@ public final class ReadConstrainedTextBuffer extends TextBuffer {
      * {@inheritDoc}
      */
     @Override
-    protected void validateStringLength(int length) throws JacksonException
+    protected void validateStringLength(int length) throws StreamConstraintsException
     {
         _streamReadConstraints.validateStringLength(length);
     }

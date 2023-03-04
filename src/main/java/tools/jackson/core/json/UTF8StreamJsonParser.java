@@ -397,7 +397,7 @@ public class UTF8StreamJsonParser
         return super.getValueAsInt(defValue);
     }
 
-    protected final String _getText2(JsonToken t)
+    protected final String _getText2(JsonToken t) throws JacksonException
     {
         if (t == null) {
             return null;

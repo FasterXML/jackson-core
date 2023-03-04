@@ -366,7 +366,7 @@ public class ReaderBasedJsonParser
         return super.getValueAsString(defValue);
     }
 
-    protected final String _getText2(JsonToken t) {
+    protected final String _getText2(JsonToken t) throws JacksonException {
         if (t == null) {
             return null;
         }

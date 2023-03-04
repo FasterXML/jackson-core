@@ -365,7 +365,7 @@ public abstract class NonBlockingJsonParserBase
         return _getText2(_currToken);
     }
 
-    protected final String _getText2(JsonToken t)
+    protected final String _getText2(JsonToken t) throws JacksonException
     {
         if (t == null) {
             return null;

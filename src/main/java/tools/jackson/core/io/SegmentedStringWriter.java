@@ -2,6 +2,7 @@ package tools.jackson.core.io;
 
 import java.io.*;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.TextBuffer;
 
@@ -29,20 +30,20 @@ public final class SegmentedStringWriter extends Writer
      */
 
     @Override
-    public Writer append(char c) {
+    public Writer append(char c) throws JacksonException {
         write(c);
         return this;
     }
 
     @Override
-    public Writer append(CharSequence csq) {
+    public Writer append(CharSequence csq) throws JacksonException {
         String str = csq.toString();
         _buffer.append(str, 0, str.length());
         return this;
     }
 
     @Override
-    public Writer append(CharSequence csq, int start, int end) {
+    public Writer append(CharSequence csq, int start, int end) throws JacksonException {
         String str = csq.subSequence(start, end).toString();
         _buffer.append(str, 0, str.length());
         return this;
@@ -81,7 +82,7 @@ public final class SegmentedStringWriter extends Writer
      *
      * @return String that contains all aggregated content
      */
-    public String getAndClear() {
+    public String getAndClear() throws JacksonException {
         String result = _buffer.contentsAsString();
         _buffer.releaseBuffers();
         return result;

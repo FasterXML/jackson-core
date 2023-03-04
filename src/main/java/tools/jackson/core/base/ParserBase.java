@@ -660,7 +660,7 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     @Override
-    public BigInteger getBigIntegerValue()
+    public BigInteger getBigIntegerValue() throws JacksonException
     {
         if ((_numTypesValid & NR_BIGINT) == 0) {
             if (_numTypesValid == NR_UNKNOWN) {
@@ -709,7 +709,7 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     @Override
-    public BigDecimal getDecimalValue()
+    public BigDecimal getDecimalValue() throws JacksonException
     {
         if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
             if (_numTypesValid == NR_UNKNOWN) {

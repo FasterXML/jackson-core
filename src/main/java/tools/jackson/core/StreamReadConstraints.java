@@ -206,7 +206,7 @@ public class StreamReadConstraints
     public void validateStringLength(int length) throws StreamConstraintsException
     {
         if (length > _maxStringLen) {
-            throw new StreamReadException(String.format("String length (%d) exceeds the maximum length (%d)",
+            throw new StreamConstraintsException(String.format("String length (%d) exceeds the maximum length (%d)",
                     length, _maxStringLen));
         }
     }

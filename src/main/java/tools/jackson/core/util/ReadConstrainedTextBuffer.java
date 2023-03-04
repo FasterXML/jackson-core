@@ -1,6 +1,5 @@
 package tools.jackson.core.util;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
 

@@ -6,6 +6,17 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
  * The constraints to use for streaming reads: used to guard against malicious
  * input by preventing processing of "too big" input constructs (values,
  * structures).
+ * Constraints are registered with {@code TokenStreamFactory} (such as
+ * {@code JsonFactory}); if nothing explicitly specified, default
+ * constraints are used.
+ *<p>
+ * Currently constrained aspects, with default settings, are:
+ * <ul>
+ *  <li>Maximum Number value length: default 1000 (see {@link #DEFAULT_MAX_NUM_LEN})
+ *   </li>
+ *  <li>Maximum String value length: default 1_000_000 (see {@link #DEFAULT_MAX_STRING_LEN})
+ *   </li>
+ *  </ul>
  *
  * @since 2.15
  */
@@ -15,7 +26,8 @@ public class StreamReadConstraints
     private static final long serialVersionUID = 1L;
 
     /**
-     * Default setting for maximum number length: see {@link Builder#maxNumberLength(int)} for details.
+     * Default setting for maximum number length: see {@link Builder#maxNumberLength(int)}
+     * for details.
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 

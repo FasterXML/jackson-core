@@ -26,8 +26,7 @@ public class StreamReadConstraints
     private static final long serialVersionUID = 1L;
 
     /**
-     * Default setting for maximum number length: see {@link Builder#maxNumberLength(int)}
-     * for details.
+     * Default setting for maximum number length: see {@link Builder#maxNumberLength(int)} for details.
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 

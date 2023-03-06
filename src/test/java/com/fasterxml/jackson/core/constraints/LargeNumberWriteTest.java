@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.write;
+package com.fasterxml.jackson.core.constraints;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

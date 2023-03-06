@@ -14,9 +14,7 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 public class LargeNumberReadTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    protected JsonFactory jsonFactory() {
-        return sharedStreamFactory();
-    }
+    private final JsonFactory JSON_F = newStreamFactory();
 
     /*
     /**********************************************************************
@@ -112,10 +110,9 @@ public class LargeNumberReadTest
         }) {
             final String DOC = "[ "+asText+" ]";
 
-            JsonFactory jsonFactory = jsonFactory();
+            JsonFactory jsonFactory = JSON_F;
             if (enableUnlimitedNumberLen) {
-                jsonFactory = jsonFactory
-                        .rebuild()
+                jsonFactory = JsonFactory.builder()
                         .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
                         .build();
             }

@@ -51,7 +51,11 @@ public final class JsonReadContext extends TokenStreamContext
     /**********************************************************************
      */
 
-    public JsonReadContext(JsonReadContext parent, DupDetector dups, int type, int lineNr, int colNr) {
+    /**
+     * @since 2.15
+     */
+    public JsonReadContext(JsonReadContext parent, int nestingDepth,
+            DupDetector dups, int type, int lineNr, int colNr) {
         super();
         _parent = parent;
         _dups = dups;
@@ -59,7 +63,7 @@ public final class JsonReadContext extends TokenStreamContext
         _lineNr = lineNr;
         _columnNr = colNr;
         _index = -1;
-        _nestingDepth = parent == null ? 0 : parent._nestingDepth + 1;
+        _nestingDepth = nestingDepth;
     }
 
     /**
@@ -116,17 +120,17 @@ public final class JsonReadContext extends TokenStreamContext
      */
 
     public static JsonReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
-        return new JsonReadContext(null, dups, TYPE_ROOT, lineNr, colNr);
+        return new JsonReadContext(null, 0, dups, TYPE_ROOT, lineNr, colNr);
     }
 
     public static JsonReadContext createRootContext(DupDetector dups) {
-        return new JsonReadContext(null, dups, TYPE_ROOT, 1, 0);
+        return new JsonReadContext(null, 0, dups, TYPE_ROOT, 1, 0);
     }
 
     public JsonReadContext createChildArrayContext(int lineNr, int colNr) {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonReadContext(this,
+            _child = ctxt = new JsonReadContext(this, _nestingDepth+1,
                     (_dups == null) ? null : _dups.child(), TYPE_ARRAY, lineNr, colNr);
         } else {
             ctxt.reset(TYPE_ARRAY, lineNr, colNr);
@@ -137,7 +141,7 @@ public final class JsonReadContext extends TokenStreamContext
     public JsonReadContext createChildObjectContext(int lineNr, int colNr) {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonReadContext(this,
+            _child = ctxt = new JsonReadContext(this, _nestingDepth+1,
                     (_dups == null) ? null : _dups.child(), TYPE_OBJECT, lineNr, colNr);
             return ctxt;
         }

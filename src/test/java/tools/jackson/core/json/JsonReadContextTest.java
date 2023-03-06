@@ -14,7 +14,7 @@ public class JsonReadContextTest
   {
       final String PROP_NAME = "dupField";
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
-      JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, dupDetector, 2441, 2441, 2441);
+      JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, 0, dupDetector, 2441, 2441, 2441);
       jsonReadContext.setCurrentName(PROP_NAME);
       try {
           jsonReadContext.setCurrentName(PROP_NAME);

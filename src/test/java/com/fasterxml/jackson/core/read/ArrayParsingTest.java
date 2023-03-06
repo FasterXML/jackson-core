@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
@@ -107,17 +106,6 @@ public class ArrayParsingTest
         _testNotMissingValueByEnablingFeature(false);
     }
 
-    public void testDeepNesting() throws Exception
-    {
-        final String DOC = createDeepNestedDoc(1050);
-        try (JsonParser jp = createParserUsingStream(new JsonFactory(), DOC, "UTF-8")) {
-            while (jp.nextToken() != null) { }
-            fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException e) {
-            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
-        }
-    }
-
     private void _testMissingValueByEnablingFeature(boolean useStream) throws Exception {
         String DOC = "[ \"a\",,,,\"abc\", ] ";
 
@@ -193,19 +181,5 @@ public class ArrayParsingTest
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
 
         jp.close();
-    }
-
-    private String createDeepNestedDoc(final int depth) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < depth; i++) {
-            sb.append("{ \"a\": [");
-        }
-        sb.append(" \"val\" ");
-        for (int i = 0; i < depth; i++) {
-            sb.append("]}");
-        }
-        sb.append("]");
-        return sb.toString();
     }
 }

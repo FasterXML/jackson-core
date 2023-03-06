@@ -356,8 +356,8 @@ public abstract class NonBlockingJsonParserBase
      * after encountering end-of-input), returns null.
      * Method can be called for any event.
      *
-     * @throws IOException if there are general I/O or parse issues, including if the text is too large,
-     * see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if there are general I/O or parse issues, including if the text is too large,
+     * see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     @Override
     public String getText() throws JacksonException
@@ -556,7 +556,7 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _startArrayScope() throws JacksonException
     {
-        _streamReadContext = _streamReadContext.createChildArrayContext(-1, -1);
+        createChildArrayContext(-1, -1);
         _majorState = MAJOR_ARRAY_ELEMENT_FIRST;
         _majorStateAfterValue = MAJOR_ARRAY_ELEMENT_NEXT;
         return (_currToken = JsonToken.START_ARRAY);
@@ -564,7 +564,7 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _startObjectScope() throws JacksonException
     {
-        _streamReadContext = _streamReadContext.createChildObjectContext(-1, -1);
+        createChildObjectContext(-1, -1);
         _majorState = MAJOR_OBJECT_PROPERTY_FIRST;
         _majorStateAfterValue = MAJOR_OBJECT_PROPERTY_NEXT;
         return (_currToken = JsonToken.START_OBJECT);

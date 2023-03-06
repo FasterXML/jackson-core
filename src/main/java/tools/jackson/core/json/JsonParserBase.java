@@ -156,6 +156,22 @@ public abstract class JsonParserBase
 
     /*
     /**********************************************************************
+    /* Internal/package methods: Context handling
+    /**********************************************************************
+     */
+
+    protected void createChildArrayContext(final int lineNr, final int colNr) throws JacksonException {
+        _streamReadContext = _streamReadContext.createChildArrayContext(lineNr, colNr);
+        _streamReadConstraints.validateNestingDepth(_streamReadContext.getNestingDepth());
+    }
+
+    protected void createChildObjectContext(final int lineNr, final int colNr) throws JacksonException {
+        _streamReadContext = _streamReadContext.createChildObjectContext(lineNr, colNr);
+        _streamReadConstraints.validateNestingDepth(_streamReadContext.getNestingDepth());
+    }
+
+    /*
+    /**********************************************************************
     /* Numeric parsing method implementations
     /**********************************************************************
      */

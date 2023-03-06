@@ -288,8 +288,8 @@ public class ReaderBasedJsonParser
      * after encountering end-of-input), returns null.
      * Method can be called for any event.
      *
-     * @throws IOException if there are general I/O or parse issues, including if the text is too large,
-     * see {@link com.fasterxml.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if there are general I/O or parse issues, including if the text is too large,
+     * see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     @Override
     public final String getText() throws JacksonException
@@ -733,13 +733,13 @@ public class ReaderBasedJsonParser
             break;
         case '[':
             if (!inObject) {
-                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                createChildArrayContext(_tokenInputRow, _tokenInputCol);
             }
             t = JsonToken.START_ARRAY;
             break;
         case '{':
             if (!inObject) {
-                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             t = JsonToken.START_OBJECT;
             break;
@@ -798,7 +798,7 @@ public class ReaderBasedJsonParser
         return t;
     }
 
-    private final JsonToken _nextAfterName()
+    private final JsonToken _nextAfterName() throws JacksonException
     {
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;
@@ -808,9 +808,9 @@ public class ReaderBasedJsonParser
 
         // Also: may need to start new context?
         if (t == JsonToken.START_ARRAY) {
-            _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            createChildArrayContext(_tokenInputRow, _tokenInputCol);
         } else if (t == JsonToken.START_OBJECT) {
-            _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            createChildObjectContext(_tokenInputRow, _tokenInputCol);
         }
         return (_currToken = t);
     }
@@ -1145,10 +1145,10 @@ public class ReaderBasedJsonParser
         }
         switch (i) {
         case '[':
-            _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            createChildArrayContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_ARRAY);
         case '{':
-            _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            createChildObjectContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_OBJECT);
         case 't':
             _matchToken("true", 1);
@@ -1215,9 +1215,9 @@ public class ReaderBasedJsonParser
                 return _textBuffer.contentsAsString();
             }
             if (t == JsonToken.START_ARRAY) {
-                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return null;
         }
@@ -1238,9 +1238,9 @@ public class ReaderBasedJsonParser
                 return getIntValue();
             }
             if (t == JsonToken.START_ARRAY) {
-                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return defaultValue;
         }
@@ -1287,9 +1287,9 @@ public class ReaderBasedJsonParser
                 return Boolean.FALSE;
             }
             if (t == JsonToken.START_ARRAY) {
-                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return null;
         }

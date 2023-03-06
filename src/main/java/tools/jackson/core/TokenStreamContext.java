@@ -57,6 +57,14 @@ public abstract class TokenStreamContext
      */
     protected int _index;
 
+    /**
+     * The nesting depth is a count of objects and arrays that have not
+     * been closed, `{` and `[` respectively.
+     *
+     * @since 2.15
+     */
+    protected int _nestingDepth;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -118,6 +126,16 @@ public abstract class TokenStreamContext
      * @return {@code True} if this context represents an Object; {@code false} otherwise
      */
     public final boolean inObject() { return _type == TYPE_OBJECT; }
+
+    /**
+     * The nesting depth is a count of objects and arrays that have not
+     * been closed, `{` and `[` respectively.
+     *
+     * @since 2.15
+     */
+    public final int getNestingDepth() {
+        return _nestingDepth;
+    }
 
     /**
      * Method for accessing simple type description of current context;

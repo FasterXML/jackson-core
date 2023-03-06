@@ -13,7 +13,8 @@ public class JsonReadContextTest extends BaseTest
   public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
   {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
-      JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, dupDetector, 2441, 2441, 2441);
+      JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, 0,
+              dupDetector, 2441, 2441, 2441);
       jsonReadContext.setCurrentName("dupField");
       try {
           jsonReadContext.setCurrentName("dupField");

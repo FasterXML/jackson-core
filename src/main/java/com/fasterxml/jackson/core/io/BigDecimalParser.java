@@ -79,8 +79,7 @@ public final class BigDecimalParser
         } catch (NumberFormatException nfe) {
             final String reportNum = len <= MAX_CHARS_TO_REPORT ?
                     new String(ch, off, len) : new String(ch, off, MAX_CHARS_TO_REPORT) + " [truncated]";
-            final int reportLen = Math.min(len, MAX_CHARS_TO_REPORT);
-            throw new NumberFormatException("Value \"" + new String(ch, off, reportLen)
+            throw new NumberFormatException("Value \"" + reportNum
                     + "\" can not be represented as `java.math.BigDecimal`, reason: " + nfe.getMessage());
         }
     }

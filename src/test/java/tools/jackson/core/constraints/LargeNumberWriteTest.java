@@ -1,4 +1,4 @@
-package tools.jackson.core.write;
+package tools.jackson.core.constraints;
 
 import java.io.*;
 import java.math.BigDecimal;

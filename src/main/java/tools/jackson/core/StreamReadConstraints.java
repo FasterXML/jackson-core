@@ -7,6 +7,17 @@ import tools.jackson.core.exc.StreamReadException;
  * The constraints to use for streaming reads: used to guard against malicious
  * input by preventing processing of "too big" input constructs (values,
  * structures).
+ * Constraints are registered with {@code TokenStreamFactory} (such as
+ * {@code JsonFactory}); if nothing explicitly specified, default
+ * constraints are used.
+ *<p>
+ * Currently constrained aspects, with default settings, are:
+ * <ul>
+ *  <li>Maximum Number value length: default 1000 (see {@link #DEFAULT_MAX_NUM_LEN})
+ *   </li>
+ *  <li>Maximum String value length: default 1_000_000 (see {@link #DEFAULT_MAX_STRING_LEN})
+ *   </li>
+ *  </ul>
  */
 public class StreamReadConstraints
     implements java.io.Serializable

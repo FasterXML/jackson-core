@@ -579,7 +579,7 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _startArrayScope() throws IOException
     {
-        _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
+        createChildArrayContext(-1, -1);
         _majorState = MAJOR_ARRAY_ELEMENT_FIRST;
         _majorStateAfterValue = MAJOR_ARRAY_ELEMENT_NEXT;
         return (_currToken = JsonToken.START_ARRAY);
@@ -587,7 +587,7 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _startObjectScope() throws IOException
     {
-        _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
+        createChildObjectContext(-1, -1);
         _majorState = MAJOR_OBJECT_FIELD_FIRST;
         _majorStateAfterValue = MAJOR_OBJECT_FIELD_NEXT;
         return (_currToken = JsonToken.START_OBJECT);

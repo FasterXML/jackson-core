@@ -10,7 +10,10 @@ public class JsonPointerOOME736Test extends BaseTest
         int MAX_DEPTH = 120_000;
         // Create nesting of 120k arrays
         String INPUT = new String(new char[MAX_DEPTH]).replace("\0", "[");
-        JsonParser parser = createParser(MODE_READER, INPUT);
+        final JsonFactory f = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+                .build();
+        JsonParser parser = createParser(f, MODE_READER, INPUT);
         try {
             while (true) {
                 parser.nextToken();

@@ -111,10 +111,7 @@ public class ArrayParsingTest
     {
         final String DOC = createDeepNestedDoc(1050);
         try (JsonParser jp = createParserUsingStream(new JsonFactory(), DOC, "UTF-8")) {
-            JsonToken jt;
-            while ((jt = jp.nextToken()) != null) {
-
-            }
+            while (jp.nextToken() != null) { }
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
             assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());

@@ -7,12 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * regular String.intern() functionality. This is done as a minor
  * performance optimization, to avoid calling native intern() method
  * in cases where same String is being interned multiple times.
- *<p>
  * Note: that this class extends {@link java.util.concurrent.ConcurrentHashMap} is an implementation
  * detail -- no code should ever directly call ConcurrentHashMap methods.
  */
 public final class InternCache
-    extends ConcurrentHashMap<String,String> // since 2.3
+    extends ConcurrentHashMap<String,String>
 {
     private static final long serialVersionUID = 1L;
 

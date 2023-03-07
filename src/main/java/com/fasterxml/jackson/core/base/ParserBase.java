@@ -255,7 +255,9 @@ public abstract class ParserBase extends ParserMinimalBase
     protected ParserBase(IOContext ctxt, int features) {
         super(features);
         _ioContext = ctxt;
-        _streamReadConstraints = ctxt.streamReadConstraints();
+        final StreamReadConstraints streamReadConstraints = ctxt.streamReadConstraints();
+        _streamReadConstraints = streamReadConstraints == null ?
+                StreamReadConstraints.defaults() : streamReadConstraints;
         _textBuffer = ctxt.constructReadConstrainedTextBuffer();
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;

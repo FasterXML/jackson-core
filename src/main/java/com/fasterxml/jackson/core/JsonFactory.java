@@ -358,7 +358,8 @@ public class JsonFactory
         _generatorFeatures = src._generatorFeatures;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
-        _streamReadConstraints = src._streamReadConstraints;
+        _streamReadConstraints = src._streamReadConstraints == null ?
+            StreamReadConstraints.defaults() : src._streamReadConstraints;
 
         // JSON-specific
         _characterEscapes = src._characterEscapes;
@@ -383,7 +384,8 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
-        _streamReadConstraints = b._streamReadConstraints;
+        _streamReadConstraints = b._streamReadConstraints == null ?
+                StreamReadConstraints.defaults() : b._streamReadConstraints;
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -408,7 +410,8 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
-        _streamReadConstraints = b._streamReadConstraints;
+        _streamReadConstraints = b._streamReadConstraints == null ?
+                StreamReadConstraints.defaults() : b._streamReadConstraints;
 
         // JSON-specific: need to assign even if not really used
         _characterEscapes = null;

@@ -51,7 +51,8 @@ public class SimpleStreamReadContext extends TokenStreamContext
     /**********************************************************************
      */
 
-    public SimpleStreamReadContext(int type, SimpleStreamReadContext parent, DupDetector dups,
+    public SimpleStreamReadContext(int type, SimpleStreamReadContext parent, int nestingDepth,
+            DupDetector dups,
              int lineNr, int colNr) {
         super();
         _parent = parent;
@@ -60,6 +61,22 @@ public class SimpleStreamReadContext extends TokenStreamContext
         _lineNr = lineNr;
         _columnNr = colNr;
         _index = -1;
+        _nestingDepth = nestingDepth;
+    }
+
+    // REMOVE as soon as nothing uses this
+    @Deprecated
+    public SimpleStreamReadContext(int type, SimpleStreamReadContext parent,
+            DupDetector dups,
+             int lineNr, int colNr) {
+        super();
+        _parent = parent;
+        _dups = dups;
+        _type = type;
+        _lineNr = lineNr;
+        _columnNr = colNr;
+        _index = -1;
+        _nestingDepth = -1;
     }
 
     protected void reset(int type, int lineNr, int colNr) {
@@ -91,7 +108,7 @@ public class SimpleStreamReadContext extends TokenStreamContext
      */
 
     public static SimpleStreamReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
-        return new SimpleStreamReadContext(TYPE_ROOT, null, dups, lineNr, colNr);
+        return new SimpleStreamReadContext(TYPE_ROOT, null, 0, dups, lineNr, colNr);
     }
 
     public static SimpleStreamReadContext createRootContext(DupDetector dups) {
@@ -102,6 +119,7 @@ public class SimpleStreamReadContext extends TokenStreamContext
         SimpleStreamReadContext ctxt = _childToRecycle;
         if (ctxt == null) {
             _childToRecycle = ctxt = new SimpleStreamReadContext(TYPE_ARRAY, this,
+                    _nestingDepth + 1,
                     (_dups == null) ? null : _dups.child(), lineNr, colNr);
         } else {
             ctxt.reset(TYPE_ARRAY, lineNr, colNr);
@@ -113,6 +131,7 @@ public class SimpleStreamReadContext extends TokenStreamContext
         SimpleStreamReadContext ctxt = _childToRecycle;
         if (ctxt == null) {
             _childToRecycle = ctxt = new SimpleStreamReadContext(TYPE_OBJECT, this,
+                    _nestingDepth + 1,
                     (_dups == null) ? null : _dups.child(), lineNr, colNr);
             return ctxt;
         }

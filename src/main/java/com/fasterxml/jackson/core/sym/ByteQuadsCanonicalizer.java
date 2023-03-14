@@ -990,16 +990,16 @@ public final class ByteQuadsCanonicalizer
         return name;
     }
 
-    private void _verifySharing() throws StreamConstraintsException
+    private void _verifySharing()
     {
         if (_hashShared) {
             // 12-Mar-2021, tatu: prevent modifying of "placeholder" and
             //   parent tables
             if (_parent == null) {
                 if (_count == 0) { // root
-                    throw new StreamConstraintsException("Cannot add names to Root symbol table");
+                    throw new IllegalStateException("Internal error: Cannot add names to Root symbol table");
                 }
-                throw new StreamConstraintsException("Cannot add names to Placeholder symbol table");
+                throw new IllegalStateException("Internal error: Cannot add names to Placeholder symbol table");
             }
 
             _hashArea = Arrays.copyOf(_hashArea, _hashArea.length);
@@ -1314,7 +1314,7 @@ public final class ByteQuadsCanonicalizer
         // Sanity checks: since corruption difficult to detect, assert explicitly
         // with production code
         if (copyCount != oldCount) {
-            throw new StreamConstraintsException("Failed rehash(): old count="+oldCount+", copyCount="+copyCount);
+            throw new IllegalStateException("Internal error: Failed rehash(), old count="+oldCount+", copyCount="+copyCount);
         }
     }
 

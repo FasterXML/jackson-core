@@ -37,6 +37,8 @@ JSON library.
   allow for deferred decoding in some cases
 #921: Add `JsonFactory.Feature` to disable charset detection
  (contributed by @yawkat) 
+#948: Use `StreamConstraintsException` in name canonicalizers
+ (contributed by @pjfanning)
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 

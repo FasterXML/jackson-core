@@ -122,7 +122,7 @@ public class TestByteBasedSymbols
     }
 
     // [core#548]
-    public void testQuadsIssue548() throws IOException
+    public void testQuadsIssue548() throws Exception
     {
         Random r = new Random(42);
         ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot();
@@ -170,7 +170,7 @@ public class TestByteBasedSymbols
     /**********************************************************
      */
 
-    protected JsonParser createParser(JsonFactory jf, String input) throws IOException
+    protected JsonParser createParser(JsonFactory jf, String input) throws Exception
     {
         byte[] data = input.getBytes(StandardCharsets.UTF_8);
         InputStream is = new ByteArrayInputStream(data);

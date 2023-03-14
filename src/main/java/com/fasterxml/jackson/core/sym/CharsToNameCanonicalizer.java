@@ -725,10 +725,9 @@ public final class CharsToNameCanonicalizer
      * Diagnostics method that will verify that internal data structures are consistent;
      * not meant as user-facing method but only for test suites and possible troubleshooting.
      *
-     * @throws StreamConstraintsException if the size does not match what is expected
      * @since 2.10
      */
-    protected void verifyInternalConsistency() throws IOException {
+    protected void verifyInternalConsistency() {
         int count = 0;
         final int size = _symbols.length;
 
@@ -746,7 +745,7 @@ public final class CharsToNameCanonicalizer
             }
         }
         if (count != _size) {
-            throw new StreamConstraintsException(
+            throw new IllegalStateException(
                     String.format("Internal error: expected internal size %d vs calculated count %d",
                             _size, count));
         }

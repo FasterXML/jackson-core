@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.sym;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReference;
@@ -431,7 +432,7 @@ public final class CharsToNameCanonicalizer
     /**********************************************************
      */
 
-    public String findSymbol(char[] buffer, int start, int len, int h)
+    public String findSymbol(char[] buffer, int start, int len, int h) throws IOException
     {
         if (len < 1) { // empty Strings are simplest to handle up front
             return "";
@@ -486,7 +487,7 @@ public final class CharsToNameCanonicalizer
         return null;
     }
 
-    private String _addSymbol(char[] buffer, int start, int len, int h, int index)
+    private String _addSymbol(char[] buffer, int start, int len, int h, int index) throws IOException
     {
         if (_hashShared) { //need to do copy-on-write?
             copyArrays();
@@ -526,10 +527,10 @@ public final class CharsToNameCanonicalizer
      * Method called when an overflow bucket has hit the maximum expected length:
      * this may be a case of DoS attack. Deal with it based on settings by either
      * clearing up bucket (to avoid indefinite expansion) or throwing exception.
-     * Currently the first overflow for any single bucket DOES NOT throw an exception,
+     * Currently, the first overflow for any single bucket DOES NOT throw an exception,
      * only second time (per symbol table instance)
      */
-    private void _handleSpillOverflow(int bucketIndex, Bucket newBucket, int mainIndex)
+    private void _handleSpillOverflow(int bucketIndex, Bucket newBucket, int mainIndex) throws IOException
     {
         if (_overflows == null) {
             _overflows = new BitSet();
@@ -630,7 +631,7 @@ public final class CharsToNameCanonicalizer
      * is really redistributing old entries into new String/Bucket
      * entries.
      */
-    private void rehash() {
+    private void rehash() throws IOException {
         final int size = _symbols.length;
         int newSize = size + size;
 
@@ -702,7 +703,7 @@ public final class CharsToNameCanonicalizer
         _overflows = null;
 
         if (count != _size) {
-            throw new IllegalStateException(String.format(
+            throw new IOException(String.format(
                     "Internal error on SymbolTable.rehash(): had %d entries; now have %d",
                     _size, count));
         }
@@ -710,11 +711,11 @@ public final class CharsToNameCanonicalizer
 
     /**
      * @param maxLen Maximum allowed length of collision chain
-     *
+     * @throws IOException if there are too many collisions (was an IllegalStateException before v2.15)
      * @since 2.1
      */
-    protected void _reportTooManyCollisions(int maxLen) {
-        throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
+    protected void _reportTooManyCollisions(int maxLen) throws IOException {
+        throw new IOException("Longest collision chain in symbol table (of size "+_size
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
     }
 
@@ -725,7 +726,7 @@ public final class CharsToNameCanonicalizer
      *
      * @since 2.10
      */
-    protected void verifyInternalConsistency() {
+    protected void verifyInternalConsistency() throws IOException {
         int count = 0;
         final int size = _symbols.length;
 
@@ -743,7 +744,7 @@ public final class CharsToNameCanonicalizer
             }
         }
         if (count != _size) {
-            throw new IllegalStateException(String.format("Internal error: expected internal size %d vs calculated count %d",
+            throw new IOException(String.format("Internal error: expected internal size %d vs calculated count %d",
                     _size, count));
         }
     }

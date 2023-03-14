@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.sym;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -62,7 +63,7 @@ public class TestHashCollisionChars
                 ;
             }
             fail("Should have failed");
-        } catch (IllegalStateException e) {
+        } catch (IOException e) {
             verifyException(e, "hash collision");
         }
         p.close();
@@ -149,18 +150,6 @@ public class TestHashCollisionChars
       void printString(String s) {
           //System.out.println(s.length() + " " + s.hashCode() + " " + asIntArray(s));
           System.out.println(s.length() + " " + s.hashCode() + " \"" + s + "\"");
-      }
-
-      String asIntArray(String s) {
-        StringBuilder result = new StringBuilder().append("[");
-        for (int c = 0; c < s.length(); c++) {
-          if (c > 0) {
-            result.append(", ");
-          }
-          result.append((int) s.charAt(c));
-        }
-        result.append("]");
-        return result.toString();
       }
 
     }

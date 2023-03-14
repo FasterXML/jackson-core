@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.sym;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
@@ -115,13 +116,13 @@ public class TestByteBasedSymbols
         }
         stringBuilder.append("\n}");
 
-        JsonParser p = jsonF.createParser(stringBuilder.toString().getBytes("UTF-8"));
+        JsonParser p = jsonF.createParser(stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
         while (p.nextToken() != null) { }
         p.close();
     }
 
     // [core#548]
-    public void testQuadsIssue548()
+    public void testQuadsIssue548() throws IOException
     {
         Random r = new Random(42);
         ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot();
@@ -171,7 +172,7 @@ public class TestByteBasedSymbols
 
     protected JsonParser createParser(JsonFactory jf, String input) throws IOException
     {
-        byte[] data = input.getBytes("UTF-8");
+        byte[] data = input.getBytes(StandardCharsets.UTF_8);
         InputStream is = new ByteArrayInputStream(data);
         return jf.createParser(is);
     }

@@ -6,6 +6,7 @@ import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
@@ -711,11 +712,11 @@ public final class CharsToNameCanonicalizer
 
     /**
      * @param maxLen Maximum allowed length of collision chain
-     * @throws IOException if there are too many collisions (was an IllegalStateException before v2.15)
+     * @throws StreamConstraintsException if there are too many collisions (was an IllegalStateException before v2.15)
      * @since 2.1
      */
-    protected void _reportTooManyCollisions(int maxLen) throws IOException {
-        throw new IOException("Longest collision chain in symbol table (of size "+_size
+    protected void _reportTooManyCollisions(int maxLen) throws StreamConstraintsException {
+        throw new StreamConstraintsException("Longest collision chain in symbol table (of size "+_size
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
     }
 
@@ -724,6 +725,7 @@ public final class CharsToNameCanonicalizer
      * Diagnostics method that will verify that internal data structures are consistent;
      * not meant as user-facing method but only for test suites and possible troubleshooting.
      *
+     * @throws StreamConstraintsException if the size does not match what is expected
      * @since 2.10
      */
     protected void verifyInternalConsistency() throws IOException {
@@ -744,8 +746,9 @@ public final class CharsToNameCanonicalizer
             }
         }
         if (count != _size) {
-            throw new IOException(String.format("Internal error: expected internal size %d vs calculated count %d",
-                    _size, count));
+            throw new StreamConstraintsException(
+                    String.format("Internal error: expected internal size %d vs calculated count %d",
+                            _size, count));
         }
     }
 

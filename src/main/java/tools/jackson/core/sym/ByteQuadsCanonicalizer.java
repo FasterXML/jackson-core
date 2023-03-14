@@ -3,7 +3,7 @@ package tools.jackson.core.sym;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
-import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.util.InternCache;
 
@@ -858,7 +858,13 @@ public final class ByteQuadsCanonicalizer
     /**********************************************************
      */
 
-    public String addName(String name, int q1) {
+    /**
+     * @param name
+     * @param q1
+     * @return name (possibly interned)
+     * @throws StreamConstraintsException if the constraint exceptions
+     */
+    public String addName(String name, int q1) throws StreamConstraintsException {
         _verifySharing();
         if (_intern) {
             name = InternCache.instance.intern(name);
@@ -871,7 +877,14 @@ public final class ByteQuadsCanonicalizer
         return name;
     }
 
-    public String addName(String name, int q1, int q2) {
+    /**
+     * @param name
+     * @param q1
+     * @param q2
+     * @return name (possibly interned)
+     * @throws StreamConstraintsException if the constraint exceptions
+     */
+    public String addName(String name, int q1, int q2) throws StreamConstraintsException {
         _verifySharing();
         if (_intern) {
             name = InternCache.instance.intern(name);
@@ -891,7 +904,15 @@ public final class ByteQuadsCanonicalizer
         return name;
     }
 
-    public String addName(String name, int q1, int q2, int q3) {
+    /**
+     * @param name
+     * @param q1
+     * @param q2
+     * @param q3
+     * @return name (possibly interned)
+     * @throws StreamConstraintsException if the constraint exceptions
+     */
+    public String addName(String name, int q1, int q2, int q3) throws StreamConstraintsException {
         _verifySharing();
         if (_intern) {
             name = InternCache.instance.intern(name);
@@ -906,7 +927,14 @@ public final class ByteQuadsCanonicalizer
         return name;
     }
 
-    public String addName(String name, int[] q, int qlen)
+    /**
+     * @param name
+     * @param q
+     * @param qlen
+     * @return name (possibly interned)
+     * @throws StreamConstraintsException if the constraint exceptions
+     */
+    public String addName(String name, int[] q, int qlen) throws StreamConstraintsException
     {
         _verifySharing();
         if (_intern) {
@@ -915,7 +943,8 @@ public final class ByteQuadsCanonicalizer
         int offset;
 
         switch (qlen) {
-        case 1: {
+        case 1:
+            {
                 offset = _findOffsetForAdd(calcHash(q[0]));
                 _hashArea[offset] = q[0];
                 _hashArea[offset+3] = 1;
@@ -961,9 +990,9 @@ public final class ByteQuadsCanonicalizer
             //   parent tables
             if (_parent == null) {
                 if (_count == 0) { // root
-                    throw new IllegalStateException("Cannot add names to Root symbol table");
+                    throw new IllegalStateException("Internal error: Cannot add names to Root symbol table");
                 }
-                throw new IllegalStateException("Cannot add names to Placeholder symbol table");
+                throw new IllegalStateException("Internal error: Cannot add names to Placeholder symbol table");
             }
 
             _hashArea = Arrays.copyOf(_hashArea, _hashArea.length);
@@ -975,7 +1004,7 @@ public final class ByteQuadsCanonicalizer
     /**
      * Method called to find the location within hash table to add a new symbol in.
      */
-    private int _findOffsetForAdd(int hash)
+    private int _findOffsetForAdd(int hash) throws StreamConstraintsException
     {
         // first, check the primary: if slot found, no need for resize
         int offset = _calcOffset(hash);
@@ -1030,7 +1059,7 @@ public final class ByteQuadsCanonicalizer
     }
 
     // @since 2.10
-    private int _resizeAndFindOffsetForAdd(int hash)
+    private int _resizeAndFindOffsetForAdd(int hash) throws StreamConstraintsException
     {
         // First things first: we need to resize+rehash (or, if too big, nuke contents)
         rehash();
@@ -1158,10 +1187,16 @@ public final class ByteQuadsCanonicalizer
         return hash;
     }
 
+    /**
+     * @param q int array
+     * @param qlen length
+     * @return hash
+     * @throws IllegalArgumentException if <code>qlen</code> is less than 4
+     */
     public int calcHash(int[] q, int qlen)
     {
         if (qlen < 4) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("qlen is too short, needs to be at least 4");
         }
         /* And then change handling again for "multi-quad" case; mostly
          * to make calculation of collisions less fun. For example,
@@ -1195,7 +1230,7 @@ public final class ByteQuadsCanonicalizer
     /**********************************************************
      */
 
-    private void rehash()
+    private void rehash() throws StreamConstraintsException
     {
         // Note: since we'll make copies, no need to unshare, can just mark as such:
         _hashShared = false;
@@ -1272,7 +1307,7 @@ public final class ByteQuadsCanonicalizer
         // Sanity checks: since corruption difficult to detect, assert explicitly
         // with production code
         if (copyCount != oldCount) {
-            throw new IllegalStateException("Failed rehash(): old count="+oldCount+", copyCount="+copyCount);
+            throw new IllegalStateException("Internal error: Failed rehash(), old count="+oldCount+", copyCount="+copyCount);
         }
     }
 
@@ -1308,15 +1343,13 @@ public final class ByteQuadsCanonicalizer
         return (offset << 3) - offset;
     }
 
-    protected void _reportTooManyCollisions()
+    protected void _reportTooManyCollisions() throws StreamConstraintsException
     {
         // First: do not fuzz about small symbol tables; may get balanced by doubling up
         if (_hashSize <= 1024) { // would have spill-over area of 128 entries
             return;
         }
-        // 20-Mar-2021, tatu: [core#686]: should use Jackson-specific exception
-        //    (to use new "processing limit" exception when available)
-        throw new StreamReadException(null,
+        throw new StreamConstraintsException(
 "Spill-over slots in symbol table with "+_count
 +" entries, hash area of "+_hashSize+" slots is now full (all "
 +(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions."

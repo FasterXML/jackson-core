@@ -3,6 +3,7 @@ package tools.jackson.core.sym;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
@@ -15,7 +16,7 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
 {
     // Test for verifying stability of hashCode, wrt collisions, using
     // synthetic field name generation and character-based input
-    public void testSyntheticWithChars()
+    public void testSyntheticWithChars() throws IOException
     {
         // pass seed, to keep results consistent:
         CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1).makeChild(-1);
@@ -109,7 +110,7 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
         final int SEED = 33333;
 
         ByteQuadsCanonicalizer symbolsBRoot = ByteQuadsCanonicalizer.createRoot(SEED);
-        final Charset utf8 = Charset.forName("UTF-8");
+        final Charset utf8 = StandardCharsets.UTF_8;
         int exp = 0;
         ByteQuadsCanonicalizer symbolsB = null;
 

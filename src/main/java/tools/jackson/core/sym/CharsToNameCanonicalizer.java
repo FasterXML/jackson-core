@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReference;
 
-import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.util.InternCache;
 
@@ -517,7 +517,7 @@ public final class CharsToNameCanonicalizer
      * Method called when an overflow bucket has hit the maximum expected length:
      * this may be a case of DoS attack. Deal with it based on settings by either
      * clearing up bucket (to avoid indefinite expansion) or throwing exception.
-     * Currently the first overflow for any single bucket DOES NOT throw an exception,
+     * Currently, the first overflow for any single bucket DOES NOT throw an exception,
      * only second time (per symbol table instance)
      */
     private void _handleSpillOverflow(int bucketIndex, Bucket newBucket, int mainIndex)
@@ -698,10 +698,8 @@ public final class CharsToNameCanonicalizer
         }
     }
 
-    // 20-Mar-2021, tatu: [core#686]: should use Jackson-specific exception
-    //    (to use new "processing limit" exception when available)
     protected void _reportTooManyCollisions(int maxLen) {
-        throw new StreamReadException(null,
+        throw new StreamConstraintsException(
 "Longest collision chain in symbol table (of size "+_size
 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions."
 +" You can disable the check via `TokenStreamFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW`");
@@ -727,8 +725,9 @@ public final class CharsToNameCanonicalizer
             }
         }
         if (count != _size) {
-            throw new IllegalStateException(String.format("Internal error: expected internal size %d vs calculated count %d",
-                    _size, count));
+            throw new IllegalStateException(
+                    String.format("Internal error: expected internal size %d vs calculated count %d",
+                            _size, count));
         }
     }
 

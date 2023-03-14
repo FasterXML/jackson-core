@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -38,8 +39,6 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public class UTF8DataInputJsonParser
     extends ParserBase
 {
-    final static byte BYTE_LF = (byte) '\n';
-
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
     @SuppressWarnings("deprecation")
@@ -1768,7 +1767,8 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    private final String findName(int q1, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int lastQuadBytes)
+            throws JsonParseException, StreamConstraintsException
     {
         q1 = pad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -1781,7 +1781,8 @@ public class UTF8DataInputJsonParser
         return addName(_quadBuffer, 1, lastQuadBytes);
     }
 
-    private final String findName(int q1, int q2, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int q2, int lastQuadBytes)
+            throws JsonParseException, StreamConstraintsException
     {
         q2 = pad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -1795,7 +1796,8 @@ public class UTF8DataInputJsonParser
         return addName(_quadBuffer, 2, lastQuadBytes);
     }
 
-    private final String findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int q2, int q3, int lastQuadBytes)
+            throws JsonParseException, StreamConstraintsException
     {
         q3 = pad(q3, lastQuadBytes);
         String name = _symbols.findName(q1, q2, q3);
@@ -1809,7 +1811,8 @@ public class UTF8DataInputJsonParser
         return addName(quads, 3, lastQuadBytes);
     }
 
-    private final String findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws JsonParseException
+    private final String findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes)
+            throws JsonParseException, StreamConstraintsException
     {
         if (qlen >= quads.length) {
             _quadBuffer = quads = _growArrayBy(quads, quads.length);
@@ -1828,7 +1831,8 @@ public class UTF8DataInputJsonParser
      * multi-byte chars (if any), and then construct Name instance
      * and add it to the symbol table.
      */
-    private final String addName(int[] quads, int qlen, int lastQuadBytes) throws JsonParseException
+    private final String addName(int[] quads, int qlen, int lastQuadBytes)
+            throws JsonParseException, StreamConstraintsException
     {
         /* Ok: must decode UTF-8 chars. No other validation is
          * needed, since unescaping has been done earlier as necessary

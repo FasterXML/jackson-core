@@ -704,7 +704,7 @@ public final class CharsToNameCanonicalizer
         _overflows = null;
 
         if (count != _size) {
-            throw new IOException(String.format(
+            throw new IllegalStateException(String.format(
                     "Internal error on SymbolTable.rehash(): had %d entries; now have %d",
                     _size, count));
         }

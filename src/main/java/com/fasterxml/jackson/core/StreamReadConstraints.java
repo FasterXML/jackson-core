@@ -16,7 +16,9 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
  *   </li>
  *  <li>Maximum String value length: default 1_000_000 (see {@link #DEFAULT_MAX_STRING_LEN})
  *   </li>
- *  </ul>
+ *  <li>Maximum Nesting depth: default 1000 (see {@link #DEFAULT_MAX_DEPTH})
+ *   </li>
+ * </ul>
  *
  * @since 2.15
  */

@@ -8,9 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import tools.jackson.core.*;
-import tools.jackson.core.filter.FilteringGeneratorDelegate;
-import tools.jackson.core.filter.JsonPointerBasedFilter;
-import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 
 // for [core#890]

@@ -17,7 +17,9 @@ import tools.jackson.core.exc.StreamReadException;
  *   </li>
  *  <li>Maximum String value length: default 1_000_000 (see {@link #DEFAULT_MAX_STRING_LEN})
  *   </li>
- *  </ul>
+ *  <li>Maximum Nesting depth: default 1000 (see {@link #DEFAULT_MAX_DEPTH})
+ *   </li>
+ * </ul>
  */
 public class StreamReadConstraints
     implements java.io.Serializable

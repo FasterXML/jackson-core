@@ -12,6 +12,9 @@ on:
       - "!*.pr*"
       - "!*b"
 
+permissions:
+  contents: read
+
 jobs:
   release:
     runs-on: "ubuntu-20.04"

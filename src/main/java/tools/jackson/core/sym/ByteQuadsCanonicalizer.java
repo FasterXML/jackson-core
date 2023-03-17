@@ -213,7 +213,7 @@ public final class ByteQuadsCanonicalizer
      */
 
     /**
-     * Constructor used for creating per-{@code TokeanStreamFactory} "root"
+     * Constructor used for creating per-{@code TokenStreamFactory} "root"
      * symbol tables: ones used for merging and sharing common symbols
      *
      * @param sz Initial primary hash area size

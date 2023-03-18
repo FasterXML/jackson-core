@@ -35,7 +35,7 @@ JSON library.
  (reported by @robotmrv)
 #902: Add `Object JsonParser.getNumberValueDeferred()` method to
   allow for deferred decoding in some cases
-#921: Add `JsonFactory.Feature` to disable charset detection
+#921: Add `JsonFactory.Feature.CHARSET_DETECTION` to disable charset detection
  (contributed by @yawkat) 
 #948: Use `StreamConstraintsException` in name canonicalizers
  (contributed by @pjfanning)

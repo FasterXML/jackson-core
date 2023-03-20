@@ -211,8 +211,6 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Textual number representation captured from input in cases lazy-parsing
      * is desired.
-     *<p>
-     * As of 2.14, this only applies to {@link BigInteger} and {@link BigDecimal}.
      *
      * @since 2.14
      */

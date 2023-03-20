@@ -119,7 +119,7 @@ No changes since 2.14.0
 #814: Use `BigDecimalParser` for BigInteger parsing very long numbers
  (contributed by @pjfanning)
 #818: Calling `JsonPointer.compile(...)` on very deeply nested expression
-  throws `StackOverflowErrror`
+  throws `StackOverflowError`
 #828: Make `BigInteger` parsing lazy
  (contributed by @pjfanning)
 #830: Make `BigDecimal` parsing lazy

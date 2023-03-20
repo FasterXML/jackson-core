@@ -170,8 +170,6 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Textual number representation captured from input in cases lazy-parsing
      * is desired.
-     *<p>
-     * Only applies to {@link BigInteger} and {@link BigDecimal}.
      */
     protected String _numberString;
 

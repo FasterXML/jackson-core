@@ -35,7 +35,7 @@ JSON library.
  (reported by @robotmrv)
 #902: Add `Object JsonParser.getNumberValueDeferred()` method to
   allow for deferred decoding in some cases
-#921: Add `JsonFactory.Feature` to disable charset detection
+#921: Add `JsonFactory.Feature.CHARSET_DETECTION` to disable charset detection
  (contributed by @yawkat) 
 #948: Use `StreamConstraintsException` in name canonicalizers
  (contributed by @pjfanning)
@@ -119,7 +119,7 @@ No changes since 2.14.0
 #814: Use `BigDecimalParser` for BigInteger parsing very long numbers
  (contributed by @pjfanning)
 #818: Calling `JsonPointer.compile(...)` on very deeply nested expression
-  throws `StackOverflowErrror`
+  throws `StackOverflowError`
 #828: Make `BigInteger` parsing lazy
  (contributed by @pjfanning)
 #830: Make `BigDecimal` parsing lazy

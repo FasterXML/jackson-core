@@ -11,42 +11,47 @@ public class Fuzz34435ParseTest extends BaseTest
 
     public void testFuzz34435ViaParser() throws Exception
     {
-        final JsonFactory f = JsonFactory.builder()
-                // NOTE: test set up enables a few non-standard features
-                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
-                .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
-                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
-                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
-                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
-                .build();
-
-        JsonParser p = f.createParser(/*ObjectReadContext.empty(), */ DOC);
-
-        // Long doc so only check a few initial entries first:
-        for (int i = 0; i < 10; ++i) {
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        }
-
-        // Beyond that, simply read through to catch expected issue
         try {
-            while (p.nextToken() != null) {
-                // but force decoding of Strings
-                switch (p.currentToken()) {
-                case FIELD_NAME:
-                    p.currentName();
-                    break;
-                case VALUE_STRING:
-                    p.getText();
-                    break;
-                default:
+            StreamReadConstraints.setDefault(
+                    StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build());
+            final JsonFactory f = JsonFactory.builder()
+                    // NOTE: test set up enables a few non-standard features
+                    .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                    .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
+                    .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                    .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                    .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+                    .build();
+
+            try (JsonParser p = f.createParser(/*ObjectReadContext.empty(), */ DOC)) {
+                // Long doc so only check a few initial entries first:
+                for (int i = 0; i < 10; ++i) {
+                    assertToken(JsonToken.START_OBJECT, p.nextToken());
+                    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                }
+
+                // Beyond that, simply read through to catch expected issue
+                try {
+                    while (p.nextToken() != null) {
+                        // but force decoding of Strings
+                        switch (p.currentToken()) {
+                            case FIELD_NAME:
+                                p.currentName();
+                                break;
+                            case VALUE_STRING:
+                                p.getText();
+                                break;
+                            default:
+                        }
+                    }
+                    fail("Should not pass");
+                } catch (StreamReadException e) {
+                    verifyException(e, "Unexpected character");
+                    verifyException(e, "colon to separate");
                 }
             }
-            fail("Should not pass");
-        } catch (StreamReadException e) {
-            verifyException(e, "Unexpected character");
-            verifyException(e, "colon to separate");
+        } finally {
+            StreamReadConstraints.setDefault(null);
         }
-        p.close();
     }
 }

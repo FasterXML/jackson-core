@@ -46,8 +46,10 @@ public class StreamReadConstraints
     protected final int _maxNumLen;
     protected final int _maxStringLen;
 
-    private static final StreamReadConstraints DEFAULT =
+    private static final StreamReadConstraints INITIAL_DEFAULT =
         new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+
+    private static StreamReadConstraints DEFAULT = INITIAL_DEFAULT;
 
     public static final class Builder {
         private int maxNestingDepth;
@@ -154,8 +156,12 @@ public class StreamReadConstraints
         return new Builder();
     }
 
-    public static StreamReadConstraints defaults() {
+    public final static StreamReadConstraints defaults() {
         return DEFAULT;
+    }
+
+    public final static void setDefault(final StreamReadConstraints defaultConstraints) {
+        DEFAULT = defaultConstraints == null ? INITIAL_DEFAULT : defaultConstraints;
     }
 
     /**

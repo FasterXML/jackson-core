@@ -25,7 +25,7 @@ JSON library.
   faster `BigDecimal`, `BigInteger` parsing
  (contributed by @pjfanning)
 #863: Add `StreamReadConstraints` limit for longest textual value to
-  allow (default: 1M)
+  allow (default: 5M)
  (contributed by @pjfanning)
 #865: Optimize parsing 19 digit longs
  (contributed by Phillipe M)

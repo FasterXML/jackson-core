@@ -51,6 +51,7 @@
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>
+    <osgi.import>!ch.randelshofer.fastdoubleparser, *</osgi.import>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>

@@ -7,6 +7,7 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
@@ -276,7 +277,7 @@ public class JsonFactory
      *
      * @since 2.15
      */
-    final protected StreamReadConstraints _streamReadConstraints;
+    protected StreamReadConstraints _streamReadConstraints;
 
     /**
      * Optional helper object that may decorate input sources, to do
@@ -776,6 +777,26 @@ public class JsonFactory
     @Override
     public StreamReadConstraints streamReadConstraints() {
         return _streamReadConstraints;
+    }
+
+    /**
+     * Method for overriding {@link StreamReadConstraints} defined for
+     * this factory.
+     *<p>
+     * NOTE: the preferred way to set constraints is by using
+     * {@link JsonFactoryBuilder#streamReadConstraints}: this method is only
+     * provided to support older non-builder-based construction.
+     * In Jackson 3.x this method will not be available.
+     *
+     * @param src Constraints
+     *
+     * @return This factory instance (to allow call chaining)
+     *
+     * @since 2.15
+     */
+    public JsonFactory setStreamReadConstraints(StreamReadConstraints src) {
+        _streamReadConstraints = Objects.requireNonNull(src);
+        return this;
     }
 
     /*

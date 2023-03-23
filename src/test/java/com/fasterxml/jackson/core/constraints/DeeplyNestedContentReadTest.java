@@ -37,6 +37,33 @@ public class DeeplyNestedContentReadTest
         }
     }
 
+    public void testLegacyConstraintSettingTest() throws Exception
+    {
+        final int LOWER_MAX = 40;
+        
+        final String DOC = createDeepNestedDoc(LOWER_MAX + 10);
+        JsonFactory f = new JsonFactory();
+        f.setStreamReadConstraints(StreamReadConstraints.builder()
+                .maxNestingDepth(LOWER_MAX).build());
+        for (int mode : ALL_STREAMING_MODES) {
+            try (JsonParser p = createParser(f, mode, DOC)) {
+                _testLegacyConstraintSettingTest(p, LOWER_MAX);
+            }
+        }
+    }
+
+    private void _testLegacyConstraintSettingTest(JsonParser p, int maxNesting) throws Exception
+    {
+        try {
+            while (p.nextToken() != null) { }
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            assertEquals("Depth ("+(maxNesting+1)
+                    +") exceeds the maximum allowed nesting depth ("+maxNesting+")", e.getMessage());
+        }
+    }
+    
+    
     private String createDeepNestedDoc(final int depth) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");

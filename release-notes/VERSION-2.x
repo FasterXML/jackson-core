@@ -17,6 +17,7 @@ JSON library.
 Not yet released
 
 #962: Offer a way to directly set `StreamReadConstraints` via `JsonFactory` (not just Builder)
+#965: 2.15.0-rc1 missing Gradle module metadata marker in pom.xml
 
 2.15.0-rc1 (18-Mar-2023)
 

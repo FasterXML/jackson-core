@@ -42,13 +42,13 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
           gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
       - name: Perform release
-        # The following command will only succeed if the preparation was done via the
-        # release.sh script.
-        run: ./mvnw -B -q -ff -ntp release:perform -DlocalCheckout=true
 	env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+        # The following command will only succeed if the preparation was done via the
+        # release.sh script.
+        run: ./mvnw -B -q -ff -ntp release:perform -DlocalCheckout=true
       - name: Generate hash
         id: hash
         run: |

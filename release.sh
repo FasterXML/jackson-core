@@ -11,6 +11,8 @@
 # This will ensure that release.properties is available to release:perform in
 # the CI, while keeping with the expectation that this file does not get
 # commited (long-term) to the repository.
+#
+# See https://github.com/FasterXML/jackson-core/issues/844 for details.
 
 set -euo pipefail
 

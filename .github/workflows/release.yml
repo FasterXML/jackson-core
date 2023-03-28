@@ -46,9 +46,9 @@ jobs:
         # release.sh script.
         run: ./mvnw -B -q -ff -ntp release:perform -DlocalCheckout=true
 	env:
-	  CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
-	  CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
-	  MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       - name: Generate hash
         id: hash
         run: |

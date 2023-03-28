@@ -14,12 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-Not yet released
-
-#962: Offer a way to directly set `StreamReadConstraints` via `JsonFactory` (not just Builder)
-#965: 2.15.0-rc1 missing Gradle module metadata marker in pom.xml
-
-2.15.0-rc1 (18-Mar-2023)
+2.15.0-rc2 (28-Mar-2023)
 
 #827: Add numeric value size limits via `StreamReadConstraints` (fixes
   `sonatype-2022-6438`)
@@ -44,6 +39,8 @@ Not yet released
  (contributed by @yawkat) 
 #948: Use `StreamConstraintsException` in name canonicalizers
  (contributed by @pjfanning)
+#962: Offer a way to directly set `StreamReadConstraints` via `JsonFactory` (not just Builder)
+#965: 2.15.0-rc1 missing Gradle module metadata marker in pom.xml
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 

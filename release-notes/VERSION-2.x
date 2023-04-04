@@ -51,6 +51,7 @@ JSON library.
 #912: Optional padding Base64Variant still throws exception on missing
   padding character
  (reported by @Vity01)
+#967: Address performance issue with `BigDecimalParser`
 
 2.14.2 (28-Jan-2023)
 

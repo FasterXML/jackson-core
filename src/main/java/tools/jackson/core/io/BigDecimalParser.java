@@ -200,6 +200,13 @@ public final class BigDecimalParser
             return left.add(right);
         }
 
-        return len == 0 ? BigDecimal.ZERO : new BigDecimal(chars, off, len).movePointRight(scale);
+        if (len == 0) {
+            return BigDecimal.ZERO;
+        }
+        // 02-Apr-2023, tatu: [core#967] Looks like "scaleByPowerOfThen" avoids performance issue
+        //    there would be with "movePointRight" (both doing about same thing), so)
+        return new BigDecimal(chars, off, len)
+//                .movePointRight(scale);
+                .scaleByPowerOfTen(scale);
     }
 }

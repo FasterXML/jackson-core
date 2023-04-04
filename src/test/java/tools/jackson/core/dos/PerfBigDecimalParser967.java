@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.core.dos;
 
 import org.junit.Assert;
 import org.junit.Test;

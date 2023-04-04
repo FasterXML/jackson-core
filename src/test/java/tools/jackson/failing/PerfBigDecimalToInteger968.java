@@ -11,7 +11,7 @@ public class PerfBigDecimalToInteger968
 {
     private final JsonFactory JSON_F = new JsonFactory();
     
-    // For [core#968]]: shouldn't take multiple seconds
+    // For [core#968]: shouldn't take multiple seconds
     @Test(timeout = 3000)
     public void bigIntegerViaBigDecimal() throws Exception {
         final String DOC = "1e20000000";

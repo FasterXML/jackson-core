@@ -814,16 +814,16 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             // here it'll just get truncated, no exceptions thrown
-            _numberBigInt = _getBigDecimal().toBigInteger();
+            _numberBigInt = _convertBigDecimalToBigInteger(_getBigDecimal());
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberLong);
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberInt);
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             if (_numberString != null) {
-                _numberBigInt = _getBigDecimal().toBigInteger();
+                _numberBigInt = _convertBigDecimalToBigInteger(_getBigDecimal());
             } else {
-                _numberBigInt = BigDecimal.valueOf(_getNumberDouble()).toBigInteger();
+                _numberBigInt = _convertBigDecimalToBigInteger(BigDecimal.valueOf(_getNumberDouble()));
             }
         } else {
             _throwInternal();
@@ -926,6 +926,12 @@ public abstract class ParserBase extends ParserMinimalBase
             _throwInternal();
         }
         _numTypesValid |= NR_BIGDECIMAL;
+    }
+
+    // @since 2.15
+    protected BigInteger _convertBigDecimalToBigInteger(BigDecimal bigDec) throws IOException {
+        // 04-Apr-2022, tatu: wrt [core#968] Need to limit max scale magnitude
+        return bigDec.toBigInteger();
     }
 
     /**

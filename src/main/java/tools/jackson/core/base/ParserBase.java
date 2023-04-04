@@ -831,7 +831,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _numTypesValid |= NR_BIGINT;
     }
 
-    protected void convertNumberToDouble() throws InputCoercionException
+    protected void convertNumberToDouble()
     {
         /* 05-Aug-2008, tatus: Important note: this MUST start with
          *   more accurate representations, since we don't know which
@@ -929,7 +929,7 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     // @since 2.15
-    protected BigInteger _convertBigDecimalToBigInteger(BigDecimal bigDec) throws IOException {
+    protected BigInteger _convertBigDecimalToBigInteger(BigDecimal bigDec) {
         // 04-Apr-2022, tatu: wrt [core#968] Need to limit max scale magnitude
         return bigDec.toBigInteger();
     }

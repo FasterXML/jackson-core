@@ -16,6 +16,9 @@ public final class NumberInput
 {
     // numbers with more than these characters are better parsed with BigDecimalParser
     // parsing numbers with many digits in Java is slower than O(n)
+
+    // 04-Apr-2023, tatu: NOTE! This is above default "longest number by chars"
+    //   limit
     private final static int LARGE_INT_SIZE = 1250;
 
     /**

@@ -11,7 +11,7 @@ public class PerfBigDecimalParser967
     private final JsonFactory JSON_F = new JsonFactory();
 
     // For [core#967]: shouldn't take multiple seconds
-    @Test(timeout = 35000)
+    @Test(timeout = 3000)
     public void bigDecimalFromString() throws Exception {
         // Jackson's BigDecimalParser seems to be slower than JDK's;
         // won't fail if using latter.

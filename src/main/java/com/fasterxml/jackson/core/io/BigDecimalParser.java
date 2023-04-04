@@ -24,16 +24,40 @@ import java.util.Arrays;
 public final class BigDecimalParser
 {
     final static int MAX_CHARS_TO_REPORT = 1000;
+    private final static int SHORT_DECIMAL_LEN = 50;
 
     private BigDecimalParser() {}
 
     public static BigDecimal parse(String valueStr) {
-        return parse(valueStr.toCharArray());
+        final int len = valueStr.length();
+        try {
+            if (len < SHORT_DECIMAL_LEN) {
+                return new BigDecimal(valueStr);
+            }
+            return parseBigDecimal(valueStr.toCharArray(), 0, len, len / 10);
+            // 20-Aug-2022, tatu: Although "new BigDecimal(...)" only throws NumberFormatException
+            //    operations by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
+        } catch (ArithmeticException | NumberFormatException e) {
+            String desc = e.getMessage();
+            // 05-Feb-2021, tatu: Alas, JDK mostly has null message so:
+            if (desc == null) {
+                desc = "Not a valid number representation";
+            }
+            String stringToReport;
+            if (valueStr.length() <= MAX_CHARS_TO_REPORT) {
+                stringToReport = valueStr;
+            } else {
+                stringToReport = valueStr.substring(0, MAX_CHARS_TO_REPORT)
+                        + "(truncated, full length is " + valueStr.length() + " chars)";
+            }
+            throw new NumberFormatException("Value \"" + stringToReport
+                    + "\" can not be represented as `java.math.BigDecimal`, reason: " + desc);
+        }
     }
 
     public static BigDecimal parse(final char[] chars, final int off, final int len) {
         try {
-            if (len < 500) {
+            if (len < SHORT_DECIMAL_LEN) {
                 return new BigDecimal(chars, off, len);
             }
             return parseBigDecimal(chars, off, len, len / 10);

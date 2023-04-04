@@ -1098,14 +1098,14 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             // here it'll just get truncated, no exceptions thrown
-            _numberBigInt = _getBigDecimal().toBigInteger();
+            _numberBigInt = _getBigInteger();
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberLong);
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberInt);
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             if (_numberString != null) {
-                _numberBigInt = _getBigDecimal().toBigInteger();
+                _numberBigInt = _getBigInteger();
             } else {
                 _numberBigInt = BigDecimal.valueOf(_getNumberDouble()).toBigInteger();
             }
@@ -1224,6 +1224,9 @@ public abstract class ParserBase extends ParserMinimalBase
         if (_numberBigInt != null) {
             return _numberBigInt;
         } else if (_numberString == null) {
+            if (_numberBigDecimal != null) {
+                return _numberBigDecimal.toBigInteger();
+            }
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
         try {
@@ -1248,6 +1251,9 @@ public abstract class ParserBase extends ParserMinimalBase
         if (_numberBigDecimal != null) {
             return _numberBigDecimal;
         } else if (_numberString == null) {
+            if (_numberBigInt != null) {
+                return new BigDecimal(_numberBigInt);
+            }
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
         try {

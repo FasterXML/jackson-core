@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.dos;
 
 import org.junit.Assert;
 import org.junit.Test;

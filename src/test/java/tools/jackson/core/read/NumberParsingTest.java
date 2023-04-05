@@ -509,6 +509,18 @@ public class NumberParsingTest
         }
     }
 
+    public void testLargeBigIntegerWithENotation() throws Exception {
+        // slightly bigger than Double.MAX_VALUE (we need to avoid parsing as double in this case)
+        final String DOC = "2e308 ";
+        final BigInteger expected = new BigDecimal(DOC.trim()).toBigInteger();
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(expected, p.getBigIntegerValue());
+            }
+        }
+    }
+
     /*
     /**********************************************************************
     /* Tests, floating point (basic)

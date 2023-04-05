@@ -448,15 +448,7 @@ public class NumberParsingTest
     
     public void testBigIntegerWithENotation() throws Exception {
         final String DOC = "1e5 ";
-
-        final int[] modes = new int[]{
-                MODE_INPUT_STREAM,
-                MODE_INPUT_STREAM_THROTTLED,
-                MODE_READER,
-                MODE_READER_THROTTLED,
-                MODE_DATA_INPUT
-        };
-        for (int mode : modes) {
+        for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
                 assertEquals(100000L, p.getBigIntegerValue().longValue());
@@ -466,15 +458,7 @@ public class NumberParsingTest
 
     public void testLongWithENotation() throws Exception {
         final String DOC = "1e5 ";
-
-        final int[] modes = new int[]{
-                MODE_INPUT_STREAM,
-                MODE_INPUT_STREAM_THROTTLED,
-                MODE_READER,
-                MODE_READER_THROTTLED,
-                MODE_DATA_INPUT
-        };
-        for (int mode : modes) {
+        for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
                 assertEquals(100000L, p.getLongValue());
@@ -484,15 +468,7 @@ public class NumberParsingTest
 
     public void testIntWithENotation() throws Exception {
         final String DOC = "1e5 ";
-
-        final int[] modes = new int[]{
-                MODE_INPUT_STREAM,
-                MODE_INPUT_STREAM_THROTTLED,
-                MODE_READER,
-                MODE_READER_THROTTLED,
-                MODE_DATA_INPUT
-        };
-        for (int mode : modes) {
+        for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
                 assertEquals(100000, p.getIntValue());

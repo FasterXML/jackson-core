@@ -264,56 +264,42 @@ public abstract class JsonParserBase
          * still be constructed correctly at any point since we do
          * retain textual representation
          */
-        try {
-            if (expType == NR_BIGDECIMAL) {
-                // 04-Dec-2022, tatu: Defer decoding of `BigDecimal` here
-                _numberBigDecimal = null;
-                String numStr = _textBuffer.contentsAsString();
-                streamReadConstraints().validateFPLength(numStr.length());
-                _numberString = numStr;
-                _numTypesValid = NR_BIGDECIMAL;
-            } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat(
-                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                _numTypesValid = NR_FLOAT;
-            } else {
-                // Otherwise double has to do
-                // 04-Dec-2022, tatu: We get not just `NR_DOUBLE` but anything from
-                //    `NR_INT` to `NR_UNKNOWN`. Might want to defer decoding...
-                _numberDouble = _textBuffer.contentsAsDouble(
-                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                _numTypesValid = NR_DOUBLE;
-            }
-        } catch (NumberFormatException nex) {
-            // Can this ever occur? Due to overflow, maybe?
-            throw _constructReadException("Malformed numeric value (%s)",
-                    _longNumberDesc(_textBuffer.contentsAsString()));
+        if (expType == NR_BIGDECIMAL) {
+            // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
+            //    value is actually needed.
+            _numberBigDecimal = null;
+            _numberString = _textBuffer.contentsAsString();
+            _numTypesValid = NR_BIGDECIMAL;
+        } else if (expType == NR_FLOAT) {
+            _numberFloat = 0.0f;
+            _numberString = _textBuffer.contentsAsString();
+            _numTypesValid = NR_FLOAT;
+        } else {
+            // Otherwise double has to do
+            // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
+            //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
+            //    deferring some typing?
+            _numberDouble = 0.0;
+            _numberString = _textBuffer.contentsAsString();
+            _numTypesValid = NR_DOUBLE;
         }
     }
 
     private void _parseSlowInt(int expType) throws JacksonException
     {
-        String numStr = _textBuffer.contentsAsString();
-        try {
-            // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
-            if ((expType == NR_INT) || (expType == NR_LONG)) {
-                _reportTooLongIntegral(expType, numStr);
-            }
-            if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                streamReadConstraints().validateFPLength(numStr.length());
-                _numberDouble = NumberInput.parseDouble(numStr, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                _numTypesValid = NR_DOUBLE;
-            } else {
-                streamReadConstraints().validateIntegerLength(numStr.length());
-                // nope, need the heavy guns... (rare case) - BigInteger parsing is lazy
-                _numberBigInt = null;
-                _numberString = numStr;
-                _numTypesValid = NR_BIGINT;
-            }
-        } catch (NumberFormatException nex) {
-            // Can this ever occur? Due to overflow, maybe?
-            throw _constructReadException("Malformed numeric value (%s)",
-                    _longNumberDesc(numStr));
+        final String numStr = _textBuffer.contentsAsString();
+        // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
+        if ((expType == NR_INT) || (expType == NR_LONG)) {
+            _reportTooLongIntegral(expType, numStr);
+        }
+        if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
+            _numberString = numStr;
+            _numTypesValid = NR_DOUBLE;
+        } else {
+            // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
+            _numberBigInt = null;
+            _numberString = numStr;
+            _numTypesValid = NR_BIGINT;
         }
     }
 

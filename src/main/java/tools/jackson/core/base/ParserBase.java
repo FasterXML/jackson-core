@@ -841,13 +841,13 @@ public abstract class ParserBase extends ParserMinimalBase
 
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             if (_numberString != null) {
-                _numberDouble = _getNumberFloat();
+                _numberDouble = _getNumberDouble();
             } else {
                 _numberDouble = _getBigDecimal().doubleValue();
             }
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             if (_numberString != null) {
-                _numberDouble = _getNumberFloat();
+                _numberDouble = _getNumberDouble();
             } else {
                 _numberDouble = _getBigInteger().doubleValue();
             }

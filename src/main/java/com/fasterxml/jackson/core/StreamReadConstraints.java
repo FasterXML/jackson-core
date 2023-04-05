@@ -42,6 +42,15 @@ public class StreamReadConstraints
      */
     public static final int DEFAULT_MAX_STRING_LEN = 5_000_000;
 
+    /**
+     * Limit for the maximum magnitude of Scale of {@link java.math.BigDecimal} that can be
+     * converted to {@link java.math.BigInteger}; actual limit value is either
+     * {@code 10 * maxNumLen} or this value, whichever is smaller.
+     *<p>
+     * "100k digits ought to be enough for anybody!"
+     */
+    private static final int MAX_BIGINT_SCALE_MAGNITUDE = 100_000;
+
     protected final int _maxNestingDepth;
     protected final int _maxNumLen;
     protected final int _maxStringLen;
@@ -281,6 +290,35 @@ public class StreamReadConstraints
         if (length > _maxStringLen) {
             throw new StreamConstraintsException(String.format("String length (%d) exceeds the maximum length (%d)",
                     length, _maxStringLen));
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Convenience methods for validation, other
+    /**********************************************************************
+     */
+
+    /**
+     * Convenience method that can be used to verify that a conversion to
+     * {@link java.math.BigInteger}
+     * {@link StreamConstraintsException}
+     * is thrown.
+     *
+     * @param scale Scale (possibly negative) of {@link java.math.BigDecimal} to convert
+     *
+     * @throws StreamConstraintsException If magnitude (absolute value) of scale exceeds maximum
+     *    allowed
+     */
+    public void validateBigIntegerScale(int scale) throws StreamConstraintsException
+    {
+        final int absScale = Math.abs(scale);
+        final int limit = MAX_BIGINT_SCALE_MAGNITUDE;
+
+        if (absScale > limit) {
+            throw new StreamConstraintsException(String.format(
+                    "BigDecimal scale (%d) magnitude exceeds maximum allowed (%d)",
+                    scale, limit));
         }
     }
 }

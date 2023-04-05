@@ -14,6 +14,9 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+#968: Prevent inefficient internal conversion from `BigDecimal` to `BigInteger`
+  wrt ultra-large scale
+
 2.15.0-rc2 (28-Mar-2023)
 
 #827: Add numeric value size limits via `StreamReadConstraints` (fixes

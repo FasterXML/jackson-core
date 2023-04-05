@@ -1217,6 +1217,8 @@ public abstract class ParserBase extends ParserMinimalBase
     // @since 2.15
     protected BigInteger _convertBigDecimalToBigInteger(BigDecimal bigDec) throws IOException {
         // 04-Apr-2022, tatu: wrt [core#968] Need to limit max scale magnitude
+        //   (may throw StreamConstraintsException)
+        _streamReadConstraints.validateBigIntegerScale(bigDec.scale());
         return bigDec.toBigInteger();
     }
 

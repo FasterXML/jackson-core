@@ -44,8 +44,7 @@ public class StreamReadConstraints
 
     /**
      * Limit for the maximum magnitude of Scale of {@link java.math.BigDecimal} that can be
-     * converted to {@link java.math.BigInteger}; actual limit value is either
-     * {@code 10 * maxNumLen} or this value, whichever is smaller.
+     * converted to {@link java.math.BigInteger}.
      *<p>
      * "100k digits ought to be enough for anybody!"
      */

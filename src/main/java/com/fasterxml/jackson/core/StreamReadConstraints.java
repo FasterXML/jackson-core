@@ -62,8 +62,6 @@ public class StreamReadConstraints
          *
          * @return this builder
          * @throws IllegalArgumentException if the maxNestingDepth is set to a negative value
-         *
-         * @since 2.15
          */
         public Builder maxNestingDepth(final int maxNestingDepth) {
             if (maxNestingDepth < 0) {
@@ -81,8 +79,6 @@ public class StreamReadConstraints
          *
          * @return this builder
          * @throws IllegalArgumentException if the maxNumLen is set to a negative value
-         *
-         * @since 2.15
          */
         public Builder maxNumberLength(final int maxNumLen) {
             if (maxNumLen < 0) {
@@ -106,8 +102,6 @@ public class StreamReadConstraints
          *
          * @return this builder
          * @throws IllegalArgumentException if the maxStringLen is set to a negative value
-         *
-         * @since 2.15
          */
         public Builder maxStringLength(final int maxStringLen) {
             if (maxStringLen < 0) {
@@ -144,7 +138,7 @@ public class StreamReadConstraints
     /**********************************************************************
      */
 
-    StreamReadConstraints(final int maxNestingDepth, final int maxNumLen, final int maxStringLen) {
+    protected StreamReadConstraints(final int maxNestingDepth, final int maxNumLen, final int maxStringLen) {
         _maxNestingDepth = maxNestingDepth;
         _maxNumLen = maxNumLen;
         _maxStringLen = maxStringLen;
@@ -204,7 +198,32 @@ public class StreamReadConstraints
 
     /*
     /**********************************************************************
-    /* Convenience methods for validation
+    /* Convenience methods for validation, document limits
+    /**********************************************************************
+     */
+
+    /**
+     * Convenience method that can be used to verify that the
+     * nesting depth does not exceed the maximum specified by this
+     * constraints object: if it does, a
+     * {@link StreamConstraintsException}
+     * is thrown.
+     *
+     * @param depth count of unclosed objects and arrays
+     *
+     * @throws StreamConstraintsException If depth exceeds maximum
+     */
+    public void validateNestingDepth(int depth) throws StreamConstraintsException
+    {
+        if (depth > _maxNestingDepth) {
+            throw new StreamConstraintsException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",
+                    depth, _maxNestingDepth));
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Convenience methods for validation, token lengths
     /**********************************************************************
      */
 
@@ -262,25 +281,6 @@ public class StreamReadConstraints
         if (length > _maxStringLen) {
             throw new StreamConstraintsException(String.format("String length (%d) exceeds the maximum length (%d)",
                     length, _maxStringLen));
-        }
-    }
-
-    /**
-     * Convenience method that can be used to verify that the
-     * nesting depth does not exceed the maximum specified by this
-     * constraints object: if it does, a
-     * {@link StreamConstraintsException}
-     * is thrown.
-     *
-     * @param depth count of unclosed objects and arrays
-     *
-     * @throws StreamConstraintsException If depth exceeds maximum
-     */
-    public void validateNestingDepth(int depth) throws StreamConstraintsException
-    {
-        if (depth > _maxNestingDepth) {
-            throw new StreamConstraintsException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",
-                    depth, _maxNestingDepth));
         }
     }
 }

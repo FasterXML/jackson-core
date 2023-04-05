@@ -451,6 +451,66 @@ public class NumberParsingTest
 
     /*
     /**********************************************************************
+    /* Tests, int/long/BigInteger via E-notation (engineering)
+    /**********************************************************************
+     */
+    
+    public void testBigIntegerWithENotation() throws Exception {
+        final String DOC = "1e5 ";
+
+        final int[] modes = new int[]{
+                MODE_INPUT_STREAM,
+                MODE_INPUT_STREAM_THROTTLED,
+                MODE_READER,
+                MODE_READER_THROTTLED,
+                MODE_DATA_INPUT
+        };
+        for (int mode : modes) {
+            try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(100000L, p.getBigIntegerValue().longValue());
+            }
+        }
+    }
+
+    public void testLongWithENotation() throws Exception {
+        final String DOC = "1e5 ";
+
+        final int[] modes = new int[]{
+                MODE_INPUT_STREAM,
+                MODE_INPUT_STREAM_THROTTLED,
+                MODE_READER,
+                MODE_READER_THROTTLED,
+                MODE_DATA_INPUT
+        };
+        for (int mode : modes) {
+            try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(100000L, p.getLongValue());
+            }
+        }
+    }
+
+    public void testIntWithENotation() throws Exception {
+        final String DOC = "1e5 ";
+
+        final int[] modes = new int[]{
+                MODE_INPUT_STREAM,
+                MODE_INPUT_STREAM_THROTTLED,
+                MODE_READER,
+                MODE_READER_THROTTLED,
+                MODE_DATA_INPUT
+        };
+        for (int mode : modes) {
+            try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(100000, p.getIntValue());
+            }
+        }
+    }
+
+    /*
+    /**********************************************************************
     /* Tests, floating point (basic)
     /**********************************************************************
      */

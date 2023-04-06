@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.dos;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 // For [core#968]]
-public class PerfBigDecimalToInteger968
+public class PerfBigDecimalToInteger968Test
 {
     private final JsonFactory JSON_F = new JsonFactory();
     

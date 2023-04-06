@@ -6,7 +6,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.*;
 
 // For [core#967]
-public class PerfBigDecimalParser967
+public class PerfBigDecimalParser967Test
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

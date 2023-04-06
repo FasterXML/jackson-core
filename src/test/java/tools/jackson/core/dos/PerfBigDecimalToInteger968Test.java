@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.core.dos;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 
 // For [core#968]]
-public class PerfBigDecimalToInteger968
+public class PerfBigDecimalToInteger968Test
 {
     private final JsonFactory JSON_F = new JsonFactory();
     

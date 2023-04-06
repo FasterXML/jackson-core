@@ -7,7 +7,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
 // For [core#967]
-public class PerfBigDecimalParser967
+public class PerfBigDecimalParser967Test
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

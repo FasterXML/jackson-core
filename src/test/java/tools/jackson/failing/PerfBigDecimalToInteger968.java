@@ -1,11 +1,10 @@
 package tools.jackson.failing;
 
-import java.math.BigInteger;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import tools.jackson.core.*;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 
 // For [core#968]]
@@ -20,8 +19,12 @@ public class PerfBigDecimalToInteger968
 
         try (JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), DOC)) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            BigInteger value = p.getBigIntegerValue();
-            Assert.assertNotNull(value);
+            try {
+                p.getBigIntegerValue();
+                Assert.fail("Should not pass");
+            } catch (StreamConstraintsException e) {
+                Assert.assertEquals("BigDecimal scale (-25000000) magnitude exceeds maximum allowed (100000)", e.getMessage());
+            }
         }
     }
 
@@ -29,10 +32,14 @@ public class PerfBigDecimalToInteger968
     public void tinyIntegerViaBigDecimal() throws Exception {
         final String DOC = "1e-25000000";
 
-        try (JsonParser p = JSON_F.createParser(DOC)) {
+        try (JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), DOC)) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            BigInteger value = p.getBigIntegerValue();
-            Assert.assertNotNull(value);
+            try {
+                p.getBigIntegerValue();
+                Assert.fail("Should not pass");
+            } catch (StreamConstraintsException e) {
+                Assert.assertEquals("BigDecimal scale (25000000) magnitude exceeds maximum allowed (100000)", e.getMessage());
+            }
         }
     }
     

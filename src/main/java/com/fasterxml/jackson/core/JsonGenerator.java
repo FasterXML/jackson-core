@@ -2482,8 +2482,10 @@ public abstract class JsonGenerator
             NumberType n = p.getNumberType();
             if (n == NumberType.INT) {
                 writeNumber(p.getIntValue());
-            } else {
+            } else if (n == NumberType.BIG_INTEGER) {
                 writeNumber(p.getBigIntegerValue());
+            } else {
+                writeNumber(p.getLongValue());
             }
             break;
         }
@@ -2623,8 +2625,10 @@ public abstract class JsonGenerator
                 NumberType n = p.getNumberType();
                 if (n == NumberType.INT) {
                     writeNumber(p.getIntValue());
-                } else {
+                } else if (n == NumberType.BIG_INTEGER) {
                     writeNumber(p.getBigIntegerValue());
+                } else {
+                    writeNumber(p.getLongValue());
                 }
                 break;
             }

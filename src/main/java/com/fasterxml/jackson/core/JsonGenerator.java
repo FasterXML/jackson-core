@@ -2491,13 +2491,13 @@ public abstract class JsonGenerator
         }
         case ID_NUMBER_FLOAT:
         {
-            NumberType n = p.getNumberType();
-            if (n == NumberType.BIG_DECIMAL) {
-                writeNumber(p.getDecimalValue());
-            } else if (n == NumberType.FLOAT) {
-                writeNumber(p.getFloatValue());
+            Number n = p.getNumberValueExact();
+            if (n instanceof Float) {
+                writeNumber((Float) n);
+            } else if (n instanceof BigDecimal) {
+                writeNumber((BigDecimal) n);
             } else {
-                writeNumber(p.getDoubleValue());
+                writeNumber(n.doubleValue());
             }
             break;
         }
@@ -2636,13 +2636,13 @@ public abstract class JsonGenerator
             }
             case ID_NUMBER_FLOAT:
             {
-                NumberType n = p.getNumberType();
-                if (n == NumberType.BIG_DECIMAL) {
-                    writeNumber(p.getDecimalValue());
-                } else if (n == NumberType.FLOAT) {
-                    writeNumber(p.getFloatValue());
+                Number n = p.getNumberValueExact();
+                if (n instanceof Float) {
+                    writeNumber((Float) n);
+                } else if (n instanceof BigDecimal) {
+                    writeNumber((BigDecimal) n);
                 } else {
-                    writeNumber(p.getDoubleValue());
+                    writeNumber(n.doubleValue());
                 }
                 break;
             }

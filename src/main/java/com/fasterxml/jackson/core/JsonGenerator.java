@@ -2495,9 +2495,7 @@ public abstract class JsonGenerator
             if (n instanceof Float) {
                 writeNumber((Float) n);
             } else if (n instanceof BigDecimal) {
-                final BigDecimal bd = (BigDecimal) n;
-                p.streamReadConstraints().validateBigIntegerScale(bd.scale());
-                writeNumber(bd);
+                writeNumber((BigDecimal) n);
             } else {
                 writeNumber(n.longValue());
             }
@@ -2642,9 +2640,7 @@ public abstract class JsonGenerator
                 if (n instanceof Float) {
                     writeNumber((Float) n);
                 } else if (n instanceof BigDecimal) {
-                    final BigDecimal bd = (BigDecimal) n;
-                    p.streamReadConstraints().validateBigIntegerScale(bd.scale());
-                    writeNumber(bd);
+                    writeNumber((BigDecimal) n);
                 } else {
                     writeNumber(n.longValue());
                 }

@@ -2497,7 +2497,7 @@ public abstract class JsonGenerator
             } else if (n instanceof BigDecimal) {
                 writeNumber((BigDecimal) n);
             } else {
-                writeNumber(n.longValue());
+                writeNumber(n.doubleValue());
             }
             break;
         }
@@ -2642,7 +2642,7 @@ public abstract class JsonGenerator
                 } else if (n instanceof BigDecimal) {
                     writeNumber((BigDecimal) n);
                 } else {
-                    writeNumber(n.longValue());
+                    writeNumber(n.doubleValue());
                 }
                 break;
             }

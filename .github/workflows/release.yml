@@ -65,6 +65,10 @@ jobs:
             base64 -w0 \
           )" >> "$GITHUB_OUTPUT"
 
+          echo "DEBUG: After SLSA hash generation we have:"
+          ls
+          ls ./target
+          echo "DEBUG: ARTIFACT_NAME = $ARTIFACT_NAME"
   provenance:
     needs: [release]
     permissions:

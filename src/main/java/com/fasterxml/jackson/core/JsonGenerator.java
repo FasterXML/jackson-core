@@ -2482,22 +2482,18 @@ public abstract class JsonGenerator
             NumberType n = p.getNumberType();
             if (n == NumberType.INT) {
                 writeNumber(p.getIntValue());
-            } else if (n == NumberType.BIG_INTEGER) {
-                writeNumber(p.getBigIntegerValue());
             } else {
-                writeNumber(p.getLongValue());
+                writeNumber(p.getBigIntegerValue());
             }
             break;
         }
         case ID_NUMBER_FLOAT:
         {
             NumberType n = p.getNumberType();
-            if (n == NumberType.BIG_DECIMAL) {
-                writeNumber(p.getDecimalValue());
-            } else if (n == NumberType.FLOAT) {
+            if (n == NumberType.FLOAT) {
                 writeNumber(p.getFloatValue());
             } else {
-                writeNumber(p.getDoubleValue());
+                writeNumber(p.getDecimalValue());
             }
             break;
         }
@@ -2627,22 +2623,18 @@ public abstract class JsonGenerator
                 NumberType n = p.getNumberType();
                 if (n == NumberType.INT) {
                     writeNumber(p.getIntValue());
-                } else if (n == NumberType.BIG_INTEGER) {
-                    writeNumber(p.getBigIntegerValue());
                 } else {
-                    writeNumber(p.getLongValue());
+                    writeNumber(p.getBigIntegerValue());
                 }
                 break;
             }
             case ID_NUMBER_FLOAT:
             {
                 NumberType n = p.getNumberType();
-                if (n == NumberType.BIG_DECIMAL) {
-                    writeNumber(p.getDecimalValue());
-                } else if (n == NumberType.FLOAT) {
+                if (n == NumberType.FLOAT) {
                     writeNumber(p.getFloatValue());
                 } else {
-                    writeNumber(p.getDoubleValue());
+                    writeNumber(p.getDecimalValue());
                 }
                 break;
             }

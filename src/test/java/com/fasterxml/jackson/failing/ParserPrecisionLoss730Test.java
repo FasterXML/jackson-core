@@ -18,7 +18,7 @@ public class ParserPrecisionLoss730Test extends BaseTest
      * e.g. for pretty printing a file.
      */
     public void testCopyCurrentEventBigDecimal() throws Exception {
-        String input = "1e999";
+        String input = "1E+999";
         StringWriter stringWriter = new StringWriter();
 
         try (JsonParser parser = JSON_F.createParser(input)) {
@@ -43,6 +43,6 @@ public class ParserPrecisionLoss730Test extends BaseTest
                 generator.copyCurrentStructure(parser);
             }
         }
-        assertEquals(input, stringWriter.toString());
+        assertEquals("[1E+999]", stringWriter.toString());
     }
 }

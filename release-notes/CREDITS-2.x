@@ -167,11 +167,14 @@ Doug Roper (htmldoug@github)
   (2.9.6)
   * Reported, Contributed test for #563: Async parser does not keep track of Array context properly
   (2.10.0)
+  * Reported #730: JSON precision loss on `copyCurrentEvent()` for floats that require greater
+    than `double` precision
+   (2.15.0)
   * Contributed #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
-  floating-point values or not
-  (2.14.0)
+    floating-point values or not
+   (2.14.0)
   * Reported #736: `JsonPointer` quadratic memory use: OOME on deep inputs
-  (2.14.0)
+   (2.14.0)
 
 Alexander Eyers-Taylor (aeyerstaylor@github)
   * Reported #510: Fix ArrayIndexOutofBoundsException found by LGTM.com
@@ -299,9 +302,12 @@ Vlad Tatavu (vladt@github)
 
 PJ Fanning (pjfanning@github)
   * Contributed #577: Improve performance of floating-point number parsing
-  (2.14.0)
+   (2.14.0)
+  * Contributed #730: JSON precision loss on `copyCurrentEvent()` for floats that require greater
+    than `double` precision
+   (2.15.0)
   * Contributed #744: Limit size of exception message in BigDecimalParser
-  (2.13.3)
+   (2.13.3)
   * Contributed #749: Improve performance of writing floating-point numbers
   (2.14.0)
   * Contributed #773: Add option to accept non-standard trailing decimal point

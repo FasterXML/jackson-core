@@ -2492,12 +2492,12 @@ public abstract class JsonGenerator
         case ID_NUMBER_FLOAT:
         {
             Number n = p.getNumberValueExact();
-            if (n instanceof Float) {
-                writeNumber((Float) n);
-            } else if (n instanceof BigDecimal) {
+            if (n instanceof BigDecimal) {
                 writeNumber((BigDecimal) n);
-            } else {
+            } else if (n instanceof Double) {
                 writeNumber(n.doubleValue());
+            } else {
+                writeNumber(n.floatValue());
             }
             break;
         }
@@ -2637,12 +2637,12 @@ public abstract class JsonGenerator
             case ID_NUMBER_FLOAT:
             {
                 Number n = p.getNumberValueExact();
-                if (n instanceof Float) {
-                    writeNumber((Float) n);
-                } else if (n instanceof BigDecimal) {
+                if (n instanceof BigDecimal) {
                     writeNumber((BigDecimal) n);
-                } else {
+                } else if (n instanceof Double) {
                     writeNumber(n.doubleValue());
+                } else {
+                    writeNumber(n.floatValue());
                 }
                 break;
             }

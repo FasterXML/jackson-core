@@ -1758,36 +1758,14 @@ public abstract class JsonGenerator
             writeName(p.currentName());
             break;
         case ID_STRING:
-            if (p.hasTextCharacters()) {
-                writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
-            } else {
-                writeString(p.getText());
-            }
+            _copyCurrentStringValue(p);
             break;
         case ID_NUMBER_INT:
-        {
-            NumberType n = p.getNumberType();
-            if (n == NumberType.INT) {
-                writeNumber(p.getIntValue());
-            } else if (n == NumberType.BIG_INTEGER) {
-                writeNumber(p.getBigIntegerValue());
-            } else {
-                writeNumber(p.getLongValue());
-            }
+            _copyCurrentIntValue(p);
             break;
-        }
         case ID_NUMBER_FLOAT:
-        {
-            Number n = p.getNumberValueExact();
-            if (n instanceof BigDecimal) {
-                writeNumber((BigDecimal) n);
-            } else if (n instanceof Double) {
-                writeNumber(p.getDoubleValue());
-            } else {
-                writeNumber((Float) n);
-            }
+            _copyCurrentFloatValue(p);
             break;
-        }
         case ID_TRUE:
             writeBoolean(true);
             break;
@@ -1903,36 +1881,14 @@ public abstract class JsonGenerator
                 break;
 
             case ID_STRING:
-                if (p.hasTextCharacters()) {
-                    writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
-                } else {
-                    writeString(p.getText());
-                }
+                _copyCurrentStringValue(p);
                 break;
             case ID_NUMBER_INT:
-            {
-                NumberType n = p.getNumberType();
-                if (n == NumberType.INT) {
-                    writeNumber(p.getIntValue());
-                } else if (n == NumberType.BIG_INTEGER) {
-                    writeNumber(p.getBigIntegerValue());
-                } else {
-                    writeNumber(p.getLongValue());
-                }
+                _copyCurrentIntValue(p);
                 break;
-            }
             case ID_NUMBER_FLOAT:
-            {
-                Number n = p.getNumberValueExact();
-                if (n instanceof BigDecimal) {
-                    writeNumber((BigDecimal) n);
-                } else if (n instanceof Double) {
-                    writeNumber(p.getDoubleValue());
-                } else {
-                    writeNumber((Float) n);
-                }
+                _copyCurrentFloatValue(p);
                 break;
-            }
             case ID_TRUE:
                 writeBoolean(true);
                 break;
@@ -1948,6 +1904,57 @@ public abstract class JsonGenerator
             default:
                 throw new IllegalStateException("Internal error: unknown current token, "+t);
             }
+        }
+    }
+
+    /**
+     * Method for copying current {@link JsonToken#VALUE_NUMBER_FLOAT} value;
+     * overridable by format backend implementations.
+     *
+     * @param p Parser that points to the value to copy
+     */
+    protected void _copyCurrentFloatValue(JsonParser p) throws JacksonException
+    {
+        Number n = p.getNumberValueExact();
+        if (n instanceof BigDecimal) {
+            writeNumber((BigDecimal) n);
+        } else if (n instanceof Double) {
+            writeNumber(n.doubleValue());
+        } else {
+            writeNumber(n.floatValue());
+        }
+    }
+
+    /**
+     * Method for copying current {@link JsonToken#VALUE_NUMBER_FLOAT} value;
+     * overridable by format backend implementations.
+     *
+     * @param p Parser that points to the value to copy
+     */
+    protected void _copyCurrentIntValue(JsonParser p) throws JacksonException
+    {
+        NumberType n = p.getNumberType();
+        if (n == NumberType.INT) {
+            writeNumber(p.getIntValue());
+        } else if (n == NumberType.LONG) {
+            writeNumber(p.getLongValue());
+        } else {
+            writeNumber(p.getBigIntegerValue());
+        }
+    }
+
+    /**
+     * Method for copying current {@link JsonToken#VALUE_STRING} value;
+     * overridable by format backend implementations.
+     *
+     * @param p Parser that points to the value to copy
+     */
+    protected void _copyCurrentStringValue(JsonParser p) throws JacksonException
+    {
+        if (p.hasTextCharacters()) {
+            writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
+        } else {
+            writeString(p.getText());
         }
     }
 

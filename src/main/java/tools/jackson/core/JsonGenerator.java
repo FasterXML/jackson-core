@@ -23,7 +23,7 @@ import tools.jackson.core.util.JacksonFeatureSet;
 /**
  * Base class that defines public API for writing JSON content.
  * Instances are created using factory methods of
- *  a {@link TokenStreamFactory} instance.
+ * a {@link TokenStreamFactory} instance.
  *
  * @author Tatu Saloranta
  */

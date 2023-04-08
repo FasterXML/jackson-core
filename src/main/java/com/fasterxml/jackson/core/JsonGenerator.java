@@ -25,6 +25,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * Instances are created using factory methods of a
  * {@link JsonFactory} instance.
  *
+ *
  * @author Tatu Saloranta
  */
 public abstract class JsonGenerator

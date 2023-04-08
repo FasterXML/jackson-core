@@ -1760,7 +1760,71 @@ public abstract class JsonGenerator
             _copyCurrentIntValue(p);
             break;
         case ID_NUMBER_FLOAT:
+            // Different from "copyCurrentEventExact"!
             _copyCurrentFloatValue(p);
+            break;
+        case ID_TRUE:
+            writeBoolean(true);
+            break;
+        case ID_FALSE:
+            writeBoolean(false);
+            break;
+        case ID_NULL:
+            writeNull();
+            break;
+        case ID_EMBEDDED_OBJECT:
+            writePOJO(p.getEmbeddedObject());
+            break;
+        default:
+            throw new IllegalStateException("Internal error: unknown current token, "+t);
+        }
+    }
+
+    /**
+     * Same as {@link #copyCurrentEvent} with the exception that copying of numeric
+     * values tries to avoid any conversion losses; in particular for floating-point
+     * numbers. This usually matters when transcoding from textual format like JSON
+     * to a binary format.
+     * See {@link #_copyCurrentFloatValueExact} for details.
+     *
+     * @param p Parser that points to the event to copy
+     *
+     * @throws WrappedIOException if there is an underlying I/O problem (reading or writing)
+     * @throws StreamReadException for problems with decoding of token stream
+     * @throws StreamWriteException for problems in encoding token stream
+     */
+    public void copyCurrentEventExact(JsonParser p) throws JacksonException
+    {
+        JsonToken t = p.currentToken();
+        final int token = (t == null) ? ID_NOT_AVAILABLE : t.id();
+        switch (token) {
+        case ID_NOT_AVAILABLE:
+            _reportError("No current event to copy");
+            break; // never gets here
+        case ID_START_OBJECT:
+            writeStartObject();
+            break;
+        case ID_END_OBJECT:
+            writeEndObject();
+            break;
+        case ID_START_ARRAY:
+            writeStartArray();
+            break;
+        case ID_END_ARRAY:
+            writeEndArray();
+            break;
+        case ID_PROPERTY_NAME:
+            writeName(p.currentName());
+            break;
+        case ID_STRING:
+            _copyCurrentStringValue(p);
+            break;
+        case ID_NUMBER_INT:
+            _copyCurrentIntValue(p);
+            break;
+        case ID_NUMBER_FLOAT:
+            // Different from "copyCurrentEvent"!
+            _copyCurrentFloatValueExact(p);
             break;
         case ID_TRUE:
             writeBoolean(true);

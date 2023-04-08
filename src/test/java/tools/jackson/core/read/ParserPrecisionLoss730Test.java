@@ -21,25 +21,9 @@ public class ParserPrecisionLoss730Test extends BaseTest
         try (JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(), input)) {
             parser.nextToken();
             try (JsonGenerator generator = JSON_F.createGenerator(ObjectWriteContext.empty(), stringWriter)) {
-                generator.copyCurrentEvent(parser);
+                generator.copyCurrentEventExact(parser);
             }
         }
         assertEquals(input, stringWriter.toString());
-    }
-
-    // [jackson-core#730]
-    /**
-     * Same as {@link #testCopyCurrentEventBigDecimal()} using copyCurrentStructure instead.
-     */
-    public void testCopyCurrentStructureBigDecimal() throws Exception {
-        String input = "[1e999]";
-        StringWriter stringWriter = new StringWriter();
-        try (JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(), input)) {
-            parser.nextToken();
-            try (JsonGenerator generator = JSON_F.createGenerator(ObjectWriteContext.empty(), stringWriter)) {
-                generator.copyCurrentStructure(parser);
-            }
-        }
-        assertEquals("[1E+999]", stringWriter.toString());
     }
 }

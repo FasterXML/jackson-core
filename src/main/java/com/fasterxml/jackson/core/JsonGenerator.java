@@ -2590,6 +2590,11 @@ public abstract class JsonGenerator
      * <b>last event</b> that was copied. This will either be
      * the event parser already pointed to (if there were no
      * enclosed events), or the last enclosed event copied.
+     *<p>
+     * NOTE: copying of individual tokens/events is handled by delegating
+     * to {@link #copyCurrentEvent} method (make sure to read about difference
+     * between that method and {@link #copyCurrentEventExact} for numeric
+     * value accuracy).
      *
      * @param p Parser that points to the value to copy
      *

@@ -2477,7 +2477,72 @@ public abstract class JsonGenerator
             _copyCurrentIntValue(p);
             break;
         case ID_NUMBER_FLOAT:
+            // Different from "copyCurrentEventExact"!
             _copyCurrentFloatValue(p);
+            break;
+        case ID_TRUE:
+            writeBoolean(true);
+            break;
+        case ID_FALSE:
+            writeBoolean(false);
+            break;
+        case ID_NULL:
+            writeNull();
+            break;
+        case ID_EMBEDDED_OBJECT:
+            writeObject(p.getEmbeddedObject());
+            break;
+        default:
+            throw new IllegalStateException("Internal error: unknown current token, "+t);
+        }
+    }
+
+    /**
+     * Same as {@link #copyCurrentEvent} with the exception that copying of numeric
+     * values tries to avoid any conversion losses; in particular for floating-point
+     * numbers. This usually matters when transcoding from textual format like JSON
+     * to a binary format.
+     * See {@link #_copyCurrentFloatValueExact} for details.
+     *
+     * @param p Parser that points to event (token) to copy
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
+     *
+     * @since 2.15
+     */
+    public void copyCurrentEventExact(JsonParser p) throws IOException
+    {
+        JsonToken t = p.currentToken();
+        final int token = (t == null) ? ID_NOT_AVAILABLE : t.id();
+        switch (token) {
+        case ID_NOT_AVAILABLE:
+            _reportError("No current event to copy");
+            break; // never gets here
+        case ID_START_OBJECT:
+            writeStartObject();
+            break;
+        case ID_END_OBJECT:
+            writeEndObject();
+            break;
+        case ID_START_ARRAY:
+            writeStartArray();
+            break;
+        case ID_END_ARRAY:
+            writeEndArray();
+            break;
+        case ID_FIELD_NAME:
+            writeFieldName(p.getCurrentName());
+            break;
+        case ID_STRING:
+            _copyCurrentStringValue(p);
+            break;
+        case ID_NUMBER_INT:
+            _copyCurrentIntValue(p);
+            break;
+        case ID_NUMBER_FLOAT:
+            // Different from "copyCurrentEvent"!
+            _copyCurrentFloatValueExact(p);
             break;
         case ID_TRUE:
             writeBoolean(true);
@@ -2525,6 +2590,11 @@ public abstract class JsonGenerator
      * <b>last event</b> that was copied. This will either be
      * the event parser already pointed to (if there were no
      * enclosed events), or the last enclosed event copied.
+     *<p>
+     * NOTE: copying of individual tokens/events is handled by delegating
+     * to {@link #copyCurrentEvent} method (make sure to read about difference
+     * between that method and {@link #copyCurrentEventExact} for numeric
+     * value accuracy).
      *
      * @param p Parser that points to the value to copy
      *
@@ -2623,12 +2693,44 @@ public abstract class JsonGenerator
     /**
      * Method for copying current {@link JsonToken#VALUE_NUMBER_FLOAT} value;
      * overridable by format backend implementations.
+     * Implementation checks
+     * {@link JsonParser#getNumberType()} for declared type and uses matching
+     * accessors: this may cause inexact conversion for some textual formats
+     * (depending on settings). If this is problematic, use
+     * {@lnik #_copyCurrentFloatValueExact} instead (note that doing so may add
+     * overhead).
      *
      * @param p Parser that points to the value to copy
      *
      * @since 2.15
      */
     protected void _copyCurrentFloatValue(JsonParser p) throws IOException
+    {
+        NumberType t = p.getNumberType();
+        if (t == NumberType.BIG_DECIMAL) {
+            writeNumber(p.getDecimalValue());
+        } else if (t == NumberType.FLOAT) {
+            writeNumber(p.getFloatValue());
+        } else {
+            writeNumber(p.getDoubleValue());
+        }
+    }
+
+    /**
+     * Method for copying current {@link JsonToken#VALUE_NUMBER_FLOAT} value;
+     * overridable by format backend implementations.
+     * Implementation ensures it uses most accurate accessors necessary to retain
+     * exact value in case of possible numeric conversion: in practice this means
+     * that {@link BigDecimal} is usually used as the representation accessed from
+     * {@link JsonParser}, regardless of whether {@link Double} might be accurate
+     * (since detecting lossy conversion is not possible to do efficiently).
+     * If minimal overhead is desired, use {@link #_copyCurrentFloatValue} instead.
+     *
+     * @param p Parser that points to the value to copy
+     *
+     * @since 2.15
+     */
+    protected void _copyCurrentFloatValueExact(JsonParser p) throws IOException
     {
         Number n = p.getNumberValueExact();
         if (n instanceof BigDecimal) {

@@ -5,7 +5,7 @@ import tools.jackson.core.json.JsonFactory;
 
 import java.io.StringWriter;
 
-// [jackson-core#730]
+// [jackson-core#730] / [jackson-core#984]
 public class ParserPrecisionLoss730Test extends BaseTest
 {
     private final JsonFactory JSON_F = newStreamFactory();

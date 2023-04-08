@@ -6,11 +6,7 @@ package tools.jackson.core;
 
 import static tools.jackson.core.JsonTokenId.*;
 
-import java.io.Closeable;
-import java.io.Flushable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -1910,10 +1906,42 @@ public abstract class JsonGenerator
     /**
      * Method for copying current {@link JsonToken#VALUE_NUMBER_FLOAT} value;
      * overridable by format backend implementations.
+     * Implementation checks
+     * {@link JsonParser#getNumberType()} for declared type and uses matching
+     * accessors: this may cause inexact conversion for some textual formats
+     * (depending on settings). If this is problematic, use
+     * {@lnik #_copyCurrentFloatValueExact} instead (note that doing so may add
+     * overhead).
      *
      * @param p Parser that points to the value to copy
      */
     protected void _copyCurrentFloatValue(JsonParser p) throws JacksonException
+    {
+        NumberType t = p.getNumberType();
+        if (t == NumberType.BIG_DECIMAL) {
+            writeNumber(p.getDecimalValue());
+        } else if (t == NumberType.FLOAT) {
+            writeNumber(p.getFloatValue());
+        } else {
+            writeNumber(p.getDoubleValue());
+        }
+    }
+
+    /**
+     * Method for copying current {@link JsonToken#VALUE_NUMBER_FLOAT} value;
+     * overridable by format backend implementations.
+     * Implementation ensures it uses most accurate accessors necessary to retain
+     * exact value in case of possible numeric conversion: in practice this means
+     * that {@link BigDecimal} is usually used as the representation accessed from
+     * {@link JsonParser}, regardless of whether {@link Double} might be accurate
+     * (since detecting lossy conversion is not possible to do efficiently).
+     * If minimal overhead is desired, use {@link #_copyCurrentFloatValue} instead.
+     *
+     * @param p Parser that points to the value to copy
+     *
+     * @since 2.15
+     */
+    protected void _copyCurrentFloatValueExact(JsonParser p) throws JacksonException
     {
         Number n = p.getNumberValueExact();
         if (n instanceof BigDecimal) {

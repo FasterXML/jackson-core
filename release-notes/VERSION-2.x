@@ -14,12 +14,9 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-#730: JSON precision loss on `copyCurrentEvent()` for floats that require greater
-  than `double` precision
- (reported by Doug R)
- (contributed by @pjfanning)
 #968: Prevent inefficient internal conversion from `BigDecimal` to `BigInteger`
   wrt ultra-large scale
+#984: Add `JsonGenerator.copyCurrentEventExact` as alternative to `copyCurrentEvent()`
 
 2.15.0-rc2 (28-Mar-2023)
 

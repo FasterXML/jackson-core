@@ -1,6 +1,15 @@
 package com.fasterxml.jackson.core.io;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 public class BigIntegerParserTest extends com.fasterxml.jackson.core.BaseTest {
+
+    public void testFastParseBigIntegerWithENotation() {
+        String num = "2e308";
+        BigInteger bigInteger = BigIntegerParser.parseWithFastParser(num);
+        assertEquals(new BigDecimal(num).toBigInteger(), bigInteger);
+    }
 
     public void testLongStringFastParseBigInteger() {
         try {

@@ -52,5 +52,15 @@ public class TestNumberInput
         assertEquals(expected, NumberInput.parseBigIntegerWithRadix(val, radix, true));
         assertEquals(expected, NumberInput.parseBigIntegerWithRadix(val, radix, false));
     }
+
+    public void testParseBigIntegerFailsWithENotation()
+    {
+        try {
+            NumberInput.parseBigInteger("1e10");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            // expected
+        }
+    }
 }
 

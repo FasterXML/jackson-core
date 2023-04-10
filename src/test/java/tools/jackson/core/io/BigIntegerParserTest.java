@@ -2,6 +2,16 @@ package tools.jackson.core.io;
 
 public class BigIntegerParserTest extends tools.jackson.core.BaseTest {
 
+    public void testFastParseBigIntegerFailsWithENotation() {
+        String num = "2e308";
+        try {
+            BigIntegerParser.parseWithFastParser(num);
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            // expected
+        }
+    }
+
     public void testLongStringFastParseBigInteger() {
         try {
             BigIntegerParser.parseWithFastParser(genLongString());

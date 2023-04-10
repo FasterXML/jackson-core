@@ -5,10 +5,14 @@ import java.math.BigInteger;
 
 public class BigIntegerParserTest extends com.fasterxml.jackson.core.BaseTest {
 
-    public void testFastParseBigIntegerWithENotation() {
+    public void testFastParseBigIntegerFailsWithENotation() {
         String num = "2e308";
-        BigInteger bigInteger = BigIntegerParser.parseWithFastParser(num);
-        assertEquals(new BigDecimal(num).toBigInteger(), bigInteger);
+        try {
+            BigIntegerParser.parseWithFastParser(num);
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            // expected
+        }
     }
 
     public void testLongStringFastParseBigInteger() {

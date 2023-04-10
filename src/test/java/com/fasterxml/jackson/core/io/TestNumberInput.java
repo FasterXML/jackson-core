@@ -41,5 +41,15 @@ public class TestNumberInput
         String test2000 = stringBuilder.toString();
         assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000));
     }
+
+    public void testParseBigIntegerFailsWithENotation()
+    {
+        try {
+            NumberInput.parseBigInteger("1e10");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            // expected
+        }
+    }
 }
 

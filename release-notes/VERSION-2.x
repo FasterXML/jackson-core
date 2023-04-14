@@ -14,11 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-#968: Prevent inefficient internal conversion from `BigDecimal` to `BigInteger`
-  wrt ultra-large scale
-#984: Add `JsonGenerator.copyCurrentEventExact` as alternative to `copyCurrentEvent()`
-
-2.15.0-rc2 (28-Mar-2023)
+2.15.0-rc3 (14-Apr-2023)
 
 #827: Add numeric value size limits via `StreamReadConstraints` (fixes
   `sonatype-2022-6438`)
@@ -45,6 +41,9 @@ JSON library.
  (contributed by @pjfanning)
 #962: Offer a way to directly set `StreamReadConstraints` via `JsonFactory` (not just Builder)
 #965: 2.15.0-rc1 missing Gradle module metadata marker in pom.xml
+#968: Prevent inefficient internal conversion from `BigDecimal` to `BigInteger`
+  wrt ultra-large scale
+#984: Add `JsonGenerator.copyCurrentEventExact` as alternative to `copyCurrentEvent()`
 - Build uses package type "jar" but still produces valid OSGi bundle
  (changed needed to keep class timestamps with Reproducible Build)
 

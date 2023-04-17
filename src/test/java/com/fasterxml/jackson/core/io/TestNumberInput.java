@@ -62,5 +62,15 @@ public class TestNumberInput
             // expected
         }
     }
+
+    public void testParseBigIntegerFailsWithENotation()
+    {
+        try {
+            NumberInput.parseBigInteger("1e10");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            // expected
+        }
+    }
 }
 

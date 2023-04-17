@@ -26,7 +26,7 @@ No changes since 2.14
   padding character
  (reported by @Vity01)
 #967: Address performance issue with `BigDecimalParser`
-#987: Backport removal of BigDecimal to BigInt conversion (#987)
+#990: Backport removal of BigDecimal to BigInt conversion (#987)
  (contributed by @pjfanning)
 
 2.14.2 (28-Jan-2023)

@@ -18,6 +18,12 @@ JSON library.
 
 No changes since 2.15
 
+2.15.1 (not yet released)
+
+#999: Gradle metadata for `jackson-core` `2.15.0` adds dependency on
+   `ch.randelshofer:fastdoubleparser`
+  (reported by Chris R)
+
 2.15.0 (23-Apr-2023)
 
 #827: Add numeric value size limits via `StreamReadConstraints` (fixes

@@ -343,10 +343,13 @@ Evan Galpin (egalpin@github)
   (2.14.0)
 
 Chris Rankin (chrisr3@github)
-  * Requested #768: Jackson bundles are missing OSGi's osgi.serviceloader metadata
+ * Requested #768: Jackson bundles are missing OSGi's osgi.serviceloader metadata
   (2.14.0)
-  * Contributed #822: Declare osgi.serviceloader.registrar requirement as optional
+ * Contributed #822: Declare osgi.serviceloader.registrar requirement as optional
   (2.14.0)
+ * Reported #999: Gradle metadata for `jackson-core` `2.15.0` adds dependency on
+   `ch.randelshofer:fastdoubleparser`
+  (2.15.1)
 
 Przemyslaw Gomulka (pgomulka@github)
   * Contributed #882: Allow TokenFIlter to skip last elements in arrays

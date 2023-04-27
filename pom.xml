@@ -141,6 +141,17 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>de.jjohannes</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
+	<!-- 27-Apr-2023, tatu: [core#999]: Need to exclude shaded FDP
+	   dependency from GMM
+	  -->
+	<configuration>
+          <removedDependencies>
+            <dependency>
+              <groupId>ch.randelshofer</groupId>
+              <artifactId>fastdoubleparser</artifactId>
+            </dependency>
+          </removedDependencies>
+        </configuration>
       </plugin>
 
       <plugin>

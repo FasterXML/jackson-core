@@ -64,6 +64,7 @@ JSON library.
 #967: Address performance issue with `BigDecimalParser`
 #990: Backport removal of BigDecimal to BigInt conversion (#987)
  (contributed by @pjfanning)
+#1004: FastDoubleParser license
 
 2.14.2 (28-Jan-2023)
 

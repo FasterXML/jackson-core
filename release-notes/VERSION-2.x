@@ -19,6 +19,7 @@ JSON library.
 #999: Gradle metadata for `jackson-core` `2.15.0` adds dependency on
    `ch.randelshofer:fastdoubleparser`
   (reported by Chris R)
+#1003: Add FastDoubleParser section to `NOTICE`
 
 2.15.0 (23-Apr-2023)
 

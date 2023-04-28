@@ -19,7 +19,6 @@ from the source code management (SCM) system project uses.
 ## FastDoubleParser
 
 jackson-core bundles a shaded copy of FastDoubleParser <https://github.com/wrandelshofer/FastDoubleParser>.
-That code is available under an MIT license <https://github.com/wrandelshofer/FastDoubleParser/blob/main/LICENSE>
-under the following copyright.
+That code is available under an Apache license under the following copyright.
 
-Copyright © 2023 Werner Randelshofer, Switzerland. MIT License.
+Copyright (c) Werner Randelshofer. Apache 2.0 License.

@@ -19,3 +19,10 @@ To find the details that apply to this artifact see the accompanying LICENSE fil
 A list of contributors may be found from CREDITS(-2.x) file, which is included
 in some artifacts (usually source distributions); but is always available
 from the source code management (SCM) system project uses.
+
+## FastDoubleParser
+
+jackson-core bundles a shaded copy of FastDoubleParser <https://github.com/wrandelshofer/FastDoubleParser>.
+That code is available under an Apache license under the following copyright.
+
+Copyright (c) Werner Randelshofer. Apache 2.0 License.

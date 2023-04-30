@@ -26,7 +26,7 @@ jackson-core bundles a shaded copy of FastDoubleParser <https://github.com/wrand
 That code is available under an MIT license <https://github.com/wrandelshofer/FastDoubleParser/blob/main/LICENSE>
 under the following copyright.
 
-Copyright (c) Werner Randelshofer. Apache 2.0 License.
+Copyright © 2023 Werner Randelshofer, Switzerland. MIT License.
 
 FastDoubleParser code also contains code from:
 

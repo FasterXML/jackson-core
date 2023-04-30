@@ -26,4 +26,15 @@ jackson-core bundles a shaded copy of FastDoubleParser <https://github.com/wrand
 That code is available under an MIT license <https://github.com/wrandelshofer/FastDoubleParser/blob/main/LICENSE>
 under the following copyright.
 
-Copyright © 2023 Werner Randelshofer, Switzerland. MIT License.
+Copyright (c) Werner Randelshofer. Apache 2.0 License.
+
+FastDoubleParser code also contains code from:
+
+fast_double_parser <https://github.com/lemire/fast_double_parser>
+Copyright 2020 Daniel Lemire. Apache 2.0 License.
+
+fast_float <https://github.com/fastfloat/fast_float>
+Copyright 2021 The fast_float authors. Apache 2.0 License.
+
+bigint <https://github.com/tbuktu/bigint/tree/floatfft> (only using code from the  BSD License source files)
+Copyright 2020 Tim Buktu. 2-clause BSD License

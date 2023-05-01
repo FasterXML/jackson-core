@@ -35,13 +35,13 @@ public class LargeNumberReadTest
             _testBigBigDecimals(MODE_INPUT_STREAM, false);
             fail("Should not pass");
         } catch (StreamConstraintsException e) {
-            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
+            verifyException(e, "Invalid numeric value ", "exceeds the maximum");
         }
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, false);
             fail("Should not pass");
         } catch (StreamConstraintsException jpe) {
-            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum");
         }
     }
 
@@ -51,7 +51,7 @@ public class LargeNumberReadTest
             _testBigBigDecimals(MODE_READER, false);
             fail("Should not pass");
         } catch (StreamConstraintsException jpe) {
-            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum");
         }
     }
 
@@ -66,7 +66,7 @@ public class LargeNumberReadTest
             _testBigBigDecimals(MODE_DATA_INPUT, false);
             fail("Should not pass");
         } catch (StreamConstraintsException jpe) {
-            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum length");
+            verifyException(jpe, "Invalid numeric value ", "exceeds the maximum allowed");
         }
     }
 

@@ -154,9 +154,9 @@ public class AsyncStringArrayTest extends AsyncTestBase
             fail("expected IOException");
         } catch (JacksonException ie) {
             assertTrue("unexpected exception message: " + ie.getMessage(),
-                    ie.getMessage().startsWith("String length"));
+                    ie.getMessage().startsWith("String value length"));
             assertTrue("unexpected exception message: " + ie.getMessage(),
-                    ie.getMessage().endsWith("exceeds the maximum length (100)"));
+                    ie.getMessage().contains("exceeds the maximum allowed (100"));
         }
     }
 

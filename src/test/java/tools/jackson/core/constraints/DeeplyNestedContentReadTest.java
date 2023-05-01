@@ -33,8 +33,8 @@ public class DeeplyNestedContentReadTest
             while (p.nextToken() != null) { }
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
-            assertEquals("Depth ("+(MAX_NESTING+1)
-                    +") exceeds the maximum allowed nesting depth ("+MAX_NESTING+")", e.getMessage());
+            assertEquals("Document nesting depth (1001) exceeds the maximum allowed (1000, from `StreamReadConstraints.getMaxNestingDepth()`)",
+                    e.getMessage());
         }
     }
 

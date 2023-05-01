@@ -224,8 +224,10 @@ public class StreamReadConstraints
     public void validateNestingDepth(int depth) throws StreamConstraintsException
     {
         if (depth > _maxNestingDepth) {
-            throw new StreamConstraintsException(String.format("Depth (%d) exceeds the maximum allowed nesting depth (%d)",
-                    depth, _maxNestingDepth));
+            throw _constructException(
+                    "Document nesting depth (%d) exceeds the maximum allowed (%d, from %s)",
+                    depth, _maxNestingDepth,
+                    _constrainRef("getMaxNestingDepth"));
         }
     }
 
@@ -249,8 +251,10 @@ public class StreamReadConstraints
     public void validateFPLength(int length) throws StreamConstraintsException
     {
         if (length > _maxNumLen) {
-            throw new StreamConstraintsException(String.format("Number length (%d) exceeds the maximum length (%d)",
-                    length, _maxNumLen));
+            throw _constructException(
+                    "Number value length (%d) exceeds the maximum allowed (%d, from %s)",
+                    length, _maxNumLen,
+                    _constrainRef("getMaxNumberLength"));
         }
     }
 
@@ -268,8 +272,10 @@ public class StreamReadConstraints
     public void validateIntegerLength(int length) throws StreamConstraintsException
     {
         if (length > _maxNumLen) {
-            throw new StreamConstraintsException(String.format("Number length (%d) exceeds the maximum length (%d)",
-                    length, _maxNumLen));
+            throw _constructException(
+                    "Number value length (%d) exceeds the maximum allowed (%d, from %s)",
+                    length, _maxNumLen,
+                    _constrainRef("getMaxNumberLength"));
         }
     }
 
@@ -287,8 +293,10 @@ public class StreamReadConstraints
     public void validateStringLength(int length) throws StreamConstraintsException
     {
         if (length > _maxStringLen) {
-            throw new StreamConstraintsException(String.format("String length (%d) exceeds the maximum length (%d)",
-                    length, _maxStringLen));
+            throw _constructException(
+                    "String value length (%d) exceeds the maximum allowed (%d, from %s)",
+                    length, _maxStringLen,
+                    _constrainRef("getMaxStringLength"));
         }
     }
 
@@ -315,9 +323,25 @@ public class StreamReadConstraints
         final int limit = MAX_BIGINT_SCALE_MAGNITUDE;
 
         if (absScale > limit) {
-            throw new StreamConstraintsException(String.format(
-                    "BigDecimal scale (%d) magnitude exceeds maximum allowed (%d)",
-                    scale, limit));
+            throw _constructException(
+                    "BigDecimal scale (%d) magnitude exceeds the maximum allowed (%d)",
+                    scale, limit);
         }
+    }
+
+    /*
+    /**********************************************************************
+    /* Error reporting
+    /**********************************************************************
+     */
+
+    // @since 2.16
+    protected StreamConstraintsException _constructException(String msgTemplate, Object... args) throws StreamConstraintsException {
+        throw new StreamConstraintsException(String.format(msgTemplate, args));
+    }
+
+    // @since 2.16
+    protected String _constrainRef(String method) {
+        return "`StreamReadConstraints."+method+"()`";
     }
 }

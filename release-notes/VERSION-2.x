@@ -16,7 +16,7 @@ JSON library.
 
 2.16.0 (not yet released)
 
-No changes since 2.15
+#1007: Improve error message for `StreamReadConstraints` violations
 
 2.15.1 (not yet released)
 

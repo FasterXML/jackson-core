@@ -335,10 +335,12 @@ public class StreamReadConstraints
     /**********************************************************************
      */
 
+    // @since 2.16
     protected StreamConstraintsException _constructException(String msgTemplate, Object... args) throws StreamConstraintsException {
         throw new StreamConstraintsException(String.format(msgTemplate, args));
     }
 
+    // @since 2.16
     protected String _constrainRef(String method) {
         return "`StreamReadConstraints."+method+"()`";
     }

@@ -181,6 +181,18 @@ tools.jackson.core.*;version=${project.version}
                   <shadedPattern>com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
                 </relocation>
                 <relocation>
+                  <pattern>META-INF/LICENSE</pattern>
+                  <shadedPattern>META-INF/FastDoubleParser-LICENSE</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/NOTICE</pattern>
+                  <shadedPattern>META-INF/FastDoubleParser-NOTICE</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/jackson-core-NOTICE</pattern>
+                  <shadedPattern>META-INF/NOTICE</shadedPattern>
+                </relocation>
+                <relocation>
                   <pattern>META-INF/versions/11/ch/randelshofer/fastdoubleparser</pattern>
                   <shadedPattern>META-INF/versions/11/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
                 </relocation>
@@ -263,7 +275,7 @@ tools.jackson.core.*;version=${project.version}
     <dependency>
       <groupId>ch.randelshofer</groupId>
       <artifactId>fastdoubleparser</artifactId>
-      <version>0.8.0</version>
+      <version>0.9.0</version>
     </dependency>
     
     <!-- Test dependencies -->

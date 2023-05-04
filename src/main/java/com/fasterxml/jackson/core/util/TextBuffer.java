@@ -454,7 +454,7 @@ public final class TextBuffer
                     } else { // no, need to combine
                         final int builderLen = segLen + currLen;
                         if (builderLen < 0) {
-                            throw new RuntimeException("size cannot be negative (probable int overflow)");
+                            _reportBufferOverflow(segLen, currLen);
                         }
                         StringBuilder sb = new StringBuilder(builderLen);
                         // First stored segments
@@ -857,7 +857,7 @@ public final class TextBuffer
         int oldLen = _currentSegment.length;
         _segmentSize += oldLen;
         if (_segmentSize < 0) {
-            throw new RuntimeException("_segmentSize cannot be negative (probable int overflow)");
+            _reportBufferOverflow(_segmentSize, oldLen);
         }
         _currentSize = 0;
 
@@ -968,7 +968,7 @@ public final class TextBuffer
         _segments.add(curr);
         _segmentSize += curr.length;
         if (_segmentSize < 0) {
-            throw new RuntimeException("_segmentSize cannot be negative (probable int overflow)");
+            _reportBufferOverflow(_segmentSize - curr.length, curr.length);
         }
         _currentSize = 0;
         int oldLen = curr.length;
@@ -1004,7 +1004,7 @@ public final class TextBuffer
         int size = size();
         if (size < 1) {
             if (size < 0) {
-                throw new RuntimeException("size cannot be negative (probable int overflow)");
+                _reportBufferOverflow(_segmentSize, _currentSize);
             }
             return NO_CHARS;
         }
@@ -1023,4 +1023,10 @@ public final class TextBuffer
     }
 
     private char[] carr(int len) { return new char[len]; }
+
+    private void _reportBufferOverflow(int prev, int curr) {
+        long newSize = (long) prev + (long) curr;
+        throw new IllegalStateException("TextBuffer overrun: size reached ("
+                +newSize+") exceeds maximum of "+Integer.MAX_VALUE);
+    }
 }

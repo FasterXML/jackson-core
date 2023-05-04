@@ -65,6 +65,9 @@ JSON library.
 #990: Backport removal of BigDecimal to BigInt conversion (#987)
  (contributed by @pjfanning)
 #1004: FastDoubleParser license
+#1012: Got `NegativeArraySizeException` when calling `writeValueAsString()`
+ (reported by @klettier)
+ (fix contributed by @pjfanning)
 
 2.14.2 (28-Jan-2023)
 

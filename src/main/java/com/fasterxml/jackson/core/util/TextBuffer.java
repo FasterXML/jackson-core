@@ -479,8 +479,13 @@ public class TextBuffer
                             _resultString = new String(_currentSegment, 0, currLen);
                         }
                     } else { // no, need to combine
-                        validateStringLength(segLen + currLen);
-                        StringBuilder sb = new StringBuilder(segLen + currLen);
+                        final int builderLen = segLen + currLen;
+                        if (builderLen < 0) {
+                            _reportBufferOverflow(segLen, currLen);
+                        }
+                        validateStringLength(builderLen);
+                        StringBuilder sb = new StringBuilder(builderLen);
+
                         // First stored segments
                         if (_segments != null) {
                             for (int i = 0, len = _segments.size(); i < len; ++i) {
@@ -927,6 +932,9 @@ public class TextBuffer
         _segments.add(_currentSegment);
         int oldLen = _currentSegment.length;
         _segmentSize += oldLen;
+        if (_segmentSize < 0) {
+            _reportBufferOverflow(_segmentSize, oldLen);
+        }
         _currentSize = 0;
         validateStringLength(_segmentSize);
 
@@ -1087,6 +1095,9 @@ public class TextBuffer
         _hasSegments = true;
         _segments.add(curr);
         _segmentSize += curr.length;
+        if (_segmentSize < 0) {
+            _reportBufferOverflow(_segmentSize - curr.length, curr.length);
+        }
         _currentSize = 0;
         int oldLen = curr.length;
 
@@ -1121,6 +1132,9 @@ public class TextBuffer
         // nope, not shared
         int size = size();
         if (size < 1) {
+            if (size < 0) {
+                _reportBufferOverflow(_segmentSize, _currentSize);
+            }
             return NO_CHARS;
         }
         validateStringLength(size);
@@ -1145,6 +1159,12 @@ public class TextBuffer
     /* Convenience methods for validation
     /**********************************************************************
      */
+
+    protected void _reportBufferOverflow(int prev, int curr) {
+        long newSize = (long) prev + (long) curr;
+        throw new IllegalStateException("TextBuffer overrun: size reached ("
+                +newSize+") exceeds maximum of "+Integer.MAX_VALUE);
+    }
 
     /**
      * Convenience method that can be used to verify that a String

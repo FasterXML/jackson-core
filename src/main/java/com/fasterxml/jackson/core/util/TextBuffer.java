@@ -933,7 +933,7 @@ public class TextBuffer
         int oldLen = _currentSegment.length;
         _segmentSize += oldLen;
         if (_segmentSize < 0) {
-            _reportBufferOverflow(_segmentSize, oldLen);
+            _reportBufferOverflow(_segmentSize - oldLen, oldLen);
         }
         _currentSize = 0;
         validateStringLength(_segmentSize);

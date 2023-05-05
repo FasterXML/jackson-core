@@ -18,7 +18,7 @@ JSON library.
 
 No changes since 2.14
 
-2.14.3 (not yet released)
+2.14.3 (05-May-2023)
 
 #909: Revert schubfach changes in #854
  (contributed by @pjfanning)

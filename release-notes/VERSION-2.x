@@ -17,6 +17,8 @@ JSON library.
 2.16.0 (not yet released)
 
 #1007: Improve error message for `StreamReadConstraints` violations
+#1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
+ (contributed by Carter K)
 
 2.15.1 (not yet released)
 

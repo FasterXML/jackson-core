@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -287,5 +289,66 @@ public class JsonFactoryTest
         g.writeNumber(3);
         g.close();
         assertEquals("1/2/3", w.toString());
+    }
+
+    public void testCanonicalizationEnabled() throws Exception {
+        doCanonicalizationTest(false);
+    }
+
+    public void testCanonicalizationDisabled() throws Exception {
+        doCanonicalizationTest(false);
+    }
+
+    // Configure the JsonFactory as expected, and verify across common shapes of input
+    // to cover common JsonParser implementations.
+    private void doCanonicalizationTest(boolean canonicalize) throws Exception {
+        String contents = "{\"a\":true,\"a\":true}";
+        JsonFactory factory = JsonFactory.builder()
+                .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, canonicalize)
+                .build();
+        try (JsonParser parser = factory.createParser(contents)) {
+            verifyCanonicalizationTestResult(parser, canonicalize);
+        }
+        try (JsonParser parser = factory.createParser(contents.getBytes(StandardCharsets.UTF_8))) {
+            verifyCanonicalizationTestResult(parser, canonicalize);
+        }
+        try (JsonParser parser = factory.createParser(
+                new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)))) {
+            verifyCanonicalizationTestResult(parser, canonicalize);
+        }
+        try (JsonParser parser = factory.createParser(new StringReader(contents))) {
+            verifyCanonicalizationTestResult(parser, canonicalize);
+        }
+        try (JsonParser parser = factory.createParser((DataInput) new DataInputStream(
+                new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8))))) {
+            verifyCanonicalizationTestResult(parser, canonicalize);
+        }
+        try (NonBlockingJsonParser parser = (NonBlockingJsonParser) factory.createNonBlockingByteArrayParser()) {
+            byte[] data = contents.getBytes(StandardCharsets.UTF_8);
+            parser.feedInput(data, 0, data.length);
+            parser.endOfInput();
+            verifyCanonicalizationTestResult(parser, canonicalize);
+        }
+    }
+
+    private void verifyCanonicalizationTestResult(JsonParser parser, boolean canonicalize) throws Exception {
+        assertToken(JsonToken.START_OBJECT, parser.nextToken());
+        String field1 = parser.nextFieldName();
+        assertEquals("a", field1);
+        assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
+        String field2 = parser.nextFieldName();
+        assertEquals("a", field2);
+        if (canonicalize) {
+            assertSame(field1, field2);
+        } else {
+            // n.b. It's possible that this may flake if a garbage collector with string deduplication
+            // enabled is used. Such a failure is unlikely because younger GC generations are typically
+            // not considered for deduplication due to high churn, but under heavy memory pressure it
+            // may be possible. I've left this comment in an attempt to simplify investigation in the
+            // off-chance that such flakes eventually occur.
+            assertNotSame(field1, field2);
+        }
+        assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
+        assertToken(JsonToken.END_OBJECT, parser.nextToken());
     }
 }

@@ -1299,7 +1299,7 @@ public class JsonFactory
         //   for non-JSON input:
         _requireJSONFactory("Non-blocking source not (yet?) supported for this format (%s)");
         IOContext ctxt = _createNonBlockingContext(null);
-        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
+        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChildOrPlaceholder(_factoryFeatures);
         return new NonBlockingJsonParser(ctxt, _parserFeatures, can);
     }
 
@@ -1326,7 +1326,7 @@ public class JsonFactory
         //   for non-JSON input:
         _requireJSONFactory("Non-blocking source not (yet?) supported for this format (%s)");
         IOContext ctxt = _createNonBlockingContext(null);
-        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
+        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChildOrPlaceholder(_factoryFeatures);
         return new NonBlockingByteBufferJsonParser(ctxt, _parserFeatures, can);
     }
 
@@ -1849,7 +1849,7 @@ public class JsonFactory
         // Also: while we can't do full bootstrapping (due to read-ahead limitations), should
         // at least handle possible UTF-8 BOM
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
-        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
+        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChildOrPlaceholder(_factoryFeatures);
         return new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
                 _objectCodec, can, firstByte);
     }

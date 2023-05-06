@@ -763,6 +763,10 @@ public abstract class NonBlockingJsonParserBase
 
         // Ok. Now we have the character array, and can construct the String
         String baseName = new String(cbuf, 0, cix);
+        // 5-May-2023, ckozak: [core#1015] respect CANONICALIZE_FIELD_NAMES factory config.
+        if (!_symbols.isCanonicalizing()) {
+            return baseName;
+        }
         // And finally, un-align if necessary
         if (lastQuadBytes < 4) {
             quads[qlen-1] = lastQuad;

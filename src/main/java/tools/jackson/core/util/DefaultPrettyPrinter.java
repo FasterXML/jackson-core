@@ -11,6 +11,12 @@ import tools.jackson.core.io.SerializedString;
  *<p>
  * If you override this class, take note of {@link Instantiatable},
  * as subclasses will still create an instance of DefaultPrettyPrinter.
+ *<p>
+ * This class is designed for the JSON data format. It works on other formats
+ * with same logical model (such as binary {@code CBOR} and {@code Smile} formats),
+ * but may not work as-is for other data formats, most notably {@code XML}.
+ * It may be necessary to use format-specific {@link PrettyPrinter}
+ * implementation specific to that format.
  */
 @SuppressWarnings("serial")
 public class DefaultPrettyPrinter

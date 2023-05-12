@@ -11,13 +11,15 @@ import com.fasterxml.jackson.core.io.SerializedString;
  * Usually this class is not instantiated directly, but instead
  * method {@link JsonGenerator#useDefaultPrettyPrinter} is
  * used, which will use an instance of this class for operation.
- *
- * This class is designed for the JSON data format. If you are using
- * a different data format, you should use a {@link PrettyPrinter}
- * implementation designed to support that format.
- *
+ *<p>
  * If you override this class, take note of {@link Instantiatable},
  * as subclasses will still create an instance of DefaultPrettyPrinter.
+ *<p>
+ * This class is designed for the JSON data format. It works on other formats
+ * with same logical model (such as binary {@code CBOR} and {@code Smile} formats),
+ * but may not work as-is for other data formats, most notably {@code XML}.
+ * It may be necessary to use format-specific {@link PrettyPrinter}
+ * implementation specific to that format.
  */
 @SuppressWarnings("serial")
 public class DefaultPrettyPrinter

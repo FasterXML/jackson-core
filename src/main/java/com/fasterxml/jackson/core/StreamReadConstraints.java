@@ -54,8 +54,31 @@ public class StreamReadConstraints
     protected final int _maxNumLen;
     protected final int _maxStringLen;
 
-    private static final StreamReadConstraints DEFAULT =
+    private static StreamReadConstraints DEFAULT =
         new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+
+    /**
+     * Override the default StreamReadConstraints. These defaults are only used when {@link JsonFactory}
+     * instances are not configured with their own StreamReadConstraints.
+     * <p>
+     * Library maintainers should not set this as it will affect other code that uses Jackson.
+     * Library maintainers should configure the <code>ObjectMapper</code>s that they create using a
+     * {@link JsonFactory} instance.
+     * This method is meant for users delivering applications. If they use this, they set it when they start
+     * their application to avoid having other code initialize their mappers before the defaults are overridden.
+     *
+     * @param streamReadConstraints new default for StreamReadConstraints (a null value will reset to built-in default)
+     * @see #defaults()
+     * @see #builder()
+     * @since v2.15.1
+     */
+    public static void overrideDefaultStreamReadConstraints(final StreamReadConstraints streamReadConstraints) {
+        if (streamReadConstraints == null) {
+            DEFAULT = new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+        } else {
+            DEFAULT = streamReadConstraints;
+        }
+    }
 
     public static final class Builder {
         private int maxNestingDepth;

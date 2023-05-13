@@ -62,8 +62,10 @@ public class StreamReadConstraints
      * instances are not configured with their own StreamReadConstraints.
      * <p>
      * Library maintainers should not set this as it will affect other code that uses Jackson.
-     * Library maintainers should configure the <code>ObjectMapper</code>s that they create using a
-     * {@link JsonFactory} instance.
+     * Library maintainers who want to configure StreamReadConstraints for the Jackson usage within their
+     * lib should create <code>ObjectMapper</code> instances that have a {@link JsonFactory} instance with
+     * the required StreamReadConstraints.
+     * <p>
      * This method is meant for users delivering applications. If they use this, they set it when they start
      * their application to avoid having other code initialize their mappers before the defaults are overridden.
      *

@@ -14,7 +14,8 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
  * <ul>
  *  <li>Maximum Number value length: default 1000 (see {@link #DEFAULT_MAX_NUM_LEN})
  *   </li>
- *  <li>Maximum String value length: default 5_000_000 (see {@link #DEFAULT_MAX_STRING_LEN})
+ *  <li>Maximum String value length: default 20_000_000 (see {@link #DEFAULT_MAX_STRING_LEN}
+ *  - was 5_000_000 in v2.15.0 but raised in v2.15.1)
  *   </li>
  *  <li>Maximum Nesting depth: default 1000 (see {@link #DEFAULT_MAX_DEPTH})
  *   </li>
@@ -40,7 +41,7 @@ public class StreamReadConstraints
     /**
      * Default setting for maximum string length: see {@link Builder#maxStringLength(int)} for details.
      */
-    public static final int DEFAULT_MAX_STRING_LEN = 5_000_000;
+    public static final int DEFAULT_MAX_STRING_LEN = 20_000_000;
 
     /**
      * Limit for the maximum magnitude of Scale of {@link java.math.BigDecimal} that can be
@@ -98,7 +99,8 @@ public class StreamReadConstraints
 
         /**
          * Sets the maximum string length (in chars or bytes, depending on input context).
-         * The default is 5,000,000. This limit is not exact, the limit is applied when we increase
+         * The default is 20,000,000 (was 5,000,000 in v2.15.0 but raised in v2.15.1).
+         * This limit is not exact, the limit is applied when we increase
          * internal buffer sizes and an exception will happen at sizes greater than this limit. Some
          * text values that are a little bigger than the limit may be treated as valid but no text
          * values with sizes less than or equal to this limit will be treated as invalid.

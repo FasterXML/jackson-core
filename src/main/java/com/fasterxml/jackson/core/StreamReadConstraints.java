@@ -181,6 +181,10 @@ public class StreamReadConstraints
         return new Builder();
     }
 
+    /**
+     * @return the default {@link StreamReadConstraints} (when none is set on the {@link JsonFactory} explicitly)
+     * @see #overrideDefaultStreamReadConstraints
+     */
     public static StreamReadConstraints defaults() {
         return DEFAULT;
     }

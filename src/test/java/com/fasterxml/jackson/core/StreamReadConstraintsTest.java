@@ -8,10 +8,8 @@ public class StreamReadConstraintsTest extends BaseTest {
         _verifyDefaultValues(_builderWith(0, 0, 0));
 
         // custom
-        _verifyValues(_builderWith(500, 10, 50),
-                500, 10, 50);
-        _verifyValues(_builderWith(0, 20, 100),
-                StreamReadConstraints.DEFAULT_MAX_STRING_LEN, 20, 100);
+        _verifyValues(_builderWith(500, 10, 50), 500, 10, 50);
+        _verifyValues(_builderWith(0, 20, 100), StreamReadConstraints.DEFAULT_MAX_STRING_LEN, 20, 100);
     }
 
     public void testFailingBuild() {
@@ -44,9 +42,9 @@ public class StreamReadConstraintsTest extends BaseTest {
     private void _verifyExceptionWithMessage(String propertyName, int value, String expectedMessage) {
         try {
             StreamReadConstraints.builder()
-                    .maxStringLength("maxStringLen".equals(propertyName) ? value : 100)
-                    .maxNestingDepth("maxNestingDepth".equals(propertyName) ? value : 5)
-                    .maxNumberLength("maxNumberLength".equals(propertyName) ? value : 50)
+                    .maxStringLength("maxStringLen".equals(propertyName) ? value : StreamReadConstraints.DEFAULT_MAX_STRING_LEN)
+                    .maxNestingDepth("maxNestingDepth".equals(propertyName) ? value : StreamReadConstraints.DEFAULT_MAX_DEPTH) 
+                    .maxNumberLength("maxNumberLength".equals(propertyName) ? value : StreamReadConstraints.DEFAULT_MAX_NUM_LEN)
                     .build();
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) {

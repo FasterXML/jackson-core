@@ -77,8 +77,11 @@ public class StreamReadConstraints
         public Builder maxNestingDepth(final int maxNestingDepth) {
             if (maxNestingDepth < 0) {
                 throw new IllegalArgumentException("Cannot set maxNestingDepth to a negative value");
+            } else if (maxNestingDepth == 0) {
+                this.maxNestingDepth = DEFAULT_MAX_DEPTH;
+            } else {
+                this.maxNestingDepth = maxNestingDepth;
             }
-            this.maxNestingDepth = maxNestingDepth;
             return this;
         }
 
@@ -94,8 +97,11 @@ public class StreamReadConstraints
         public Builder maxNumberLength(final int maxNumLen) {
             if (maxNumLen < 0) {
                 throw new IllegalArgumentException("Cannot set maxNumberLength to a negative value");
+            } else if (maxNumLen == 0) {
+                this.maxNumLen = DEFAULT_MAX_NUM_LEN;
+            } else {
+                this.maxNumLen = maxNumLen;
             }
-            this.maxNumLen = maxNumLen;
             return this;
         }
 
@@ -119,8 +125,11 @@ public class StreamReadConstraints
         public Builder maxStringLength(final int maxStringLen) {
             if (maxStringLen < 0) {
                 throw new IllegalArgumentException("Cannot set maxStringLen to a negative value");
+            } else if (maxStringLen == 0) {
+                this.maxStringLen = DEFAULT_MAX_STRING_LEN;
+            } else {
+                this.maxStringLen = maxStringLen;
             }
-            this.maxStringLen = maxStringLen;
             return this;
         }
 

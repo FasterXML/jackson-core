@@ -233,6 +233,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, true);
             delegate.writeStartArray(currValue, size);
+        } else if (_itemFilter != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+            _checkParentPath(false /* isMatch */);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, true);
+            delegate.writeStartArray(currValue, size);
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, false);
         }

@@ -27,6 +27,8 @@ JSON library.
   (reported by Chris R)
 #1003: Add FastDoubleParser section to `NOTICE`
 #1014: Increase default max allowed String value length from 5 megs to 20 megs
+#1023: Problem with `FilteringGeneratorDelegate` wrt `TokenFilter.Inclusion.INCLUDE_NON_NULL`
+  (reported by @honhimW)
 
 2.15.0 (23-Apr-2023)
 

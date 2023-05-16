@@ -254,6 +254,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(forValue);
+        } else if (_itemFilter != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+            _checkParentPath(false /* isMatch */);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            delegate.writeStartArray(forValue);
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
         }
@@ -281,6 +285,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            delegate.writeStartArray(forValue, size);
+        } else if (_itemFilter != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+            _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(forValue, size);
         } else {

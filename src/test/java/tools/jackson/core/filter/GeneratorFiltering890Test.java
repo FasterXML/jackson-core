@@ -23,7 +23,7 @@ public class GeneratorFiltering890Test
         }
 
         static OrTokenFilter create(final Set<String> jsonPointers) {
-            return new OrTokenFilter(jsonPointers.stream().map(JsonPointerBasedFilter::new).collect(Collectors.toList()));
+            return new OrTokenFilter(jsonPointers.stream().map(p -> new JsonPointerBasedFilter(p, true)).collect(Collectors.toList()));
         }
 
         @Override
@@ -108,6 +108,28 @@ public class GeneratorFiltering890Test
         // THEN
         String json = outputStream.toString("US-ASCII");
         assertEquals("[{\"id\":1,\"stuff\":[{\"name\":\"first\"}]}]", json);
+    }
+
+    public void testIssue809_fullArray() throws Exception
+    {
+        // GIVEN
+        final Set<String> jsonPointers = Stream.of("//id", "//stuff//name").collect(Collectors.toSet());
+
+        // WHEN
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonGenerator g = new FilteringGeneratorDelegate(createGenerator(outputStream), OrTokenFilter.create(jsonPointers), Inclusion.INCLUDE_ALL_AND_PATH, true);
+
+        g.writeStartArray();
+        writeOuterObject(g, 1, "first", "a", "second", "b");
+        writeOuterObject(g, 2, "third", "c", "fourth", "d");
+        g.writeEndArray();
+        g.flush();
+        g.close();
+        outputStream.close();
+
+        // THEN
+        String json = outputStream.toString("US-ASCII");
+        assertEquals("[{\"id\":1,\"stuff\":[{\"name\":\"first\"},{\"name\":\"second\"}]},{\"id\":2,\"stuff\":[{\"name\":\"third\"},{\"name\":\"fourth\"}]}]", json);
     }
 
     private static void writeOuterObject(final JsonGenerator g, final int id, final String name1, final String type1, final String name2, final String type2) throws IOException

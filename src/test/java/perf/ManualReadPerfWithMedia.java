@@ -1,6 +1,7 @@
 package perf;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
+import tools.jackson.core.json.JsonFactory;
 
 public class ManualReadPerfWithMedia extends ManualPerfTestBase
 {
@@ -47,7 +48,7 @@ public class ManualReadPerfWithMedia extends ManualPerfTestBase
     {
         while (--reps >= 0) {
 //            JsonParser p = _factory.createParser(new StringReader(_json));
-            JsonParser p = _factory.createParser(_json);
+            JsonParser p = _factory.createParser(ObjectReadContext.empty(), _json);
             _stream(p);
             p.close();
         }
@@ -58,7 +59,7 @@ public class ManualReadPerfWithMedia extends ManualPerfTestBase
     {
         final char[] ch = _json.toCharArray();
         while (--reps >= 0) {
-            JsonParser p = _factory.createParser(ch, 0, ch.length);
+            JsonParser p = _factory.createParser(ObjectReadContext.empty(), ch, 0, ch.length);
             _stream(p);
             p.close();
         }

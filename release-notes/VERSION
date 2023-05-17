@@ -1,0 +1,43 @@
+Project: jackson-core
+Versions: 3.x (for earlier see VERSION-2.x)
+
+Contains core streaming reader (`JsonParser`) and writer (`JsonGenerator`) abstractions,
+factory for constructing readers/writers (JsonFactory), as well as a minimal set
+of interfaces needed for streaming level to make callbacks and call-throughs,
+via `ObjectCodec` and `TreeNode`.
+
+Also includes implementation of this API for JSON.
+Forms the base for other data formats as well, despite naming that suggests
+JSON-specificity: naming is due to history, as Jackson started out as pure
+JSON library.
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+3.0.0 (not yet released)
+
+#378: Change default for `TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES` to `false`
+#402: Remove dataformat-auto-detection functionality
+#411: Rename `JsonStreamContext` as `TokenStreamContext`
+#413: Remove `ObjectCodec`: replace with `ObjectWriteContext` / `ObjectReadContext`
+#432: Add new `TreeNode` subtypes: `ArrayTreeNode`, `ObjectTreeNode`
+#433: Add Builder pattern for creating configured Stream factories
+#456: Add `JsonParser.readAsValue(ResolvedType)`
+#492: Ensure primitive type names in error message enclosed in backticks
+#551: Remove `JsonGenerator.setPrettyPrinter()` from 3.0
+#663: Rename `JsonEOFException` as `UnexpectedEndOfInputException`
+#670: Replace references to "field" with "property" in `JsonGenerator`, `JsonParser`, method names;
+  `JsonToken` values (`JsonToken.FIELD_NAME` -> `JsonToken.PROPERTY_NAME`)
+#671: Replace `getCurrentLocation()`/`getTokenLocation()` with
+  `currentLocation()`/`currentTokenLocation()`
+#676: Remove `JsonGenerator.canWriteBinaryNatively()`, `canWriteFormattedNumbers()`
+  (replaced by `StreamWriteCapability` equivalents)
+#680: Allow use of `java.nio.file.Path` as parser source, generator target
+ (contributed by Sven D)
+#689: Remove existing "request payload" functionality
+#785: Make `JsonGenerator.writeXxx()` methods chainable
+#793: Rename "com.fasterxml.jackson" -> "tools.jackson"
+- Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
+- Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
+- Change the way `JsonLocation.NA` is included in exception messages

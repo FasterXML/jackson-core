@@ -1,0 +1,927 @@
+package tools.jackson.core.read;
+
+import java.io.ByteArrayInputStream;
+import java.io.CharArrayReader;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import tools.jackson.core.*;
+import tools.jackson.core.exc.InputCoercionException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.io.NumberInput;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonReadFeature;
+
+/**
+ * Set of basic unit tests for verifying that the basic parser
+ * functionality works as expected.
+ */
+@SuppressWarnings("resource")
+public class NumberParsingTest
+    extends tools.jackson.core.BaseTest
+{
+    private final static JsonFactory VANILLA_F = JsonFactory.builder().build();
+    /*
+            // 28-Nov-2022, tatu: Uses rather long numbers, need to tweak
+            .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(5000).build())
+            .build();
+            */
+
+    protected JsonFactory jsonFactory() {
+        return VANILLA_F;
+
+    }
+
+    /*
+    /**********************************************************************
+    /* Tests, Boolean
+    /**********************************************************************
+     */
+
+    public void testSimpleBoolean()
+    {
+        _testSimpleBoolean(MODE_INPUT_STREAM);
+        _testSimpleBoolean(MODE_INPUT_STREAM_THROTTLED);
+        _testSimpleBoolean(MODE_READER);
+        _testSimpleBoolean(MODE_DATA_INPUT);
+    }
+
+    private void _testSimpleBoolean(int mode)
+    {
+        JsonParser p = createParser(jsonFactory(), mode, "[ true ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertEquals(true, p.getBooleanValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
+    }
+
+    /*
+    /**********************************************************************
+    /* Tests, Int
+    /**********************************************************************
+     */
+
+    public void testSimpleInt()
+    {
+        for (int EXP_I : new int[] { 1234, -999, 0, 1, -2, 123456789 }) {
+            _testSimpleInt(EXP_I, MODE_INPUT_STREAM);
+            _testSimpleInt(EXP_I, MODE_INPUT_STREAM_THROTTLED);
+            _testSimpleInt(EXP_I, MODE_READER);
+            _testSimpleInt(EXP_I, MODE_DATA_INPUT);
+        }
+    }
+
+    private void _testSimpleInt(int EXP_I, int mode)
+    {
+        String DOC = "[ "+EXP_I+" ]";
+        JsonParser p = createParser(jsonFactory(), mode, DOC);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+        assertTrue(p.isExpectedNumberIntToken());
+        assertEquals(""+EXP_I, p.getText());
+
+        if (((short) EXP_I) == EXP_I) {
+            assertEquals((short) EXP_I, p.getShortValue());
+            if (((byte) EXP_I) == EXP_I) {
+                assertEquals((byte) EXP_I, p.getByteValue());
+            } else {
+                // verify overflow
+                try {
+                    p.getByteValue();
+                    fail("Should get exception for non-byte value "+EXP_I);
+                } catch (InputCoercionException e) {
+                    verifyException(e, "Numeric value");
+                    verifyException(e, "out of range");
+                }
+            }
+        } else {
+            // verify overflow
+            try {
+                p.getShortValue();
+                fail("Should get exception for non-short value "+EXP_I);
+            } catch (InputCoercionException e) {
+                verifyException(e, "Numeric value");
+                verifyException(e, "out of range");
+            }
+        }
+
+        assertEquals(EXP_I, p.getIntValue());
+        assertEquals(EXP_I, p.getValueAsInt(EXP_I + 3));
+        assertEquals(EXP_I, p.getValueAsInt());
+        assertEquals((long) EXP_I, p.getLongValue());
+        assertEquals((double) EXP_I, p.getDoubleValue());
+        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
+
+        DOC = String.valueOf(EXP_I);
+        p = createParser(jsonFactory(), mode, DOC + " "); // DataInput requires separator
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertTrue(p.isExpectedNumberIntToken());
+        assertEquals(DOC, p.getText());
+
+        int i = p.getIntValue();
+
+        assertEquals(EXP_I, i);
+        assertEquals((long) EXP_I, p.getLongValue());
+        assertEquals((double) EXP_I, p.getDoubleValue());
+        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
+        p.close();
+
+        // and finally, coercion from double to int; couple of variants
+        DOC = String.valueOf(EXP_I)+".0";
+        p = createParser(jsonFactory(), mode, DOC + " ");
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertFalse(p.isExpectedNumberIntToken());
+        assertEquals(EXP_I, p.getValueAsInt());
+        p.close();
+
+        p = createParser(jsonFactory(), mode, DOC + " ");
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(EXP_I, p.getValueAsInt(0));
+        p.close();
+    }
+
+    public void testIntRange()
+    {
+        // let's test with readers and streams, separate code paths:
+        for (int mode : ALL_MODES) {
+            String DOC = "[ "+Integer.MAX_VALUE+","+Integer.MIN_VALUE+" ]";
+            JsonParser p = createParser(jsonFactory(), mode, DOC);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+            assertEquals(Integer.MAX_VALUE, p.getIntValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+            assertEquals(Integer.MIN_VALUE, p.getIntValue());
+            p.close();
+        }
+    }
+
+    public void testIntParsing()
+    {
+        char[] testChars = "123456789".toCharArray();
+
+        assertEquals(3, NumberInput.parseInt(testChars, 2, 1));
+        assertEquals(123, NumberInput.parseInt(testChars, 0, 3));
+        assertEquals(2345, NumberInput.parseInt(testChars, 1, 4));
+        assertEquals(9, NumberInput.parseInt(testChars, 8, 1));
+        assertEquals(456789, NumberInput.parseInt(testChars, 3, 6));
+        assertEquals(23456, NumberInput.parseInt(testChars, 1, 5));
+        assertEquals(123456789, NumberInput.parseInt(testChars, 0, 9));
+
+        testChars = "32".toCharArray();
+        assertEquals(32, NumberInput.parseInt(testChars, 0, 2));
+        testChars = "189".toCharArray();
+        assertEquals(189, NumberInput.parseInt(testChars, 0, 3));
+
+        testChars = "10".toCharArray();
+        assertEquals(10, NumberInput.parseInt(testChars, 0, 2));
+        assertEquals(0, NumberInput.parseInt(testChars, 1, 1));
+    }
+
+    public void testIntParsingWithStrings()
+    {
+        assertEquals(3, NumberInput.parseInt("3"));
+        assertEquals(3, NumberInput.parseInt("+3"));
+        assertEquals(0, NumberInput.parseInt("0"));
+        assertEquals(-3, NumberInput.parseInt("-3"));
+        assertEquals(27, NumberInput.parseInt("27"));
+        assertEquals(-31, NumberInput.parseInt("-31"));
+        assertEquals(271, NumberInput.parseInt("271"));
+        assertEquals(-131, NumberInput.parseInt("-131"));
+        assertEquals(2709, NumberInput.parseInt("2709"));
+        assertEquals(-9999, NumberInput.parseInt("-9999"));
+        assertEquals(Integer.MIN_VALUE, NumberInput.parseInt(""+Integer.MIN_VALUE));
+        assertEquals(Integer.MAX_VALUE, NumberInput.parseInt(""+Integer.MAX_VALUE));
+    }
+
+    public void testLongParsingWithStrings() throws Exception
+    {
+        assertEquals(3, NumberInput.parseLong("3"));
+        assertEquals(3, NumberInput.parseLong("+3"));
+        assertEquals(0, NumberInput.parseLong("0"));
+        assertEquals(-3, NumberInput.parseLong("-3"));
+        assertEquals(27, NumberInput.parseLong("27"));
+        assertEquals(-31, NumberInput.parseLong("-31"));
+        assertEquals(271, NumberInput.parseLong("271"));
+        assertEquals(-131, NumberInput.parseLong("-131"));
+        assertEquals(2709, NumberInput.parseLong("2709"));
+        assertEquals(-9999, NumberInput.parseLong("-9999"));
+        assertEquals(1234567890123456789L, NumberInput.parseLong("1234567890123456789"));
+        assertEquals(-1234567890123456789L, NumberInput.parseLong("-1234567890123456789"));
+        assertEquals(Long.MIN_VALUE, NumberInput.parseLong(""+Long.MIN_VALUE));
+        assertEquals(Integer.MIN_VALUE-1, NumberInput.parseLong(""+(Integer.MIN_VALUE-1)));
+        assertEquals(Long.MAX_VALUE, NumberInput.parseLong(""+Long.MAX_VALUE));
+        assertEquals(Integer.MAX_VALUE+1, NumberInput.parseLong(""+(Integer.MAX_VALUE+1)));
+    }
+
+    public void testIntOverflow() {
+        try {
+            // Integer.MAX_VALUE + 1
+            NumberInput.parseInt("2147483648");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"2147483648\"");
+        }
+        try {
+            // Integer.MIN_VALUE - 1
+            NumberInput.parseInt("-2147483649");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"-2147483649\"");
+        }
+    }
+
+    public void testLongOverflow() {
+        try {
+            // Long.MAX_VALUE + 1
+            NumberInput.parseLong("9223372036854775808");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"9223372036854775808\"");
+        }
+        try {
+            // Long.MIN_VALUE - 1
+            NumberInput.parseLong("-9223372036854775809");
+            fail("expected NumberFormatException");
+        } catch (NumberFormatException nfe) {
+            verifyException(nfe, "For input string: \"-9223372036854775809\"");
+        }
+    }
+
+    // Found by oss-fuzzer
+    public void testVeryLongIntRootValue() throws Exception
+    {
+        // For some reason running multiple will tend to hide the issue;
+        // possibly due to re-use of some buffers
+        _testVeryLongIntRootValue(newStreamFactory(), MODE_DATA_INPUT);
+    }
+
+    private void _testVeryLongIntRootValue(JsonFactory jsonF, int mode) throws Exception
+    {
+        StringBuilder sb = new StringBuilder(250);
+        sb.append("-2");
+        for (int i = 0; i < 220; ++i) {
+            sb.append('0');
+        }
+        sb.append(' '); // mostly important for DataInput
+        String DOC = sb.toString();
+
+        try (JsonParser p = createParser(jsonF, mode, DOC)) {
+            assertToken(p.nextToken(), JsonToken.VALUE_NUMBER_INT);
+            assertNotNull(p.getBigIntegerValue());
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Tests, Long
+    /**********************************************************************
+     */
+
+    public void testSimpleLong()
+    {
+        _testSimpleLong(MODE_INPUT_STREAM);
+        _testSimpleLong(MODE_INPUT_STREAM_THROTTLED);
+        _testSimpleLong(MODE_READER);
+        _testSimpleLong(MODE_DATA_INPUT);
+    }
+
+    private void _testSimpleLong(int mode)
+    {
+        long EXP_L = 12345678907L;
+
+        JsonParser p = createParser(jsonFactory(), mode, "[ "+EXP_L+" ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        // beyond int, should be long
+        assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+        assertEquals(""+EXP_L, p.getText());
+
+        assertEquals(EXP_L, p.getLongValue());
+        // Should get an exception if trying to convert to int
+        try {
+            p.getIntValue();
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range");
+            assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+            assertEquals(Integer.TYPE, e.getTargetType());
+        }
+        assertEquals((double) EXP_L, p.getDoubleValue());
+        assertEquals(BigDecimal.valueOf((long) EXP_L), p.getDecimalValue());
+        p.close();
+    }
+
+    public void testLongRange()
+    {
+        for (int mode : ALL_MODES) {
+            long belowMinInt = -1L + Integer.MIN_VALUE;
+            long aboveMaxInt = 1L + Integer.MAX_VALUE;
+            long belowMaxLong = -1L + Long.MAX_VALUE;
+            long aboveMinLong = 1L + Long.MIN_VALUE;
+            String input = "[ "+Long.MAX_VALUE+","+Long.MIN_VALUE+","+aboveMaxInt+", "+belowMinInt+","+belowMaxLong+", "+aboveMinLong+" ]";
+            JsonParser p = createParser(jsonFactory(), mode, input);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(Long.MAX_VALUE, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(Long.MIN_VALUE, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(aboveMaxInt, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(belowMinInt, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(belowMaxLong, p.getLongValue());
+
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(aboveMinLong, p.getLongValue());
+
+
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
+        }
+    }
+
+    public void testLongParsing()
+    {
+        char[] testChars = "123456789012345678".toCharArray();
+
+        assertEquals(123456789012345678L, NumberInput.parseLong(testChars, 0, testChars.length));
+    }
+
+    public void testLongBoundsChecks()
+    {
+        String minLong = String.valueOf(Long.MIN_VALUE).substring(1);
+        String belowMinLong = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE)
+                .toString().substring(1);
+        String maxLong = String.valueOf(Long.MAX_VALUE);
+        String aboveMaxLong = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE).toString();
+        final String VALUE_491 = "1323372036854775807"; // is within range (JACKSON-491)
+        final String OVERFLOW =  "9999999999999999999"; // and this one is clearly out
+
+        assertTrue(NumberInput.inLongRange(minLong, true));
+        assertTrue(NumberInput.inLongRange(maxLong, false));
+        assertTrue(NumberInput.inLongRange(VALUE_491, true));
+        assertTrue(NumberInput.inLongRange(VALUE_491, false));
+
+        assertFalse(NumberInput.inLongRange(OVERFLOW, false));
+        assertFalse(NumberInput.inLongRange(OVERFLOW, true));
+        assertFalse(NumberInput.inLongRange(belowMinLong, true));
+        assertFalse(NumberInput.inLongRange(aboveMaxLong, false));
+
+        char[] cbuf = minLong.toCharArray();
+        assertTrue(NumberInput.inLongRange(cbuf, 0, cbuf.length, true));
+        cbuf = maxLong.toCharArray();
+        assertTrue(NumberInput.inLongRange(cbuf, 0, cbuf.length, false));
+        cbuf = VALUE_491.toCharArray();
+        assertTrue(NumberInput.inLongRange(cbuf, 0, cbuf.length, true));
+        assertTrue(NumberInput.inLongRange(cbuf, 0, cbuf.length, false));
+
+        cbuf = OVERFLOW.toCharArray();
+        assertFalse(NumberInput.inLongRange(cbuf, 0, cbuf.length, true));
+        assertFalse(NumberInput.inLongRange(cbuf, 0, cbuf.length, false));
+
+        cbuf = aboveMaxLong.toCharArray();
+        assertFalse(NumberInput.inLongRange(cbuf, 0, cbuf.length, false));
+    }
+
+    /*
+    /**********************************************************************
+    /* Tests, BigXxx
+    /**********************************************************************
+     */
+
+    public void testBigDecimalRange()
+    {
+        for (int mode : ALL_MODES) {
+            // let's test first values outside of Long range
+            BigInteger small = new BigDecimal(Long.MIN_VALUE).toBigInteger();
+            small = small.subtract(BigInteger.ONE);
+            BigInteger big = new BigDecimal(Long.MAX_VALUE).toBigInteger();
+            big = big.add(BigInteger.ONE);
+            String input = "[ "+small+"  ,  "+big+"]";
+            JsonParser p = createParser(jsonFactory(), mode, input);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+            assertEquals(small, p.getBigIntegerValue());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+            assertEquals(big, p.getBigIntegerValue());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
+        }
+    }
+
+    // for [core#78]
+    public void testBigNumbers()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 520; ++i) { // input buffer is 512 bytes by default
+            sb.append('1');
+        }
+        final String NUMBER_STR = sb.toString();
+        BigInteger biggie = new BigInteger(NUMBER_STR);
+
+        for (int mode : ALL_MODES) {
+            JsonParser p = createParser(jsonFactory(), mode, NUMBER_STR +" ");
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+            assertEquals(NUMBER_STR, p.getText());
+            assertEquals(biggie, p.getBigIntegerValue());
+            p.close();
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Tests, int/long/BigInteger via E-notation (engineering)
+    /**********************************************************************
+     */
+    
+    public void testBigIntegerWithENotation() throws Exception {
+        final String DOC = "1e5 ";
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(100000L, p.getBigIntegerValue().longValue());
+            }
+        }
+    }
+
+    public void testLongWithENotation() throws Exception {
+        final String DOC = "1e5 ";
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(100000L, p.getLongValue());
+            }
+        }
+    }
+
+    public void testIntWithENotation() throws Exception {
+        final String DOC = "1e5 ";
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(100000, p.getIntValue());
+            }
+        }
+    }
+
+    public void testLargeBigIntegerWithENotation() throws Exception {
+        // slightly bigger than Double.MAX_VALUE (we need to avoid parsing as double in this case)
+        final String DOC = "2e308 ";
+        final BigInteger expected = new BigDecimal(DOC.trim()).toBigInteger();
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(jsonFactory(), mode, DOC)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(expected, p.getBigIntegerValue());
+            }
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Tests, floating point (basic)
+    /**********************************************************************
+     */
+
+    public void testSimpleDouble()
+    {
+        final String[] INPUTS = new String[] {
+            "1234.00", "2.1101567E-16", "1.0e5", "0.0", "1.0", "-1.0",
+            "-0.5", "-12.9", "-999.0",
+            "2.5e+5", "9e4", "-12e-3", "0.25",
+        };
+        for (int mode : ALL_MODES) {
+            for (int i = 0; i < INPUTS.length; ++i) {
+
+                // First in array
+
+                String STR = INPUTS[i];
+                double EXP_D = Double.parseDouble(STR);
+                String DOC = "["+STR+"]";
+
+                JsonParser p = createParser(jsonFactory(), mode, DOC+" ");
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(STR, p.getText());
+                assertEquals(EXP_D, p.getDoubleValue());
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+                if (mode != MODE_DATA_INPUT) {
+                    assertNull(p.nextToken());
+                }
+                p.close();
+
+                // then outside
+                p = createParser(jsonFactory(), mode, STR + " ");
+                JsonToken t = null;
+
+                try {
+                    t = p.nextToken();
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to parse input '"+STR+"' (parser of type "+p.getClass().getSimpleName()+")", e);
+                }
+
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
+                assertEquals(STR, p.getText());
+                if (mode != MODE_DATA_INPUT) {
+                    assertNull(p.nextToken());
+                }
+                p.close();
+            }
+        }
+    }
+
+    public void testFloatBoundary146Chars()
+    {
+        final char[] arr = new char[50005];
+        for(int i = 500; i != 9000; ++i) {
+          java.util.Arrays.fill(arr, 0, i, ' ');
+          arr[i] = '-';
+          arr[i + 1] = '1';
+          arr[i + 2] = 'e';
+          arr[i + 3] = '-';
+          arr[i + 4] = '1';
+          CharArrayReader r = new CharArrayReader(arr, 0, i+5);
+          JsonParser p = jsonFactory().createParser(ObjectReadContext.empty(), r);
+          assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+          p.close();
+        }
+    }
+
+    public void testFloatBoundary146Bytes()
+    {
+        final byte[] arr = new byte[50005];
+        for(int i = 500; i != 9000; ++i) {
+            java.util.Arrays.fill(arr, 0, i, (byte) 0x20);
+            arr[i] = '-';
+            arr[i + 1] = '1';
+            arr[i + 2] = 'e';
+            arr[i + 3] = '-';
+            arr[i + 4] = '1';
+            ByteArrayInputStream in = new ByteArrayInputStream(arr, 0, i+5);
+            JsonParser p = jsonFactory().createParser(ObjectReadContext.empty(), in);
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            p.close();
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Tests, misc other
+    /**********************************************************************
+     */
+
+    public void testNumbers()
+    {
+        _testNumbers(MODE_INPUT_STREAM);
+        _testNumbers(MODE_INPUT_STREAM_THROTTLED);
+        _testNumbers(MODE_READER);
+        _testNumbers(MODE_DATA_INPUT);
+    }
+
+    private void _testNumbers(int mode)
+    {
+        final String DOC = "[ -13, 8100200300, 13.5, 0.00010, -2.033 ]";
+
+        JsonParser p = createParser(jsonFactory(), mode, DOC);
+
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(-13, p.getIntValue());
+        assertEquals(-13L, p.getLongValue());
+        assertEquals(-13., p.getDoubleValue());
+        assertEquals("-13", p.getText());
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(8100200300L, p.getLongValue());
+        // Should get exception for overflow:
+        try {
+            /*int x =*/ p.getIntValue();
+            fail("Expected an exception for overflow");
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range of `int`");
+        }
+        assertEquals(8100200300.0, p.getDoubleValue());
+        assertEquals("8100200300", p.getText());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(13, p.getIntValue());
+        assertEquals(13L, p.getLongValue());
+        assertEquals(13.5, p.getDoubleValue());
+        assertEquals("13.5", p.getText());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(0, p.getIntValue());
+        assertEquals(0L, p.getLongValue());
+        assertEquals(0.00010, p.getDoubleValue());
+        assertEquals("0.00010", p.getText());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(-2, p.getIntValue());
+        assertEquals(-2L, p.getLongValue());
+        assertEquals(-2.033, p.getDoubleValue());
+        assertEquals("-2.033", p.getText());
+
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+
+        p.close();
+    }
+
+
+    /**
+     * Method that tries to test that number parsing works in cases where
+     * input is split between buffer boundaries.
+     */
+    public void testParsingOfLongerSequences()
+    {
+        double[] values = new double[] { 0.01, -10.5, 2.1e9, 4.0e-8 };
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < values.length; ++i) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(values[i]);
+        }
+        String segment = sb.toString();
+
+        int COUNT = 1000;
+        sb = new StringBuilder(COUNT * segment.length() + 20);
+        sb.append("[");
+        for (int i = 0; i < COUNT; ++i) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(segment);
+            sb.append('\n');
+            // let's add somewhat arbitrary number of spaces
+            int x = (i & 3);
+            if (i > 300) {
+                x += i % 5;
+            }
+            while (--x > 0) {
+                sb.append(' ');
+            }
+        }
+        sb.append("]");
+        String DOC = sb.toString();
+
+        for (int input = 0; input < 2; ++input) {
+            JsonParser p;
+
+            if (input == 0) {
+                p = createParserUsingStream(jsonFactory(), DOC, "UTF-8");
+            } else {
+                p = jsonFactory().createParser(ObjectReadContext.empty(), DOC);
+            }
+
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            for (int i = 0; i < COUNT; ++i) {
+                for (double d : values) {
+                    assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                    assertEquals(d, p.getDoubleValue());
+                }
+            }
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
+        }
+    }
+
+    // [jackson-core#157]
+    // 19-Dec-2022, tatu: Reduce length so as not to hit too-long-number limit
+    public void testLongNumbers()
+    {
+        StringBuilder sb = new StringBuilder(900);
+        for (int i = 0; i < 900; ++i) {
+            sb.append('9');
+        }
+        String NUM = sb.toString();
+        // force use of new factory, just in case (might still recycle same buffers tho?)
+        JsonFactory f = new JsonFactory();
+        _testLongNumbers(f, NUM, false);
+        _testLongNumbers(f, NUM, true);
+    }
+
+    private void _testLongNumbers(JsonFactory f, String num, boolean useStream)
+    {
+        final String doc = "[ "+num+" ]";
+        JsonParser p = useStream
+                ? f.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
+                        : f.createParser(ObjectReadContext.empty(), doc);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(num, p.getText());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+    }
+
+    // for [jackson-core#181]
+    /**
+     * Method that tries to test that number parsing works in cases where
+     * input is split between buffer boundaries.
+     */
+    public void testParsingOfLongerSequencesWithNonNumeric()
+    {
+        JsonFactory f = streamFactoryBuilder()
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+                .build();
+        _testParsingOfLongerSequencesWithNonNumeric(f, MODE_INPUT_STREAM);
+        _testParsingOfLongerSequencesWithNonNumeric(f, MODE_INPUT_STREAM_THROTTLED);
+        _testParsingOfLongerSequencesWithNonNumeric(f, MODE_READER);
+        _testParsingOfLongerSequencesWithNonNumeric(f, MODE_DATA_INPUT);
+    }
+
+    private void _testParsingOfLongerSequencesWithNonNumeric(JsonFactory f, int mode)
+    {
+        double[] values = new double[] {
+                0.01, -10.5, 2.1e9, 4.0e-8,
+                Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY
+        };
+        for (int i = 0; i < values.length; ++i) {
+            int COUNT = 4096;
+            // Don't see the failure with a multiple of 1
+            int VCOUNT = 2 * COUNT;
+            String arrayJson = toJsonArray(values[i], VCOUNT);
+            StringBuilder sb = new StringBuilder(COUNT + arrayJson.length() + 20);
+            for (int j = 0; j < COUNT; ++j) {
+                sb.append(' ');
+            }
+            sb.append(arrayJson);
+            String DOC = sb.toString();
+            for (int input = 0; input < 2; ++input) {
+                JsonParser p = createParser(f, mode, DOC);
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                for (int j = 0; j < VCOUNT; ++j) {
+                    assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                    double exp = values[i];
+                    double act = p.getDoubleValue();
+                    if (Double.compare(exp, act) != 0) {
+                        fail("Expected at #"+j+" value "+exp+", instead got "+act);
+                    }
+                    if (Double.isNaN(exp) || Double.isInfinite(exp)) {
+                        assertTrue(p.isNaN());
+                    } else {
+                        assertFalse(p.isNaN());
+                    }
+                }
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+                p.close();
+            }
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for invalid access
+    /**********************************************************
+     */
+
+    public void testInvalidBooleanAccess() {
+        _testInvalidBooleanAccess(MODE_INPUT_STREAM);
+        _testInvalidBooleanAccess(MODE_INPUT_STREAM_THROTTLED);
+        _testInvalidBooleanAccess(MODE_READER);
+        _testInvalidBooleanAccess(MODE_DATA_INPUT);
+    }
+
+    private void _testInvalidBooleanAccess(int mode)
+    {
+        JsonParser p = createParser(jsonFactory(), mode, "[ \"abc\" ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        try {
+            p.getBooleanValue();
+            fail("Expected error trying to call getBooleanValue on non-boolean value");
+        } catch (InputCoercionException e) {
+            verifyException(e, "not of boolean type");
+        }
+        p.close();
+    }
+
+    public void testInvalidIntAccess() {
+        _testInvalidIntAccess(MODE_INPUT_STREAM);
+        _testInvalidIntAccess(MODE_INPUT_STREAM_THROTTLED);
+        _testInvalidIntAccess(MODE_READER);
+        _testInvalidIntAccess(MODE_DATA_INPUT);
+    }
+
+    private void _testInvalidIntAccess(int mode)
+    {
+        JsonParser p = createParser(jsonFactory(), mode, "[ \"abc\" ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        try {
+            p.getIntValue();
+            fail("Expected error trying to call getIntValue on non-numeric value");
+        } catch (InputCoercionException e) {
+            verifyException(e, "can not use numeric value accessors");
+        }
+        p.close();
+    }
+
+    public void testInvalidLongAccess() {
+        _testInvalidLongAccess(MODE_INPUT_STREAM);
+        _testInvalidLongAccess(MODE_INPUT_STREAM_THROTTLED);
+        _testInvalidLongAccess(MODE_READER);
+        _testInvalidLongAccess(MODE_DATA_INPUT);
+    }
+
+    private void _testInvalidLongAccess(int mode)
+    {
+        JsonParser p = createParser(jsonFactory(), mode, "[ false ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+        try {
+            p.getLongValue();
+            fail("Expected error trying to call getLongValue on non-numeric value");
+        } catch (InputCoercionException e) {
+            verifyException(e, "can not use numeric value accessors");
+        }
+        p.close();
+    }
+
+    // [core#317]
+    public void testLongerFloatingPoint()
+    {
+        StringBuilder input = new StringBuilder();
+        for (int i = 1; i < 201; i++) {
+            input.append(1);
+        }
+        input.append(".0");
+        final String DOC = input.toString();
+
+        // test out with both Reader and ByteArrayInputStream
+        JsonParser p;
+
+        p = jsonFactory().createParser(ObjectReadContext.empty(), new StringReader(DOC));
+        _testLongerFloat(p, DOC);
+        p.close();
+
+        p = jsonFactory().createParser(ObjectReadContext.empty(),
+                new ByteArrayInputStream(utf8Bytes(DOC)));
+        _testLongerFloat(p, DOC);
+        p.close();
+    }
+
+    private void _testLongerFloat(JsonParser p, String text)
+    {
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(text, p.getText());
+        assertNull(p.nextToken());
+    }
+
+    public void testInvalidNumber() {
+        for (int mode : ALL_MODES) {
+            JsonParser p = createParser(jsonFactory(), mode, " -foo ");
+            try {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected character ('f'");
+            }
+            p.close();
+        }
+    }
+
+    public void testNegativeMaxNumberLength() {
+        try {
+            StreamReadConstraints src = StreamReadConstraints.builder().maxNumberLength(-1).build();
+            fail("expected IllegalArgumentException; instead built: "+src);
+        } catch (IllegalArgumentException iae) {
+            verifyException(iae, "Cannot set maxNumberLength to a negative value");
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    private String toJsonArray(double v, int n) {
+        StringBuilder sb = new StringBuilder().append('[').append(v);
+        for (int i = 1; i < n; ++i) {
+            sb.append(',').append(v);
+        }
+        return sb.append(']').toString();
+    }
+}

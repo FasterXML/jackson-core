@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
+import tools.jackson.core.json.JsonFactory;
 
 public class MediaItem
 {
@@ -37,7 +38,7 @@ public class MediaItem
     public String asJsonString(JsonFactory f) throws IOException
     {
         StringWriter w = new StringWriter();
-        JsonGenerator gen = f.createGenerator(w);
+        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), w);
         write(gen);
         gen.close();
         w.close();
@@ -48,13 +49,13 @@ public class MediaItem
     {
         gen.writeStartObject();
 
-        gen.writeFieldName("content");
+        gen.writeName("content");
         if (_content == null) {
             gen.writeNull();
         } else {
             _content.write(gen);
         }
-        gen.writeFieldName("photos");
+        gen.writeName("photos");
         if (_photos == null) {
             gen.writeNull();
         } else {
@@ -106,14 +107,14 @@ public class MediaItem
       public void write(JsonGenerator gen) throws IOException
       {
           gen.writeStartObject();
-          gen.writeStringField("uri", _uri);
-          gen.writeStringField("title", _title);
-          gen.writeNumberField("width", _width);
-          gen.writeNumberField("height", _height);
+          gen.writeStringProperty("uri", _uri);
+          gen.writeStringProperty("title", _title);
+          gen.writeNumberProperty("width", _width);
+          gen.writeNumberProperty("height", _height);
           if (_size == null) {
-              gen.writeNullField("size");
+              gen.writeNullProperty("size");
           } else {
-              gen.writeStringField("size", _size.name());
+              gen.writeStringProperty("size", _size.name());
           }
           gen.writeEndObject();
       }
@@ -138,26 +139,26 @@ public class MediaItem
         {
             gen.writeStartObject();
 
-            gen.writeStringField("uri", _uri);
-            gen.writeStringField("title", _title);
+            gen.writeStringProperty("uri", _uri);
+            gen.writeStringProperty("title", _title);
 
-            gen.writeNumberField("width", _width);
-            gen.writeNumberField("height", _height);
+            gen.writeNumberProperty("width", _width);
+            gen.writeNumberProperty("height", _height);
 
-            gen.writeStringField("format", _format);
+            gen.writeStringProperty("format", _format);
 
-            gen.writeNumberField("duration", _duration);
-            gen.writeNumberField("size", _size);
-            gen.writeNumberField("bitrate", _bitrate);
-            gen.writeStringField("copyright", _copyright);
+            gen.writeNumberProperty("duration", _duration);
+            gen.writeNumberProperty("size", _size);
+            gen.writeNumberProperty("bitrate", _bitrate);
+            gen.writeStringProperty("copyright", _copyright);
 
             if (_player == null) {
-                gen.writeNullField("player");
+                gen.writeNullProperty("player");
             } else {
-                gen.writeStringField("player", _player.name());
+                gen.writeStringProperty("player", _player.name());
             }
 
-            gen.writeFieldName("photos");
+            gen.writeName("photos");
             if (_persons == null) {
                 gen.writeNull();
             } else {

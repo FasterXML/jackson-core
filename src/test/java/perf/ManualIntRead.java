@@ -1,6 +1,7 @@
 package perf;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
+import tools.jackson.core.json.JsonFactory;
 
 /**
  * Manually run micro-benchmark for checking performance of tokenizing
@@ -36,7 +37,7 @@ public class ManualIntRead extends ManualPerfTestBase
     protected void testRead1(int reps) throws Exception
     {
         while (--reps >= 0) {
-            JsonParser p = _factory.createParser(_jsonChars);
+            JsonParser p = _factory.createParser(ObjectReadContext.empty(), _jsonChars);
             _stream(p);
             p.close();
         }
@@ -46,7 +47,7 @@ public class ManualIntRead extends ManualPerfTestBase
     protected void testRead2(int reps) throws Exception
     {
         while (--reps >= 0) {
-            JsonParser p = _factory.createParser(_jsonBytes);
+            JsonParser p = _factory.createParser(ObjectReadContext.empty(), _jsonBytes);
             _stream(p);
             p.close();
         }

@@ -1,0 +1,15 @@
+Here are people who have contributed to the development of Jackson JSON processor
+core component, version 3.x
+(version numbers in brackets indicate release in which the problem was fixed)
+
+(note: for older credits, check out `CREDITS-2.x`)
+
+Tatu Saloranta, tatu.saloranta@iki.fi: author
+
+PJ Fanning (pjfanning@github): co-author (2.15+)
+
+----------------------------------------------------------------------------
+
+Sven Döring (sdoeringNew@github)
+ * Contributed #680: Allow use of `java.nio.file.Path` as parser source, generator target
+  (3.0.0)

@@ -20,7 +20,12 @@ JSON library.
 #1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
  (contributed by Carter K)
 
-2.15.1 (not yet released)
+2.15.2 (not yet released)
+
+#1027: Extra module-info.class in 2.15.1
+ (reported by @tbnguyen1407)
+
+2.15.1 (16-May-2023))
 
 #999: Gradle metadata for `jackson-core` `2.15.0` adds dependency on
    `ch.randelshofer:fastdoubleparser`

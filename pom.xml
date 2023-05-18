@@ -53,6 +53,14 @@ tools.jackson.core.*;version=${project.version}
 
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2022-11-27T00:00:00Z</project.build.outputTimestamp>
+
+    <!-- dependency and plugin versions -->
+    <animal-sniffer-maven-plugin.version>1.23</animal-sniffer-maven-plugin.version>
+    <fastdoubleparser.version>0.9.0</fastdoubleparser.version>
+    <find-and-replace-maven-plugin.version>1.1.0</find-and-replace-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
+    <junit-bom.version>5.9.3</junit-bom.version>
+    <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
   </properties>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
@@ -72,7 +80,7 @@ tools.jackson.core.*;version=${project.version}
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.9.2</version>
+        <version>${junit-bom.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -84,6 +92,7 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco-maven-plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -212,6 +221,7 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
         <configuration>
           <archive>
             <manifestEntries>
@@ -225,7 +235,7 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>io.github.floverfelt</groupId>
         <artifactId>find-and-replace-maven-plugin</artifactId>
-        <version>1.1.0</version>
+        <version>${find-and-replace-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>exec</id>
@@ -258,7 +268,7 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.22</version>
+        <version>${animal-sniffer-maven-plugin.version}</version>
         <configuration>
           <signature>
             <groupId>com.toasttab.android</groupId>
@@ -275,7 +285,7 @@ tools.jackson.core.*;version=${project.version}
     <dependency>
       <groupId>ch.randelshofer</groupId>
       <artifactId>fastdoubleparser</artifactId>
-      <version>0.9.0</version>
+      <version>${fastdoubleparser.version}</version>
     </dependency>
     
     <!-- Test dependencies -->

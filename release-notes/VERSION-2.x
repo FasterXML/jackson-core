@@ -18,6 +18,8 @@ JSON library.
 
 #1027: Extra module-info.class in 2.15.1
  (reported by @tbnguyen1407)
+#1028: Wrong checksums in `module.json` (2.15.0, 2.15.1)
+ (reported by @hboutemy)
 
 2.15.1 (16-May-2023))
 

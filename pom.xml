@@ -176,11 +176,14 @@ com.fasterxml.jackson.core.*;version=${project.version}
               <goal>shade</goal>
             </goals>
             <configuration>
-              <artifactSet>
-                <includes>
-                  <include>ch.randelshofer:fastdoubleparser</include>
-                </includes>
-              </artifactSet>
+              <filters>
+                <filter>
+                  <artifact>ch.randelshofer:fastdoubleparser</artifact>
+                  <excludes>
+                    <exclude>META-INF/versions/**/module-info.*</exclude>
+                  </excludes>
+                </filter>
+              </filters>
               <relocations>
                 <relocation>
                   <pattern>ch/randelshofer/fastdoubleparser</pattern>

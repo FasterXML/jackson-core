@@ -198,6 +198,10 @@ com.fasterxml.jackson.core.*;version=${project.version}
                   <shadedPattern>META-INF/FastDoubleParser-NOTICE</shadedPattern>
                 </relocation>
                 <relocation>
+                  <pattern>META-INF/jackson-core-LICENSE</pattern>
+                  <shadedPattern>META-INF/LICENSE</shadedPattern>
+                </relocation>
+                <relocation>
                   <pattern>META-INF/jackson-core-NOTICE</pattern>
                   <shadedPattern>META-INF/NOTICE</shadedPattern>
                 </relocation>

@@ -47,6 +47,7 @@
       -->
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
+    <version.plugin.animal-sniffer>1.23</version.plugin.animal-sniffer>
 
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
@@ -78,7 +79,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.9.2</version>
+        <version>5.9.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -283,7 +284,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.22</version>
+        <version>${version.plugin.animal-sniffer}</version>
         <configuration>
           <signature>
             <groupId>com.toasttab.android</groupId>

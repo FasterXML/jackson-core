@@ -20,7 +20,7 @@ JSON library.
  (reported by @tbnguyen1407)
 #1028: Wrong checksums in `module.json` (2.15.0, 2.15.1)
  (reported by @hboutemy)
-#1032: `LICENSE` misssing from 2.15.1 jar
+#1032: `LICENSE` missing from 2.15.1 jar
 
 2.15.1 (16-May-2023))
 

@@ -14,13 +14,23 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.15.1 (not yet released)
+2.15.2 (not yet released)
+
+#1027: Extra module-info.class in 2.15.1
+ (reported by @tbnguyen1407)
+#1028: Wrong checksums in `module.json` (2.15.0, 2.15.1)
+ (reported by @hboutemy)
+#1032: `LICENSE` misssing from 2.15.1 jar
+
+2.15.1 (16-May-2023))
 
 #999: Gradle metadata for `jackson-core` `2.15.0` adds dependency on
    `ch.randelshofer:fastdoubleparser`
   (reported by Chris R)
 #1003: Add FastDoubleParser section to `NOTICE`
 #1014: Increase default max allowed String value length from 5 megs to 20 megs
+#1023: Problem with `FilteringGeneratorDelegate` wrt `TokenFilter.Inclusion.INCLUDE_NON_NULL`
+  (reported by @honhimW)
 
 2.15.0 (23-Apr-2023)
 

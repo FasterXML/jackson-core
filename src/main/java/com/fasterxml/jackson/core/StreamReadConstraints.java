@@ -75,7 +75,7 @@ public class StreamReadConstraints
      * @param streamReadConstraints new default for StreamReadConstraints (a null value will reset to built-in default)
      * @see #defaults()
      * @see #builder()
-     * @since v2.15.1
+     * @since v2.15.2
      */
     public static void overrideDefaultStreamReadConstraints(final StreamReadConstraints streamReadConstraints) {
         if (streamReadConstraints == null) {

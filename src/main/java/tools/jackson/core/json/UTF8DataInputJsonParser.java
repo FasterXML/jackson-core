@@ -1062,10 +1062,9 @@ public class UTF8DataInputJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         // As per [core#105], need separating space between root values; check here
+        _nextByte = c;
         if (_streamReadContext.inRoot()) {
             _verifyRootSpace();
-        } else {
-            _nextByte = c;
         }
         // And there we have it!
         return resetInt(false, intLen);

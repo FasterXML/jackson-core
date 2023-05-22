@@ -19,6 +19,8 @@ a pure JSON library.
 #1007: Improve error message for `StreamReadConstraints` violations
 #1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
  (contributed by Carter K)
+#1035: Root cause for failing test for `testMangledIntsBytes()` in `ParserErrorHandlingTest`
+ (reported by @harsha-99)
 
 2.15.2 (not yet released)
 

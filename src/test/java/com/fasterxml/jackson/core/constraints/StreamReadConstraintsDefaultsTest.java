@@ -1,10 +1,12 @@
-package com.fasterxml.jackson.core;
+package com.fasterxml.jackson.core.constraints;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
+
 import static org.junit.Assert.assertEquals;
 
-public class TestStreamReadConstraints {
+public class StreamReadConstraintsDefaultsTest {
     @Test
     public void testOverride() {
         final int numLen = 1234;

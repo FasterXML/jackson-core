@@ -23,10 +23,7 @@ public class ParserErrorHandlingTest
     public void testMangledIntsBytes() throws Exception {
         _testMangledNumbersInt(MODE_INPUT_STREAM);
         _testMangledNumbersInt(MODE_INPUT_STREAM_THROTTLED);
-
-        // 02-Jun-2017, tatu: Fails to fail; should check whether this is expected
-        //   (since DataInput can't do look-ahead)
-//        _testMangledNumbersInt(MODE_DATA_INPUT);
+        _testMangledNumbersInt(MODE_DATA_INPUT);
     }
 
     public void testMangledFloatsBytes() throws Exception {

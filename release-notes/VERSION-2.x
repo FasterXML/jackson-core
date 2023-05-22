@@ -6,9 +6,9 @@ of interfaces needed for streaming level to make callbacks and call-throughs,
 via `ObjectCodec` and `TreeNode`.
 
 Also includes implementation of this API for JSON.
-Forms the base for other data formats as well, despite naming that suggests
-JSON-specificity: naming is due to history, as Jackson started out as pure
-JSON library.
+Forms the base for other data formats as well despite naming suggesting
+JSON-specificity: naming is due to history, as Jackson started out as
+a pure JSON library.
 
 ------------------------------------------------------------------------
 === Releases ===
@@ -16,6 +16,8 @@ JSON library.
 
 2.15.2 (not yet released)
 
+#1019: Allow override of `StreamReadContraints` default with
+  `overrideDefaultStreamReadConstraints()`
 #1027: Extra module-info.class in 2.15.1
  (reported by @tbnguyen1407)
 #1028: Wrong checksums in `module.json` (2.15.0, 2.15.1)

@@ -21,6 +21,8 @@ a pure JSON library.
  (contributed by Carter K)
 #1035: Root cause for failing test for `testMangledIntsBytes()` in `ParserErrorHandlingTest`
  (reported by @harsha-99)
+#1036: Allow all array elements in `JsonPointerBasedFilter`
+ (contribited by Markus S)
 
 2.15.2 (not yet released)
 

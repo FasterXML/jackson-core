@@ -352,22 +352,24 @@ Chris Rankin (chrisr3@github)
   (2.15.1)
 
 Przemyslaw Gomulka (pgomulka@github)
-  * Contributed #882: Allow TokenFIlter to skip last elements in arrays
+ * Contributed #882: Allow TokenFIlter to skip last elements in arrays
   (2.14.2)
 
 Markus Spika  (DemonicTutor@github)
-  * Contributed #890: `FilteringGeneratorDelegate` does not create new `filterContext`
+ * Contributed #890: `FilteringGeneratorDelegate` does not create new `filterContext`
    if `tokenFilter` is null
   (2.14.2)
+ * Contributed #1036: Allow all array elements in `JsonPointerBasedFilter`
+  (2.16.0)
 
 Pedro Nacht (pnacht@github)
-  * Contributed #844: Add SLSA provenance via build script
+ * Contributed #844: Add SLSA provenance via build script
   (2.15.0)
 
 Jonas Konrad (yawkat@github)
-  * Contributed #921: Add `JsonFactory.Feature` to disable charset detection
+ * Contributed #921: Add `JsonFactory.Feature` to disable charset detection
   (2.15.0)
 
 Carter Kozak (carterkozak@github)
-  * Contributed #1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
+ * Contributed #1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
   (2.15.1)

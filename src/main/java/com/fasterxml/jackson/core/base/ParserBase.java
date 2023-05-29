@@ -1526,7 +1526,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * Helper method used to encapsulate logic of including (or not) of
      * "content reference" when constructing {@link JsonLocation} instances.
      *
-     * @return Source reference object, if any; {@code null} if none
+     * @return ContentReference object to use.
      *
      * @since 2.13
      */
@@ -1534,6 +1534,22 @@ public abstract class ParserBase extends ParserMinimalBase
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
             return _ioContext.contentReference();
         }
+        return _contentReferenceNoSource();
+    }
+
+    /**
+     * Helper method used to encapsulate logic of providing
+     * "content reference" when constructing {@link JsonLocation} instances
+     * and source information is <b>NOT</b> to be included
+     * ({@code StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION} disabled).
+     *<p>
+     * Default implementation will simply return {@code ContentReference.unknown()}.
+     *
+     * @return ContentReference object to use when source is not to be included
+     *
+     * @since 2.16
+     */
+    protected ContentReference _contentReferenceNoSource() {
         return ContentReference.unknown();
     }
 

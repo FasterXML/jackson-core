@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 
 public class TestExceptions extends BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     // For [core#10]
     public void testOriginalMesssage()
@@ -123,6 +123,10 @@ public class TestExceptions extends BaseTest
 
     public void testContentSnippetWithOffset() throws Exception
     {
+        final JsonFactory jsonF = this.streamFactoryBuilder()
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+                .build();
+
         JsonParser p;
         final String json = a2q("{'k1':'v1'}\n[broken]\n");
         final byte[] jsonB = utf8Bytes(json);
@@ -130,19 +134,19 @@ public class TestExceptions extends BaseTest
         final int start = lfIndex+1;
         final int len = json.length() - start;
 
-        p = JSON_F.createParser(jsonB, start, len);
+        p = jsonF.createParser(jsonB, start, len);
         // for byte-based, will be after character that follows token:
         // (and alas cannot be easily fixed)
         _testContentSnippetWithOffset(p, 9, "(byte[])\"[broken]\n\"");
         p.close();
 
         final char[] jsonC = json.toCharArray();
-        p = JSON_F.createParser(jsonC, start, len);
+        p = jsonF.createParser(jsonC, start, len);
         // for char-based we get true offset at end of token
         _testContentSnippetWithOffset(p, 8, "(char[])\"[broken]\n\"");
         p.close();
 
-        p = JSON_F.createParser(json.substring(start));
+        p = jsonF.createParser(json.substring(start));
         // for char-based we get true offset at end of token
         _testContentSnippetWithOffset(p, 8, "(String)\"[broken]\n\"");
         p.close();
@@ -161,7 +165,6 @@ public class TestExceptions extends BaseTest
             assertEquals(1, loc.getLineNr());
             assertEquals(expColumn, loc.getColumnNr());
             final String srcDesc = loc.sourceDescription();
-
             assertEquals(expContent, srcDesc);
         }
     }

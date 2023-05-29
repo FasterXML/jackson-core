@@ -329,13 +329,15 @@ public abstract class JsonParser
           * printed, and not the whole contents. Further, many source reference types can not
           * necessarily access contents (like streams), so only type is indicated, not contents.
           *<p>
-          * Feature is enabled by default, meaning that "source reference" information is passed
-          * and some or all of the source content may be included in {@link JsonLocation} information
-          * constructed either when requested explicitly, or when needed for an exception.
+          * Since 2.16 feature is <b>disabled</b> by default (before 2.16 it was enabled),
+          * meaning that "source reference" information is NOT passed; this for security
+          * reasons (so by default no information is leaked; see
+          * <a href="https://github.com/FasterXML/jackson-core/issues/991">core#991</a>
+          * for more)
           *
-          * @since 2.9
+          * @since 2.9 (but different default since 2.16)
           */
-         INCLUDE_SOURCE_IN_LOCATION(true),
+         INCLUDE_SOURCE_IN_LOCATION(false),
 
          /**
           * Feature that determines whether we use the built-in {@link Double#parseDouble(String)} code to parse

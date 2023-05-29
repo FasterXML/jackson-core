@@ -16,6 +16,9 @@ a pure JSON library.
 
 2.16.0 (not yet released)
 
+#991: Change `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` default to `false`
+  in Jackson 2.16
+ (suggested by @quinlam)
 #1007: Improve error message for `StreamReadConstraints` violations
 #1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
  (contributed by Carter K)

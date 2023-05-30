@@ -27,7 +27,7 @@ a pure JSON library.
 #1036: Allow all array elements in `JsonPointerBasedFilter`
  (contribited by Markus S)
 
-2.15.2 (not yet released)
+2.15.2 (30-May-2023)
 
 #1019: Allow override of `StreamReadContraints` default with
   `overrideDefaultStreamReadConstraints()`

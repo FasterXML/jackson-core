@@ -6,6 +6,8 @@ import java.io.InputStream;
 
 import com.fasterxml.jackson.core.io.ContentReference;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class JsonLocationTest extends BaseTest
 {
     static class Foobar { }
@@ -94,34 +96,35 @@ public class JsonLocationTest extends BaseTest
                 .disable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
                 .build();
 
-        JsonParser p = f.createParser("[ foobar ]");
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        try {
-            p.nextToken();
-            fail("Shouldn't have passed");
-        } catch (JsonParseException e) {
-            verifyException(e, "unrecognized token");
-            JsonLocation loc = e.getLocation();
-            assertNull(loc.contentReference().getRawContent());
-            assertEquals("UNKNOWN", loc.sourceDescription());
+        try (JsonParser p = f.createParser("[ foobar ]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                p.nextToken();
+                fail("Shouldn't have passed");
+            } catch (JsonParseException e) {
+                _verifyContentDisabled(e);
+            }
         }
-        p.close();
 
         // and verify same works for byte-based too
-        p = f.createParser("[ foobar ]".getBytes("UTF-8"));
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        try {
-            p.nextToken();
-            fail("Shouldn't have passed");
-        } catch (JsonParseException e) {
-            verifyException(e, "unrecognized token");
-            JsonLocation loc = e.getLocation();
-            assertNull(loc.contentReference().getRawContent());
-            assertEquals("UNKNOWN", loc.sourceDescription());
+        try (JsonParser p = f.createParser("[ foobar ]".getBytes("UTF-8"))) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                p.nextToken();
+                fail("Shouldn't have passed");
+            } catch (JsonParseException e) {
+                _verifyContentDisabled(e);
+            }
         }
-        p.close();
     }
 
+    private void _verifyContentDisabled(JsonParseException e) {
+        verifyException(e, "unrecognized token");
+        JsonLocation loc = e.getLocation();
+        assertNull(loc.contentReference().getRawContent());
+        assertThat(loc.sourceDescription()).startsWith("REDACTED");
+    }
+    
     // for [jackson-core#739]: try to support equality
     public void testLocationEquality() throws Exception
     {

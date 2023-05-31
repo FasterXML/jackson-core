@@ -36,6 +36,17 @@ public class ContentReference
             new ContentReference(false, null);
 
     /**
+     * As content will be redacted by default in Jackson 2.16 and later,
+     * we'll use a new marker reference for slightly different description
+     * from "unknown", to indicate explicit removal of source/content reference
+     * (as opposed to it missing from not being available or so)
+     *
+     * @since 2.16
+     */
+    protected final static ContentReference REDACTED_CONTENT =
+            new ContentReference(false, null);
+    
+    /**
      * Include at most first 500 characters/bytes from contents; should be enough
      * to give context, but not cause unfortunate side effects in things like
      * logs.
@@ -100,6 +111,20 @@ public class ContentReference
         return UNKNOWN_CONTENT;
     }
 
+    /**
+     * Accessor for getting a placeholder when actual content
+     * is not to be exposed: different from {@link #unknown()} where
+     * content is not available to be referenced.
+     *
+     * @return Placeholder instance to use in cases where reference is explicitly
+     *   blocked, usually for security reasons.
+     *
+     * @since 2.16
+     */
+    public static ContentReference redacted() {
+        return REDACTED_CONTENT;
+    }
+        
     public static ContentReference construct(boolean isContentTextual, Object rawContent) {
         return new ContentReference(isContentTextual, rawContent);
     }

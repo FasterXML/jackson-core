@@ -1534,7 +1534,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
             return _ioContext.contentReference();
         }
-        return _contentReferenceNoSource();
+        return _contentReferenceRedacted();
     }
 
     /**
@@ -1549,8 +1549,8 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @since 2.16
      */
-    protected ContentReference _contentReferenceNoSource() {
-        return ContentReference.unknown();
+    protected ContentReference _contentReferenceRedacted() {
+        return ContentReference.redacted();
     }
 
     protected static int[] growArrayBy(int[] arr, int more)

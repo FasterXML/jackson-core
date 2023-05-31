@@ -25,7 +25,9 @@ a pure JSON library.
 #1035: Root cause for failing test for `testMangledIntsBytes()` in `ParserErrorHandlingTest`
  (reported by @harsha-99)
 #1036: Allow all array elements in `JsonPointerBasedFilter`
- (contribited by Markus S)
+ (contributed by Markus S)
+#1039: Indicate explicitly blocked sources as "REDACTED" (or similar)
+  instead of "UNKNOWN" in `JsonLocation`
 
 2.15.2 (30-May-2023)
 

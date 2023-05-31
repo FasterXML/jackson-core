@@ -236,7 +236,11 @@ public class ContentReference
         final Object srcRef = getRawContent();
 
         if (srcRef == null) {
-            sb.append("UNKNOWN");
+            if (this == REDACTED_CONTENT) { // ugly but...
+                sb.append("REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled)");
+            } else {
+                sb.append("UNKNOWN");
+            }
             return sb;
         }
         // First, figure out what name to use as source type

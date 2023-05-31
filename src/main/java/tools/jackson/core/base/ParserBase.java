@@ -1136,7 +1136,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if (isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)) {
             return _ioContext.contentReference();
         }
-        return _contentReferenceNoSource();
+        return _contentReferenceRedacted();
     }
 
     /**
@@ -1149,7 +1149,7 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @return ContentReference object to use when source is not to be included
      */
-    protected ContentReference _contentReferenceNoSource() {
-        return ContentReference.unknown();
+    protected ContentReference _contentReferenceRedacted() {
+        return ContentReference.redacted();
     }
 }

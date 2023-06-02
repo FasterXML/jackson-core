@@ -223,8 +223,6 @@ public enum JsonToken
     /**
      * Helper method for constructing description like "Object value" given
      * {@link JsonToken} encountered.
-     *
-     * @since 2.16
      */
     public static String valueDescFor(JsonToken t) {
         if (t == null) {
@@ -233,7 +231,7 @@ public enum JsonToken
         switch (t) {
         case START_OBJECT:
         case END_OBJECT:
-        case FIELD_NAME:
+        case PROPERTY_NAME:
             return "Object value";
 
         case START_ARRAY:

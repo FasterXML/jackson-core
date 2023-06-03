@@ -26,8 +26,9 @@ a pure JSON library.
  (reported by @harsha-99)
 #1036: Allow all array elements in `JsonPointerBasedFilter`
  (contributed by Markus S)
-#1039: Indicate explicitly blocked sources as "REDACTED" (or similar)
-  instead of "UNKNOWN" in `JsonLocation`
+#1039: Indicate explicitly blocked sources as "REDACTED" instead of
+  "UNKNOWN" in `JsonLocation`
+#1041: Start using AssertJ in unit tests
 
 2.15.2 (30-May-2023)
 

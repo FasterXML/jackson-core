@@ -6,8 +6,6 @@ import java.io.InputStream;
 
 import com.fasterxml.jackson.core.io.ContentReference;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class JsonLocationTest extends BaseTest
 {
     static class Foobar { }
@@ -122,7 +120,7 @@ public class JsonLocationTest extends BaseTest
         verifyException(e, "unrecognized token");
         JsonLocation loc = e.getLocation();
         assertNull(loc.contentReference().getRawContent());
-        assertThat(loc.sourceDescription()).startsWith("REDACTED");
+        assertTrue(loc.sourceDescription().startsWith("REDACTED"));
     }
     
     // for [jackson-core#739]: try to support equality

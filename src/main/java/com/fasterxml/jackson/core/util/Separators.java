@@ -15,7 +15,9 @@ public class Separators implements Serializable
 {
     private static final long serialVersionUID = 1;
 
-    private final char objectFieldValueSeparator;
+    private static final String DEFAULT_OBJECT_FIELD_VALUE_SEPARATOR = " : ";
+    
+    private final String objectFieldValueSeparator;
     private final char objectEntrySeparator;
     private final char arrayValueSeparator;
 
@@ -24,19 +26,45 @@ public class Separators implements Serializable
     }
 
     public Separators() {
-        this(':', ',', ',');
+        this(DEFAULT_OBJECT_FIELD_VALUE_SEPARATOR, ',', ',');
     }
 
     public Separators(char objectFieldValueSeparator,
             char objectEntrySeparator, char arrayValueSeparator) {
+        this(migrate(objectFieldValueSeparator), objectEntrySeparator, arrayValueSeparator);
+    }
+    
+    public Separators(String objectFieldValueSeparator,
+            char objectEntrySeparator, char arrayValueSeparator) {
+        if (objectFieldValueSeparator == null) {
+            objectFieldValueSeparator = DEFAULT_OBJECT_FIELD_VALUE_SEPARATOR;
+        } else if (objectFieldValueSeparator.trim().isEmpty()) {
+            throw new IllegalArgumentException("objectFieldValueSeparator can't be blank");
+        }
         this.objectFieldValueSeparator = objectFieldValueSeparator;
         this.objectEntrySeparator = objectEntrySeparator;
         this.arrayValueSeparator = arrayValueSeparator;
     }
 
+    private static String migrate(char objectFieldValueSeparator) {
+        return " " + objectFieldValueSeparator + " ";
+    }
+
     public Separators withObjectFieldValueSeparator(char sep) {
-        return (objectFieldValueSeparator == sep) ? this
+        return (objectFieldValueSeparator == migrate(sep)) ? this
                 : new Separators(sep, objectEntrySeparator, arrayValueSeparator);
+    }
+    
+    public Separators withObjectFieldValueSeparator(String sep) {
+        if (sep == null) {
+            sep = DEFAULT_OBJECT_FIELD_VALUE_SEPARATOR;
+        }
+        return (objectFieldValueSeparator.equals(sep)) ? this
+                : new Separators(sep, objectEntrySeparator, arrayValueSeparator);
+    }
+    
+    public Separators withCompactObjectFieldValueSeparator() {
+        return withObjectFieldValueSeparator(": ");
     }
 
     public Separators withObjectEntrySeparator(char sep) {
@@ -49,7 +77,7 @@ public class Separators implements Serializable
                 : new Separators(objectFieldValueSeparator, objectEntrySeparator, sep);
     }
 
-    public char getObjectFieldValueSeparator() {
+    public String getObjectFieldValueSeparator() {
         return objectFieldValueSeparator;
     }
 

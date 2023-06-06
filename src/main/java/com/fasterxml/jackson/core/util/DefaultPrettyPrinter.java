@@ -255,7 +255,7 @@ public class DefaultPrettyPrinter
      */
     public DefaultPrettyPrinter withSeparators(Separators separators) {
         _separators = separators;
-        _objectFieldValueSeparatorWithSpaces = " " + separators.getObjectFieldValueSeparator() + " ";
+        _objectFieldValueSeparatorWithSpaces = separators.getObjectFieldValueSeparator();
         return this;
     }
 

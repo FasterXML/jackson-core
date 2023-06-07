@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.Separators.Spacing;
 
 public class TestDefaultPrettyPrinter extends BaseTest
 {
@@ -78,6 +79,36 @@ public class TestDefaultPrettyPrinter extends BaseTest
             "\t\"name\" : \"John Doe\",\n" +
             "\t\"age\" : 3.14\n" +
             "}";
+        assertEquals(EXP, _printTestData(pp, false));
+        assertEquals(EXP, _printTestData(pp, true));
+    }
+    
+    public void testObjectFieldValueSpacingAfter() throws IOException
+    {
+        Separators separators = new Separators()
+                .withObjectFieldValueSpacing(Spacing.AFTER);
+        PrettyPrinter pp = new DefaultPrettyPrinter()
+                .withObjectIndenter(new DefaultIndenter("  ", "\n"))
+                .withSeparators(separators);
+        String EXP = "{\n" +
+                "  \"name\": \"John Doe\",\n" +
+                "  \"age\": 3.14\n" +
+                "}";
+        assertEquals(EXP, _printTestData(pp, false));
+        assertEquals(EXP, _printTestData(pp, true));
+    }
+    
+    public void testObjectFieldValueSpacingNone() throws IOException
+    {
+        Separators separators = new Separators()
+                .withObjectFieldValueSpacing(Spacing.NONE);
+        PrettyPrinter pp = new DefaultPrettyPrinter()
+                .withObjectIndenter(new DefaultIndenter("  ", "\n"))
+                .withSeparators(separators);
+        String EXP = "{\n" +
+                "  \"name\":\"John Doe\",\n" +
+                "  \"age\":3.14\n" +
+                "}";
         assertEquals(EXP, _printTestData(pp, false));
         assertEquals(EXP, _printTestData(pp, true));
     }

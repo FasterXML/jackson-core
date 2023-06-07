@@ -15,77 +15,125 @@ public class Separators implements Serializable
 {
     private static final long serialVersionUID = 1;
 
-    private static final String DEFAULT_OBJECT_FIELD_VALUE_SEPARATOR = " : ";
+    public enum Spacing {
+        NONE("", ""),
+        BEFORE(" ", ""),
+        AFTER("", " "),
+        BOTH(" ", " ");
+        
+        private final String spacesBefore;
+        private final String spacesAfter;
+
+        private Spacing(String spacesBefore, String spacesAfter) {
+            this.spacesBefore = spacesBefore;
+            this.spacesAfter = spacesAfter;
+        }
+        
+        public String spacesBefore() {
+            return spacesBefore;
+        }
+        
+        public String spacesAfter() {
+            return spacesAfter;
+        }
+
+        public String apply(char separator) {
+            return spacesBefore + separator + spacesAfter;
+        }
+    }
     
-    private final String objectFieldValueSeparator;
+    private final char objectFieldValueSeparator;
+    private final Spacing objectFieldValueSpacing;
     private final char objectEntrySeparator;
+    private final Spacing objectEntrySpacing;
     private final char arrayValueSeparator;
+    private final Spacing arrayValueSpacing;
 
     public static Separators createDefaultInstance() {
         return new Separators();
     }
 
     public Separators() {
-        this(DEFAULT_OBJECT_FIELD_VALUE_SEPARATOR, ',', ',');
+        this(':', ',', ',');
     }
 
-    public Separators(char objectFieldValueSeparator,
-            char objectEntrySeparator, char arrayValueSeparator) {
-        this(migrate(objectFieldValueSeparator), objectEntrySeparator, arrayValueSeparator);
+    public Separators(
+            char objectFieldValueSeparator,
+            char objectEntrySeparator,
+            char arrayValueSeparator
+    ) {
+        this(objectFieldValueSeparator, Spacing.BOTH,
+                objectEntrySeparator, Spacing.NONE,
+                arrayValueSeparator, Spacing.NONE);
     }
     
-    public Separators(String objectFieldValueSeparator,
-            char objectEntrySeparator, char arrayValueSeparator) {
-        if (objectFieldValueSeparator == null) {
-            objectFieldValueSeparator = DEFAULT_OBJECT_FIELD_VALUE_SEPARATOR;
-        } else if (objectFieldValueSeparator.trim().isEmpty()) {
-            throw new IllegalArgumentException("objectFieldValueSeparator can't be blank");
-        }
+    public Separators(
+            char objectFieldValueSeparator,
+            Spacing objectFieldValueSpacing,
+            char objectEntrySeparator,
+            Spacing objectEntrySpacing,
+            char arrayValueSeparator,
+            Spacing arrayValueSpacing
+    ) {
         this.objectFieldValueSeparator = objectFieldValueSeparator;
+        this.objectFieldValueSpacing = objectFieldValueSpacing;
         this.objectEntrySeparator = objectEntrySeparator;
+        this.objectEntrySpacing = objectEntrySpacing;
         this.arrayValueSeparator = arrayValueSeparator;
-    }
-
-    private static String migrate(char objectFieldValueSeparator) {
-        return " " + objectFieldValueSeparator + " ";
+        this.arrayValueSpacing = arrayValueSpacing;
     }
 
     public Separators withObjectFieldValueSeparator(char sep) {
-        return (objectFieldValueSeparator == migrate(sep)) ? this
-                : new Separators(sep, objectEntrySeparator, arrayValueSeparator);
-    }
-    
-    public Separators withObjectFieldValueSeparator(String sep) {
-        if (sep == null) {
-            sep = DEFAULT_OBJECT_FIELD_VALUE_SEPARATOR;
-        }
-        return (objectFieldValueSeparator.equals(sep)) ? this
-                : new Separators(sep, objectEntrySeparator, arrayValueSeparator);
-    }
-    
-    public Separators withCompactObjectFieldValueSeparator() {
-        return withObjectFieldValueSeparator(": ");
+        return (objectFieldValueSeparator == sep) ? this
+                : new Separators(sep, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
     }
 
+    public Separators withObjectFieldValueSpacing(Spacing spacing) {
+        return (objectFieldValueSpacing == spacing) ? this
+                : new Separators(objectFieldValueSeparator, spacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
+    }
+    
     public Separators withObjectEntrySeparator(char sep) {
         return (objectEntrySeparator == sep) ? this
-                : new Separators(objectFieldValueSeparator, sep, arrayValueSeparator);
+                : new Separators(objectFieldValueSeparator, objectFieldValueSpacing, sep, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
+    }
+    
+    public Separators withObjectEntrySpacing(Spacing spacing) {
+        return (objectEntrySpacing == spacing) ? this
+                : new Separators(objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, spacing, arrayValueSeparator, arrayValueSpacing);
     }
 
     public Separators withArrayValueSeparator(char sep) {
         return (arrayValueSeparator == sep) ? this
-                : new Separators(objectFieldValueSeparator, objectEntrySeparator, sep);
+                : new Separators(objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, sep, arrayValueSpacing);
+    }
+    
+    public Separators withArrayValueSpacing(Spacing spacing) {
+        return (arrayValueSpacing == spacing) ? this
+                : new Separators(objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, spacing);
     }
 
-    public String getObjectFieldValueSeparator() {
+    public char getObjectFieldValueSeparator() {
         return objectFieldValueSeparator;
     }
 
+    public Spacing getObjectFieldValueSpacing() {
+        return objectFieldValueSpacing;
+    }
+    
     public char getObjectEntrySeparator() {
         return objectEntrySeparator;
     }
 
+    public Spacing getObjectEntrySpacing() {
+        return objectEntrySpacing;
+    }
+    
     public char getArrayValueSeparator() {
         return arrayValueSeparator;
+    }
+    
+    public Spacing getArrayValueSpacing() {
+        return arrayValueSpacing;
     }
 }

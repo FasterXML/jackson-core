@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.util.Separators.Spacing;
 
 /**
  * {@link PrettyPrinter} implementation that adds no indentation,
@@ -46,7 +47,7 @@ public class MinimalPrettyPrinter
 
     public MinimalPrettyPrinter(String rootValueSeparator) {
         _rootValueSeparator = rootValueSeparator;
-        _separators = DEFAULT_SEPARATORS;
+        _separators = DEFAULT_SEPARATORS.withObjectFieldValueSpacing(Spacing.NONE);
     }
 
     public void setRootValueSeparator(String sep) {

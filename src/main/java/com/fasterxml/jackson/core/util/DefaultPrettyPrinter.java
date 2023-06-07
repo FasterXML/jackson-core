@@ -255,7 +255,8 @@ public class DefaultPrettyPrinter
      */
     public DefaultPrettyPrinter withSeparators(Separators separators) {
         _separators = separators;
-        _objectFieldValueSeparatorWithSpaces = separators.getObjectFieldValueSeparator();
+        _objectFieldValueSeparatorWithSpaces = separators.getObjectFieldValueSpacing().apply(
+                separators.getObjectFieldValueSeparator());
         return this;
     }
 
@@ -334,7 +335,7 @@ public class DefaultPrettyPrinter
     @Override
     public void writeObjectEntrySeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(_separators.getObjectEntrySeparator());
+        g.writeRaw(_separators.getObjectEntrySpacing().apply(_separators.getObjectEntrySeparator()));
         _objectIndenter.writeIndentation(g, _nesting);
     }
 
@@ -378,7 +379,7 @@ public class DefaultPrettyPrinter
     @Override
     public void writeArrayValueSeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(_separators.getArrayValueSeparator());
+        g.writeRaw(_separators.getArrayValueSpacing().apply(_separators.getArrayValueSeparator()));
         _arrayIndenter.writeIndentation(g, _nesting);
     }
 

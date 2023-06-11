@@ -121,14 +121,15 @@ public class IOContext
     /**
      * Main constructor to use.
      *
-     * @param src                 constraints for streaming reads
-     * @param br                  BufferRecycler to use, if any ({@code null} if none)
-     * @param contentRef          Input source reference for location reporting
-     * @param managedResource     Whether input source is managed (owned) by Jackson library
+     * @param src constraints for streaming reads
+     * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param contentRef Input source reference for location reporting
+     * @param managedResource Whether input source is managed (owned) by Jackson library
+     *
      * @since 2.15
      */
     public IOContext(StreamReadConstraints src, BufferRecycler br,
-                    ContentReference contentRef, boolean managedResource)
+                     ContentReference contentRef, boolean managedResource)
     {
         _streamReadConstraints = (src == null) ?
                 StreamReadConstraints.defaults() : src;
@@ -189,8 +190,7 @@ public class IOContext
     }
     
     /**
-     * 
-     * @return {@link #_maxErrorTokenLength} : Maximum number of characters to include in token reported as part of error messages. 
+     * @return {@link #_maxErrorTokenLength}
      */
     public int maxErrorTokenLength() {
         return _maxErrorTokenLength;

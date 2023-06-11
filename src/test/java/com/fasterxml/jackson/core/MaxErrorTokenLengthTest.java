@@ -20,9 +20,9 @@ public class MaxErrorTokenLengthTest extends BaseTest {
         JsonFactory defaultJF = streamFactoryBuilder().build();
 
         // act & assert
-        testWithMaxErrorTokenLength(1 * tokenLength, 263, defaultJF);
-        testWithMaxErrorTokenLength(10 * tokenLength, 263, defaultJF);
-        testWithMaxErrorTokenLength(100 * tokenLength, 263, defaultJF);
+        testWithMaxErrorTokenLength(263, 1 * tokenLength, defaultJF);
+        testWithMaxErrorTokenLength(263, 10 * tokenLength, defaultJF);
+        testWithMaxErrorTokenLength(263, 100 * tokenLength, defaultJF);
     }
 
     public void testShorterSetMaxErrorTokenLength() throws Exception {
@@ -32,9 +32,9 @@ public class MaxErrorTokenLengthTest extends BaseTest {
                 .setMaxErrorTokenLength(shorterSetting);
 
         // act & assert
-        testWithMaxErrorTokenLength(1 * tokenLength, 63, shorterJF);
-        testWithMaxErrorTokenLength(10 * tokenLength, 63, shorterJF);
-        testWithMaxErrorTokenLength(100 * tokenLength, 63, shorterJF);
+        testWithMaxErrorTokenLength(63, 1 * tokenLength, shorterJF);
+        testWithMaxErrorTokenLength(63, 10 * tokenLength, shorterJF);
+        testWithMaxErrorTokenLength(63, 100 * tokenLength, shorterJF);
     }
 
     public void testLongerSetMaxErrorTokenLength() throws Exception {
@@ -44,9 +44,9 @@ public class MaxErrorTokenLengthTest extends BaseTest {
                 .setMaxErrorTokenLength(longerSetting);
 
         // act & assert
-        testWithMaxErrorTokenLength(1 * tokenLength, 263, longerJF);
-        testWithMaxErrorTokenLength(10 * tokenLength, 463, longerJF);
-        testWithMaxErrorTokenLength(100 * tokenLength, 463, longerJF);
+        testWithMaxErrorTokenLength(263, 1 * tokenLength, longerJF);
+        testWithMaxErrorTokenLength(463, 10 * tokenLength, longerJF);
+        testWithMaxErrorTokenLength(463, 100 * tokenLength, longerJF);
     }
 
     public void testZeroSetMaxErrorTokenLength() throws Exception {
@@ -56,9 +56,9 @@ public class MaxErrorTokenLengthTest extends BaseTest {
                 .setMaxErrorTokenLength(zeroSetting);
 
         // act & assert
-        testWithMaxErrorTokenLength(1 * tokenLength, 9, longerJF);
-        testWithMaxErrorTokenLength(10 * tokenLength, 9, longerJF);
-        testWithMaxErrorTokenLength(100 * tokenLength, 9, longerJF);
+        testWithMaxErrorTokenLength(9, 1 * tokenLength, longerJF);
+        testWithMaxErrorTokenLength(9, 10 * tokenLength, longerJF);
+        testWithMaxErrorTokenLength(9, 100 * tokenLength, longerJF);
     }
 
     public void testNegativeConfiguration() {
@@ -77,8 +77,8 @@ public class MaxErrorTokenLengthTest extends BaseTest {
     /**********************************************************
      */
 
-    private void testWithMaxErrorTokenLength(int len, int expectedSize, JsonFactory factory) throws Exception {
-        String inputWithDynamicLength = createBrokenJsonWithLength(len);
+    private void testWithMaxErrorTokenLength(int expectedSize, int tokenLen, JsonFactory factory) throws Exception {
+        String inputWithDynamicLength = createBrokenJsonWithLength(tokenLen);
         try (JsonParser parser = factory.createParser(inputWithDynamicLength)) {
             parser.nextToken();
             parser.nextToken();

@@ -3033,7 +3033,7 @@ public class ReaderBasedJsonParser
             }
             ++_inputPtr;
             sb.append(c);
-            if (sb.length() >= MAX_ERROR_TOKEN_LENGTH) {
+            if (sb.length() >= _ioContext.maxErrorTokenLength()) {
                 sb.append("...");
                 break;
             }

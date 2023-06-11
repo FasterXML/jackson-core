@@ -14,6 +14,10 @@ package com.fasterxml.jackson.core;
  *<p>
  * Since Jackson 2.12 extends intermediate {@link JacksonException} type
  * instead of directly extending {@link java.io.IOException}.
+ * <p>
+ * Since Jackson 2.16, Jackson truncates the exception message after length specified by
+ * {@link JsonFactory#setMaxErrorTokenLength(int)}, or by default value {@link JsonFactory#DEFAULT_MAX_ERROR_TOKEN_LENGTH}.
+ * 
  */
 public class JsonProcessingException extends JacksonException
 {

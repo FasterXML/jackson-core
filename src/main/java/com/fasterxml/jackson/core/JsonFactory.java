@@ -204,6 +204,12 @@ public class JsonFactory
      */
     public final static char DEFAULT_QUOTE_CHAR = '"';
 
+    /**
+     * Default value for {@link #_maxErrorTokenLength}.
+     * @since 2.16
+     */
+    public final static int DEFAULT_MAX_ERROR_TOKEN_LENGTH = 256;
+
     /*
     /**********************************************************
     /* Buffer, symbol table management
@@ -311,6 +317,13 @@ public class JsonFactory
     protected int _maximumNonEscapedChar;
 
     /**
+     * Maximum number of characters to include in token reported as part of error messages. 
+     * 
+     * @since 2.16
+     */
+    protected int _maxErrorTokenLength = DEFAULT_MAX_ERROR_TOKEN_LENGTH;
+
+    /**
      * Character used for quoting field names (if field name quoting has not
      * been disabled with {@link JsonWriteFeature#QUOTE_FIELD_NAMES})
      * and JSON String values.
@@ -339,6 +352,7 @@ public class JsonFactory
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
+        _maxErrorTokenLength = DEFAULT_MAX_ERROR_TOKEN_LENGTH;
     }
 
     /**
@@ -419,6 +433,7 @@ public class JsonFactory
         _rootValueSeparator = null;
         _maximumNonEscapedChar = 0;
         _quoteChar = DEFAULT_QUOTE_CHAR;
+        _maxErrorTokenLength = DEFAULT_MAX_ERROR_TOKEN_LENGTH;
     }
 
     /**
@@ -1056,6 +1071,21 @@ public class JsonFactory
 
     public ObjectCodec getCodec() { return _objectCodec; }
 
+    /**
+     * @param maxErrorTokenLength Constraints
+     * @return This factory instance (to allow call chaining)
+     * @throws IllegalArgumentException if {@code maxErrorTokenLength} is less than 0
+     *
+     * @since 2.16
+     */
+    public JsonFactory setMaxErrorTokenLength(int maxErrorTokenLength) {
+        if (maxErrorTokenLength < 0) {
+            throw new IllegalArgumentException("maxErrorTokenLength (" + maxErrorTokenLength + ") must be greater than 0");
+        }
+        _maxErrorTokenLength = maxErrorTokenLength;
+        return this;
+    }
+    
     /*
     /**********************************************************
     /* Parser factories, traditional (blocking) I/O sources
@@ -2034,7 +2064,8 @@ public class JsonFactory
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
         }
-        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef, resourceManaged);
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef, resourceManaged,
+                _maxErrorTokenLength);
     }
 
     /**
@@ -2051,7 +2082,7 @@ public class JsonFactory
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
         return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(rawContentRef),
-                resourceManaged);
+                resourceManaged, _maxErrorTokenLength);
     }
 
     /**
@@ -2069,7 +2100,7 @@ public class JsonFactory
         // now that access is thread-safe
         return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(srcRef),
-                false);
+                false, _maxErrorTokenLength);
     }
 
     /**

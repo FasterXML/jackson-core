@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
+import static com.fasterxml.jackson.core.JsonFactory.DEFAULT_MAX_ERROR_TOKEN_LENGTH;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -65,6 +66,13 @@ public class IOContext
     protected final StreamReadConstraints _streamReadConstraints;
 
     /**
+     * Maximum number of characters to include in token reported as part of error messages.
+     * 
+     * @since 2.16
+     */
+    protected final int _maxErrorTokenLength; 
+
+    /**
      * Reference to the allocated I/O buffer for low-level input reading,
      * if any allocated.
      */
@@ -113,15 +121,14 @@ public class IOContext
     /**
      * Main constructor to use.
      *
-     * @param src constraints for streaming reads
-     * @param br BufferRecycler to use, if any ({@code null} if none)
-     * @param contentRef Input source reference for location reporting
-     * @param managedResource Whether input source is managed (owned) by Jackson library
-     *
+     * @param src                 constraints for streaming reads
+     * @param br                  BufferRecycler to use, if any ({@code null} if none)
+     * @param contentRef          Input source reference for location reporting
+     * @param managedResource     Whether input source is managed (owned) by Jackson library
      * @since 2.15
      */
     public IOContext(StreamReadConstraints src, BufferRecycler br,
-                     ContentReference contentRef, boolean managedResource)
+                    ContentReference contentRef, boolean managedResource)
     {
         _streamReadConstraints = (src == null) ?
                 StreamReadConstraints.defaults() : src;
@@ -129,6 +136,30 @@ public class IOContext
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
+        _maxErrorTokenLength = DEFAULT_MAX_ERROR_TOKEN_LENGTH;
+    }
+
+    /**
+     * Main constructor to use.
+     *
+     * @param src                 constraints for streaming reads
+     * @param br                  BufferRecycler to use, if any ({@code null} if none)
+     * @param contentRef          Input source reference for location reporting
+     * @param managedResource     Whether input source is managed (owned) by Jackson library
+     * @param maxErrorTokenLength Maximum number of characters to include in token reported as part of error messages.                            
+     * @since 2.16
+     */
+    public IOContext(StreamReadConstraints src, BufferRecycler br,
+                    ContentReference contentRef, boolean managedResource, int maxErrorTokenLength)
+    {
+        _streamReadConstraints = (src == null) ?
+                StreamReadConstraints.defaults() : src;
+        _bufferRecycler = br;
+        _contentReference = contentRef;
+        _sourceRef = contentRef.getRawContent();
+        _managedResource = managedResource;
+        _maxErrorTokenLength = maxErrorTokenLength < 0 ? DEFAULT_MAX_ERROR_TOKEN_LENGTH : 
+                maxErrorTokenLength;
     }
 
     /**
@@ -141,7 +172,7 @@ public class IOContext
     @Deprecated // since 2.15
     public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
-        this(null, br, contentRef, managedResource);
+        this(null, br, contentRef, managedResource, DEFAULT_MAX_ERROR_TOKEN_LENGTH);
     }
 
     @Deprecated // since 2.13
@@ -155,6 +186,14 @@ public class IOContext
      */
     public StreamReadConstraints streamReadConstraints() {
         return _streamReadConstraints;
+    }
+    
+    /**
+     * 
+     * @return {@link #_maxErrorTokenLength} : Maximum number of characters to include in token reported as part of error messages. 
+     */
+    public int maxErrorTokenLength() {
+        return _maxErrorTokenLength;
     }
 
     public void setEncoding(JsonEncoding enc) {

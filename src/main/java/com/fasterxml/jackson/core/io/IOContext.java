@@ -120,6 +120,9 @@ public class IOContext
 
     /**
      * Main constructor to use.
+     * <p>
+     * Note: the value of {@link #_maxErrorTokenLength} 
+     * will be set to default {@link com.fasterxml.jackson.core.JsonFactory#DEFAULT_MAX_ERROR_TOKEN_LENGTH}.
      *
      * @param src constraints for streaming reads
      * @param br BufferRecycler to use, if any ({@code null} if none)
@@ -147,7 +150,9 @@ public class IOContext
      * @param br                  BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef          Input source reference for location reporting
      * @param managedResource     Whether input source is managed (owned) by Jackson library
-     * @param maxErrorTokenLength Maximum number of characters to include in token reported as part of error messages.                            
+     * @param maxErrorTokenLength Maximum number of characters to include in token reported as part of error messages.
+     *                            If a negative value is provided, default value from 
+     *                            {@link com.fasterxml.jackson.core.JsonFactory#DEFAULT_MAX_ERROR_TOKEN_LENGTH} will be used.
      * @since 2.16
      */
     public IOContext(StreamReadConstraints src, BufferRecycler br,

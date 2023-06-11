@@ -1080,7 +1080,8 @@ public class JsonFactory
      */
     public JsonFactory setMaxErrorTokenLength(int maxErrorTokenLength) {
         if (maxErrorTokenLength < 0) {
-            throw new IllegalArgumentException("maxErrorTokenLength (" + maxErrorTokenLength + ") must be greater than 0");
+            throw new IllegalArgumentException(
+                    String.format("Value of maxErrorTokenLength (%d) cannot be negative", maxErrorTokenLength));
         }
         _maxErrorTokenLength = maxErrorTokenLength;
         return this;

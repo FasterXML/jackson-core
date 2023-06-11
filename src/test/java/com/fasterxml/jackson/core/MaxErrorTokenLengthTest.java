@@ -67,7 +67,9 @@ public class MaxErrorTokenLengthTest extends BaseTest {
                     .setMaxErrorTokenLength(-1);
             fail();
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage()).contains("maxErrorTokenLength (-1) must be greater than 0");
+            assertThat(e.getMessage())
+                    .contains("Value of maxErrorTokenLength")
+                    .contains("cannot be negative");
         }
     }
     

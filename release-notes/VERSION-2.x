@@ -57,10 +57,11 @@ a pure JSON library.
   allow for deferred decoding in some cases
 #921: Add `JsonFactory.Feature.CHARSET_DETECTION` to disable charset detection
  (contributed by @yawkat) 
+#943: Add `StreamReadConstraints.maxNestingDepth()` to constraint max nesting
+  depth (default: 1000)
 #948: Use `StreamConstraintsException` in name canonicalizers
  (contributed by @pjfanning)
 #962: Offer a way to directly set `StreamReadConstraints` via `JsonFactory` (not just Builder)
-#965: 2.15.0-rc1 missing Gradle module metadata marker in pom.xml
 #968: Prevent inefficient internal conversion from `BigDecimal` to `BigInteger`
   wrt ultra-large scale
 #984: Add `JsonGenerator.copyCurrentEventExact` as alternative to `copyCurrentEvent()`

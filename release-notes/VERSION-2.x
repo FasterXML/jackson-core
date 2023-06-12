@@ -36,7 +36,7 @@ a pure JSON library.
 
 2.15.0 (23-Apr-2023)
 
-#827: Add numeric value size limits via `StreamReadConstraints` (fixes
+#815: Add maximum numeric value length limits via `StreamReadConstraints` (fixes
   `sonatype-2022-6438`)
  (contributed by @pjfanning)
 #844: Add SLSA provenance via build script

@@ -72,8 +72,6 @@ public class DefaultPrettyPrinter
 
     /**
      * String printed between root-level values, if any.
-     * 
-     * @deprecated in 2.16. Use Separators API instead.
      */
     protected SerializableString _rootSeparator;
 

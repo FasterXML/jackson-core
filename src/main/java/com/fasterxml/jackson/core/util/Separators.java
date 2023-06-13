@@ -22,7 +22,7 @@ public class Separators implements Serializable
      * @since 2.16
      */
     public final static String DEFAULT_ROOT_VALUE_SEPARATOR = " ";
-    
+
     /**
      * Define the spacing around elements like commas and colons.
      * 
@@ -54,7 +54,7 @@ public class Separators implements Serializable
             return spacesBefore + separator + spacesAfter;
         }
     }
-    
+
     private final char objectFieldValueSeparator;
     private final Spacing objectFieldValueSpacing;
     private final char objectEntrySeparator;
@@ -85,14 +85,14 @@ public class Separators implements Serializable
                 objectEntrySeparator, Spacing.NONE,
                 arrayValueSeparator, Spacing.NONE);
     }
-    
+
     /**
      * Create an instance with the specified separator characters and spaces around those characters.
      * 
      * @since 2.16
      */
     public Separators(
-            String rootSeperator,
+            String rootSeparator,
             char objectFieldValueSeparator,
             Spacing objectFieldValueSpacing,
             char objectEntrySeparator,
@@ -100,7 +100,7 @@ public class Separators implements Serializable
             char arrayValueSeparator,
             Spacing arrayValueSpacing
     ) {
-        this.rootSeparator = rootSeperator;
+        this.rootSeparator = rootSeparator;
         this.objectFieldValueSeparator = objectFieldValueSeparator;
         this.objectFieldValueSpacing = objectFieldValueSpacing;
         this.objectEntrySeparator = objectEntrySeparator;

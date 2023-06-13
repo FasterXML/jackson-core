@@ -20,7 +20,7 @@ public class SerializedStringWriteTest
     private final SerializedString quotedName = new SerializedString(NAME_WITH_QUOTES);
     private final SerializedString latin1Name = new SerializedString(NAME_WITH_LATIN1);
 
-    public void testSimpleFieldNames() throws Exception
+    public void testSimpleNames() throws Exception
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();

@@ -6,6 +6,9 @@ import java.io.StringWriter;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.util.Separators.Spacing;
+
+import org.assertj.core.api.ThrowingConsumer;
 
 public class TestDefaultPrettyPrinter extends BaseTest
 {
@@ -82,75 +85,115 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, false));
         assertEquals(EXP, _printTestData(pp, true));
     }
+    
+    public void testObjectNameValueSpacingAfter() throws IOException
+    {
+        Separators separators = new Separators()
+                .withObjectNameValueSpacing(Spacing.AFTER);
+        PrettyPrinter pp = new DefaultPrettyPrinter()
+                .withObjectIndenter(new DefaultIndenter("  ", "\n"))
+                .withSeparators(separators);
+        String EXP = "{\n" +
+                "  \"name\": \"John Doe\",\n" +
+                "  \"age\": 3.14\n" +
+                "}";
+        assertEquals(EXP, _printTestData(pp, false));
+        assertEquals(EXP, _printTestData(pp, true));
+    }
+    
+    public void testObjectNameValueSpacingNone() throws IOException
+    {
+        Separators separators = new Separators()
+                .withObjectNameValueSpacing(Spacing.NONE);
+        PrettyPrinter pp = new DefaultPrettyPrinter()
+                .withObjectIndenter(new DefaultIndenter("  ", "\n"))
+                .withSeparators(separators);
+        String EXP = "{\n" +
+                "  \"name\":\"John Doe\",\n" +
+                "  \"age\":3.14\n" +
+                "}";
+        assertEquals(EXP, _printTestData(pp, false));
+        assertEquals(EXP, _printTestData(pp, true));
+    }
+
+    public void testCopyConfigNew() throws IOException
+    {
+        Separators separators = new Separators()
+                .withObjectNameValueSpacing(Spacing.AFTER)
+                .withObjectEntrySpacing(Spacing.AFTER)
+                .withArrayElementSpacing(Spacing.AFTER);
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withObjectIndenter(new DefaultIndenter("    ", "\n"))
+                .withSeparators(separators);
+        String expected = _printTestData(pp, false);
+        assertEquals(expected, _printTestData(pp, true));
+
+        DefaultPrettyPrinter copy = new DefaultPrettyPrinter(pp);
+        assertEquals(expected, _printTestData(copy, false));
+        assertEquals(expected, _printTestData(copy, true));
+    }
 
     public void testRootSeparator() throws IOException
     {
+        Separators separators = new Separators()
+                .withRootSeparator("|");
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators);
         final String EXP = "1|2|3";
-
-        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
-            @Override
-            public PrettyPrinter getPrettyPrinter() {
-                return new DefaultPrettyPrinter()
-                    .withRootSeparator("|");
-            }
+        
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeNumber(1);
+            gen.writeNumber(2);
+            gen.writeNumber(3);
         };
+        
+        assertEquals(EXP, _printTestData(pp, false, writeTestData));
+        assertEquals(EXP, _printTestData(pp, true, writeTestData));
+    }
 
-        StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(ppContext, sw);
+    public void testWithoutSeparatorsNew() throws IOException
+    {
+        Separators separators = new Separators()
+                .withRootSeparator(null)
+                .withObjectNameValueSpacing(Spacing.NONE);
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
 
-        gen.writeNumber(1);
-        gen.writeNumber(2);
-        gen.writeNumber(3);
-        gen.close();
-        assertEquals(EXP, sw.toString());
-
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        gen = JSON_F.createGenerator(ppContext, bytes);
-
-        gen.writeNumber(1);
-        gen.writeNumber(2);
-        gen.writeNumber(3);
-        gen.close();
-        assertEquals(EXP, bytes.toString("UTF-8"));
-
-        // Also: let's try removing separator altogether
-        ppContext = new ObjectWriteContext.Base() {
-            @Override
-            public PrettyPrinter getPrettyPrinter() {
-                return new DefaultPrettyPrinter()
-                        .withRootSeparator((String) null)
-                        .withArrayIndenter(null)
-                        .withObjectIndenter(null)
-                        .withoutSpacesInObjectEntries();
-            }
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeNumber(1);
+            gen.writeStartArray();
+            gen.writeNumber(2);
+            gen.writeEndArray();
+            gen.writeStartObject();
+            gen.writeName("a");
+            gen.writeNumber(3);
+            gen.writeEndObject();
         };
-
-        sw = new StringWriter();
-        gen = JSON_F.createGenerator(ppContext, sw);
-
-        gen.writeNumber(1);
-        gen.writeStartArray();
-        gen.writeNumber(2);
-        gen.writeEndArray();
-        gen.writeStartObject();
-        gen.writeName("a");
-        gen.writeNumber(3);
-        gen.writeEndObject();
-        gen.close();
         // no root separator, nor array, object
-        assertEquals("1[2]{\"a\":3}", sw.toString());
+        assertEquals("1[2]{\"a\":3}", _printTestData(pp, false, writeTestData));
     }
 
     private String _printTestData(final PrettyPrinter pp, boolean useBytes) throws IOException
+    {
+        return _printTestData(pp, useBytes, gen -> {
+            gen.writeStartObject();
+            gen.writeName("name");
+            gen.writeString("John Doe");
+            gen.writeName("age");
+            gen.writeNumber(3.14);
+            gen.writeEndObject();       
+        });
+    }
+    
+    private String _printTestData(PrettyPrinter pp, boolean useBytes, ThrowingConsumer<JsonGenerator> writeTestData) throws IOException
     {
         JsonGenerator gen;
         StringWriter sw;
         ByteArrayOutputStream bytes;
 
-        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
-            @Override
-            public PrettyPrinter getPrettyPrinter() { return pp; }
-        };
+        ObjectWriteContext ppContext = objectWriteContext(pp);
 
         if (useBytes) {
             sw = null;
@@ -162,21 +205,16 @@ public class TestDefaultPrettyPrinter extends BaseTest
             gen = JSON_F.createGenerator(ppContext, sw);
         }
 
-        gen.writeStartObject();
-        gen.writeName("name");
-        gen.writeString("John Doe");
-        gen.writeName("age");
-        gen.writeNumber(3.14);
-        gen.writeEndObject();
+        writeTestData.accept(gen);
         gen.close();
-
+        
         if (useBytes) {
             return bytes.toString("UTF-8");
         }
         return sw.toString();
     }
 
-    // [core#502]: Force sub-classes to reimplement `createInstance`
+    // [core#502]: Force sub-classes to re-implement `createInstance`
     public void testInvalidSubClass() throws Exception
     {
         DefaultPrettyPrinter pp = new MyPrettyPrinter();
@@ -190,4 +228,11 @@ public class TestDefaultPrettyPrinter extends BaseTest
 
     @SuppressWarnings("serial")
     static class MyPrettyPrinter extends DefaultPrettyPrinter { }
+
+    private ObjectWriteContext objectWriteContext(PrettyPrinter pp) {
+        return new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() { return pp; }
+        };
+    }
 }

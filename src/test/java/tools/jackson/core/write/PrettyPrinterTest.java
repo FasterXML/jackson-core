@@ -9,6 +9,7 @@ import tools.jackson.core.util.DefaultIndenter;
 import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.MinimalPrettyPrinter;
 import tools.jackson.core.util.Separators;
+import tools.jackson.core.util.Separators.Spacing;
 
 /**
  * Set of basic unit tests for verifying that indenting
@@ -139,14 +140,25 @@ public class PrettyPrinterTest
     }
 
     // [core#26]
-    public void testCustomRootSeparatorWithPP() throws Exception
+    public void testRootSeparatorWithoutPP() throws Exception
     {
-        // first, no pretty-printing (will still separate root values with a space!)
+        // no pretty-printing (will still separate root values with a space!)
         assertEquals("{} {} []", _generateRoot(JSON_F, null));
-        // First with default pretty printer, default configs:
+    }
+    
+    // [core#26]
+    public void testDefaultRootSeparatorWithPP() throws Exception
+    {
         assertEquals("{ } { } [ ]", _generateRoot(JSON_F, new DefaultPrettyPrinter()));
-        // then custom:
-        assertEquals("{ }|{ }|[ ]", _generateRoot(JSON_F, new DefaultPrettyPrinter("|")));
+    }
+
+    // [core#26]
+    public void testCustomRootSeparatorWithPPNew() throws Exception
+    {
+        Separators separators = Separators.createDefaultInstance()
+                .withRootSeparator("|");
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter(separators);
+        assertEquals("{ }|{ }|[ ]", _generateRoot(JSON_F, pp));
     }
 
     // Alternative solution for [jackson-core#26]
@@ -173,7 +185,7 @@ public class PrettyPrinterTest
                 return new MinimalPrettyPrinter().setSeparators(Separators.createDefaultInstance()
                         .withObjectNameValueSeparator('=')
                         .withObjectEntrySeparator(';')
-                        .withArrayValueSeparator('|'));
+                        .withArrayElementSeparator('|'));
             }
         };
         JsonGenerator gen = JSON_F.createGenerator(ppContext, sw);
@@ -199,7 +211,7 @@ public class PrettyPrinterTest
                 return new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
                         .withObjectNameValueSeparator('=')
                         .withObjectEntrySeparator(';')
-                        .withArrayValueSeparator('|'));
+                        .withArrayElementSeparator('|'));
             }
         };
 
@@ -212,28 +224,31 @@ public class PrettyPrinterTest
                 "} ]", sw.toString());
     }
 
-    public void testCustomSeparatorsWithPPWithoutSpaces() throws Exception
+    private static final String EXPECTED_CUSTOM_SEPARATORS_WITH_PP_WITHOUT_SPACES =
+            "[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
+            "  \"f\"=null;" + DefaultIndenter.SYS_LF +
+            "  \"f2\"=null" + DefaultIndenter.SYS_LF +
+            "} ]";
+    
+    public void testCustomSeparatorsWithPPWithoutSpacesNew() throws Exception
     {
-        StringWriter sw = new StringWriter();
+        final Separators separators = Separators.createDefaultInstance()
+                .withObjectNameValueSeparator('=')
+                .withObjectNameValueSpacing(Spacing.NONE)
+                .withObjectEntrySeparator(';')
+                .withArrayElementSeparator('|');
         ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
             @Override
             public PrettyPrinter getPrettyPrinter() {
-                return new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
-                        .withObjectNameValueSeparator('=')
-                        .withObjectEntrySeparator(';')
-                        .withArrayValueSeparator('|'))
-                    .withoutSpacesInObjectEntries();
+                return new DefaultPrettyPrinter(separators);
             }
         };
 
-        JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw);
-
-        _writeTestDocument(gen);
-        gen.close();
-        assertEquals("[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
-                "  \"f\"=null;" + DefaultIndenter.SYS_LF +
-                "  \"f2\"=null" + DefaultIndenter.SYS_LF +
-                "} ]", sw.toString());
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw)) {
+            _writeTestDocument(gen);
+        }
+        assertEquals(EXPECTED_CUSTOM_SEPARATORS_WITH_PP_WITHOUT_SPACES, sw.toString());
     }
 
     /*

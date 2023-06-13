@@ -3,6 +3,7 @@ package tools.jackson.core.util;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.PrettyPrinter;
+import tools.jackson.core.util.Separators.Spacing;
 
 /**
  * {@link PrettyPrinter} implementation that adds no indentation,
@@ -42,7 +43,7 @@ public class MinimalPrettyPrinter
 
     public MinimalPrettyPrinter(String rootValueSeparator) {
         _rootValueSeparator = rootValueSeparator;
-        _separators = DEFAULT_SEPARATORS;
+        _separators = DEFAULT_SEPARATORS.withObjectNameValueSpacing(Spacing.NONE);
     }
 
     public void setRootValueSeparator(String sep) {
@@ -139,7 +140,7 @@ public class MinimalPrettyPrinter
     @Override
     public void writeArrayValueSeparator(JsonGenerator g) throws JacksonException
     {
-        g.writeRaw(_separators.getArrayValueSeparator());
+        g.writeRaw(_separators.getArrayElementSeparator());
     }
 
     @Override

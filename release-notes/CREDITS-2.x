@@ -51,8 +51,11 @@ Alex Soto: (lordofthejars@github)
    (2.4.5)
 
 Aaron Digulla:
-  * Contributed #166: Allow to configure line endings and indentation
-   (2.5.0)
+ * Contributed #166: Allow to configure line endings and indentation
+  (2.5.0)
+ * Contributed #1042: Allow configuring spaces before and/or after the colon in
+   `DefaultPrettyPrinter`
+  (2.16.0)
 
 Derek Clarkson (drekka@github)
   * Reported #184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN

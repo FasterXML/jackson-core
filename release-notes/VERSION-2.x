@@ -29,6 +29,8 @@ a pure JSON library.
 #1039: Indicate explicitly blocked sources as "REDACTED" instead of
   "UNKNOWN" in `JsonLocation`
 #1041: Start using AssertJ in unit tests
+#1042: Allow configuring spaces before and/or after the colon in `DefaultPrettyPrinter`
+ (contributed by @digulla)
 
 2.15.2 (30-May-2023)
 

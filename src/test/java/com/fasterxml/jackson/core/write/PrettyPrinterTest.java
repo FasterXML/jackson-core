@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.core.util.Separators;
+import com.fasterxml.jackson.core.util.Separators.Spacing;
 
 import java.io.*;
 
@@ -131,14 +132,33 @@ public class PrettyPrinterTest
     }
 
     // [core#26]
-    public void testCustomRootSeparatorWithPP() throws Exception
+    public void testRootSeparatorWithoutPP() throws Exception
     {
-        // first, no pretty-printing (will still separate root values with a space!)
+        // no pretty-printing (will still separate root values with a space!)
         assertEquals("{} {} []", _generateRoot(JSON_F, null));
-        // First with default pretty printer, default configs:
+    }
+    
+    // [core#26]
+    public void testDefaultRootSeparatorWithPP() throws Exception
+    {
         assertEquals("{ } { } [ ]", _generateRoot(JSON_F, new DefaultPrettyPrinter()));
-        // then custom:
-        assertEquals("{ }|{ }|[ ]", _generateRoot(JSON_F, new DefaultPrettyPrinter("|")));
+    }
+    
+    // [core#26]
+    public void testCustomRootSeparatorWithPPOld() throws Exception
+    {
+        @SuppressWarnings("deprecation")
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter("|");
+        assertEquals("{ }|{ }|[ ]", _generateRoot(JSON_F, pp));
+    }
+    
+    // [core#26]
+    public void testCustomRootSeparatorWithPPNew() throws Exception
+    {
+        Separators separators = Separators.createDefaultInstance()
+                .withRootSeparator("|");
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter(separators);
+        assertEquals("{ }|{ }|[ ]", _generateRoot(JSON_F, pp));
     }
 
     // Alternative solution for [jackson-core#26]
@@ -202,25 +222,50 @@ public class PrettyPrinterTest
                 "} ]", sw.toString());
     }
 
-    public void testCustomSeparatorsWithPPWithoutSpaces() throws Exception
+    private static final String EXPECTED_CUSTOM_SEPARATORS_WITH_PP_WITHOUT_SPACES =
+            "[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
+            "  \"f\"=null;" + DefaultIndenter.SYS_LF +
+            "  \"f2\"=null" + DefaultIndenter.SYS_LF +
+            "} ]";
+    
+    public void testCustomSeparatorsWithPPWithoutSpacesOld() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
-        gen.setPrettyPrinter(new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
+        Separators separators = Separators.createDefaultInstance()
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
-                .withArrayValueSeparator('|'))
-            .withoutSpacesInObjectEntries());
+                .withArrayValueSeparator('|');
+        @SuppressWarnings("deprecation")
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+            .withSeparators(separators)
+            .withoutSpacesInObjectEntries();
+        gen.setPrettyPrinter(pp);
 
         _writeTestDocument(gen);
         gen.close();
 
-        assertEquals("[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
-                "  \"f\"=null;" + DefaultIndenter.SYS_LF +
-                "  \"f2\"=null" + DefaultIndenter.SYS_LF +
-                "} ]", sw.toString());
+        assertEquals(EXPECTED_CUSTOM_SEPARATORS_WITH_PP_WITHOUT_SPACES, sw.toString());
     }
 
+    public void testCustomSeparatorsWithPPWithoutSpacesNew() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        Separators separators = Separators.createDefaultInstance()
+                .withObjectFieldValueSeparator('=')
+                .withObjectFieldValueSpacing(Spacing.NONE)
+                .withObjectEntrySeparator(';')
+                .withArrayValueSeparator('|');
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter(separators);
+        gen.setPrettyPrinter(pp);
+        
+        _writeTestDocument(gen);
+        gen.close();
+        
+        assertEquals(EXPECTED_CUSTOM_SEPARATORS_WITH_PP_WITHOUT_SPACES, sw.toString());
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

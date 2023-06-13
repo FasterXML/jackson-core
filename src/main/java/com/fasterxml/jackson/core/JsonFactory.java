@@ -19,8 +19,8 @@ import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JacksonFeature;
+import com.fasterxml.jackson.core.util.Separators;
 
 /**
  * The main factory class of Jackson package, used to configure and
@@ -197,7 +197,7 @@ public class JsonFactory
      */
     protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
 
-    public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+    public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(Separators.DEFAULT_ROOT_VALUE_SEPARATOR);
 
     /**
      * @since 2.10

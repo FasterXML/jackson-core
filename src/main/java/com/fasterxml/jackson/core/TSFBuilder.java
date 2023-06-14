@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -83,6 +86,9 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * @since 2.15
      */
     protected StreamReadConstraints _streamReadConstraints;
+
+    /** @since 2.16 */
+    protected List<JsonGeneratorDecorator> _generatorDecorators = new ArrayList<>();
 
     /*
     /**********************************************************************
@@ -283,6 +289,11 @@ public abstract class TSFBuilder<F extends JsonFactory,
     }
 
     // // // Other methods
+
+    public B decorateWith(JsonGeneratorDecorator decorator) {
+        _generatorDecorators.add(decorator);
+        return _this();
+    }
 
     /**
      * Method for constructing actual {@link TokenStreamFactory} instance, given

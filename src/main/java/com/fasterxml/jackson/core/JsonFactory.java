@@ -7,6 +7,8 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.format.InputAccessor;
@@ -317,6 +319,9 @@ public class JsonFactory
      */
     protected final char _quoteChar;
 
+    /** @since 2.16 */
+    protected List<JsonGeneratorDecorator> _generatorDecorators = new ArrayList<>();
+
     /*
     /**********************************************************
     /* Construction
@@ -393,6 +398,7 @@ public class JsonFactory
         _rootValueSeparator = b._rootValueSeparator;
         _maximumNonEscapedChar = b._maximumNonEscapedChar;
         _quoteChar = b._quoteChar;
+        _generatorDecorators = new ArrayList<>(b._generatorDecorators);
     }
 
     /**
@@ -1892,7 +1898,14 @@ public class JsonFactory
         if (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {
             gen.setRootValueSeparator(rootSep);
         }
-        return gen;
+        return _decorate(gen);
+    }
+
+    private JsonGenerator _decorate(JsonGenerator result) {
+        for(JsonGeneratorDecorator decorator : _generatorDecorators) {
+            result = decorator.decorate(this, result);
+        }
+        return result;
     }
 
     /**
@@ -1925,7 +1938,7 @@ public class JsonFactory
         if (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {
             gen.setRootValueSeparator(rootSep);
         }
-        return gen;
+        return _decorate(gen);
     }
 
     protected Writer _createWriter(OutputStream out, JsonEncoding enc, IOContext ctxt) throws IOException

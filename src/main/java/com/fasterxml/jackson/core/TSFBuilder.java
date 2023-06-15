@@ -36,7 +36,6 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * by default.
      */
     protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
-    
 
     /*
     /**********************************************************************

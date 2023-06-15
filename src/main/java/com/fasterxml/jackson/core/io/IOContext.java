@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
-import static com.fasterxml.jackson.core.JsonFactory.DEFAULT_MAX_ERROR_TOKEN_LENGTH;
+import com.fasterxml.jackson.core.ErrorTokenConfiguration;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -66,11 +66,10 @@ public class IOContext
     protected final StreamReadConstraints _streamReadConstraints;
 
     /**
-     * Maximum number of characters to include in token reported as part of error messages.
-     * 
+     * @see com.fasterxml.jackson.core.ErrorTokenConfiguration
      * @since 2.16
      */
-    protected final int _maxErrorTokenLength; 
+    protected final ErrorTokenConfiguration _errorTokenConfiguration;
 
     /**
      * Reference to the allocated I/O buffer for low-level input reading,
@@ -120,9 +119,6 @@ public class IOContext
 
     /**
      * Main constructor to use.
-     * <p>
-     * Note: the value of {@link #_maxErrorTokenLength} 
-     * will be set to default {@link com.fasterxml.jackson.core.JsonFactory#DEFAULT_MAX_ERROR_TOKEN_LENGTH}.
      *
      * @param src constraints for streaming reads
      * @param br BufferRecycler to use, if any ({@code null} if none)
@@ -140,7 +136,7 @@ public class IOContext
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
-        _maxErrorTokenLength = DEFAULT_MAX_ERROR_TOKEN_LENGTH;
+        _errorTokenConfiguration = ErrorTokenConfiguration.defaults();
     }
 
     /**
@@ -150,22 +146,21 @@ public class IOContext
      * @param br                  BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef          Input source reference for location reporting
      * @param managedResource     Whether input source is managed (owned) by Jackson library
-     * @param maxErrorTokenLength Maximum number of characters to include in token reported as part of error messages.
-     *                            If a negative value is provided, default value from 
-     *                            {@link com.fasterxml.jackson.core.JsonFactory#DEFAULT_MAX_ERROR_TOKEN_LENGTH} will be used.
+     * @param errorTokenConfig Configuration values used when handling errorneous token inputs. 
      * @since 2.16
      */
     public IOContext(StreamReadConstraints src, BufferRecycler br,
-                    ContentReference contentRef, boolean managedResource, int maxErrorTokenLength)
+                    ContentReference contentRef, boolean managedResource, ErrorTokenConfiguration errorTokenConfig)
     {
         _streamReadConstraints = (src == null) ?
                 StreamReadConstraints.defaults() : src;
+        _errorTokenConfiguration = (errorTokenConfig == null) ?
+                ErrorTokenConfiguration.defaults() : errorTokenConfig;
         _bufferRecycler = br;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
-        _maxErrorTokenLength = maxErrorTokenLength < 0 ? DEFAULT_MAX_ERROR_TOKEN_LENGTH : 
-                maxErrorTokenLength;
+       
     }
 
     /**
@@ -178,7 +173,7 @@ public class IOContext
     @Deprecated // since 2.15
     public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
-        this(null, br, contentRef, managedResource, DEFAULT_MAX_ERROR_TOKEN_LENGTH);
+        this(null, br, contentRef, managedResource, null);
     }
 
     @Deprecated // since 2.13
@@ -195,10 +190,13 @@ public class IOContext
     }
     
     /**
-     * @return {@link #_maxErrorTokenLength}
+     * Returns : {@link ErrorTokenConfiguration}, container for configuration values used when 
+     * handling errorneous token inputs. 
+     * For example, unquoted text segments.
+     * @since 2.16
      */
-    public int maxErrorTokenLength() {
-        return _maxErrorTokenLength;
+    public ErrorTokenConfiguration errorTokenConfiguration() {
+        return _errorTokenConfiguration;
     }
 
     public void setEncoding(JsonEncoding enc) {

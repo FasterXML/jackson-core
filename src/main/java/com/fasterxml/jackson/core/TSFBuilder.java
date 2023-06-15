@@ -36,6 +36,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * by default.
      */
     protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
+    
 
     /*
     /**********************************************************************
@@ -84,6 +85,13 @@ public abstract class TSFBuilder<F extends JsonFactory,
      */
     protected StreamReadConstraints _streamReadConstraints;
 
+    /**
+     * Optional {@link com.fasterxml.jackson.core.ErrorTokenConfiguration} to use.
+     * 
+     * @since 2.16
+     */
+    protected ErrorTokenConfiguration _errorTokenConfiguration;
+
     /*
     /**********************************************************************
     /* Construction
@@ -103,6 +111,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         this(base._factoryFeatures,
                 base._parserFeatures, base._generatorFeatures);
         _streamReadConstraints = base._streamReadConstraints;
+        _errorTokenConfiguration = base._errorTokenConfiguration;
     }
 
     protected TSFBuilder(int factoryFeatures,
@@ -279,6 +288,18 @@ public abstract class TSFBuilder<F extends JsonFactory,
      */
     public B streamReadConstraints(StreamReadConstraints streamReadConstraints) {
         _streamReadConstraints = streamReadConstraints;
+        return _this();
+    }
+
+/**
+     * Sets the configuration for error tokens.
+     *
+     * @param errorTokenConfiguration configuration values used for handling errorneous token inputs. 
+     * @return this factory
+     * @since 2.16
+     */
+    public B errorTokenConfiguration(ErrorTokenConfiguration errorTokenConfiguration) {
+        _errorTokenConfiguration = errorTokenConfiguration;
         return _this();
     }
 

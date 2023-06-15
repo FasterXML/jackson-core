@@ -204,12 +204,6 @@ public class JsonFactory
      */
     public final static char DEFAULT_QUOTE_CHAR = '"';
 
-    /**
-     * Default value for {@link #_maxErrorTokenLength}.
-     * @since 2.16
-     */
-    public final static int DEFAULT_MAX_ERROR_TOKEN_LENGTH = 256;
-
     /*
     /**********************************************************
     /* Buffer, symbol table management
@@ -286,6 +280,15 @@ public class JsonFactory
     protected StreamReadConstraints _streamReadConstraints;
 
     /**
+     * Container for configuration values used when handling errorneous token inputs. 
+     * For example, unquoted text segments.
+     *
+     * @see ErrorTokenConfiguration
+     * @since 2.16
+     */
+    protected ErrorTokenConfiguration _errorTokenConfiguration; 
+
+    /**
      * Optional helper object that may decorate input sources, to do
      * additional processing on input during parsing.
      */
@@ -317,13 +320,6 @@ public class JsonFactory
     protected int _maximumNonEscapedChar;
 
     /**
-     * Maximum number of characters to include in token reported as part of error messages. 
-     * 
-     * @since 2.16
-     */
-    protected int _maxErrorTokenLength = DEFAULT_MAX_ERROR_TOKEN_LENGTH;
-
-    /**
      * Character used for quoting field names (if field name quoting has not
      * been disabled with {@link JsonWriteFeature#QUOTE_FIELD_NAMES})
      * and JSON String values.
@@ -352,7 +348,7 @@ public class JsonFactory
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
-        _maxErrorTokenLength = DEFAULT_MAX_ERROR_TOKEN_LENGTH;
+        _errorTokenConfiguration = ErrorTokenConfiguration.defaults();
     }
 
     /**
@@ -375,6 +371,8 @@ public class JsonFactory
         _outputDecorator = src._outputDecorator;
         _streamReadConstraints = src._streamReadConstraints == null ?
             StreamReadConstraints.defaults() : src._streamReadConstraints;
+        _errorTokenConfiguration = src._errorTokenConfiguration == null ?
+            ErrorTokenConfiguration.defaults() : src._errorTokenConfiguration;
 
         // JSON-specific
         _characterEscapes = src._characterEscapes;
@@ -401,6 +399,8 @@ public class JsonFactory
         _outputDecorator = b._outputDecorator;
         _streamReadConstraints = b._streamReadConstraints == null ?
                 StreamReadConstraints.defaults() : b._streamReadConstraints;
+        _errorTokenConfiguration = b._errorTokenConfiguration == null ?
+                ErrorTokenConfiguration.defaults() : b._errorTokenConfiguration;
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -427,13 +427,14 @@ public class JsonFactory
         _outputDecorator = b._outputDecorator;
         _streamReadConstraints = b._streamReadConstraints == null ?
                 StreamReadConstraints.defaults() : b._streamReadConstraints;
+        _errorTokenConfiguration = b._streamReadConstraints == null ?
+                ErrorTokenConfiguration.defaults() : b._errorTokenConfiguration;
 
         // JSON-specific: need to assign even if not really used
         _characterEscapes = null;
         _rootValueSeparator = null;
         _maximumNonEscapedChar = 0;
         _quoteChar = DEFAULT_QUOTE_CHAR;
-        _maxErrorTokenLength = DEFAULT_MAX_ERROR_TOKEN_LENGTH;
     }
 
     /**
@@ -814,6 +815,27 @@ public class JsonFactory
         return this;
     }
 
+
+    /**
+     * Method for overriding {@link ErrorTokenConfiguration} defined for
+     * this factory.
+     *<p>
+     * NOTE: the preferred way to set constraints is by using
+     * {@link JsonFactoryBuilder#errorTokenConfiguration}: this method is only
+     * provided to support older non-builder-based construction.
+     * In Jackson 3.x this method will not be available.
+     *
+     * @param src Configuration
+     *
+     * @return This factory instance (to allow call chaining)
+     *
+     * @since 2.16
+     */
+    public JsonFactory setErrorTokenConfiguration(ErrorTokenConfiguration src) {
+        _errorTokenConfiguration = Objects.requireNonNull(src);;
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Configuration, parser configuration
@@ -1070,22 +1092,6 @@ public class JsonFactory
     }
 
     public ObjectCodec getCodec() { return _objectCodec; }
-
-    /**
-     * @param maxErrorTokenLength Constraints
-     * @return This factory instance (to allow call chaining)
-     * @throws IllegalArgumentException if {@code maxErrorTokenLength} is less than 0
-     *
-     * @since 2.16
-     */
-    public JsonFactory setMaxErrorTokenLength(int maxErrorTokenLength) {
-        if (maxErrorTokenLength < 0) {
-            throw new IllegalArgumentException(
-                    String.format("Value of maxErrorTokenLength (%d) cannot be negative", maxErrorTokenLength));
-        }
-        _maxErrorTokenLength = maxErrorTokenLength;
-        return this;
-    }
     
     /*
     /**********************************************************
@@ -2066,7 +2072,7 @@ public class JsonFactory
             contentRef = ContentReference.unknown();
         }
         return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef, resourceManaged,
-                _maxErrorTokenLength);
+                _errorTokenConfiguration);
     }
 
     /**
@@ -2083,7 +2089,7 @@ public class JsonFactory
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
         return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(rawContentRef),
-                resourceManaged, _maxErrorTokenLength);
+                resourceManaged, _errorTokenConfiguration);
     }
 
     /**
@@ -2101,7 +2107,7 @@ public class JsonFactory
         // now that access is thread-safe
         return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(srcRef),
-                false, _maxErrorTokenLength);
+                false, _errorTokenConfiguration);
     }
 
     /**

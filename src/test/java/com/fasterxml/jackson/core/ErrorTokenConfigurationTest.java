@@ -34,8 +34,7 @@ public class ErrorTokenConfigurationTest extends BaseTest
         // shorter
         _verifyErrorTokenLength(63,
                 ErrorTokenConfiguration.builder()
-                        .maxErrorTokenLength(DEFAULT_LENGTH - 200)
-                        .build());
+                        .maxErrorTokenLength(DEFAULT_LENGTH - 200).build());
 
         // longer 
         _verifyErrorTokenLength(463,
@@ -87,13 +86,19 @@ public class ErrorTokenConfigurationTest extends BaseTest
     private void _verifyErrorTokenLength(int expectedTokenLen, ErrorTokenConfiguration errorTokenConfiguration) 
             throws Exception 
     {
-        // arrange
-        JsonFactory jf = streamFactoryBuilder().errorTokenConfiguration(errorTokenConfiguration).build();
-
-        // act & assert
+        // for Jackson 2.x
+        JsonFactory jf2 = new JsonFactory().setErrorTokenConfiguration(errorTokenConfiguration);
         _testWithMaxErrorTokenLength(expectedTokenLen,
                 // creating arbitrary number so that token reaches max len, but not over-do it
-                50 * DEFAULT_LENGTH, jf);
+                50 * DEFAULT_LENGTH, jf2);
+
+        // for Jackson 3.x
+        JsonFactory jf3 = streamFactoryBuilder().errorTokenConfiguration(errorTokenConfiguration)
+                .build();
+        _testWithMaxErrorTokenLength(expectedTokenLen,
+                // creating arbitrary number so that token reaches max len, but not over-do it
+                50 * DEFAULT_LENGTH, jf3);
+        
     }
 
     private void _testWithMaxErrorTokenLength(int expectedSize, int tokenLen, JsonFactory factory) 

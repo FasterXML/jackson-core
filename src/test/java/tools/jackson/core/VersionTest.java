@@ -40,4 +40,32 @@ public class VersionTest extends BaseTest
 
       assertTrue(version.compareTo(versionTwo) < 0);
   }
+
+  public void testCompareToSnapshotSame() {
+      Version version = new Version(0, 0, 0, "alpha", null, null);
+      Version versionTwo = new Version(0, 0, 0, "alpha", null, null);
+
+      assertEquals(0, version.compareTo(versionTwo));
+  }
+
+  public void testCompareToSnapshotDifferent() {
+      Version version = new Version(0, 0, 0, "alpha", null, null);
+      Version versionTwo = new Version(0, 0, 0, "beta", null, null);
+
+      assertTrue(version.compareTo(versionTwo) < 0);
+  }
+
+  public void testCompareWhenOnlyFirstHasSnapshot() {
+      Version version = new Version(0, 0, 0, "beta", null, null);
+      Version versionTwo = new Version(0, 0, 0, null, null, null);
+
+      assertEquals(-1, version.compareTo(versionTwo));
+  }
+
+  public void testCompareWhenOnlySecondHasSnapshot() {
+      Version version = new Version(0, 0, 0, "", null, null);
+      Version versionTwo = new Version(0, 0, 0, "beta", null, null);
+
+      assertEquals(1, version.compareTo(versionTwo));
+  }
 }

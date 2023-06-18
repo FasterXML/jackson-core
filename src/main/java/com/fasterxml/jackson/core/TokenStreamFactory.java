@@ -153,6 +153,16 @@ public abstract class TokenStreamFactory
      */
     public abstract StreamReadConstraints streamReadConstraints();
 
+    /**
+     * Get the constraints to apply when performing streaming writes.
+     *
+     * @return Constraints to apply to reads done by {@link JsonGenerator}s constructed
+     *   by this factory.
+     *
+     * @since 2.16
+     */
+    public abstract StreamWriteConstraints streamWriteConstraints();
+
     /*
     /**********************************************************************
     /* Factory methods, parsers

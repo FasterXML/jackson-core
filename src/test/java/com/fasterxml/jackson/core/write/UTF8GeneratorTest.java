@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
@@ -18,8 +19,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
-                new BufferRecycler(),
+        IOContext ioc = new IOContext(new BufferRecycler(),
                 ContentReference.rawReference(bytes), true);
         JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"');
         String str = "Natuurlijk is alles gelukt en weer een tevreden klant\uD83D\uDE04";
@@ -43,6 +43,43 @@ public class UTF8GeneratorTest extends BaseTest
         assertNull(p.nextToken());
         p.close();
     }
+
+    public void testNestingDepthWithSmallLimit() throws Exception
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        IOContext ioc = new IOContext(null,
+                StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                new BufferRecycler(),
+                ContentReference.rawReference(bytes), true);
+        try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
+            gen.writeStartObject();
+            gen.writeFieldName("array");
+            gen.writeStartArray();
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException sce) {
+            String expected = "Document nesting depth (2) exceeds the maximum allowed (1, from `StreamWriteConstraints.getMaxNestingDepth()`)";
+            assertEquals(expected, sce.getMessage());
+        }
+    }
+
+    public void testNestingDepthWithSmallLimitNestedObject() throws Exception
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        IOContext ioc = new IOContext(null,
+                StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                new BufferRecycler(),
+                ContentReference.rawReference(bytes), true);
+        try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
+            gen.writeStartObject();
+            gen.writeFieldName("object");
+            gen.writeStartObject();
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException sce) {
+            String expected = "Document nesting depth (2) exceeds the maximum allowed (1, from `StreamWriteConstraints.getMaxNestingDepth()`)";
+            assertEquals(expected, sce.getMessage());
+        }
+    }
+
 
     // for [core#115]
     public void testSurrogatesWithRaw() throws Exception

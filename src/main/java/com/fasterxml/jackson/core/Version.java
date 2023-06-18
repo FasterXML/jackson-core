@@ -148,15 +148,17 @@ public class Version
                     if (diff == 0) {
                         diff = _patchLevel - other._patchLevel;
                         if (diff == 0) {
-                          if (isSnapshot() && other.isSnapshot()) {
-                            diff = _snapshotInfo.compareTo(other._snapshotInfo);
-                          } else if (isSnapshot() && !other.isSnapshot()) {
-                            diff = -1;
-                          } else if (!isSnapshot() && other.isSnapshot()) {
-                            diff = 1;
-                          } else {
-                            diff = 0;
-                          }
+                            if (isSnapshot()) {
+                                if (other.isSnapshot()) {
+                                    diff = _snapshotInfo.compareTo(other._snapshotInfo);
+                                } else {
+                                    diff = -1;
+                                }
+                            } else if (other.isSnapshot()) {
+                                diff = 1;
+                            } else {
+                                diff = 0;
+                            }
                         }
                     }
                 }

@@ -376,3 +376,7 @@ Jonas Konrad (yawkat@github)
 Carter Kozak (carterkozak@github)
  * Contributed #1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
   (2.15.1)
+
+Armin Samii (artoonie@github)
+ * Contributed #1050: Compare `_snapshotInfo` in `Version`
+  (2.16.0)

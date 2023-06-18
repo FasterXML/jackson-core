@@ -8,10 +8,15 @@ import static org.junit.Assert.*;
 /**
  * Unit tests for class {@link VersionUtil}.
  *
- * @date 2017-07-31
  * @see VersionUtil
- **/
-public class VersionUtilTest {
+ */
+public class VersionUtilTest
+{
+  @Test
+  public void testParseVersionSimple() {
+    Version v = VersionUtil.parseVersion("1.2.3-SNAPSHOT", "group", "artifact");
+    assertEquals("group/artifact/1.2.3-SNAPSHOT", v.toFullString());
+  }
 
   @Test
   public void testParseVersionPartReturningPositive() {

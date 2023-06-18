@@ -31,6 +31,8 @@ a pure JSON library.
 #1041: Start using AssertJ in unit tests
 #1042: Allow configuring spaces before and/or after the colon in `DefaultPrettyPrinter`
  (contributed by @digulla)
+#1050: Compare `_snapshotInfo` in `Version`
+ (contributed by @artoonie)
 
 2.15.2 (30-May-2023)
 

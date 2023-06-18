@@ -95,8 +95,8 @@ public class Version
     }
 
     @Override public int hashCode() {
-        return _artifactId.hashCode() ^ _groupId.hashCode()
-                + _majorVersion - _minorVersion + _patchLevel;
+        return _artifactId.hashCode() ^ _groupId.hashCode() ^ _snapshotInfo.hashCode()
+            + _majorVersion - _minorVersion + _patchLevel;
     }
 
     @Override
@@ -130,7 +130,17 @@ public class Version
                     if (diff == 0) {
                         diff = _patchLevel - other._patchLevel;
                         if (diff == 0) {
-                            diff = _snapshotInfo.compareTo(other._snapshotInfo);
+                            if (isSnapshot()) {
+                                if (other.isSnapshot()) {
+                                    diff = _snapshotInfo.compareTo(other._snapshotInfo);
+                                } else {
+                                    diff = -1;
+                                }
+                            } else if (other.isSnapshot()) {
+                                diff = 1;
+                            } else {
+                                diff = 0;
+                            }
                         }
                     }
                 }

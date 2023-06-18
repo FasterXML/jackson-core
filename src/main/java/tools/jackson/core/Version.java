@@ -130,6 +130,7 @@ public class Version
                     if (diff == 0) {
                         diff = _patchLevel - other._patchLevel;
                         if (diff == 0) {
+                            // Snapshot: non-snapshot AFTER snapshot, otherwise alphabetical
                             if (isSnapshot()) {
                                 if (other.isSnapshot()) {
                                     diff = _snapshotInfo.compareTo(other._snapshotInfo);

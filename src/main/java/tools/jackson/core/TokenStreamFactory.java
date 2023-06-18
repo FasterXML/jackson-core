@@ -227,6 +227,11 @@ public abstract class TokenStreamFactory
      */
     protected final StreamReadConstraints _streamReadConstraints;
 
+    /**
+     * Active StreamWriteConstraints to use.
+     */
+    protected final StreamWriteConstraints _streamWriteConstraints;
+
     /*
     /**********************************************************************
     /* Construction
@@ -248,8 +253,10 @@ public abstract class TokenStreamFactory
      * @param formatWriteFeatures Bitmask of format-specific write features enabled
      */
     protected TokenStreamFactory(StreamReadConstraints src,
+            StreamWriteConstraints swc,
             int formatReadFeatures, int formatWriteFeatures) {
         _streamReadConstraints = src;
+        _streamWriteConstraints = swc;
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -271,6 +278,7 @@ public abstract class TokenStreamFactory
     protected TokenStreamFactory(TSFBuilder<?,?> baseBuilder)
     {
         _streamReadConstraints = baseBuilder._streamReadConstraints;
+        _streamWriteConstraints = baseBuilder._streamWriteConstraints;
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
         _streamReadFeatures = baseBuilder.streamReadFeaturesMask();
         _streamWriteFeatures = baseBuilder.streamWriteFeaturesMask();
@@ -287,6 +295,7 @@ public abstract class TokenStreamFactory
     protected TokenStreamFactory(TokenStreamFactory src)
     {
         _streamReadConstraints = src._streamReadConstraints;
+        _streamWriteConstraints = src._streamWriteConstraints;
         _factoryFeatures = src._factoryFeatures;
         _streamReadFeatures = src._streamReadFeatures;
         _streamWriteFeatures = src._streamWriteFeatures;
@@ -494,6 +503,8 @@ public abstract class TokenStreamFactory
     public int getFormatWriteFeatures() { return _formatWriteFeatures; }
 
     public StreamReadConstraints streamReadConstraints() { return _streamReadConstraints; }
+
+    public StreamWriteConstraints streamWriteConstraints() { return _streamWriteConstraints; }
 
     /*
     /**********************************************************************
@@ -1200,7 +1211,8 @@ public abstract class TokenStreamFactory
      * @return Context constructed
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
-        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef,
+        return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+                _getBufferRecycler(), contentRef,
                 resourceManaged, null);
     }
 
@@ -1216,7 +1228,8 @@ public abstract class TokenStreamFactory
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged,
             JsonEncoding enc) {
-        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef,
+        return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+                _getBufferRecycler(), contentRef,
                 resourceManaged, enc);
     }
 

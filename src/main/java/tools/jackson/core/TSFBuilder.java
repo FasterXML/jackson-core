@@ -37,11 +37,18 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
      */
     protected StreamReadConstraints _streamReadConstraints;
 
+    /**
+     * StreamWriteConstraints to use.
+     */
+    protected StreamWriteConstraints _streamWriteConstraints;
+
     // // // Construction
 
     protected TSFBuilder(StreamReadConstraints src,
+            StreamWriteConstraints swc,
             int formatReadF, int formatWriteF) {
         _streamReadConstraints = src;
+        _streamWriteConstraints = swc;
         _factoryFeatures = TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = TokenStreamFactory.DEFAULT_STREAM_WRITE_FEATURE_FLAGS;

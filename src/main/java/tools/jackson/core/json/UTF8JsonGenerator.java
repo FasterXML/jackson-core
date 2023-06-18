@@ -300,6 +300,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(null);
+        streamWriteConstraints().validateNestingDepth(_streamWriteContext.getNestingDepth());
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -316,6 +317,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(forValue);
+        streamWriteConstraints().validateNestingDepth(_streamWriteContext.getNestingDepth());
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -332,6 +334,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(forValue);
+        streamWriteConstraints().validateNestingDepth(_streamWriteContext.getNestingDepth());
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -366,6 +369,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite("start an object");
         _streamWriteContext = _streamWriteContext.createChildObjectContext(null);
+        streamWriteConstraints().validateNestingDepth(_streamWriteContext.getNestingDepth());
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {
@@ -382,6 +386,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite("start an object");
         JsonWriteContext ctxt = _streamWriteContext.createChildObjectContext(forValue);
+        streamWriteConstraints().validateNestingDepth(ctxt.getNestingDepth());
         _streamWriteContext = ctxt;
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
@@ -399,6 +404,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite("start an object");
         JsonWriteContext ctxt = _streamWriteContext.createChildObjectContext(forValue);
+        streamWriteConstraints().validateNestingDepth(ctxt.getNestingDepth());
         _streamWriteContext = ctxt;
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);

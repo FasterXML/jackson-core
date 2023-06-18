@@ -134,7 +134,7 @@ public class JsonFactory
      * factory instance.
      */
     public JsonFactory() {
-        super(StreamReadConstraints.defaults(),
+        super(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
                 DEFAULT_JSON_PARSER_FEATURE_FLAGS, DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
         _characterEscapes = null;
@@ -351,7 +351,7 @@ public class JsonFactory
     }
 
     protected IOContext _createNonBlockingContext(Object srcRef) {
-        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _streamWriteConstraints, _getBufferRecycler(),
                 ContentReference.rawReference(srcRef), false, JsonEncoding.UTF8);
     }
 

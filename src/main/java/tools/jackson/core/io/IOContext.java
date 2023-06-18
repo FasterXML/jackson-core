@@ -2,6 +2,7 @@ package tools.jackson.core.io;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.StreamWriteConstraints;
 import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.TextBuffer;
 import tools.jackson.core.util.ReadConstrainedTextBuffer;
@@ -54,6 +55,8 @@ public class IOContext
 
     protected final StreamReadConstraints _streamReadConstraints;
 
+    protected final StreamWriteConstraints _streamWriteConstraints;
+
     /**
      * Reference to the allocated I/O buffer for low-level input reading,
      * if any allocated.
@@ -104,16 +107,21 @@ public class IOContext
      * Main constructor to use.
      *
      * @param streamReadConstraints constraints for streaming reads
+     * @param streamWriteConstraints constraints for streaming writes
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      * @param enc Encoding in use
      */
-    public IOContext(StreamReadConstraints streamReadConstraints, BufferRecycler br,
-            ContentReference contentRef, boolean managedResource,
+    public IOContext(StreamReadConstraints streamReadConstraints,
+            StreamWriteConstraints streamWriteConstraints,
+            BufferRecycler br, ContentReference contentRef, boolean managedResource,
             JsonEncoding enc)
     {
-        _streamReadConstraints = streamReadConstraints;
+        _streamReadConstraints = streamReadConstraints == null ?
+                StreamReadConstraints.defaults() : streamReadConstraints;
+        _streamWriteConstraints = streamWriteConstraints == null ?
+                StreamWriteConstraints.defaults() : streamWriteConstraints;;
         _bufferRecycler = br;
         _contentReference = contentRef;
         _managedResource = managedResource;
@@ -125,6 +133,13 @@ public class IOContext
      */
     public StreamReadConstraints streamReadConstraints() {
         return _streamReadConstraints;
+    }
+
+    /**
+     * @return constraints for streaming writes
+     */
+    public StreamWriteConstraints streamWriteConstraints() {
+        return _streamWriteConstraints;
     }
 
     public IOContext setEncoding(JsonEncoding enc) {

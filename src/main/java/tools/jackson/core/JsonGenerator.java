@@ -52,6 +52,19 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************************
+    /* Constraints violation checking
+    /**********************************************************************
+     */
+
+    /**
+     * Get the constraints to apply when performing streaming writes.
+     */
+    public StreamWriteConstraints streamWriteConstraints() {
+        return StreamWriteConstraints.defaults();
+    }
+
+    /*
+    /**********************************************************************
     /* Public API, output configuration, state access
     /**********************************************************************
      */

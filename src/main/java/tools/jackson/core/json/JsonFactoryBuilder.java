@@ -27,6 +27,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
 
     public JsonFactoryBuilder() {
         super(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(),
                 JsonFactory.DEFAULT_JSON_PARSER_FEATURE_FLAGS,
                 JsonFactory.DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR;

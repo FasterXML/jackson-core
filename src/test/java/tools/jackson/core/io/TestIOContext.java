@@ -2,6 +2,7 @@ package tools.jackson.core.io;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.StreamWriteConstraints;
 import tools.jackson.core.util.BufferRecycler;
 
 public class TestIOContext
@@ -10,6 +11,7 @@ public class TestIOContext
     public void testAllocations() throws Exception
     {
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true,
                 JsonEncoding.UTF8);

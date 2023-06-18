@@ -6,6 +6,7 @@ import org.junit.Assert;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.StreamWriteConstraints;
 import tools.jackson.core.util.BufferRecycler;
 
 public class UTF8WriterTest
@@ -151,7 +152,7 @@ public class UTF8WriterTest
     }
 
     private IOContext _ioContext(BufferRecycler br) {
-        return new IOContext(StreamReadConstraints.defaults(), br,
+        return new IOContext(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(), br,
                 ContentReference.unknown(), false, JsonEncoding.UTF8);
     }
 }

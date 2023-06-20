@@ -221,10 +221,14 @@ public abstract class TextualTSFactory
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(_createContentReference(out), false, enc);
         if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+            return _decorate(
+                    _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+            );
         }
-        return _createGenerator(writeCtxt, ioCtxt,
-                _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
+        return _decorate(
+                _createGenerator(writeCtxt, ioCtxt,
+                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+        );
     }
 
     @Override
@@ -232,7 +236,9 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         IOContext ioCtxt = _createContext(_createContentReference(w), false);
-        return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, w));
+        return _decorate(
+                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, w))
+        );
     }
 
     @Override
@@ -243,10 +249,14 @@ public abstract class TextualTSFactory
         final OutputStream out = _fileOutputStream(f);
         final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
         if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+            return _decorate(
+                    _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+            );
         }
-        return _createGenerator(writeCtxt, ioCtxt,
-                _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
+        return _decorate(
+                _createGenerator(writeCtxt, ioCtxt,
+                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+        );
     }
 
     @Override
@@ -257,10 +267,14 @@ public abstract class TextualTSFactory
         final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
         if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+            return _decorate(
+                    _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+            );
         }
-        return _createGenerator(writeCtxt, ioCtxt,
-                _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
+        return _decorate(
+                _createGenerator(writeCtxt, ioCtxt,
+                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+        );
     }
 
     /*

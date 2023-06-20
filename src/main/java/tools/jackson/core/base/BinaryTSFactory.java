@@ -164,7 +164,9 @@ public abstract class BinaryTSFactory
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(_createContentReference(out), false, enc);
-        return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+        return _decorate(
+                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+        );
     }
 
     @Override
@@ -181,7 +183,9 @@ public abstract class BinaryTSFactory
         final OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         final IOContext ioCtxt = _createContext(_createContentReference(out), true, enc);
-        return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+        return _decorate(
+                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+        );
     }
 
     @Override
@@ -191,7 +195,9 @@ public abstract class BinaryTSFactory
     {
         final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
-        return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+        return _decorate(
+                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+        );
     }
 
     /*

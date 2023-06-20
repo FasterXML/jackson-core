@@ -1,188 +1,125 @@
-package com.fasterxml.jackson.core;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.core.io.InputDecorator;
-import com.fasterxml.jackson.core.io.OutputDecorator;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
-import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
+package tools.jackson.core;
 
 /**
- * Since 2.10, Builder class is offered for creating token stream factories
- * with difference configurations: with 3.x they will be fully immutable.
- *
- * @since 2.10
+ * Since factory instances are immutable, a Builder class is needed for creating
+ * configurations for differently configured factory instances.
  */
-public abstract class TSFBuilder<F extends JsonFactory,
+public abstract class TSFBuilder<F extends TokenStreamFactory,
     B extends TSFBuilder<F,B>>
 {
-    /*
-    /**********************************************************************
-    /* Constants
-    /**********************************************************************
-     */
-
     /**
-     * Bitfield (set of flags) of all factory features that are enabled by default.
-     */
-    protected final static int DEFAULT_FACTORY_FEATURE_FLAGS = JsonFactory.Feature.collectDefaults();
-
-    /**
-     * Bitfield (set of flags) of all parser features that are enabled
-     * by default.
-     */
-    protected final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
-
-    /**
-     * Bitfield (set of flags) of all generator features that are enabled
-     * by default.
-     */
-    protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
-
-    /*
-    /**********************************************************************
-    /* Configured features
-    /**********************************************************************
-     */
-
-    /**
-     * Set of {@link com.fasterxml.jackson.core.JsonFactory.Feature}s enabled,
-     * as bitmask.
+     * Set of {@link TokenStreamFactory.Feature}s enabled, as bitmask.
      */
     protected int _factoryFeatures;
 
     /**
-     * Set of {@link JsonParser.Feature}s enabled, as bitmask.
+     * Set of {@link StreamReadFeature}s enabled, as bitmask.
      */
     protected int _streamReadFeatures;
 
     /**
-     * Set of {@link JsonGenerator.Feature}s enabled, as bitmask.
+     * Set of {@link StreamWriteFeature}s enabled, as bitmask.
      */
     protected int _streamWriteFeatures;
 
-    /*
-    /**********************************************************************
-    /* Other configuration
-    /**********************************************************************
+    /**
+     * Set of format-specific read {@link FormatFeature}s enabled, as bitmask.
      */
+    protected int _formatReadFeatures;
 
     /**
-     * Optional helper object that may decorate input sources, to do
-     * additional processing on input during parsing.
+     * Set of format-specific write {@link FormatFeature}s enabled, as bitmask.
      */
-    protected InputDecorator _inputDecorator;
+    protected int _formatWriteFeatures;
 
     /**
-     * Optional helper object that may decorate output object, to do
-     * additional processing on output during content generation.
-     */
-    protected OutputDecorator _outputDecorator;
-
-    /**
-     * Optional StreamReadConfig.
-     *
-     * @since 2.15
+     * StreamReadConstraints to use.
      */
     protected StreamReadConstraints _streamReadConstraints;
 
-    /**
-     * @since 2.16
-     */
-    protected List<JsonGeneratorDecorator> _generatorDecorators;
+    // // // Construction
 
-    /*
-    /**********************************************************************
-    /* Construction
-    /**********************************************************************
-     */
-
-    protected TSFBuilder() {
-        _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
-        _streamReadFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
-        _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
-        _inputDecorator = null;
-        _outputDecorator = null;
-        _generatorDecorators = null;
+    protected TSFBuilder(StreamReadConstraints src,
+            int formatReadF, int formatWriteF) {
+        _streamReadConstraints = src;
+        _factoryFeatures = TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS;
+        _streamReadFeatures = TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS;
+        _streamWriteFeatures = TokenStreamFactory.DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
+        _formatReadFeatures = formatReadF;
+        _formatWriteFeatures = formatWriteF;
     }
 
-    protected TSFBuilder(JsonFactory base)
+    protected TSFBuilder(TokenStreamFactory base)
     {
-        this(base._factoryFeatures,
-                base._parserFeatures, base._generatorFeatures);
+        this(base._streamReadConstraints,
+                base._factoryFeatures,
+                base._streamReadFeatures, base._streamWriteFeatures,
+                base._formatReadFeatures, base._formatWriteFeatures);
         _streamReadConstraints = base._streamReadConstraints;
-        _inputDecorator = base._inputDecorator;
-        _outputDecorator = base._outputDecorator;
-        _generatorDecorators = _copy(base._generatorDecorators);
     }
 
-    protected TSFBuilder(int factoryFeatures,
-            int parserFeatures, int generatorFeatures)
+    protected TSFBuilder(StreamReadConstraints src,
+            int factoryFeatures,
+            int streamReadFeatures, int streamWriteFeatures,
+            int formatReadFeatures, int formatWriteFeatures)
     {
+        _streamReadConstraints = src;
         _factoryFeatures = factoryFeatures;
-        _streamReadFeatures = parserFeatures;
-        _streamWriteFeatures = generatorFeatures;
-    }
-
-    // @since 2.16
-    protected static <T> List<T> _copy(List<T> src) {
-        if (src == null) {
-            return src;
-        }
-        return new ArrayList<T>(src);
+        _streamReadFeatures = streamReadFeatures;
+        _streamWriteFeatures = streamWriteFeatures;
+        _formatReadFeatures = formatReadFeatures;
+        _formatWriteFeatures = formatWriteFeatures;
     }
 
     // // // Accessors
 
     public int factoryFeaturesMask() { return _factoryFeatures; }
-    public int streamReadFeatures() { return _streamReadFeatures; }
-    public int streamWriteFeatures() { return _streamWriteFeatures; }
+    public int streamReadFeaturesMask() { return _streamReadFeatures; }
+    public int streamWriteFeaturesMask() { return _streamWriteFeatures; }
 
-    public InputDecorator inputDecorator() { return _inputDecorator; }
-    public OutputDecorator outputDecorator() { return _outputDecorator; }
+    public int formatReadFeaturesMask() { return _formatReadFeatures; }
+    public int formatWriteFeaturesMask() { return _formatWriteFeatures; }
 
     // // // Factory features
 
-    public B enable(JsonFactory.Feature f) {
+    public B enable(TokenStreamFactory.Feature f) {
         _factoryFeatures |= f.getMask();
         return _this();
     }
 
-    public B disable(JsonFactory.Feature f) {
+    public B disable(TokenStreamFactory.Feature f) {
         _factoryFeatures &= ~f.getMask();
         return _this();
     }
 
-    public B configure(JsonFactory.Feature f, boolean state) {
+    public B configure(TokenStreamFactory.Feature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
 
-    // // // StreamReadFeatures (replacement of non-json-specific parser features)
+    // // // Parser features
 
     public B enable(StreamReadFeature f) {
-        _streamReadFeatures |= f.mappedFeature().getMask();
+        _streamReadFeatures |= f.getMask();
         return _this();
     }
 
     public B enable(StreamReadFeature first, StreamReadFeature... other) {
-        _streamReadFeatures |= first.mappedFeature().getMask();
+        _streamReadFeatures |= first.getMask();
         for (StreamReadFeature f : other) {
-            _streamReadFeatures |= f.mappedFeature().getMask();
+            _streamReadFeatures |= f.getMask();
         }
         return _this();
     }
 
     public B disable(StreamReadFeature f) {
-        _streamReadFeatures &= ~f.mappedFeature().getMask();
+        _streamReadFeatures &= ~f.getMask();
         return _this();
     }
 
     public B disable(StreamReadFeature first, StreamReadFeature... other) {
-        _streamReadFeatures &= ~first.mappedFeature().getMask();
+        _streamReadFeatures &= ~first.getMask();
         for (StreamReadFeature f : other) {
-            _streamReadFeatures &= ~f.mappedFeature().getMask();
+            _streamReadFeatures &= ~f.getMask();
         }
         return _this();
     }
@@ -191,30 +128,30 @@ public abstract class TSFBuilder<F extends JsonFactory,
         return state ? enable(f) : disable(f);
     }
 
-    // // // StreamWriteFeatures (replacement of non-json-specific generator features)
+    // // // Generator features
 
     public B enable(StreamWriteFeature f) {
-        _streamWriteFeatures |= f.mappedFeature().getMask();
+        _streamWriteFeatures |= f.getMask();
         return _this();
     }
 
     public B enable(StreamWriteFeature first, StreamWriteFeature... other) {
-        _streamWriteFeatures |= first.mappedFeature().getMask();
+        _streamWriteFeatures |= first.getMask();
         for (StreamWriteFeature f : other) {
-            _streamWriteFeatures |= f.mappedFeature().getMask();
+            _streamWriteFeatures |= f.getMask();
         }
         return _this();
     }
 
     public B disable(StreamWriteFeature f) {
-        _streamWriteFeatures &= ~f.mappedFeature().getMask();
+        _streamWriteFeatures &= ~f.getMask();
         return _this();
     }
 
     public B disable(StreamWriteFeature first, StreamWriteFeature... other) {
-        _streamWriteFeatures &= ~first.mappedFeature().getMask();
+        _streamWriteFeatures &= ~first.getMask();
         for (StreamWriteFeature f : other) {
-            _streamWriteFeatures &= ~f.mappedFeature().getMask();
+            _streamWriteFeatures &= ~f.getMask();
         }
         return _this();
     }
@@ -223,90 +160,13 @@ public abstract class TSFBuilder<F extends JsonFactory,
         return state ? enable(f) : disable(f);
     }
 
-    /* 26-Jun-2018, tatu: This should not be needed here, but due to 2.x limitations,
-     *   we do need to include it or require casting.
-     *   Specifically: since `JsonFactory` (and not `TokenStreamFactory`) is base class
-     *   for all backends, it can not expose JSON-specific builder, but this.
-     *   So let's select lesser evil(s).
-     */
-
-    // // // JSON-specific, reads
-
-    public B enable(JsonReadFeature f) {
-        return _failNonJSON(f);
-    }
-
-    public B enable(JsonReadFeature first, JsonReadFeature... other) {
-        return _failNonJSON(first);
-    }
-
-    public B disable(JsonReadFeature f) {
-        return _failNonJSON(f);
-    }
-
-    public B disable(JsonReadFeature first, JsonReadFeature... other) {
-        return _failNonJSON(first);
-    }
-
-    public B configure(JsonReadFeature f, boolean state) {
-        return _failNonJSON(f);
-    }
-
-    private B _failNonJSON(Object feature) {
-        throw new IllegalArgumentException("Feature "+feature.getClass().getName()
-                +"#"+feature.toString()+" not supported for non-JSON backend");
-    }
-
-    // // // JSON-specific, writes
-
-    public B enable(JsonWriteFeature f) {
-        return _failNonJSON(f);
-    }
-
-    public B enable(JsonWriteFeature first, JsonWriteFeature... other) {
-        return _failNonJSON(first);
-    }
-
-    public B disable(JsonWriteFeature f) {
-        return _failNonJSON(f);
-    }
-
-    public B disable(JsonWriteFeature first, JsonWriteFeature... other) {
-        return _failNonJSON(first);
-    }
-
-    public B configure(JsonWriteFeature f, boolean state) {
-        return _failNonJSON(f);
-    }
-
-    // // // Other configuration, decorators
-
-    public B inputDecorator(InputDecorator dec) {
-        _inputDecorator = dec;
-        return _this();
-    }
-
-    public B outputDecorator(OutputDecorator dec) {
-        _outputDecorator = dec;
-        return _this();
-    }
-
-    public B addDecorator(JsonGeneratorDecorator decorator) {
-        if (_generatorDecorators == null) {
-            _generatorDecorators = new ArrayList<>();
-        }
-        _generatorDecorators.add(decorator);
-        return _this();
-    }
-
-    // // // Other configuration, constraints
+    // // // Other configuration
 
     /**
      * Sets the constraints for streaming reads.
      *
      * @param streamReadConstraints constraints for streaming reads
-     * @return this factory
-     * @since 2.15
+     * @return this builder
      */
     public B streamReadConstraints(StreamReadConstraints streamReadConstraints) {
         _streamReadConstraints = streamReadConstraints;
@@ -319,36 +179,11 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * Method for constructing actual {@link TokenStreamFactory} instance, given
      * configuration.
      *
-     * @return {@link TokenStreamFactory} build based on current configuration
+     * @return {@link TokenStreamFactory} build using builder configuration settings
      */
     public abstract F build();
 
     // silly convenience cast method we need
     @SuppressWarnings("unchecked")
     protected final B _this() { return (B) this; }
-
-    // // // Support for subtypes
-
-    protected void _legacyEnable(JsonParser.Feature f) {
-        if (f != null) {
-            _streamReadFeatures |= f.getMask();
-        }
-    }
-
-    protected void _legacyDisable(JsonParser.Feature f) {
-        if (f != null) {
-            _streamReadFeatures &= ~f.getMask();
-        }
-    }
-
-    protected void _legacyEnable(JsonGenerator.Feature f) {
-        if (f != null) {
-            _streamWriteFeatures |= f.getMask();
-        }
-    }
-    protected void _legacyDisable(JsonGenerator.Feature f) {
-        if (f != null) {
-            _streamWriteFeatures &= ~f.getMask();
-        }
-    }
 }

@@ -56,6 +56,8 @@ Aaron Digulla:
  * Contributed #1042: Allow configuring spaces before and/or after the colon in
    `DefaultPrettyPrinter`
   (2.16.0)
+ * Contributed #1051: Add `JsonGeneratorDecorator` to allow decorating `JsonGenerator`s
+  (2.16.0)
 
 Derek Clarkson (drekka@github)
   * Reported #184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN

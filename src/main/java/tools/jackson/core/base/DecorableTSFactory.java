@@ -1,13 +1,12 @@
 package tools.jackson.core.base;
 
-import java.io.DataInput;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.*;
+import tools.jackson.core.util.JsonGeneratorDecorator;
 
 /**
  * Intermediate base {@link TokenStreamFactory} implementation that offers support for
@@ -43,6 +42,8 @@ public abstract class DecorableTSFactory
          */
         protected OutputDecorator _outputDecorator;
 
+        protected List<JsonGeneratorDecorator> _generatorDecorators;
+
         // // // Construction
 
         protected DecorableTSFBuilder(StreamReadConstraints src,
@@ -50,6 +51,7 @@ public abstract class DecorableTSFactory
             super(src, formatPF, formatGF);
             _inputDecorator = null;
             _outputDecorator = null;
+            _generatorDecorators = null;
         }
 
         protected DecorableTSFBuilder(DecorableTSFactory base)
@@ -57,11 +59,13 @@ public abstract class DecorableTSFactory
             super(base);
             _inputDecorator = base.getInputDecorator();
             _outputDecorator = base.getOutputDecorator();
+            _generatorDecorators = base.getGeneratorDecorators();
         }
 
         // // // Accessors
         public InputDecorator inputDecorator() { return _inputDecorator; }
         public OutputDecorator outputDecorator() { return _outputDecorator; }
+        public List<JsonGeneratorDecorator> generatorDecorators() { return _generatorDecorators; }
 
         // // // Decorators
 
@@ -72,6 +76,14 @@ public abstract class DecorableTSFactory
 
         public T outputDecorator(OutputDecorator dec) {
             _outputDecorator = dec;
+            return _this();
+        }
+
+        public T addDecorator(JsonGeneratorDecorator dec) {
+            if (_generatorDecorators == null) {
+                _generatorDecorators = new ArrayList<>();
+            }
+            _generatorDecorators.add(dec);
             return _this();
         }
     }
@@ -94,6 +106,8 @@ public abstract class DecorableTSFactory
      */
     protected final OutputDecorator _outputDecorator;
 
+    protected List<JsonGeneratorDecorator> _generatorDecorators;
+
     /*
     /**********************************************************************
     /* Construction
@@ -105,6 +119,7 @@ public abstract class DecorableTSFactory
         super(src, formatPF, formatGF);
         _inputDecorator = null;
         _outputDecorator = null;
+        _generatorDecorators = null;
     }
 
     /**
@@ -119,6 +134,7 @@ public abstract class DecorableTSFactory
         super(baseBuilder);
         _inputDecorator = baseBuilder.inputDecorator();
         _outputDecorator = baseBuilder.outputDecorator();
+        _generatorDecorators = _copy(baseBuilder.generatorDecorators());
     }
 
     // Copy constructor.
@@ -126,6 +142,14 @@ public abstract class DecorableTSFactory
         super(src);
         _inputDecorator = src.getInputDecorator();
         _outputDecorator = src.getOutputDecorator();
+        _generatorDecorators = _copy(src._generatorDecorators);
+    }
+
+    protected static <T> List<T> _copy(List<T> src) {
+        if (src == null) {
+            return src;
+        }
+        return new ArrayList<T>(src);
     }
 
     /*
@@ -140,6 +164,10 @@ public abstract class DecorableTSFactory
 
     public InputDecorator getInputDecorator() {
         return _inputDecorator;
+    }
+
+    public List<JsonGeneratorDecorator> getGeneratorDecorators() {
+        return _copy(_generatorDecorators);
     }
 
     /*
@@ -207,5 +235,15 @@ public abstract class DecorableTSFactory
             }
         }
         return out;
+    }
+
+
+    protected JsonGenerator _decorate(JsonGenerator result) {
+        if (_generatorDecorators != null) {
+            for(JsonGeneratorDecorator decorator : _generatorDecorators) {
+                result = decorator.decorate(this, result);
+            }
+        }
+        return result;
     }
 }

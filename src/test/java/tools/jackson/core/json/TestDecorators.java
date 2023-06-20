@@ -7,6 +7,8 @@ import tools.jackson.core.exc.WrappedIOException;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.InputDecorator;
 import tools.jackson.core.io.OutputDecorator;
+import tools.jackson.core.util.JsonGeneratorDecorator;
+import tools.jackson.core.util.JsonGeneratorDelegate;
 
 /**
  * Unit tests to verify that input and output decorators work as
@@ -78,9 +80,29 @@ public class TestDecorators extends tools.jackson.core.BaseTest
         }
     }
 
+    static class SimpleGeneratorDecorator implements JsonGeneratorDecorator
+    {
+        @Override
+        public JsonGenerator decorate(TokenStreamFactory factory, JsonGenerator generator) {
+            return new TextHider(generator);
+        }
+
+        static class TextHider extends JsonGeneratorDelegate {
+            public TextHider(JsonGenerator g) {
+                super(g);
+            }
+
+            @Override
+            public JsonGenerator writeString(String text) {
+                delegate.writeString("***");
+                return this;
+            }
+        }
+    }
+    
     /*
     /**********************************************************
-    /* Unit tests
+    /* Unit tests: input/output decoration
     /**********************************************************
      */
 
@@ -142,5 +164,55 @@ public class TestDecorators extends tools.jackson.core.BaseTest
         jg = f.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
         jg.close();
         assertEquals("123", out.toString("UTF-8"));
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests: input/output decoration
+    /**********************************************************
+     */
+
+    public void testGeneratorDecoration() throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .addDecorator(new SimpleGeneratorDecorator())
+                .build();
+        final String EXP = a2q("{'password':'***'}");
+
+        // First, test with newly constructed factory
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw)) {
+            _generateForDecorator(g);
+        }
+        assertEquals(EXP, sw.toString());
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes)) {
+            _generateForDecorator(g);
+        }
+        assertEquals(EXP, utf8String(bytes));
+
+        // Second do the same to a copy
+        JsonFactory f2 = f.copy();
+        sw = new StringWriter();
+        try (JsonGenerator g = f2.createGenerator(ObjectWriteContext.empty(), sw)) {
+            _generateForDecorator(g);
+        }
+        assertEquals(EXP, sw.toString());
+
+        // And re-built instance
+        JsonFactory f3 = f2.rebuild().build();
+        sw = new StringWriter();
+        try (JsonGenerator g = f3.createGenerator(ObjectWriteContext.empty(), sw)) {
+            _generateForDecorator(g);
+        }
+        assertEquals(EXP, sw.toString());
+    }
+
+    private void _generateForDecorator(JsonGenerator g) throws Exception
+    {
+        g.writeStartObject();
+        g.writeStringProperty("password", "s3cr37x!!");
+        g.writeEndObject();
     }
 }

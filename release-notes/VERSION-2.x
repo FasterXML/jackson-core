@@ -33,6 +33,8 @@ a pure JSON library.
  (contributed by @digulla)
 #1050: Compare `_snapshotInfo` in `Version`
  (contributed by @artoonie)
+#1051: Add `JsonGeneratorDecorator` to allow decorating `JsonGenerator`s
+ (contributed by @digulla)
 
 2.15.2 (30-May-2023)
 

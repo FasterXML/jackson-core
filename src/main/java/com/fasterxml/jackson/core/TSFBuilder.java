@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
+import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
 
 /**
  * Since 2.10, Builder class is offered for creating token stream factories
@@ -87,8 +88,10 @@ public abstract class TSFBuilder<F extends JsonFactory,
      */
     protected StreamReadConstraints _streamReadConstraints;
 
-    /** @since 2.16 */
-    protected List<JsonGeneratorDecorator> _generatorDecorators = new ArrayList<>();
+    /**
+     * @since 2.16
+     */
+    protected List<JsonGeneratorDecorator> _generatorDecorators;
 
     /*
     /**********************************************************************
@@ -291,6 +294,9 @@ public abstract class TSFBuilder<F extends JsonFactory,
     // // // Other methods
 
     public B decorateWith(JsonGeneratorDecorator decorator) {
+        if (_generatorDecorators == null) {
+            _generatorDecorators = new ArrayList<>();
+        }
         _generatorDecorators.add(decorator);
         return _this();
     }

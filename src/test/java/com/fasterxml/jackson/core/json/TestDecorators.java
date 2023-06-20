@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
+import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
+import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 
 /**
  * Unit tests to verify that input and output decorators work as
@@ -63,9 +65,28 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         }
     }
 
+    static class SimpleGeneratorDecorator implements JsonGeneratorDecorator
+    {
+        @Override
+        public JsonGenerator decorate(JsonFactory factory, JsonGenerator generator) {
+            return new TextHider(generator);
+        }
+
+        static class TextHider extends JsonGeneratorDelegate {
+            public TextHider(JsonGenerator g) {
+                super(g);
+            }
+
+            @Override
+            public void writeString(String text) throws IOException {
+                delegate.writeString("***");
+            }
+        }
+    }
+    
     /*
     /**********************************************************
-    /* Unit tests
+    /* Unit tests: input/output decoration
     /**********************************************************
      */
 
@@ -142,4 +163,34 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         f.setOutputDecorator(outDec);
         assertSame(outDec, f.getOutputDecorator());
     }
+
+    /*
+    /**********************************************************
+    /* Unit tests: input/output decoration
+    /**********************************************************
+     */
+
+    public void testGeneratorDecoration() throws IOException
+    {
+        JsonFactory f = JsonFactory.builder()
+                .decorateWith(new SimpleGeneratorDecorator())
+                .build();
+
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator g = f.createGenerator(sw)) {
+            g.writeStartObject();
+            g.writeStringField("password", "s3cr37!!!");
+            g.writeEndObject();
+        }
+        assertEquals(a2q("{'password':'***'}"), sw.toString());
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (JsonGenerator g = f.createGenerator(bytes)) {
+            g.writeStartObject();
+            g.writeStringField("password", "s3cr37x!!");
+            g.writeEndObject();
+        }
+        assertEquals(a2q("{'password':'***'}"), utf8String(bytes));
+    }
+
 }

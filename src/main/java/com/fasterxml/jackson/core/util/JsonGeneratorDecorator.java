@@ -1,6 +1,15 @@
-package com.fasterxml.jackson.core;
+package com.fasterxml.jackson.core.util;
 
-public interface JsonGeneratorDecorator {
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+
+/**
+ * Simple interface to allow adding decorators around {@link JsonGenerator}s.
+ *
+ * @since 2.16
+ */
+public interface JsonGeneratorDecorator
+{
     /**
      * Allow to decorate {@link JsonGenerator} instances returned by {@link JsonFactory}.
      * 

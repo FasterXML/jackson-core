@@ -286,10 +286,10 @@ public class JsonFactory
      * Container for configuration values used when handling errorneous token inputs. 
      * For example, unquoted text segments.
      *
-     * @see ErrorTokenConfiguration
+     * @see ErrorReportConfiguration
      * @since 2.16
      */
-    protected ErrorTokenConfiguration _errorTokenConfiguration; 
+    protected ErrorReportConfiguration _errorReportConfiguration; 
 
     /**
      * Optional helper object that may decorate input sources, to do
@@ -359,7 +359,7 @@ public class JsonFactory
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
-        _errorTokenConfiguration = ErrorTokenConfiguration.defaults();
+        _errorReportConfiguration = ErrorReportConfiguration.defaults();
         _generatorDecorators = null;
     }
 
@@ -384,8 +384,8 @@ public class JsonFactory
         _generatorDecorators = _copy(src._generatorDecorators);
         _streamReadConstraints = src._streamReadConstraints == null ?
             StreamReadConstraints.defaults() : src._streamReadConstraints;
-        _errorTokenConfiguration = src._errorTokenConfiguration == null ?
-            ErrorTokenConfiguration.defaults() : src._errorTokenConfiguration;
+        _errorReportConfiguration = src._errorReportConfiguration == null ?
+            ErrorReportConfiguration.defaults() : src._errorReportConfiguration;
 
         // JSON-specific
         _characterEscapes = src._characterEscapes;
@@ -413,8 +413,8 @@ public class JsonFactory
         _generatorDecorators = _copy(b._generatorDecorators);
         _streamReadConstraints = b._streamReadConstraints == null ?
                 StreamReadConstraints.defaults() : b._streamReadConstraints;
-        _errorTokenConfiguration = b._errorTokenConfiguration == null ?
-                ErrorTokenConfiguration.defaults() : b._errorTokenConfiguration;
+        _errorReportConfiguration = b._errorReportConfiguration == null ?
+                ErrorReportConfiguration.defaults() : b._errorReportConfiguration;
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -442,8 +442,8 @@ public class JsonFactory
         _generatorDecorators = _copy(b._generatorDecorators);
         _streamReadConstraints = b._streamReadConstraints == null ?
                 StreamReadConstraints.defaults() : b._streamReadConstraints;
-        _errorTokenConfiguration = b._streamReadConstraints == null ?
-                ErrorTokenConfiguration.defaults() : b._errorTokenConfiguration;
+        _errorReportConfiguration = b._streamReadConstraints == null ?
+                ErrorReportConfiguration.defaults() : b._errorReportConfiguration;
 
         // JSON-specific: need to assign even if not really used
         _characterEscapes = null;
@@ -840,11 +840,11 @@ public class JsonFactory
 
 
     /**
-     * Method for overriding {@link ErrorTokenConfiguration} defined for
+     * Method for overriding {@link ErrorReportConfiguration} defined for
      * this factory.
      *<p>
      * NOTE: the preferred way to set constraints is by using
-     * {@link JsonFactoryBuilder#errorTokenConfiguration}: this method is only
+     * {@link JsonFactoryBuilder#errorReportConfiguration}: this method is only
      * provided to support older non-builder-based construction.
      * In Jackson 3.x this method will not be available.
      *
@@ -854,8 +854,8 @@ public class JsonFactory
      *
      * @since 2.16
      */
-    public JsonFactory setErrorTokenConfiguration(ErrorTokenConfiguration src) {
-        _errorTokenConfiguration = Objects.requireNonNull(src);;
+    public JsonFactory setErrorTokenConfiguration(ErrorReportConfiguration src) {
+        _errorReportConfiguration = Objects.requireNonNull(src, "Cannot pass null ErrorReportConfiguration");;
         return this;
     }
 
@@ -2114,7 +2114,7 @@ public class JsonFactory
             contentRef = ContentReference.unknown();
         }
         return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef, resourceManaged,
-                _errorTokenConfiguration);
+                _errorReportConfiguration);
     }
 
     /**
@@ -2131,7 +2131,7 @@ public class JsonFactory
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
         return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(rawContentRef),
-                resourceManaged, _errorTokenConfiguration);
+                resourceManaged, _errorReportConfiguration);
     }
 
     /**
@@ -2149,7 +2149,7 @@ public class JsonFactory
         // now that access is thread-safe
         return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(srcRef),
-                false, _errorTokenConfiguration);
+                false, _errorReportConfiguration);
     }
 
     /**

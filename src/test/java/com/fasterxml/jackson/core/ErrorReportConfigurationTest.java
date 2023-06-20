@@ -3,13 +3,13 @@ package com.fasterxml.jackson.core;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for class {@link ErrorTokenConfiguration}.
+ * Unit tests for class {@link ErrorReportConfiguration}.
  */
-public class ErrorTokenConfigurationTest extends BaseTest 
+public class ErrorReportConfigurationTest extends BaseTest 
 {
 
     // Should be 256
-    public final static int DEFAULT_LENGTH = ErrorTokenConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH;
+    public final static int DEFAULT_LENGTH = ErrorReportConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH;
 
     /*
     /**********************************************************
@@ -21,11 +21,11 @@ public class ErrorTokenConfigurationTest extends BaseTest
     {
         // default
         _verifyErrorTokenLength(263,
-                ErrorTokenConfiguration.builder().build());
+                ErrorReportConfiguration.builder().build());
 
         // default
         _verifyErrorTokenLength(263,
-                ErrorTokenConfiguration.defaults());
+                ErrorReportConfiguration.defaults());
 
         // null -> should be default
         _verifyErrorTokenLength(263,
@@ -33,23 +33,23 @@ public class ErrorTokenConfigurationTest extends BaseTest
 
         // shorter
         _verifyErrorTokenLength(63,
-                ErrorTokenConfiguration.builder()
+                ErrorReportConfiguration.builder()
                         .maxErrorTokenLength(DEFAULT_LENGTH - 200).build());
 
         // longer 
         _verifyErrorTokenLength(463,
-                ErrorTokenConfiguration.builder()
+                ErrorReportConfiguration.builder()
                         .maxErrorTokenLength(DEFAULT_LENGTH + 200).build());
 
         // zero
         _verifyErrorTokenLength(9,
-                ErrorTokenConfiguration.builder()
+                ErrorReportConfiguration.builder()
                         .maxErrorTokenLength(0).build());
         
         // negative value fails
         try {
             _verifyErrorTokenLength(9,
-                    ErrorTokenConfiguration.builder()
+                    ErrorReportConfiguration.builder()
                             .maxErrorTokenLength(-1).build());   
         } catch (IllegalArgumentException e) {
             _verifyExceptionMessage(e.getMessage());
@@ -59,14 +59,23 @@ public class ErrorTokenConfigurationTest extends BaseTest
     public void testNegativeBuilderConfiguration() 
     {
         // Zero should be ok
-        ErrorTokenConfiguration.builder().maxErrorTokenLength(0).build();
+        ErrorReportConfiguration.builder().maxErrorTokenLength(0).build();
         
         // But not -1
         try {
-            ErrorTokenConfiguration.builder().maxErrorTokenLength(-1).build();
+            ErrorReportConfiguration.builder().maxErrorTokenLength(-1).build();
             fail();
         } catch (IllegalArgumentException e) {
             _verifyExceptionMessage(e.getMessage());
+        }
+    }
+    
+    public void testNullSetterThrowsException() {
+        try {
+            newStreamFactory().setErrorTokenConfiguration(null);
+            fail();
+        } catch (NullPointerException npe) {
+            assertThat(npe).hasMessage("Cannot pass null ErrorReportConfiguration");
         }
     }
     
@@ -83,22 +92,14 @@ public class ErrorTokenConfigurationTest extends BaseTest
                 .contains("cannot be negative");
     }
 
-    private void _verifyErrorTokenLength(int expectedTokenLen, ErrorTokenConfiguration errorTokenConfiguration) 
+    private void _verifyErrorTokenLength(int expectedTokenLen, ErrorReportConfiguration errorReportConfiguration) 
             throws Exception 
     {
-        // for Jackson 2.x
-        JsonFactory jf2 = new JsonFactory().setErrorTokenConfiguration(errorTokenConfiguration);
-        _testWithMaxErrorTokenLength(expectedTokenLen,
-                // creating arbitrary number so that token reaches max len, but not over-do it
-                50 * DEFAULT_LENGTH, jf2);
-
-        // for Jackson 3.x
-        JsonFactory jf3 = streamFactoryBuilder().errorTokenConfiguration(errorTokenConfiguration)
+        JsonFactory jf3 = streamFactoryBuilder().errorReportConfiguration(errorReportConfiguration)
                 .build();
         _testWithMaxErrorTokenLength(expectedTokenLen,
                 // creating arbitrary number so that token reaches max len, but not over-do it
                 50 * DEFAULT_LENGTH, jf3);
-        
     }
 
     private void _testWithMaxErrorTokenLength(int expectedSize, int tokenLen, JsonFactory factory) 

@@ -94,11 +94,11 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected List<JsonGeneratorDecorator> _generatorDecorators;
 
     /**
-     * Optional {@link com.fasterxml.jackson.core.ErrorTokenConfiguration} to use.
+     * Optional {@link ErrorReportConfiguration} to use.
      *
      * @since 2.16
      */
-    protected ErrorTokenConfiguration _errorTokenConfiguration;
+    protected ErrorReportConfiguration _errorReportConfiguration;
 
     /*
     /**********************************************************************
@@ -123,7 +123,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _inputDecorator = base._inputDecorator;
         _outputDecorator = base._outputDecorator;
         _generatorDecorators = _copy(base._generatorDecorators);
-        _errorTokenConfiguration = base._errorTokenConfiguration;
+        _errorReportConfiguration = base._errorReportConfiguration;
     }
 
     protected TSFBuilder(int factoryFeatures,
@@ -324,12 +324,12 @@ public abstract class TSFBuilder<F extends JsonFactory,
 /**
      * Sets the configuration for error tokens.
      *
-     * @param errorTokenConfiguration configuration values used for handling errorneous token inputs. 
+     * @param errorReportConfiguration configuration values used for handling errorneous token inputs. 
      * @return this factory
      * @since 2.16
      */
-    public B errorTokenConfiguration(ErrorTokenConfiguration errorTokenConfiguration) {
-        _errorTokenConfiguration = errorTokenConfiguration;
+    public B errorReportConfiguration(ErrorReportConfiguration errorReportConfiguration) {
+        _errorReportConfiguration = errorReportConfiguration;
         return _this();
     }
 

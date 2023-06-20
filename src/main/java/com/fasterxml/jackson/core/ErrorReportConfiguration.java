@@ -13,7 +13,7 @@ import java.io.Serializable;
  *
  * @since 2.16
  */
-public class ErrorTokenConfiguration
+public class ErrorReportConfiguration
         implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -29,14 +29,14 @@ public class ErrorTokenConfiguration
      */
     protected final int _maxErrorTokenLength;
 
-    private static ErrorTokenConfiguration DEFAULT =
-            new ErrorTokenConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH);
+    private static ErrorReportConfiguration DEFAULT =
+            new ErrorReportConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH);
 
-    public static void overrideDefaultErrorTokenConfiguration(final ErrorTokenConfiguration errorTokenConfiguration) {
-        if (errorTokenConfiguration == null) {
-            DEFAULT = new ErrorTokenConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH);
+    public static void overrideDefaultErrorReportConfiguration(final ErrorReportConfiguration errorReportConfiguration) {
+        if (errorReportConfiguration == null) {
+            DEFAULT = new ErrorReportConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH);
         } else {
-            DEFAULT = errorTokenConfiguration;
+            DEFAULT = errorReportConfiguration;
         }
     }
     
@@ -68,12 +68,12 @@ public class ErrorTokenConfiguration
             this.maxErrorTokenLength = maxErrorTokenLength;
         }
 
-        Builder(ErrorTokenConfiguration src) {
+        Builder(ErrorReportConfiguration src) {
             this.maxErrorTokenLength = src._maxErrorTokenLength;
         }
 
-        public ErrorTokenConfiguration build() {
-            return new ErrorTokenConfiguration(maxErrorTokenLength);
+        public ErrorReportConfiguration build() {
+            return new ErrorReportConfiguration(maxErrorTokenLength);
         }
     }
     
@@ -84,28 +84,28 @@ public class ErrorTokenConfiguration
     /**********************************************************************
      */
 
-    protected ErrorTokenConfiguration(final int maxErrorTokenLength) {
+    protected ErrorReportConfiguration(final int maxErrorTokenLength) {
         _maxErrorTokenLength = maxErrorTokenLength;
     }
 
-    public static ErrorTokenConfiguration.Builder builder() {
-        return new ErrorTokenConfiguration.Builder();
+    public static ErrorReportConfiguration.Builder builder() {
+        return new ErrorReportConfiguration.Builder();
     }
 
     /**
-     * @return the default {@link ErrorTokenConfiguration} (when none is set on the {@link JsonFactory} explicitly)
-     * @see #overrideDefaultErrorTokenConfiguration(ErrorTokenConfiguration)
+     * @return the default {@link ErrorReportConfiguration} (when none is set on the {@link JsonFactory} explicitly)
+     * @see #overrideDefaultErrorReportConfiguration(ErrorReportConfiguration)
      */
-    public static ErrorTokenConfiguration defaults() {
+    public static ErrorReportConfiguration defaults() {
         return DEFAULT;
     }
 
     /**
-     * @return New {@link ErrorTokenConfiguration.Builder} initialized with settings of configuration
+     * @return New {@link ErrorReportConfiguration.Builder} initialized with settings of configuration
      * instance
      */
-    public ErrorTokenConfiguration.Builder rebuild() {
-        return new ErrorTokenConfiguration.Builder(this);
+    public ErrorReportConfiguration.Builder rebuild() {
+        return new ErrorReportConfiguration.Builder(this);
     }
 
     

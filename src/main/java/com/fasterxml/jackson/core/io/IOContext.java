@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.ErrorTokenConfiguration;
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -66,10 +66,10 @@ public class IOContext
     protected final StreamReadConstraints _streamReadConstraints;
 
     /**
-     * @see com.fasterxml.jackson.core.ErrorTokenConfiguration
+     * @see ErrorReportConfiguration
      * @since 2.16
      */
-    protected final ErrorTokenConfiguration _errorTokenConfiguration;
+    protected final ErrorReportConfiguration _errorReportConfiguration;
 
     /**
      * Reference to the allocated I/O buffer for low-level input reading,
@@ -136,7 +136,7 @@ public class IOContext
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
-        _errorTokenConfiguration = ErrorTokenConfiguration.defaults();
+        _errorReportConfiguration = ErrorReportConfiguration.defaults();
     }
 
     /**
@@ -150,12 +150,12 @@ public class IOContext
      * @since 2.16
      */
     public IOContext(StreamReadConstraints src, BufferRecycler br,
-                    ContentReference contentRef, boolean managedResource, ErrorTokenConfiguration errorTokenConfig)
+                    ContentReference contentRef, boolean managedResource, ErrorReportConfiguration errorTokenConfig)
     {
         _streamReadConstraints = (src == null) ?
                 StreamReadConstraints.defaults() : src;
-        _errorTokenConfiguration = (errorTokenConfig == null) ?
-                ErrorTokenConfiguration.defaults() : errorTokenConfig;
+        _errorReportConfiguration = (errorTokenConfig == null) ?
+                ErrorReportConfiguration.defaults() : errorTokenConfig;
         _bufferRecycler = br;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
@@ -190,13 +190,13 @@ public class IOContext
     }
     
     /**
-     * Returns : {@link ErrorTokenConfiguration}, container for configuration values used when 
+     * Returns : {@link ErrorReportConfiguration}, container for configuration values used when 
      * handling errorneous token inputs. 
      * For example, unquoted text segments.
      * @since 2.16
      */
-    public ErrorTokenConfiguration errorTokenConfiguration() {
-        return _errorTokenConfiguration;
+    public ErrorReportConfiguration errorReportConfiguration() {
+        return _errorReportConfiguration;
     }
 
     public void setEncoding(JsonEncoding enc) {

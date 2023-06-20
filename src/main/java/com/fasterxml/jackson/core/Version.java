@@ -113,7 +113,8 @@ public class Version
     }
 
     @Override public int hashCode() {
-        return _artifactId.hashCode() ^ _groupId.hashCode() + _majorVersion - _minorVersion + _patchLevel;
+        return _artifactId.hashCode() ^ _groupId.hashCode() ^ _snapshotInfo.hashCode()
+            + _majorVersion - _minorVersion + _patchLevel;
     }
 
     @Override
@@ -126,6 +127,7 @@ public class Version
         return (other._majorVersion == _majorVersion)
             && (other._minorVersion == _minorVersion)
             && (other._patchLevel == _patchLevel)
+            && other._snapshotInfo.equals(_snapshotInfo)
             && other._artifactId.equals(_artifactId)
             && other._groupId.equals(_groupId)
             ;
@@ -145,6 +147,20 @@ public class Version
                     diff = _minorVersion - other._minorVersion;
                     if (diff == 0) {
                         diff = _patchLevel - other._patchLevel;
+                        if (diff == 0) {
+                            // Snapshot: non-snapshot AFTER snapshot, otherwise alphabetical
+                            if (isSnapshot()) {
+                                if (other.isSnapshot()) {
+                                    diff = _snapshotInfo.compareTo(other._snapshotInfo);
+                                } else {
+                                    diff = -1;
+                                }
+                            } else if (other.isSnapshot()) {
+                                diff = 1;
+                            } else {
+                                diff = 0;
+                            }
+                        }
                     }
                 }
             }

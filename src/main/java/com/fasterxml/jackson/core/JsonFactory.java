@@ -7,6 +7,8 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.format.InputAccessor;
@@ -19,8 +21,9 @@ import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JacksonFeature;
+import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
+import com.fasterxml.jackson.core.util.Separators;
 
 /**
  * The main factory class of Jackson package, used to configure and
@@ -197,7 +200,7 @@ public class JsonFactory
      */
     protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
 
-    public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+    public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(Separators.DEFAULT_ROOT_VALUE_SEPARATOR);
 
     /**
      * @since 2.10
@@ -301,6 +304,14 @@ public class JsonFactory
     protected OutputDecorator _outputDecorator;
 
     /**
+     * List of {@link JsonGeneratorDecorator}s to apply to {@link JsonGenerator}s
+     * after construction; applied in the order of addition.
+     *
+     * @since 2.16
+     */
+    protected final List<JsonGeneratorDecorator> _generatorDecorators;
+    
+    /**
      * Separator used between root-level values, if any; null indicates
      * "do not add separator".
      * Default separator is a single space character.
@@ -349,6 +360,7 @@ public class JsonFactory
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
         _errorTokenConfiguration = ErrorTokenConfiguration.defaults();
+        _generatorDecorators = null;
     }
 
     /**
@@ -369,6 +381,7 @@ public class JsonFactory
         _generatorFeatures = src._generatorFeatures;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
+        _generatorDecorators = _copy(src._generatorDecorators);
         _streamReadConstraints = src._streamReadConstraints == null ?
             StreamReadConstraints.defaults() : src._streamReadConstraints;
         _errorTokenConfiguration = src._errorTokenConfiguration == null ?
@@ -397,6 +410,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
+        _generatorDecorators = _copy(b._generatorDecorators);
         _streamReadConstraints = b._streamReadConstraints == null ?
                 StreamReadConstraints.defaults() : b._streamReadConstraints;
         _errorTokenConfiguration = b._errorTokenConfiguration == null ?
@@ -425,6 +439,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
+        _generatorDecorators = _copy(b._generatorDecorators);
         _streamReadConstraints = b._streamReadConstraints == null ?
                 StreamReadConstraints.defaults() : b._streamReadConstraints;
         _errorTokenConfiguration = b._streamReadConstraints == null ?
@@ -495,6 +510,14 @@ public class JsonFactory
             throw new IllegalStateException("Failed copy(): "+getClass().getName()
                     +" (version: "+version()+") does not override copy(); it has to");
         }
+    }
+
+    // @since 2.16
+    protected static <T> List<T> _copy(List<T> src) {
+        if (src == null) {
+            return src;
+        }
+        return new ArrayList<T>(src);
     }
 
     /*
@@ -1929,7 +1952,7 @@ public class JsonFactory
         if (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {
             gen.setRootValueSeparator(rootSep);
         }
-        return gen;
+        return _decorate(gen);
     }
 
     /**
@@ -1962,7 +1985,7 @@ public class JsonFactory
         if (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {
             gen.setRootValueSeparator(rootSep);
         }
-        return gen;
+        return _decorate(gen);
     }
 
     protected Writer _createWriter(OutputStream out, JsonEncoding enc, IOContext ctxt) throws IOException
@@ -2030,6 +2053,25 @@ public class JsonFactory
             }
         }
         return out;
+    }
+
+    /**
+     * Helper method for applying all registered {@link JsonGeneratorDecorator}s
+     * on freshly constructed {@link JsonGenerator}.
+     *
+     * @param g Generator constructed that is to be decorated
+     *
+     * @return Generator after applying all registered {@link JsonGeneratorDecorator}s.
+     *
+     * @since 2.16
+     */
+    protected JsonGenerator _decorate(JsonGenerator g) {
+        if (_generatorDecorators != null) {
+            for (JsonGeneratorDecorator decorator : _generatorDecorators) {
+                g = decorator.decorate(this, g);
+            }
+        }
+        return g;
     }
 
     /*

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
@@ -92,7 +91,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * @since 2.1
      */
     protected SerializableString _rootValueSeparator
-        = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+        = JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR;
 
     /**
      * Flag that is set if quoting is not to be added around

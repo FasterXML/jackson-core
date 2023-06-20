@@ -51,8 +51,13 @@ Alex Soto: (lordofthejars@github)
    (2.4.5)
 
 Aaron Digulla:
-  * Contributed #166: Allow to configure line endings and indentation
-   (2.5.0)
+ * Contributed #166: Allow to configure line endings and indentation
+  (2.5.0)
+ * Contributed #1042: Allow configuring spaces before and/or after the colon in
+   `DefaultPrettyPrinter`
+  (2.16.0)
+ * Contributed #1051: Add `JsonGeneratorDecorator` to allow decorating `JsonGenerator`s
+  (2.16.0)
 
 Derek Clarkson (drekka@github)
   * Reported #184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN
@@ -373,3 +378,7 @@ Jonas Konrad (yawkat@github)
 Carter Kozak (carterkozak@github)
  * Contributed #1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
   (2.15.1)
+
+Armin Samii (artoonie@github)
+ * Contributed #1050: Compare `_snapshotInfo` in `Version`
+  (2.16.0)

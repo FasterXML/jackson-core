@@ -29,6 +29,12 @@ a pure JSON library.
 #1039: Indicate explicitly blocked sources as "REDACTED" instead of
   "UNKNOWN" in `JsonLocation`
 #1041: Start using AssertJ in unit tests
+#1042: Allow configuring spaces before and/or after the colon in `DefaultPrettyPrinter`
+ (contributed by @digulla)
+#1050: Compare `_snapshotInfo` in `Version`
+ (contributed by @artoonie)
+#1051: Add `JsonGeneratorDecorator` to allow decorating `JsonGenerator`s
+ (contributed by @digulla)
 
 2.15.2 (30-May-2023)
 
@@ -52,7 +58,7 @@ a pure JSON library.
 
 2.15.0 (23-Apr-2023)
 
-#827: Add numeric value size limits via `StreamReadConstraints` (fixes
+#815: Add maximum numeric value length limits via `StreamReadConstraints` (fixes
   `sonatype-2022-6438`)
  (contributed by @pjfanning)
 #844: Add SLSA provenance via build script
@@ -73,10 +79,11 @@ a pure JSON library.
   allow for deferred decoding in some cases
 #921: Add `JsonFactory.Feature.CHARSET_DETECTION` to disable charset detection
  (contributed by @yawkat) 
+#943: Add `StreamReadConstraints.maxNestingDepth()` to constraint max nesting
+  depth (default: 1000)
 #948: Use `StreamConstraintsException` in name canonicalizers
  (contributed by @pjfanning)
 #962: Offer a way to directly set `StreamReadConstraints` via `JsonFactory` (not just Builder)
-#965: 2.15.0-rc1 missing Gradle module metadata marker in pom.xml
 #968: Prevent inefficient internal conversion from `BigDecimal` to `BigInteger`
   wrt ultra-large scale
 #984: Add `JsonGenerator.copyCurrentEventExact` as alternative to `copyCurrentEvent()`

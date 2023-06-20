@@ -173,7 +173,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     public void testGeneratorDecoration() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .decorateWith(new SimpleGeneratorDecorator())
+                .addDecorator(new SimpleGeneratorDecorator())
                 .build();
         final String EXP = a2q("{'password':'***'}");
 

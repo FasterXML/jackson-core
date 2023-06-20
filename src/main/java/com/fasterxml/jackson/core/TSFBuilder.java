@@ -279,7 +279,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         return _failNonJSON(f);
     }
 
-    // // // Other configuration
+    // // // Other configuration, decorators
 
     public B inputDecorator(InputDecorator dec) {
         _inputDecorator = dec;
@@ -290,6 +290,16 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _outputDecorator = dec;
         return _this();
     }
+
+    public B addDecorator(JsonGeneratorDecorator decorator) {
+        if (_generatorDecorators == null) {
+            _generatorDecorators = new ArrayList<>();
+        }
+        _generatorDecorators.add(decorator);
+        return _this();
+    }
+
+    // // // Other configuration, constraints
 
     /**
      * Sets the constraints for streaming reads.
@@ -304,14 +314,6 @@ public abstract class TSFBuilder<F extends JsonFactory,
     }
 
     // // // Other methods
-
-    public B decorateWith(JsonGeneratorDecorator decorator) {
-        if (_generatorDecorators == null) {
-            _generatorDecorators = new ArrayList<>();
-        }
-        _generatorDecorators.add(decorator);
-        return _this();
-    }
 
     /**
      * Method for constructing actual {@link TokenStreamFactory} instance, given

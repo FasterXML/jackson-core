@@ -105,6 +105,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
         _inputDecorator = null;
         _outputDecorator = null;
+        _generatorDecorators = null;
     }
 
     protected TSFBuilder(JsonFactory base)
@@ -112,6 +113,9 @@ public abstract class TSFBuilder<F extends JsonFactory,
         this(base._factoryFeatures,
                 base._parserFeatures, base._generatorFeatures);
         _streamReadConstraints = base._streamReadConstraints;
+        _inputDecorator = base._inputDecorator;
+        _outputDecorator = base._outputDecorator;
+        _generatorDecorators = _copy(base._generatorDecorators);
     }
 
     protected TSFBuilder(int factoryFeatures,
@@ -120,6 +124,14 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = parserFeatures;
         _streamWriteFeatures = generatorFeatures;
+    }
+
+    // @since 2.16
+    protected static <T> List<T> _copy(List<T> src) {
+        if (src == null) {
+            return src;
+        }
+        return new ArrayList<T>(src);
     }
 
     // // // Accessors

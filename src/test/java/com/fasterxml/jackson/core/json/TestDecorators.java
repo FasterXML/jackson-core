@@ -170,27 +170,47 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     /**********************************************************
      */
 
-    public void testGeneratorDecoration() throws IOException
+    public void testGeneratorDecoration() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .decorateWith(new SimpleGeneratorDecorator())
                 .build();
+        final String EXP = a2q("{'password':'***'}");
 
+        // First, test with newly constructed factory
         StringWriter sw = new StringWriter();
         try (JsonGenerator g = f.createGenerator(sw)) {
-            g.writeStartObject();
-            g.writeStringField("password", "s3cr37!!!");
-            g.writeEndObject();
+            _generateForDecorator(g);
         }
-        assertEquals(a2q("{'password':'***'}"), sw.toString());
+        assertEquals(EXP, sw.toString());
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (JsonGenerator g = f.createGenerator(bytes)) {
-            g.writeStartObject();
-            g.writeStringField("password", "s3cr37x!!");
-            g.writeEndObject();
+            _generateForDecorator(g);
         }
-        assertEquals(a2q("{'password':'***'}"), utf8String(bytes));
+        assertEquals(EXP, utf8String(bytes));
+
+        // Second do the same to a copy
+        JsonFactory f2 = f.copy();
+        sw = new StringWriter();
+        try (JsonGenerator g = f2.createGenerator(sw)) {
+            _generateForDecorator(g);
+        }
+        assertEquals(EXP, sw.toString());
+
+        // And re-built instance
+        JsonFactory f3 = f2.rebuild().build();
+        sw = new StringWriter();
+        try (JsonGenerator g = f3.createGenerator(sw)) {
+            _generateForDecorator(g);
+        }
+        assertEquals(EXP, sw.toString());
     }
 
+    private void _generateForDecorator(JsonGenerator g) throws Exception
+    {
+        g.writeStartObject();
+        g.writeStringField("password", "s3cr37x!!");
+        g.writeEndObject();
+    }
 }

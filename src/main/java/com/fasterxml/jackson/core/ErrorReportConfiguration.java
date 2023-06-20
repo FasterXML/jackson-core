@@ -132,11 +132,10 @@ public class ErrorReportConfiguration
      */
 
     /**
-     * Convenience method that can be used to verify that the
-     * max error token length does not exceed the maximum specified by this object: if it does, a
-     * {@link IllegalArgumentException} is thrown.
+     * Convenience method that can be used verify valid {@link #_maxErrorTokenLength}.
+     * If invalid value is passed in, {@link IllegalArgumentException} is thrown.
      *
-     * @param maxErrorTokenLength count of unclosed objects and arrays
+     * @param maxErrorTokenLength Maximum length of token to include in error messages
      */
     private static void validateMaxErrorTokenLength(int maxErrorTokenLength) throws IllegalArgumentException {
         if (maxErrorTokenLength < 0) {

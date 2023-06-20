@@ -854,7 +854,7 @@ public class JsonFactory
      *
      * @since 2.16
      */
-    public JsonFactory setErrorTokenConfiguration(ErrorReportConfiguration src) {
+    public JsonFactory setErrorReportConfiguration(ErrorReportConfiguration src) {
         _errorReportConfiguration = Objects.requireNonNull(src, "Cannot pass null ErrorReportConfiguration");;
         return this;
     }
@@ -1115,7 +1115,7 @@ public class JsonFactory
     }
 
     public ObjectCodec getCodec() { return _objectCodec; }
-    
+
     /*
     /**********************************************************
     /* Parser factories, traditional (blocking) I/O sources

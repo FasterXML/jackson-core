@@ -146,16 +146,16 @@ public class IOContext
      * @param br                  BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef          Input source reference for location reporting
      * @param managedResource     Whether input source is managed (owned) by Jackson library
-     * @param errorTokenConfig Configuration values used when handling errorneous token inputs. 
+     * @param errorReportConfiguration Configuration values used when handling errorneous token inputs. 
      * @since 2.16
      */
     public IOContext(StreamReadConstraints src, BufferRecycler br,
-                    ContentReference contentRef, boolean managedResource, ErrorReportConfiguration errorTokenConfig)
+                    ContentReference contentRef, boolean managedResource, ErrorReportConfiguration errorReportConfiguration)
     {
         _streamReadConstraints = (src == null) ?
                 StreamReadConstraints.defaults() : src;
-        _errorReportConfiguration = (errorTokenConfig == null) ?
-                ErrorReportConfiguration.defaults() : errorTokenConfig;
+        _errorReportConfiguration = (errorReportConfiguration == null) ?
+                ErrorReportConfiguration.defaults() : errorReportConfiguration;
         _bufferRecycler = br;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();

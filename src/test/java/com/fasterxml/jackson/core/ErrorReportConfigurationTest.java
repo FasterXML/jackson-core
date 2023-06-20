@@ -72,7 +72,7 @@ public class ErrorReportConfigurationTest extends BaseTest
     
     public void testNullSetterThrowsException() {
         try {
-            newStreamFactory().setErrorTokenConfiguration(null);
+            newStreamFactory().setErrorReportConfiguration(null);
             fail();
         } catch (NullPointerException npe) {
             assertThat(npe).hasMessage("Cannot pass null ErrorReportConfiguration");

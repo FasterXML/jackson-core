@@ -1543,7 +1543,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * and source information is <b>NOT</b> to be included
      * ({@code StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION} disabled).
      *<p>
-     * Default implementation will simply return {@code ContentReference.unknown()}.
+     * Default implementation will simply return {@link ContentReference#redacted()}.
      *
      * @return ContentReference object to use when source is not to be included
      *

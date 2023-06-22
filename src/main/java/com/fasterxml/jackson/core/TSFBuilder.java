@@ -1,9 +1,13 @@
 package com.fasterxml.jackson.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
+import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
 
 /**
  * Since 2.10, Builder class is offered for creating token stream factories
@@ -91,6 +95,11 @@ public abstract class TSFBuilder<F extends JsonFactory,
      */
     protected StreamWriteConstraints _streamWriteConstraints;
 
+    /**
+     * @since 2.16
+     */
+    protected List<JsonGeneratorDecorator> _generatorDecorators;
+
     /*
     /**********************************************************************
     /* Construction
@@ -103,6 +112,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
         _inputDecorator = null;
         _outputDecorator = null;
+        _generatorDecorators = null;
     }
 
     protected TSFBuilder(JsonFactory base)
@@ -110,6 +120,9 @@ public abstract class TSFBuilder<F extends JsonFactory,
         this(base._factoryFeatures,
                 base._parserFeatures, base._generatorFeatures);
         _streamReadConstraints = base._streamReadConstraints;
+        _inputDecorator = base._inputDecorator;
+        _outputDecorator = base._outputDecorator;
+        _generatorDecorators = _copy(base._generatorDecorators);
     }
 
     protected TSFBuilder(int factoryFeatures,
@@ -118,6 +131,14 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = parserFeatures;
         _streamWriteFeatures = generatorFeatures;
+    }
+
+    // @since 2.16
+    protected static <T> List<T> _copy(List<T> src) {
+        if (src == null) {
+            return src;
+        }
+        return new ArrayList<T>(src);
     }
 
     // // // Accessors
@@ -265,7 +286,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         return _failNonJSON(f);
     }
 
-    // // // Other configuration
+    // // // Other configuration, decorators
 
     public B inputDecorator(InputDecorator dec) {
         _inputDecorator = dec;
@@ -276,6 +297,16 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _outputDecorator = dec;
         return _this();
     }
+
+    public B addDecorator(JsonGeneratorDecorator decorator) {
+        if (_generatorDecorators == null) {
+            _generatorDecorators = new ArrayList<>();
+        }
+        _generatorDecorators.add(decorator);
+        return _this();
+    }
+
+    // // // Other configuration, constraints
 
     /**
      * Sets the constraints for streaming reads.

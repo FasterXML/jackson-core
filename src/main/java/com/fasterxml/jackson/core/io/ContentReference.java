@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -52,8 +54,14 @@ public class ContentReference
      * logs.
      *
      * @since 2.9
+     * @deprecated 2.16 Use {@link ErrorReportConfiguration#getMaxRawContentLength()} instead.
      */
     public static final int DEFAULT_MAX_CONTENT_SNIPPET = 500;
+
+    /**
+     * Uses {@link ErrorReportConfiguration#defaults()} unless configured.
+     */
+    protected final ErrorReportConfiguration _errorTokenConfiguration ;
 
     /**
      * Reference to the actual underlying content.
@@ -86,7 +94,7 @@ public class ContentReference
     /* Life-cycle
     /**********************************************************************
      */
-
+    
     protected ContentReference(boolean isContentTextual, Object rawContent) {
         this(isContentTextual, rawContent, -1, -1);
     }
@@ -98,6 +106,17 @@ public class ContentReference
         _rawContent = rawContent;
         _offset = offset;
         _length = length;
+        _errorTokenConfiguration = ErrorReportConfiguration.defaults();
+    }
+    
+    protected ContentReference(boolean isContentTextual, Object rawContent,
+            int offset, int length, ErrorReportConfiguration errorReportConfiguration)
+    {
+        _isContentTextual = isContentTextual;
+        _rawContent = rawContent;
+        _offset = offset;
+        _length = length;
+        _errorTokenConfiguration = errorReportConfiguration;
     }
 
     /**
@@ -160,6 +179,25 @@ public class ContentReference
         return rawReference(false, rawContent);
     }
 
+    /**
+     * If passed instance of {@link ErrorReportConfiguration} is {@code null}, will return as is.
+     * 
+     * @since 2.16
+     * @param errorReportConfiguration {@link ErrorReportConfiguration} to apply for error reporting use cases.
+     * @return Will simply return if passed {@code errorReportConfiguration} is either null same.
+     */
+    public ContentReference apply(ErrorReportConfiguration errorReportConfiguration) {
+        // default?
+        if (_errorTokenConfiguration == errorReportConfiguration) {
+            return this;
+        }
+        if (errorReportConfiguration == null) {
+            return this;
+        }
+        return new ContentReference(_isContentTextual, _rawContent, _offset, _length, errorReportConfiguration);
+    }
+
+    
     /*
     /**********************************************************************
     /* Serializable overrides
@@ -202,11 +240,13 @@ public class ContentReference
      * Internal accessor, overridable, used for checking length (in units in
      * which content is counted, either bytes or chars) to use for truncation
      * (so as not to include full content for humongous sources or targets)
+     * 
+     * Refer to {@link ErrorReportConfiguration#builder()#_maxRawContentLength}
      *
      * @return Maximum content snippet to include before truncating
      */
     protected int maxContentSnippetLength() {
-        return DEFAULT_MAX_CONTENT_SNIPPET;
+        return _errorTokenConfiguration.getMaxRawContentLength();
     }
 
     /*
@@ -420,4 +460,5 @@ public class ContentReference
     public int hashCode() {
         return Objects.hashCode(_rawContent);
     }
+
 }

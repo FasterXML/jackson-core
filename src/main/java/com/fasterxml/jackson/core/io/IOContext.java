@@ -220,13 +220,14 @@ public class IOContext
     /**
      * Accessor for getting (some) information about input source, mostly
      * usable for error reporting purposes.
+     * This MUST only be called if {@link com.fasterxml.jackson.core.StreamReadFeature#INCLUDE_SOURCE_IN_LOCATION} is enabled.
      *
      * @return Reference to input source
      *
      * @since 2.13
      */
     public ContentReference contentReference() {
-        return _contentReference;
+        return _contentReference.apply(_errorReportConfiguration);
     }
 
     /**

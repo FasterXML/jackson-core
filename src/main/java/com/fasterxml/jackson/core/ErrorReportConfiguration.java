@@ -20,7 +20,14 @@ public class ErrorReportConfiguration
     /**
      * Default value for {@link #_maxErrorTokenLength}.
      */
-    public final static int DEFAULT_MAX_ERROR_TOKEN_LENGTH = 256;
+    public static final int DEFAULT_MAX_ERROR_TOKEN_LENGTH = 256;
+
+    /**
+     * Previous was {@link com.fasterxml.jackson.core.io.ContentReference#DEFAULT_MAX_CONTENT_SNIPPET}.
+     * Default value for {@link #_maxRawContentLength}.
+     */
+    public static final int DEFAULT_MAX_RAW_CONTENT_LENGTH = 500;
+    
 
     /**
      * Maximum length of token to include in error messages
@@ -28,13 +35,15 @@ public class ErrorReportConfiguration
      * @see Builder#maxErrorTokenLength(int)
      */
     protected final int _maxErrorTokenLength;
+    
+    protected final int _maxRawContentLength;
 
     private static ErrorReportConfiguration DEFAULT =
-            new ErrorReportConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH);
+            new ErrorReportConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH, DEFAULT_MAX_RAW_CONTENT_LENGTH);
 
     public static void overrideDefaultErrorReportConfiguration(final ErrorReportConfiguration errorReportConfiguration) {
         if (errorReportConfiguration == null) {
-            DEFAULT = new ErrorReportConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH);
+            DEFAULT = new ErrorReportConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH, DEFAULT_MAX_RAW_CONTENT_LENGTH);
         } else {
             DEFAULT = errorReportConfiguration;
         }
@@ -48,6 +57,7 @@ public class ErrorReportConfiguration
 
     public static final class Builder {
         private int maxErrorTokenLength;
+        private int maxRawContentLength;
 
         /**
          * @param maxErrorTokenLength Constraints
@@ -60,20 +70,33 @@ public class ErrorReportConfiguration
             return this;
         }
 
+        /**
+         * 
+         * @see ErrorReportConfiguration#_maxRawContentLength
+         * @return This factory instance (to allow call chaining)
+         */
+        public Builder maxRawContentLength(final int maxRawContentLength) {
+            validateMaxRawContentLength(maxRawContentLength);
+            this.maxRawContentLength = maxRawContentLength;
+            return this;
+        }
+        
         Builder() {
-            this(DEFAULT_MAX_ERROR_TOKEN_LENGTH);
+            this(DEFAULT_MAX_ERROR_TOKEN_LENGTH, DEFAULT_MAX_RAW_CONTENT_LENGTH);
         }
 
-        Builder(final int maxErrorTokenLength) {
+        Builder(final int maxErrorTokenLength, final int maxRawContentLength) {
             this.maxErrorTokenLength = maxErrorTokenLength;
+            this.maxRawContentLength = maxRawContentLength;
         }
 
         Builder(ErrorReportConfiguration src) {
             this.maxErrorTokenLength = src._maxErrorTokenLength;
+            this.maxRawContentLength = src._maxRawContentLength;
         }
 
         public ErrorReportConfiguration build() {
-            return new ErrorReportConfiguration(maxErrorTokenLength);
+            return new ErrorReportConfiguration(maxErrorTokenLength, maxRawContentLength);
         }
     }
     
@@ -84,8 +107,9 @@ public class ErrorReportConfiguration
     /**********************************************************************
      */
 
-    protected ErrorReportConfiguration(final int maxErrorTokenLength) {
+    protected ErrorReportConfiguration(final int maxErrorTokenLength, final int maxRawContentLength) {
         _maxErrorTokenLength = maxErrorTokenLength;
+        _maxRawContentLength = maxRawContentLength;
     }
 
     public static ErrorReportConfiguration.Builder builder() {
@@ -125,6 +149,18 @@ public class ErrorReportConfiguration
         return _maxErrorTokenLength;
     }
 
+
+    /**
+     * Accessor for {@link #_maxRawContentLength}
+     *
+     * @return Maximum length of token to include in error messages
+     * @see Builder#maxRawContentLength
+     */
+    public int getMaxRawContentLength() {
+        return _maxRawContentLength;
+    }
+    
+
     /*
     /**********************************************************************
     /* Convenience methods for validation
@@ -143,4 +179,13 @@ public class ErrorReportConfiguration
                     String.format("Value of maxErrorTokenLength (%d) cannot be negative", maxErrorTokenLength));
         }
     }
+
+
+    private static void validateMaxRawContentLength(int maxRawContentLength) {
+        if (maxRawContentLength < 0) {
+            throw new IllegalArgumentException(
+                    String.format("Value of maxRawContentLength (%d) cannot be negative", maxRawContentLength));
+        }
+    }
+
 }

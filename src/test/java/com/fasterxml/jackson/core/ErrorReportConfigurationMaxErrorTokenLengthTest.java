@@ -3,9 +3,9 @@ package com.fasterxml.jackson.core;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for class {@link ErrorReportConfiguration}.
+ * Unit tests for class {@link ErrorReportConfiguration#getMaxErrorTokenLength()}.
  */
-public class ErrorReportConfigurationTest extends BaseTest 
+public class ErrorReportConfigurationMaxErrorTokenLengthTest extends BaseTest 
 {
 
     // Should be 256
@@ -16,6 +16,7 @@ public class ErrorReportConfigurationTest extends BaseTest
     /* Unit Tests
     /**********************************************************
      */
+    
     public void testExpectedTokenLengthWithConfigurations() 
             throws Exception 
     {

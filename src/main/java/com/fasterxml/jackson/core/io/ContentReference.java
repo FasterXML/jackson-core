@@ -54,14 +54,11 @@ public class ContentReference
      * logs.
      *
      * @since 2.9
-     * @deprecated 2.16 Use {@link ErrorReportConfiguration#getMaxRawContentLength()} instead.
+     * @deprecated Since 2.16. {@link ErrorReportConfiguration#DEFAULT_MAX_RAW_CONTENT_LENGTH} will be used by default or 
+     * as configured by {@link ErrorReportConfiguration.Builder#maxRawContentLength(int)}
+     * will be used instead.
      */
     public static final int DEFAULT_MAX_CONTENT_SNIPPET = 500;
-
-    /**
-     * Uses {@link ErrorReportConfiguration#defaults()} unless configured.
-     */
-    protected final ErrorReportConfiguration _errorTokenConfiguration ;
 
     /**
      * Reference to the actual underlying content.
@@ -89,6 +86,13 @@ public class ContentReference
      */
     protected final boolean _isContentTextual;
 
+    /**
+     * max raw content to return as configured 
+     * 
+     * @since 2.16
+     */
+    protected final int _maxRawContentLength;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -106,7 +110,8 @@ public class ContentReference
         _rawContent = rawContent;
         _offset = offset;
         _length = length;
-        _errorTokenConfiguration = ErrorReportConfiguration.defaults();
+        ErrorReportConfiguration errorReportConfiguration = ErrorReportConfiguration.defaults();
+        _maxRawContentLength = errorReportConfiguration.getMaxRawContentLength();
     }
     
     protected ContentReference(boolean isContentTextual, Object rawContent,
@@ -116,8 +121,9 @@ public class ContentReference
         _rawContent = rawContent;
         _offset = offset;
         _length = length;
-        _errorTokenConfiguration = errorReportConfiguration == null ? ErrorReportConfiguration.defaults() 
+        errorReportConfiguration = errorReportConfiguration == null ? ErrorReportConfiguration.defaults() 
                 : errorReportConfiguration;
+        _maxRawContentLength = errorReportConfiguration.getMaxRawContentLength();
     }
 
     /**
@@ -252,7 +258,7 @@ public class ContentReference
      * @return Maximum content snippet to include before truncating
      */
     protected int maxContentSnippetLength() {
-        return _errorTokenConfiguration.getMaxRawContentLength();
+        return _maxRawContentLength;
     }
 
     /*

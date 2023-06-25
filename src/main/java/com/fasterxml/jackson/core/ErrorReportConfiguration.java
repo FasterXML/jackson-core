@@ -28,7 +28,6 @@ public class ErrorReportConfiguration
      */
     public static final int DEFAULT_MAX_RAW_CONTENT_LENGTH = 500;
     
-
     /**
      * Maximum length of token to include in error messages
      *
@@ -100,7 +99,6 @@ public class ErrorReportConfiguration
         }
     }
     
-    
     /*
     /**********************************************************************
     /* Life-cycle
@@ -131,7 +129,6 @@ public class ErrorReportConfiguration
     public ErrorReportConfiguration.Builder rebuild() {
         return new ErrorReportConfiguration.Builder(this);
     }
-
     
     /*
     /**********************************************************************
@@ -149,7 +146,6 @@ public class ErrorReportConfiguration
         return _maxErrorTokenLength;
     }
 
-
     /**
      * Accessor for {@link #_maxRawContentLength}
      *
@@ -159,7 +155,6 @@ public class ErrorReportConfiguration
     public int getMaxRawContentLength() {
         return _maxRawContentLength;
     }
-    
 
     /*
     /**********************************************************************
@@ -179,7 +174,6 @@ public class ErrorReportConfiguration
                     String.format("Value of maxErrorTokenLength (%d) cannot be negative", maxErrorTokenLength));
         }
     }
-
 
     private static void validateMaxRawContentLength(int maxRawContentLength) {
         if (maxRawContentLength < 0) {

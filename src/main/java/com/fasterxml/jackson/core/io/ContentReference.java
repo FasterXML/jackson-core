@@ -116,7 +116,16 @@ public class ContentReference
         _rawContent = rawContent;
         _offset = offset;
         _length = length;
-        _errorTokenConfiguration = errorReportConfiguration;
+        _errorTokenConfiguration = errorReportConfiguration == null ? ErrorReportConfiguration.defaults() 
+                : errorReportConfiguration;
+    }
+
+    /**
+     * @since 2.16
+     */
+    public ContentReference(boolean isContentTextual, Object rawContent, 
+                            ErrorReportConfiguration errorReportConfiguration) {
+        this(isContentTextual, rawContent, -1, -1, errorReportConfiguration);
     }
 
     /**
@@ -150,7 +159,23 @@ public class ContentReference
 
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
             int offset, int length) {
-        return new ContentReference(isContentTextual, rawContent, offset, length);
+        return new ContentReference(isContentTextual, rawContent, offset, length, null);
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static ContentReference construct(boolean isContentTextual, Object rawContent,
+        int offset, int length, ErrorReportConfiguration errorReportConfiguration) 
+    {
+        return new ContentReference(isContentTextual, rawContent, offset, length, errorReportConfiguration);
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static ContentReference construct(boolean isContentTextual, Object rawContent, ErrorReportConfiguration errorReportConfiguration) {
+        return new ContentReference(isContentTextual, rawContent, errorReportConfiguration);
     }
 
     /**
@@ -179,25 +204,6 @@ public class ContentReference
         return rawReference(false, rawContent);
     }
 
-    /**
-     * If passed instance of {@link ErrorReportConfiguration} is {@code null}, will return as is.
-     * 
-     * @since 2.16
-     * @param errorReportConfiguration {@link ErrorReportConfiguration} to apply for error reporting use cases.
-     * @return Will simply return if passed {@code errorReportConfiguration} is either null same.
-     */
-    public ContentReference apply(ErrorReportConfiguration errorReportConfiguration) {
-        // default?
-        if (_errorTokenConfiguration == errorReportConfiguration) {
-            return this;
-        }
-        if (errorReportConfiguration == null) {
-            return this;
-        }
-        return new ContentReference(_isContentTextual, _rawContent, _offset, _length, errorReportConfiguration);
-    }
-
-    
     /*
     /**********************************************************************
     /* Serializable overrides

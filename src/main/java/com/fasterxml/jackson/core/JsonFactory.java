@@ -2167,7 +2167,7 @@ public class JsonFactory
     protected ContentReference _createContentReference(Object contentAccessor) {
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:
-        return ContentReference.construct(!canHandleBinaryNatively(), contentAccessor);
+        return ContentReference.construct(!canHandleBinaryNatively(), contentAccessor, _errorReportConfiguration);
     }
 
     /**
@@ -2191,7 +2191,7 @@ public class JsonFactory
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:
         return ContentReference.construct(!canHandleBinaryNatively(),
-                contentAccessor, offset, length);
+                contentAccessor, offset, length, _errorReportConfiguration);
     }
 
     /*

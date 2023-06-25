@@ -227,7 +227,7 @@ public class IOContext
      * @since 2.13
      */
     public ContentReference contentReference() {
-        return _contentReference.apply(_errorReportConfiguration);
+        return _contentReference;
     }
 
     /**

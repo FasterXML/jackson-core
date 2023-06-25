@@ -5,14 +5,13 @@ import com.fasterxml.jackson.core.io.ContentReference;
 /**
  * Unit tests for class {@link ErrorReportConfiguration#getMaxRawContentLength()}.
  */
-public class ErrorReportConfigurationMaxRawContentLengthTest extends BaseTest 
-{
+public class ErrorReportConfigurationMaxRawContentLengthTest extends BaseTest {
     /*
     /**********************************************************
     /* Unit Tests
     /**********************************************************
      */
-    
+
     public void testBasicToStringErrorConfig() throws Exception {
         // Short String
         ContentReference reference = _sourceRefWithErrorReportConfig("abcde", 1);
@@ -28,15 +27,12 @@ public class ErrorReportConfigurationMaxRawContentLengthTest extends BaseTest
      */
 
     private ContentReference _sourceRefWithErrorReportConfig(String rawSrc, int rawContentLength) {
-        return _sourceRef(rawSrc)
-                .apply(
-                        ErrorReportConfiguration.builder()
-                                .maxRawContentLength(rawContentLength)
-                                .build());
+        return _sourceRef(rawSrc, 
+                ErrorReportConfiguration.builder().maxRawContentLength(rawContentLength).build());
     }
 
-    private ContentReference _sourceRef(String rawSrc) {
-        return ContentReference.construct(true, rawSrc, 0, rawSrc.length());
+    private ContentReference _sourceRef(String rawSrc, ErrorReportConfiguration errorReportConfiguration) {
+        return ContentReference.construct(true, rawSrc, 0, rawSrc.length(),errorReportConfiguration);
     }
 
 }

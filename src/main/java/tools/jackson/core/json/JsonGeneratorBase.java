@@ -32,21 +32,11 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
     /**
-     * Low-level I/O context used mostly for buffer recycling.
-     */
-    protected final IOContext _ioContext;
-
-    /**
      * Bit flag composed of bits that indicate which
      * {@link tools.jackson.core.json.JsonWriteFeature}s
      * are enabled.
      */
     protected final int _formatWriteFeatures;
-
-    /**
-     * Constraints to use for this parser.
-     */
-    protected final StreamWriteConstraints _streamWriteConstraints;
 
     /*
     /**********************************************************************
@@ -137,14 +127,12 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /**********************************************************************
      */
 
-    protected JsonGeneratorBase(ObjectWriteContext writeCtxt, IOContext ctxt,
+    protected JsonGeneratorBase(ObjectWriteContext writeCtxt, IOContext ioCtxt,
             int streamWriteFeatures, int formatWriteFeatures,
             SerializableString rootValueSeparator, PrettyPrinter pp,
             CharacterEscapes charEsc, int maxNonEscaped)
     {
-        super(writeCtxt, streamWriteFeatures);
-        _ioContext = ctxt;
-        _streamWriteConstraints = ctxt.streamWriteConstraints();
+        super(writeCtxt, ioCtxt, streamWriteFeatures);
         _formatWriteFeatures = formatWriteFeatures;
         // By default we use this feature to determine additional quoting
         if (JsonWriteFeature.ESCAPE_NON_ASCII.enabledIn(formatWriteFeatures)) {
@@ -179,15 +167,10 @@ public abstract class JsonGeneratorBase extends GeneratorBase
 
     /*
     /**********************************************************************
-    /* Constraints violation checking
+    /* Basic configuration access
     /**********************************************************************
      */
-
-    @Override
-    public StreamWriteConstraints streamWriteConstraints() {
-        return _streamWriteConstraints;
-    }
-
+    
     public boolean isEnabled(JsonWriteFeature f) { return f.enabledIn(_formatWriteFeatures); }
 
     @Override

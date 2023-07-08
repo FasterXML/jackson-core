@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.math.BigDecimal;
 
 import tools.jackson.core.*;
+import tools.jackson.core.io.IOContext;
 import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.core.util.VersionUtil;
@@ -81,6 +82,16 @@ public abstract class GeneratorBase extends JsonGenerator
     protected final ObjectWriteContext _objectWriteContext;
 
     /**
+     * Low-level I/O context used mostly for buffer recycling.
+     */
+    protected final IOContext _ioContext;
+
+    /**
+     * Constraints to use for this generator.
+     */
+    protected final StreamWriteConstraints _streamWriteConstraints;
+
+    /**
      * Bit flag composed of bits that indicate which
      * {@link tools.jackson.core.StreamWriteFeature}s
      * are enabled.
@@ -106,20 +117,30 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    protected GeneratorBase(ObjectWriteContext writeCtxt, int streamWriteFeatures) {
+    protected GeneratorBase(ObjectWriteContext writeCtxt, IOContext ioCtxt,
+            int streamWriteFeatures) {
         super();
         _objectWriteContext = writeCtxt;
+        _ioContext = ioCtxt;
+        _streamWriteConstraints = ioCtxt.streamWriteConstraints();
         _streamWriteFeatures = streamWriteFeatures;
     }
 
     /*
     /**********************************************************************
-    /* Configuration
+    /* Configuration access
     /**********************************************************************
      */
 
-    @Override public final boolean isEnabled(StreamWriteFeature f) { return (_streamWriteFeatures & f.getMask()) != 0; }
-    @Override public int streamWriteFeatures() { return _streamWriteFeatures; }
+    @Override
+    public final boolean isEnabled(StreamWriteFeature f) {
+        return (_streamWriteFeatures & f.getMask()) != 0;
+    }
+
+    @Override
+    public final int streamWriteFeatures() {
+        return _streamWriteFeatures;
+    }
 
     // public int formatWriteFeatures();
 
@@ -131,6 +152,11 @@ public abstract class GeneratorBase extends JsonGenerator
             _streamWriteFeatures &= ~f.getMask();
         }
         return this;
+    }
+
+    @Override
+    public final StreamWriteConstraints streamWriteConstraints() {
+        return _streamWriteConstraints;
     }
 
     /*

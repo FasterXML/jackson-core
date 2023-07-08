@@ -31,6 +31,8 @@ a pure JSON library.
 #1041: Start using AssertJ in unit tests
 #1042: Allow configuring spaces before and/or after the colon in `DefaultPrettyPrinter`
  (contributed by @digulla)
+#1048: Add configurable processing limits for JSON generator (`StreamWriteConstraints`)
+ (contributed by @pjfanning)
 #1050: Compare `_snapshotInfo` in `Version`
  (contributed by @artoonie)
 #1051: Add `JsonGeneratorDecorator` to allow decorating `JsonGenerator`s

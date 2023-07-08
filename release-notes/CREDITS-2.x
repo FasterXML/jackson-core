@@ -306,25 +306,25 @@ Vlad Tatavu (vladt@github)
   (2.13.2)
 
 PJ Fanning (pjfanning@github)
-  * Contributed #577: Improve performance of floating-point number parsing
-   (2.14.0)
-  * Contributed #730: JSON precision loss on `copyCurrentEvent()` for floats that require greater
-    than `double` precision
-   (2.15.0)
-  * Contributed #744: Limit size of exception message in BigDecimalParser
-   (2.13.3)
-  * Contributed #749: Improve performance of writing floating-point numbers
+ * Contributed #577: Improve performance of floating-point number parsing
   (2.14.0)
-  * Contributed #773: Add option to accept non-standard trailing decimal point
-  (2.14.0)
-  * Contributed #774:  Add a feature to allow leading plus sign
-    (`JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS`)
-  (2.14.0)
-  * Contributed #827: Add numeric value size limits via `StreamReadConstraints`
+ * Contributed #730: JSON precision loss on `copyCurrentEvent()` for floats that require greater
+   than `double` precision
   (2.15.0)
-  * Contributed #863: Add `StreamReadConstraints` limit for longest textual value to
+ * Contributed #744: Limit size of exception message in BigDecimalParser
+  (2.13.3)
+ * Contributed #749: Improve performance of writing floating-point numbers
+  (2.14.0)
+ * Contributed #773: Add option to accept non-standard trailing decimal point
+  (2.14.0)
+ * Contributed #774:  Add a feature to allow leading plus sign
+   (`JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS`)
+  (2.14.0)
+ * Contributed #827: Add numeric value size limits via `StreamReadConstraints`
   (2.15.0)
-  * ... and countless more
+ * Contributed #863: Add `StreamReadConstraints` limit for longest textual value to
+  (2.15.0)
+ * ... and countless more -- 2.16+ contributions not listed
 
 Ilya Golovin (ilgo0413@github)
   * Contributed #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"

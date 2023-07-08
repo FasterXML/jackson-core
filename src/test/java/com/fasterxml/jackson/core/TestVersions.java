@@ -48,6 +48,7 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
 
     private IOContext getIOContext() {
         return new IOContext(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(),
                 new BufferRecycler(), ContentReference.unknown(), false);
     }
 }

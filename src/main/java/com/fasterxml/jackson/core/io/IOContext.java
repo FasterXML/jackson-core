@@ -63,8 +63,14 @@ public class IOContext
      */
     protected final BufferRecycler _bufferRecycler;
 
+    /**
+     * @since 2.15
+     */
     protected final StreamReadConstraints _streamReadConstraints;
 
+    /**
+     * @since 2.16
+     */
     protected final StreamWriteConstraints _streamWriteConstraints;
 
     /**
@@ -146,6 +152,7 @@ public class IOContext
      * @since 2.15
      * @deprecated use v2.16 constructor with additional <code>StreamWriteConstraints</code>
      */
+    @Deprecated
     public IOContext(StreamReadConstraints src, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
     {

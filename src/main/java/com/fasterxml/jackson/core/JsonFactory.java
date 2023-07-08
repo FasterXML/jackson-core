@@ -381,10 +381,8 @@ public class JsonFactory
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
         _generatorDecorators = _copy(src._generatorDecorators);
-        _streamReadConstraints = src._streamReadConstraints == null ?
-            StreamReadConstraints.defaults() : src._streamReadConstraints;
-        _streamWriteConstraints = src._streamWriteConstraints == null ?
-                StreamWriteConstraints.defaults() : src._streamWriteConstraints;
+        _streamReadConstraints = Objects.requireNonNull(src._streamReadConstraints);
+        _streamWriteConstraints = Objects.requireNonNull(src._streamWriteConstraints);
 
         // JSON-specific
         _characterEscapes = src._characterEscapes;
@@ -410,10 +408,8 @@ public class JsonFactory
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
         _generatorDecorators = _copy(b._generatorDecorators);
-        _streamReadConstraints = b._streamReadConstraints == null ?
-                StreamReadConstraints.defaults() : b._streamReadConstraints;
-        _streamWriteConstraints = b._streamWriteConstraints == null ?
-                StreamWriteConstraints.defaults() : b._streamWriteConstraints;
+        _streamReadConstraints = Objects.requireNonNull(b._streamReadConstraints);
+        _streamWriteConstraints = Objects.requireNonNull(b._streamWriteConstraints);
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -439,10 +435,8 @@ public class JsonFactory
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
         _generatorDecorators = _copy(b._generatorDecorators);
-        _streamReadConstraints = b._streamReadConstraints == null ?
-                StreamReadConstraints.defaults() : b._streamReadConstraints;
-        _streamWriteConstraints = b._streamWriteConstraints == null ?
-                StreamWriteConstraints.defaults() : b._streamWriteConstraints;
+        _streamReadConstraints = Objects.requireNonNull(b._streamReadConstraints);
+        _streamWriteConstraints = Objects.requireNonNull(b._streamWriteConstraints);
 
         // JSON-specific: need to assign even if not really used
         _characterEscapes = null;

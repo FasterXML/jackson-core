@@ -47,6 +47,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     protected final IOContext _ioContext;
 
+    /**
+     * @since 2.16
+     */
+    protected final StreamWriteConstraints _streamWriteConstraints;
+
     /*
     /**********************************************************
     /* Configuration, output escaping
@@ -120,6 +125,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     {
         super(features, codec);
         _ioContext = ctxt;
+        _streamWriteConstraints = ctxt.streamWriteConstraints();
         if (Feature.ESCAPE_NON_ASCII.enabledIn(features)) {
             // inlined `setHighestNonEscapedChar()`
             _maximumNonEscapedChar = 127;
@@ -147,7 +153,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     @Override
     public StreamWriteConstraints streamWriteConstraints() {
-        return _ioContext.streamWriteConstraints();
+        return _streamWriteConstraints;
     }
 
     /*

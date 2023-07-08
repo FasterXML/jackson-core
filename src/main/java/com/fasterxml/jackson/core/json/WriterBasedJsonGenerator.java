@@ -251,6 +251,7 @@ public class WriterBasedJsonGenerator
     {
         _verifyValueWrite("start an array");
         _writeContext = _writeContext.createChildArrayContext();
+        streamWriteConstraints().validateNestingDepth(_writeContext.getNestingDepth());
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -266,6 +267,7 @@ public class WriterBasedJsonGenerator
     {
         _verifyValueWrite("start an array");
         _writeContext = _writeContext.createChildArrayContext(currentValue);
+        streamWriteConstraints().validateNestingDepth(_writeContext.getNestingDepth());
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -281,6 +283,7 @@ public class WriterBasedJsonGenerator
     {
         _verifyValueWrite("start an array");
         _writeContext = _writeContext.createChildArrayContext(currentValue);
+        streamWriteConstraints().validateNestingDepth(_writeContext.getNestingDepth());
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -313,6 +316,7 @@ public class WriterBasedJsonGenerator
     {
         _verifyValueWrite("start an object");
         _writeContext = _writeContext.createChildObjectContext();
+        streamWriteConstraints().validateNestingDepth(_writeContext.getNestingDepth());
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {
@@ -328,6 +332,7 @@ public class WriterBasedJsonGenerator
     {
         _verifyValueWrite("start an object");
         JsonWriteContext ctxt = _writeContext.createChildObjectContext(forValue);
+        streamWriteConstraints().validateNestingDepth(_writeContext.getNestingDepth());
         _writeContext = ctxt;
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);

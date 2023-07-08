@@ -82,11 +82,18 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected OutputDecorator _outputDecorator;
 
     /**
-     * Optional StreamReadConfig.
+     * Optional StreamReadConstraints.
      *
      * @since 2.15
      */
     protected StreamReadConstraints _streamReadConstraints;
+
+    /**
+     * Optional StreamWriteConstraints.
+     *
+     * @since 2.16
+     */
+    protected StreamWriteConstraints _streamWriteConstraints;
 
     /**
      * @since 2.16
@@ -310,6 +317,18 @@ public abstract class TSFBuilder<F extends JsonFactory,
      */
     public B streamReadConstraints(StreamReadConstraints streamReadConstraints) {
         _streamReadConstraints = streamReadConstraints;
+        return _this();
+    }
+
+    /**
+     * Sets the constraints for streaming writes.
+     *
+     * @param streamWriteConstraints constraints for streaming reads
+     * @return this factory
+     * @since 2.16
+     */
+    public B streamWriteConstraints(StreamWriteConstraints streamWriteConstraints) {
+        _streamWriteConstraints = streamWriteConstraints;
         return _this();
     }
 

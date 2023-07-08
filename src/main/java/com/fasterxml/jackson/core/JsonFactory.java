@@ -283,6 +283,14 @@ public class JsonFactory
     protected StreamReadConstraints _streamReadConstraints;
 
     /**
+     * Write constraints to use for {@link JsonGenerator}s constructed using
+     * this factory.
+     *
+     * @since 2.16
+     */
+    protected StreamWriteConstraints _streamWriteConstraints;
+
+    /**
      * Optional helper object that may decorate input sources, to do
      * additional processing on input during parsing.
      */
@@ -350,6 +358,7 @@ public class JsonFactory
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
+        _streamWriteConstraints = StreamWriteConstraints.defaults();
         _generatorDecorators = null;
     }
 
@@ -374,6 +383,8 @@ public class JsonFactory
         _generatorDecorators = _copy(src._generatorDecorators);
         _streamReadConstraints = src._streamReadConstraints == null ?
             StreamReadConstraints.defaults() : src._streamReadConstraints;
+        _streamWriteConstraints = src._streamWriteConstraints == null ?
+                StreamWriteConstraints.defaults() : src._streamWriteConstraints;
 
         // JSON-specific
         _characterEscapes = src._characterEscapes;
@@ -401,6 +412,8 @@ public class JsonFactory
         _generatorDecorators = _copy(b._generatorDecorators);
         _streamReadConstraints = b._streamReadConstraints == null ?
                 StreamReadConstraints.defaults() : b._streamReadConstraints;
+        _streamWriteConstraints = b._streamWriteConstraints == null ?
+                StreamWriteConstraints.defaults() : b._streamWriteConstraints;
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -428,6 +441,8 @@ public class JsonFactory
         _generatorDecorators = _copy(b._generatorDecorators);
         _streamReadConstraints = b._streamReadConstraints == null ?
                 StreamReadConstraints.defaults() : b._streamReadConstraints;
+        _streamWriteConstraints = b._streamWriteConstraints == null ?
+                StreamWriteConstraints.defaults() : b._streamWriteConstraints;
 
         // JSON-specific: need to assign even if not really used
         _characterEscapes = null;
@@ -802,6 +817,11 @@ public class JsonFactory
         return _streamReadConstraints;
     }
 
+    @Override
+    public StreamWriteConstraints streamWriteConstraints() {
+        return _streamWriteConstraints;
+    }
+
     /**
      * Method for overriding {@link StreamReadConstraints} defined for
      * this factory.
@@ -819,6 +839,26 @@ public class JsonFactory
      */
     public JsonFactory setStreamReadConstraints(StreamReadConstraints src) {
         _streamReadConstraints = Objects.requireNonNull(src);
+        return this;
+    }
+
+    /**
+     * Method for overriding {@link StreamWriteConstraints} defined for
+     * this factory.
+     *<p>
+     * NOTE: the preferred way to set constraints is by using
+     * {@link JsonFactoryBuilder#streamWriteConstraints}: this method is only
+     * provided to support older non-builder-based construction.
+     * In Jackson 3.x this method will not be available.
+     *
+     * @param swc Constraints
+     *
+     * @return This factory instance (to allow call chaining)
+     *
+     * @since 2.16
+     */
+    public JsonFactory setStreamWriteConstraints(StreamWriteConstraints swc) {
+        _streamWriteConstraints = Objects.requireNonNull(swc);
         return this;
     }
 
@@ -2076,7 +2116,8 @@ public class JsonFactory
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
         }
-        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef, resourceManaged);
+        return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+                _getBufferRecycler(), contentRef, resourceManaged);
     }
 
     /**
@@ -2091,7 +2132,8 @@ public class JsonFactory
      */
     @Deprecated // @since 2.13
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
-        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+                _getBufferRecycler(),
                 _createContentReference(rawContentRef),
                 resourceManaged);
     }
@@ -2109,7 +2151,8 @@ public class JsonFactory
     protected IOContext _createNonBlockingContext(Object srcRef) {
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
-        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+                _getBufferRecycler(),
                 _createContentReference(srcRef),
                 false);
     }

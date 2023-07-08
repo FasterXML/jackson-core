@@ -342,6 +342,15 @@ public abstract class JsonGenerator
     public abstract ObjectCodec getCodec();
 
     /**
+     * Get the constraints to apply when performing streaming writes.
+     *
+     * @since 2.16
+     */
+    public StreamWriteConstraints streamWriteConstraints() {
+        return StreamWriteConstraints.defaults();
+    }
+
+    /**
      * Accessor for finding out version of the bundle that provided this generator instance.
      *
      * @return Version of this generator (derived from version declared for

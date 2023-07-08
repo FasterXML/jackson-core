@@ -71,6 +71,7 @@ public class TokenFilterContext extends JsonStreamContext
         super();
         _type = type;
         _parent = parent;
+        _nestingDepth = parent == null ? 0 : parent._nestingDepth + 1;
         _filter = filter;
         _index = -1;
         _startHandled = startHandled;

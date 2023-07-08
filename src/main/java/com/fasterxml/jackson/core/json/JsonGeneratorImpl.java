@@ -140,6 +140,17 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     }
 
     /*
+    /**********************************************************************
+    /* Constraints violation checking (2.16)
+    /**********************************************************************
+     */
+
+    @Override
+    public StreamWriteConstraints streamWriteConstraints() {
+        return _ioContext.streamWriteConstraints();
+    }
+
+    /*
     /**********************************************************
     /* Overridden configuration methods
     /**********************************************************

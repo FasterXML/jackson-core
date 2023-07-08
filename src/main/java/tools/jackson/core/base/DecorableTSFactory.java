@@ -47,8 +47,9 @@ public abstract class DecorableTSFactory
         // // // Construction
 
         protected DecorableTSFBuilder(StreamReadConstraints src,
+                StreamWriteConstraints swc,
                 int formatPF, int formatGF) {
-            super(src, formatPF, formatGF);
+            super(src, swc, formatPF, formatGF);
             _inputDecorator = null;
             _outputDecorator = null;
             _generatorDecorators = null;
@@ -115,8 +116,9 @@ public abstract class DecorableTSFactory
      */
 
     protected DecorableTSFactory(StreamReadConstraints src,
+            StreamWriteConstraints swc,
             int formatPF, int formatGF) {
-        super(src, formatPF, formatGF);
+        super(src, swc, formatPF, formatGF);
         _inputDecorator = null;
         _outputDecorator = null;
         _generatorDecorators = null;

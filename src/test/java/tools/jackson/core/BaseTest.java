@@ -621,6 +621,7 @@ public abstract class BaseTest
 
     protected IOContext ioContextForTests(Object source) {
         return new IOContext(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(source), true,
                 JsonEncoding.UTF8);

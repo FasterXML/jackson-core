@@ -26,8 +26,9 @@ public abstract class BinaryTSFactory
      */
 
     protected BinaryTSFactory(StreamReadConstraints src,
+            StreamWriteConstraints swc,
             int formatPF, int formatGF) {
-        super(src, formatPF, formatGF);
+        super(src, swc, formatPF, formatGF);
     }
 
     /**

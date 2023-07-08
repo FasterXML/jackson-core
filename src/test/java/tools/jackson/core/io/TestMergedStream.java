@@ -4,6 +4,7 @@ import java.io.*;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.StreamWriteConstraints;
 import tools.jackson.core.util.BufferRecycler;
 
 public class TestMergedStream
@@ -12,6 +13,7 @@ public class TestMergedStream
     public void testSimple() throws Exception
     {
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(),
                 new BufferRecycler(),
                 ContentReference.UNKNOWN_CONTENT, false, JsonEncoding.UTF8);
         // bit complicated; must use recyclable buffer...

@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.StreamWriteConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
@@ -42,11 +43,12 @@ class ReadConstrainedTextBufferTest {
     }
 
     private static TextBuffer makeConstrainedBuffer(int maxStringLen) {
-        StreamReadConstraints constraints = StreamReadConstraints.builder()
+        StreamReadConstraints streamReadConstraints = StreamReadConstraints.builder()
                 .maxStringLength(maxStringLen)
                 .build();
         IOContext ioContext = new IOContext(
-                constraints,
+                streamReadConstraints,
+                StreamWriteConstraints.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true, JsonEncoding.UTF8);
         return ioContext.constructReadConstrainedTextBuffer();

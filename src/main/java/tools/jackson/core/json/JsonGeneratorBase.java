@@ -171,6 +171,17 @@ public abstract class JsonGeneratorBase extends GeneratorBase
 
     @Override public Version version() { return PackageVersion.VERSION; }
 
+    /*
+    /**********************************************************************
+    /* Constraints violation checking
+    /**********************************************************************
+     */
+
+    @Override
+    public StreamWriteConstraints streamWriteConstraints() {
+        return _ioContext.streamWriteConstraints();
+    }
+
     public boolean isEnabled(JsonWriteFeature f) { return f.enabledIn(_formatWriteFeatures); }
 
     @Override

@@ -1,5 +1,7 @@
 package tools.jackson.core;
 
+import java.util.Objects;
+
 /**
  * Since factory instances are immutable, a Builder class is needed for creating
  * configurations for differently configured factory instances.
@@ -47,8 +49,8 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     protected TSFBuilder(StreamReadConstraints src,
             StreamWriteConstraints swc,
             int formatReadF, int formatWriteF) {
-        _streamReadConstraints = src;
-        _streamWriteConstraints = swc;
+        _streamReadConstraints = Objects.requireNonNull(src);
+        _streamWriteConstraints = Objects.requireNonNull(swc);
         _factoryFeatures = TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = TokenStreamFactory.DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -58,19 +60,20 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
 
     protected TSFBuilder(TokenStreamFactory base)
     {
-        this(base._streamReadConstraints,
+        this(base._streamReadConstraints, base._streamWriteConstraints,
                 base._factoryFeatures,
                 base._streamReadFeatures, base._streamWriteFeatures,
                 base._formatReadFeatures, base._formatWriteFeatures);
-        _streamReadConstraints = base._streamReadConstraints;
     }
 
     protected TSFBuilder(StreamReadConstraints src,
+            StreamWriteConstraints swc,
             int factoryFeatures,
             int streamReadFeatures, int streamWriteFeatures,
             int formatReadFeatures, int formatWriteFeatures)
     {
         _streamReadConstraints = src;
+        _streamWriteConstraints = swc;
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = streamReadFeatures;
         _streamWriteFeatures = streamWriteFeatures;
@@ -177,6 +180,18 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
      */
     public B streamReadConstraints(StreamReadConstraints streamReadConstraints) {
         _streamReadConstraints = streamReadConstraints;
+        return _this();
+    }
+
+    /**
+     * Sets the constraints for streaming writes.
+     *
+     * @param streamWriteConstraints constraints for streaming writes
+     *
+     * @return this builder
+     */
+    public B streamWriteConstraints(StreamWriteConstraints streamWriteConstraints) {
+        _streamWriteConstraints = streamWriteConstraints;
         return _this();
     }
 

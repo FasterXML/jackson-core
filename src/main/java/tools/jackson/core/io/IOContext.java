@@ -1,5 +1,7 @@
 package tools.jackson.core.io;
 
+import java.util.Objects;
+
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
@@ -118,10 +120,8 @@ public class IOContext
             BufferRecycler br, ContentReference contentRef, boolean managedResource,
             JsonEncoding enc)
     {
-        _streamReadConstraints = streamReadConstraints == null ?
-                StreamReadConstraints.defaults() : streamReadConstraints;
-        _streamWriteConstraints = streamWriteConstraints == null ?
-                StreamWriteConstraints.defaults() : streamWriteConstraints;;
+        _streamReadConstraints = Objects.requireNonNull(streamReadConstraints);
+        _streamWriteConstraints = Objects.requireNonNull(streamWriteConstraints);
         _bufferRecycler = br;
         _contentReference = contentRef;
         _managedResource = managedResource;

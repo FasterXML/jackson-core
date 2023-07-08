@@ -43,6 +43,11 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
     protected final int _formatWriteFeatures;
 
+    /**
+     * Constraints to use for this parser.
+     */
+    protected final StreamWriteConstraints _streamWriteConstraints;
+
     /*
     /**********************************************************************
     /* Configuration, output escaping
@@ -139,6 +144,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     {
         super(writeCtxt, streamWriteFeatures);
         _ioContext = ctxt;
+        _streamWriteConstraints = ctxt.streamWriteConstraints();
         _formatWriteFeatures = formatWriteFeatures;
         // By default we use this feature to determine additional quoting
         if (JsonWriteFeature.ESCAPE_NON_ASCII.enabledIn(formatWriteFeatures)) {
@@ -179,7 +185,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
 
     @Override
     public StreamWriteConstraints streamWriteConstraints() {
-        return _ioContext.streamWriteConstraints();
+        return _streamWriteConstraints;
     }
 
     public boolean isEnabled(JsonWriteFeature f) { return f.enabledIn(_formatWriteFeatures); }

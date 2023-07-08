@@ -35,9 +35,8 @@ public class TestMergedStream
         assertEquals((byte) 'A', ms.read());
         assertEquals(3, ms.skip(3));
         byte[] buffer = new byte[5];
-        /* Ok, now, code is allowed to return anywhere between 1 and 3,
-         * but we now it will return 1...
-         */
+        // Ok, now, code is allowed to return anywhere between 1 and 3,
+        // but we now it will return 1...
         assertEquals(1, ms.read(buffer, 1, 3));
         assertEquals((byte) 'E', buffer[1]);
         // So let's read bit more

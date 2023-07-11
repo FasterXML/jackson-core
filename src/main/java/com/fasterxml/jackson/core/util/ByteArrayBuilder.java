@@ -63,7 +63,7 @@ public final class ByteArrayBuilder extends OutputStream
     }
 
     private ByteArrayBuilder(BufferRecycler br, byte[] initialBlock, int initialLen) {
-        _bufferRecycler = null;
+        _bufferRecycler = br;
         _currBlock = initialBlock;
         _currBlockPtr = initialLen;
     }

@@ -57,6 +57,19 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
     /**********************************************************************
      */
 
+    protected SimpleStreamWriteContext(int type, SimpleStreamWriteContext parent, int nestingDepth,
+            DupDetector dups, Object currentValue) {
+        super();
+        _type = type;
+        _parent = parent;
+        _nestingDepth = nestingDepth;
+        _dups = dups;
+        _index = -1;
+        _currentValue = currentValue;
+    }
+
+    // REMOVE as soon as nothing uses this
+    @Deprecated
     protected SimpleStreamWriteContext(int type, SimpleStreamWriteContext parent,
             DupDetector dups, Object currentValue) {
         super();
@@ -106,6 +119,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
         SimpleStreamWriteContext ctxt = _childToRecycle;
         if (ctxt == null) {
             _childToRecycle = ctxt = new SimpleStreamWriteContext(TYPE_ARRAY, this,
+                    _nestingDepth + 1,
                     (_dups == null) ? null : _dups.child(), currentValue);
             return ctxt;
         }
@@ -116,6 +130,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
         SimpleStreamWriteContext ctxt = _childToRecycle;
         if (ctxt == null) {
             _childToRecycle = ctxt = new SimpleStreamWriteContext(TYPE_OBJECT, this,
+                    _nestingDepth + 1,
                     (_dups == null) ? null : _dups.child(), currentValue);
             return ctxt;
         }

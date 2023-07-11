@@ -53,22 +53,22 @@ public class SimpleStreamReadContext extends TokenStreamContext
 
     public SimpleStreamReadContext(int type, SimpleStreamReadContext parent, int nestingDepth,
             DupDetector dups,
-             int lineNr, int colNr) {
+            int lineNr, int colNr) {
         super();
         _parent = parent;
+        _nestingDepth = nestingDepth;
         _dups = dups;
         _type = type;
         _lineNr = lineNr;
         _columnNr = colNr;
         _index = -1;
-        _nestingDepth = nestingDepth;
     }
 
     // REMOVE as soon as nothing uses this
     @Deprecated
     public SimpleStreamReadContext(int type, SimpleStreamReadContext parent,
             DupDetector dups,
-             int lineNr, int colNr) {
+            int lineNr, int colNr) {
         super();
         _parent = parent;
         _dups = dups;

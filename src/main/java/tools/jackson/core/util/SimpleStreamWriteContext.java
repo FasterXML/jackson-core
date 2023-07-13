@@ -69,6 +69,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
     }
 
     // REMOVE as soon as nothing uses this
+    /*
     @Deprecated
     protected SimpleStreamWriteContext(int type, SimpleStreamWriteContext parent,
             DupDetector dups, Object currentValue) {
@@ -79,9 +80,11 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
         _index = -1;
         _currentValue = currentValue;
     }
+    */
 
     private SimpleStreamWriteContext reset(int type, Object currentValue) {
         _type = type;
+        // Due to way reuse works, "_parent" and "_nestingDepth" are fine already
         _index = -1;
         _currentName = null;
         _gotPropertyId = false;
@@ -112,7 +115,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
      */
 
     public static SimpleStreamWriteContext createRootContext(DupDetector dd) {
-        return new SimpleStreamWriteContext(TYPE_ROOT, null, dd, null);
+        return new SimpleStreamWriteContext(TYPE_ROOT, null, 0, dd, null);
     }
 
     public SimpleStreamWriteContext createChildArrayContext(Object currentValue) {

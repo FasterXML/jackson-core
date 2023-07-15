@@ -33,12 +33,12 @@ public class StreamWriteConstraints
     private static StreamWriteConstraints DEFAULT = new StreamWriteConstraints(DEFAULT_MAX_DEPTH);
 
     /**
-     * Override the default StreamWriteConstraints. These defaults are only used when {@link JsonFactory}
+     * Override the default StreamWriteConstraints. These defaults are only used when {@link TokenStreamFactory}
      * instances are not configured with their own StreamWriteConstraints.
      * <p>
      * Library maintainers should not set this as it will affect other code that uses Jackson.
      * Library maintainers who want to configure StreamWriteConstraints for the Jackson usage within their
-     * lib should create <code>ObjectMapper</code> instances that have a {@link JsonFactory} instance with
+     * lib should create <code>ObjectMapper</code> instances that have a {@link TokenStreamFactory} instance with
      * the required StreamWriteConstraints.
      * <p>
      * This method is meant for users delivering applications. If they use this, they set it when they start
@@ -108,7 +108,7 @@ public class StreamWriteConstraints
     }
 
     /**
-     * @return the default {@link StreamWriteConstraints} (when none is set on the {@link JsonFactory} explicitly)
+     * @return the default {@link StreamWriteConstraints} (when none is set on the {@link TokenStreamFactory} explicitly)
      * @see #overrideDefaultStreamWriteConstraints(StreamWriteConstraints)
      */
     public static StreamWriteConstraints defaults() {

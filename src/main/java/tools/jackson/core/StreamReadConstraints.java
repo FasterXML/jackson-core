@@ -61,12 +61,12 @@ public class StreamReadConstraints
         new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
 
     /**
-     * Override the default StreamReadConstraints. These defaults are only used when {@link JsonFactory}
+     * Override the default StreamReadConstraints. These defaults are only used when {@link TokenStreamFactory}
      * instances are not configured with their own StreamReadConstraints.
      * <p>
      * Library maintainers should not set this as it will affect other code that uses Jackson.
      * Library maintainers who want to configure StreamReadConstraints for the Jackson usage within their
-     * lib should create <code>ObjectMapper</code> instances that have a {@link JsonFactory} instance with
+     * lib should create <code>ObjectMapper</code> instances that have a {@link TokenStreamFactory} instance with
      * the required StreamReadConstraints.
      * <p>
      * This method is meant for users delivering applications. If they use this, they set it when they start
@@ -187,7 +187,7 @@ public class StreamReadConstraints
     }
 
     /**
-     * @return the default {@link StreamReadConstraints} (when none is set on the {@link JsonFactory} explicitly)
+     * @return the default {@link StreamReadConstraints} (when none is set on the {@link TokenStreamFactory} explicitly)
      * @see #overrideDefaultStreamReadConstraints
      */
     public static StreamReadConstraints defaults() {

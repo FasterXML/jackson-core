@@ -22,7 +22,6 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         StringWriter sw = new StringWriter();
         IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
-                new BufferRecycler(),
                 ContentReference.rawReference(sw), true,
                 JsonEncoding.UTF8);
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, sw,
@@ -43,7 +42,6 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         StringWriter sw = new StringWriter();
         IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
-                new BufferRecycler(),
                 ContentReference.rawReference(sw), true,
                 JsonEncoding.UTF8);
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, sw,

@@ -292,6 +292,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 // as per [JACKSON-324], do in finally block
                 // Also, internal buffer(s) can now be released as well
                 _releaseBuffers();
+                _ioContext.close();
             }
         }
     }

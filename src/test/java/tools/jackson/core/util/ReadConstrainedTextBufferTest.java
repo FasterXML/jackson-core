@@ -49,7 +49,6 @@ class ReadConstrainedTextBufferTest {
         IOContext ioContext = new IOContext(
                 streamReadConstraints,
                 StreamWriteConstraints.defaults(),
-                new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true, JsonEncoding.UTF8);
         return ioContext.constructReadConstrainedTextBuffer();
     }

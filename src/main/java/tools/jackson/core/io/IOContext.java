@@ -1,11 +1,13 @@
 package tools.jackson.core.io;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
 import tools.jackson.core.util.BufferRecycler;
+import tools.jackson.core.util.BufferRecyclerPool;
 import tools.jackson.core.util.TextBuffer;
 import tools.jackson.core.util.ReadConstrainedTextBuffer;
 
@@ -15,7 +17,7 @@ import tools.jackson.core.util.ReadConstrainedTextBuffer;
  * readers and writers are combined under this object. One instance
  * is created for each reader and writer.
  */
-public class IOContext
+public class IOContext implements AutoCloseable
 {
     /*
     /**********************************************************************
@@ -99,6 +101,8 @@ public class IOContext
      */
     protected char[] _nameCopyBuffer;
 
+    private volatile AtomicBoolean closed = new AtomicBoolean(false);
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -110,19 +114,18 @@ public class IOContext
      *
      * @param streamReadConstraints constraints for streaming reads
      * @param streamWriteConstraints constraints for streaming writes
-     * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      * @param enc Encoding in use
      */
     public IOContext(StreamReadConstraints streamReadConstraints,
             StreamWriteConstraints streamWriteConstraints,
-            BufferRecycler br, ContentReference contentRef, boolean managedResource,
+            ContentReference contentRef, boolean managedResource,
             JsonEncoding enc)
     {
         _streamReadConstraints = Objects.requireNonNull(streamReadConstraints);
         _streamWriteConstraints = Objects.requireNonNull(streamWriteConstraints);
-        _bufferRecycler = br;
+        _bufferRecycler = BufferRecyclerPool.borrowBufferRecycler();
         _contentReference = contentRef;
         _managedResource = managedResource;
         _encoding = enc;
@@ -361,5 +364,12 @@ public class IOContext
     private IllegalArgumentException wrongBuf() {
         // sanity check failed; trying to return different, smaller buffer.
         return new IllegalArgumentException("Trying to release buffer smaller than original");
+    }
+
+    @Override
+    public void close() {
+        if (closed.compareAndSet(false, true)) {
+            BufferRecyclerPool.offerBufferRecycler(_bufferRecycler);
+        }
     }
 }

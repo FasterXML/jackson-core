@@ -12,7 +12,6 @@ public class TestIOContext
     {
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.defaults(),
-                new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true,
                 JsonEncoding.UTF8);
 

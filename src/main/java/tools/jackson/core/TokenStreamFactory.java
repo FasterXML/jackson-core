@@ -20,7 +20,6 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.sym.SimpleNameMatcher;
 import tools.jackson.core.util.BufferRecycler;
-import tools.jackson.core.util.BufferRecyclers;
 import tools.jackson.core.util.JacksonFeature;
 import tools.jackson.core.util.Named;
 import tools.jackson.core.util.Snapshottable;
@@ -1183,25 +1182,6 @@ public abstract class TokenStreamFactory
      */
 
     /**
-     * Method used by factory to create buffer recycler instances
-     * for parsers and generators.
-     *<p>
-     * Note: only public to give access for {@code ObjectMapper}
-     *
-     * @return BufferRecycler instance to use
-     */
-    public BufferRecycler _getBufferRecycler()
-    {
-        // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
-        //   scheme, for cases where it is considered harmful (possibly
-        //   on Android, for example)
-        if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclers.getBufferRecycler();
-        }
-        return new BufferRecycler();
-    }
-
-    /**
      * Overridable factory method that actually instantiates desired
      * context object.
      *
@@ -1212,7 +1192,7 @@ public abstract class TokenStreamFactory
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
         return new IOContext(_streamReadConstraints, _streamWriteConstraints,
-                _getBufferRecycler(), contentRef,
+                contentRef,
                 resourceManaged, null);
     }
 
@@ -1229,7 +1209,7 @@ public abstract class TokenStreamFactory
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged,
             JsonEncoding enc) {
         return new IOContext(_streamReadConstraints, _streamWriteConstraints,
-                _getBufferRecycler(), contentRef,
+                contentRef,
                 resourceManaged, enc);
     }
 

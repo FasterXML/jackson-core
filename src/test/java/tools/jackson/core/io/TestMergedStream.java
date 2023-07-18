@@ -14,7 +14,6 @@ public class TestMergedStream
     {
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.defaults(),
-                new BufferRecycler(),
                 ContentReference.UNKNOWN_CONTENT, false, JsonEncoding.UTF8);
         // bit complicated; must use recyclable buffer...
         byte[] first = ctxt.allocReadIOBuffer();

@@ -52,6 +52,8 @@ public class GeneratorDupHandlingTest
             fail("Should have gotten exception");
         } catch (JsonGenerationException e) {
             verifyException(e, "duplicate field 'a'");
+        } finally {
+            g1.close();
         }
 
         JsonGenerator g2;
@@ -66,6 +68,8 @@ public class GeneratorDupHandlingTest
             fail("Should have gotten exception");
         } catch (JsonGenerationException e) {
             verifyException(e, "duplicate field 'x'");
+        } finally {
+            g2.close();
         }
     }
 

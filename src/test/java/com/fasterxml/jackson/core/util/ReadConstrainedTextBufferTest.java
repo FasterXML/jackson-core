@@ -45,12 +45,12 @@ class ReadConstrainedTextBufferTest {
         StreamReadConstraints constraints = StreamReadConstraints.builder()
                 .maxStringLength(maxStringLen)
                 .build();
-        IOContext ioContext = new IOContext(
+        try (IOContext ioContext = new IOContext(
                 constraints,
                 StreamWriteConstraints.defaults(),
                 ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true);
-        return ioContext.constructReadConstrainedTextBuffer();
+            return ioContext.constructReadConstrainedTextBuffer();
+        }
     }
 }

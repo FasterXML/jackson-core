@@ -1873,6 +1873,7 @@ public class JsonFactory
                     e.addSuppressed(e2);
                 }
             }
+            ctxt.close();
             throw e;
         }
     }
@@ -2148,7 +2149,9 @@ public class JsonFactory
      * Note: only public to give access for {@code ObjectMapper}
      *
      * @return Buffer recycler instance to use
+     * @deprecated use <code>BufferRecyclerPool</code> to get a pooled instance of a <code>BufferRecycler</code>
      */
+    @Deprecated
     public BufferRecycler _getBufferRecycler()
     {
         return _getBufferRecyclerPool().acquireBufferRecycler(this);

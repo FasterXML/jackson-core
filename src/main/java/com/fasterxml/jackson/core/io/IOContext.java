@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.ReadConstrainedTextBuffer;
 import com.fasterxml.jackson.core.util.TextBuffer;
+import tools.jackson.core.util.BufferRecyclerPool;
 
 /**
  * To limit number of configuration and state objects to pass, all
@@ -16,7 +17,7 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  *<p>
  * NOTE: non-final since 2.4, to allow sub-classing.
  */
-public class IOContext
+public class IOContext implements AutoCloseable
 {
     /*
     /**********************************************************************
@@ -119,6 +120,8 @@ public class IOContext
      */
     protected char[] _nameCopyBuffer;
 
+    private boolean closed = false;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -130,18 +133,36 @@ public class IOContext
      *
      * @param src constraints for streaming reads
      * @param swc constraints for streaming writes
-     * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param erc Error report configuration to use
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
-     * @param erc Error report configuration to use
      *
      * @since 2.16
      */
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, ErrorReportConfiguration erc,
-            BufferRecycler br, ContentReference contentRef, boolean managedResource)
+                     ContentReference contentRef, boolean managedResource)
     {
-        _streamReadConstraints = src;
-        _streamWriteConstraints = swc;
+        this(src, swc, erc, BufferRecyclerPool.acquireBufferRecycler(), contentRef, managedResource);
+    }
+
+    /**
+     * @param src constraints for streaming reads
+     * @param swc constraints for streaming writes
+     * @param erc Error report configuration to use
+     * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param contentRef Input source reference for location reporting
+     * @param managedResource Whether input source is managed (owned) by Jackson library
+     *
+     * @since 2.16
+     */
+    @Deprecated
+    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, ErrorReportConfiguration erc,
+                     BufferRecycler br, ContentReference contentRef, boolean managedResource)
+    {
+        _streamReadConstraints = (src == null) ?
+                StreamReadConstraints.defaults() : src;
+        _streamWriteConstraints = (swc == null) ?
+                StreamWriteConstraints.defaults() : swc;
         _errorReportConfiguration = erc;
         _bufferRecycler = br;
         _contentReference = contentRef;
@@ -457,5 +478,13 @@ public class IOContext
     private IllegalArgumentException wrongBuf() {
         // sanity check failed; trying to return different, smaller buffer.
         return new IllegalArgumentException("Trying to release buffer smaller than original");
+    }
+
+    @Override
+    public void close() {
+        if (!closed) {
+            BufferRecyclerPool.offerBufferRecycler(_bufferRecycler);
+            closed = true;
+        }
     }
 }

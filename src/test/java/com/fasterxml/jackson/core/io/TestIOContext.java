@@ -13,7 +13,6 @@ public class TestIOContext
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.defaults(),
                 ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true);
 
         /* I/O Read buffer */
@@ -94,6 +93,7 @@ public class TestIOContext
             verifyException(e, "smaller than original");
         }
         ctxt.releaseNameCopyBuffer(null);
+        ctxt.close();
     }
 }
 

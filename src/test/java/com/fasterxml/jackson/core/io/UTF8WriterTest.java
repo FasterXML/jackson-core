@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
+import com.fasterxml.jackson.core.StreamWriteConstraints;
 import org.junit.Assert;
 
 public class UTF8WriterTest

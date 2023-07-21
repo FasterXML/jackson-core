@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.ReadConstrainedTextBuffer;
 import com.fasterxml.jackson.core.util.TextBuffer;
-import tools.jackson.core.util.BufferRecyclerPool;
+import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 
 /**
  * To limit number of configuration and state objects to pass, all

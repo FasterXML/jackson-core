@@ -1,4 +1,4 @@
-package tools.jackson.core.util;
+package com.fasterxml.jackson.core.util;
 
 import java.util.Queue;
 import java.util.concurrent.LinkedTransferQueue;

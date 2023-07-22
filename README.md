@@ -30,6 +30,7 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core) |
 | Code coverage (3.0) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=master)](https://codecov.io/github/FasterXML/jackson-core?branch=master) |
 | CodeQ (ClusterFuzz) | [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/jackson-core.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:jackson-core) |
+| OpenSSF Score | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-core/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-core) |
 
 # Get it!
 

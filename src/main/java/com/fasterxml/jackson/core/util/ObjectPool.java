@@ -37,7 +37,7 @@ public interface ObjectPool<T> extends AutoCloseable {
     }
 
     class StrategyHolder {
-        private static Strategy strategy = Strategy.SYNCED_ARRAY_16;
+        private static Strategy strategy = Strategy.LINKED_QUEUE;
 
         public static void setStrategy(String name) {
             strategy = Strategy.valueOf(name);
@@ -69,8 +69,6 @@ public interface ObjectPool<T> extends AutoCloseable {
 
         private final Queue<T> pool = new LinkedTransferQueue<>();
 
-        private final AtomicInteger counter = new AtomicInteger(0);
-
         public LinkedQueuePool(Supplier<T> factory) {
             this(factory, null);
         }
@@ -82,7 +80,6 @@ public interface ObjectPool<T> extends AutoCloseable {
 
         @Override
         public T borrow() {
-//            System.out.println("Borrow: " + counter.incrementAndGet());
             T t = pool.poll();
             return t != null ? t : factory.get();
         }
@@ -90,7 +87,6 @@ public interface ObjectPool<T> extends AutoCloseable {
         @Override
         public void offer(T t) {
             pool.offer(t);
-//            System.out.println("Offer: " + counter.decrementAndGet());
         }
 
         @Override

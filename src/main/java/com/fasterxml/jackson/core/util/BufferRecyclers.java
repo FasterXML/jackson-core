@@ -5,7 +5,7 @@ import java.lang.ref.SoftReference;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 
 /**
- * Helper entity used to control access to simple buffer recyling scheme used for
+ * Helper entity used to control access to simple buffer recycling scheme used for
  * some encoding, decoding tasks.
  *
  * @see BufferRecycler

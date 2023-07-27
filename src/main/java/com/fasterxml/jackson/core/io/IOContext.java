@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
@@ -69,6 +70,12 @@ public class IOContext
     protected final StreamReadConstraints _streamReadConstraints;
 
     /**
+     * @see ErrorReportConfiguration
+     * @since 2.16
+     */
+    protected final ErrorReportConfiguration _errorReportConfiguration;
+
+    /**
      * @since 2.16
      */
     protected final StreamWriteConstraints _streamWriteConstraints;
@@ -129,6 +136,8 @@ public class IOContext
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
      * @since 2.16
+     * @deprecated Since 2.16, use {@link #IOContext(StreamReadConstraints, StreamWriteConstraints, BufferRecycler, 
+     * ContentReference, boolean, ErrorReportConfiguration)} instead.
      */
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
@@ -141,6 +150,30 @@ public class IOContext
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
+        _errorReportConfiguration = ErrorReportConfiguration.defaults();
+    }
+
+    /**
+     * Main constructor to use.
+     *
+     * @param src constraints for streaming reads
+     * @param swc constraints for streaming writes
+     * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param contentRef Input source reference for location reporting
+     * @param managedResource Whether input source is managed (owned) by Jackson library
+     *
+     * @since 2.16
+     */
+    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, BufferRecycler br,
+                     ContentReference contentRef, boolean managedResource, ErrorReportConfiguration erc)
+    {
+        _streamReadConstraints = src;
+        _streamWriteConstraints = swc;
+        _bufferRecycler = br;
+        _contentReference = contentRef;
+        _sourceRef = contentRef.getRawContent();
+        _managedResource = managedResource;
+        _errorReportConfiguration = erc;
     }
 
     /**
@@ -163,6 +196,7 @@ public class IOContext
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
+        _errorReportConfiguration = ErrorReportConfiguration.defaults();
     }
 
     /**
@@ -197,6 +231,16 @@ public class IOContext
      */
     public StreamWriteConstraints streamWriteConstraints() {
         return _streamWriteConstraints;
+    }
+
+    /**
+     * Returns : {@link ErrorReportConfiguration}, container for configuration values used when 
+     * handling errorneous token inputs. 
+     *
+     * @since 2.16
+     */
+    public ErrorReportConfiguration errorReportConfiguration() {
+        return _errorReportConfiguration;
     }
 
     public void setEncoding(JsonEncoding enc) {

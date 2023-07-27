@@ -11,15 +11,30 @@ import org.junit.jupiter.api.Test;
  */
 public class ErrorReportConfigurationTest
 {
+    
     private final ErrorReportConfiguration DEFAULTS = ErrorReportConfiguration.defaults();
+
+    @Test
+    public void testNormalBuild()
+    {
+        ErrorReportConfiguration config = new ErrorReportConfiguration.Builder()
+                .maxErrorTokenLength(1004)
+                .maxRawContentLength(2008)
+                .build();
+
+        assertEquals(1004, config.getMaxErrorTokenLength());
+        assertEquals(2008, config.getMaxRawContentLength());
+    }
 
     @Test
     public void testZeroLengths()
     {
-        ErrorReportConfiguration.Builder builder = new ErrorReportConfiguration.Builder();
-        builder.maxErrorTokenLength(0);
-        builder.maxRawContentLength(0);
-        ErrorReportConfiguration config = builder.build();
+        // boundary tests, because we throw error on negative values
+        ErrorReportConfiguration config = new ErrorReportConfiguration.Builder()
+                .maxErrorTokenLength(0)
+                .maxRawContentLength(0)
+                .build();
+        
         assertEquals(0, config.getMaxErrorTokenLength());
         assertEquals(0, config.getMaxRawContentLength());
     }
@@ -28,28 +43,14 @@ public class ErrorReportConfigurationTest
     public void testInvalidMaxErrorTokenLength()
     {
         ErrorReportConfiguration.Builder builder = new ErrorReportConfiguration.Builder();
+        
         try {
             builder.maxErrorTokenLength(-1);
             fail("Should not reach here as exception is expected");
         } catch (IllegalArgumentException ex) {
             // expected
         }
-    }
-
-    @Test
-    public void testMaxRawContentLength()
-    {
-        ErrorReportConfiguration.Builder builder = new ErrorReportConfiguration.Builder();
-        int maxLength = 256;
-        builder.maxRawContentLength(maxLength);
-        ErrorReportConfiguration config = builder.build();
-        assertEquals(maxLength, config.getMaxRawContentLength());
-    }
-
-    @Test
-    public void testInvalidMaxRawContentLength()
-    {
-        ErrorReportConfiguration.Builder builder = new ErrorReportConfiguration.Builder();
+        
         try {
             builder.maxRawContentLength(-1);
             fail("Should not reach here as exception is expected");
@@ -72,21 +73,26 @@ public class ErrorReportConfigurationTest
     @Test
     public void testOverrideDefaultErrorReportConfiguration()
     {
-        // try with null, no change
-        ErrorReportConfiguration nullDefaults = ErrorReportConfiguration.defaults();
+        // (1) override with null, will be no change
         ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(null);
+        
+        ErrorReportConfiguration nullDefaults = ErrorReportConfiguration.defaults();
+        
         assertEquals(ErrorReportConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH, nullDefaults.getMaxErrorTokenLength());
         assertEquals(ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH, nullDefaults.getMaxRawContentLength());
         
-        // try override defaults
-        ErrorReportConfiguration overrideDefaults = new ErrorReportConfiguration.Builder()
-                .maxErrorTokenLength(128)
-                .maxRawContentLength(256)
-                .build();
-        ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(overrideDefaults);
-        assertEquals(128, overrideDefaults.getMaxErrorTokenLength());
-        assertEquals(256, overrideDefaults.getMaxRawContentLength());
+        // (2) override wiht other value that actually changes default values
+        ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(new ErrorReportConfiguration.Builder()
+                .maxErrorTokenLength(10101)
+                .maxRawContentLength(20202)
+                .build());
         
+        ErrorReportConfiguration overrideDefaults = ErrorReportConfiguration.defaults();
+        
+        assertEquals(10101, overrideDefaults.getMaxErrorTokenLength());
+        assertEquals(20202, overrideDefaults.getMaxRawContentLength());
+        
+        // (3) revert back to default values
         // IMPORTANT : make sure to revert back, otherwise other tests will be affected
         ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(new ErrorReportConfiguration.Builder()
                 .maxErrorTokenLength(ErrorReportConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH)
@@ -98,7 +104,9 @@ public class ErrorReportConfigurationTest
     public void testRebuild()
     {
         ErrorReportConfiguration config = new ErrorReportConfiguration.Builder().build();
+        
         ErrorReportConfiguration rebuiltConfig = config.rebuild().build();
+        
         assertEquals(config.getMaxErrorTokenLength(), rebuiltConfig.getMaxErrorTokenLength());
         assertEquals(config.getMaxRawContentLength(), rebuiltConfig.getMaxRawContentLength());
     }
@@ -107,22 +115,24 @@ public class ErrorReportConfigurationTest
     @Test
     public void testBuilderConstructorWithTwoParams()
     {
-        ErrorReportConfiguration.Builder builder = new ErrorReportConfiguration.Builder(128, 256);
-        ErrorReportConfiguration config = builder.build();
-        assertEquals(128, config.getMaxErrorTokenLength());
-        assertEquals(256, config.getMaxRawContentLength());
+        ErrorReportConfiguration config = new ErrorReportConfiguration.Builder(1313, 2424)
+                .build();
+        
+        assertEquals(1313, config.getMaxErrorTokenLength());
+        assertEquals(2424, config.getMaxRawContentLength());
     }
 
     @Test
     public void testBuilderConstructorWithErrorReportConfiguration()
     {
-        ErrorReportConfiguration newConfig = new ErrorReportConfiguration.Builder()
-                .maxErrorTokenLength(128)
-                .maxRawContentLength(256)
+        ErrorReportConfiguration configA = new ErrorReportConfiguration.Builder()
+                .maxErrorTokenLength(1234)
+                .maxRawContentLength(5678)
                 .build();
-        ErrorReportConfiguration.Builder builder = new ErrorReportConfiguration.Builder(newConfig);
-        ErrorReportConfiguration config = builder.build();
-        assertEquals(newConfig.getMaxErrorTokenLength(), config.getMaxErrorTokenLength());
-        assertEquals(newConfig.getMaxRawContentLength(), config.getMaxRawContentLength());
+        
+        ErrorReportConfiguration configB = new ErrorReportConfiguration.Builder(configA).build();
+        
+        assertEquals(configA.getMaxErrorTokenLength(), configB.getMaxErrorTokenLength());
+        assertEquals(configA.getMaxRawContentLength(), configB.getMaxRawContentLength());
     }
 }

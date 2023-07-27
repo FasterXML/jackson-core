@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.io;
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.ReadConstrainedTextBuffer;
 import com.fasterxml.jackson.core.util.TextBuffer;
@@ -63,6 +64,9 @@ public class IOContext
      */
     protected final BufferRecycler _bufferRecycler;
 
+    /**
+     * @since 2.15
+     */
     protected final StreamReadConstraints _streamReadConstraints;
 
     /**
@@ -70,6 +74,11 @@ public class IOContext
      * @since 2.16
      */
     protected final ErrorReportConfiguration _errorReportConfiguration;
+
+    /**
+     * @since 2.16
+     */
+    protected final StreamWriteConstraints _streamWriteConstraints;
 
     /**
      * Reference to the allocated I/O buffer for low-level input reading,
@@ -121,17 +130,43 @@ public class IOContext
      * Main constructor to use.
      *
      * @param src constraints for streaming reads
+     * @param swc constraints for streaming writes
+     * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param contentRef Input source reference for location reporting
+     * @param managedResource Whether input source is managed (owned) by Jackson library
+     *
+     * @since 2.16
+     */
+    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, BufferRecycler br,
+                     ContentReference contentRef, boolean managedResource, ErrorReportConfiguration errorReportConfiguration)
+    {
+        _streamReadConstraints = (src == null) ?
+                StreamReadConstraints.defaults() : src;
+        _streamWriteConstraints = (swc == null) ?
+                StreamWriteConstraints.defaults() : swc;
+        _bufferRecycler = br;
+        _contentReference = contentRef;
+        _sourceRef = contentRef.getRawContent();
+        _managedResource = managedResource;
+        _errorReportConfiguration = errorReportConfiguration;
+    }
+
+    /**
+     * @param src constraints for streaming reads
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
      * @since 2.15
+     * @deprecated use v2.16 constructor with additional <code>StreamWriteConstraints</code>
      */
+    @Deprecated
     public IOContext(StreamReadConstraints src, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
     {
         _streamReadConstraints = (src == null) ?
                 StreamReadConstraints.defaults() : src;
+        _streamWriteConstraints = StreamWriteConstraints.defaults();
         _bufferRecycler = br;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
@@ -197,6 +232,14 @@ public class IOContext
      */
     public ErrorReportConfiguration errorReportConfiguration() {
         return _errorReportConfiguration;
+    }
+
+    /**
+     * @return constraints for streaming writes
+     * @since 2.16
+     */
+    public StreamWriteConstraints streamWriteConstraints() {
+        return _streamWriteConstraints;
     }
 
     public void setEncoding(JsonEncoding enc) {

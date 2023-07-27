@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.IOContext;
 import org.junit.jupiter.api.Assertions;
@@ -45,6 +46,7 @@ class ReadConstrainedTextBufferTest {
                 .build();
         IOContext ioContext = new IOContext(
                 constraints,
+                StreamWriteConstraints.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true);
         return ioContext.constructReadConstrainedTextBuffer();

@@ -188,6 +188,17 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     /*
     /**********************************************************************
+    /* Constraints violation checking (2.16)
+    /**********************************************************************
+     */
+
+    @Override
+    public StreamWriteConstraints streamWriteConstraints() {
+        return delegate.streamWriteConstraints();
+    }
+
+    /*
+    /**********************************************************************
     /* Public API, write methods, structural
     /**********************************************************************
      */

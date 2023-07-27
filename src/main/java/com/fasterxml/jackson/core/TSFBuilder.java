@@ -82,11 +82,18 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected OutputDecorator _outputDecorator;
 
     /**
-     * Optional StreamReadConfig.
+     * Optional StreamReadConstraints.
      *
      * @since 2.15
      */
     protected StreamReadConstraints _streamReadConstraints;
+
+    /**
+     * Optional StreamWriteConstraints.
+     *
+     * @since 2.16
+     */
+    protected StreamWriteConstraints _streamWriteConstraints;
 
     /**
      * @since 2.16
@@ -107,21 +114,19 @@ public abstract class TSFBuilder<F extends JsonFactory,
      */
 
     protected TSFBuilder() {
-        _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
-        _streamReadFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
-        _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
-        _inputDecorator = null;
-        _outputDecorator = null;
-        _generatorDecorators = null;
+        this(DEFAULT_FACTORY_FEATURE_FLAGS,
+                DEFAULT_PARSER_FEATURE_FLAGS,
+                DEFAULT_GENERATOR_FEATURE_FLAGS);
     }
 
     protected TSFBuilder(JsonFactory base)
     {
         this(base._factoryFeatures,
                 base._parserFeatures, base._generatorFeatures);
-        _streamReadConstraints = base._streamReadConstraints;
         _inputDecorator = base._inputDecorator;
         _outputDecorator = base._outputDecorator;
+        _streamReadConstraints = base._streamReadConstraints;
+        _streamWriteConstraints = base._streamWriteConstraints;
         _generatorDecorators = _copy(base._generatorDecorators);
         _errorReportConfiguration = base._errorReportConfiguration;
     }
@@ -132,6 +137,12 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = parserFeatures;
         _streamWriteFeatures = generatorFeatures;
+
+        _inputDecorator = null;
+        _outputDecorator = null;
+        _streamReadConstraints = StreamReadConstraints.defaults();
+        _streamWriteConstraints = StreamWriteConstraints.defaults();
+        _generatorDecorators = null;
     }
 
     // @since 2.16
@@ -320,7 +331,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _streamReadConstraints = streamReadConstraints;
         return _this();
     }
-
+    
 /**
      * Sets the configuration for error tokens.
      *
@@ -330,6 +341,17 @@ public abstract class TSFBuilder<F extends JsonFactory,
      */
     public B errorReportConfiguration(ErrorReportConfiguration errorReportConfiguration) {
         _errorReportConfiguration = errorReportConfiguration;
+        return _this();
+    }
+    /**
+     * Sets the constraints for streaming writes.
+     *
+     * @param streamWriteConstraints constraints for streaming reads
+     * @return this factory
+     * @since 2.16
+     */
+    public B streamWriteConstraints(StreamWriteConstraints streamWriteConstraints) {
+        _streamWriteConstraints = streamWriteConstraints;
         return _this();
     }
 

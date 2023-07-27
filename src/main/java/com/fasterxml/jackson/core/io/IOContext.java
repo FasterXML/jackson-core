@@ -120,7 +120,7 @@ public class IOContext implements AutoCloseable
      */
     protected char[] _nameCopyBuffer;
 
-    private boolean closed = false;
+    private boolean _closed = false;
 
     /*
     /**********************************************************************
@@ -169,6 +169,7 @@ public class IOContext implements AutoCloseable
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
     }
+    
     /**
      * Deprecated legacy constructor.
      *
@@ -481,9 +482,9 @@ public class IOContext implements AutoCloseable
 
     @Override
     public void close() {
-        if (!closed) {
-            BufferRecyclerPool.releaseBufferRecycler(_bufferRecycler);
-            closed = true;
+        if (!_closed) {
+            _bufferRecycler.close();
+            _closed = true;
         }
     }
 }

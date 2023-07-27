@@ -122,8 +122,10 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     @Override
     public void close() throws IOException {
-        super.close();
-        _ioContext.close();
+        if (!isClosed()) {
+            super.close();
+            _ioContext.close();
+        }
     }
 
     @SuppressWarnings("deprecation")

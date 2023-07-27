@@ -12,9 +12,7 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
  * @see BufferRecycler
  *
  * @since 2.9.2
- * @deprecated use <code>BufferRecyclerPool</code> to get a pooled instance of a <code>BufferRecycler</code>
  */
-@Deprecated
 public class BufferRecyclers
 {
     /**

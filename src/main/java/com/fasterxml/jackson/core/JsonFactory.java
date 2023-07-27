@@ -132,6 +132,18 @@ public class JsonFactory
         USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true),
 
         /**
+         * Feature that determines whether we will use {@link BufferRecycler} with
+         * an object pool not making use of a {@link ThreadLocal}, for efficient reuse of
+         * underlying input/output buffers.
+         * This is suggested especially in environments making use of virtual threads.
+         *<p>
+         * This setting is disabled by default. If enabled it overrides USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.
+         *
+         * @since 2.16
+         */
+        USE_OBJECT_POOL_FOR_BUFFER_RECYCLING(false),
+
+        /**
          * Feature to control charset detection for byte-based inputs ({@code byte[]}, {@link InputStream}...).
          * When this feature is enabled (the default), the factory will allow UTF-16 and UTF-32 inputs and try to detect
          * them, as specified by RFC 4627. When this feature is disabled the factory will assume UTF-8,
@@ -2149,28 +2161,10 @@ public class JsonFactory
      * Note: only public to give access for {@code ObjectMapper}
      *
      * @return Buffer recycler instance to use
-     * @deprecated use <code>BufferRecyclerPool</code> to get a pooled instance of a <code>BufferRecycler</code>
      */
-    @Deprecated
     public BufferRecycler _getBufferRecycler()
     {
         return _getBufferRecyclerPool().acquireBufferRecycler(this);
-    }
-
-    /**
-     * Accessor for getting access to {@link BufferRecyclerPool} for getting
-     * {@link BufferRecycler} instance to use.
-     *
-     * @since 2.16
-     */
-    public BufferRecyclerPool _getBufferRecyclerPool() {
-        // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
-        //   scheme, for cases where it is considered harmful (possibly
-        //   on Android, for example)
-        if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclers.nopRecyclerPool();
-        }
-        return _bufferRecyclerPool;
     }
 
     /**

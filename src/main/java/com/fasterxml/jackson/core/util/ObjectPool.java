@@ -4,7 +4,7 @@ import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public interface ObjectPool<T> extends AutoCloseable {
 
@@ -32,51 +32,25 @@ public interface ObjectPool<T> extends AutoCloseable {
         }
     }
 
-    static <T> ObjectPool<T> newObjectPool(Supplier<T> factory) {
+    static <T> ObjectPool<T> newObjectPool(Function<ObjectPool<T>, T> factory) {
         switch (StrategyHolder.strategy) {
-            case DUMMY: return new DummyPool<>(factory);
-            case BUFFER_RECYCLERS: return new DummyPool<>(() -> (T) BufferRecyclers.getBufferRecycler());
             case CONCURRENT_DEQUEUE: return new ConcurrentDequePool<>(factory);
             case LOCK_FREE: return new LockFreePool<>(factory);
         }
         throw new UnsupportedOperationException();
     }
 
-    class DummyPool<T> implements ObjectPool<T> {
-        private final Supplier<T> factory;
-
-
-        public DummyPool(Supplier<T> factory) {
-            this.factory = factory;
-        }
-
-        @Override
-        public T acquire() {
-            return factory.get();
-        }
-
-        @Override
-        public void release(T t) {
-
-        }
-
-        @Override
-        public void close() throws Exception {
-
-        }
-    }
-
     class ConcurrentDequePool<T> implements ObjectPool<T> {
-        private final Supplier<T> factory;
+        private final Function<ObjectPool<T>, T> factory;
         private final Consumer<T> destroyer;
 
         private final Deque<T> pool = new ConcurrentLinkedDeque<>();
 
-        public ConcurrentDequePool(Supplier<T> factory) {
+        public ConcurrentDequePool(Function<ObjectPool<T>, T> factory) {
             this(factory, null);
         }
 
-        public ConcurrentDequePool(Supplier<T> factory, Consumer<T> destroyer) {
+        public ConcurrentDequePool(Function<ObjectPool<T>, T> factory, Consumer<T> destroyer) {
             this.factory = factory;
             this.destroyer = destroyer;
         }
@@ -84,7 +58,7 @@ public interface ObjectPool<T> extends AutoCloseable {
         @Override
         public T acquire() {
             T t = pool.pollFirst();
-            return t != null ? t : factory.get();
+            return t != null ? t : factory.apply(this);
         }
 
         @Override
@@ -103,9 +77,9 @@ public interface ObjectPool<T> extends AutoCloseable {
     class LockFreePool<T> implements ObjectPool<T> {
         private final AtomicReference<Node<T>> head = new AtomicReference<>();
 
-        private final Supplier<T> factory;
+        private final Function<ObjectPool<T>, T> factory;
 
-        public LockFreePool(Supplier<T> factory) {
+        public LockFreePool(Function<ObjectPool<T>, T> factory) {
             this.factory = factory;
         }
 
@@ -114,14 +88,14 @@ public interface ObjectPool<T> extends AutoCloseable {
             for (int i = 0; i < 3; i++) {
                 Node<T> currentHead = head.get();
                 if (currentHead == null) {
-                    return factory.get();
+                    return factory.apply(this);
                 }
                 if (head.compareAndSet(currentHead, currentHead.next)) {
                     currentHead.next = null;
                     return currentHead.value;
                 }
             }
-            return factory.get();
+            return factory.apply(this);
         }
 
         @Override

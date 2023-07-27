@@ -9,6 +9,7 @@ import java.io.Serializable;
  * Currently default settings are
  * <ul>
  *     <li>Maximum length of token to include in error messages : default 256 (see {@link #_maxErrorTokenLength})
+ *     <li>Maximum length of raw content to include in error messages : default 256 (see {@link #_maxRawContentLength})
  * </ul>
  *
  * @since 2.16
@@ -34,7 +35,12 @@ public class ErrorReportConfiguration
      * @see Builder#maxErrorTokenLength(int)
      */
     protected final int _maxErrorTokenLength;
-    
+
+    /**
+     * Maximum length of raw content to include in error messages
+     * 
+     * @see Builder#maxRawContentLength(int) 
+     */
     protected final int _maxRawContentLength;
 
     private static ErrorReportConfiguration DEFAULT =

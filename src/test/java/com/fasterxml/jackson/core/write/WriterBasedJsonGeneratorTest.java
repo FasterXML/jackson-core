@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.write;
 
 import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
@@ -22,7 +23,8 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         IOContext ioc = new IOContext(null,
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
                 new BufferRecycler(),
-                ContentReference.rawReference(sw), true);
+                ContentReference.rawReference(sw), true,
+                ErrorReportConfiguration.defaults());
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ioc, 0, null, sw, '"')) {
             gen.writeStartObject();
             gen.writeFieldName("array");
@@ -40,7 +42,8 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         IOContext ioc = new IOContext(null,
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
                 new BufferRecycler(),
-                ContentReference.rawReference(sw), true);
+                ContentReference.rawReference(sw), true,
+                ErrorReportConfiguration.defaults());
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ioc, 0, null, sw, '"')) {
             gen.writeStartObject();
             gen.writeFieldName("object");

@@ -127,8 +127,8 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _outputDecorator = base._outputDecorator;
         _streamReadConstraints = base._streamReadConstraints;
         _streamWriteConstraints = base._streamWriteConstraints;
-        _generatorDecorators = _copy(base._generatorDecorators);
         _errorReportConfiguration = base._errorReportConfiguration;
+        _generatorDecorators = _copy(base._generatorDecorators);
     }
 
     protected TSFBuilder(int factoryFeatures,
@@ -142,6 +142,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _outputDecorator = null;
         _streamReadConstraints = StreamReadConstraints.defaults();
         _streamWriteConstraints = StreamWriteConstraints.defaults();
+        _errorReportConfiguration = ErrorReportConfiguration.defaults();
         _generatorDecorators = null;
     }
 

@@ -50,7 +50,7 @@ public class UTF8GeneratorTest extends BaseTest
         IOContext ioc = new IOContext(null,
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
                 new BufferRecycler(),
-                ContentReference.rawReference(bytes), true);
+                ContentReference.rawReference(bytes), true, ErrorReportConfiguration.defaults());
         try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
             gen.writeStartObject();
             gen.writeFieldName("array");
@@ -68,7 +68,7 @@ public class UTF8GeneratorTest extends BaseTest
         IOContext ioc = new IOContext(null,
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
                 new BufferRecycler(),
-                ContentReference.rawReference(bytes), true);
+                ContentReference.rawReference(bytes), true, ErrorReportConfiguration.defaults());
         try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
             gen.writeStartObject();
             gen.writeFieldName("object");

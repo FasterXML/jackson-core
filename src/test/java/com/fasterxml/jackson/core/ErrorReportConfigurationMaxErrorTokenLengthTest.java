@@ -28,10 +28,6 @@ public class ErrorReportConfigurationMaxErrorTokenLengthTest extends BaseTest
         _verifyErrorTokenLength(263,
                 ErrorReportConfiguration.defaults());
 
-        // null -> should be default
-        _verifyErrorTokenLength(263,
-                null);
-
         // shorter
         _verifyErrorTokenLength(63,
                 ErrorReportConfiguration.builder()
@@ -53,7 +49,15 @@ public class ErrorReportConfigurationMaxErrorTokenLengthTest extends BaseTest
                     ErrorReportConfiguration.builder()
                             .maxErrorTokenLength(-1).build());   
         } catch (IllegalArgumentException e) {
-            _verifyExceptionMessage(e.getMessage());
+            _verifyIllegalArgumentExceptionMessage(e.getMessage());
+        }
+
+        // null is not allowed
+        try {
+            _verifyErrorTokenLength(263,
+                null);
+        } catch (NullPointerException e) {
+            _verifyIllegalArgumentExceptionMessage(e.getMessage());
         }
     }
 
@@ -67,7 +71,7 @@ public class ErrorReportConfigurationMaxErrorTokenLengthTest extends BaseTest
             ErrorReportConfiguration.builder().maxErrorTokenLength(-1).build();
             fail();
         } catch (IllegalArgumentException e) {
-            _verifyExceptionMessage(e.getMessage());
+            _verifyIllegalArgumentExceptionMessage(e.getMessage());
         }
     }
     
@@ -86,7 +90,7 @@ public class ErrorReportConfigurationMaxErrorTokenLengthTest extends BaseTest
     /**********************************************************
      */
 
-    private void _verifyExceptionMessage(String message) 
+    private void _verifyIllegalArgumentExceptionMessage(String message) 
     {
         assertThat(message)
                 .contains("Value of maxErrorTokenLength")

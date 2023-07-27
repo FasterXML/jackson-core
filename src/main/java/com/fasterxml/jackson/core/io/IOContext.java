@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.ReadConstrainedTextBuffer;
 import com.fasterxml.jackson.core.util.TextBuffer;
+import java.util.Objects;
 
 /**
  * To limit number of configuration and state objects to pass, all
@@ -138,7 +139,7 @@ public class IOContext
      * @since 2.16
      */
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, BufferRecycler br,
-                     ContentReference contentRef, boolean managedResource, ErrorReportConfiguration errorReportConfiguration)
+            ContentReference contentRef, boolean managedResource, ErrorReportConfiguration errorReportConfiguration)
     {
         _streamReadConstraints = (src == null) ?
                 StreamReadConstraints.defaults() : src;
@@ -175,30 +176,6 @@ public class IOContext
     }
 
     /**
-     * Main constructor to use.
-     *
-     * @param src                 constraints for streaming reads
-     * @param br                  BufferRecycler to use, if any ({@code null} if none)
-     * @param contentRef          Input source reference for location reporting
-     * @param managedResource     Whether input source is managed (owned) by Jackson library
-     * @param errorReportConfiguration Configuration values used when handling errorneous token inputs. 
-     * @since 2.16
-     */
-    public IOContext(StreamReadConstraints src, BufferRecycler br,
-                    ContentReference contentRef, boolean managedResource, ErrorReportConfiguration errorReportConfiguration)
-    {
-        _streamReadConstraints = (src == null) ?
-                StreamReadConstraints.defaults() : src;
-        _errorReportConfiguration = (errorReportConfiguration == null) ?
-                ErrorReportConfiguration.defaults() : errorReportConfiguration;
-        _bufferRecycler = br;
-        _contentReference = contentRef;
-        _sourceRef = contentRef.getRawContent();
-        _managedResource = managedResource;
-       
-    }
-
-    /**
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
@@ -208,7 +185,8 @@ public class IOContext
     @Deprecated // since 2.15
     public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
-        this(null, br, contentRef, managedResource, null);
+        this(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
+                br, contentRef, managedResource, ErrorReportConfiguration.defaults());
     }
 
     @Deprecated // since 2.13

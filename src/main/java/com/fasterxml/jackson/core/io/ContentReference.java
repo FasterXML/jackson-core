@@ -98,20 +98,18 @@ public class ContentReference
     /* Life-cycle
     /**********************************************************************
      */
-    
+
     protected ContentReference(boolean isContentTextual, Object rawContent) {
         this(isContentTextual, rawContent, -1, -1);
     }
 
+    /**
+     * @deprecated Since 2.16. Use {@link #ContentReference(boolean, Object, int, int, ErrorReportConfiguration)} instead.
+     */
     protected ContentReference(boolean isContentTextual, Object rawContent,
             int offset, int length)
     {
-        _isContentTextual = isContentTextual;
-        _rawContent = rawContent;
-        _offset = offset;
-        _length = length;
-        ErrorReportConfiguration errorReportConfiguration = ErrorReportConfiguration.defaults();
-        _maxRawContentLength = errorReportConfiguration.getMaxRawContentLength();
+        this(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
     }
     
     protected ContentReference(boolean isContentTextual, Object rawContent,
@@ -121,8 +119,6 @@ public class ContentReference
         _rawContent = rawContent;
         _offset = offset;
         _length = length;
-        errorReportConfiguration = errorReportConfiguration == null ? ErrorReportConfiguration.defaults() 
-                : errorReportConfiguration;
         _maxRawContentLength = errorReportConfiguration.getMaxRawContentLength();
     }
 
@@ -165,7 +161,7 @@ public class ContentReference
 
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
             int offset, int length) {
-        return new ContentReference(isContentTextual, rawContent, offset, length, null);
+        return new ContentReference(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
     }
 
     /**
@@ -252,9 +248,8 @@ public class ContentReference
      * Internal accessor, overridable, used for checking length (in units in
      * which content is counted, either bytes or chars) to use for truncation
      * (so as not to include full content for humongous sources or targets)
-     * 
-     * Refer to {@link ErrorReportConfiguration#builder()#_maxRawContentLength}
      *
+     * @see ErrorReportConfiguration#builder()#_maxRawContentLength
      * @return Maximum content snippet to include before truncating
      */
     protected int maxContentSnippetLength() {
@@ -472,5 +467,4 @@ public class ContentReference
     public int hashCode() {
         return Objects.hashCode(_rawContent);
     }
-
 }

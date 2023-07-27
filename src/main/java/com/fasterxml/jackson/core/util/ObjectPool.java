@@ -21,7 +21,7 @@ public interface ObjectPool<T> extends AutoCloseable {
     }
 
     enum Strategy {
-        DUMMY, BUFFER_RECYCLERS, CONCURRENT_DEQUEUE, LOCK_FREE
+        CONCURRENT_DEQUEUE, LOCK_FREE
     }
 
     class StrategyHolder {

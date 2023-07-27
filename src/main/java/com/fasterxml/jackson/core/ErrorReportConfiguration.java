@@ -8,8 +8,8 @@ import java.io.Serializable;
  * <p>
  * Currently default settings are
  * <ul>
- *     <li>Maximum length of token to include in error messages : default 256 (see {@link #_maxErrorTokenLength})
- *     <li>Maximum length of raw content to include in error messages : default 256 (see {@link #_maxRawContentLength})
+ *     <li>Maximum length of token to include in error messages (see {@link #_maxErrorTokenLength})
+ *     <li>Maximum length of raw content to include in error messages (see {@link #_maxRawContentLength})
  * </ul>
  *
  * @since 2.16

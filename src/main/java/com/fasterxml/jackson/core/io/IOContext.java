@@ -169,7 +169,6 @@ public class IOContext implements AutoCloseable
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
     }
-
     /**
      * Deprecated legacy constructor.
      *
@@ -483,7 +482,7 @@ public class IOContext implements AutoCloseable
     @Override
     public void close() {
         if (!closed) {
-            BufferRecyclerPool.offerBufferRecycler(_bufferRecycler);
+            BufferRecyclerPool.releaseBufferRecycler(_bufferRecycler);
             closed = true;
         }
     }

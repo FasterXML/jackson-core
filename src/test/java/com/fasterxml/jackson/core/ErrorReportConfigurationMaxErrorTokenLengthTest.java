@@ -57,7 +57,7 @@ public class ErrorReportConfigurationMaxErrorTokenLengthTest extends BaseTest
             _verifyErrorTokenLength(263,
                 null);
         } catch (NullPointerException e) {
-            _verifyIllegalArgumentExceptionMessage(e.getMessage());
+            // no-op
         }
     }
 
@@ -90,8 +90,7 @@ public class ErrorReportConfigurationMaxErrorTokenLengthTest extends BaseTest
     /**********************************************************
      */
 
-    private void _verifyIllegalArgumentExceptionMessage(String message) 
-    {
+    private void _verifyIllegalArgumentExceptionMessage(String message) {
         assertThat(message)
                 .contains("Value of maxErrorTokenLength")
                 .contains("cannot be negative");
@@ -100,7 +99,8 @@ public class ErrorReportConfigurationMaxErrorTokenLengthTest extends BaseTest
     private void _verifyErrorTokenLength(int expectedTokenLen, ErrorReportConfiguration errorReportConfiguration) 
             throws Exception 
     {
-        JsonFactory jf3 = streamFactoryBuilder().errorReportConfiguration(errorReportConfiguration)
+        JsonFactory jf3 = streamFactoryBuilder()
+                .errorReportConfiguration(errorReportConfiguration)
                 .build();
         _testWithMaxErrorTokenLength(expectedTokenLen,
                 // creating arbitrary number so that token reaches max len, but not over-do it

@@ -3,7 +3,7 @@ package tools.jackson.core.util;
 import java.lang.ref.SoftReference;
 
 /**
- * Helper entity used to control access to simple buffer recyling scheme used for
+ * Helper entity used to control access to simple buffer recycling scheme used for
  * some encoding, decoding tasks.
  *
  * @see BufferRecycler

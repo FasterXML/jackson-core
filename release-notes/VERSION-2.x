@@ -656,7 +656,7 @@ No changes since 2.6.3.
   (and related, `TokenFilter`)
 #188: `JsonParser.getValueAsString()` should return field name for `JsonToken.FIELD_NAME`, not `null`
 #189: Add `JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING` (default: true), which may
-  be disabled to prevent use of ThreadLocal-based buffer recyling.
+  be disabled to prevent use of ThreadLocal-based buffer recycling.
  (suggested by soldierkam@github)
 #195: Add `JsonGenerator.getOutputBuffered()` to find out amount of content buffered,
   not yet flushed.

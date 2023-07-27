@@ -201,6 +201,7 @@ public class BufferRecycler implements AutoCloseable
     public void close() {
         if (_pool != null) {
             _pool.release(this);
+            _pool = null;
         }
     }
 }

@@ -205,7 +205,7 @@ public class IOContext
     /**
      * Returns : {@link ErrorReportConfiguration}, container for configuration values used when 
      * handling errorneous token inputs. 
-     * For example, unquoted text segments.
+     *
      * @since 2.16
      */
     public ErrorReportConfiguration errorReportConfiguration() {

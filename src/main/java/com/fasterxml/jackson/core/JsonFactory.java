@@ -286,7 +286,6 @@ public class JsonFactory
 
     /**
      * Container for configuration values used when handling errorneous token inputs. 
-     * For example, unquoted text segments.
      *
      * @see ErrorReportConfiguration
      * @since 2.16

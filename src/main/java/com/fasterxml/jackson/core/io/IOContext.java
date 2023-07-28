@@ -239,7 +239,7 @@ public class IOContext
      *
      * @since 2.16
      */
-    public ErrorReportConfiguration errorReportConfiguration() {
+    public ErrorReportConfiguration getErrorReportConfiguration() {
         return _errorReportConfiguration;
     }
 

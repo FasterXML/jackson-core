@@ -193,6 +193,9 @@ public class BufferRecycler implements AutoCloseable
     protected char[] calloc(int size) { return new char[size]; }
 
     BufferRecycler withPool(ObjectPool<BufferRecycler> pool) {
+        if (this._pool != null) {
+            throw new IllegalStateException();
+        }
         this._pool = pool;
         return this;
     }
@@ -200,8 +203,9 @@ public class BufferRecycler implements AutoCloseable
     @Override
     public void close() {
         if (_pool != null) {
-            _pool.release(this);
+            ObjectPool<BufferRecycler> tempPool = _pool;
             _pool = null;
+            tempPool.release(this);
         }
     }
 }

@@ -160,7 +160,7 @@ public class ContentReference
     }
 
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
-                                             int offset, int length) {
+            int offset, int length) {
         return new ContentReference(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
     }
 

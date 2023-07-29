@@ -382,3 +382,8 @@ Carter Kozak (carterkozak@github)
 Armin Samii (artoonie@github)
  * Contributed #1050: Compare `_snapshotInfo` in `Version`
   (2.16.0)
+
+Joo Hyuk Kim (JooHyukKim@github)
+ * Contributed #1067: Add `ErrorReportConfiguration`
+  (2.16.0)
+

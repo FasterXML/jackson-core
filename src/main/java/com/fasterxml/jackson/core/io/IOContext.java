@@ -139,10 +139,11 @@ public class IOContext
      * @deprecated Since 2.16, use {@link #IOContext(StreamReadConstraints, StreamWriteConstraints, BufferRecycler, 
      * ContentReference, boolean, ErrorReportConfiguration)} instead.
      */
+    @Deprecated
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
     {
-        this(src, swc, br, contentRef, managedResource, ErrorReportConfiguration.defaults();
+        this(src, swc, br, contentRef, managedResource, ErrorReportConfiguration.defaults());
     }
 
     /**
@@ -175,7 +176,8 @@ public class IOContext
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
      * @since 2.15
-     * @deprecated use v2.16 constructor with additional <code>StreamWriteConstraints</code>
+     * @deprecated Since 2.16. Use {@link #IOContext(StreamReadConstraints, StreamWriteConstraints, BufferRecycler, 
+     * ContentReference, boolean, ErrorReportConfiguration)} instead.
      */
     @Deprecated
     public IOContext(StreamReadConstraints src, BufferRecycler br,

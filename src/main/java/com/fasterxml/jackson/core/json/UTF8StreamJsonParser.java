@@ -3691,7 +3691,7 @@ public class UTF8StreamJsonParser
                 break;
             }
             sb.append(c);
-            if (sb.length() >= _ioContext.getErrorReportConfiguration().getMaxErrorTokenLength()) {
+            if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
                 sb.append("...");
                 break;
             }

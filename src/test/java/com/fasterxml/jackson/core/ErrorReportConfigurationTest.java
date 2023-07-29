@@ -17,7 +17,7 @@ public class ErrorReportConfigurationTest
     @Test
     public void testNormalBuild()
     {
-        ErrorReportConfiguration config = new ErrorReportConfiguration.Builder()
+        ErrorReportConfiguration config = ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(1004)
                 .maxRawContentLength(2008)
                 .build();
@@ -30,7 +30,7 @@ public class ErrorReportConfigurationTest
     public void testZeroLengths()
     {
         // boundary tests, because we throw error on negative values
-        ErrorReportConfiguration config = new ErrorReportConfiguration.Builder()
+        ErrorReportConfiguration config = ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(0)
                 .maxRawContentLength(0)
                 .build();
@@ -42,7 +42,7 @@ public class ErrorReportConfigurationTest
     @Test
     public void testInvalidMaxErrorTokenLength()
     {
-        ErrorReportConfiguration.Builder builder = new ErrorReportConfiguration.Builder();
+        ErrorReportConfiguration.Builder builder = ErrorReportConfiguration.builder();
         
         try {
             builder.maxErrorTokenLength(-1);
@@ -82,7 +82,7 @@ public class ErrorReportConfigurationTest
         assertEquals(ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH, nullDefaults.getMaxRawContentLength());
         
         // (2) override wiht other value that actually changes default values
-        ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(new ErrorReportConfiguration.Builder()
+        ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(10101)
                 .maxRawContentLength(20202)
                 .build());
@@ -94,7 +94,7 @@ public class ErrorReportConfigurationTest
         
         // (3) revert back to default values
         // IMPORTANT : make sure to revert back, otherwise other tests will be affected
-        ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(new ErrorReportConfiguration.Builder()
+        ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(ErrorReportConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH)
                 .maxRawContentLength(ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH)
                 .build());
@@ -103,7 +103,7 @@ public class ErrorReportConfigurationTest
     @Test
     public void testRebuild()
     {
-        ErrorReportConfiguration config = new ErrorReportConfiguration.Builder().build();
+        ErrorReportConfiguration config = ErrorReportConfiguration.builder().build();
         
         ErrorReportConfiguration rebuiltConfig = config.rebuild().build();
         
@@ -125,7 +125,7 @@ public class ErrorReportConfigurationTest
     @Test
     public void testBuilderConstructorWithErrorReportConfiguration()
     {
-        ErrorReportConfiguration configA = new ErrorReportConfiguration.Builder()
+        ErrorReportConfiguration configA = ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(1234)
                 .maxRawContentLength(5678)
                 .build();

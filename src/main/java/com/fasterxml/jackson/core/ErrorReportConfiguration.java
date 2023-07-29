@@ -15,7 +15,8 @@ import java.io.Serializable;
  * @since 2.16
  */
 public class ErrorReportConfiguration
-        implements Serializable {
+    implements Serializable
+{
     private static final long serialVersionUID = 1L;
 
     /**
@@ -46,6 +47,22 @@ public class ErrorReportConfiguration
     private static ErrorReportConfiguration DEFAULT =
             new ErrorReportConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH, DEFAULT_MAX_RAW_CONTENT_LENGTH);
 
+    /**
+     * Override the default ErrorReportConfiguration. These defaults are only used when {@link JsonFactory}
+     * instances are not configured with their own ErrorReportConfiguration.
+     * <p>
+     * Library maintainers should not set this as it will affect other code that uses Jackson.
+     * Library maintainers who want to configure ErrorReportConfiguration for the Jackson usage within their
+     * lib should create <code>ObjectMapper</code> instances that have a {@link JsonFactory} instance with
+     * the required ErrorReportConfiguration.
+     * <p>
+     * This method is meant for users delivering applications. If they use this, they set it when they start
+     * their application to avoid having other code initialize their mappers before the defaults are overridden.
+     *
+     * @param errorReportConfiguration new default for ErrorReportConfiguration (a null value will reset to built-in default)
+     * @see #defaults()
+     * @see #builder()
+     */
     public static void overrideDefaultErrorReportConfiguration(final ErrorReportConfiguration errorReportConfiguration) {
         if (errorReportConfiguration == null) {
             DEFAULT = new ErrorReportConfiguration(DEFAULT_MAX_ERROR_TOKEN_LENGTH, DEFAULT_MAX_RAW_CONTENT_LENGTH);
@@ -78,7 +95,7 @@ public class ErrorReportConfiguration
         /**
          * 
          * @see ErrorReportConfiguration#_maxRawContentLength
-         * @return This factory instance (to allow call chaining)
+         * @return This builder instance (to allow call chaining)
          */
         public Builder maxRawContentLength(final int maxRawContentLength) {
             validateMaxRawContentLength(maxRawContentLength);
@@ -129,8 +146,7 @@ public class ErrorReportConfiguration
     }
 
     /**
-     * @return New {@link Builder} initialized with settings of configuration
-     * instance
+     * @return New {@link Builder} initialized with settings of configuration instance
      */
     public Builder rebuild() {
         return new Builder(this);
@@ -156,7 +172,7 @@ public class ErrorReportConfiguration
      * Accessor for {@link #_maxRawContentLength}
      *
      * @return Maximum length of token to include in error messages
-     * @see Builder#maxRawContentLength
+     * @see Builder#maxRawContentLength(int)
      */
     public int getMaxRawContentLength() {
         return _maxRawContentLength;
@@ -174,14 +190,14 @@ public class ErrorReportConfiguration
      *
      * @param maxErrorTokenLength Maximum length of token to include in error messages
      */
-    private static void validateMaxErrorTokenLength(int maxErrorTokenLength) throws IllegalArgumentException {
+    static void validateMaxErrorTokenLength(int maxErrorTokenLength) throws IllegalArgumentException {
         if (maxErrorTokenLength < 0) {
             throw new IllegalArgumentException(
                     String.format("Value of maxErrorTokenLength (%d) cannot be negative", maxErrorTokenLength));
         }
     }
 
-    private static void validateMaxRawContentLength(int maxRawContentLength) {
+    static void validateMaxRawContentLength(int maxRawContentLength) {
         if (maxRawContentLength < 0) {
             throw new IllegalArgumentException(
                     String.format("Value of maxRawContentLength (%d) cannot be negative", maxRawContentLength));

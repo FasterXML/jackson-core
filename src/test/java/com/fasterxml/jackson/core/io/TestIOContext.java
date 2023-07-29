@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
 public class TestIOContext
@@ -8,7 +9,7 @@ public class TestIOContext
 {
     public void testAllocations() throws Exception
     {
-        IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
+        IOContext ctxt = new IOContext(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true);
 

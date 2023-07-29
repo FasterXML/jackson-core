@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -52,6 +54,9 @@ public class ContentReference
      * logs.
      *
      * @since 2.9
+     * @deprecated Since 2.16. {@link ErrorReportConfiguration#DEFAULT_MAX_RAW_CONTENT_LENGTH} will be used by default or 
+     * as configured by {@link ErrorReportConfiguration.Builder#maxRawContentLength(int)}
+     * will be used instead.
      */
     public static final int DEFAULT_MAX_CONTENT_SNIPPET = 500;
 
@@ -81,6 +86,13 @@ public class ContentReference
      */
     protected final boolean _isContentTextual;
 
+    /**
+     * max raw content to return as configured 
+     *
+     * @since 2.16
+     */
+    protected final int _maxRawContentLength;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -91,13 +103,31 @@ public class ContentReference
         this(isContentTextual, rawContent, -1, -1);
     }
 
+    /**
+     * @deprecated Since 2.16. Use {@link #ContentReference(boolean, Object, int, int, ErrorReportConfiguration)} instead.
+     */
     protected ContentReference(boolean isContentTextual, Object rawContent,
             int offset, int length)
+    {
+        this(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
+    }
+
+    protected ContentReference(boolean isContentTextual, Object rawContent,
+            int offset, int length, ErrorReportConfiguration errorReportConfiguration)
     {
         _isContentTextual = isContentTextual;
         _rawContent = rawContent;
         _offset = offset;
         _length = length;
+        _maxRawContentLength = errorReportConfiguration.getMaxRawContentLength();
+    }
+
+    /**
+     * @since 2.16
+     */
+    public ContentReference(boolean isContentTextual, Object rawContent,
+                            ErrorReportConfiguration errorReportConfiguration) {
+        this(isContentTextual, rawContent, -1, -1, errorReportConfiguration);
     }
 
     /**
@@ -130,8 +160,24 @@ public class ContentReference
     }
 
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
-            int offset, int length) {
-        return new ContentReference(isContentTextual, rawContent, offset, length);
+                                             int offset, int length) {
+        return new ContentReference(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static ContentReference construct(boolean isContentTextual, Object rawContent,
+                                             int offset, int length, ErrorReportConfiguration errorReportConfiguration)
+    {
+        return new ContentReference(isContentTextual, rawContent, offset, length, errorReportConfiguration);
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static ContentReference construct(boolean isContentTextual, Object rawContent, ErrorReportConfiguration errorReportConfiguration) {
+        return new ContentReference(isContentTextual, rawContent, errorReportConfiguration);
     }
 
     /**
@@ -203,10 +249,11 @@ public class ContentReference
      * which content is counted, either bytes or chars) to use for truncation
      * (so as not to include full content for humongous sources or targets)
      *
+     * @see ErrorReportConfiguration#builder()#_maxRawContentLength
      * @return Maximum content snippet to include before truncating
      */
     protected int maxContentSnippetLength() {
-        return DEFAULT_MAX_CONTENT_SNIPPET;
+        return _maxRawContentLength;
     }
 
     /*

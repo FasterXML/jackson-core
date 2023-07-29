@@ -58,6 +58,7 @@ public class ContentReference
      * as configured by {@link ErrorReportConfiguration.Builder#maxRawContentLength(int)}
      * will be used instead.
      */
+    @Deprecated
     public static final int DEFAULT_MAX_CONTENT_SNIPPET = 500;
 
     /**
@@ -106,6 +107,7 @@ public class ContentReference
     /**
      * @deprecated Since 2.16. Use {@link #ContentReference(boolean, Object, int, int, ErrorReportConfiguration)} instead.
      */
+    @Deprecated
     protected ContentReference(boolean isContentTextual, Object rawContent,
             int offset, int length)
     {
@@ -126,7 +128,8 @@ public class ContentReference
      * @since 2.16
      */
     public ContentReference(boolean isContentTextual, Object rawContent,
-                            ErrorReportConfiguration errorReportConfiguration) {
+            ErrorReportConfiguration errorReportConfiguration) 
+    {
         this(isContentTextual, rawContent, -1, -1, errorReportConfiguration);
     }
 
@@ -168,7 +171,7 @@ public class ContentReference
      * @since 2.16
      */
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
-                                             int offset, int length, ErrorReportConfiguration errorReportConfiguration)
+            int offset, int length, ErrorReportConfiguration errorReportConfiguration)
     {
         return new ContentReference(isContentTextual, rawContent, offset, length, errorReportConfiguration);
     }
@@ -176,7 +179,9 @@ public class ContentReference
     /**
      * @since 2.16
      */
-    public static ContentReference construct(boolean isContentTextual, Object rawContent, ErrorReportConfiguration errorReportConfiguration) {
+    public static ContentReference construct(boolean isContentTextual, Object rawContent, 
+                    ErrorReportConfiguration errorReportConfiguration) 
+    {
         return new ContentReference(isContentTextual, rawContent, errorReportConfiguration);
     }
 

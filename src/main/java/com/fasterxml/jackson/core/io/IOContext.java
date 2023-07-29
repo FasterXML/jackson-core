@@ -142,15 +142,7 @@ public class IOContext
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
     {
-        _streamReadConstraints = (src == null) ?
-                StreamReadConstraints.defaults() : src;
-        _streamWriteConstraints = (swc == null) ?
-                StreamWriteConstraints.defaults() : swc;
-        _bufferRecycler = br;
-        _contentReference = contentRef;
-        _sourceRef = contentRef.getRawContent();
-        _managedResource = managedResource;
-        _errorReportConfiguration = ErrorReportConfiguration.defaults();
+        this(src, swc, br, contentRef, managedResource, ErrorReportConfiguration.defaults();
     }
 
     /**
@@ -189,14 +181,7 @@ public class IOContext
     public IOContext(StreamReadConstraints src, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
     {
-        _streamReadConstraints = (src == null) ?
-                StreamReadConstraints.defaults() : src;
-        _streamWriteConstraints = StreamWriteConstraints.defaults();
-        _bufferRecycler = br;
-        _contentReference = contentRef;
-        _sourceRef = contentRef.getRawContent();
-        _managedResource = managedResource;
-        _errorReportConfiguration = ErrorReportConfiguration.defaults();
+        this(src, StreamWriteConstraints.defaults(), br, contentRef, managedResource, ErrorReportConfiguration.defaults());
     }
 
     /**

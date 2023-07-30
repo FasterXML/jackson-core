@@ -54,9 +54,7 @@ public class ContentReference
      * logs.
      *
      * @since 2.9
-     * @deprecated Since 2.16. {@link ErrorReportConfiguration#DEFAULT_MAX_RAW_CONTENT_LENGTH} will be used by default or 
-     * as configured by {@link ErrorReportConfiguration.Builder#maxRawContentLength(int)}
-     * will be used instead.
+     * @deprecated Since 2.16. {@link ErrorReportConfiguration.Builder#maxRawContentLength(int)} will be used instead.
      */
     @Deprecated
     public static final int DEFAULT_MAX_CONTENT_SNIPPET = 500;

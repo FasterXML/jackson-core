@@ -154,6 +154,7 @@ public class IOContext
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
+     * @param erc Error report configuration to use
      *
      * @since 2.16
      */
@@ -221,7 +222,7 @@ public class IOContext
     }
 
     /**
-     * Returns : {@link ErrorReportConfiguration}, container for configuration values used when 
+     * @return Configured {@link ErrorReportConfiguration}, container for configuration values used when 
      * handling errorneous token inputs. 
      *
      * @since 2.16

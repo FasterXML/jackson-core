@@ -112,6 +112,9 @@ public class ContentReference
         this(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
     }
 
+    /**
+     * @since 2.16
+     */
     protected ContentReference(boolean isContentTextual, Object rawContent,
             int offset, int length, ErrorReportConfiguration errorReportConfiguration)
     {
@@ -160,6 +163,10 @@ public class ContentReference
         return new ContentReference(isContentTextual, rawContent);
     }
 
+    /**
+     * @deprecated Since 2.16. Use {@link #construct(boolean, Object, int, int, ErrorReportConfiguration)} instead.
+     */
+    @Deprecated
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
             int offset, int length) {
         return new ContentReference(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
@@ -178,7 +185,7 @@ public class ContentReference
      * @since 2.16
      */
     public static ContentReference construct(boolean isContentTextual, Object rawContent, 
-                    ErrorReportConfiguration errorReportConfiguration) 
+            ErrorReportConfiguration errorReportConfiguration) 
     {
         return new ContentReference(isContentTextual, rawContent, errorReportConfiguration);
     }

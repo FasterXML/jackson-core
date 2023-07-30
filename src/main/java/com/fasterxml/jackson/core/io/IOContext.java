@@ -70,7 +70,6 @@ public class IOContext
     protected final StreamReadConstraints _streamReadConstraints;
 
     /**
-     * @see ErrorReportConfiguration
      * @since 2.16
      */
     protected final ErrorReportConfiguration _errorReportConfiguration;
@@ -222,8 +221,8 @@ public class IOContext
     }
 
     /**
-     * @return Configured {@link ErrorReportConfiguration}, container for configuration values used when 
-     * handling errorneous token inputs. 
+     * @return Configured {@link ErrorReportConfiguration}, containing configured values for 
+     * handling error reporting.
      *
      * @since 2.16
      */

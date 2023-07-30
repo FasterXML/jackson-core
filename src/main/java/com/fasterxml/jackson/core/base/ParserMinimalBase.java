@@ -128,8 +128,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * as part of error messages.
      *
      * @since 2.9
-     * @deprecated Since 2.16
-     * @see ErrorReportConfiguration#getMaxErrorTokenLength()
+     * @deprecated Since 2.16. {@link ErrorReportConfiguration#getMaxErrorTokenLength()} will be used instead.
      */
     @Deprecated
     protected final static int MAX_ERROR_TOKEN_LENGTH = 256;

@@ -133,70 +133,66 @@ public class IOContext
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
-     *
-     * @since 2.16
-     * @deprecated Since 2.16, use {@link #IOContext(StreamReadConstraints, StreamWriteConstraints, BufferRecycler, 
-     * ContentReference, boolean, ErrorReportConfiguration)} instead.
-     */
-    @Deprecated
-    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, BufferRecycler br,
-                     ContentReference contentRef, boolean managedResource)
-    {
-        this(src, swc, br, contentRef, managedResource, ErrorReportConfiguration.defaults());
-    }
-
-    /**
-     * Main constructor to use.
-     *
-     * @param src constraints for streaming reads
-     * @param swc constraints for streaming writes
-     * @param br BufferRecycler to use, if any ({@code null} if none)
-     * @param contentRef Input source reference for location reporting
-     * @param managedResource Whether input source is managed (owned) by Jackson library
      * @param erc Error report configuration to use
      *
      * @since 2.16
      */
-    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, BufferRecycler br,
-                     ContentReference contentRef, boolean managedResource, ErrorReportConfiguration erc)
+    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, ErrorReportConfiguration erc,
+            BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
         _streamReadConstraints = src;
         _streamWriteConstraints = swc;
+        _errorReportConfiguration = erc;
         _bufferRecycler = br;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
-        _errorReportConfiguration = erc;
     }
 
     /**
+     * Deprecated legacy constructor.
+     *
      * @param src constraints for streaming reads
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
      * @since 2.15
-     * @deprecated Since 2.16. Use {@link #IOContext(StreamReadConstraints, StreamWriteConstraints, BufferRecycler, 
-     * ContentReference, boolean, ErrorReportConfiguration)} instead.
+     * @deprecated Since 2.16. Use {@link #IOContext(StreamReadConstraints, StreamWriteConstraints, 
+     * ErrorReportConfiguration, BufferRecycler, ContentReference, boolean)} instead.
      */
     @Deprecated
     public IOContext(StreamReadConstraints src, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
     {
-        this(src, StreamWriteConstraints.defaults(), br, contentRef, managedResource, ErrorReportConfiguration.defaults());
+        this(src, StreamWriteConstraints.defaults(), ErrorReportConfiguration.defaults(),
+                br, contentRef, managedResource);
+    }
+
+    @Deprecated // In 2.16: remove ASAP
+    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc,
+            BufferRecycler br, ContentReference contentRef, boolean managedResource)
+    {
+        this(src, swc, ErrorReportConfiguration.defaults(),
+                br, contentRef, managedResource);
     }
 
     /**
+     * Deprecated legacy constructor.
+     *
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
      * @since 2.13
+     * @deprecated Since 2.15. Use {@link #IOContext(StreamReadConstraints, StreamWriteConstraints, 
+     * ErrorReportConfiguration, BufferRecycler, ContentReference, boolean)} instead.
      */
     @Deprecated // since 2.15
     public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
-        this(null, null, br, contentRef, managedResource);
+        this(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(), ErrorReportConfiguration.defaults(),
+                br, contentRef, managedResource);
     }
 
     @Deprecated // since 2.13

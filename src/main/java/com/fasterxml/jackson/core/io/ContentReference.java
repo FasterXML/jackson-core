@@ -259,10 +259,10 @@ public class ContentReference
      * which content is counted, either bytes or chars) to use for truncation
      * (so as not to include full content for humongous sources or targets)
      *
-     * @see ErrorReportConfiguration#builder()#_maxRawContentLength
+     * @see ErrorReportConfiguration#getMaxRawContentLength()
      * @return Maximum content snippet to include before truncating
      */
-    protected int maxContentSnippetLength() {
+    protected int maxRawContentLength() {
         return _maxRawContentLength;
     }
 
@@ -323,7 +323,7 @@ public class ContentReference
             String trimmed;
 
             // poor man's tuple...
-            final int maxLen = maxContentSnippetLength();
+            final int maxLen = maxRawContentLength();
             int[] offsets = new int[] { contentOffset(), contentLength() };
 
             if (srcRef instanceof CharSequence) {

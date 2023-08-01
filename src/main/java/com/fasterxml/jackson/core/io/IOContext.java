@@ -72,12 +72,12 @@ public class IOContext
     /**
      * @since 2.16
      */
-    protected final ErrorReportConfiguration _errorReportConfiguration;
+    protected final StreamWriteConstraints _streamWriteConstraints;
 
     /**
      * @since 2.16
      */
-    protected final StreamWriteConstraints _streamWriteConstraints;
+    protected final ErrorReportConfiguration _errorReportConfiguration;
 
     /**
      * Reference to the allocated I/O buffer for low-level input reading,

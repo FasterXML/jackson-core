@@ -1,15 +1,12 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.ErrorReportConfiguration;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
 
 /**
  * Abstraction that encloses information about content being processed --
@@ -54,7 +51,7 @@ public class ContentReference
      * logs.
      *
      * @since 2.9
-     * @deprecated Since 2.16. {@link ErrorReportConfiguration.Builder#maxRawContentLength(int)} will be used instead.
+     * @deprecated Since 2.16. {@link ErrorReportConfiguration#DEFAULT_MAX_RAW_CONTENT_LENGTH} will be used instead.
      */
     @Deprecated
     public static final int DEFAULT_MAX_CONTENT_SNIPPET = 500;

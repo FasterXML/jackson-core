@@ -23,7 +23,7 @@ public class JsonLocation
     private static final long serialVersionUID = 2L; // in 2.13
 
     /**
-     * @deprecated Since 2.13 use {@link ContentReference#DEFAULT_MAX_CONTENT_SNIPPET} instead
+     * @deprecated Since 2.13 use {@link ErrorReportConfiguration#DEFAULT_MAX_RAW_CONTENT_LENGTH} instead
      */
     @Deprecated
     public static final int MAX_CONTENT_SNIPPET = 500;

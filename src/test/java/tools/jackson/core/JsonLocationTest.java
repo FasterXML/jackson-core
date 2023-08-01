@@ -65,7 +65,7 @@ public class JsonLocationTest extends BaseTest
     public void testTruncatedSource()
     {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < ContentReference.DEFAULT_MAX_CONTENT_SNIPPET; ++i) {
+        for (int i = 0; i < ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH; ++i) {
             sb.append("x");
         }
         String main = sb.toString();

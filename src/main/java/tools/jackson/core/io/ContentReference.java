@@ -1,13 +1,12 @@
 package tools.jackson.core.io;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+
+import tools.jackson.core.ErrorReportConfiguration;
 
 /**
  * Abstraction that encloses information about content being processed --
@@ -31,7 +30,7 @@ public class ContentReference
      * content snippets will be included.
      */
     protected final static ContentReference UNKNOWN_CONTENT =
-            new ContentReference(false, null);
+            new ContentReference(false, null, ErrorReportConfiguration.defaults());
 
     /**
      * As content will be redacted by default in Jackson 2.16 and later,
@@ -42,16 +41,7 @@ public class ContentReference
      * @since 2.16
      */
     protected final static ContentReference REDACTED_CONTENT =
-            new ContentReference(false, null);
-    
-    /**
-     * Include at most first 500 characters/bytes from contents; should be enough
-     * to give context, but not cause unfortunate side effects in things like
-     * logs.
-     *
-     * @since 2.9
-     */
-    public static final int DEFAULT_MAX_CONTENT_SNIPPET = 500;
+            new ContentReference(false, null, ErrorReportConfiguration.defaults());
 
     /**
      * Reference to the actual underlying content.
@@ -79,23 +69,37 @@ public class ContentReference
      */
     protected final boolean _isContentTextual;
 
+    /**
+     * max raw content to return as configured 
+     *
+     * @since 2.16
+     */
+    protected final int _maxRawContentLength;
+
     /*
     /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
-
-    protected ContentReference(boolean isContentTextual, Object rawContent) {
-        this(isContentTextual, rawContent, -1, -1);
+    /**
+     * @since 2.16
+     */
+    protected ContentReference(boolean isContentTextual, Object rawContent, ErrorReportConfiguration errorReportConfiguration)
+    {
+        this(isContentTextual, rawContent, -1, -1, errorReportConfiguration);
     }
 
+    /**
+     * @since 2.16
+     */
     protected ContentReference(boolean isContentTextual, Object rawContent,
-            int offset, int length)
+            int offset, int length, ErrorReportConfiguration errorReportConfiguration)
     {
         _isContentTextual = isContentTextual;
         _rawContent = rawContent;
         _offset = offset;
         _length = length;
+        _maxRawContentLength = errorReportConfiguration.getMaxRawContentLength();
     }
 
     /**
@@ -122,14 +126,41 @@ public class ContentReference
     public static ContentReference redacted() {
         return REDACTED_CONTENT;
     }
-        
+
+
+    /**
+     * @deprecated Since 2.16. Use {@link #construct(boolean, Object, ErrorReportConfiguration)} instead.
+     */
+    @Deprecated
     public static ContentReference construct(boolean isContentTextual, Object rawContent) {
-        return new ContentReference(isContentTextual, rawContent);
+        return new ContentReference(isContentTextual, rawContent, ErrorReportConfiguration.defaults());
     }
 
+    /**
+     * @deprecated Since 2.16. Use {@link #construct(boolean, Object, int, int, ErrorReportConfiguration)} instead.
+     */
+    @Deprecated
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
             int offset, int length) {
-        return new ContentReference(isContentTextual, rawContent, offset, length);
+        return new ContentReference(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static ContentReference construct(boolean isContentTextual, Object rawContent,
+            int offset, int length, ErrorReportConfiguration errorReportConfiguration)
+    {
+        return new ContentReference(isContentTextual, rawContent, offset, length, errorReportConfiguration);
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static ContentReference construct(boolean isContentTextual, Object rawContent, 
+            ErrorReportConfiguration errorReportConfiguration) 
+    {
+        return new ContentReference(isContentTextual, rawContent, errorReportConfiguration);
     }
 
     /**
@@ -151,7 +182,8 @@ public class ContentReference
         if (rawContent instanceof ContentReference) {
             return (ContentReference) rawContent;
         }
-        return new ContentReference(isContentTextual, rawContent);
+        return new ContentReference(isContentTextual, rawContent,
+                ErrorReportConfiguration.defaults());
     }
 
     public static ContentReference rawReference(Object rawContent) {
@@ -201,10 +233,11 @@ public class ContentReference
      * which content is counted, either bytes or chars) to use for truncation
      * (so as not to include full content for humongous sources or targets)
      *
+     * @see ErrorReportConfiguration#getMaxRawContentLength()
      * @return Maximum content snippet to include before truncating
      */
-    protected int maxContentSnippetLength() {
-        return DEFAULT_MAX_CONTENT_SNIPPET;
+    protected int maxRawContentLength() {
+        return _maxRawContentLength;
     }
 
     /*
@@ -264,7 +297,7 @@ public class ContentReference
             String trimmed;
 
             // poor man's tuple...
-            final int maxLen = maxContentSnippetLength();
+            final int maxLen = maxRawContentLength();
             int[] offsets = new int[] { contentOffset(), contentLength() };
 
             if (srcRef instanceof CharSequence) {

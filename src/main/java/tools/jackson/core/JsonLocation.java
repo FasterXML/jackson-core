@@ -20,7 +20,7 @@ import tools.jackson.core.io.ContentReference;
 public class JsonLocation
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 2L; // in 2.13
+    private static final long serialVersionUID = 2L;
 
     /**
      * Shared immutable "N/A location" that can be returned to indicate

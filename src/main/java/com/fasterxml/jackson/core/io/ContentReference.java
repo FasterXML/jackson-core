@@ -103,7 +103,7 @@ public class ContentReference
      */
     @Deprecated
     protected ContentReference(boolean isContentTextual, Object rawContent) {
-        this(isContentTextual, rawContent, -1, -1);
+        this(isContentTextual, rawContent, -1, -1, ErrorReportConfiguration.defaults());
     }
 
     /**

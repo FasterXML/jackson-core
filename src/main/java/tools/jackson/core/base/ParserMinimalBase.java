@@ -130,12 +130,6 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    /**
-     * Maximum number of characters to include in token reported
-     * as part of error messages.
-     */
-    protected final static int MAX_ERROR_TOKEN_LENGTH = 256;
-
     protected final static int STREAM_READ_FEATURE_DEFAULTS = StreamReadFeature.collectDefaults();
 
     /*

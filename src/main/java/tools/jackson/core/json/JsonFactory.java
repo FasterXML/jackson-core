@@ -352,7 +352,8 @@ public class JsonFactory
     }
 
     protected IOContext _createNonBlockingContext(Object srcRef) {
-        return new IOContext(_streamReadConstraints, _streamWriteConstraints, _getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+                _getBufferRecycler(),
                 ContentReference.rawReference(srcRef), false, JsonEncoding.UTF8);
     }
 

@@ -2,6 +2,7 @@ package tools.jackson.core.io;
 
 import java.util.Objects;
 
+import tools.jackson.core.ErrorReportConfiguration;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
@@ -59,6 +60,8 @@ public class IOContext
 
     protected final StreamWriteConstraints _streamWriteConstraints;
 
+    protected final ErrorReportConfiguration _errorReportConfiguration;
+
     /**
      * Reference to the allocated I/O buffer for low-level input reading,
      * if any allocated.
@@ -108,24 +111,35 @@ public class IOContext
     /**
      * Main constructor to use.
      *
-     * @param streamReadConstraints constraints for streaming reads
-     * @param streamWriteConstraints constraints for streaming writes
+     * @param src Constraints for streaming reads
+     * @param swc Constraints for streaming writes
+     * @param erc Configuration for error reporting
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      * @param enc Encoding in use
      */
-    public IOContext(StreamReadConstraints streamReadConstraints,
-            StreamWriteConstraints streamWriteConstraints,
+    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc,
+            ErrorReportConfiguration erc,
             BufferRecycler br, ContentReference contentRef, boolean managedResource,
             JsonEncoding enc)
     {
-        _streamReadConstraints = Objects.requireNonNull(streamReadConstraints);
-        _streamWriteConstraints = Objects.requireNonNull(streamWriteConstraints);
+        _streamReadConstraints = Objects.requireNonNull(src);
+        _streamWriteConstraints = Objects.requireNonNull(swc);
+        _errorReportConfiguration = Objects.requireNonNull(erc);
         _bufferRecycler = br;
         _contentReference = contentRef;
         _managedResource = managedResource;
         _encoding = enc;
+    }
+
+    @Deprecated
+    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc,
+            BufferRecycler br, ContentReference contentRef, boolean managedResource,
+            JsonEncoding enc)
+    {
+        this(src, swc, ErrorReportConfiguration.defaults(),
+                br, contentRef, managedResource, enc);
     }
 
     /**
@@ -140,6 +154,14 @@ public class IOContext
      */
     public StreamWriteConstraints streamWriteConstraints() {
         return _streamWriteConstraints;
+    }
+
+    /**
+     * @return Configured {@link ErrorReportConfiguration}, containing configured values for
+     *   handling error reporting.
+     */
+    public ErrorReportConfiguration errorReportConfiguration() {
+        return _errorReportConfiguration;
     }
 
     public IOContext setEncoding(JsonEncoding enc) {

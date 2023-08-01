@@ -37,8 +37,6 @@ public class ContentReference
      * we'll use a new marker reference for slightly different description
      * from "unknown", to indicate explicit removal of source/content reference
      * (as opposed to it missing from not being available or so)
-     *
-     * @since 2.16
      */
     protected final static ContentReference REDACTED_CONTENT =
             new ContentReference(false, null, ErrorReportConfiguration.defaults());
@@ -81,6 +79,7 @@ public class ContentReference
     /* Life-cycle
     /**********************************************************************
      */
+
     /**
      * @since 2.16
      */

@@ -25,7 +25,6 @@ public class ErrorReportConfiguration
     public static final int DEFAULT_MAX_ERROR_TOKEN_LENGTH = 256;
 
     /**
-     * Previous was {@link tools.jackson.core.io.ContentReference#DEFAULT_MAX_CONTENT_SNIPPET}.
      * Default value for {@link #_maxRawContentLength}.
      */
     public static final int DEFAULT_MAX_RAW_CONTENT_LENGTH = 500;
@@ -70,7 +69,7 @@ public class ErrorReportConfiguration
             DEFAULT = errorReportConfiguration;
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Builder
@@ -121,7 +120,7 @@ public class ErrorReportConfiguration
             return new ErrorReportConfiguration(maxErrorTokenLength, maxRawContentLength);
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -151,7 +150,7 @@ public class ErrorReportConfiguration
     public Builder rebuild() {
         return new Builder(this);
     }
-    
+
     /*
     /**********************************************************************
     /* Accessors

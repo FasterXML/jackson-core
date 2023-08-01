@@ -1,6 +1,7 @@
 package tools.jackson.core.write;
 
 import tools.jackson.core.BaseTest;
+import tools.jackson.core.ErrorReportConfiguration;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
@@ -22,6 +23,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         StringWriter sw = new StringWriter();
         IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(sw), true,
                 JsonEncoding.UTF8);
@@ -43,6 +45,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         StringWriter sw = new StringWriter();
         IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(sw), true,
                 JsonEncoding.UTF8);

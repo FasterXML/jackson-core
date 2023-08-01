@@ -1,5 +1,6 @@
 package tools.jackson.core.io;
 
+import tools.jackson.core.ErrorReportConfiguration;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
@@ -12,6 +13,7 @@ public class TestIOContext
     {
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true,
                 JsonEncoding.UTF8);

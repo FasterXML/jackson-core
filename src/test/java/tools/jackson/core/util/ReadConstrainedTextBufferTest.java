@@ -2,6 +2,7 @@ package tools.jackson.core.util;
 
 import java.util.Arrays;
 
+import tools.jackson.core.ErrorReportConfiguration;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
@@ -49,6 +50,7 @@ class ReadConstrainedTextBufferTest {
         IOContext ioContext = new IOContext(
                 streamReadConstraints,
                 StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true, JsonEncoding.UTF8);
         return ioContext.constructReadConstrainedTextBuffer();

@@ -51,6 +51,7 @@ public class UTF8GeneratorTest extends BaseTest
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(bytes), true,
                 JsonEncoding.UTF8);
@@ -72,6 +73,7 @@ public class UTF8GeneratorTest extends BaseTest
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(bytes), true,
                 JsonEncoding.UTF8);

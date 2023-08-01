@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
@@ -15,6 +16,7 @@ public class TestMergedStream
         BufferRecycler rec = new BufferRecycler();
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(),
                 rec, ContentReference.UNKNOWN_CONTENT, false);
         // bit complicated; must use recyclable buffer...
         byte[] first = ctxt.allocReadIOBuffer();

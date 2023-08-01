@@ -4,6 +4,7 @@ import java.io.*;
 
 import org.junit.Assert;
 
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -151,7 +152,9 @@ public class UTF8WriterTest
     }
 
     private IOContext _ioContext(BufferRecycler br) {
-        return new IOContext(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
+        return new IOContext(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(),
                 br, ContentReference.unknown(), false);
     }
 }

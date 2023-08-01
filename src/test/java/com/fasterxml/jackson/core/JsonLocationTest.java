@@ -156,27 +156,33 @@ public class JsonLocationTest extends BaseTest
     }
 
     private ContentReference _sourceRef(String rawSrc) {
-        return ContentReference.construct(true, rawSrc, 0, rawSrc.length());
+        return ContentReference.construct(true, rawSrc, 0, rawSrc.length(),
+                ErrorReportConfiguration.defaults());
     }
 
     private ContentReference _sourceRef(char[] rawSrc) {
-        return ContentReference.construct(true, rawSrc, 0, rawSrc.length);
+        return ContentReference.construct(true, rawSrc, 0, rawSrc.length,
+                ErrorReportConfiguration.defaults());
     }
 
     private ContentReference _sourceRef(byte[] rawSrc) {
-        return ContentReference.construct(true, rawSrc, 0, rawSrc.length);
+        return ContentReference.construct(true, rawSrc, 0, rawSrc.length,
+                ErrorReportConfiguration.defaults());
     }
 
     private ContentReference _sourceRef(byte[] rawSrc, int offset, int length) {
-        return ContentReference.construct(true, rawSrc, offset, length);
+        return ContentReference.construct(true, rawSrc, offset, length,
+                ErrorReportConfiguration.defaults());
     }
 
     private ContentReference _sourceRef(InputStream rawSrc) {
-        return ContentReference.construct(true, rawSrc, -1, -1);
+        return ContentReference.construct(true, rawSrc, -1, -1,
+                ErrorReportConfiguration.defaults());
     }
 
     private ContentReference _sourceRef(File rawSrc) {
-        return ContentReference.construct(true, rawSrc, -1, -1);
+        return ContentReference.construct(true, rawSrc, -1, -1,
+                ErrorReportConfiguration.defaults());
     }
 
     private ContentReference _rawSourceRef(boolean textual, Object rawSrc) {

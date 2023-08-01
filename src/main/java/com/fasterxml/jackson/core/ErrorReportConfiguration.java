@@ -25,7 +25,7 @@ public class ErrorReportConfiguration
     public static final int DEFAULT_MAX_ERROR_TOKEN_LENGTH = 256;
 
     /**
-     * Previous was {@link com.fasterxml.jackson.core.io.ContentReference#DEFAULT_MAX_CONTENT_SNIPPET}.
+     * Previously was {@code com.fasterxml.jackson.core.io.ContentReference#DEFAULT_MAX_CONTENT_SNIPPET}.
      * Default value for {@link #_maxRawContentLength}.
      */
     public static final int DEFAULT_MAX_RAW_CONTENT_LENGTH = 500;

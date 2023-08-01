@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.io.ContentReference;
@@ -47,6 +48,7 @@ class ReadConstrainedTextBufferTest {
         IOContext ioContext = new IOContext(
                 constraints,
                 StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true);
         return ioContext.constructReadConstrainedTextBuffer();

@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.core.write;
 
+import java.io.StringWriter;
+
 import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
@@ -10,17 +12,14 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
-import java.io.StringWriter;
-
 public class WriterBasedJsonGeneratorTest extends BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
-
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         StringWriter sw = new StringWriter();
         IOContext ioc = new IOContext(null,
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(sw), true);
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ioc, 0, null, sw, '"')) {
@@ -39,6 +38,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         StringWriter sw = new StringWriter();
         IOContext ioc = new IOContext(null,
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(sw), true);
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ioc, 0, null, sw, '"')) {

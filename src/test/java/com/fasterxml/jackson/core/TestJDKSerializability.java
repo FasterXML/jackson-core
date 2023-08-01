@@ -96,7 +96,8 @@ public class TestJDKSerializability extends BaseTest
 
     public void testSourceReference() throws Exception
     {
-        ContentReference ref = ContentReference.construct(true, "text");
+        ContentReference ref = ContentReference.construct(true, "text",
+                ErrorReportConfiguration.defaults());
 
         byte[] stuff = jdkSerialize(ref);
         ContentReference ref2 = jdkDeserialize(stuff);

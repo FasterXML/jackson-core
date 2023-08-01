@@ -19,7 +19,9 @@ public class UTF8GeneratorTest extends BaseTest
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
+        IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(bytes), true);
         JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"');
@@ -50,6 +52,7 @@ public class UTF8GeneratorTest extends BaseTest
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = new IOContext(null,
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(bytes), true);
         try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
@@ -68,6 +71,7 @@ public class UTF8GeneratorTest extends BaseTest
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = new IOContext(null,
                 StreamWriteConstraints.builder().maxNestingDepth(1).build(),
+                ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
                 ContentReference.rawReference(bytes), true);
         try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {

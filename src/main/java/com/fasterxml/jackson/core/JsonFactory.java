@@ -875,7 +875,7 @@ public class JsonFactory
      * this factory.
      *<p>
      * NOTE: the preferred way to set constraints is by using
-     * {@link JsonFactoryBuilder#_streamWriteConstraints}: this method is only
+     * {@link JsonFactoryBuilder#streamWriteConstraints}: this method is only
      * provided to support older non-builder-based construction.
      * In Jackson 3.x this method will not be available.
      *
@@ -2219,7 +2219,7 @@ public class JsonFactory
      * @since 2.13
      */
     protected ContentReference _createContentReference(Object contentAccessor,
-                                                       int offset, int length)
+            int offset, int length)
     {
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:

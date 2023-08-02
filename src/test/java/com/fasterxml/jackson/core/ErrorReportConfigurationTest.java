@@ -131,11 +131,11 @@ public class ErrorReportConfigurationTest
     public void testWithJsonLocation() throws Exception
     {
         // Truncated result
-        _verifyJsonLocationToString("abc", 2, "ab");
+        _verifyJsonLocationToString("abc", 2, "\"ab\"[truncated 1 chars]");
         // Exact length
-        _verifyJsonLocationToString("abc", 3, "abc");
+        _verifyJsonLocationToString("abc", 3, "\"abc\"");
         // Enough length
-        _verifyJsonLocationToString("abc", 4, "abc");
+        _verifyJsonLocationToString("abc", 4, "\"abc\"");
     }
 
     public void testWithJsonFactory() throws Exception
@@ -273,7 +273,7 @@ public class ErrorReportConfigurationTest
                 .build();
         ContentReference reference = ContentReference.construct(true, rawSrc, 0, rawSrc.length(), erc);
         assertEquals(
-                "[Source: (String)\"" + expectedMessage + "\"; line: 1, column: 1]",
+                "[Source: (String)" + expectedMessage + "; line: 1, column: 1]",
                 new JsonLocation(reference, 10L, 10L, 1, 1).toString());
     }
 

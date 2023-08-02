@@ -49,8 +49,8 @@ import com.fasterxml.jackson.core.util.Separators;
  */
 @SuppressWarnings("resource")
 public class JsonFactory
-        extends TokenStreamFactory
-        implements Versioned,
+    extends TokenStreamFactory
+    implements Versioned,
         java.io.Serializable // since 2.1 (for Android, mostly)
 {
     private static final long serialVersionUID = 2;
@@ -66,7 +66,7 @@ public class JsonFactory
      * changed for {@link JsonFactory}.
      */
     public enum Feature
-            implements JacksonFeature // since 2.12
+        implements JacksonFeature // since 2.12
     {
         // // // Symbol handling (interning etc)
 
@@ -319,7 +319,7 @@ public class JsonFactory
      * @since 2.16
      */
     protected final List<JsonGeneratorDecorator> _generatorDecorators;
-
+    
     /**
      * Separator used between root-level values, if any; null indicates
      * "do not add separator".
@@ -1888,10 +1888,10 @@ public class JsonFactory
      * @since 2.4
      */
     protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
-                                       boolean recyclable) throws IOException {
+            boolean recyclable) throws IOException {
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures),
-                data, offset, offset+len, recyclable);
+                        data, offset, offset+len, recyclable);
     }
 
     /**

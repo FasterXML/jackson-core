@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.NumberInput;
@@ -1553,12 +1554,16 @@ public abstract class ParserBase extends ParserMinimalBase
         return ContentReference.redacted();
     }
 
-    protected static int[] growArrayBy(int[] arr, int more)
+    protected static int[] growArrayBy(int[] arr, int more) throws StreamConstraintsException
     {
         if (arr == null) {
             return new int[more];
         }
-        return Arrays.copyOf(arr, arr.length + more);
+        final long len = arr.length + more;
+        if (len > Integer.MAX_VALUE) {
+            throw new StreamConstraintsException("Unable to grow array to longer to Integer.MAX_VALUE");
+        }
+        return Arrays.copyOf(arr, (int) len);
     }
 
     /*

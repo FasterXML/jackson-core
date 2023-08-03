@@ -20,7 +20,10 @@ public class FactoryBaseImplsTest extends BaseTest
     static class ToyBinaryFormatFactory
         extends BinaryTSFactory
     {
-        public ToyBinaryFormatFactory() { super(null, null, 0, 0); }
+        public ToyBinaryFormatFactory() {
+            super(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(), 0, 0);
+        }
 
         @Override
         protected JsonParser _createParser(ObjectReadContext readCtxt,
@@ -69,7 +72,8 @@ public class FactoryBaseImplsTest extends BaseTest
         extends TextualTSFactory
     {
         public ToyTextualFormatFactory() {
-            super(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(), 0, 0);
+            super(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
+                    ErrorReportConfiguration.defaults(), 0, 0);
         }
 
         @Override

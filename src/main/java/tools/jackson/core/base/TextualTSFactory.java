@@ -27,9 +27,9 @@ public abstract class TextualTSFactory
      */
 
     protected TextualTSFactory(StreamReadConstraints src,
-            StreamWriteConstraints swc,
+            StreamWriteConstraints swc, ErrorReportConfiguration erc,
             int formatPF, int formatGF) {
-        super(src, swc, formatPF, formatGF);
+        super(src, swc, erc, formatPF, formatGF);
     }
 
     /**

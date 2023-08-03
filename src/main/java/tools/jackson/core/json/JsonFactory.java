@@ -136,6 +136,7 @@ public class JsonFactory
      */
     public JsonFactory() {
         super(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(),
                 DEFAULT_JSON_PARSER_FEATURE_FLAGS, DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
         _characterEscapes = null;

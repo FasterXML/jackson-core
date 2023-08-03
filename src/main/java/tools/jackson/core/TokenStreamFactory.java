@@ -235,7 +235,7 @@ public abstract class TokenStreamFactory
     /**
      * Active ErrorReportConfiguration to use.
      */
-    protected ErrorReportConfiguration _errorReportConfiguration;    
+    protected final ErrorReportConfiguration _errorReportConfiguration;    
 
     /*
     /**********************************************************************
@@ -257,11 +257,12 @@ public abstract class TokenStreamFactory
      * @param formatReadFeatures Bitmask of format-specific read features enabled
      * @param formatWriteFeatures Bitmask of format-specific write features enabled
      */
-    protected TokenStreamFactory(StreamReadConstraints src,
-            StreamWriteConstraints swc,
+    protected TokenStreamFactory(StreamReadConstraints src, StreamWriteConstraints swc,
+            ErrorReportConfiguration erc,
             int formatReadFeatures, int formatWriteFeatures) {
         _streamReadConstraints = src;
         _streamWriteConstraints = swc;
+        _errorReportConfiguration = erc;
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -284,6 +285,7 @@ public abstract class TokenStreamFactory
     {
         _streamReadConstraints = baseBuilder._streamReadConstraints;
         _streamWriteConstraints = baseBuilder._streamWriteConstraints;
+        _errorReportConfiguration = baseBuilder._errorReportConfiguration;
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
         _streamReadFeatures = baseBuilder.streamReadFeaturesMask();
         _streamWriteFeatures = baseBuilder.streamWriteFeaturesMask();
@@ -301,6 +303,7 @@ public abstract class TokenStreamFactory
     {
         _streamReadConstraints = src._streamReadConstraints;
         _streamWriteConstraints = src._streamWriteConstraints;
+        _errorReportConfiguration = src._errorReportConfiguration;
         _factoryFeatures = src._factoryFeatures;
         _streamReadFeatures = src._streamReadFeatures;
         _streamWriteFeatures = src._streamWriteFeatures;

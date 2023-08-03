@@ -115,10 +115,10 @@ public abstract class DecorableTSFactory
     /**********************************************************************
      */
 
-    protected DecorableTSFactory(StreamReadConstraints src,
-            StreamWriteConstraints swc,
+    protected DecorableTSFactory(StreamReadConstraints src, StreamWriteConstraints swc,
+            ErrorReportConfiguration erc,
             int formatPF, int formatGF) {
-        super(src, swc, formatPF, formatGF);
+        super(src, swc, erc, formatPF, formatGF);
         _inputDecorator = null;
         _outputDecorator = null;
         _generatorDecorators = null;

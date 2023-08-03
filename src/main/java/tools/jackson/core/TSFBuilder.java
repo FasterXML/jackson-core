@@ -44,13 +44,20 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
      */
     protected StreamWriteConstraints _streamWriteConstraints;
 
+    /**
+     * {@link ErrorReportConfiguration} to use.
+     */
+    protected ErrorReportConfiguration _errorReportConfiguration;    
+
     // // // Construction
 
-    protected TSFBuilder(StreamReadConstraints src,
-            StreamWriteConstraints swc,
+    protected TSFBuilder(StreamReadConstraints src, StreamWriteConstraints swc,
+            ErrorReportConfiguration erc,
             int formatReadF, int formatWriteF) {
         _streamReadConstraints = Objects.requireNonNull(src);
         _streamWriteConstraints = Objects.requireNonNull(swc);
+        _errorReportConfiguration = Objects.requireNonNull(erc);
+
         _factoryFeatures = TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = TokenStreamFactory.DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -61,13 +68,14 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     protected TSFBuilder(TokenStreamFactory base)
     {
         this(base._streamReadConstraints, base._streamWriteConstraints,
+                base._errorReportConfiguration,
                 base._factoryFeatures,
                 base._streamReadFeatures, base._streamWriteFeatures,
                 base._formatReadFeatures, base._formatWriteFeatures);
     }
 
-    protected TSFBuilder(StreamReadConstraints src,
-            StreamWriteConstraints swc,
+    protected TSFBuilder(StreamReadConstraints src, StreamWriteConstraints swc,
+            ErrorReportConfiguration erc,
             int factoryFeatures,
             int streamReadFeatures, int streamWriteFeatures,
             int formatReadFeatures, int formatWriteFeatures)
@@ -192,6 +200,18 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
      */
     public B streamWriteConstraints(StreamWriteConstraints streamWriteConstraints) {
         _streamWriteConstraints = streamWriteConstraints;
+        return _this();
+    }
+
+    /**
+     * Sets the configuration for error tokens.
+     *
+     * @param errorReportConfiguration configuration values used for handling errorneous token inputs. 
+     *
+     * @return this builder
+     */
+    public B errorReportConfiguration(ErrorReportConfiguration errorReportConfiguration) {
+        _errorReportConfiguration = errorReportConfiguration;
         return _this();
     }
 

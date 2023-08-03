@@ -287,7 +287,8 @@ public abstract class TextualTSFactory
     @Override
     protected ContentReference _createContentReference(Object contentRef) {
         // true -> textual
-        return ContentReference.construct(true, contentRef);
+        return ContentReference.construct(true, contentRef,
+                _errorReportConfiguration);
     }
 
     @Override
@@ -295,7 +296,8 @@ public abstract class TextualTSFactory
             int offset, int length)
     {
         // true -> textual
-        return ContentReference.construct(true, contentRef, offset, length);
+        return ContentReference.construct(true, contentRef, offset, length,
+                _errorReportConfiguration);
     }
 
     /*

@@ -2,12 +2,7 @@ package tools.jackson.core.json;
 
 import static tools.jackson.core.JsonTokenId.*;
 
-import java.io.DataInput;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.util.Arrays;
+import java.io.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;

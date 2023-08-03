@@ -232,6 +232,11 @@ public abstract class TokenStreamFactory
      */
     protected final StreamWriteConstraints _streamWriteConstraints;
 
+    /**
+     * Active ErrorReportConfiguration to use.
+     */
+    protected ErrorReportConfiguration _errorReportConfiguration;    
+
     /*
     /**********************************************************************
     /* Construction
@@ -1212,6 +1217,7 @@ public abstract class TokenStreamFactory
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
         return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+                _errorReportConfiguration,
                 _getBufferRecycler(), contentRef,
                 resourceManaged, null);
     }
@@ -1229,6 +1235,7 @@ public abstract class TokenStreamFactory
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged,
             JsonEncoding enc) {
         return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+                _errorReportConfiguration,
                 _getBufferRecycler(), contentRef,
                 resourceManaged, enc);
     }

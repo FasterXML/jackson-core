@@ -1,11 +1,28 @@
 package tools.jackson.core;
 
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.io.ContentReference;
+import tools.jackson.core.json.JsonFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Unit tests for class {@link ErrorReportConfiguration}.
  */
 public class ErrorReportConfigurationTest
     extends BaseTest
 {
+        
+    /*
+    /**********************************************************
+    /* Unit Tests
+    /**********************************************************
+     */
+
+    private final int DEFAULT_CONTENT_LENGTH = ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH;
+
+    private final int DEFAULT_ERROR_LENGTH = ErrorReportConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH;
+
     private final ErrorReportConfiguration DEFAULTS = ErrorReportConfiguration.defaults();
 
     public void testNormalBuild()
@@ -53,8 +70,8 @@ public class ErrorReportConfigurationTest
     public void testDefaults()
     {
         // default value
-        assertEquals(ErrorReportConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH, DEFAULTS.getMaxErrorTokenLength());
-        assertEquals(ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH, DEFAULTS.getMaxRawContentLength());
+        assertEquals(DEFAULT_ERROR_LENGTH, DEFAULTS.getMaxErrorTokenLength());
+        assertEquals(DEFAULT_CONTENT_LENGTH, DEFAULTS.getMaxRawContentLength());
 
         // equals
         assertEquals(ErrorReportConfiguration.defaults(), ErrorReportConfiguration.defaults());
@@ -67,8 +84,8 @@ public class ErrorReportConfigurationTest
         try {
             ErrorReportConfiguration nullDefaults = ErrorReportConfiguration.defaults();
 
-            assertEquals(ErrorReportConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH, nullDefaults.getMaxErrorTokenLength());
-            assertEquals(ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH, nullDefaults.getMaxRawContentLength());
+            assertEquals(DEFAULT_ERROR_LENGTH, nullDefaults.getMaxErrorTokenLength());
+            assertEquals(DEFAULT_CONTENT_LENGTH, nullDefaults.getMaxRawContentLength());
 
             // (2) override with other value that actually changes default values
             ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(ErrorReportConfiguration.builder()
@@ -84,8 +101,8 @@ public class ErrorReportConfigurationTest
             // (3) revert back to default values
             // IMPORTANT : make sure to revert back, otherwise other tests will be affected
             ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(ErrorReportConfiguration.builder()
-                    .maxErrorTokenLength(ErrorReportConfiguration.DEFAULT_MAX_ERROR_TOKEN_LENGTH)
-                    .maxRawContentLength(ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH)
+                    .maxErrorTokenLength(DEFAULT_ERROR_LENGTH)
+                    .maxRawContentLength(DEFAULT_CONTENT_LENGTH)
                     .build());
         }
     }
@@ -110,5 +127,179 @@ public class ErrorReportConfigurationTest
 
         assertEquals(configA.getMaxErrorTokenLength(), configB.getMaxErrorTokenLength());
         assertEquals(configA.getMaxRawContentLength(), configB.getMaxRawContentLength());
+    }
+
+    public void testWithJsonLocation() throws Exception
+    {
+        // Truncated result
+        _verifyJsonLocationToString("abc", 2, "\"ab\"[truncated 1 chars]");
+        // Exact length
+        _verifyJsonLocationToString("abc", 3, "\"abc\"");
+        // Enough length
+        _verifyJsonLocationToString("abc", 4, "\"abc\"");
+    }
+
+    public void testWithJsonFactory() throws Exception
+    {
+        // default
+        _verifyJsonProcessingExceptionSourceLength(500,
+                ErrorReportConfiguration.builder().build());
+        // default
+        _verifyJsonProcessingExceptionSourceLength(500,
+                ErrorReportConfiguration.defaults());
+        // shorter
+        _verifyJsonProcessingExceptionSourceLength(499,
+                ErrorReportConfiguration.builder()
+                        .maxRawContentLength(DEFAULT_CONTENT_LENGTH - 1).build());
+        // longer 
+        _verifyJsonProcessingExceptionSourceLength(501,
+                ErrorReportConfiguration.builder()
+                        .maxRawContentLength(DEFAULT_CONTENT_LENGTH + 1).build());
+        // zero
+        _verifyJsonProcessingExceptionSourceLength(0,
+                ErrorReportConfiguration.builder()
+                        .maxRawContentLength(0).build());
+    }
+
+    public void testExpectedTokenLengthWithConfigurations()
+            throws Exception
+    {
+        // default
+        _verifyErrorTokenLength(263,
+                ErrorReportConfiguration.builder().build());
+        // default
+        _verifyErrorTokenLength(263,
+                ErrorReportConfiguration.defaults());
+        // shorter
+        _verifyErrorTokenLength(63,
+                ErrorReportConfiguration.builder()
+                        .maxErrorTokenLength(DEFAULT_ERROR_LENGTH - 200).build());
+        // longer 
+        _verifyErrorTokenLength(463,
+                ErrorReportConfiguration.builder()
+                        .maxErrorTokenLength(DEFAULT_ERROR_LENGTH + 200).build());
+        // zero
+        _verifyErrorTokenLength(9,
+                ErrorReportConfiguration.builder()
+                        .maxErrorTokenLength(0).build());
+
+        // negative value fails
+        try {
+            _verifyErrorTokenLength(9,
+                    ErrorReportConfiguration.builder()
+                            .maxErrorTokenLength(-1).build());
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage())
+                    .contains("Value of maxErrorTokenLength")
+                    .contains("cannot be negative");
+        }
+        // null is not allowed, throws NPE
+        try {
+            _verifyErrorTokenLength(263,
+                    null);
+        } catch (NullPointerException e) {
+            // no-op
+        }
+    }
+
+    public void testNonPositiveErrorTokenConfig()
+    {
+        // Zero should be ok
+        ErrorReportConfiguration.builder().maxErrorTokenLength(0).build();
+
+        // But not -1
+        try {
+            ErrorReportConfiguration.builder().maxErrorTokenLength(-1).build();
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage())
+                    .contains("Value of maxErrorTokenLength")
+                    .contains("cannot be negative");
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
+
+    private void _verifyJsonProcessingExceptionSourceLength(int expectedRawContentLength, ErrorReportConfiguration erc)
+            throws Exception
+    {
+        // Arrange
+        JsonFactory factory = streamFactoryBuilder()
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+                .errorReportConfiguration(erc)
+                .build();
+        // Make JSON input too long so it can be cutoff
+        int tooLongContent = 50 * DEFAULT_CONTENT_LENGTH;
+        String inputWithDynamicLength = _buildBrokenJsonOfLength(tooLongContent);
+
+        // Act
+        try (JsonParser parser = factory.createParser(inputWithDynamicLength)) {
+            parser.nextToken();
+            parser.nextToken();
+            fail("Should not reach");
+        } catch (StreamReadException e) {
+
+            // Assert
+            String prefix = "(String)\"";
+            String suffix = "\"[truncated 12309 chars]";
+
+            // The length of the source description should be [ prefix + expected length + suffix ]
+            int expectedLength = prefix.length() + expectedRawContentLength + suffix.length();
+            int actualLength = e.getLocation().sourceDescription().length();
+
+            assertEquals(expectedLength, actualLength);
+            assertThat(e.getMessage())
+                    .contains("Unrecognized token '")
+                    .contains("was expecting (JSON");
+        }
+    }
+
+    private void _verifyJsonLocationToString(String rawSrc, int rawContentLength, String expectedMessage)
+    {
+        ErrorReportConfiguration erc = ErrorReportConfiguration.builder()
+                .maxRawContentLength(rawContentLength)
+                .build();
+        ContentReference reference = ContentReference.construct(true, rawSrc, 0, rawSrc.length(), erc);
+        assertEquals(
+                "[Source: (String)" + expectedMessage + "; line: 1, column: 1]",
+                new JsonLocation(reference, 10L, 10L, 1, 1).toString());
+    }
+
+    private void _verifyErrorTokenLength(int expectedTokenLen, ErrorReportConfiguration errorReportConfiguration)
+            throws Exception
+    {
+        JsonFactory jf3 = streamFactoryBuilder()
+                .errorReportConfiguration(errorReportConfiguration)
+                .build();
+        _testWithMaxErrorTokenLength(expectedTokenLen,
+                // creating arbitrary number so that token reaches max len, but not over-do it
+                50 * DEFAULT_ERROR_LENGTH, jf3);
+    }
+
+    private void _testWithMaxErrorTokenLength(int expectedSize, int tokenLen, JsonFactory factory)
+            throws Exception
+    {
+        String inputWithDynamicLength = _buildBrokenJsonOfLength(tokenLen);
+        try (JsonParser parser = factory.createParser(inputWithDynamicLength)) {
+            parser.nextToken();
+            parser.nextToken();
+        } catch (StreamReadException e) {
+            assertThat(e.getLocation()._totalChars).isEqualTo(expectedSize);
+            assertThat(e.getMessage()).contains("Unrecognized token");
+        }
+    }
+
+    private String _buildBrokenJsonOfLength(int len)
+    {
+        StringBuilder sb = new StringBuilder("{\"key\":");
+        for (int i = 0; i < len; i++) {
+            sb.append("a");
+        }
+        sb.append("!}");
+        return sb.toString();
     }
 }

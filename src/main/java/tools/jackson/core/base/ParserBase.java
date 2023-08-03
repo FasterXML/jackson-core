@@ -1165,7 +1165,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         final int len = arr.length + more;
         if (len < 0) {
-            throw new IllegalArgumentException("Unable to grow array to longer to `Integer.MAX_VALUE`");
+            throw new IllegalArgumentException("Unable to grow array to longer than `Integer.MAX_VALUE`");
         }
         return Arrays.copyOf(arr, len);
     }

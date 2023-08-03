@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.exc.StreamReadException;
@@ -260,9 +261,9 @@ public abstract class TokenStreamFactory
     protected TokenStreamFactory(StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int formatReadFeatures, int formatWriteFeatures) {
-        _streamReadConstraints = src;
-        _streamWriteConstraints = swc;
-        _errorReportConfiguration = erc;
+        _streamReadConstraints = Objects.requireNonNull(src);
+        _streamWriteConstraints = Objects.requireNonNull(swc);
+        _errorReportConfiguration = Objects.requireNonNull(erc);
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -283,9 +284,9 @@ public abstract class TokenStreamFactory
      */
     protected TokenStreamFactory(TSFBuilder<?,?> baseBuilder)
     {
-        _streamReadConstraints = baseBuilder._streamReadConstraints;
-        _streamWriteConstraints = baseBuilder._streamWriteConstraints;
-        _errorReportConfiguration = baseBuilder._errorReportConfiguration;
+        _streamReadConstraints = Objects.requireNonNull(baseBuilder._streamReadConstraints);
+        _streamWriteConstraints = Objects.requireNonNull(baseBuilder._streamWriteConstraints);
+        _errorReportConfiguration = Objects.requireNonNull(baseBuilder._errorReportConfiguration);
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
         _streamReadFeatures = baseBuilder.streamReadFeaturesMask();
         _streamWriteFeatures = baseBuilder.streamWriteFeaturesMask();

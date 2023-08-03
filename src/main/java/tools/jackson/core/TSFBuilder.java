@@ -80,8 +80,9 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
             int streamReadFeatures, int streamWriteFeatures,
             int formatReadFeatures, int formatWriteFeatures)
     {
-        _streamReadConstraints = src;
-        _streamWriteConstraints = swc;
+        _streamReadConstraints = Objects.requireNonNull(src);
+        _streamWriteConstraints = Objects.requireNonNull(swc);
+        _errorReportConfiguration = Objects.requireNonNull(erc);
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = streamReadFeatures;
         _streamWriteFeatures = streamWriteFeatures;

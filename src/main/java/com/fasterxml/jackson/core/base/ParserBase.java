@@ -1554,16 +1554,20 @@ public abstract class ParserBase extends ParserMinimalBase
         return ContentReference.redacted();
     }
 
-    protected static int[] growArrayBy(int[] arr, int more) throws StreamConstraintsException
+    /* Helper method called by name-decoding methods that require storage
+     * for "quads" (4-byte units encode as ints), when existing buffer
+     * is full.
+     */
+    protected static int[] growArrayBy(int[] arr, int more) throws IllegalArgumentException
     {
         if (arr == null) {
             return new int[more];
         }
-        final long len = arr.length + more;
-        if (len > Integer.MAX_VALUE) {
-            throw new StreamConstraintsException("Unable to grow array to longer to Integer.MAX_VALUE");
+        final int len = arr.length + more;
+        if (len < 0) {
+            throw new IllegalArgumentException("Unable to grow array to longer to `Integer.MAX_VALUE`");
         }
-        return Arrays.copyOf(arr, (int) len);
+        return Arrays.copyOf(arr, len);
     }
 
     /*

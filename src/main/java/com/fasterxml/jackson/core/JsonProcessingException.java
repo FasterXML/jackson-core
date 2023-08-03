@@ -14,6 +14,8 @@ package com.fasterxml.jackson.core;
  *<p>
  * Since Jackson 2.12 extends intermediate {@link JacksonException} type
  * instead of directly extending {@link java.io.IOException}.
+ *<p>
+ * Since Jackson 2.16, handles its content as configured using {@link com.fasterxml.jackson.core.ErrorReportConfiguration}.
  */
 public class JsonProcessingException extends JacksonException
 {

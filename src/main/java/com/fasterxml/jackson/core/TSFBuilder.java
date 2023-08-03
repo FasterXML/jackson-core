@@ -100,6 +100,13 @@ public abstract class TSFBuilder<F extends JsonFactory,
      */
     protected List<JsonGeneratorDecorator> _generatorDecorators;
 
+    /**
+     * Optional {@link ErrorReportConfiguration} to use.
+     *
+     * @since 2.16
+     */
+    protected ErrorReportConfiguration _errorReportConfiguration;
+
     /*
     /**********************************************************************
     /* Construction
@@ -120,6 +127,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _outputDecorator = base._outputDecorator;
         _streamReadConstraints = base._streamReadConstraints;
         _streamWriteConstraints = base._streamWriteConstraints;
+        _errorReportConfiguration = base._errorReportConfiguration;
         _generatorDecorators = _copy(base._generatorDecorators);
     }
 
@@ -134,6 +142,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _outputDecorator = null;
         _streamReadConstraints = StreamReadConstraints.defaults();
         _streamWriteConstraints = StreamWriteConstraints.defaults();
+        _errorReportConfiguration = ErrorReportConfiguration.defaults();
         _generatorDecorators = null;
     }
 
@@ -324,6 +333,17 @@ public abstract class TSFBuilder<F extends JsonFactory,
         return _this();
     }
 
+    /**
+     * Sets the configuration for error tokens.
+     *
+     * @param errorReportConfiguration configuration values used for handling errorneous token inputs. 
+     * @return this factory
+     * @since 2.16
+     */
+    public B errorReportConfiguration(ErrorReportConfiguration errorReportConfiguration) {
+        _errorReportConfiguration = errorReportConfiguration;
+        return _this();
+    }
     /**
      * Sets the constraints for streaming writes.
      *

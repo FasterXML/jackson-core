@@ -237,7 +237,8 @@ public class ErrorReportConfigurationTest
         String inputWithDynamicLength = _buildBrokenJsonOfLength(tooLongContent);
 
         // Act
-        try (JsonParser parser = factory.createParser(inputWithDynamicLength)) {
+        try (JsonParser parser = factory.createParser(ObjectReadContext.empty(),
+                inputWithDynamicLength)) {
             parser.nextToken();
             parser.nextToken();
             fail("Should not reach");
@@ -284,7 +285,8 @@ public class ErrorReportConfigurationTest
             throws Exception
     {
         String inputWithDynamicLength = _buildBrokenJsonOfLength(tokenLen);
-        try (JsonParser parser = factory.createParser(inputWithDynamicLength)) {
+        try (JsonParser parser = factory.createParser(ObjectReadContext.empty(),
+                inputWithDynamicLength)) {
             parser.nextToken();
             parser.nextToken();
         } catch (StreamReadException e) {

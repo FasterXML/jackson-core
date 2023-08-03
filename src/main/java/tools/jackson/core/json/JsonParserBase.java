@@ -1,7 +1,5 @@
 package tools.jackson.core.json;
 
-import java.util.Arrays;
-
 import tools.jackson.core.*;
 import tools.jackson.core.base.ParserBase;
 import tools.jackson.core.exc.InputCoercionException;
@@ -393,19 +391,5 @@ public abstract class JsonParserBase
             return "(JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')";
         }
         return "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
-    }
-
-    /*
-    /**********************************************************************
-    /* Internal/package methods: Other
-    /**********************************************************************
-     */
-
-    protected static int[] growArrayBy(int[] arr, int more)
-    {
-        if (arr == null) {
-            return new int[more];
-        }
-        return Arrays.copyOf(arr, arr.length + more);
     }
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 //import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.InputCoercionException;
@@ -1151,5 +1152,21 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected ContentReference _contentReferenceRedacted() {
         return ContentReference.redacted();
+    }
+
+    /* Helper method called by name-decoding methods that require storage
+     * for "quads" (4-byte units encode as ints), when existing buffer
+     * is full.
+     */
+    protected static int[] growArrayBy(int[] arr, int more) throws IllegalArgumentException
+    {
+        if (arr == null) {
+            return new int[more];
+        }
+        final int len = arr.length + more;
+        if (len < 0) {
+            throw new IllegalArgumentException("Unable to grow array to longer to `Integer.MAX_VALUE`");
+        }
+        return Arrays.copyOf(arr, len);
     }
 }

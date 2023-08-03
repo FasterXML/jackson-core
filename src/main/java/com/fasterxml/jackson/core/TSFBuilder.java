@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
@@ -82,32 +83,32 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected OutputDecorator _outputDecorator;
 
     /**
-     * Optional StreamReadConstraints.
+     * {@link StreamReadConstraints} to use.
      *
      * @since 2.15
      */
     protected StreamReadConstraints _streamReadConstraints;
 
     /**
-     * Optional StreamWriteConstraints.
+     * {@link StreamWriteConstraints} to use.
      *
      * @since 2.16
      */
     protected StreamWriteConstraints _streamWriteConstraints;
 
     /**
-     * @since 2.16
-     */
-    protected List<JsonGeneratorDecorator> _generatorDecorators;
-
-    /**
-     * Optional {@link ErrorReportConfiguration} to use.
+     * {@link ErrorReportConfiguration} to use.
      *
      * @since 2.16
      */
     protected ErrorReportConfiguration _errorReportConfiguration;
 
-    /*
+    /**
+     * @since 2.16
+     */
+    protected List<JsonGeneratorDecorator> _generatorDecorators;
+
+
     /**********************************************************************
     /* Construction
     /**********************************************************************
@@ -325,34 +326,35 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * Sets the constraints for streaming reads.
      *
      * @param streamReadConstraints constraints for streaming reads
-     * @return this factory
+     * @return this builder (for call chaining)
      * @since 2.15
      */
     public B streamReadConstraints(StreamReadConstraints streamReadConstraints) {
-        _streamReadConstraints = streamReadConstraints;
+        _streamReadConstraints = Objects.requireNonNull(streamReadConstraints);
         return _this();
     }
 
     /**
-     * Sets the configuration for error tokens.
-     *
-     * @param errorReportConfiguration configuration values used for handling errorneous token inputs. 
-     * @return this factory
-     * @since 2.16
-     */
-    public B errorReportConfiguration(ErrorReportConfiguration errorReportConfiguration) {
-        _errorReportConfiguration = errorReportConfiguration;
-        return _this();
-    }
-    /**
      * Sets the constraints for streaming writes.
      *
      * @param streamWriteConstraints constraints for streaming reads
-     * @return this factory
+     * @return this builder (for call chaining)
      * @since 2.16
      */
     public B streamWriteConstraints(StreamWriteConstraints streamWriteConstraints) {
-        _streamWriteConstraints = streamWriteConstraints;
+        _streamWriteConstraints = Objects.requireNonNull(streamWriteConstraints);
+        return _this();
+    }
+
+    /**
+     * Sets the configuration for error reporting.
+     *
+     * @param errorReportConfiguration configuration values used for handling erroneous token inputs. 
+     * @return this builder (for call chaining)
+     * @since 2.16
+     */
+    public B errorReportConfiguration(ErrorReportConfiguration errorReportConfiguration) {
+        _errorReportConfiguration = Objects.requireNonNull(errorReportConfiguration);
         return _this();
     }
 

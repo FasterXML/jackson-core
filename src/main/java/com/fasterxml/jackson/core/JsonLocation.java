@@ -101,7 +101,7 @@ public class JsonLocation
         if (srcRef instanceof ContentReference) {
             return (ContentReference) srcRef;
         }
-        return ContentReference.construct(false, srcRef);
+        return ContentReference.construct(false, srcRef, ErrorReportConfiguration.defaults());
     }
 
     /*

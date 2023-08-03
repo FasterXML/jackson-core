@@ -285,9 +285,8 @@ public class JsonFactory
     protected StreamReadConstraints _streamReadConstraints;
 
     /**
-     * Container for configuration values used when handling errorneous token inputs. 
+     * Container for configuration values used when handling erroneous token inputs. 
      *
-     * @see ErrorReportConfiguration
      * @since 2.16
      */
     protected ErrorReportConfiguration _errorReportConfiguration;

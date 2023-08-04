@@ -259,6 +259,11 @@ public final class ByteSourceJsonBootstrapper
         if (enc == JsonEncoding.UTF8) {
             /* and without canonicalization, byte-based approach is not performant; just use std UTF-8 reader
              * (which is ok for larger input; not so hot for smaller; but this is not a common case)
+             * 5-May-2023, ckozak [core#994]: The reader-based implementation under-performs for small inputs
+             * due to the initialization cost of InputStreamReader which allocates a new 8KiB buffer. Normalizing
+             * benchmarks for that fixed cost, ReaderBasedJsonParser maintains a performance edge in tested scenarios.
+             * Notes from this investigation can be found here:
+             * https://github.com/FasterXML/jackson-core/pull/995#issuecomment-1523912770
              */
             if (JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(factoryFeatures)) {
                 ByteQuadsCanonicalizer can = rootByteSymbols.makeChild(factoryFeatures);

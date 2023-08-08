@@ -1,15 +1,20 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 
 public class LargeNameReadTest extends BaseTest {
 
     public void testLargeName() throws Exception
     {
         final String doc = generateJSON(1000);
-        try (JsonParser jp = createParserUsingStream(doc, "UTF-8")) {
+        final JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNameLength(100).build())
+                .build();
+        try (JsonParser jp = createParserUsingStream(jsonFactory, doc, "UTF-8")) {
             JsonToken jsonToken;
             while ((jsonToken = jp.nextToken()) != null) {
 

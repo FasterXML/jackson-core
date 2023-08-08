@@ -5,10 +5,23 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 public class LargeNameReadTest extends BaseTest {
 
     public void testLargeName() throws Exception
+    {
+        final String doc = generateJSON(1000);
+        final JsonFactory jsonFactory = JsonFactory.builder().build();
+        try (JsonParser jp = createParserUsingStream(jsonFactory, doc, "UTF-8")) {
+            JsonToken jsonToken;
+            while ((jsonToken = jp.nextToken()) != null) {
+
+            }
+        }
+    }
+
+    public void testLargeNameWithSmallLimit() throws Exception
     {
         final String doc = generateJSON(1000);
         final JsonFactory jsonFactory = JsonFactory.builder()
@@ -19,6 +32,10 @@ public class LargeNameReadTest extends BaseTest {
             while ((jsonToken = jp.nextToken()) != null) {
 
             }
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            assertTrue("Unexpected exception message: " + e.getMessage(),
+                    e.getMessage().contains("Name value length"));
         }
     }
 

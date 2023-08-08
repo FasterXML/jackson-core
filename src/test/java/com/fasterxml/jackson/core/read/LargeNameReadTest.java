@@ -39,6 +39,24 @@ public class LargeNameReadTest extends BaseTest {
         }
     }
 
+    public void testReaderLargeNameWithSmallLimit() throws Exception
+    {
+        final String doc = generateJSON(1000);
+        final JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNameLength(100).build())
+                .build();
+        try (JsonParser jp = createParserUsingReader(jsonFactory, doc)) {
+            JsonToken jsonToken;
+            while ((jsonToken = jp.nextToken()) != null) {
+                System.out.println(jsonToken);
+            }
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            assertTrue("Unexpected exception message: " + e.getMessage(),
+                    e.getMessage().contains("Name value length"));
+        }
+    }
+
     private String generateJSON(final int nameLen) {
         final StringBuilder sb = new StringBuilder();
         sb.append("{\"");

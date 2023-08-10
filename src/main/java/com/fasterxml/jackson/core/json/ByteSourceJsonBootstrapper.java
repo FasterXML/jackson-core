@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.format.InputAccessor;
@@ -230,7 +233,9 @@ public final class ByteSourceJsonBootstrapper
                 InputStream in = _in;
 
                 if (in == null) {
-                    in = new ByteArrayInputStream(_inputBuffer, _inputPtr, _inputEnd);
+                    // [jackson-core#488] Avoid overhead of InputStreamReader allocating ByteBuffer
+                    ByteBuffer byteBuffer = ByteBuffer.wrap(_inputBuffer, _inputPtr, _inputEnd);
+                    return new CharBufferReader(Charset.forName(enc.getJavaName()).decode(byteBuffer));
                 } else {
                     /* Also, if we have any read but unused input (usually true),
                      * need to merge that input in:

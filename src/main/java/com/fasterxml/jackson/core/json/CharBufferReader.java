@@ -1,13 +1,19 @@
-package com.fasterxml.jackson.core.io;
+package com.fasterxml.jackson.core.json;
 
 import java.io.Reader;
 import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 
-public class CharBufferReader extends Reader {
+/**
+ * An adapter implementation from {@link CharBuffer} to {@link Reader}.
+ * This is used by {@link ByteSourceJsonBootstrapper#constructReader()} when processing small inputs to
+ * avoid the 8KiB {@link java.nio.ByteBuffer} allocated by {@link java.io.InputStreamReader}, see [jackson-core#488].
+ */
+final class CharBufferReader extends Reader {
     private final CharBuffer charBuffer;
 
-    public CharBufferReader(CharBuffer buffer) {
-        this.charBuffer = buffer.duplicate();
+    CharBufferReader(CharBuffer buffer) {
+        this.charBuffer = buffer;
     }
 
     @Override
@@ -34,7 +40,7 @@ public class CharBufferReader extends Reader {
         if (n < 0L) {
             throw new IllegalArgumentException("number of characters to skip cannot be negative");
         }
-        int skipped = Math.min((int) n, this.charBuffer.remaining());
+        int skipped = Math.min(this.charBuffer.remaining(), (int) Math.min(n, Integer.MAX_VALUE));
         this.charBuffer.position(this.charBuffer.position() + skipped);
         return skipped;
     }
@@ -51,6 +57,9 @@ public class CharBufferReader extends Reader {
 
     @Override
     public void mark(int readAheadLimit) {
+        if (readAheadLimit < 0L) {
+            throw new IllegalArgumentException("read ahead limit cannot be negative");
+        }
         this.charBuffer.mark();
     }
 

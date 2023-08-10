@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.io;
+package com.fasterxml.jackson.core.json;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -24,7 +24,6 @@ public class CharBufferReaderTest extends com.fasterxml.jackson.core.BaseTest {
         assertEquals(-1, charBufferReader.read());
     }
 
-
     public void testBulkRead() throws IOException {
         CharBuffer buffer = CharBuffer.wrap("abcdefghijklmnopqrst\u00A0");
         char[] chars = new char[12];
@@ -39,7 +38,6 @@ public class CharBufferReaderTest extends com.fasterxml.jackson.core.BaseTest {
         assertEquals(-1, charBufferReader.read(chars));
     }
 
-
     public void testSkip() throws IOException {
         CharBuffer buffer = CharBuffer.wrap("abcdefghijklmnopqrst\u00A0");
         Reader charBufferReader = new CharBufferReader(buffer);
@@ -48,14 +46,16 @@ public class CharBufferReaderTest extends com.fasterxml.jackson.core.BaseTest {
             assertEquals(12, reader.read(chars));
             assertArrayEquals("abcdefghijkl".toCharArray(), chars);
             assertEquals(4, reader.skip(4));
-            assertEquals(5, reader.read(chars, 3, 9));
-            assertArrayEquals("qrst\u00A0".toCharArray(), Arrays.copyOfRange(chars, 3, 8));
+            assertEquals(4, reader.read(chars, 3, 4));
+            assertArrayEquals("qrst".toCharArray(), Arrays.copyOfRange(chars, 3, 7));
+            assertEquals(1, reader.skip(Long.MAX_VALUE));
+            assertEquals(0, reader.skip(Integer.MAX_VALUE));
+            assertEquals(0, reader.skip(Long.MAX_VALUE));
             assertEquals(0, reader.skip(0));
             assertEquals(0, reader.skip(1));
         }
         assertEquals(0, charBufferReader.skip(1));
     }
-
 
     public void testInvalidSkip() throws IOException {
         try (Reader reader = new CharBufferReader(CharBuffer.wrap("test"))) {
@@ -64,13 +64,11 @@ public class CharBufferReaderTest extends com.fasterxml.jackson.core.BaseTest {
         }
     }
 
-
     public void testReady() throws IOException {
         try (Reader reader = new CharBufferReader(CharBuffer.wrap("test"))) {
             assertEquals(true, reader.ready());
         }
     }
-
 
     public void testMarkReset() throws IOException {
         char[] chars = new char[8];
@@ -80,6 +78,7 @@ public class CharBufferReaderTest extends com.fasterxml.jackson.core.BaseTest {
             assertEquals(3, reader.read(chars, 0, 3));
             assertArrayEquals("tes".toCharArray(), Arrays.copyOf(chars, 3));
             reader.reset();
+            reader.mark(Integer.MAX_VALUE);
             assertEquals(4, reader.read(chars));
             assertArrayEquals("test".toCharArray(), Arrays.copyOf(chars, 4));
             reader.reset();
@@ -88,6 +87,12 @@ public class CharBufferReaderTest extends com.fasterxml.jackson.core.BaseTest {
         }
     }
 
+    public void testInvalidMark() throws IOException {
+        try (Reader reader = new CharBufferReader(CharBuffer.wrap("test"))) {
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> reader.mark(-1));
+            assertEquals("read ahead limit cannot be negative", exception.getMessage());
+        }
+    }
 
     public void testClose() throws IOException {
         char[] chars = new char[2];

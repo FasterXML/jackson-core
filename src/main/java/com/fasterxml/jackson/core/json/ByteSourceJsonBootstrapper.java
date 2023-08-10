@@ -230,6 +230,12 @@ public final class ByteSourceJsonBootstrapper
                 InputStream in = _in;
 
                 if (in == null) {
+                    int length = _inputEnd - _inputPtr;
+                    if (length >= 0 && length <= 8192) {
+                        // [jackson-core#488] Avoid overhead of heap ByteBuffer allocated by InputStreamReader
+                        // when processing small inputs up to 8KiB.
+                        return new StringReader(new String(_inputBuffer, _inputPtr, length, enc.getJavaName()));
+                    }
                     in = new ByteArrayInputStream(_inputBuffer, _inputPtr, _inputEnd);
                 } else {
                     /* Also, if we have any read but unused input (usually true),

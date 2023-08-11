@@ -22,6 +22,9 @@ public final class ByteSourceJsonBootstrapper
     public final static byte UTF8_BOM_2 = (byte) 0xBB;
     public final static byte UTF8_BOM_3 = (byte) 0xBF;
 
+    // [jackson-core#488] Limit in bytes for input byte array length to use StringReader instead of InputStreamReader
+    private static final int STRING_READER_BYTE_ARRAY_LENGTH_LIMIT = 8192;
+
     /*
     /**********************************************************
     /* Configuration
@@ -231,7 +234,7 @@ public final class ByteSourceJsonBootstrapper
 
                 if (in == null) {
                     int length = _inputEnd - _inputPtr;
-                    if (length >= 0 && length <= 8192) {
+                    if (length <= STRING_READER_BYTE_ARRAY_LENGTH_LIMIT && length >= 0) {
                         // [jackson-core#488] Avoid overhead of heap ByteBuffer allocated by InputStreamReader
                         // when processing small inputs up to 8KiB.
                         return new StringReader(new String(_inputBuffer, _inputPtr, length, enc.getJavaName()));

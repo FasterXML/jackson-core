@@ -387,3 +387,7 @@ Joo Hyuk Kim (JooHyukKim@github)
  * Contributed #1067: Add `ErrorReportConfiguration`
   (2.16.0)
 
+David Schlosnagle (@schlosna)
+ * Contributed #1081: Make `ByteSourceJsonBootstrapper` use `StringReader` for < 8KiB
+   byte[] inputs
+  (2.16.0)

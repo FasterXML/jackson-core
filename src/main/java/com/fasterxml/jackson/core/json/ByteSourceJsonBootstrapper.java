@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * This class is used to determine the encoding of byte stream
@@ -22,7 +23,7 @@ public final class ByteSourceJsonBootstrapper
     public final static byte UTF8_BOM_2 = (byte) 0xBB;
     public final static byte UTF8_BOM_3 = (byte) 0xBF;
 
-    // [jackson-core#488] Limit in bytes for input byte array length to use StringReader instead of InputStreamReader
+    // [jackson-core#1081] Limit in bytes for input byte array length to use StringReader instead of InputStreamReader
     private static final int STRING_READER_BYTE_ARRAY_LENGTH_LIMIT = 8192;
 
     /*
@@ -175,7 +176,8 @@ public final class ByteSourceJsonBootstrapper
                 break;
             case 4: enc = _bigEndian ? JsonEncoding.UTF32_BE : JsonEncoding.UTF32_LE;
                 break;
-            default: throw new RuntimeException("Internal error"); // should never get here
+            default:
+                return VersionUtil.throwInternalReturnAny();
             }
         }
         _context.setEncoding(enc);
@@ -235,15 +237,14 @@ public final class ByteSourceJsonBootstrapper
                 if (in == null) {
                     int length = _inputEnd - _inputPtr;
                     if (length <= STRING_READER_BYTE_ARRAY_LENGTH_LIMIT) {
-                        // [jackson-core#488] Avoid overhead of heap ByteBuffer allocated by InputStreamReader
+                        // [jackson-core#1081] Avoid overhead of heap ByteBuffer allocated by InputStreamReader
                         // when processing small inputs up to 8KiB.
                         return new StringReader(new String(_inputBuffer, _inputPtr, length, enc.getJavaName()));
                     }
                     in = new ByteArrayInputStream(_inputBuffer, _inputPtr, _inputEnd);
                 } else {
-                    /* Also, if we have any read but unused input (usually true),
-                     * need to merge that input in:
-                     */
+                    // Also, if we have any read but unused input (usually true),
+                    // need to merge that input in:
                     if (_inputPtr < _inputEnd) {
                         in = new MergedStream(_context, in, _inputBuffer, _inputPtr, _inputEnd);
                     }
@@ -254,7 +255,7 @@ public final class ByteSourceJsonBootstrapper
             return new UTF32Reader(_context, _in, _inputBuffer, _inputPtr, _inputEnd,
                     _context.getEncoding().isBigEndian());
         }
-        throw new RuntimeException("Internal error"); // should never get here
+        return VersionUtil.throwInternalReturnAny();
     }
 
     public JsonParser constructParser(int parserFeatures, ObjectCodec codec,
@@ -266,9 +267,8 @@ public final class ByteSourceJsonBootstrapper
         int bytesProcessed = _inputPtr - prevInputPtr;
 
         if (enc == JsonEncoding.UTF8) {
-            /* and without canonicalization, byte-based approach is not performant; just use std UTF-8 reader
-             * (which is ok for larger input; not so hot for smaller; but this is not a common case)
-             */
+            // and without canonicalization, byte-based approach is not performant; just use std UTF-8 reader
+            // (which is ok for larger input; not so hot for smaller; but this is not a common case)
             if (JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(factoryFeatures)) {
                 ByteQuadsCanonicalizer can = rootByteSymbols.makeChild(factoryFeatures);
                 return new UTF8StreamJsonParser(_context, parserFeatures, _in, codec, can,
@@ -535,9 +535,8 @@ public final class ByteSourceJsonBootstrapper
      */
 
     protected boolean ensureLoaded(int minimum) throws IOException {
-        /* Let's assume here buffer has enough room -- this will always
-         * be true for the limited used this method gets
-         */
+        // Let's assume here buffer has enough room -- this will always
+        // be true for the limited used this method gets
         int gotten = (_inputEnd - _inputPtr);
         while (gotten < minimum) {
             int count;

@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.WrappedIOException;
 import tools.jackson.core.io.*;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
+import tools.jackson.core.util.VersionUtil;
 
 /**
  * This class is used to determine the encoding of byte stream
@@ -25,6 +27,9 @@ public final class ByteSourceJsonBootstrapper
     public final static byte UTF8_BOM_1 = (byte) 0xEF;
     public final static byte UTF8_BOM_2 = (byte) 0xBB;
     public final static byte UTF8_BOM_3 = (byte) 0xBF;
+
+    // [jackson-core#1081] Limit in bytes for input byte array length to use StringReader instead of InputStreamReader
+    private static final int STRING_READER_BYTE_ARRAY_LENGTH_LIMIT = 8192;
 
     /*
     /**********************************************************************
@@ -177,7 +182,8 @@ public final class ByteSourceJsonBootstrapper
                 break;
             case 4: enc = _bigEndian ? JsonEncoding.UTF32_BE : JsonEncoding.UTF32_LE;
                 break;
-            default: throw new RuntimeException("Internal error"); // should never get here
+            default:
+                return VersionUtil.throwInternalReturnAny();
             }
         }
         _context.setEncoding(enc);
@@ -237,6 +243,16 @@ public final class ByteSourceJsonBootstrapper
                 InputStream in = _in;
 
                 if (in == null) {
+                    int length = _inputEnd - _inputPtr;
+                    if (length <= STRING_READER_BYTE_ARRAY_LENGTH_LIMIT) {
+                        // [jackson-core#1081] Avoid overhead of heap ByteBuffer allocated by InputStreamReader
+                        // when processing small inputs up to 8KiB.
+                        try {
+                            return new StringReader(new String(_inputBuffer, _inputPtr, length, enc.getJavaName()));
+                        } catch (IOException e) {
+                            throw _wrapIOFailure(e);
+                        }
+                    }
                     in = new ByteArrayInputStream(_inputBuffer, _inputPtr, _inputEnd);
                 } else {
                     // Also, if we have any read but unused input (usually true),
@@ -262,7 +278,7 @@ public final class ByteSourceJsonBootstrapper
                         _context.getEncoding().isBigEndian());
             }
         }
-        throw new RuntimeException("Internal error"); // should never get here
+        return VersionUtil.throwInternalReturnAny();
     }
 
     public JsonParser constructParser(ObjectReadContext readCtxt,
@@ -403,9 +419,8 @@ public final class ByteSourceJsonBootstrapper
      */
 
     protected boolean ensureLoaded(int minimum) throws JacksonException {
-        /* Let's assume here buffer has enough room -- this will always
-         * be true for the limited used this method gets
-         */
+        // Let's assume here buffer has enough room -- this will always
+        // be true for the limited used this method gets
         int gotten = (_inputEnd - _inputPtr);
         while (gotten < minimum) {
             int count;

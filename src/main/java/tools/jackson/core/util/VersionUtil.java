@@ -104,4 +104,8 @@ public class VersionUtil
     public final static void throwInternal() {
         throw new RuntimeException("Internal error: this code path should never get executed");
     }
+
+    public final static <T> T throwInternalReturnAny() {
+        throw new RuntimeException("Internal error: this code path should never get executed");
+    }
 }

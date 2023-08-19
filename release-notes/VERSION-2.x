@@ -39,6 +39,8 @@ a pure JSON library.
  (contributed by @digulla)
 #1066: Add configurable error report behavior via `ErrorReportConfiguration`
  (contributed by Joo-Hyuk K)
+#1081: Make `ByteSourceJsonBootstrapper` use `StringReader` for < 8KiB byte[] inputs
+ (contributed by @schlosna)
 
 2.15.2 (30-May-2023)
 

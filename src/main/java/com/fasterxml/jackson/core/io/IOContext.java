@@ -169,14 +169,6 @@ public class IOContext
                 br, contentRef, managedResource);
     }
 
-    @Deprecated // In 2.16: remove ASAP
-    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc,
-            BufferRecycler br, ContentReference contentRef, boolean managedResource)
-    {
-        this(src, swc, ErrorReportConfiguration.defaults(),
-                br, contentRef, managedResource);
-    }
-
     /**
      * Deprecated legacy constructor.
      *

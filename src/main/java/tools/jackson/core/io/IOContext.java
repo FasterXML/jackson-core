@@ -133,15 +133,6 @@ public class IOContext
         _encoding = enc;
     }
 
-    @Deprecated
-    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc,
-            BufferRecycler br, ContentReference contentRef, boolean managedResource,
-            JsonEncoding enc)
-    {
-        this(src, swc, ErrorReportConfiguration.defaults(),
-                br, contentRef, managedResource, enc);
-    }
-
     /**
      * @return constraints for streaming reads
      */

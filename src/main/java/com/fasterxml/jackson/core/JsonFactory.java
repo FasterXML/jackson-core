@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.BufferRecyclerProvider;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.JacksonFeature;
 import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
@@ -261,6 +262,11 @@ public class JsonFactory
      */
 
     /**
+     * @since 2.16
+     */
+    protected BufferRecyclerProvider _bufferRecyclerProvider;
+
+    /**
      * Object that implements conversion functionality between
      * Java objects and JSON content. For base JsonFactory implementation
      * usually not set by default, but can be explicitly set.
@@ -364,6 +370,7 @@ public class JsonFactory
     public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) {
+        _bufferRecyclerProvider = BufferRecyclers.defaultProvider();
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
@@ -382,6 +389,7 @@ public class JsonFactory
      */
     protected JsonFactory(JsonFactory src, ObjectCodec codec)
     {
+        _bufferRecyclerProvider = src._bufferRecyclerProvider;
         _objectCodec = codec;
 
         // General
@@ -410,6 +418,7 @@ public class JsonFactory
      * @since 2.10
      */
     public JsonFactory(JsonFactoryBuilder b) {
+        _bufferRecyclerProvider = b._bufferRecyclerProvider;
         _objectCodec = null;
 
         // General
@@ -439,6 +448,7 @@ public class JsonFactory
      * @param bogus Argument only needed to separate constructor signature; ignored
      */
     protected JsonFactory(TSFBuilder<?,?> b, boolean bogus) {
+        _bufferRecyclerProvider = b._bufferRecyclerProvider;
         _objectCodec = null;
 
         _factoryFeatures = b._factoryFeatures;
@@ -1130,6 +1140,11 @@ public class JsonFactory
     /* Configuration, other
     /**********************************************************
      */
+
+    public JsonFactory setBufferRecyclerProvider(BufferRecyclerProvider p) {
+        _bufferRecyclerProvider = Objects.requireNonNull(p);
+        return this;
+    }
 
     /**
      * Method for associating a {@link ObjectCodec} (typically
@@ -2126,10 +2141,10 @@ public class JsonFactory
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
-        if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclers.getBufferRecycler();
+        if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
+            return new BufferRecycler();
         }
-        return new BufferRecycler();
+        return _bufferRecyclerProvider.acquireBufferRecycler(this);
     }
 
     /**

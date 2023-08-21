@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import java.lang.ref.SoftReference;
 
+import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 
 /**
@@ -61,7 +62,11 @@ public class BufferRecyclers
      * Main accessor to call for accessing possibly recycled {@link BufferRecycler} instance.
      *
      * @return {@link BufferRecycler} to use
+     *
+     * @deprecated Since 2.16 should use {@link BufferRecyclerProvider} abstraction instead
+     *   of calling static methods of this class
      */
+    @Deprecated // since 2.16
     public static BufferRecycler getBufferRecycler()
     {
         SoftReference<BufferRecycler> ref = _recyclerRef.get();
@@ -179,5 +184,39 @@ public class BufferRecyclers
     @Deprecated
     public static byte[] quoteAsJsonUTF8(String rawText) {
         return JsonStringEncoder.getInstance().quoteAsUTF8(rawText);
+    }
+
+    /*
+    /**********************************************************************
+    /* Default BufferRecyclerProvider implementations
+    /**********************************************************************
+     */
+
+    public static BufferRecyclerProvider defaultProvider() {
+        return ThreadLocalBufferRecyclerProvider.INSTANCE;
+    }
+
+    /**
+     * Default {@link BufferRecyclerProvider} implementation that uses
+     * {@link ThreadLocal} for recycling instances.
+     *
+     * @since 2.16
+     */
+    public static class ThreadLocalBufferRecyclerProvider
+        extends BufferRecyclerProvider
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static ThreadLocalBufferRecyclerProvider INSTANCE = new ThreadLocalBufferRecyclerProvider();
+
+        @Override
+        public BufferRecycler acquireBufferRecycler(TokenStreamFactory forFactory) {
+            return getBufferRecycler();
+        }
+
+        @Override
+        public void releaseBufferRecycler(BufferRecycler r) {
+            ; // nothing to do here
+        }
     }
 }

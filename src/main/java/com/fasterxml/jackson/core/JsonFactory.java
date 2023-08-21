@@ -787,6 +787,7 @@ public class JsonFactory
      *
      * @return True if the specified feature is enabled
      */
+    @Override
     public final boolean isEnabled(JsonFactory.Feature f) {
         return (_factoryFeatures & f.getMask()) != 0;
     }
@@ -955,6 +956,7 @@ public class JsonFactory
      *
      * @since 2.10
      */
+    @Override
     public final boolean isEnabled(StreamReadFeature f) {
         return (_parserFeatures & f.mappedFeature().getMask()) != 0;
     }
@@ -1050,6 +1052,7 @@ public class JsonFactory
      *
      * @since 2.10
      */
+    @Override
     public final boolean isEnabled(StreamWriteFeature f) {
         return (_generatorFeatures & f.mappedFeature().getMask()) != 0;
     }

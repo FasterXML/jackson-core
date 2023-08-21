@@ -128,6 +128,11 @@ public abstract class TokenStreamFactory
     /**********************************************************************
      */
 
+    public abstract boolean isEnabled(JsonFactory.Feature f);
+
+    public abstract boolean isEnabled(StreamReadFeature f);
+    public abstract boolean isEnabled(StreamWriteFeature f);
+
     public abstract boolean isEnabled(JsonParser.Feature f);
     public abstract boolean isEnabled(JsonGenerator.Feature f);
 

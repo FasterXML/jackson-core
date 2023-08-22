@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.NumberInput;

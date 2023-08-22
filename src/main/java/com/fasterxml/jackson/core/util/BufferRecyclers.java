@@ -63,7 +63,7 @@ public class BufferRecyclers
      *
      * @return {@link BufferRecycler} to use
      *
-     * @deprecated Since 2.16 should use {@link BufferRecyclerProvider} abstraction instead
+     * @deprecated Since 2.16 should use {@link BufferRecyclerPool} abstraction instead
      *   of calling static methods of this class
      */
     @Deprecated // since 2.16
@@ -188,30 +188,63 @@ public class BufferRecyclers
 
     /*
     /**********************************************************************
-    /* Default BufferRecyclerProvider implementations
+    /* Default BufferRecyclerPool implementations
     /**********************************************************************
      */
 
-    public static BufferRecyclerProvider defaultProvider() {
-        return ThreadLocalBufferRecyclerProvider.INSTANCE;
+    public static BufferRecyclerPool defaultRecyclerPool() {
+        return ThreadLocalRecyclerPool.INSTANCE;
+    }
+
+    public static BufferRecyclerPool nopRecyclerPool() {
+        return NonRecyclingRecyclerPool.INSTANCE;
     }
 
     /**
-     * Default {@link BufferRecyclerProvider} implementation that uses
+     * Default {@link BufferRecyclerPool} implementation that uses
      * {@link ThreadLocal} for recycling instances.
      *
      * @since 2.16
      */
-    public static class ThreadLocalBufferRecyclerProvider
-        implements BufferRecyclerProvider
+    public static class ThreadLocalRecyclerPool
+        implements BufferRecyclerPool
     {
         private static final long serialVersionUID = 1L;
 
-        public final static ThreadLocalBufferRecyclerProvider INSTANCE = new ThreadLocalBufferRecyclerProvider();
+        public final static ThreadLocalRecyclerPool INSTANCE = new ThreadLocalRecyclerPool();
 
         @Override
         public BufferRecycler acquireBufferRecycler(TokenStreamFactory forFactory) {
             return getBufferRecycler();
+        }
+
+        @Override
+        public void releaseBufferRecycler(BufferRecycler recycler) {
+            ; // nothing to do, relies on ThreadLocal
+        }
+    }
+
+    /**
+     * {@link BufferRecyclerPool} implementation that does not use
+     * any pool but simply creates new instances when necessary.
+     *
+     * @since 2.16
+     */
+    public static class NonRecyclingRecyclerPool
+        implements BufferRecyclerPool
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static ThreadLocalRecyclerPool INSTANCE = new ThreadLocalRecyclerPool();
+
+        @Override
+        public BufferRecycler acquireBufferRecycler(TokenStreamFactory forFactory) {
+            return new BufferRecycler();
+        }
+
+        @Override
+        public void releaseBufferRecycler(BufferRecycler recycler) {
+            ; // nothing to do, relies on ThreadLocal
         }
     }
 }

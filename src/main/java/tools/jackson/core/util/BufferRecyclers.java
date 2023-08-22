@@ -2,6 +2,8 @@ package tools.jackson.core.util;
 
 import java.lang.ref.SoftReference;
 
+import tools.jackson.core.TokenStreamFactory;
+
 /**
  * Helper entity used to control access to simple buffer recycling scheme used for
  * some encoding, decoding tasks.
@@ -55,7 +57,11 @@ public class BufferRecyclers
      * Main accessor to call for accessing possibly recycled {@link BufferRecycler} instance.
      *
      * @return {@link BufferRecycler} to use
+     *
+     * @deprecated Since 2.16 should use {@link BufferRecyclerProvider} abstraction instead
+     *   of calling static methods of this class
      */
+    @Deprecated // since 2.16
     public static BufferRecycler getBufferRecycler()
     {
         SoftReference<BufferRecycler> ref = _recyclerRef.get();
@@ -91,5 +97,32 @@ public class BufferRecyclers
             return _bufferRecyclerTracker.releaseBuffers();
         }
         return -1;
+    }
+
+    /*
+    /**********************************************************************
+    /* Default BufferRecyclerProvider implementations
+    /**********************************************************************
+     */
+
+    public static BufferRecyclerProvider defaultProvider() {
+        return ThreadLocalBufferRecyclerProvider.INSTANCE;
+    }
+
+    /**
+     * Default {@link BufferRecyclerProvider} implementation that uses
+     * {@link ThreadLocal} for recycling instances.
+     */
+    public static class ThreadLocalBufferRecyclerProvider
+        implements BufferRecyclerProvider
+    {
+        private static final long serialVersionUID = 1L;
+    
+        public final static ThreadLocalBufferRecyclerProvider INSTANCE = new ThreadLocalBufferRecyclerProvider();
+    
+        @Override
+        public BufferRecycler acquireBufferRecycler(TokenStreamFactory forFactory) {
+            return getBufferRecycler();
+        }
     }
 }

@@ -2,6 +2,9 @@ package tools.jackson.core;
 
 import java.util.Objects;
 
+import tools.jackson.core.util.BufferRecyclerProvider;
+import tools.jackson.core.util.BufferRecyclers;
+
 /**
  * Since factory instances are immutable, a Builder class is needed for creating
  * configurations for differently configured factory instances.
@@ -35,6 +38,11 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     protected int _formatWriteFeatures;
 
     /**
+     * Buffer recycler provider to use.
+     */
+    protected BufferRecyclerProvider _bufferRecyclerProvider;
+    
+    /**
      * StreamReadConstraints to use.
      */
     protected StreamReadConstraints _streamReadConstraints;
@@ -54,32 +62,32 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     protected TSFBuilder(StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int formatReadF, int formatWriteF) {
-        _streamReadConstraints = Objects.requireNonNull(src);
-        _streamWriteConstraints = Objects.requireNonNull(swc);
-        _errorReportConfiguration = Objects.requireNonNull(erc);
-
-        _factoryFeatures = TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS;
-        _streamReadFeatures = TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS;
-        _streamWriteFeatures = TokenStreamFactory.DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
-        _formatReadFeatures = formatReadF;
-        _formatWriteFeatures = formatWriteF;
+        this(BufferRecyclers.defaultProvider(),
+                src, swc, erc,
+                TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS,
+                TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS,
+                TokenStreamFactory.DEFAULT_STREAM_WRITE_FEATURE_FLAGS,
+                formatReadF, formatWriteF);
     }
 
     protected TSFBuilder(TokenStreamFactory base)
     {
-        this(base._streamReadConstraints, base._streamWriteConstraints,
+        this(base._bufferRecyclerProvider,
+                base._streamReadConstraints, base._streamWriteConstraints,
                 base._errorReportConfiguration,
                 base._factoryFeatures,
                 base._streamReadFeatures, base._streamWriteFeatures,
                 base._formatReadFeatures, base._formatWriteFeatures);
     }
 
-    protected TSFBuilder(StreamReadConstraints src, StreamWriteConstraints swc,
+    protected TSFBuilder(BufferRecyclerProvider brp,
+            StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int factoryFeatures,
             int streamReadFeatures, int streamWriteFeatures,
             int formatReadFeatures, int formatWriteFeatures)
     {
+        _bufferRecyclerProvider = Objects.requireNonNull(brp);
         _streamReadConstraints = Objects.requireNonNull(src);
         _streamWriteConstraints = Objects.requireNonNull(swc);
         _errorReportConfiguration = Objects.requireNonNull(erc);
@@ -99,6 +107,10 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     public int formatReadFeaturesMask() { return _formatReadFeatures; }
     public int formatWriteFeaturesMask() { return _formatWriteFeatures; }
 
+    public BufferRecyclerProvider bufferRecyclerProvider() {
+        return _bufferRecyclerProvider;
+    }
+    
     // // // Factory features
 
     public B enable(TokenStreamFactory.Feature f) {
@@ -179,7 +191,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
         return state ? enable(f) : disable(f);
     }
 
-    // // // Other configuration
+    // // // Other configuration, constraints
 
     /**
      * Sets the constraints for streaming reads.
@@ -213,6 +225,18 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
      */
     public B errorReportConfiguration(ErrorReportConfiguration errorReportConfiguration) {
         _errorReportConfiguration = errorReportConfiguration;
+        return _this();
+    }
+
+    // // // Other configuration, helper objects
+
+    /**
+     * @param p BufferRecyclerProvider to use for buffer allocation
+     *
+     * @return this builder (for call chaining)
+     */
+    public B bufferRecyclerProvider(BufferRecyclerProvider p) {
+        _bufferRecyclerProvider = Objects.requireNonNull(p);
         return _this();
     }
 

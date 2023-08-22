@@ -1,7 +1,5 @@
 package tools.jackson.core.json;
 
-import static tools.jackson.core.JsonTokenId.*;
-
 import java.io.*;
 
 import tools.jackson.core.*;
@@ -11,6 +9,8 @@ import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 import tools.jackson.core.util.*;
+
+import static tools.jackson.core.JsonTokenId.*;
 
 /**
  * This is a concrete implementation of {@link JsonParser}, which is

@@ -21,6 +21,7 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.sym.SimpleNameMatcher;
 import tools.jackson.core.util.BufferRecycler;
+import tools.jackson.core.util.BufferRecyclerProvider;
 import tools.jackson.core.util.BufferRecyclers;
 import tools.jackson.core.util.JacksonFeature;
 import tools.jackson.core.util.Named;
@@ -167,8 +168,6 @@ public abstract class TokenStreamFactory
         public int getMask() { return (1 << ordinal()); }
     }
 
-
-
     /*
     /**********************************************************************
     /* Constants
@@ -194,7 +193,7 @@ public abstract class TokenStreamFactory
 
     /*
     /**********************************************************************
-    /* Configuration
+    /* Configuration, simple features
     /**********************************************************************
      */
 
@@ -223,6 +222,20 @@ public abstract class TokenStreamFactory
      */
     protected final int _formatWriteFeatures;
 
+    /*
+    /**********************************************************************
+    /* Configuration, providers
+    /**********************************************************************
+     */
+
+    protected final BufferRecyclerProvider _bufferRecyclerProvider;
+
+    /*
+    /**********************************************************************
+    /* Configuration, constraints
+    /**********************************************************************
+     */
+    
     /**
      * Active StreamReadConstraints to use.
      */
@@ -264,6 +277,7 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = Objects.requireNonNull(src);
         _streamWriteConstraints = Objects.requireNonNull(swc);
         _errorReportConfiguration = Objects.requireNonNull(erc);
+        _bufferRecyclerProvider = BufferRecyclers.defaultProvider();
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -287,6 +301,8 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = Objects.requireNonNull(baseBuilder._streamReadConstraints);
         _streamWriteConstraints = Objects.requireNonNull(baseBuilder._streamWriteConstraints);
         _errorReportConfiguration = Objects.requireNonNull(baseBuilder._errorReportConfiguration);
+        _bufferRecyclerProvider = Objects.requireNonNull(baseBuilder._bufferRecyclerProvider);
+
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
         _streamReadFeatures = baseBuilder.streamReadFeaturesMask();
         _streamWriteFeatures = baseBuilder.streamWriteFeaturesMask();
@@ -305,6 +321,8 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = src._streamReadConstraints;
         _streamWriteConstraints = src._streamWriteConstraints;
         _errorReportConfiguration = src._errorReportConfiguration;
+        _bufferRecyclerProvider = src._bufferRecyclerProvider;
+
         _factoryFeatures = src._factoryFeatures;
         _streamReadFeatures = src._streamReadFeatures;
         _streamWriteFeatures = src._streamWriteFeatures;
@@ -1204,10 +1222,10 @@ public abstract class TokenStreamFactory
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
-        if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclers.getBufferRecycler();
+        if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
+            return new BufferRecycler();
         }
-        return new BufferRecycler();
+        return _bufferRecyclerProvider.acquireBufferRecycler(this);
     }
 
     /**

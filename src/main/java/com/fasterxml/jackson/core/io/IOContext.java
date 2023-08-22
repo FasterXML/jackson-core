@@ -483,7 +483,7 @@ public class IOContext implements AutoCloseable
     @Override
     public void close() {
         if (!_closed) {
-            _bufferRecycler.close();
+            _bufferRecycler.release();
             _closed = true;
         }
     }

@@ -142,7 +142,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected TSFBuilder(int factoryFeatures,
             int parserFeatures, int generatorFeatures)
     {
-        _bufferRecyclerPool = BufferRecyclers.defaultRecyclerPool();
+        _bufferRecyclerPool = BufferRecyclerPool.defaultRecyclerPool();
 
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = parserFeatures;

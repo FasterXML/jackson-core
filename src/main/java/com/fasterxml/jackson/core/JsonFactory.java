@@ -4,27 +4,48 @@
  */
 package com.fasterxml.jackson.core;
 
-import java.io.*;
-import java.lang.ref.SoftReference;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
-import com.fasterxml.jackson.core.io.*;
-import com.fasterxml.jackson.core.json.*;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.io.ContentReference;
+import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.InputDecorator;
+import com.fasterxml.jackson.core.io.OutputDecorator;
+import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.io.UTF8Writer;
+import com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
+import com.fasterxml.jackson.core.json.PackageVersion;
+import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
+import com.fasterxml.jackson.core.json.UTF8DataInputJsonParser;
+import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
+import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
 import com.fasterxml.jackson.core.json.async.NonBlockingByteBufferJsonParser;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclerPool;
-import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.JacksonFeature;
 import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
 import com.fasterxml.jackson.core.util.Separators;
+
+import java.io.CharArrayReader;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
+import java.lang.ref.SoftReference;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * The main factory class of Jackson package, used to configure and
@@ -130,18 +151,6 @@ public class JsonFactory
          * @since 2.6
          */
         USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true),
-
-        /**
-         * Feature that determines whether we will use {@link BufferRecycler} with
-         * an object pool not making use of a {@link ThreadLocal}, for efficient reuse of
-         * underlying input/output buffers.
-         * This is suggested especially in environments making use of virtual threads.
-         *<p>
-         * This setting is disabled by default. If enabled it overrides USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.
-         *
-         * @since 2.16
-         */
-        USE_OBJECT_POOL_FOR_BUFFER_RECYCLING(false),
 
         /**
          * Feature to control charset detection for byte-based inputs ({@code byte[]}, {@link InputStream}...).
@@ -382,7 +391,7 @@ public class JsonFactory
     public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) {
-        _bufferRecyclerPool = BufferRecyclers.defaultRecyclerPool();
+        _bufferRecyclerPool = BufferRecyclerPool.defaultRecyclerPool();
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
@@ -2169,7 +2178,7 @@ public class JsonFactory
 
     public static BufferRecycler _getDefaultBufferRecycler()
     {
-        return BufferRecyclers.defaultRecyclerPool().acquireBufferRecycler();
+        return BufferRecyclerPool.defaultRecyclerPool().acquireBufferRecycler();
     }
 
     /**
@@ -2183,7 +2192,7 @@ public class JsonFactory
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclers.nopRecyclerPool();
+            return BufferRecyclerPool.PoolStrategy.NO_OP.getPool();
         }
         return _bufferRecyclerPool;
     }

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * Rewritten in 2.10 to be thread-safe (see [jackson-core#479] for details),
  * to not rely on {@code ThreadLocal} access.
  */
-public class BufferRecycler implements AutoCloseable
+public class BufferRecycler
 {
     /**
      * Buffer used for reading byte-based input.
@@ -82,7 +82,7 @@ public class BufferRecycler implements AutoCloseable
     // Note: changed from simple array in 2.10:
     protected final AtomicReferenceArray<char[]> _charBuffers;
 
-    private ObjectPool<BufferRecycler> _pool;
+    private BufferRecyclerPool _pool;
 
     /*
     /**********************************************************
@@ -192,7 +192,7 @@ public class BufferRecycler implements AutoCloseable
     protected byte[] balloc(int size) { return new byte[size]; }
     protected char[] calloc(int size) { return new char[size]; }
 
-    BufferRecycler withPool(ObjectPool<BufferRecycler> pool) {
+    BufferRecycler withPool(BufferRecyclerPool pool) {
         if (this._pool != null) {
             throw new IllegalStateException();
         }
@@ -200,12 +200,11 @@ public class BufferRecycler implements AutoCloseable
         return this;
     }
 
-    @Override
-    public void close() {
+    public void release() {
         if (_pool != null) {
-            ObjectPool<BufferRecycler> tempPool = _pool;
+            BufferRecyclerPool tempPool = _pool;
             _pool = null;
-            tempPool.release(this);
+            tempPool.releaseBufferRecycler(this);
         }
     }
 }

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
-import com.fasterxml.jackson.core.util.BufferRecyclerProvider;
+import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
 
@@ -75,7 +75,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     /**
      * @since 2.16
      */
-    protected BufferRecyclerProvider _bufferRecyclerProvider;
+    protected BufferRecyclerPool _bufferRecyclerPool;
 
     /**
      * Optional helper object that may decorate input sources, to do
@@ -142,7 +142,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected TSFBuilder(int factoryFeatures,
             int parserFeatures, int generatorFeatures)
     {
-        _bufferRecyclerProvider = BufferRecyclers.defaultProvider();
+        _bufferRecyclerPool = BufferRecyclers.defaultRecyclerPool();
 
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = parserFeatures;
@@ -170,8 +170,8 @@ public abstract class TSFBuilder<F extends JsonFactory,
     public int streamReadFeatures() { return _streamReadFeatures; }
     public int streamWriteFeatures() { return _streamWriteFeatures; }
 
-    public BufferRecyclerProvider bufferRecyclerProvider() {
-        return _bufferRecyclerProvider;
+    public BufferRecyclerPool bufferRecyclerPool() {
+        return _bufferRecyclerPool;
     }
 
     public InputDecorator inputDecorator() { return _inputDecorator; }
@@ -316,14 +316,14 @@ public abstract class TSFBuilder<F extends JsonFactory,
     // // // Other configuration, helper objects
 
     /**
-     * @param p BufferRecyclerProvider to use for buffer allocation
+     * @param p BufferRecyclerPool to use for buffer allocation
      *
      * @return this builder (for call chaining)
      *
      * @since 2.16
      */
-    public B bufferRecyclerProvider(BufferRecyclerProvider p) {
-        _bufferRecyclerProvider = Objects.requireNonNull(p);
+    public B bufferRecyclerPool(BufferRecyclerPool p) {
+        _bufferRecyclerPool = Objects.requireNonNull(p);
         return _this();
     }
 

@@ -2164,7 +2164,28 @@ public class JsonFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        return _getBufferRecyclerPool().acquireBufferRecycler(this);
+        return _getBufferRecyclerPool().acquireBufferRecycler();
+    }
+
+    public static BufferRecycler _getDefaultBufferRecycler()
+    {
+        return BufferRecyclers.defaultRecyclerPool().acquireBufferRecycler();
+    }
+
+    /**
+     * Accessor for getting access to {@link BufferRecyclerPool} for getting
+     * {@link BufferRecycler} instance to use.
+     *
+     * @since 2.16
+     */
+    public BufferRecyclerPool _getBufferRecyclerPool() {
+        // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
+        //   scheme, for cases where it is considered harmful (possibly
+        //   on Android, for example)
+        if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
+            return BufferRecyclers.nopRecyclerPool();
+        }
+        return _bufferRecyclerPool;
     }
 
     /**

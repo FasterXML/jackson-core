@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.io;
 
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -142,27 +143,26 @@ public class IOContext implements AutoCloseable
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, ErrorReportConfiguration erc,
                      ContentReference contentRef, boolean managedResource)
     {
-        this(src, swc, erc, BufferRecyclerPool.acquireBufferRecycler(), contentRef, managedResource);
+        this(src, swc, erc, JsonFactory._getDefaultBufferRecycler(), contentRef, managedResource);
     }
 
     /**
+     * Main constructor to use.
+     *
      * @param src constraints for streaming reads
      * @param swc constraints for streaming writes
-     * @param erc Error report configuration to use
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
+     * @param erc Error report configuration to use
      *
      * @since 2.16
      */
-    @Deprecated
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, ErrorReportConfiguration erc,
                      BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
-        _streamReadConstraints = (src == null) ?
-                StreamReadConstraints.defaults() : src;
-        _streamWriteConstraints = (swc == null) ?
-                StreamWriteConstraints.defaults() : swc;
+        _streamReadConstraints = src;
+        _streamWriteConstraints = swc;
         _errorReportConfiguration = erc;
         _bufferRecycler = br;
         _contentReference = contentRef;

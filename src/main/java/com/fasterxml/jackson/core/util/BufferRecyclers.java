@@ -214,7 +214,7 @@ public class BufferRecyclers
         public final static ThreadLocalRecyclerPool INSTANCE = new ThreadLocalRecyclerPool();
 
         @Override
-        public BufferRecycler acquireBufferRecycler(TokenStreamFactory forFactory) {
+        public BufferRecycler acquireBufferRecycler() {
             return getBufferRecycler();
         }
 
@@ -238,7 +238,7 @@ public class BufferRecyclers
         public final static ThreadLocalRecyclerPool INSTANCE = new ThreadLocalRecyclerPool();
 
         @Override
-        public BufferRecycler acquireBufferRecycler(TokenStreamFactory forFactory) {
+        public BufferRecycler acquireBufferRecycler() {
             return new BufferRecycler();
         }
 

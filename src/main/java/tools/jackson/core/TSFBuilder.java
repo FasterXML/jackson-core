@@ -2,7 +2,7 @@ package tools.jackson.core;
 
 import java.util.Objects;
 
-import tools.jackson.core.util.BufferRecyclerProvider;
+import tools.jackson.core.util.BufferRecyclerPool;
 import tools.jackson.core.util.BufferRecyclers;
 
 /**
@@ -40,7 +40,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     /**
      * Buffer recycler provider to use.
      */
-    protected BufferRecyclerProvider _bufferRecyclerProvider;
+    protected BufferRecyclerPool _bufferRecyclerPool;
     
     /**
      * StreamReadConstraints to use.
@@ -62,7 +62,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     protected TSFBuilder(StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int formatReadF, int formatWriteF) {
-        this(BufferRecyclers.defaultProvider(),
+        this(BufferRecyclers.defaultRecyclerPool(),
                 src, swc, erc,
                 TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS,
                 TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS,
@@ -72,7 +72,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
 
     protected TSFBuilder(TokenStreamFactory base)
     {
-        this(base._bufferRecyclerProvider,
+        this(base._bufferRecyclerPool,
                 base._streamReadConstraints, base._streamWriteConstraints,
                 base._errorReportConfiguration,
                 base._factoryFeatures,
@@ -80,14 +80,14 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
                 base._formatReadFeatures, base._formatWriteFeatures);
     }
 
-    protected TSFBuilder(BufferRecyclerProvider brp,
+    protected TSFBuilder(BufferRecyclerPool brp,
             StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int factoryFeatures,
             int streamReadFeatures, int streamWriteFeatures,
             int formatReadFeatures, int formatWriteFeatures)
     {
-        _bufferRecyclerProvider = Objects.requireNonNull(brp);
+        _bufferRecyclerPool = Objects.requireNonNull(brp);
         _streamReadConstraints = Objects.requireNonNull(src);
         _streamWriteConstraints = Objects.requireNonNull(swc);
         _errorReportConfiguration = Objects.requireNonNull(erc);
@@ -107,8 +107,8 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     public int formatReadFeaturesMask() { return _formatReadFeatures; }
     public int formatWriteFeaturesMask() { return _formatWriteFeatures; }
 
-    public BufferRecyclerProvider bufferRecyclerProvider() {
-        return _bufferRecyclerProvider;
+    public BufferRecyclerPool bufferRecyclerPool() {
+        return _bufferRecyclerPool;
     }
     
     // // // Factory features
@@ -231,12 +231,12 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     // // // Other configuration, helper objects
 
     /**
-     * @param p BufferRecyclerProvider to use for buffer allocation
+     * @param p BufferRecyclerPool to use for buffer allocation
      *
      * @return this builder (for call chaining)
      */
-    public B bufferRecyclerProvider(BufferRecyclerProvider p) {
-        _bufferRecyclerProvider = Objects.requireNonNull(p);
+    public B bufferRecyclerPool(BufferRecyclerPool p) {
+        _bufferRecyclerPool = Objects.requireNonNull(p);
         return _this();
     }
 

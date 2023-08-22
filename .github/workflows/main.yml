@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         # As of Jackson 2.14 got Java 8 baseline so can build on later JDKs too
-        java_version: ['8', '11', '17', '19']
+        java_version: ['8', '11', '17', '20']
         os: ['ubuntu-20.04']
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"

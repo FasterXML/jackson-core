@@ -203,7 +203,7 @@ public class BufferRecyclers
      * @since 2.16
      */
     public static class ThreadLocalBufferRecyclerProvider
-        extends BufferRecyclerProvider
+        implements BufferRecyclerProvider
     {
         private static final long serialVersionUID = 1L;
 
@@ -212,11 +212,6 @@ public class BufferRecyclers
         @Override
         public BufferRecycler acquireBufferRecycler(TokenStreamFactory forFactory) {
             return getBufferRecycler();
-        }
-
-        @Override
-        public void releaseBufferRecycler(BufferRecycler r) {
-            ; // nothing to do here
         }
     }
 }

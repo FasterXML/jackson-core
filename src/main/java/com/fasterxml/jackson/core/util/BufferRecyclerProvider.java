@@ -8,12 +8,8 @@ import com.fasterxml.jackson.core.TokenStreamFactory;
  *
  * @since 2.16
  */
-public abstract class BufferRecyclerProvider
-    implements java.io.Serializable
+public interface BufferRecyclerProvider
+    extends java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     public abstract BufferRecycler acquireBufferRecycler(TokenStreamFactory forFactory);
-
-    public abstract void releaseBufferRecycler(BufferRecycler r);
 }

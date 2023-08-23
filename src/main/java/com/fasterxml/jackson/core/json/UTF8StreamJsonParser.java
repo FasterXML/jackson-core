@@ -2016,7 +2016,7 @@ public class UTF8StreamJsonParser
 
     private int[] growArrayWithNameLenCheck(int[] arr, int more) throws StreamConstraintsException {
         // the following check will fail if the array is already bigger than is allowed for names
-        _streamReadConstraints.validateNameLength(arr.length);
+        _streamReadConstraints.validateNameLength(arr.length << 2);
         return growArrayBy(_quadBuffer, more);
     }
 
@@ -2118,7 +2118,7 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
-        _streamReadConstraints.validateNameLength(qlen);
+        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
@@ -2199,7 +2199,7 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = currQuad;
         }
-        _streamReadConstraints.validateNameLength(qlen);
+        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
@@ -2305,7 +2305,7 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
-        _streamReadConstraints.validateNameLength(qlen);
+        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
@@ -2370,7 +2370,7 @@ public class UTF8StreamJsonParser
             _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
         }
         quads[qlen++] = _padLastQuad(lastQuad, lastQuadBytes);
-        _streamReadConstraints.validateNameLength(qlen);
+        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             return addName(quads, qlen, lastQuadBytes);

@@ -2176,7 +2176,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         } else if (qlen == 0) { // rare, but may happen
             return _fieldComplete("");
         }
-        _streamReadConstraints.validateNameLength(qlen);
+        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
@@ -2275,7 +2275,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             quads[qlen++] = currQuad;
         }
-        _streamReadConstraints.validateNameLength(qlen);
+        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
@@ -2373,7 +2373,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         } else if (qlen == 0) { // rare case but possible
             return _fieldComplete("");
         }
-        _streamReadConstraints.validateNameLength(qlen);
+        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
@@ -2435,7 +2435,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     private int[] growArrayWithNameLenCheck(int[] arr, int more) throws StreamConstraintsException {
         // the following check will fail if the array is already bigger than is allowed for names
-        _streamReadConstraints.validateNameLength(arr.length);
+        _streamReadConstraints.validateNameLength(arr.length << 2);
         return growArrayBy(_quadBuffer, more);
     }
 

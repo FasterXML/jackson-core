@@ -221,7 +221,7 @@ public class JsonFactory
      * It should not be linked back to the original blueprint, to
      * avoid contents from leaking between factories.
      */
-    protected final transient CharsToNameCanonicalizer _rootCharSymbols = CharsToNameCanonicalizer.createRoot();
+    protected final transient CharsToNameCanonicalizer _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
 
     /**
      * Alternative to the basic symbol table, some stream-based

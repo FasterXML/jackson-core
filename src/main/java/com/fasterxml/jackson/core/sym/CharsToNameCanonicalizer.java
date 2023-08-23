@@ -115,6 +115,11 @@ public final class CharsToNameCanonicalizer
     final protected AtomicReference<TableInfo> _tableInfo;
 
     /**
+     * @since 2.16
+     */
+    final protected JsonFactory _jsonFactory;
+
+    /**
      * Seed value we use as the base to make hash codes non-static between
      * different runs, but still stable for lifetime of a single symbol table
      * instance.
@@ -229,9 +234,10 @@ public final class CharsToNameCanonicalizer
     /**
      * Main method for constructing a root symbol table instance.
      */
-    private CharsToNameCanonicalizer(int seed)
+    private CharsToNameCanonicalizer(JsonFactory jsonFactory, int seed)
     {
         _parent = null;
+        _jsonFactory = jsonFactory;
         _seed = seed;
 
         // these settings don't really matter for the bootstrap instance
@@ -253,6 +259,7 @@ public final class CharsToNameCanonicalizer
             TableInfo parentState)
     {
         _parent = parent;
+        _jsonFactory = parent._jsonFactory;
         _seed = seed;
         _tableInfo = null; // not used by child tables
         _flags = flags;
@@ -288,6 +295,7 @@ public final class CharsToNameCanonicalizer
      * storing and sharing underlying symbol arrays as needed.
      *
      * @return Root instance to use for constructing new child instances
+     * @deprecated use {@link #createRoot(JsonFactory)}
      */
     public static CharsToNameCanonicalizer createRoot() {
         // Need to use a variable seed, to thwart hash-collision based attacks.
@@ -299,12 +307,38 @@ public final class CharsToNameCanonicalizer
         return createRoot(seed);
     }
 
-    protected static CharsToNameCanonicalizer createRoot(int seed) {
-        return new CharsToNameCanonicalizer(seed);
+
+    /**
+     * Method called to create root canonicalizer for a {@link com.fasterxml.jackson.core.JsonFactory}
+     * instance. Root instance is never used directly; its main use is for
+     * storing and sharing underlying symbol arrays as needed.
+     *
+     * @param jsonFactory the {@link JsonFactory}
+     * @return Root instance to use for constructing new child instances
+     * @since 2.16
+     */
+    public static CharsToNameCanonicalizer createRoot(JsonFactory jsonFactory) {
+        // Need to use a variable seed, to thwart hash-collision based attacks.
+        // 14-Feb-2017, tatu: not sure it actually helps, at all, since it won't
+        //   change mixing or any of the steps. Should likely just remove in future.
+        long now = System.currentTimeMillis();
+        // ensure it's not 0; and might as well require to be odd so:
+        int seed = (((int) now) + ((int) (now >>> 32))) | 1;
+        return createRoot(jsonFactory, seed);
     }
+
+    @Deprecated // since 2.16
+    protected static CharsToNameCanonicalizer createRoot(int seed) {
+        return new CharsToNameCanonicalizer(null, seed);
+    }
+
+    protected static CharsToNameCanonicalizer createRoot(JsonFactory jsonFactory, int seed) {
+        return new CharsToNameCanonicalizer(jsonFactory, seed);
+    }
+
     /**
      * "Factory" method; will create a new child instance of this symbol
-     * table. It will be a copy-on-write instance, ie. it will only use
+     * table. It will be a copy-on-write instance, i.e. it will only use
      * read-only copy of parent's data, but when changes are needed, a
      * copy will be created.
      *<p>

@@ -104,7 +104,7 @@ public final class CharsToNameCanonicalizer
      * defined, and child instance is released (call to <code>release</code>),
      * parent's shared tables may be updated from the child instance.
      */
-    final protected CharsToNameCanonicalizer _parent;
+    protected final CharsToNameCanonicalizer _parent;
 
     /**
      * Member that is only used by the root table instance: root
@@ -112,7 +112,7 @@ public final class CharsToNameCanonicalizer
      * may return new state if they add entries to the table.
      * Child tables do NOT use the reference.
      */
-    final protected AtomicReference<TableInfo> _tableInfo;
+    protected final AtomicReference<TableInfo> _tableInfo;
 
     /**
      * Seed value we use as the base to make hash codes non-static between
@@ -123,9 +123,9 @@ public final class CharsToNameCanonicalizer
      *
      * @since 2.1
      */
-    final protected int _seed;
+    protected final int _seed;
 
-    final protected int _flags;
+    protected final int _flags;
 
     /**
      * Whether any canonicalization should be attempted (whether using
@@ -302,6 +302,7 @@ public final class CharsToNameCanonicalizer
     protected static CharsToNameCanonicalizer createRoot(int seed) {
         return new CharsToNameCanonicalizer(seed);
     }
+
     /**
      * "Factory" method; will create a new child instance of this symbol
      * table. It will be a copy-on-write instance, ie. it will only use

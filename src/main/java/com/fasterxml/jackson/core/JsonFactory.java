@@ -803,6 +803,11 @@ public class JsonFactory
     }
 
     @Override
+    public final int getFactoryFeatures() {
+        return _factoryFeatures;
+    }
+
+    @Override
     public final int getParserFeatures() {
         return _parserFeatures;
     }

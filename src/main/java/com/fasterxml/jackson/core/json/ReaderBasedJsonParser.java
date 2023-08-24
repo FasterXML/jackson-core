@@ -1850,9 +1850,7 @@ public class ReaderBasedJsonParser
                 if (ch == '"') {
                     final int start = _inputPtr;
                     _inputPtr = ptr+1; // to skip the quote
-                    final int len = ptr - start;
-                    _streamReadConstraints.validateNameLength(len);
-                    return _symbols.findSymbol(_inputBuffer, start, len, hash);
+                    return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                 }
                 break;
             }
@@ -1915,9 +1913,7 @@ public class ReaderBasedJsonParser
             final TextBuffer tb = _textBuffer;
             final char[] buf = tb.getTextBuffer();
             final int start = tb.getTextOffset();
-            final int len = tb.size();
-            _streamReadConstraints.validateNameLength(len);
-            return _symbols.findSymbol(buf, start, len, hash);
+            return _symbols.findSymbol(buf, start, tb.size(), hash);
         }
     }
 
@@ -1969,16 +1965,12 @@ public class ReaderBasedJsonParser
                     if (codes[ch] != 0) {
                         final int start = _inputPtr-1; // -1 to bring back first char
                         _inputPtr = ptr;
-                        final int len = ptr - start;
-                        _streamReadConstraints.validateNameLength(len);
-                        return _symbols.findSymbol(_inputBuffer, start, len, hash);
+                        return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                     }
                 } else if (!Character.isJavaIdentifierPart((char) ch)) {
                     final int start = _inputPtr-1; // -1 to bring back first char
                     _inputPtr = ptr;
-                    final int len = ptr - start;
-                    _streamReadConstraints.validateNameLength(len);
-                    return _symbols.findSymbol(_inputBuffer, start, len, hash);
+                    return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                 }
                 hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
                 ++ptr;
@@ -2005,9 +1997,7 @@ public class ReaderBasedJsonParser
                 if (ch == '\'') {
                     int start = _inputPtr;
                     _inputPtr = ptr+1; // to skip the quote
-                    final int len = ptr - start;
-                    _streamReadConstraints.validateNameLength(len);
-                    return _symbols.findSymbol(_inputBuffer, start, len, hash);
+                    return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                 }
                 if (ch < maxCode && codes[ch] != 0) {
                     break;
@@ -2178,9 +2168,7 @@ public class ReaderBasedJsonParser
             final TextBuffer tb = _textBuffer;
             final char[] buf = tb.getTextBuffer();
             final int start = tb.getTextOffset();
-            final int len = tb.size();
-            _streamReadConstraints.validateNameLength(len);
-            return _symbols.findSymbol(buf, start, len, hash);
+            return _symbols.findSymbol(buf, start, tb.size(), hash);
         }
     }
 

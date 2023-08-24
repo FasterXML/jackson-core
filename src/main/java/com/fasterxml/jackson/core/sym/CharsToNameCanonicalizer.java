@@ -499,6 +499,7 @@ public final class CharsToNameCanonicalizer
         if (len < 1) { // empty Strings are simplest to handle up front
             return "";
         }
+        _streamReadConstraints.validateNameLength(len);
         if (!_canonicalize) { // [JACKSON-259]
             return new String(buffer, start, len);
         }

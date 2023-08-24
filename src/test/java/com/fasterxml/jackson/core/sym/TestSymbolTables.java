@@ -37,7 +37,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         // holy guacamoley... there are way too many. 31 gives 3567 (!), 33 gives 2747
         // ... at least before shuffling. Shuffling helps quite a lot, so:
 
-        assertEquals(3431, symbols.collisionCount());
+        assertEquals(3417, symbols.collisionCount());
 
         assertEquals(6, symbols.maxCollisionLength());
 
@@ -202,9 +202,9 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         assertEquals(65536, symbols.bucketCount());
 
         // collision count rather high, but has to do
-        assertEquals(7127, symbols.collisionCount());
-        // as well as collision counts
-        assertEquals(4, symbols.maxCollisionLength());
+        assertEquals(7194, symbols.collisionCount());
+        // as well as max collision chain length
+        assertEquals(5, symbols.maxCollisionLength());
     }
 
     // [core#187]: unexpectedly high number of collisions for straight numbers
@@ -313,7 +313,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         assertEquals(COUNT, symbols.size());
         assertEquals(1024, symbols.bucketCount());
 
-        assertEquals(50, symbols.collisionCount());
+        assertEquals(54, symbols.collisionCount());
         assertEquals(2, symbols.maxCollisionLength());
     }
 
@@ -352,7 +352,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             assertEquals(COUNT, symbols.size());
             assertEquals(1024, symbols.bucketCount());
 
-            assertEquals(16, symbols.collisionCount());
+            assertEquals(24, symbols.collisionCount());
             assertEquals(1, symbols.maxCollisionLength());
         }
     }
@@ -389,7 +389,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     {
         ByteQuadsCanonicalizer symbolsB =
                 ByteQuadsCanonicalizer.createRoot(3).makeChild(JsonFactory.Feature.collectDefaults());
-        CharsToNameCanonicalizer symbolsC = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
+        CharsToNameCanonicalizer symbolsC = CharsToNameCanonicalizer.createRoot(JSON_F, 3).makeChild();
 
         for (int i = 1001; i <= 1050; ++i) {
             String id = "lengthmatters"+i;

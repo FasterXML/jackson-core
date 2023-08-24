@@ -65,8 +65,10 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
 
     public void testSmallSymbolSetWithChars() throws IOException
     {
+        final int SEED = 33333;
+
         JsonFactory f = new JsonFactory();
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(f).makeChild();
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(f, SEED).makeChild();
         JsonParser p = f.createParser(JSON);
 
         JsonToken t;

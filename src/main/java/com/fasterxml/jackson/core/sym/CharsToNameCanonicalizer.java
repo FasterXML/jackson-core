@@ -317,7 +317,7 @@ public final class CharsToNameCanonicalizer
      */
     @Deprecated
     public static CharsToNameCanonicalizer createRoot(int seed) {
-        return createRoot(null);
+        return createRoot(null, seed);
     }
 
     /**
@@ -331,12 +331,18 @@ public final class CharsToNameCanonicalizer
      * @return Root instance to use for constructing new child instances
      */
     public static CharsToNameCanonicalizer createRoot(TokenStreamFactory owner) {
+        return createRoot(owner, 0);
+    }
+
+    public static CharsToNameCanonicalizer createRoot(TokenStreamFactory owner, int seed) {
         // Need to use a variable seed, to thwart hash-collision based attacks.
         // 14-Feb-2017, tatu: not sure it actually helps, at all, since it won't
         //   change mixing or any of the steps. Should likely just remove in future.
-        long now = System.currentTimeMillis();
-        // ensure it's not 0; and might as well require to be odd so:
-        int seed = (((int) now) + ((int) (now >>> 32))) | 1;
+        if (seed == 0) {
+            long now = System.currentTimeMillis();
+            // ensure it's not 0; and might as well require to be odd so:
+            seed = (((int) now) + ((int) (now >>> 32))) | 1;
+        }
 
         StreamReadConstraints src;
         int factoryFeatures;

@@ -20,7 +20,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     public void testSyntheticWithChars() throws IOException
     {
         // pass seed, to keep results consistent:
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F, -1).makeChild();
         final int COUNT = 12000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
@@ -191,7 +191,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     // [core#187]: unexpectedly high number of collisions for straight numbers
     public void testCollisionsWithChars187() throws IOException
     {
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F, -1).makeChild();
         final int COUNT = 30000;
         for (int i = 0; i < COUNT; ++i) {
             String id = String.valueOf(10000 + i);
@@ -304,7 +304,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     {
         final int COUNT = 400;
 
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F, -1).makeChild();
         for (int i = 0; i < COUNT; ++i) {
             String id = String.format("\\u%04x", i);
             char[] ch = id.toCharArray();
@@ -343,7 +343,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 
         // First, char-based
         {
-            CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
+            CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F, -1).makeChild();
             for (int i = 0; i < COUNT; ++i) {
                 String id = String.valueOf((char) i);
                 char[] ch = id.toCharArray();

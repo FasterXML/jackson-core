@@ -136,8 +136,8 @@ public final class CharsToNameCanonicalizer
     protected final int _seed;
 
     /**
-     * Feature flags of {@link TokenStreamFactory} for which canonicalizer
-     * was created
+     * Feature flags of {@link TokenStreamFactory} that uses
+     * this canonicalizer.
      */
     protected final int _factoryFeatures;
 

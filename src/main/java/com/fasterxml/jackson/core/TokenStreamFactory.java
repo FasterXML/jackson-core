@@ -136,6 +136,11 @@ public abstract class TokenStreamFactory
     public abstract boolean isEnabled(JsonParser.Feature f);
     public abstract boolean isEnabled(JsonGenerator.Feature f);
 
+    /**
+     * @since 2.16
+     */
+    public abstract int getFactoryFeatures();
+
     public abstract int getParserFeatures();
     public abstract int getGeneratorFeatures();
 

@@ -307,9 +307,8 @@ public final class CharsToNameCanonicalizer
         // 14-Feb-2017, tatu: not sure it actually helps, at all, since it won't
         //   change mixing or any of the steps. Should likely just remove in future.
         if (seed == 0) {
-            long now = System.currentTimeMillis();
-            // ensure it's not 0; and might as well require to be odd so:
-            seed = (((int) now) + ((int) (now >>> 32))) | 1;
+            // 23-Aug-2023, tatu: Changed to use identity hash code instead of current time
+            seed = System.identityHashCode(owner);
         }
 
         StreamReadConstraints src;

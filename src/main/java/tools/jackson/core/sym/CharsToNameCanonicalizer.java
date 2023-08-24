@@ -291,6 +291,7 @@ public final class CharsToNameCanonicalizer
     protected static CharsToNameCanonicalizer createRoot(int seed) {
         return new CharsToNameCanonicalizer(seed);
     }
+
     /**
      * "Factory" method; will create a new child instance of this symbol
      * table. It will be a copy-on-write instance, ie. it will only use

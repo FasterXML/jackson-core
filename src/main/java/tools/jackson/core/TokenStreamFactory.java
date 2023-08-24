@@ -513,6 +513,10 @@ public abstract class TokenStreamFactory
         return (_streamWriteFeatures & f.getMask()) != 0;
     }
 
+    public final int getFactoryFeatures() {
+        return _factoryFeatures;
+    }
+
     // @since 3.0
     public final int getStreamReadFeatures() {
         return _streamReadFeatures;
@@ -532,6 +536,8 @@ public abstract class TokenStreamFactory
     public StreamReadConstraints streamReadConstraints() { return _streamReadConstraints; }
 
     public StreamWriteConstraints streamWriteConstraints() { return _streamWriteConstraints; }
+
+    public ErrorReportConfiguration errorReportConfiguration() { return _errorReportConfiguration; }
 
     /*
     /**********************************************************************

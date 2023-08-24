@@ -13,12 +13,14 @@ import com.fasterxml.jackson.core.*;
  */
 public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 {
+    private final static JsonFactory JSON_F = new JsonFactory();
+
     // Test for verifying stability of hashCode, wrt collisions, using
     // synthetic field name generation and character-based input
     public void testSyntheticWithChars() throws IOException
     {
         // pass seed, to keep results consistent:
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1).makeChild(-1);
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
         final int COUNT = 12000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
@@ -74,14 +76,12 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     // [Issue#145]
     public void testThousandsOfSymbolsWithChars() throws IOException
     {
-        final int SEED = 33333;
-
-        CharsToNameCanonicalizer symbolsCRoot = CharsToNameCanonicalizer.createRoot(SEED);
+        CharsToNameCanonicalizer symbolsCRoot = CharsToNameCanonicalizer.createRoot(JSON_F);
         int exp = 0;
 
         for (int doc = 0; doc < 100; ++doc) {
             CharsToNameCanonicalizer symbolsC =
-                    symbolsCRoot.makeChild(JsonFactory.Feature.collectDefaults());
+                    symbolsCRoot.makeChild();
             for (int i = 0; i < 250; ++i) {
                 String name = "f_"+doc+"_"+i;
                 char[] ch = name.toCharArray();
@@ -191,7 +191,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     // [core#187]: unexpectedly high number of collisions for straight numbers
     public void testCollisionsWithChars187() throws IOException
     {
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1).makeChild(-1);
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
         final int COUNT = 30000;
         for (int i = 0; i < COUNT; ++i) {
             String id = String.valueOf(10000 + i);
@@ -304,7 +304,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     {
         final int COUNT = 400;
 
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1).makeChild(-1);
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
         for (int i = 0; i < COUNT; ++i) {
             String id = String.format("\\u%04x", i);
             char[] ch = id.toCharArray();
@@ -343,7 +343,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 
         // First, char-based
         {
-            CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1).makeChild(-1);
+            CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
             for (int i = 0; i < COUNT; ++i) {
                 String id = String.valueOf((char) i);
                 char[] ch = id.toCharArray();
@@ -389,7 +389,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     {
         ByteQuadsCanonicalizer symbolsB =
                 ByteQuadsCanonicalizer.createRoot(3).makeChild(JsonFactory.Feature.collectDefaults());
-        CharsToNameCanonicalizer symbolsC = CharsToNameCanonicalizer.createRoot(3).makeChild(-1);
+        CharsToNameCanonicalizer symbolsC = CharsToNameCanonicalizer.createRoot(JSON_F).makeChild();
 
         for (int i = 1001; i <= 1050; ++i) {
             String id = "lengthmatters"+i;

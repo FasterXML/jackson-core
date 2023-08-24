@@ -48,7 +48,7 @@ public class SymbolTableMergingTest
 
     public void testHashCalc() throws Exception
     {
-        CharsToNameCanonicalizer sym = CharsToNameCanonicalizer.createRoot(123);
+        CharsToNameCanonicalizer sym = CharsToNameCanonicalizer.createRoot(new JsonFactory());
         char[] str1 = "foo".toCharArray();
         char[] str2 = " foo ".toCharArray();
 

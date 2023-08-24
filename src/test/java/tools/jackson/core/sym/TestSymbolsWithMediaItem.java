@@ -68,8 +68,8 @@ public class TestSymbolsWithMediaItem extends tools.jackson.core.BaseTest
     {
         final int SEED = 33333;
 
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(SEED).makeChild(-1);
         JsonFactory f = new JsonFactory();
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(f, SEED).makeChild();
         JsonParser p = f.createParser(ObjectReadContext.empty(), JSON);
 
         JsonToken t;

@@ -303,7 +303,7 @@ public final class ByteSourceJsonBootstrapper
         }
         return new ReaderBasedJsonParser(readCtxt, _context, streamReadFeatures, formatReadFeatures,
                 constructReader(),
-                rootCharSymbols.makeChild(factoryFeatures));
+                rootCharSymbols.makeChild());
     }
 
     /*

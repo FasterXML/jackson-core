@@ -110,7 +110,7 @@ public class JsonFactory
      * It should not be linked back to the original blueprint, to
      * avoid contents from leaking between factories.
      */
-    protected final transient CharsToNameCanonicalizer _rootCharSymbols = CharsToNameCanonicalizer.createRoot();
+    protected final transient CharsToNameCanonicalizer _rootCharSymbols;
 
     /**
      * Alternative to the basic symbol table, some stream-based
@@ -142,6 +142,7 @@ public class JsonFactory
         _characterEscapes = null;
         _maximumNonEscapedChar = 0; // disabled
         _quoteChar = DEFAULT_QUOTE_CHAR;
+        _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
     }
 
     /**
@@ -156,6 +157,7 @@ public class JsonFactory
         _characterEscapes = src._characterEscapes;
         _maximumNonEscapedChar = src._maximumNonEscapedChar;
         _quoteChar = src._quoteChar;
+        _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
     }
 
     /**
@@ -172,6 +174,7 @@ public class JsonFactory
         _characterEscapes = b.characterEscapes();
         _maximumNonEscapedChar = b.highestNonEscapedChar();
         _quoteChar = b.quoteChar();
+        _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
     }
 
     @Override
@@ -396,7 +399,7 @@ public class JsonFactory
                 readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 r,
-                _rootCharSymbols.makeChild(_factoryFeatures));
+                _rootCharSymbols.makeChild());
     }
 
     @Override
@@ -409,7 +412,7 @@ public class JsonFactory
                 readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 null,
-                _rootCharSymbols.makeChild(_factoryFeatures),
+                _rootCharSymbols.makeChild(),
                 data, offset, offset+len, recyclable);
     }
 

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReference;
 
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.util.InternCache;
@@ -110,6 +112,14 @@ public final class CharsToNameCanonicalizer
     protected final AtomicReference<TableInfo> _tableInfo;
 
     /**
+     * Constraints used by {@link TokenStreamFactory} that uses
+     * this canonicalizer.
+     *
+     * @since 2.16
+     */
+    protected final StreamReadConstraints _streamReadConstraints;
+
+    /**
      * Seed value we use as the base to make hash codes non-static between
      * different runs, but still stable for lifetime of a single symbol table
      * instance.
@@ -118,7 +128,11 @@ public final class CharsToNameCanonicalizer
      */
     protected final int _seed;
 
-    protected final int _flags;
+    /**
+     * Feature flags of {@link TokenStreamFactory} that uses
+     * this canonicalizer.
+     */
+    protected final int _factoryFeatures;
 
     /**
      * Whether any canonicalization should be attempted (whether using
@@ -218,14 +232,16 @@ public final class CharsToNameCanonicalizer
     /**
      * Main method for constructing a root symbol table instance.
      */
-    private CharsToNameCanonicalizer(int seed)
+    private CharsToNameCanonicalizer(StreamReadConstraints src, int factoryFeatures,
+            int seed)
     {
         _parent = null;
         _seed = seed;
+        _streamReadConstraints = src;
 
         // these settings don't really matter for the bootstrap instance
         _canonicalize = true;
-        _flags = -1;
+        _factoryFeatures = factoryFeatures;
         // And we'll also set flags so no copying of buckets is needed:
         _hashShared = false; // doesn't really matter for root instance
         _longestCollisionList = 0;
@@ -238,14 +254,16 @@ public final class CharsToNameCanonicalizer
     /**
      * Internal constructor used when creating child instances.
      */
-    private CharsToNameCanonicalizer(CharsToNameCanonicalizer parent, int flags, int seed,
+    private CharsToNameCanonicalizer(CharsToNameCanonicalizer parent,
+            StreamReadConstraints src, int factoryFeatures, int seed,
             TableInfo parentState)
     {
         _parent = parent;
+        _streamReadConstraints = src;
         _seed = seed;
         _tableInfo = null; // not used by child tables
-        _flags = flags;
-        _canonicalize = JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES.enabledIn(flags);
+        _factoryFeatures = factoryFeatures;
+        _canonicalize = TokenStreamFactory.Feature.CANONICALIZE_PROPERTY_NAMES.enabledIn(factoryFeatures);
 
         // Then copy shared state
         _symbols = parentState.symbols;
@@ -272,24 +290,39 @@ public final class CharsToNameCanonicalizer
      */
 
     /**
-     * Method called to create root canonicalizer for a {@link tools.jackson.core.json.JsonFactory}
      * instance. Root instance is never used directly; its main use is for
      * storing and sharing underlying symbol arrays as needed.
      *
+     * @param owner Factory that will use the root instance; used for accessing
+     *    configuration
+     *
      * @return Root instance to use for constructing new child instances
      */
-    public static CharsToNameCanonicalizer createRoot() {
+    public static CharsToNameCanonicalizer createRoot(TokenStreamFactory owner) {
+        return createRoot(owner, 0);
+    }
+
+    public static CharsToNameCanonicalizer createRoot(TokenStreamFactory owner, int seed) {
         // Need to use a variable seed, to thwart hash-collision based attacks.
         // 14-Feb-2017, tatu: not sure it actually helps, at all, since it won't
         //   change mixing or any of the steps. Should likely just remove in future.
-        long now = System.currentTimeMillis();
-        // ensure it's not 0; and might as well require to be odd so:
-        int seed = (((int) now) + ((int) (now >>> 32))) | 1;
-        return createRoot(seed);
-    }
+        if (seed == 0) {
+            long now = System.currentTimeMillis();
+            // ensure it's not 0; and might as well require to be odd so:
+            seed = (((int) now) + ((int) (now >>> 32))) | 1;
+        }
 
-    protected static CharsToNameCanonicalizer createRoot(int seed) {
-        return new CharsToNameCanonicalizer(seed);
+        StreamReadConstraints src;
+        int factoryFeatures;
+        
+        if (owner == null) {
+            src = StreamReadConstraints.defaults();
+            factoryFeatures = 0;
+        } else {
+            src = owner.streamReadConstraints();
+            factoryFeatures = owner.getFactoryFeatures();
+        }
+        return new CharsToNameCanonicalizer(src, factoryFeatures, seed);
     }
 
     /**
@@ -304,12 +337,11 @@ public final class CharsToNameCanonicalizer
      * on which only makeChild/mergeChild are called, but instance itself
      * is not used as a symbol table.
      *
-     * @param flags Bit flags of active {@link tools.jackson.core.TokenStreamFactory.Feature}s enabled.
-     *
      * @return Actual canonicalizer instance that can be used by a parser
      */
-    public CharsToNameCanonicalizer makeChild(int flags) {
-        return new CharsToNameCanonicalizer(this, flags, _seed, _tableInfo.get());
+    public CharsToNameCanonicalizer makeChild() {
+        return new CharsToNameCanonicalizer(this, _streamReadConstraints,
+                _factoryFeatures, _seed, _tableInfo.get());
     }
 
     /**
@@ -491,7 +523,7 @@ public final class CharsToNameCanonicalizer
         }
 
         String newSymbol = new String(buffer, start, len);
-        if (JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(_flags)) {
+        if (JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(_factoryFeatures)) {
             newSymbol = InternCache.instance.intern(newSymbol);
         }
         ++_size;
@@ -529,7 +561,7 @@ public final class CharsToNameCanonicalizer
         } else {
             if (_overflows.get(bucketIndex)) {
                 // Has happened once already for this bucket index, so probably not coincidental...
-                if (JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(_flags)) {
+                if (JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(_factoryFeatures)) {
                     _reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
                 }
                 // but even if we don't fail, we will stop canonicalizing as safety measure

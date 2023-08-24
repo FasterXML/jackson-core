@@ -9,6 +9,7 @@ import tools.jackson.core.BaseTest;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.io.IOContext;
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.ReaderBasedJsonParser;
 import tools.jackson.core.json.UTF8StreamJsonParser;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -27,7 +28,7 @@ public class JsonParserSequenceTest extends BaseTest
         ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(
                 ObjectReadContext.empty(),
                 ioContext,
-                2, 0, null, CharsToNameCanonicalizer.createRoot());
+                2, 0, null, CharsToNameCanonicalizer.createRoot(new JsonFactory()));
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, readerBasedJsonParser, readerBasedJsonParser);
 
         assertFalse(jsonParserSequence.isClosed());

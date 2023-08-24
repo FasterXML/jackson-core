@@ -13,14 +13,15 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
 {
     public void testCoreVersions() throws Exception
     {
-        assertVersion(new JsonFactory().version());
-        ReaderBasedJsonParser jp = new ReaderBasedJsonParser(getIOContext(), 0, null, null,
-                CharsToNameCanonicalizer.createRoot());
-        assertVersion(jp.version());
-        jp.close();
-        JsonGenerator jgen = new WriterBasedJsonGenerator(getIOContext(), 0, null, null, '"');
-        assertVersion(jgen.version());
-        jgen.close();
+        final JsonFactory f = new JsonFactory();
+        assertVersion(f.version());
+        try (ReaderBasedJsonParser p = new ReaderBasedJsonParser(getIOContext(), 0, null, null,
+                CharsToNameCanonicalizer.createRoot(f))) {
+            assertVersion(p.version());
+        }
+        try (JsonGenerator g = new WriterBasedJsonGenerator(getIOContext(), 0, null, null, '"')) {
+            assertVersion(g.version());
+        }
     }
 
     public void testMisc() {

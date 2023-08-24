@@ -221,7 +221,7 @@ public class JsonFactory
      * It should not be linked back to the original blueprint, to
      * avoid contents from leaking between factories.
      */
-    protected final transient CharsToNameCanonicalizer _rootCharSymbols = CharsToNameCanonicalizer.createRoot();
+    protected final transient CharsToNameCanonicalizer _rootCharSymbols;
 
     /**
      * Alternative to the basic symbol table, some stream-based
@@ -377,6 +377,8 @@ public class JsonFactory
         _streamWriteConstraints = StreamWriteConstraints.defaults();
         _errorReportConfiguration = ErrorReportConfiguration.defaults();
         _generatorDecorators = null;
+
+        _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
     }
 
     /**
@@ -408,6 +410,8 @@ public class JsonFactory
         _rootValueSeparator = src._rootValueSeparator;
         _maximumNonEscapedChar = src._maximumNonEscapedChar;
         _quoteChar = src._quoteChar;
+
+        _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
     }
 
     /**
@@ -437,6 +441,8 @@ public class JsonFactory
         _rootValueSeparator = b._rootValueSeparator;
         _maximumNonEscapedChar = b._maximumNonEscapedChar;
         _quoteChar = b._quoteChar;
+
+        _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
     }
 
     /**
@@ -466,6 +472,8 @@ public class JsonFactory
         _rootValueSeparator = null;
         _maximumNonEscapedChar = 0;
         _quoteChar = DEFAULT_QUOTE_CHAR;
+
+        _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
     }
 
     /**
@@ -1890,7 +1898,7 @@ public class JsonFactory
      */
     protected JsonParser _createParser(Reader r, IOContext ctxt) throws IOException {
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
-                _rootCharSymbols.makeChild(_factoryFeatures));
+                _rootCharSymbols.makeChild());
     }
 
     /**
@@ -1912,7 +1920,7 @@ public class JsonFactory
     protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
             boolean recyclable) throws IOException {
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
-                _rootCharSymbols.makeChild(_factoryFeatures),
+                _rootCharSymbols.makeChild(),
                         data, offset, offset+len, recyclable);
     }
 

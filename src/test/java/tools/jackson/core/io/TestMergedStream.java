@@ -2,22 +2,14 @@ package tools.jackson.core.io;
 
 import java.io.*;
 
-import tools.jackson.core.ErrorReportConfiguration;
 import tools.jackson.core.JsonEncoding;
-import tools.jackson.core.StreamReadConstraints;
-import tools.jackson.core.StreamWriteConstraints;
-import tools.jackson.core.util.BufferRecycler;
 
 public class TestMergedStream
     extends tools.jackson.core.BaseTest
 {
     public void testSimple() throws Exception
     {
-        IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
-                StreamWriteConstraints.defaults(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.UNKNOWN_CONTENT, false, JsonEncoding.UTF8);
+        IOContext ctxt = IOContext.testIOContext();
         // bit complicated; must use recyclable buffer...
         byte[] first = ctxt.allocReadIOBuffer();
         System.arraycopy("ABCDE".getBytes("UTF-8"), 0, first, 99, 5);

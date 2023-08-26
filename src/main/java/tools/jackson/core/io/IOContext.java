@@ -134,6 +134,24 @@ public class IOContext
     }
 
     /**
+     * Factory method for use by test code: NOT to be used for non-test use
+     *
+     * Since 2.16
+     */
+    public static IOContext testIOContext() {
+        return new IOContext(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(),
+                new BufferRecycler(), ContentReference.unknown(), false,
+                JsonEncoding.UTF8);
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, accessors
+    /**********************************************************************
+     */
+
+    /**
      * @return constraints for streaming reads
      */
     public StreamReadConstraints streamReadConstraints() {
@@ -159,12 +177,6 @@ public class IOContext
         _encoding = enc;
         return this;
     }
-
-    /*
-    /**********************************************************************
-    /* Public API, accessors
-    /**********************************************************************
-     */
 
     public JsonEncoding getEncoding() { return _encoding; }
     public boolean isResourceManaged() { return _managedResource; }

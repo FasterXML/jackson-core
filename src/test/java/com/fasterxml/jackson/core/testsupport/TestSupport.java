@@ -18,17 +18,33 @@ public class TestSupport
      * Factory method for creating {@link IOContext}s for tests
      */
     public static IOContext testIOContext() {
-        return new IOContext(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(), ContentReference.unknown(), false);
+        return testIOContext(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults());
+    }
+
+    /**
+     * Factory method for creating {@link IOContext}s for tests
+     */
+    public static IOContext testIOContext(StreamReadConstraints src) {
+        return testIOContext(src,
+                StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults());
     }
 
     /**
      * Factory method for creating {@link IOContext}s for tests
      */
     public static IOContext testIOContext(StreamWriteConstraints swc) {
-        return new IOContext(StreamReadConstraints.defaults(), swc,
-                ErrorReportConfiguration.defaults(),
+        return testIOContext(StreamReadConstraints.defaults(),
+                swc,
+                ErrorReportConfiguration.defaults());
+    }
+
+    private static IOContext testIOContext(StreamReadConstraints src,
+            StreamWriteConstraints swc,
+            ErrorReportConfiguration erc) {
+        return new IOContext(src, swc, erc,
                 new BufferRecycler(), ContentReference.unknown(), false);
     }
 }

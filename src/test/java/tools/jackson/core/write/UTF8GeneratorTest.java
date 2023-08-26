@@ -7,11 +7,10 @@ import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.filter.FilteringGeneratorDelegate;
 import tools.jackson.core.filter.JsonPointerBasedFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
-import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.UTF8JsonGenerator;
-import tools.jackson.core.util.BufferRecycler;
+import tools.jackson.core.testsupport.TestSupport;
 
 public class UTF8GeneratorTest extends BaseTest
 {
@@ -20,7 +19,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = IOContext.testIOContext();
+        IOContext ioc = testIOContext();
         JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"');
@@ -49,7 +48,8 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
+        IOContext ioc = TestSupport.testIOContext(StreamWriteConstraints
+                .builder().maxNestingDepth(1).build());
         try (JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"')) {
@@ -66,7 +66,8 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
+        IOContext ioc = TestSupport.testIOContext(StreamWriteConstraints.builder()
+                .maxNestingDepth(1).build());
         try (JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"')) {
@@ -139,24 +140,15 @@ public class UTF8GeneratorTest extends BaseTest
         gen.writeEndObject();
         gen.close();
 
-        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), out.toByteArray());
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("escapes", p.currentName());
-
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(SAMPLE_WITH_QUOTES, p.getText());
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertNull(p.nextToken());
-        p.close();
-    }
-
-    private IOContext _ioContext(StreamWriteConstraints swc) {
-        return new IOContext(StreamReadConstraints.defaults(),
-                swc,
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.unknown(), true, JsonEncoding.UTF8);
+        try (JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), out.toByteArray())) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals("escapes", p.currentName());
+    
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals(SAMPLE_WITH_QUOTES, p.getText());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            assertNull(p.nextToken());
+        }
     }
 }

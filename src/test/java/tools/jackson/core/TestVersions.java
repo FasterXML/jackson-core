@@ -13,14 +13,14 @@ public class TestVersions extends BaseTest
     {
         final JsonFactory f = new JsonFactory();
         assertVersion(f.version());
-        JsonParser jp =  f.createParser(ObjectReadContext.empty(),
-                new StringReader("true"));
-        assertVersion(jp.version());
-        jp.close();
-        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(),
-                new ByteArrayOutputStream());
-        assertVersion(jg.version());
-        jg.close();
+        try (JsonParser jp =  f.createParser(ObjectReadContext.empty(),
+                new StringReader("true"))) {
+            assertVersion(jp.version());
+        }
+        try (JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(),
+                new ByteArrayOutputStream())) {
+            assertVersion(jg.version());
+        }
     }
 
     public void testMisc() {
@@ -36,9 +36,9 @@ public class TestVersions extends BaseTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private void assertVersion(Version v)

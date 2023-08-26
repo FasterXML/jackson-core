@@ -4,9 +4,11 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.testsupport.MockDataInput;
+import tools.jackson.core.testsupport.TestSupport;
 import tools.jackson.core.testsupport.ThrottledInputStream;
 import tools.jackson.core.testsupport.ThrottledReader;
 import tools.jackson.core.util.Named;
@@ -432,6 +434,16 @@ public abstract class BaseTest
 
     /*
     /**********************************************************************
+    /* Helper type construction
+    /**********************************************************************
+     */
+
+    protected static IOContext testIOContext() {
+        return TestSupport.testIOContext();
+    }
+
+    /*
+    /**********************************************************
     /* Helper read/write methods
     /**********************************************************************
      */

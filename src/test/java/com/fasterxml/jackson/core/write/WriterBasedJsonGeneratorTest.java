@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.ContentReference;
@@ -17,11 +18,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         StringWriter sw = new StringWriter();
-        IOContext ioc = new IOContext(null,
-                StreamWriteConstraints.builder().maxNestingDepth(1).build(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.rawReference(sw), true);
+        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ioc, 0, null, sw, '"')) {
             gen.writeStartObject();
             gen.writeFieldName("array");
@@ -36,11 +33,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         StringWriter sw = new StringWriter();
-        IOContext ioc = new IOContext(null,
-                StreamWriteConstraints.builder().maxNestingDepth(1).build(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.rawReference(sw), true);
+        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ioc, 0, null, sw, '"')) {
             gen.writeStartObject();
             gen.writeFieldName("object");
@@ -52,4 +45,11 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         }
     }
 
+    private IOContext _ioContext(StreamWriteConstraints swc) {
+        return new IOContext(StreamReadConstraints.defaults(),
+                swc,
+                ErrorReportConfiguration.defaults(),
+                new BufferRecycler(),
+                ContentReference.unknown(), true);
+    }
 }

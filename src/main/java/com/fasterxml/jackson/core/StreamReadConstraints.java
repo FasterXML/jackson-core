@@ -16,6 +16,8 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
  *   </li>
  *  <li>Maximum String value length: default 20_000_000 (see {@link #DEFAULT_MAX_STRING_LEN})
  *   </li>
+ *  <li>Maximum Property name length: default 50_000 (see {@link #DEFAULT_MAX_NAME_LEN})
+ *   </li>
  *  <li>Maximum Nesting depth: default 1000 (see {@link #DEFAULT_MAX_DEPTH})
  *   </li>
  * </ul>
@@ -46,6 +48,14 @@ public class StreamReadConstraints
     public static final int DEFAULT_MAX_STRING_LEN = 20_000_000;
 
     /**
+     * Default setting for maximum name length: see {@link Builder#maxNameLength(int)}
+     * for details.
+     *
+     * @since 2.16
+     */
+    public static final int DEFAULT_MAX_NAME_LEN = 50_000;
+
+    /**
      * Limit for the maximum magnitude of Scale of {@link java.math.BigDecimal} that can be
      * converted to {@link java.math.BigInteger}.
      *<p>
@@ -56,9 +66,11 @@ public class StreamReadConstraints
     protected final int _maxNestingDepth;
     protected final int _maxNumLen;
     protected final int _maxStringLen;
+    protected final int _maxNameLen;
 
     private static StreamReadConstraints DEFAULT =
-        new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+        new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN,
+                DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
 
     /**
      * Override the default StreamReadConstraints. These defaults are only used when {@link JsonFactory}
@@ -89,6 +101,7 @@ public class StreamReadConstraints
         private int maxNestingDepth;
         private int maxNumLen;
         private int maxStringLen;
+        private int maxNameLen;
 
         /**
          * Sets the maximum nesting depth. The depth is a count of objects and arrays that have not
@@ -149,24 +162,47 @@ public class StreamReadConstraints
             return this;
         }
 
-        Builder() {
-            this(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+        /**
+         * Sets the maximum name length (in chars or bytes, depending on input context).
+         * The default is 50,000. This limit is not exact, the limit is applied when we increase
+         * internal buffer sizes and an exception will happen at sizes greater than this limit. Some
+         * text values that are a little bigger than the limit may be treated as valid but no text
+         * values with sizes less than or equal to this limit will be treated as invalid.
+         *
+         * @param maxNameLen the maximum string length (in chars or bytes, depending on input context)
+         *
+         * @return this builder
+         * @throws IllegalArgumentException if the maxStringLen is set to a negative value
+         * @since 2.16.0
+         */
+        public Builder maxNameLength(final int maxNameLen) {
+            if (maxNameLen < 0) {
+                throw new IllegalArgumentException("Cannot set maxNameLen to a negative value");
+            }
+            this.maxNameLen = maxNameLen;
+            return this;
         }
 
-        Builder(final int maxNestingDepth, final int maxNumLen, final int maxStringLen) {
+        Builder() {
+            this(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
+        }
+
+        Builder(final int maxNestingDepth, final int maxNumLen, final int maxStringLen, final int maxNameLen) {
             this.maxNestingDepth = maxNestingDepth;
             this.maxNumLen = maxNumLen;
             this.maxStringLen = maxStringLen;
+            this.maxNameLen = maxNameLen;
         }
 
         Builder(StreamReadConstraints src) {
             maxNestingDepth = src._maxNestingDepth;
             maxNumLen = src._maxNumLen;
             maxStringLen = src._maxStringLen;
+            maxNameLen = src._maxNameLen;
         }
 
         public StreamReadConstraints build() {
-            return new StreamReadConstraints(maxNestingDepth, maxNumLen, maxStringLen);
+            return new StreamReadConstraints(maxNestingDepth, maxNumLen, maxStringLen, maxNameLen);
         }
     }
 
@@ -176,10 +212,17 @@ public class StreamReadConstraints
     /**********************************************************************
      */
 
+    @Deprecated // since 2.16
     protected StreamReadConstraints(final int maxNestingDepth, final int maxNumLen, final int maxStringLen) {
+        this(maxNestingDepth, maxNumLen, maxStringLen, DEFAULT_MAX_NAME_LEN);
+    }
+
+    protected StreamReadConstraints(final int maxNestingDepth, final int maxNumLen,
+                                    final int maxStringLen, final int maxNameLen) {
         _maxNestingDepth = maxNestingDepth;
         _maxNumLen = maxNumLen;
         _maxStringLen = maxStringLen;
+        _maxNameLen = maxNameLen;
     }
 
     public static Builder builder() {
@@ -236,6 +279,16 @@ public class StreamReadConstraints
      */
     public int getMaxStringLength() {
         return _maxStringLen;
+    }
+
+    /**
+     * Accessor for maximum length of names to decode.
+     * see {@link Builder#maxNameLength(int)} for details.
+     *
+     * @return Maximum allowed name length
+     */
+    public int getMaxNameLength() {
+        return _maxNameLen;
     }
 
     /*
@@ -331,6 +384,27 @@ public class StreamReadConstraints
                     "String value length (%d) exceeds the maximum allowed (%d, from %s)",
                     length, _maxStringLen,
                     _constrainRef("getMaxStringLength"));
+        }
+    }
+
+    /**
+     * Convenience method that can be used to verify that a name
+     * of specified length does not exceed maximum specific by this
+     * constraints object: if it does, a
+     * {@link StreamConstraintsException}
+     * is thrown.
+     *
+     * @param length Length of name in input units
+     *
+     * @throws StreamConstraintsException If length exceeds maximum
+     */
+    public void validateNameLength(int length) throws StreamConstraintsException
+    {
+        if (length > _maxNameLen) {
+            throw _constructException(
+                    "Name value length (%d) exceeds the maximum allowed (%d, from %s)",
+                    length, _maxNameLen,
+                    _constrainRef("getMaxNameLength"));
         }
     }
 

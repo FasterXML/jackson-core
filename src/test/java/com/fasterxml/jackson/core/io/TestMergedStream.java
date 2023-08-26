@@ -9,7 +9,7 @@ public class TestMergedStream
 {
     public void testSimple() throws Exception
     {
-        IOContext ctxt = IOContext.testIOContext();
+        IOContext ctxt = testIOContext();
         // bit complicated; must use recyclable buffer...
         byte[] first = ctxt.allocReadIOBuffer();
         System.arraycopy("ABCDE".getBytes("UTF-8"), 0, first, 99, 5);

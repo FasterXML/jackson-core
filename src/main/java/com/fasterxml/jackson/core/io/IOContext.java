@@ -192,17 +192,6 @@ public class IOContext
         this(br, ContentReference.rawReference(rawContent), managedResource);
     }
 
-    /**
-     * Factory method for use by test code: NOT to be used for non-test use
-     *
-     * Since 2.16
-     */
-    public static IOContext testIOContext() {
-        return new IOContext(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(), ContentReference.unknown(), false);
-    }
-
     /*
     /**********************************************************************
     /* Public API, accessors

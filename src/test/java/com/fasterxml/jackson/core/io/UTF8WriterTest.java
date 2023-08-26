@@ -142,6 +142,6 @@ public class UTF8WriterTest
     }
 
     private IOContext _ioContext() {
-        return IOContext.testIOContext();
+        return testIOContext();
     }
 }

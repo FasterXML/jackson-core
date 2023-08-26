@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.json.*;
-import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 
 /**
@@ -13,11 +12,11 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
     {
         final JsonFactory f = new JsonFactory();
         assertVersion(f.version());
-        try (ReaderBasedJsonParser p = new ReaderBasedJsonParser(IOContext.testIOContext(), 0, null, null,
+        try (ReaderBasedJsonParser p = new ReaderBasedJsonParser(testIOContext(), 0, null, null,
                 CharsToNameCanonicalizer.createRoot(f))) {
             assertVersion(p.version());
         }
-        try (JsonGenerator g = new WriterBasedJsonGenerator(IOContext.testIOContext(), 0, null, null, '"')) {
+        try (JsonGenerator g = new WriterBasedJsonGenerator(testIOContext(), 0, null, null, '"')) {
             assertVersion(g.version());
         }
     }

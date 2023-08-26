@@ -8,9 +8,8 @@ import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
-import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.testsupport.TestSupport;
 
 public class UTF8GeneratorTest extends BaseTest
 {
@@ -19,7 +18,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = IOContext.testIOContext();
+        IOContext ioc = testIOContext();
         JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"');
         String str = "Natuurlijk is alles gelukt en weer een tevreden klant\uD83D\uDE04";
         int length = 4000 - 38;
@@ -46,7 +45,8 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
+        IOContext ioc = TestSupport.testIOContext(StreamWriteConstraints
+                .builder().maxNestingDepth(1).build());
         try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
             gen.writeStartObject();
             gen.writeFieldName("array");
@@ -61,7 +61,8 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
+        IOContext ioc = TestSupport.testIOContext(StreamWriteConstraints.builder()
+                .maxNestingDepth(1).build());
         try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
             gen.writeStartObject();
             gen.writeFieldName("object");
@@ -143,13 +144,5 @@ public class UTF8GeneratorTest extends BaseTest
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertNull(p.nextToken());
         p.close();
-    }
-
-    private IOContext _ioContext(StreamWriteConstraints swc) {
-        return new IOContext(StreamReadConstraints.defaults(),
-                swc,
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.unknown(), true);
     }
 }

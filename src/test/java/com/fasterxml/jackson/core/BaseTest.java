@@ -4,7 +4,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
+import com.fasterxml.jackson.core.testsupport.TestSupport;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 import com.fasterxml.jackson.core.testsupport.ThrottledReader;
 
@@ -424,6 +426,16 @@ public abstract class BaseTest
 
     protected JsonGenerator createGenerator(TokenStreamFactory f, Writer w) throws IOException {
         return f.createGenerator(w);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper type construction
+    /**********************************************************************
+     */
+
+    protected static IOContext testIOContext() {
+        return TestSupport.testIOContext();
     }
 
     /*

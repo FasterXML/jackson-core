@@ -1,12 +1,8 @@
 package tools.jackson.core.write;
 
-import tools.jackson.core.BaseTest;
-import tools.jackson.core.ErrorReportConfiguration;
-import tools.jackson.core.JsonEncoding;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.ObjectWriteContext;
-import tools.jackson.core.StreamReadConstraints;
-import tools.jackson.core.StreamWriteConstraints;
+import java.io.StringWriter;
+
+import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
@@ -14,19 +10,12 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.WriterBasedJsonGenerator;
 import tools.jackson.core.util.BufferRecycler;
 
-import java.io.StringWriter;
-
 public class WriterBasedJsonGeneratorTest extends BaseTest
 {
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         StringWriter sw = new StringWriter();
-        IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
-                StreamWriteConstraints.builder().maxNestingDepth(1).build(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.rawReference(sw), true,
-                JsonEncoding.UTF8);
+        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, sw,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"')) {
@@ -43,12 +32,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         StringWriter sw = new StringWriter();
-        IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
-                StreamWriteConstraints.builder().maxNestingDepth(1).build(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.rawReference(sw), true,
-                JsonEncoding.UTF8);
+        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
         try (JsonGenerator gen = new WriterBasedJsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, sw,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"')) {
@@ -60,5 +44,13 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
             String expected = "Document nesting depth (2) exceeds the maximum allowed (1, from `StreamWriteConstraints.getMaxNestingDepth()`)";
             assertEquals(expected, sce.getMessage());
         }
+    }
+
+    private IOContext _ioContext(StreamWriteConstraints swc) {
+        return new IOContext(StreamReadConstraints.defaults(),
+                swc,
+                ErrorReportConfiguration.defaults(),
+                new BufferRecycler(),
+                ContentReference.unknown(), true, JsonEncoding.UTF8);
     }
 }

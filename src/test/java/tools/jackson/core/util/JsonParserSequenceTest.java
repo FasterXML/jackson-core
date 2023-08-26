@@ -24,7 +24,7 @@ import tools.jackson.core.sym.CharsToNameCanonicalizer;
 public class JsonParserSequenceTest extends BaseTest
 {
     public void testClose() throws IOException {
-        IOContext ioContext = ioContextForTests(this);
+        IOContext ioContext = IOContext.testIOContext();
         ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(
                 ObjectReadContext.empty(),
                 ioContext,
@@ -41,7 +41,7 @@ public class JsonParserSequenceTest extends BaseTest
 
     public void testSkipChildren() throws IOException {
         JsonParser[] jsonParserArray = new JsonParser[3];
-        IOContext ioContext = ioContextForTests(this);
+        IOContext ioContext = IOContext.testIOContext();
         byte[] byteArray = new byte[8];
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray, 0, (byte) 58);
         UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(ObjectReadContext.empty(),

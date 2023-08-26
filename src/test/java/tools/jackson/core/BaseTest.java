@@ -4,14 +4,11 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import tools.jackson.core.io.ContentReference;
-import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.testsupport.MockDataInput;
 import tools.jackson.core.testsupport.ThrottledInputStream;
 import tools.jackson.core.testsupport.ThrottledReader;
-import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.Named;
 
 import junit.framework.TestCase;
@@ -617,15 +614,6 @@ public abstract class BaseTest
 
     protected JsonFactoryBuilder streamFactoryBuilder() {
         return JsonFactory.builder();
-    }
-
-    protected IOContext ioContextForTests(Object source) {
-        return new IOContext(StreamReadConstraints.defaults(),
-                StreamWriteConstraints.defaults(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.rawReference(source), true,
-                JsonEncoding.UTF8);
     }
 
     protected String fieldNameFor(int index)

@@ -20,7 +20,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = ioContextForTests(bytes);
+        IOContext ioc = IOContext.testIOContext();
         JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"');
@@ -49,12 +49,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
-                StreamWriteConstraints.builder().maxNestingDepth(1).build(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.rawReference(bytes), true,
-                JsonEncoding.UTF8);
+        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
         try (JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"')) {
@@ -71,12 +66,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(StreamReadConstraints.defaults(),
-                StreamWriteConstraints.builder().maxNestingDepth(1).build(),
-                ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
-                ContentReference.rawReference(bytes), true,
-                JsonEncoding.UTF8);
+        IOContext ioc = _ioContext(StreamWriteConstraints.builder().maxNestingDepth(1).build());
         try (JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"')) {
@@ -160,5 +150,13 @@ public class UTF8GeneratorTest extends BaseTest
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertNull(p.nextToken());
         p.close();
+    }
+
+    private IOContext _ioContext(StreamWriteConstraints swc) {
+        return new IOContext(StreamReadConstraints.defaults(),
+                swc,
+                ErrorReportConfiguration.defaults(),
+                new BufferRecycler(),
+                ContentReference.unknown(), true, JsonEncoding.UTF8);
     }
 }

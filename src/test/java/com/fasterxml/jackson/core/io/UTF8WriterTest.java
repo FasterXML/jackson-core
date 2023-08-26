@@ -4,11 +4,6 @@ import java.io.*;
 
 import org.junit.Assert;
 
-import com.fasterxml.jackson.core.ErrorReportConfiguration;
-import com.fasterxml.jackson.core.StreamReadConstraints;
-import com.fasterxml.jackson.core.StreamWriteConstraints;
-import com.fasterxml.jackson.core.util.BufferRecycler;
-
 public class UTF8WriterTest
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -105,12 +100,11 @@ public class UTF8WriterTest
     @SuppressWarnings("resource")
     public void testSurrogatesFail() throws Exception
     {
-        BufferRecycler rec = new BufferRecycler();
         ByteArrayOutputStream out;
         UTF8Writer w;
 
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer( _ioContext(rec), out);
+        w = new UTF8Writer( _ioContext(), out);
         try {
             w.write(0xDE03);
             fail("should not pass");
@@ -119,7 +113,7 @@ public class UTF8WriterTest
         }
 
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(_ioContext(rec), out);
+        w = new UTF8Writer(_ioContext(), out);
         w.write(0xD83D);
         try {
             w.write('a');
@@ -129,7 +123,7 @@ public class UTF8WriterTest
         }
 
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(_ioContext(rec), out);
+        w = new UTF8Writer(_ioContext(), out);
         try {
             w.write("\uDE03");
             fail("should not pass");
@@ -138,7 +132,7 @@ public class UTF8WriterTest
         }
 
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(_ioContext(rec), out);
+        w = new UTF8Writer(_ioContext(), out);
         try {
             w.write("\uD83Da");
             fail("should not pass");
@@ -148,13 +142,6 @@ public class UTF8WriterTest
     }
 
     private IOContext _ioContext() {
-        return _ioContext(new BufferRecycler());
-    }
-
-    private IOContext _ioContext(BufferRecycler br) {
-        return new IOContext(StreamReadConstraints.defaults(),
-                StreamWriteConstraints.defaults(),
-                ErrorReportConfiguration.defaults(),
-                br, ContentReference.unknown(), false);
+        return IOContext.testIOContext();
     }
 }

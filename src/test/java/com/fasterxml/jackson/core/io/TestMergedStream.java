@@ -2,22 +2,14 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.StreamReadConstraints;
-import com.fasterxml.jackson.core.StreamWriteConstraints;
-import com.fasterxml.jackson.core.util.BufferRecycler;
 
 public class TestMergedStream
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testSimple() throws Exception
     {
-        BufferRecycler rec = new BufferRecycler();
-        IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
-                StreamWriteConstraints.defaults(),
-                ErrorReportConfiguration.defaults(),
-                rec, ContentReference.UNKNOWN_CONTENT, false);
+        IOContext ctxt = IOContext.testIOContext();
         // bit complicated; must use recyclable buffer...
         byte[] first = ctxt.allocReadIOBuffer();
         System.arraycopy("ABCDE".getBytes("UTF-8"), 0, first, 99, 5);

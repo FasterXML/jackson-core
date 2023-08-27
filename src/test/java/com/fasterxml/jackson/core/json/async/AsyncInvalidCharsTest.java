@@ -82,9 +82,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
         bytes.write("[ 1 ]".getBytes("UTF-8"));
         byte[] doc = bytes.toByteArray();
 
-        AsyncReaderWrapper p = asyncForBytes(JSON_F, readSize, doc, offset);
-
-        try {
+        try (AsyncReaderWrapper p = asyncForBytes(JSON_F, readSize, doc, offset)) {
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
             fail("Should not pass");
         } catch (JsonParseException e) {

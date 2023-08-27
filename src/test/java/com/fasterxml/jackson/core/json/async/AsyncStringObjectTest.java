@@ -46,68 +46,69 @@ public class AsyncStringObjectTest extends AsyncTestBase
     private void _testBasicFieldsNames2(JsonFactory f,
             byte[] data, int offset, int readSize, boolean verifyContents) throws IOException
     {
-        AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
+        try (AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset)) {
 
-        // start with "no token"
-        assertNull(r.currentToken());
-        assertToken(JsonToken.START_OBJECT, r.nextToken());
-
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
-        if (verifyContents) {
-            assertEquals(UNICODE_SHORT_NAME, r.currentName());
-            assertEquals(UNICODE_SHORT_NAME, r.currentText());
-        }
-        assertToken(JsonToken.VALUE_STRING, r.nextToken());
-        // also, should always be accessible this way:
-        if (verifyContents) {
-            assertTrue(r.parser().hasTextCharacters());
-            assertEquals(UNICODE_LONG_NAME, r.currentText());
-        }
-
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
-        if (verifyContents) {
-            assertEquals(UNICODE_LONG_NAME, r.currentName());
-            assertEquals(UNICODE_LONG_NAME, r.currentText());
-        }
-        assertToken(JsonToken.VALUE_STRING, r.nextToken());
-        if (verifyContents) {
-            assertEquals(UNICODE_SHORT_NAME, r.currentText());
-        }
-
-        // and ASCII entry
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
-        if (verifyContents) {
-            assertEquals(ASCII_SHORT_NAME, r.currentName());
-            assertEquals(ASCII_SHORT_NAME, r.currentText());
-        }
-        assertToken(JsonToken.VALUE_STRING, r.nextToken());
-        if (verifyContents) {
-            assertEquals(ASCII_SHORT_NAME, r.currentText());
-        }
-
-        assertToken(JsonToken.END_OBJECT, r.nextToken());
-        assertNull(r.nextToken());
-
-        // Second round, try with alternate read method
-        if (verifyContents) {
-            r = asyncForBytes(f, readSize, data, offset);
+            // start with "no token"
+            assertNull(r.currentToken());
             assertToken(JsonToken.START_OBJECT, r.nextToken());
-            assertToken(JsonToken.FIELD_NAME, r.nextToken());
-            assertEquals(UNICODE_SHORT_NAME, r.currentTextViaWriter());
-            assertToken(JsonToken.VALUE_STRING, r.nextToken());
-            assertEquals(UNICODE_LONG_NAME, r.currentTextViaWriter());
 
             assertToken(JsonToken.FIELD_NAME, r.nextToken());
-            assertEquals(UNICODE_LONG_NAME, r.currentTextViaWriter());
+            if (verifyContents) {
+                assertEquals(UNICODE_SHORT_NAME, r.currentName());
+                assertEquals(UNICODE_SHORT_NAME, r.currentText());
+            }
             assertToken(JsonToken.VALUE_STRING, r.nextToken());
-            assertEquals(UNICODE_SHORT_NAME, r.currentTextViaWriter());
+            // also, should always be accessible this way:
+            if (verifyContents) {
+                assertTrue(r.parser().hasTextCharacters());
+                assertEquals(UNICODE_LONG_NAME, r.currentText());
+            }
 
             assertToken(JsonToken.FIELD_NAME, r.nextToken());
-            assertEquals(ASCII_SHORT_NAME, r.currentTextViaWriter());
+            if (verifyContents) {
+                assertEquals(UNICODE_LONG_NAME, r.currentName());
+                assertEquals(UNICODE_LONG_NAME, r.currentText());
+            }
             assertToken(JsonToken.VALUE_STRING, r.nextToken());
-            assertEquals(ASCII_SHORT_NAME, r.currentTextViaWriter());
+            if (verifyContents) {
+                assertEquals(UNICODE_SHORT_NAME, r.currentText());
+            }
+
+            // and ASCII entry
+            assertToken(JsonToken.FIELD_NAME, r.nextToken());
+            if (verifyContents) {
+                assertEquals(ASCII_SHORT_NAME, r.currentName());
+                assertEquals(ASCII_SHORT_NAME, r.currentText());
+            }
+            assertToken(JsonToken.VALUE_STRING, r.nextToken());
+            if (verifyContents) {
+                assertEquals(ASCII_SHORT_NAME, r.currentText());
+            }
 
             assertToken(JsonToken.END_OBJECT, r.nextToken());
+            assertNull(r.nextToken());
+        }
+            // Second round, try with alternate read method
+        if (verifyContents) {
+            try (AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset)) {
+                assertToken(JsonToken.START_OBJECT, r.nextToken());
+                assertToken(JsonToken.FIELD_NAME, r.nextToken());
+                assertEquals(UNICODE_SHORT_NAME, r.currentTextViaWriter());
+                assertToken(JsonToken.VALUE_STRING, r.nextToken());
+                assertEquals(UNICODE_LONG_NAME, r.currentTextViaWriter());
+
+                assertToken(JsonToken.FIELD_NAME, r.nextToken());
+                assertEquals(UNICODE_LONG_NAME, r.currentTextViaWriter());
+                assertToken(JsonToken.VALUE_STRING, r.nextToken());
+                assertEquals(UNICODE_SHORT_NAME, r.currentTextViaWriter());
+
+                assertToken(JsonToken.FIELD_NAME, r.nextToken());
+                assertEquals(ASCII_SHORT_NAME, r.currentTextViaWriter());
+                assertToken(JsonToken.VALUE_STRING, r.nextToken());
+                assertEquals(ASCII_SHORT_NAME, r.currentTextViaWriter());
+
+                assertToken(JsonToken.END_OBJECT, r.nextToken());
+            }
         }
     }
 }

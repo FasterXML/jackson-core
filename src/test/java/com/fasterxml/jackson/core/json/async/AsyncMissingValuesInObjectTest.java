@@ -42,94 +42,94 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
     public void testObjectBasic() throws Exception {
         String json = "{\"a\": true, \"b\": false}";
 
-    AsyncReaderWrapper p = createParser(factory, json);
+        try (AsyncReaderWrapper p = createParser(factory, json)) {
 
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
+            assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("a", p.currentText());
-    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("a", p.currentText());
+            assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("b", p.currentText());
-    assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("b", p.currentText());
+            assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
-    assertEquals(JsonToken.END_OBJECT, p.nextToken());
-    assertEnd(p);
-    p.close();
+            assertEquals(JsonToken.END_OBJECT, p.nextToken());
+            assertEnd(p);
+        }
   }
 
   @Test
   public void testObjectInnerComma() throws Exception {
     String json = "{\"a\": true,, \"b\": false}";
 
-    AsyncReaderWrapper p = createParser(factory, json);
+    try (AsyncReaderWrapper p = createParser(factory, json)) {
 
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
+        assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("a", p.currentText());
-    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("a", p.currentText());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertUnexpected(p, ',');
-    p.close();
+        assertUnexpected(p, ',');
+    }
   }
 
   @Test
   public void testObjectLeadingComma() throws Exception {
     String json = "{,\"a\": true, \"b\": false}";
 
-    AsyncReaderWrapper p = createParser(factory, json);
+      try (AsyncReaderWrapper p = createParser(factory, json)) {
 
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
+          assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertUnexpected(p, ',');
-    p.close();
+          assertUnexpected(p, ',');
+      }
   }
 
   @Test
   public void testObjectTrailingComma() throws Exception {
     String json = "{\"a\": true, \"b\": false,}";
 
-    AsyncReaderWrapper p = createParser(factory, json);
+      try (AsyncReaderWrapper p = createParser(factory, json)) {
 
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
+          assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("a", p.currentText());
-    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+          assertToken(JsonToken.FIELD_NAME, p.nextToken());
+          assertEquals("a", p.currentText());
+          assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("b", p.currentText());
-    assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+          assertToken(JsonToken.FIELD_NAME, p.nextToken());
+          assertEquals("b", p.currentText());
+          assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
-    if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
-      assertToken(JsonToken.END_OBJECT, p.nextToken());
-      assertEnd(p);
-    } else {
-      assertUnexpected(p, '}');
-    }
-    p.close();
+          if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
+              assertToken(JsonToken.END_OBJECT, p.nextToken());
+              assertEnd(p);
+          } else {
+              assertUnexpected(p, '}');
+          }
+      }
   }
 
   @Test
   public void testObjectTrailingCommas() throws Exception {
     String json = "{\"a\": true, \"b\": false,,}";
 
-    AsyncReaderWrapper p = createParser(factory, json);
+      try (AsyncReaderWrapper p = createParser(factory, json)) {
 
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
+          assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("a", p.currentText());
-    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+          assertToken(JsonToken.FIELD_NAME, p.nextToken());
+          assertEquals("a", p.currentText());
+          assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("b", p.currentText());
-    assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+          assertToken(JsonToken.FIELD_NAME, p.nextToken());
+          assertEquals("b", p.currentText());
+          assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
-    assertUnexpected(p, ',');
-    p.close();
+          assertUnexpected(p, ',');
+      }
   }
 
   private void assertEnd(AsyncReaderWrapper p) throws IOException {

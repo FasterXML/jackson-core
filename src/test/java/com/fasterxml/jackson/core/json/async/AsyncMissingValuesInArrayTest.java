@@ -72,6 +72,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     if (!features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
       assertUnexpected(p, ',');
+      p.close();
       return;
     }
 
@@ -82,6 +83,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     assertEquals(JsonToken.END_ARRAY, p.nextToken());
     assertEnd(p);
+    p.close();
   }
 
   @Test
@@ -94,6 +96,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     if (!features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
       assertUnexpected(p, ',');
+      p.close();
       return;
     }
 

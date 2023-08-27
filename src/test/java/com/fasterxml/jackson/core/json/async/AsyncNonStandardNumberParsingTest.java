@@ -243,13 +243,14 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         JsonFactory jsonFactory = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)
                 .build();
-        AsyncReaderWrapper p = createParser(jsonFactory, JSON, 1);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        try {
-            p.nextToken();
-            fail("Expected exception");
-        } catch (StreamReadException e) {
-            verifyException(e, "Unexpected character ('.'");
+        try (AsyncReaderWrapper p = createParser(jsonFactory, JSON, 1)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                p.nextToken();
+                fail("Expected exception");
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected character ('.'");
+            }
         }
     }
 

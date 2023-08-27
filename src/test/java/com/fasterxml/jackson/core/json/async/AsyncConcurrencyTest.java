@@ -26,7 +26,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
     final static byte[] JSON_DOC = utf8Bytes(String.format(
             "[\"%s\", \"%s\",\n\"%s\",\"%s\" ]", TEXT1, TEXT2, TEXT3, TEXT4));
 
-    class WorkUnit {
+    class WorkUnit implements AutoCloseable {
         private int stage = 0;
 
         private AsyncReaderWrapper parser;
@@ -67,9 +67,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
                         throw new IOException("Unexpected token at "+stage+"; expected `null`, got "+parser.currentToken());
                     }
                     */
-                    parser.close();
-                    parser = null;
-                    stage = 0;
+                    close();
                     return true;
                 }
             } catch (Exception e) {
@@ -91,6 +89,15 @@ public class AsyncConcurrencyTest extends AsyncTestBase
             JsonToken t = parser.nextToken();
             if (t != exp) {
                 throw new IOException("Unexpected token at "+stage+"; expected "+exp+", got "+t);
+            }
+        }
+
+        @Override
+        public void close() throws Exception {
+            if (parser != null) {
+                parser.close();
+                parser = null;
+                stage = 0;
             }
         }
     }
@@ -123,24 +130,20 @@ public class AsyncConcurrencyTest extends AsyncTestBase
         final int REP_COUNT = 99000;
         ArrayList<Future<?>> futures = new ArrayList<Future<?>>();
         for (int i = 0; i < REP_COUNT; i++) {
-            Callable<Void> c = new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    WorkUnit w = q.take();
-                    try {
-                        if (w.process()) {
-                            completedCount.incrementAndGet();
-                        }
-                    } catch (Throwable t) {
-                        if (errorCount.getAndIncrement() == 0) {
-                            errorRef.set(t.toString());
-                        }
-                    } finally {
-                        q.add(w);
+            Callable<Void> c = () -> {
+                WorkUnit w = q.take();
+                try {
+                    if (w.process()) {
+                        completedCount.incrementAndGet();
                     }
-                    return null;
+                } catch (Throwable t) {
+                    if (errorCount.getAndIncrement() == 0) {
+                        errorRef.set(t.toString());
+                    }
+                } finally {
+                    q.add(w);
                 }
-
+                return null;
             };
             futures.add(executor.submit(c));
         }
@@ -157,6 +160,10 @@ public class AsyncConcurrencyTest extends AsyncTestBase
 
         if (compl < (EXP_COMPL-10) || compl > EXP_COMPL) {
             fail("Expected about "+EXP_COMPL+" completed rounds, got: "+compl);
+        }
+
+        while (!q.isEmpty()) {
+            q.take().close();
         }
     }
 

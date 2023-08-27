@@ -256,8 +256,6 @@ public class GeneratorMiscTest
             fail("Expected an exception");
         } catch (JsonGenerationException e) {
             verifyException(e, "No native support for");
-        } finally {
-            g.close();
         }
     }
 }

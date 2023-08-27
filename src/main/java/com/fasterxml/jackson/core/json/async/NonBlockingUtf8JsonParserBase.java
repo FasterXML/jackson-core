@@ -2176,7 +2176,6 @@ public abstract class NonBlockingUtf8JsonParserBase
         } else if (qlen == 0) { // rare, but may happen
             return _fieldComplete("");
         }
-        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
@@ -2275,7 +2274,6 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             quads[qlen++] = currQuad;
         }
-        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
@@ -2373,7 +2371,6 @@ public abstract class NonBlockingUtf8JsonParserBase
         } else if (qlen == 0) { // rare case but possible
             return _fieldComplete("");
         }
-        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);

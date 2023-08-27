@@ -61,15 +61,15 @@ public class ParserErrorHandling679Test
     private void _testNonRootMangledInts(int mode, String value) throws Exception
     {
         // Also test with floats
-        JsonParser p = createParser(mode, "[ "+value+" ]");
-        assertEquals(JsonToken.START_ARRAY, p.nextToken());
-        try {
-            JsonToken t = p.nextToken();
-            int v = p.getIntValue();
-            fail("Should have gotten an exception for '"+value+"'; instead got ("+t+") number: "+v);
-        } catch (JsonParseException e) {
-            verifyException(e, "expected ");
+        try (JsonParser p = createParser(mode, "[ "+value+" ]")) {
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                JsonToken t = p.nextToken();
+                int v = p.getIntValue();
+                fail("Should have gotten an exception for '" + value + "'; instead got (" + t + ") number: " + v);
+            } catch (JsonParseException e) {
+                verifyException(e, "expected ");
+            }
         }
-        p.close();
     }
 }

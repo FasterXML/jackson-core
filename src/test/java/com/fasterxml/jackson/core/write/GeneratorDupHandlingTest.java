@@ -47,8 +47,8 @@ public class GeneratorDupHandlingTest
             f.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
             g1 = _generator(f, useStream);
         }
-        try {
-            _writeSimple0(g1, "a");
+        try (JsonGenerator g = g1) {
+            _writeSimple0(g, "a");
             fail("Should have gotten exception");
         } catch (JsonGenerationException e) {
             verifyException(e, "duplicate field 'a'");
@@ -61,8 +61,8 @@ public class GeneratorDupHandlingTest
         } else {
             g2 = _generator(f, useStream);
         }
-        try {
-            _writeSimple1(g2, "x");
+        try (JsonGenerator g = g2) {
+            _writeSimple1(g, "x");
             fail("Should have gotten exception");
         } catch (JsonGenerationException e) {
             verifyException(e, "duplicate field 'x'");

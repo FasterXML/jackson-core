@@ -1864,9 +1864,7 @@ public class ReaderBasedJsonParser
 
     private String _parseName2(int startPtr, int hash, int endChar) throws IOException
     {
-        final int initLen = _inputPtr - startPtr;
-        _streamReadConstraints.validateNameLength(initLen);
-        _textBuffer.resetWithShared(_inputBuffer, startPtr, initLen);
+        _textBuffer.resetWithShared(_inputBuffer, startPtr, _inputPtr - startPtr);
 
         /* Output pointers; calls will also ensure that the buffer is
          * not shared and has room for at least one more char.
@@ -2130,9 +2128,7 @@ public class ReaderBasedJsonParser
 
     private String _handleOddName2(int startPtr, int hash, int[] codes) throws IOException
     {
-        final int initLen = _inputPtr - startPtr;
-        _streamReadConstraints.validateNameLength(initLen);
-        _textBuffer.resetWithShared(_inputBuffer, startPtr, initLen);
+        _textBuffer.resetWithShared(_inputBuffer, startPtr, _inputPtr - startPtr);
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
         final int maxCode = codes.length;

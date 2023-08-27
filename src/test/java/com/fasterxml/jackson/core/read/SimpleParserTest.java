@@ -707,13 +707,15 @@ public class SimpleParserTest extends BaseTest
         JsonFactory factory = new JsonFactoryBuilder()
                 .disable(JsonFactory.Feature.CHARSET_DETECTION)
                 .build();
-        JsonParser parser = factory.createParser(new byte[]{0x22, 0x00, 0x22, 0x5b, 0x22, 0x00});
-        try {
-            //noinspection StatementWithEmptyBody
-            while (parser.nextToken() != null) {}
-            fail("Should have failed");
-        } catch (JsonParseException e) {
-            verifyException(e, "unquoted character");
+        try (JsonParser parser = factory.createParser(new byte[]{0x22, 0x00, 0x22, 0x5b, 0x22, 0x00})) {
+            try {
+                //noinspection StatementWithEmptyBody
+                while (parser.nextToken() != null) {
+                }
+                fail("Should have failed");
+            } catch (JsonParseException e) {
+                verifyException(e, "unquoted character");
+            }
         }
     }
 

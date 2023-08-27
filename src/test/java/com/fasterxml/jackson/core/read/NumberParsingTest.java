@@ -717,13 +717,14 @@ public class NumberParsingTest
     private void _testLongNumbers(JsonFactory f, String num, boolean useStream) throws Exception
     {
         final String doc = "[ "+num+" ]";
-        JsonParser p = useStream
+        try (JsonParser p = useStream
                 ? f.createParser(doc.getBytes("UTF-8"))
-                        : f.createParser(doc);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(num, p.getText());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
+                        : f.createParser(doc)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(num, p.getText());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+        }
     }
 
     // and alternate take on for #157 (with negative num)

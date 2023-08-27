@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.write;
 
+import java.io.StringWriter;
+
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -9,8 +11,6 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
-
-import java.io.StringWriter;
 
 public class WriterBasedJsonGeneratorTest extends BaseTest
 {

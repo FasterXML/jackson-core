@@ -23,20 +23,15 @@ public class GeneratorDupHandlingTest
         _writeSimple1(_generator(f, useStream), "b");
 
         // but not when checking
-        JsonGenerator g1;
-
         f = f.rebuild().enable(StreamWriteFeature.STRICT_DUPLICATE_DETECTION).build();
-        g1 = _generator(f, useStream);
-        try {
+        try (JsonGenerator g1 = _generator(f, useStream)) {
             _writeSimple0(g1, "a");
             fail("Should have gotten exception");
         } catch (StreamWriteException e) {
             verifyException(e, "duplicate Object property \"a\"");
         }
 
-        JsonGenerator g2;
-        g2 = _generator(f, useStream);
-        try {
+        try (JsonGenerator g2 = _generator(f, useStream)) {
             _writeSimple1(g2, "x");
             fail("Should have gotten exception");
         } catch (StreamWriteException e) {

@@ -83,32 +83,33 @@ public class ParserSymbolHandlingTest
                 QUOTED_NULL + QUOTED_NULL + QUOTED_NULL,
                 QUOTED_NULL + QUOTED_NULL + QUOTED_NULL + QUOTED_NULL
                 ));
-        JsonParser p = useBytes ? f.createParser(ObjectReadContext.empty(), INPUT.getBytes("UTF-8"))
-                : f.createParser(ObjectReadContext.empty(), INPUT);
+        try (JsonParser p = useBytes ? f.createParser(ObjectReadContext.empty(), INPUT.getBytes("UTF-8"))
+                : f.createParser(ObjectReadContext.empty(), INPUT)) {
 
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        _assertNullStrings(NAME_1, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(1, p.getIntValue());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            _assertNullStrings(NAME_1, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(1, p.getIntValue());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        _assertNullStrings(NAME_2, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(2, p.getIntValue());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            _assertNullStrings(NAME_2, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(2, p.getIntValue());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        _assertNullStrings(NAME_3, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(3, p.getIntValue());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            _assertNullStrings(NAME_3, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(3, p.getIntValue());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        _assertNullStrings(NAME_4, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(4, p.getIntValue());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            _assertNullStrings(NAME_4, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(4, p.getIntValue());
 
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
     }
 
     private void _assertNullStrings(String exp, String actual) {

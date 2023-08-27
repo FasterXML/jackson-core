@@ -726,13 +726,14 @@ public class NumberParsingTest
     private void _testLongNumbers(JsonFactory f, String num, boolean useStream)
     {
         final String doc = "[ "+num+" ]";
-        JsonParser p = useStream
+        try (JsonParser p = useStream
                 ? f.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
-                        : f.createParser(ObjectReadContext.empty(), doc);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(num, p.getText());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
+                        : f.createParser(ObjectReadContext.empty(), doc)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(num, p.getText());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+        }
     }
 
     // for [jackson-core#181]

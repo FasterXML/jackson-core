@@ -703,9 +703,8 @@ public class SimpleParserTest extends BaseTest
         JsonFactory factory = JsonFactory.builder()
                 .disable(JsonFactory.Feature.CHARSET_DETECTION)
                 .build();
-        JsonParser parser = factory.createParser(ObjectReadContext.empty(),
-                new byte[]{0x22, 0x00, 0x22, 0x5b, 0x22, 0x00});
-        try {
+        try (JsonParser parser = factory.createParser(ObjectReadContext.empty(),
+                new byte[]{0x22, 0x00, 0x22, 0x5b, 0x22, 0x00})) {
             //noinspection StatementWithEmptyBody
             while (parser.nextToken() != null) {}
             fail("Should have failed");

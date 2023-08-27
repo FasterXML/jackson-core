@@ -18,19 +18,19 @@ public class ParserScopeMatchingTest extends BaseTest
 
     public void _testUnclosedArray(int mode)
     {
-        JsonParser p = createParser(mode, "[ 1, 2 ");
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(2, p.getIntValue());
+        try (JsonParser p = createParser(mode, "[ 1, 2 ")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(2, p.getIntValue());
 
-        try {
-            p.nextToken();
-            fail("Expected an exception for unclosed ARRAY (mode: "+mode+")");
-        } catch (StreamReadException pe) {
-            verifyException(pe, "expected close marker for ARRAY");
+            try {
+                p.nextToken();
+                fail("Expected an exception for unclosed ARRAY (mode: " + mode + ")");
+            } catch (StreamReadException pe) {
+                verifyException(pe, "expected close marker for ARRAY");
+            }
         }
-        p.close();
     }
 
     public void testUnclosedObject()
@@ -42,18 +42,18 @@ public class ParserScopeMatchingTest extends BaseTest
 
     private void _testUnclosedObject(int mode)
     {
-        JsonParser p = createParser(mode, "{ \"key\" : 3  ");
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        try (JsonParser p = createParser(mode, "{ \"key\" : 3  ")) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
-        try {
-            p.nextToken();
-            fail("Expected an exception for unclosed OBJECT (mode: "+mode+")");
-        } catch (StreamReadException pe) {
-            verifyException(pe, "expected close marker for OBJECT");
+            try {
+                p.nextToken();
+                fail("Expected an exception for unclosed OBJECT (mode: " + mode + ")");
+            } catch (StreamReadException e) {
+                verifyException(e, "expected close marker for OBJECT");
+            }
         }
-        p.close();
     }
 
     public void testEOFInName()
@@ -66,22 +66,22 @@ public class ParserScopeMatchingTest extends BaseTest
     public void _testEOFInName(int mode)
     {
         final String JSON = "{ \"abcd";
-        JsonParser p = createParser(mode, JSON);
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        try {
-            p.nextToken();
-            fail("Expected an exception for EOF");
-        } catch (StreamReadException pe) {
-            verifyException(pe, "Unexpected end-of-input");
-        } catch (JacksonException ie) {
-            // DataInput behaves bit differently
-            if (mode == MODE_DATA_INPUT) {
-                verifyException(ie, "end-of-input");
-                return;
+        try (JsonParser p = createParser(mode, JSON)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            try {
+                p.nextToken();
+                fail("Expected an exception for EOF");
+            } catch (StreamReadException pe) {
+                verifyException(pe, "Unexpected end-of-input");
+            } catch (JacksonException ie) {
+                // DataInput behaves bit differently
+                if (mode == MODE_DATA_INPUT) {
+                    verifyException(ie, "end-of-input");
+                    return;
+                }
+                fail("Should not end up in here");
             }
-            fail("Should not end up in here");
         }
-        p.close();
     }
 
     public void testWeirdToken()

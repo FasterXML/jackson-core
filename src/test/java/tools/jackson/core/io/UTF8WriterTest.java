@@ -101,11 +101,9 @@ public class UTF8WriterTest
     public void testSurrogatesFail() throws Exception
     {
         ByteArrayOutputStream out;
-        UTF8Writer w;
 
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer( _ioContext(), out);
-        try {
+        try (UTF8Writer w = new UTF8Writer(_ioContext(), out)) {
             w.write(0xDE03);
             fail("should not pass");
         } catch (IOException e) {
@@ -113,9 +111,8 @@ public class UTF8WriterTest
         }
 
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(_ioContext(), out);
-        w.write(0xD83D);
-        try {
+        try (UTF8Writer w = new UTF8Writer(_ioContext(), out)) {
+            w.write(0xD83D);
             w.write('a');
             fail("should not pass");
         } catch (IOException e) {
@@ -123,8 +120,7 @@ public class UTF8WriterTest
         }
 
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(_ioContext(), out);
-        try {
+        try (UTF8Writer w = new UTF8Writer(_ioContext(), out)) {
             w.write("\uDE03");
             fail("should not pass");
         } catch (IOException e) {
@@ -132,8 +128,7 @@ public class UTF8WriterTest
         }
 
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(_ioContext(), out);
-        try {
+        try (UTF8Writer w = new UTF8Writer(_ioContext(), out)) {
             w.write("\uD83Da");
             fail("should not pass");
         } catch (IOException e) {

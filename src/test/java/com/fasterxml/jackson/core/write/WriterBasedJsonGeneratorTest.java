@@ -48,7 +48,6 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         return new IOContext(StreamReadConstraints.defaults(),
                 swc,
                 ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
                 ContentReference.unknown(), true);
     }
 }

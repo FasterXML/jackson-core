@@ -75,7 +75,7 @@ public interface BufferRecyclerPool extends Serializable {
 
         @Override
         public void releaseBufferRecycler(BufferRecycler recycler) {
-            ; // nothing to do, relies on ThreadLocal
+            ; // nothing to do, there is no underlying pool
         }
     }
 
@@ -119,6 +119,10 @@ public interface BufferRecyclerPool extends Serializable {
         }
 
         private BufferRecycler getBufferRecycler() {
+            // This simple lock free algorithm uses an optimistic compareAndSet strategy to
+            // populate the underlying linked list in a thread-safe way. However, under very
+            // heavy contention, the compareAndSet could fail multiple times, so it seems a
+            // reasonable heuristic to limit the number of retries in this situation.
             for (int i = 0; i < 3; i++) {
                 Node currentHead = head.get();
                 if (currentHead == null) {

@@ -196,6 +196,8 @@ public class BufferRecycler
         if (this._pool != null) {
             throw new IllegalStateException();
         }
+        // assign to pool to which this BufferRecycler belongs in order to release it
+        // to the same pool when the work will be completed
         this._pool = pool;
         return this;
     }
@@ -203,6 +205,8 @@ public class BufferRecycler
     public void release() {
         if (_pool != null) {
             BufferRecyclerPool tempPool = _pool;
+            // nullify the reference to the pool in order to avoid the risk of releasing
+            // the same BufferRecycler more than once, thus compromising the pool integrity
             _pool = null;
             tempPool.releaseBufferRecycler(this);
         }

@@ -11,23 +11,23 @@ import java.io.OutputStream;
 public class BufferRecyclerPoolTest extends BaseTest {
 
     public void testNoOp() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.PoolStrategy.NO_OP);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.NonRecyclingRecyclerPool.INSTANCE);
     }
 
     public void testThreadLocal() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.PoolStrategy.THREAD_LOCAL);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ThreadLocalRecyclerPool.INSTANCE);
     }
 
     public void testLockFree() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.PoolStrategy.LOCK_FREE);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.LockFreePool.INSTANCE);
     }
 
     public void testConcurrentDequeue() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.PoolStrategy.CONCURRENT_DEQUEUE);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ConcurrentDequePool.INSTANCE);
     }
 
-    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool.PoolStrategy poolStrategy) {
-        JsonFactory jsonFactory = new JsonFactory().setBufferRecyclerPool(poolStrategy.getPool());
+    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool) {
+        JsonFactory jsonFactory = new JsonFactory().setBufferRecyclerPool(pool);
         assertEquals(6, write("test", jsonFactory));
     }
 

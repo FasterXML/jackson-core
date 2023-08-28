@@ -21,24 +21,7 @@ public interface BufferRecyclerPool extends Serializable {
      * Returns the default BufferRecyclerPool implementation which is the thread local based one.
      */
     static BufferRecyclerPool defaultRecyclerPool() {
-        return PoolStrategy.THREAD_LOCAL.getPool();
-    }
-
-    enum PoolStrategy {
-        NO_OP(new NonRecyclingRecyclerPool()),
-        THREAD_LOCAL(new ThreadLocalRecyclerPool()), 
-        CONCURRENT_DEQUEUE(new ConcurrentDequePool()),
-        LOCK_FREE(new LockFreePool());
-
-        private final BufferRecyclerPool pool;
-
-        PoolStrategy(BufferRecyclerPool pool) {
-            this.pool = pool;
-        }
-
-        public BufferRecyclerPool getPool() {
-            return pool;
-        }
+        return ThreadLocalRecyclerPool.INSTANCE;
     }
 
     /**
@@ -48,6 +31,8 @@ public interface BufferRecyclerPool extends Serializable {
      * @since 2.16
      */
     class ThreadLocalRecyclerPool implements BufferRecyclerPool {
+
+        public static final BufferRecyclerPool INSTANCE = new ThreadLocalRecyclerPool();
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
@@ -68,6 +53,8 @@ public interface BufferRecyclerPool extends Serializable {
      */
     class NonRecyclingRecyclerPool implements BufferRecyclerPool {
 
+        public static final BufferRecyclerPool INSTANCE = new NonRecyclingRecyclerPool();
+
         @Override
         public BufferRecycler acquireBufferRecycler() {
             return new BufferRecycler();
@@ -86,6 +73,9 @@ public interface BufferRecyclerPool extends Serializable {
      * @since 2.16
      */
     class ConcurrentDequePool implements BufferRecyclerPool {
+
+        public static final BufferRecyclerPool INSTANCE = new ConcurrentDequePool();
+
         private final Deque<BufferRecycler> pool = new ConcurrentLinkedDeque<>();
 
         @Override
@@ -111,6 +101,9 @@ public interface BufferRecyclerPool extends Serializable {
      * @since 2.16
      */
     class LockFreePool implements BufferRecyclerPool {
+
+        public static final BufferRecyclerPool INSTANCE = new LockFreePool();
+
         private final AtomicReference<LockFreePool.Node> head = new AtomicReference<>();
 
         @Override

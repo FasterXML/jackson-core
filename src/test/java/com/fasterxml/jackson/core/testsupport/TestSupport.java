@@ -45,6 +45,6 @@ public class TestSupport
             StreamWriteConstraints swc,
             ErrorReportConfiguration erc) {
         return new IOContext(src, swc, erc,
-                new BufferRecycler(), ContentReference.unknown(), false);
+                ContentReference.unknown(), false);
     }
 }

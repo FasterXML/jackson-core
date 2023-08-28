@@ -48,7 +48,6 @@ public interface BufferRecyclerPool extends Serializable {
      * @since 2.16
      */
     class ThreadLocalRecyclerPool implements BufferRecyclerPool {
-        private static final long serialVersionUID = 1L;
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
@@ -68,7 +67,6 @@ public interface BufferRecyclerPool extends Serializable {
      * @since 2.16
      */
     class NonRecyclingRecyclerPool implements BufferRecyclerPool {
-        private static final long serialVersionUID = 1L;
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
@@ -113,7 +111,7 @@ public interface BufferRecyclerPool extends Serializable {
      * @since 2.16
      */
     class LockFreePool implements BufferRecyclerPool {
-        private final AtomicReference<LockFreePool.Node<BufferRecycler>> head = new AtomicReference<>();
+        private final AtomicReference<LockFreePool.Node> head = new AtomicReference<>();
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
@@ -122,7 +120,7 @@ public interface BufferRecyclerPool extends Serializable {
 
         private BufferRecycler getBufferRecycler() {
             for (int i = 0; i < 3; i++) {
-                Node<BufferRecycler> currentHead = head.get();
+                Node currentHead = head.get();
                 if (currentHead == null) {
                     return new BufferRecycler();
                 }
@@ -136,7 +134,7 @@ public interface BufferRecyclerPool extends Serializable {
 
         @Override
         public void releaseBufferRecycler(BufferRecycler bufferRecycler) {
-            LockFreePool.Node<BufferRecycler> newHead = new LockFreePool.Node<>(bufferRecycler);
+            LockFreePool.Node newHead = new LockFreePool.Node(bufferRecycler);
             for (int i = 0; i < 3; i++) {
                 newHead.next = head.get();
                 if (head.compareAndSet(newHead.next, newHead)) {
@@ -145,11 +143,11 @@ public interface BufferRecyclerPool extends Serializable {
             }
         }
 
-        static class Node<T> {
-            final T value;
-            LockFreePool.Node<T> next;
+        static class Node implements Serializable {
+            final BufferRecycler value;
+            LockFreePool.Node next;
 
-            Node(T value) {
+            Node(BufferRecycler value) {
                 this.value = value;
             }
         }

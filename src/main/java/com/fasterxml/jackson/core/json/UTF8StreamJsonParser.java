@@ -2118,7 +2118,6 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
-        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
@@ -2199,7 +2198,6 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = currQuad;
         }
-        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
@@ -2305,7 +2303,6 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
-        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
@@ -2370,7 +2367,6 @@ public class UTF8StreamJsonParser
             _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
         }
         quads[qlen++] = _padLastQuad(lastQuad, lastQuadBytes);
-        _streamReadConstraints.validateNameLength(qlen << 2);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             return addName(quads, qlen, lastQuadBytes);
@@ -2391,7 +2387,8 @@ public class UTF8StreamJsonParser
          * (as well as error reporting for unescaped control chars)
          */
         // 4 bytes per quad, except last one maybe less
-        int byteLen = (qlen << 2) - 4 + lastQuadBytes;
+        final int byteLen = (qlen << 2) - 4 + lastQuadBytes;
+        _streamReadConstraints.validateNameLength(byteLen);
 
         /* And last one is not correctly aligned (leading zero bytes instead
          * need to shift a bit, instead of trailing). Only need to shift it

@@ -1980,7 +1980,7 @@ public class UTF8StreamJsonParser
 
             // Nope, no end in sight. Need to grow quad array etc
             if (qlen >= _quadBuffer.length) {
-                _quadBuffer = growArrayBy(_quadBuffer, qlen);
+                _quadBuffer = growArrayWithNameLenCheck(_quadBuffer, qlen);
             }
             _quadBuffer[qlen++] = q;
             q = i;
@@ -2012,6 +2012,12 @@ public class UTF8StreamJsonParser
 
     private final String parseName(int q1, int ch, int lastQuadBytes) throws IOException {
         return parseEscapedName(_quadBuffer, 0, q1, ch, lastQuadBytes);
+    }
+
+    private int[] growArrayWithNameLenCheck(int[] arr, int more) throws StreamConstraintsException {
+        // the following check will fail if the array is already bigger than is allowed for names
+        _streamReadConstraints.validateNameLength(arr.length << 2);
+        return growArrayBy(_quadBuffer, more);
     }
 
     private final String parseName(int q1, int q2, int ch, int lastQuadBytes) throws IOException {
@@ -2057,7 +2063,7 @@ public class UTF8StreamJsonParser
                     // Ok, we'll need room for first byte right away
                     if (currQuadBytes >= 4) {
                         if (qlen >= quads.length) {
-                            _quadBuffer = quads = growArrayBy(quads, quads.length);
+                            _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
                         }
                         quads[qlen++] = currQuad;
                         currQuad = 0;
@@ -2073,7 +2079,7 @@ public class UTF8StreamJsonParser
                         // need room for middle byte?
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -2092,7 +2098,7 @@ public class UTF8StreamJsonParser
                 currQuad = (currQuad << 8) | ch;
             } else {
                 if (qlen >= quads.length) {
-                    _quadBuffer = quads = growArrayBy(quads, quads.length);
+                    _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
                 }
                 quads[qlen++] = currQuad;
                 currQuad = ch;
@@ -2108,7 +2114,7 @@ public class UTF8StreamJsonParser
 
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
-                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
@@ -2168,7 +2174,7 @@ public class UTF8StreamJsonParser
                 currQuad = (currQuad << 8) | ch;
             } else {
                 if (qlen >= quads.length) {
-                    _quadBuffer = quads = growArrayBy(quads, quads.length);
+                    _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
                 }
                 quads[qlen++] = currQuad;
                 currQuad = ch;
@@ -2188,7 +2194,7 @@ public class UTF8StreamJsonParser
 
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
-                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
             }
             quads[qlen++] = currQuad;
         }
@@ -2242,7 +2248,7 @@ public class UTF8StreamJsonParser
                     // Ok, we'll need room for first byte right away
                     if (currQuadBytes >= 4) {
                         if (qlen >= quads.length) {
-                            _quadBuffer = quads = growArrayBy(quads, quads.length);
+                            _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
                         }
                         quads[qlen++] = currQuad;
                         currQuad = 0;
@@ -2258,7 +2264,7 @@ public class UTF8StreamJsonParser
                         // need room for middle byte?
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -2277,7 +2283,7 @@ public class UTF8StreamJsonParser
                 currQuad = (currQuad << 8) | ch;
             } else {
                 if (qlen >= quads.length) {
-                    _quadBuffer = quads = growArrayBy(quads, quads.length);
+                    _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
                 }
                 quads[qlen++] = currQuad;
                 currQuad = ch;
@@ -2293,7 +2299,7 @@ public class UTF8StreamJsonParser
 
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
-                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
@@ -2358,7 +2364,7 @@ public class UTF8StreamJsonParser
             throws JsonParseException, StreamConstraintsException
     {
         if (qlen >= quads.length) {
-            _quadBuffer = quads = growArrayBy(quads, quads.length);
+            _quadBuffer = quads = growArrayWithNameLenCheck(quads, quads.length);
         }
         quads[qlen++] = _padLastQuad(lastQuad, lastQuadBytes);
         String name = _symbols.findName(quads, qlen);
@@ -2381,7 +2387,8 @@ public class UTF8StreamJsonParser
          * (as well as error reporting for unescaped control chars)
          */
         // 4 bytes per quad, except last one maybe less
-        int byteLen = (qlen << 2) - 4 + lastQuadBytes;
+        final int byteLen = (qlen << 2) - 4 + lastQuadBytes;
+        _streamReadConstraints.validateNameLength(byteLen);
 
         /* And last one is not correctly aligned (leading zero bytes instead
          * need to shift a bit, instead of trailing). Only need to shift it

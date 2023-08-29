@@ -1848,7 +1848,7 @@ public class ReaderBasedJsonParser
             int ch = _inputBuffer[ptr];
             if (ch < codes.length && codes[ch] != 0) {
                 if (ch == '"') {
-                    int start = _inputPtr;
+                    final int start = _inputPtr;
                     _inputPtr = ptr+1; // to skip the quote
                     return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                 }
@@ -1864,7 +1864,7 @@ public class ReaderBasedJsonParser
 
     private String _parseName2(int startPtr, int hash, int endChar) throws IOException
     {
-        _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
+        _textBuffer.resetWithShared(_inputBuffer, startPtr, _inputPtr - startPtr);
 
         /* Output pointers; calls will also ensure that the buffer is
          * not shared and has room for at least one more char.
@@ -1908,11 +1908,10 @@ public class ReaderBasedJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         {
-            TextBuffer tb = _textBuffer;
-            char[] buf = tb.getTextBuffer();
-            int start = tb.getTextOffset();
-            int len = tb.size();
-            return _symbols.findSymbol(buf, start, len, hash);
+            final TextBuffer tb = _textBuffer;
+            final char[] buf = tb.getTextBuffer();
+            final int start = tb.getTextOffset();
+            return _symbols.findSymbol(buf, start, tb.size(), hash);
         }
     }
 
@@ -1962,12 +1961,12 @@ public class ReaderBasedJsonParser
                 int ch = _inputBuffer[ptr];
                 if (ch < maxCode) {
                     if (codes[ch] != 0) {
-                        int start = _inputPtr-1; // -1 to bring back first char
+                        final int start = _inputPtr-1; // -1 to bring back first char
                         _inputPtr = ptr;
                         return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                     }
                 } else if (!Character.isJavaIdentifierPart((char) ch)) {
-                    int start = _inputPtr-1; // -1 to bring back first char
+                    final int start = _inputPtr-1; // -1 to bring back first char
                     _inputPtr = ptr;
                     return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                 }
@@ -2029,7 +2028,7 @@ public class ReaderBasedJsonParser
         switch (i) {
         case '\'':
             /* Allow single quotes? Unlike with regular Strings, we'll eagerly parse
-             * contents; this so that there'sno need to store information on quote char used.
+             * contents; this so that there's no need to store information on quote char used.
              * Also, no separation to fast/slow parsing; we'll just do
              * one regular (~= slowish) parsing, to keep code simple
              */
@@ -2129,7 +2128,7 @@ public class ReaderBasedJsonParser
 
     private String _handleOddName2(int startPtr, int hash, int[] codes) throws IOException
     {
-        _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
+        _textBuffer.resetWithShared(_inputBuffer, startPtr, _inputPtr - startPtr);
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
         final int maxCode = codes.length;
@@ -2162,12 +2161,10 @@ public class ReaderBasedJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         {
-            TextBuffer tb = _textBuffer;
-            char[] buf = tb.getTextBuffer();
-            int start = tb.getTextOffset();
-            int len = tb.size();
-
-            return _symbols.findSymbol(buf, start, len, hash);
+            final TextBuffer tb = _textBuffer;
+            final char[] buf = tb.getTextBuffer();
+            final int start = tb.getTextOffset();
+            return _symbols.findSymbol(buf, start, tb.size(), hash);
         }
     }
 

@@ -42,7 +42,7 @@ public class LargeNameReadTest extends BaseTest
         }
     }
 
-    public void testLargeNameWithSmallLimitCharss() throws Exception
+    public void testLargeNameWithSmallLimitChars() throws Exception
     {
         final String doc = generateJSON(1000);
         try (JsonParser p = createParserUsingReader(JSON_F_NAME_100, doc)) {

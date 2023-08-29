@@ -499,8 +499,8 @@ public final class CharsToNameCanonicalizer
         if (len < 1) { // empty Strings are simplest to handle up front
             return "";
         }
-        _streamReadConstraints.validateNameLength(len);
         if (!_canonicalize) { // [JACKSON-259]
+            _streamReadConstraints.validateNameLength(len);
             return new String(buffer, start, len);
         }
 
@@ -536,6 +536,7 @@ public final class CharsToNameCanonicalizer
                 }
             }
         }
+        _streamReadConstraints.validateNameLength(len);
         return _addSymbol(buffer, start, len, h, index);
     }
 

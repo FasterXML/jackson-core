@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.NumberInput;
@@ -1567,6 +1568,16 @@ public abstract class ParserBase extends ParserMinimalBase
             throw new IllegalArgumentException("Unable to grow array to longer than `Integer.MAX_VALUE`");
         }
         return Arrays.copyOf(arr, len);
+    }
+
+    /* Helper method to call to expand "quad" buffer for name decoding
+     * 
+     * @since 2.16
+     */
+    protected int[] _growNameDecodeBuffer(int[] arr, int more) throws StreamConstraintsException {
+        // the following check will fail if the array is already bigger than is allowed for names
+        _streamReadConstraints.validateNameLength(arr.length << 2);
+        return growArrayBy(arr, more);
     }
 
     /*

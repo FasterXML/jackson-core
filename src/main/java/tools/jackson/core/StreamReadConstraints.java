@@ -402,7 +402,7 @@ public class StreamReadConstraints
     {
         if (length > _maxNameLen) {
             throw _constructException(
-                    "Name value length (%d) exceeds the maximum allowed (%d, from %s)",
+                    "Name length (%d) exceeds the maximum allowed (%d, from %s)",
                     length, _maxNameLen,
                     _constrainRef("getMaxNameLength"));
         }

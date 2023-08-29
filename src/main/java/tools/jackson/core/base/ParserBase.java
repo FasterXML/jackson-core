@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.InputCoercionException;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.WrappedIOException;
 import tools.jackson.core.io.ContentReference;
@@ -1168,5 +1169,12 @@ public abstract class ParserBase extends ParserMinimalBase
             throw new IllegalArgumentException("Unable to grow array to longer than `Integer.MAX_VALUE`");
         }
         return Arrays.copyOf(arr, len);
+    }
+
+    // Helper method to call to expand "quad" buffer for name decoding
+    protected int[] _growNameDecodeBuffer(int[] arr, int more) throws StreamConstraintsException {
+        // the following check will fail if the array is already bigger than is allowed for names
+        _streamReadConstraints.validateNameLength(arr.length << 2);
+        return growArrayBy(arr, more);
     }
 }

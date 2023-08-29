@@ -460,6 +460,7 @@ public final class CharsToNameCanonicalizer
             return "";
         }
         if (!_canonicalize) { // [JACKSON-259]
+            _streamReadConstraints.validateNameLength(len);
             return new String(buffer, start, len);
         }
 
@@ -495,6 +496,7 @@ public final class CharsToNameCanonicalizer
                 }
             }
         }
+        _streamReadConstraints.validateNameLength(len);
         return _addSymbol(buffer, start, len, h, index);
     }
 

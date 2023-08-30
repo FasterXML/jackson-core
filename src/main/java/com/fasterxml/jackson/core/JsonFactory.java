@@ -4,48 +4,22 @@
  */
 package com.fasterxml.jackson.core;
 
-import com.fasterxml.jackson.core.format.InputAccessor;
-import com.fasterxml.jackson.core.format.MatchStrength;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.io.ContentReference;
-import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.InputDecorator;
-import com.fasterxml.jackson.core.io.OutputDecorator;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.io.UTF8Writer;
-import com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
-import com.fasterxml.jackson.core.json.PackageVersion;
-import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
-import com.fasterxml.jackson.core.json.UTF8DataInputJsonParser;
-import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
-import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
-import com.fasterxml.jackson.core.json.async.NonBlockingByteBufferJsonParser;
-import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
-import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
-import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
-import com.fasterxml.jackson.core.util.BufferRecycler;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool;
-import com.fasterxml.jackson.core.util.JacksonFeature;
-import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
-import com.fasterxml.jackson.core.util.Separators;
-
-import java.io.CharArrayReader;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.Writer;
+import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.core.format.InputAccessor;
+import com.fasterxml.jackson.core.format.MatchStrength;
+import com.fasterxml.jackson.core.io.*;
+import com.fasterxml.jackson.core.json.*;
+import com.fasterxml.jackson.core.json.async.NonBlockingByteBufferJsonParser;
+import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
+import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
+import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
+import com.fasterxml.jackson.core.util.*;
 
 /**
  * The main factory class of Jackson package, used to configure and

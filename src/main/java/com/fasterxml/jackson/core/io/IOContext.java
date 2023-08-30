@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.ReadConstrainedTextBuffer;
 import com.fasterxml.jackson.core.util.TextBuffer;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 
 /**
  * To limit number of configuration and state objects to pass, all
@@ -159,7 +158,7 @@ public class IOContext implements AutoCloseable
      * @since 2.16
      */
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, ErrorReportConfiguration erc,
-                     BufferRecycler br, ContentReference contentRef, boolean managedResource)
+            BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
         _streamReadConstraints = src;
         _streamWriteConstraints = swc;
@@ -169,7 +168,7 @@ public class IOContext implements AutoCloseable
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
     }
-    
+
     /**
      * Deprecated legacy constructor.
      *

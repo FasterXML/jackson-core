@@ -27,7 +27,9 @@ public class BufferRecyclerPoolTest extends BaseTest
     }
 
     private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool) {
-        JsonFactory jsonFactory = new JsonFactory().setBufferRecyclerPool(pool);
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .bufferRecyclerPool(pool)
+                .build();
         assertEquals(6, write("test", jsonFactory));
     }
 

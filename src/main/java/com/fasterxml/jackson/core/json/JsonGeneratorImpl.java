@@ -245,6 +245,10 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         return JSON_WRITE_CAPABILITIES;
     }
 
+    public IOContext _getIoContext() {
+        return _ioContext;
+    }
+
     /*
     /**********************************************************
     /* Shared helper methods

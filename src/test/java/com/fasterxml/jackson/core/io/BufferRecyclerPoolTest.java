@@ -54,7 +54,7 @@ public class BufferRecyclerPoolTest extends BaseTest
         BufferRecycler bufferRecycler;
         NopOutputStream out = new NopOutputStream();
         try (JsonGenerator gen = jsonFactory.createGenerator(out)) {
-            bufferRecycler = ((JsonGeneratorImpl) gen)._getIoContext()._bufferRecycler;
+            bufferRecycler = ((JsonGeneratorImpl) gen).ioContext()._bufferRecycler;
             gen.writeObject(value);
         } catch (IOException e) {
             throw new RuntimeException(e);

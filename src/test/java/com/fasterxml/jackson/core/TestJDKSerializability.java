@@ -114,10 +114,10 @@ public class TestJDKSerializability extends BaseTest
 
     public void testRecyclerPools() throws Exception
     {
-        // First: shared/global pools that do not retain shared/global
-        // identity:
-        _testRecyclerPoolNonShared(BufferRecyclerPool.nonRecyclingPool());
-        _testRecyclerPoolNonShared(BufferRecyclerPool.threadLocalPool());
+        // First: shared/global pools that will always remain/become globally
+        // shared instances
+        _testRecyclerPoolGlobal(BufferRecyclerPool.nonRecyclingPool());
+        _testRecyclerPoolGlobal(BufferRecyclerPool.threadLocalPool());
 
         // Then non-shared pool implementations
         _testRecyclerPoolNonShared(BufferRecyclerPool.ConcurrentDequePool.nonShared());
@@ -125,6 +125,13 @@ public class TestJDKSerializability extends BaseTest
 
         // !!! TODO: Should test that shared/global singleton pools remained
         //   as global/shared too; but not yet implemented
+    }
+
+    private void _testRecyclerPoolGlobal(BufferRecyclerPool pool) throws Exception {
+        byte[] stuff = jdkSerialize(pool);
+        BufferRecyclerPool result = jdkDeserialize(stuff);
+        assertNotNull(result);
+        assertSame(pool.getClass(), result.getClass());
     }
 
     private void _testRecyclerPoolNonShared(BufferRecyclerPool pool) throws Exception {

@@ -2096,7 +2096,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     continue;
                 }
                 if (qlen >= quads.length) {
-                    _quadBuffer = quads = growArrayBy(quads, quads.length);
+                    _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                 }
                 quads[qlen++] = currQuad;
                 currQuad = ch;
@@ -2129,7 +2129,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             // 7-bit ASCII. Gets pretty messy. If this happens often, may
             // want to use different name canonicalization to avoid these hits.
             if (qlen >= quads.length) {
-                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
             if (ch > 127) {
                 // Ok, we'll need room for first byte right away
@@ -2169,7 +2169,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
-                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         } else if (qlen == 0) { // rare, but may happen
@@ -2259,7 +2259,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 currQuad = (currQuad << 8) | ch;
             } else {
                 if (qlen >= quads.length) {
-                    _quadBuffer = quads = growArrayBy(quads, quads.length);
+                    _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                 }
                 quads[qlen++] = currQuad;
                 currQuad = ch;
@@ -2269,7 +2269,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
-                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
             quads[qlen++] = currQuad;
         }
@@ -2319,7 +2319,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // Ok, we'll need room for first byte right away
                     if (currQuadBytes >= 4) {
                         if (qlen >= quads.length) {
-                            _quadBuffer = quads = growArrayBy(quads, quads.length);
+                            _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                         }
                         quads[qlen++] = currQuad;
                         currQuad = 0;
@@ -2335,7 +2335,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                         // need room for middle byte?
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -2354,7 +2354,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 currQuad = (currQuad << 8) | ch;
             } else {
                 if (qlen >= quads.length) {
-                    _quadBuffer = quads = growArrayBy(quads, quads.length);
+                    _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                 }
                 quads[qlen++] = currQuad;
                 currQuad = ch;
@@ -2364,7 +2364,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
-                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         } else if (qlen == 0) { // rare case but possible
@@ -2386,7 +2386,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return JsonToken.NOT_AVAILABLE;
         }
         if (_quadLength >= _quadBuffer.length) {
-            _quadBuffer = growArrayBy(_quadBuffer, 32);
+            _quadBuffer = _growNameDecodeBuffer(_quadBuffer, 32);
         }
         int currQuad = _pending32;
         int currQuadBytes = _pendingBytes;

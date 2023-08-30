@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
+import com.fasterxml.jackson.core.util.BufferRecycler;
 
 public class WriterBasedJsonGeneratorTest extends BaseTest
 {
@@ -48,6 +49,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         return new IOContext(StreamReadConstraints.defaults(),
                 swc,
                 ErrorReportConfiguration.defaults(),
+                new BufferRecycler(),
                 ContentReference.unknown(), true);
     }
 }

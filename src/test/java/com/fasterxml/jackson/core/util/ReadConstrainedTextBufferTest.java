@@ -64,6 +64,7 @@ class ReadConstrainedTextBufferTest {
                 constraints,
                 StreamWriteConstraints.defaults(),
                 ErrorReportConfiguration.defaults(),
+                new BufferRecycler(),
                 ContentReference.rawReference("N/A"), true);
     }
 }

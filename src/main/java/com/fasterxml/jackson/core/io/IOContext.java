@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.io;
 
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -127,23 +126,6 @@ public class IOContext implements AutoCloseable
     /* Life-cycle
     /**********************************************************************
      */
-
-    /**
-     * Main constructor to use.
-     *
-     * @param src constraints for streaming reads
-     * @param swc constraints for streaming writes
-     * @param erc Error report configuration to use
-     * @param contentRef Input source reference for location reporting
-     * @param managedResource Whether input source is managed (owned) by Jackson library
-     *
-     * @since 2.16
-     */
-    public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, ErrorReportConfiguration erc,
-                     ContentReference contentRef, boolean managedResource)
-    {
-        this(src, swc, erc, JsonFactory._getDefaultBufferRecycler(), contentRef, managedResource);
-    }
 
     /**
      * Main constructor to use.

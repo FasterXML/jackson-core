@@ -38,15 +38,13 @@ public class ParserErrorHandling105Test
 
     private void _testMangledNonRootInts(int mode)
     {
-        JsonParser p = createParser(mode, "[ 123true ]");
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        try {
+        try (JsonParser p = createParser(mode, "[ 123true ]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
         } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
-        p.close();
     }
 
     private void _testMangledNonRootFloats(int mode)

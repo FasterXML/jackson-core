@@ -41,16 +41,14 @@ public class ParserErrorHandling679Test
     private void _testNonRootMangledFloats679(int mode, String value) throws Exception
     {
         // Also test with floats
-        JsonParser p = createParser(mode, "[ "+value+" ]");
-        assertEquals(JsonToken.START_ARRAY, p.nextToken());
-        try {
+        try (JsonParser p = createParser(mode, "[ "+value+" ]")) {
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
             JsonToken t = p.nextToken();
             Double v = p.getDoubleValue();
             fail("Should have gotten an exception for '"+value+"'; instead got ("+t+") number: "+v);
         } catch (StreamReadException e) {
             verifyException(e, "expected ");
         }
-        p.close();
     }
 
     private void _testNonRootMangledInts(int mode) throws Exception {

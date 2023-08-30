@@ -22,11 +22,15 @@ public class BufferRecyclerPoolTest extends BaseTest
     }
 
     public void testLockFree() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.LockFreePool.shared(), true);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.LockFreePool.nonShared(), true);
     }
 
     public void testConcurrentDequeue() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ConcurrentDequePool.shared(), true);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ConcurrentDequePool.nonShared(), true);
+    }
+
+    public void testBounded() {
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.BoundedPool.nonShared(1), true);
     }
 
     private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool, boolean checkPooledResource) {
@@ -34,6 +38,7 @@ public class BufferRecyclerPoolTest extends BaseTest
                 .bufferRecyclerPool(pool)
                 .build();
         BufferRecycler usedBufferRecycler = write("test", jsonFactory, 6);
+
         if (checkPooledResource) {
             // acquire the pooled BufferRecycler again and check if it is the same instance used before
             BufferRecycler pooledBufferRecycler = pool.acquireBufferRecycler();

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 
 import com.fasterxml.jackson.core.io.ContentReference;
+import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**
@@ -105,6 +106,34 @@ public class TestJDKSerializability extends BaseTest
         assertSame(ref2, ContentReference.unknown());
     }
 
+    /*
+    /**********************************************************************
+    /* Other entities
+    /**********************************************************************
+     */
+
+    public void testRecyclerPools() throws Exception
+    {
+        // First: shared/global pools that do not retain shared/global
+        // identity:
+        _testRecyclerPoolNonShared(BufferRecyclerPool.nonRecyclingPool());
+        _testRecyclerPoolNonShared(BufferRecyclerPool.threadLocalPool());
+
+        // Then non-shared pool implementations
+        _testRecyclerPoolNonShared(BufferRecyclerPool.ConcurrentDequePool.nonShared());
+        _testRecyclerPoolNonShared(BufferRecyclerPool.LockFreePool.nonShared());
+
+        // !!! TODO: Should test that shared/global singleton pools remained
+        //   as global/shared too; but not yet implemented
+    }
+
+    private void _testRecyclerPoolNonShared(BufferRecyclerPool pool) throws Exception {
+        byte[] stuff = jdkSerialize(pool);
+        BufferRecyclerPool result = jdkDeserialize(stuff);
+        assertNotNull(result);
+        assertEquals(pool.getClass(), result.getClass());
+    }
+    
     /*
     /**********************************************************************
     /* Exception types

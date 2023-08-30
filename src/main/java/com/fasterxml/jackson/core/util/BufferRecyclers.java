@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.util;
 
 import java.lang.ref.SoftReference;
 
-import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 
 /**

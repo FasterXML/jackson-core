@@ -371,7 +371,7 @@ public class JsonFactory
     public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) {
-        _bufferRecyclerPool = BufferRecyclerPool.defaultRecyclerPool();
+        _bufferRecyclerPool = BufferRecyclerPool.defaultPool();
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
@@ -2167,7 +2167,7 @@ public class JsonFactory
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclerPool.NonRecyclingRecyclerPool.INSTANCE;
+            return BufferRecyclerPool.nonRecyclingPool();
         }
         return _bufferRecyclerPool;
     }

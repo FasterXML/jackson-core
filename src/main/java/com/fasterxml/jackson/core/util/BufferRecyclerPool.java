@@ -11,29 +11,69 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @since 2.16
  */
-public interface BufferRecyclerPool extends Serializable {
-
+public interface BufferRecyclerPool extends Serializable
+{
     BufferRecycler acquireBufferRecycler();
 
     void releaseBufferRecycler(BufferRecycler recycler);
 
     /**
-     * Returns the default BufferRecyclerPool implementation which is the thread local based one.
+     * @return the default {@link BufferRecyclerPool} implementation
+     *   which is the thread local based one:
+     *   basically alias to {@link #threadLocalPool()}).
      */
-    static BufferRecyclerPool defaultRecyclerPool() {
-        return ThreadLocalRecyclerPool.INSTANCE;
+    public static BufferRecyclerPool defaultPool() {
+        return threadLocalPool();
     }
 
     /**
-     * Default {@link BufferRecyclerPool} implementation that uses
-     * {@link ThreadLocal} for recycling instances.
-     *
-     * @since 2.16
+     * @return Shared instance of {@link ThreadLocalPool}; same as calling
+     *   {@link ThreadLocalPool#shared()}.
      */
-    class ThreadLocalRecyclerPool implements BufferRecyclerPool {
+    public static BufferRecyclerPool threadLocalPool() {
+        return ThreadLocalPool.shared();
+    }
 
-        public static final BufferRecyclerPool INSTANCE = new ThreadLocalRecyclerPool();
+    /**
+     * @return Shared instance of {@link NonRecyclingPool}; same as calling
+     *   {@link NonRecyclingPool#shared()}.
+     */
+    public static BufferRecyclerPool nonRecyclingPool() {
+        return NonRecyclingPool.shared();
+    }
+    
+    /**
+     * Default {@link BufferRecyclerPool} implementation that uses
+     * {@link ThreadLocal} for recycling instances. {@link BufferRecycler}
+     * instances are stored using {@link java.lang.ref.SoftReference}s so that
+     * they may be Garbage Collected as needed by JVM.
+     *<p>
+     * Note that this implementation may not work well on platforms where
+     * {@link java.lang.ref.SoftReference}s are not well supported (like
+     * Android), or on platforms where {@link java.lang.Thread}s are not
+     * long-living or reused (like Project Loom).
+     */
+    public static class ThreadLocalPool implements BufferRecyclerPool
+    {
+        private static final long serialVersionUID = 1L;
 
+        private static final BufferRecyclerPool SHARED = new ThreadLocalPool();
+
+        /**
+         * Accessor for the global, shared instance of {@link ThreadLocal}-based
+         * pool: due to its nature it is essentially Singleton as there can only
+         * be a single recycled {@link BufferRecycler} per thread.
+         *
+         * @return Shared pool instance
+         */
+        public static BufferRecyclerPool shared() {
+            return SHARED;
+        }
+
+        // No instances beyond shared one should be constructed
+        private ThreadLocalPool() { }
+
+        @SuppressWarnings("deprecation")
         @Override
         public BufferRecycler acquireBufferRecycler() {
             return BufferRecyclers.getBufferRecycler();
@@ -48,15 +88,31 @@ public interface BufferRecyclerPool extends Serializable {
     /**
      * {@link BufferRecyclerPool} implementation that does not use
      * any pool but simply creates new instances when necessary.
-     *
-     * @since 2.16
      */
-    class NonRecyclingRecyclerPool implements BufferRecyclerPool {
+    public static class NonRecyclingPool implements BufferRecyclerPool
+    {
+        private static final long serialVersionUID = 1L;
 
-        public static final BufferRecyclerPool INSTANCE = new NonRecyclingRecyclerPool();
+        private static final BufferRecyclerPool SHARED = new NonRecyclingPool();
 
+        // No instances beyond shared one should be constructed
+        private NonRecyclingPool() { }
+
+        /**
+         * Accessor for the shared singleton instance; due to implementation having no state
+         * this is preferred over creating instances.
+         *
+         * @return Shared pool instance
+         */
+        public static BufferRecyclerPool shared() {
+            return SHARED;
+        }
+
+        // // // Actual API implementation
+        
         @Override
         public BufferRecycler acquireBufferRecycler() {
+            // Could link back to this pool as marker? For now just leave back-ref empty
             return new BufferRecycler();
         }
 
@@ -69,15 +125,53 @@ public interface BufferRecyclerPool extends Serializable {
     /**
      * {@link BufferRecyclerPool} implementation that uses
      * {@link ConcurrentLinkedDeque} for recycling instances.
-     *
-     * @since 2.16
      */
-    class ConcurrentDequePool implements BufferRecyclerPool {
+    public static class ConcurrentDequePool implements BufferRecyclerPool
+    {
+        private static final long serialVersionUID = 1L;
 
-        public static final BufferRecyclerPool INSTANCE = new ConcurrentDequePool();
+        private static final BufferRecyclerPool SHARED = new ConcurrentDequePool();
 
-        private final Deque<BufferRecycler> pool = new ConcurrentLinkedDeque<>();
+        private final transient Deque<BufferRecycler> pool;
 
+        // // // Life-cycle (constructors, factory methods)
+
+        protected ConcurrentDequePool() {
+            pool = new ConcurrentLinkedDeque<>();
+        }
+
+        /**
+         * Accessor for getting the globally shared singleton instance.
+         * Note that if you choose to use this instance,
+         * pool may be shared by many other {@code JsonFactory} instances.
+         *
+         * @return Shared pool instance
+         */
+        public static BufferRecyclerPool shared() {
+            return SHARED;
+        }
+
+        /**
+         * Accessor for creating and returning a new, non-shared pool instance.
+         *
+         * @return Newly constructed, non-shared pool instance
+         */
+        public static BufferRecyclerPool nonShared() {
+            return new ConcurrentDequePool();
+        }
+
+        // // // JDK serialization support
+
+        /**
+         * To avoid serializing pool contents we made {@code pool} {@code transient};
+         * to compensate, need to re-create proper instance using constructor.
+         */
+        protected Object readResolve() {
+            return new ConcurrentDequePool();
+        }
+
+        // // // Actual API implementation
+        
         @Override
         public BufferRecycler acquireBufferRecycler() {
             return getBufferRecycler().withPool(this);
@@ -97,14 +191,56 @@ public interface BufferRecyclerPool extends Serializable {
     /**
      * {@link BufferRecyclerPool} implementation that uses
      * a lock free linked list for recycling instances.
-     *
-     * @since 2.16
      */
-    class LockFreePool implements BufferRecyclerPool {
+    public static class LockFreePool implements BufferRecyclerPool
+    {
+        private static final long serialVersionUID = 1L;
 
-        public static final BufferRecyclerPool INSTANCE = new LockFreePool();
+        /**
+         * Globally shared pool instance.
+         */
+        private static final BufferRecyclerPool SHARED = new LockFreePool();
 
-        private final AtomicReference<LockFreePool.Node> head = new AtomicReference<>();
+        // Needs to be transient to avoid JDK serialization from writing it out
+        private final transient AtomicReference<LockFreePool.Node> head;
+
+        // // // Life-cycle (constructors, factory methods)
+
+        private LockFreePool() {
+            head = new AtomicReference<>();
+        }
+
+        /**
+         * Accessor for getting the globally shared singleton instance.
+         * Note that if you choose to use this instance,
+         * pool may be shared by many other {@code JsonFactory} instances.
+         *
+         * @return Shared pool instance
+         */
+        public static BufferRecyclerPool shared() {
+            return SHARED;
+        }
+
+        /**
+         * Accessor for creating and returning a new, non-shared pool instance.
+         *
+         * @return Newly constructed, non-shared pool instance
+         */
+        public static BufferRecyclerPool nonShared() {
+            return new LockFreePool();
+        }
+
+        // // // JDK serialization support
+
+        /**
+         * To avoid serializing pool contents we made {@code head} {@code transient};
+         * to compensate, need to re-create proper instance using constructor.
+         */
+        protected Object readResolve() {
+            return new LockFreePool();
+        }
+
+        // // // Actual API implementation
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
@@ -140,7 +276,7 @@ public interface BufferRecyclerPool extends Serializable {
             }
         }
 
-        static class Node implements Serializable {
+        static class Node {
             final BufferRecycler value;
             LockFreePool.Node next;
 

@@ -8,22 +8,22 @@ import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class BufferRecyclerPoolTest extends BaseTest {
-
+public class BufferRecyclerPoolTest extends BaseTest
+{
     public void testNoOp() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.NonRecyclingRecyclerPool.INSTANCE);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.NonRecyclingPool.shared());
     }
 
     public void testThreadLocal() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ThreadLocalRecyclerPool.INSTANCE);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ThreadLocalPool.shared());
     }
 
     public void testLockFree() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.LockFreePool.INSTANCE);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.LockFreePool.nonShared());
     }
 
     public void testConcurrentDequeue() {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ConcurrentDequePool.INSTANCE);
+        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ConcurrentDequePool.nonShared());
     }
 
     private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool) {

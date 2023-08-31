@@ -145,16 +145,16 @@ JsonFactory f = JsonFactory.builder()
 ## Error Report Configuration
 
 Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16) Jackson offers configurable
-behavior around its error-reporting.
+behavior around error-reporting.
 
-### Implemented features
+Currently supported configuration options are:
 
 - `maxErrorTokenLength` : Maximum length of token to include in error messages (2.16+): (see [#1066](https://github.com/FasterXML/jackson-core/issues/1066))
 - `maxRawContentLength` : Maximum length of raw content to include in error messages (2.16+): (see [#1066](https://github.com/FasterXML/jackson-core/issues/1066))
 
-... see [Usage](#usage) section for example.
+... see [Example](#example) section below.
 
-### Usage
+### Example
 
 ```java
 // 1. Build

@@ -32,7 +32,7 @@ a pure JSON library.
 #1042: Allow configuring spaces before and/or after the colon in `DefaultPrettyPrinter`
  (contributed by @digulla)
 #1047: Add configurable limit for the maximum length of Object property names
-  to parse before failing
+  to parse before failing (default max: 50,000 chars)
  (contributed by @pjfanning)
 #1048: Add configurable processing limits for JSON generator (`StreamWriteConstraints`)
  (contributed by @pjfanning)

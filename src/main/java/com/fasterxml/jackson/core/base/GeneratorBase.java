@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.base;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.json.PackageVersion;
@@ -69,6 +70,8 @@ public abstract class GeneratorBase extends JsonGenerator
      */
     protected int _features;
 
+    protected IOContext _ioContext;
+
     /**
      * Flag set to indicate that implicit conversion from number
      * to JSON String is needed (as per
@@ -101,11 +104,18 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
-    @SuppressWarnings("deprecation")
+    @Deprecated // since 2.16
     protected GeneratorBase(int features, ObjectCodec codec) {
+        this(features, codec, (IOContext) null);
+    }
+
+    // @since 2.16
+    @SuppressWarnings("deprecation")
+    protected GeneratorBase(int features, ObjectCodec codec, IOContext ioContext) {
         super();
         _features = features;
         _objectCodec = codec;
+        _ioContext = ioContext;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _writeContext = JsonWriteContext.createRootContext(dups);
@@ -113,12 +123,17 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     // @since 2.5
-    @SuppressWarnings("deprecation")
+    @Deprecated // since 2.16
     protected GeneratorBase(int features, ObjectCodec codec, JsonWriteContext ctxt) {
+        this(features, codec, null, ctxt);
+    }
+
+    // @since 2.16
+    protected GeneratorBase(int features, ObjectCodec codec, IOContext ioContext, JsonWriteContext jsonWriteContext) {
         super();
         _features = features;
         _objectCodec = codec;
-        _writeContext = ctxt;
+        _writeContext = jsonWriteContext;
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
@@ -413,7 +428,12 @@ public abstract class GeneratorBase extends JsonGenerator
      */
 
     @Override public abstract void flush() throws IOException;
-    @Override public void close() throws IOException { _closed = true; }
+    @Override public void close() throws IOException {
+        if (!_closed) {
+            _closed = true;
+            _ioContext.close();
+        }
+    }
     @Override public boolean isClosed() { return _closed; }
 
     /*

@@ -76,6 +76,7 @@ public final class UTF8Writer extends Writer
                 illegalSurrogate(code);
             }
         }
+        _context.close();
     }
 
     @Override

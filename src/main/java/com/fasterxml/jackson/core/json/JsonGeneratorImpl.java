@@ -120,6 +120,14 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
+    @Override
+    public void close() throws IOException {
+        if (!isClosed()) {
+            super.close();
+            _ioContext.close();
+        }
+    }
+
     @SuppressWarnings("deprecation")
     public JsonGeneratorImpl(IOContext ctxt, int features, ObjectCodec codec)
     {
@@ -235,6 +243,23 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     @Override
     public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
         return JSON_WRITE_CAPABILITIES;
+    }
+
+    /*
+    /**********************************************************
+    /* Misc other accessors
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for use by {@code jackson-core} itself (tests in particular).
+     *
+     * @return {@link IOContext} in use by this generator
+     *
+     * @since 2.16
+     */
+    public IOContext ioContext() {
+        return _ioContext;
     }
 
     /*

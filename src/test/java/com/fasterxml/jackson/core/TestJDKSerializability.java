@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 
 import com.fasterxml.jackson.core.io.ContentReference;
+import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**
@@ -105,6 +106,48 @@ public class TestJDKSerializability extends BaseTest
         assertSame(ref2, ContentReference.unknown());
     }
 
+    /*
+    /**********************************************************************
+    /* Other entities
+    /**********************************************************************
+     */
+
+    public void testRecyclerPools() throws Exception
+    {
+        // First: shared/global pools that will always remain/become globally
+        // shared instances
+        _testRecyclerPoolGlobal(BufferRecyclerPool.nonRecyclingPool());
+        _testRecyclerPoolGlobal(BufferRecyclerPool.threadLocalPool());
+
+        _testRecyclerPoolGlobal(BufferRecyclerPool.ConcurrentDequePool.shared());
+        _testRecyclerPoolGlobal(BufferRecyclerPool.LockFreePool.shared());
+        BufferRecyclerPool.BoundedPool bounded =
+                _testRecyclerPoolGlobal(BufferRecyclerPool.BoundedPool.shared());
+        assertEquals(BufferRecyclerPool.BoundedPool.DEFAULT_CAPACITY, bounded.capacity());
+
+        _testRecyclerPoolNonShared(BufferRecyclerPool.ConcurrentDequePool.nonShared());
+        _testRecyclerPoolNonShared(BufferRecyclerPool.LockFreePool.nonShared());
+        bounded = _testRecyclerPoolNonShared(BufferRecyclerPool.BoundedPool.nonShared(250));
+        assertEquals(250, bounded.capacity());
+    }
+
+    private <T extends BufferRecyclerPool> T _testRecyclerPoolGlobal(T pool) throws Exception {
+        byte[] stuff = jdkSerialize(pool);
+        T result = jdkDeserialize(stuff);
+        assertNotNull(result);
+        assertSame(pool.getClass(), result.getClass());
+        return result;
+    }
+
+    private <T extends BufferRecyclerPool> T _testRecyclerPoolNonShared(T pool) throws Exception {
+        byte[] stuff = jdkSerialize(pool);
+        T result = jdkDeserialize(stuff);
+        assertNotNull(result);
+        assertEquals(pool.getClass(), result.getClass());
+        assertNotSame(pool, result);
+        return result;
+    }
+    
     /*
     /**********************************************************************
     /* Exception types

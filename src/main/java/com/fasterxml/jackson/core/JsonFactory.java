@@ -19,12 +19,7 @@ import com.fasterxml.jackson.core.json.async.NonBlockingByteBufferJsonParser;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
-import com.fasterxml.jackson.core.util.BufferRecycler;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool;
-import com.fasterxml.jackson.core.util.BufferRecyclers;
-import com.fasterxml.jackson.core.util.JacksonFeature;
-import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
-import com.fasterxml.jackson.core.util.Separators;
+import com.fasterxml.jackson.core.util.*;
 
 /**
  * The main factory class of Jackson package, used to configure and
@@ -115,8 +110,10 @@ public class JsonFactory
         FAIL_ON_SYMBOL_HASH_OVERFLOW(true),
 
         /**
-         * Feature that determines whether we will use {@link BufferRecycler} with
-         * {@link ThreadLocal} and {@link SoftReference}, for efficient reuse of
+         * Feature that determines whether we will use a {@link BufferRecyclerPool}
+         * for allocating and possibly recycling {@link BufferRecycler} or not.
+         * The default {@link BufferRecyclerPool} implementation uses
+         * {@link ThreadLocal} and {@link SoftReference} for efficient reuse of
          * underlying input/output buffers.
          * This usually makes sense on normal J2SE/J2EE server-side processing;
          * but may not make sense on platforms where {@link SoftReference} handling
@@ -124,6 +121,10 @@ public class JsonFactory
          * {@link ThreadLocal} (see
          * <a href="https://github.com/FasterXML/jackson-core/issues/189">jackson-core#189</a>
          * for a possible case)
+         *<p>
+         * Note that since 2.16 naming here is somewhat misleading as this is used
+         * to now enable or disable pooling; but the actual pooling implementation
+         * is configurable and may not be based on {@link ThreadLocal}.
          *<p>
          * This setting is enabled by default.
          *
@@ -370,7 +371,7 @@ public class JsonFactory
     public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) {
-        _bufferRecyclerPool = BufferRecyclers.defaultRecyclerPool();
+        _bufferRecyclerPool = BufferRecyclerPool.defaultPool();
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
@@ -1873,6 +1874,7 @@ public class JsonFactory
                     e.addSuppressed(e2);
                 }
             }
+            ctxt.close();
             throw e;
         }
     }
@@ -2151,7 +2153,7 @@ public class JsonFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        return _getBufferRecyclerPool().acquireBufferRecycler(this);
+        return _getBufferRecyclerPool().acquireBufferRecycler();
     }
 
     /**
@@ -2165,7 +2167,7 @@ public class JsonFactory
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclers.nopRecyclerPool();
+            return BufferRecyclerPool.nonRecyclingPool();
         }
         return _bufferRecyclerPool;
     }

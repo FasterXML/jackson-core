@@ -94,6 +94,7 @@ public class TestIOContext
             verifyException(e, "smaller than original");
         }
         ctxt.releaseNameCopyBuffer(null);
+        ctxt.close();
     }
 }
 

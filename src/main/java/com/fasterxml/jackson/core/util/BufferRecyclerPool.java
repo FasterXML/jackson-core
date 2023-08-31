@@ -2,7 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import java.io.Serializable;
 import java.util.Deque;
-import java.util.Queue;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
@@ -122,7 +122,7 @@ public interface BufferRecyclerPool extends Serializable
 
         protected Object readResolve() { return GLOBAL; }
 
-        // // // JDK serialization support
+        // // // Actual API implementation
 
         @SuppressWarnings("deprecation")
         @Override
@@ -164,7 +164,7 @@ public interface BufferRecyclerPool extends Serializable
         protected Object readResolve() { return GLOBAL; }
 
         // // // Actual API implementation
-        
+
         @Override
         public BufferRecycler acquireBufferRecycler() {
             // Could link back to this pool as marker? For now just leave back-ref empty
@@ -178,22 +178,54 @@ public interface BufferRecyclerPool extends Serializable
     }
 
     /**
+     * Intermediate base class for instances that are stateful and require
+     * special handling with respect to JDK serialization, to retain
+     * "global" reference distinct from non-shared ones.
+     */
+    abstract class StatefulImplBase implements BufferRecyclerPool {
+        private static final long serialVersionUID = 1L;
+
+        protected final static int SERIALIZATION_SHARED = -1;
+
+        protected final static int SERIALIZATION_NON_SHARED = 1;
+
+        /**
+         * Value that indicates basic aspects of pool for JDK serialization;
+         * either marker for shared/non-shared, or possibly bounded size;
+         * depends on sub-class.
+         */
+        protected final int _serialization;
+
+        protected StatefulImplBase(int serialization) {
+            _serialization = serialization;
+        }
+
+        protected Optional<BufferRecyclerPool> _resolveToShared(BufferRecyclerPool shared) {
+            if (_serialization == SERIALIZATION_SHARED) {
+                return Optional.of(shared);
+            }
+            return Optional.empty();
+        }
+    }
+
+    /**
      * {@link BufferRecyclerPool} implementation that uses
      * {@link ConcurrentLinkedDeque} for recycling instances.
      *<p>
      * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
      */
-    class ConcurrentDequePool implements BufferRecyclerPool
+    class ConcurrentDequePool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 
-        private static final BufferRecyclerPool GLOBAL = new ConcurrentDequePool();
+        private static final ConcurrentDequePool GLOBAL = new ConcurrentDequePool(SERIALIZATION_SHARED);
 
         private final transient Deque<BufferRecycler> pool;
 
         // // // Life-cycle (constructors, factory methods)
 
-        protected ConcurrentDequePool() {
+        protected ConcurrentDequePool(int serialization) {
+            super(serialization);
             pool = new ConcurrentLinkedDeque<>();
         }
 
@@ -204,7 +236,7 @@ public interface BufferRecyclerPool extends Serializable
          *
          * @return Shared pool instance
          */
-        public static BufferRecyclerPool shared() {
+        public static ConcurrentDequePool shared() {
             return GLOBAL;
         }
 
@@ -213,30 +245,28 @@ public interface BufferRecyclerPool extends Serializable
          *
          * @return Newly constructed, non-shared pool instance
          */
-        public static BufferRecyclerPool nonShared() {
-            return new ConcurrentDequePool();
+        public static ConcurrentDequePool nonShared() {
+            return new ConcurrentDequePool(SERIALIZATION_NON_SHARED);
         }
 
         // // // JDK serialization support
 
         /**
-         * To avoid serializing pool contents we made {@code pool} {@code transient};
-         * to compensate, need to re-create proper instance using constructor.
+         * Make sure to re-link to global/shared or non-shared.
          */
         protected Object readResolve() {
-            return new ConcurrentDequePool();
+            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
         }
 
         // // // Actual API implementation
         
         @Override
         public BufferRecycler acquireBufferRecycler() {
-            return getBufferRecycler().withPool(this);
-        }
-
-        private BufferRecycler getBufferRecycler() {
             BufferRecycler bufferRecycler = pool.pollFirst();
-            return bufferRecycler != null ? bufferRecycler : new BufferRecycler();
+            if (bufferRecycler == null) {
+                bufferRecycler = new BufferRecycler();
+            }
+            return bufferRecycler.withPool(this);
         }
 
         @Override
@@ -248,24 +278,25 @@ public interface BufferRecyclerPool extends Serializable
     /**
      * {@link BufferRecyclerPool} implementation that uses
      * a lock free linked list for recycling instances.
-     *<p>
-     * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
+     * Pool is unbounded: see {@link BufferRecyclerPool} for
+     * details on what this means.
      */
-    class LockFreePool implements BufferRecyclerPool
+    class LockFreePool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 
         /**
          * Globally shared pool instance.
          */
-        private static final BufferRecyclerPool GLOBAL = new LockFreePool();
+        private static final LockFreePool GLOBAL = new LockFreePool(SERIALIZATION_SHARED);
 
         // Needs to be transient to avoid JDK serialization from writing it out
         private final transient AtomicReference<LockFreePool.Node> head;
 
         // // // Life-cycle (constructors, factory methods)
 
-        private LockFreePool() {
+        private LockFreePool(int serialization) {
+            super(serialization);
             head = new AtomicReference<>();
         }
 
@@ -276,7 +307,7 @@ public interface BufferRecyclerPool extends Serializable
          *
          * @return Shared pool instance
          */
-        public static BufferRecyclerPool shared() {
+        public static LockFreePool shared() {
             return GLOBAL;
         }
 
@@ -285,28 +316,27 @@ public interface BufferRecyclerPool extends Serializable
          *
          * @return Newly constructed, non-shared pool instance
          */
-        public static BufferRecyclerPool nonShared() {
-            return new LockFreePool();
+        public static LockFreePool nonShared() {
+            return new LockFreePool(SERIALIZATION_NON_SHARED);
         }
 
         // // // JDK serialization support
 
         /**
-         * To avoid serializing pool contents we made {@code head} {@code transient};
-         * to compensate, need to re-create proper instance using constructor.
+         * Make sure to re-link to global/shared or non-shared.
          */
         protected Object readResolve() {
-            return new LockFreePool();
+            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
         }
 
         // // // Actual API implementation
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
-            return getBufferRecycler().withPool(this);
+            return _getRecycler().withPool(this);
         }
 
-        private BufferRecycler getBufferRecycler() {
+        private BufferRecycler _getRecycler() {
             // This simple lock free algorithm uses an optimistic compareAndSet strategy to
             // populate the underlying linked list in a thread-safe way. However, under very
             // heavy contention, the compareAndSet could fail multiple times, so it seems a
@@ -335,7 +365,7 @@ public interface BufferRecyclerPool extends Serializable
             }
         }
 
-        static class Node {
+        private static class Node {
             final BufferRecycler value;
             LockFreePool.Node next;
 
@@ -352,7 +382,7 @@ public interface BufferRecyclerPool extends Serializable
      * {@link BufferRecycler} instances than its size configuration:
      * the default size is {@link BoundedPool#DEFAULT_CAPACITY}.
      */
-    class BoundedPool implements BufferRecyclerPool
+    class BoundedPool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 
@@ -362,13 +392,17 @@ public interface BufferRecyclerPool extends Serializable
          */
         public final static int DEFAULT_CAPACITY = 100;
 
-        private static final BufferRecyclerPool GLOBAL = new BoundedPool(DEFAULT_CAPACITY);
+        private static final BoundedPool GLOBAL = new BoundedPool(SERIALIZATION_SHARED);
 
-        private final transient Queue<BufferRecycler> pool;
+        private final transient ArrayBlockingQueue<BufferRecycler> pool;
+
+        private final transient int capacity;
 
         // // // Life-cycle (constructors, factory methods)
 
-        protected BoundedPool(int capacity) {
+        protected BoundedPool(int capacityAsId) {
+            super(capacityAsId);
+            capacity = (capacityAsId <= 0) ? DEFAULT_CAPACITY : capacityAsId;
             pool = new ArrayBlockingQueue<>(capacity);
         }
 
@@ -379,44 +413,53 @@ public interface BufferRecyclerPool extends Serializable
          *
          * @return Shared pool instance
          */
-        public static BufferRecyclerPool shared() {
+        public static BoundedPool shared() {
             return GLOBAL;
         }
 
         /**
          * Accessor for creating and returning a new, non-shared pool instance.
          *
+         * @param capacity Maximum capacity of the pool: must be positive number above zero.
+         *
          * @return Newly constructed, non-shared pool instance
          */
-        public static BufferRecyclerPool nonShared(int capacity) {
+        public static BoundedPool nonShared(int capacity) {
+            if (capacity <= 0) {
+                throw new IllegalArgumentException("capacity must be > 0, was: "+capacity);
+            }
             return new BoundedPool(capacity);
         }
 
         // // // JDK serialization support
 
         /**
-         * To avoid serializing pool contents we made {@code pool} {@code transient};
-         * to compensate, need to re-create proper instance using constructor.
+         * Make sure to re-link to global/shared or non-shared.
          */
         protected Object readResolve() {
-            return GLOBAL;
+            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared(_serialization));
         }
 
         // // // Actual API implementation
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
-            return getBufferRecycler().withPool(this);
-        }
-
-        private BufferRecycler getBufferRecycler() {
             BufferRecycler bufferRecycler = pool.poll();
-            return bufferRecycler != null ? bufferRecycler : new BufferRecycler();
+            if (bufferRecycler == null) {
+                bufferRecycler = new BufferRecycler();
+            }
+            return bufferRecycler.withPool(this);
         }
 
         @Override
         public void releaseBufferRecycler(BufferRecycler bufferRecycler) {
             pool.offer(bufferRecycler);
+        }
+
+        // // // Other methods
+
+        public int capacity() {
+            return capacity;
         }
     }
 }

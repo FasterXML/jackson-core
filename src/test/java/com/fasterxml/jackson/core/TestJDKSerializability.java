@@ -119,26 +119,33 @@ public class TestJDKSerializability extends BaseTest
         _testRecyclerPoolGlobal(BufferRecyclerPool.nonRecyclingPool());
         _testRecyclerPoolGlobal(BufferRecyclerPool.threadLocalPool());
 
-        // Then non-shared pool implementations
+        _testRecyclerPoolGlobal(BufferRecyclerPool.ConcurrentDequePool.shared());
+        _testRecyclerPoolGlobal(BufferRecyclerPool.LockFreePool.shared());
+        BufferRecyclerPool.BoundedPool bounded =
+                _testRecyclerPoolGlobal(BufferRecyclerPool.BoundedPool.shared());
+        assertEquals(BufferRecyclerPool.BoundedPool.DEFAULT_CAPACITY, bounded.capacity());
+
         _testRecyclerPoolNonShared(BufferRecyclerPool.ConcurrentDequePool.nonShared());
         _testRecyclerPoolNonShared(BufferRecyclerPool.LockFreePool.nonShared());
-
-        // !!! TODO: Should test that shared/global singleton pools remained
-        //   as global/shared too; but not yet implemented
+        bounded = _testRecyclerPoolNonShared(BufferRecyclerPool.BoundedPool.nonShared(250));
+        assertEquals(250, bounded.capacity());
     }
 
-    private void _testRecyclerPoolGlobal(BufferRecyclerPool pool) throws Exception {
+    private <T extends BufferRecyclerPool> T _testRecyclerPoolGlobal(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
-        BufferRecyclerPool result = jdkDeserialize(stuff);
+        T result = jdkDeserialize(stuff);
         assertNotNull(result);
         assertSame(pool.getClass(), result.getClass());
+        return result;
     }
 
-    private void _testRecyclerPoolNonShared(BufferRecyclerPool pool) throws Exception {
+    private <T extends BufferRecyclerPool> T _testRecyclerPoolNonShared(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
-        BufferRecyclerPool result = jdkDeserialize(stuff);
+        T result = jdkDeserialize(stuff);
         assertNotNull(result);
         assertEquals(pool.getClass(), result.getClass());
+        assertNotSame(pool, result);
+        return result;
     }
     
     /*

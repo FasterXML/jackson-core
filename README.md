@@ -106,7 +106,7 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 
 ## Processing limits
 
-Starting with [Jackson 2.15](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.15) Jackson has configurable limits for some aspects of input decoding and output generation.
+Starting with [Jackson 2.15](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.15), Jackson has configurable limits for some aspects of input decoding and output generation.
 
 Implemented limits are:
 
@@ -135,11 +135,34 @@ Implemented limits are:
 
 You can change per-factory limits as follows:
 
-```
+```java
 JsonFactory f = JsonFactory.builder()
-    .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(250).build())
-    .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(2000).build())
-    .build();
+  .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(250).build())
+  .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(2000).build())
+  .build();
+```
+
+## Error Report Configuration
+
+Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16), Jackson offers configurable
+behavior around error-reporting.
+
+Currently supported configuration options are:
+
+- `maxErrorTokenLength` : Maximum length of token to include in error messages (2.16+): (see [#1066](https://github.com/FasterXML/jackson-core/issues/1066))
+- `maxRawContentLength` : Maximum length of raw content to include in error messages (2.16+): (see [#1066](https://github.com/FasterXML/jackson-core/issues/1066))
+
+... see [Example](#example) section below.
+
+### Example
+
+```java
+JsonFactory f = JsonFactory.builder()
+ .errorReportConfiguration(ErrorReportConfiguration.builder()
+   .maxErrorTokenLength(1004)
+   .maxRawContentLength(2008)
+   .build()
+ ).build();
 ```
 
 -----

@@ -40,10 +40,13 @@ a pure JSON library.
  (contributed by @artoonie)
 #1051: Add `JsonGeneratorDecorator` to allow decorating `JsonGenerator`s
  (contributed by @digulla)
+#1064: Add full set of `BufferRecyclerPool` implementations
+ (contributed by Mario F)
 #1066: Add configurable error report behavior via `ErrorReportConfiguration`
  (contributed by Joo-Hyuk K)
 #1081: Make `ByteSourceJsonBootstrapper` use `StringReader` for < 8KiB byte[] inputs
  (contributed by @schlosna)
+#1089: Allow pluggable buffer recycling via new `BufferRecyclerPool` extension point
 
 2.15.2 (30-May-2023)
 

@@ -391,3 +391,7 @@ David Schlosnagle (@schlosna)
  * Contributed #1081: Make `ByteSourceJsonBootstrapper` use `StringReader` for < 8KiB
    byte[] inputs
   (2.16.0)
+
+Mario Fusco (@mariofusco)
+ * Contributed #1064: Add full set of `BufferRecyclerPool` implementations
+  (2.16.0)

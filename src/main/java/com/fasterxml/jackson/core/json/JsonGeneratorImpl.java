@@ -45,8 +45,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
-    protected final IOContext _ioContext;
-
     /**
      * @since 2.16
      */
@@ -123,8 +121,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     @SuppressWarnings("deprecation")
     public JsonGeneratorImpl(IOContext ctxt, int features, ObjectCodec codec)
     {
-        super(features, codec);
-        _ioContext = ctxt;
+        super(features, codec, ctxt);
         _streamWriteConstraints = ctxt.streamWriteConstraints();
         if (Feature.ESCAPE_NON_ASCII.enabledIn(features)) {
             // inlined `setHighestNonEscapedChar()`

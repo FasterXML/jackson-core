@@ -70,7 +70,8 @@ public abstract class GeneratorBase extends JsonGenerator
      */
     protected int _features;
 
-    protected IOContext _ioContext;
+    // since 2.16
+    protected final IOContext _ioContext;
 
     /**
      * Flag set to indicate that implicit conversion from number

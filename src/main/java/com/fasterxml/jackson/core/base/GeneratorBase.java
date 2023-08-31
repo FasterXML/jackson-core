@@ -133,6 +133,7 @@ public abstract class GeneratorBase extends JsonGenerator
         super();
         _features = features;
         _objectCodec = codec;
+        _ioContext = ioContext;
         _writeContext = jsonWriteContext;
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
@@ -430,8 +431,10 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public abstract void flush() throws IOException;
     @Override public void close() throws IOException {
         if (!_closed) {
+            if (_ioContext != null) {
+                _ioContext.close();
+            }
             _closed = true;
-            _ioContext.close();
         }
     }
     @Override public boolean isClosed() { return _closed; }

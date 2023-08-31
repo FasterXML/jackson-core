@@ -1,6 +1,7 @@
 package tools.jackson.core.util;
 
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
 import java.util.Deque;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -103,6 +104,14 @@ public interface BufferRecyclerPool extends Serializable
         private static final BufferRecyclerPool GLOBAL = new ThreadLocalPool();
 
         /**
+         * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
+         * to a {@link BufferRecycler} used to provide a low-cost
+         * buffer recycling between reader and writer instances.
+         */
+        protected final static ThreadLocal<SoftReference<BufferRecycler>> _recyclerRef
+            = new ThreadLocal<SoftReference<BufferRecycler>>();
+
+        /**
          * Accessor for the global, shared instance of {@link ThreadLocal}-based
          * pool: due to its nature it is essentially Singleton as there can only
          * be a single recycled {@link BufferRecycler} per thread.
@@ -122,10 +131,17 @@ public interface BufferRecyclerPool extends Serializable
 
         // // // Actual API implementation
 
-        @SuppressWarnings("deprecation")
         @Override
         public BufferRecycler acquireBufferRecycler() {
-            return BufferRecyclers.getBufferRecycler();
+            SoftReference<BufferRecycler> ref = _recyclerRef.get();
+            BufferRecycler br = (ref == null) ? null : ref.get();
+
+            if (br == null) {
+                br = new BufferRecycler();
+                ref = new SoftReference<BufferRecycler>(br);
+                _recyclerRef.set(ref);
+            }
+            return br;
         }
 
         @Override

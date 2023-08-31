@@ -51,13 +51,13 @@ public class BufferRecyclerPoolTest extends BaseTest
         }
     }
 
-    protected final BufferRecycler write(Object value, JsonFactory jsonFactory, int expectedSize) {
+    protected final BufferRecycler write(String value, JsonFactory jsonFactory, int expectedSize) {
         BufferRecycler bufferRecycler;
         NopOutputStream out = new NopOutputStream();
         try (JsonGenerator gen = jsonFactory.createGenerator(ObjectWriteContext.empty(), out)) {
             bufferRecycler = ((JsonGeneratorBase) gen).ioContext()._bufferRecycler;
-            gen.writePOJO(value);
-        } catch (IOException e) {
+            gen.writeString(value);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         assertEquals(expectedSize, out.size);

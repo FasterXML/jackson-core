@@ -142,7 +142,7 @@ JsonFactory f = JsonFactory.builder()
     .build();
 ```
 
-## Error Report behavior
+## Error Report Configuration
 
 Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16) Jackson offers configurable
 behavior around its error-reporting.

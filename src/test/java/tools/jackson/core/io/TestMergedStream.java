@@ -20,6 +20,8 @@ public class TestMergedStream
         ctxt.setEncoding(JsonEncoding.UTF8);
         MergedStream ms = new MergedStream(ctxt, new ByteArrayInputStream(second),
                                            first, 99, 99+5);
+        ctxt.close();
+
         // Ok, first, should have 5 bytes from first buffer:
         assertEquals(5, ms.available());
         // not supported when there's buffered stuff...

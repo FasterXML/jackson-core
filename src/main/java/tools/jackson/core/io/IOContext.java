@@ -16,7 +16,7 @@ import tools.jackson.core.util.ReadConstrainedTextBuffer;
  * readers and writers are combined under this object. One instance
  * is created for each reader and writer.
  */
-public class IOContext
+public class IOContext implements AutoCloseable
 {
     /*
     /**********************************************************************
@@ -101,6 +101,8 @@ public class IOContext
      * representation of the value token.
      */
     protected char[] _nameCopyBuffer;
+
+    private boolean _closed = false;
 
     /*
     /**********************************************************************
@@ -374,5 +376,13 @@ public class IOContext
     private IllegalArgumentException wrongBuf() {
         // sanity check failed; trying to return different, smaller buffer.
         return new IllegalArgumentException("Trying to release buffer smaller than original");
+    }
+
+    @Override
+    public void close() {
+        if (!_closed) {
+            _bufferRecycler.release();
+            _closed = true;
+        }
     }
 }

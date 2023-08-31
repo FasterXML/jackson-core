@@ -244,10 +244,25 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /**********************************************************************
      */
 
-   @Override
+    @Override
     public JsonGenerator writePropertyId(long id) throws JacksonException {
         writeName(Long.toString(id));
         return this;
+    }
+
+    /*
+    /**********************************************************************
+    /* Other accessors
+    /**********************************************************************
+     */
+
+    /**
+     * Accessor for use by {@code jackson-core} itself (tests in particular).
+     *
+     * @return {@link IOContext} in use by this generator
+     */
+    public IOContext ioContext() {
+        return _ioContext;
     }
 
     /*

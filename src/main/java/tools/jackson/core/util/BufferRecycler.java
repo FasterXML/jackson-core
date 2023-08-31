@@ -1,17 +1,21 @@
 package tools.jackson.core.util;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * This is a small utility class, whose main functionality is to allow
- * simple reuse of raw byte/char buffers. It is usually used through
- * <code>ThreadLocal</code> member of the owning class pointing to
- * instance of this class through a <code>SoftReference</code>. The
- * end result is a low-overhead GC-cleanable recycling: hopefully
+ * simple reuse of raw byte/char buffers. It is usually allocated through
+ * {@link BufferRecyclerPool} (starting with 2.16): multiple pool
+ * implementations exists.
+ * The default pool implementation uses
+ * {@code ThreadLocal} combined with {@code SoftReference}.
+ * The end result is a low-overhead GC-cleanable recycling: hopefully
  * ideal for use by stream readers.
  *<p>
  * Rewritten in 2.10 to be thread-safe (see [jackson-core#479] for details),
- * to not rely on {@code ThreadLocal} access.
+ * to not rely on {@code ThreadLocal} access.<br />
+ * Rewritten in 2.16 to work with {@link BufferRecyclerPool} abstraction.
  */
 public class BufferRecycler
 {
@@ -79,6 +83,8 @@ public class BufferRecycler
 
     // Note: changed from simple array in 2.10:
     protected final AtomicReferenceArray<char[]> _charBuffers;
+
+    private BufferRecyclerPool _pool;
 
     /*
     /**********************************************************
@@ -185,4 +191,36 @@ public class BufferRecycler
 
     protected byte[] balloc(int size) { return new byte[size]; }
     protected char[] calloc(int size) { return new char[size]; }
+
+    /**
+     * Method called by owner of this recycler instance, to provide reference to
+     * {@link BufferRecyclerPool} into which instance is to be released (if any)
+     *
+     * @since 2.16
+     */
+    BufferRecycler withPool(BufferRecyclerPool pool) {
+        if (this._pool != null) {
+            throw new IllegalStateException("BufferRecycler already linked to pool: "+pool);
+        }
+        // assign to pool to which this BufferRecycler belongs in order to release it
+        // to the same pool when the work will be completed
+        _pool = Objects.requireNonNull(pool);
+        return this;
+    }
+
+    /**
+     * Method called when owner of this recycler no longer wishes use it; this should
+     * return it to pool passed via {@code withPool()} (if any).
+     *
+     * @since 2.16
+     */
+    public void release() {
+        if (_pool != null) {
+            BufferRecyclerPool tmpPool = _pool;
+            // nullify the reference to the pool in order to avoid the risk of releasing
+            // the same BufferRecycler more than once, thus compromising the pool integrity
+            _pool = null;
+            tmpPool.releaseBufferRecycler(this);
+        }
+    }
 }

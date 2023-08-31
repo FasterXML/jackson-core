@@ -307,7 +307,15 @@ public abstract class GeneratorBase extends JsonGenerator
      */
 
 //    @Override public abstract void flush();
-    @Override public void close() { _closed = true; }
+
+    @Override
+    public void close() {
+        if (!_closed) {
+            _closed = true;
+            _ioContext.close();
+        }
+    }
+
     @Override public boolean isClosed() { return _closed; }
 
     /*

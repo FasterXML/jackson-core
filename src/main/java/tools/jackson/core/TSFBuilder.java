@@ -3,7 +3,6 @@ package tools.jackson.core;
 import java.util.Objects;
 
 import tools.jackson.core.util.BufferRecyclerPool;
-import tools.jackson.core.util.BufferRecyclers;
 
 /**
  * Since factory instances are immutable, a Builder class is needed for creating
@@ -62,7 +61,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     protected TSFBuilder(StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int formatReadF, int formatWriteF) {
-        this(BufferRecyclers.defaultRecyclerPool(),
+        this(BufferRecyclerPool.defaultPool(),
                 src, swc, erc,
                 TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS,
                 TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS,

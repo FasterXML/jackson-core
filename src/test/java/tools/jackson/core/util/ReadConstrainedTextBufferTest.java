@@ -18,41 +18,56 @@ class ReadConstrainedTextBufferTest {
 
     @Test
     public void appendCharArray() throws Exception {
-        TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
-        char[] chars = new char[SEGMENT_SIZE];
-        Arrays.fill(chars, 'A');
-        constrained.append(chars, 0, SEGMENT_SIZE);
-        Assertions.assertThrows(StreamConstraintsException.class, () -> constrained.append(chars, 0, SEGMENT_SIZE));
+        try (IOContext ioContext = makeConstrainedContext(SEGMENT_SIZE)) {
+            TextBuffer constrained = ioContext.constructReadConstrainedTextBuffer();
+            char[] chars = new char[SEGMENT_SIZE];
+            Arrays.fill(chars, 'A');
+            constrained.append(chars, 0, SEGMENT_SIZE);
+            Assertions.assertThrows(StreamConstraintsException.class, () -> {
+                constrained.append(chars, 0, SEGMENT_SIZE);
+                constrained.contentsAsString();
+            });
+        }
     }
 
     @Test
     public void appendString() throws Exception {
-        TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
-        char[] chars = new char[SEGMENT_SIZE];
-        Arrays.fill(chars, 'A');
-        constrained.append(new String(chars), 0, SEGMENT_SIZE);
-        Assertions.assertThrows(StreamConstraintsException.class, () -> constrained.append(new String(chars), 0, SEGMENT_SIZE));
+        try (IOContext ioContext = makeConstrainedContext(SEGMENT_SIZE)) {
+            TextBuffer constrained = ioContext.constructReadConstrainedTextBuffer();
+            char[] chars = new char[SEGMENT_SIZE];
+            Arrays.fill(chars, 'A');
+            constrained.append(new String(chars), 0, SEGMENT_SIZE);
+            Assertions.assertThrows(StreamConstraintsException.class, () -> {
+                constrained.append(new String(chars), 0, SEGMENT_SIZE);
+                constrained.contentsAsString();
+            });
+        }
     }
 
     @Test
     public void appendSingle() throws Exception {
-        TextBuffer constrained = makeConstrainedBuffer(SEGMENT_SIZE);
-        char[] chars = new char[SEGMENT_SIZE];
-        Arrays.fill(chars, 'A');
-        constrained.append(chars, 0, SEGMENT_SIZE);
-        Assertions.assertThrows(StreamConstraintsException.class, () -> constrained.append('x'));
+        try (IOContext ioContext = makeConstrainedContext(SEGMENT_SIZE)) {
+            TextBuffer constrained = ioContext.constructReadConstrainedTextBuffer();
+            char[] chars = new char[SEGMENT_SIZE];
+            Arrays.fill(chars, 'A');
+            constrained.append(chars, 0, SEGMENT_SIZE);
+            Assertions.assertThrows(StreamConstraintsException.class, () -> {
+                constrained.append('x');
+                constrained.contentsAsString();
+            });
+        }
     }
 
-    private static TextBuffer makeConstrainedBuffer(int maxStringLen) {
-        StreamReadConstraints streamReadConstraints = StreamReadConstraints.builder()
+    private static IOContext makeConstrainedContext(int maxStringLen) {
+        StreamReadConstraints constraints = StreamReadConstraints.builder()
                 .maxStringLength(maxStringLen)
                 .build();
-        IOContext ioContext = new IOContext(
-                streamReadConstraints,
+        return new IOContext(
+                constraints,
                 StreamWriteConstraints.defaults(),
                 ErrorReportConfiguration.defaults(),
                 new BufferRecycler(),
-                ContentReference.rawReference("N/A"), true, JsonEncoding.UTF8);
-        return ioContext.constructReadConstrainedTextBuffer();
+                ContentReference.rawReference("N/A"), true,
+                JsonEncoding.UTF8);
     }
 }

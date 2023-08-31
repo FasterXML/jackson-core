@@ -106,7 +106,7 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 
 ## Processing limits
 
-Starting with [Jackson 2.15](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.15) Jackson has configurable limits for some aspects of input decoding and output generation.
+Starting with [Jackson 2.15](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.15), Jackson has configurable limits for some aspects of input decoding and output generation.
 
 Implemented limits are:
 
@@ -144,7 +144,7 @@ JsonFactory f = JsonFactory.builder()
 
 ## Error Report Configuration
 
-Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16) Jackson offers configurable
+Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16), Jackson offers configurable
 behavior around error-reporting.
 
 Currently supported configuration options are:

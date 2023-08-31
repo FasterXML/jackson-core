@@ -272,7 +272,9 @@ public abstract class ParserMinimalBase extends JsonParser
     public void close() throws JacksonException
     {
         // !!! TODO: calls to closeInput(), releaseBuffers()
-        _ioContext.close();
+        if (_ioContext != null) { // is case for some "virtual" parsers
+            _ioContext.close();
+        }
     }
 
     // public abstract boolean isClosed();

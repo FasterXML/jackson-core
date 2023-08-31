@@ -135,11 +135,11 @@ Implemented limits are:
 
 You can change per-factory limits as follows:
 
-```
+```java
 JsonFactory f = JsonFactory.builder()
-    .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(250).build())
-    .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(2000).build())
-    .build();
+  .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(250).build())
+  .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(2000).build())
+  .build();
 ```
 
 ## Error Report Configuration
@@ -157,16 +157,12 @@ Currently supported configuration options are:
 ### Example
 
 ```java
-// 1. Build
-ErrorReportConfiguration errorReportConfiguration = ErrorReportConfiguration.builder()
-    .maxErrorTokenLength(1004)
-    .maxRawContentLength(2008)
-    .build();
-
-// 2. Configure
-JsonFactory.builder()
-    .errorReportConfiguration(errorReportConfiguration)
-    .build();
+JsonFactory f = JsonFactory.builder()
+ .errorReportConfiguration(ErrorReportConfiguration.builder()
+   .maxErrorTokenLength(1004)
+   .maxRawContentLength(2008)
+   .build()
+ ).build();
 ```
 
 -----

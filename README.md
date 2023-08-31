@@ -131,6 +131,17 @@ Implemented limits are:
 * Maximum Property name length (2.16+): (see https://github.com/FasterXML/jackson-core/issues/1047)
     * Default: 50,000
 
+### Re-configuring limits
+
+You can change per-factory limits as follows:
+
+```
+JsonFactory f = JsonFactory.builder()
+    .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(250).build())
+    .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(2000).build())
+    .build();
+```
+
 -----
 
 ## Compatibility

@@ -31,12 +31,6 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     /**
-     * I/O context for this reader. It handles buffer allocation
-     * for the reader.
-     */
-    protected final IOContext _ioContext;
-
-    /**
      * Flag that indicates whether parser is closed or not. Gets
      * set when parser is either closed by explicit call
      * ({@link #close}) or when end-of-input is reached.
@@ -212,7 +206,6 @@ public abstract class ParserBase extends ParserMinimalBase
     protected ParserBase(ObjectReadContext readCtxt,
             IOContext ctxt, int streamReadFeatures) {
         super(readCtxt, ctxt, streamReadFeatures);
-        _ioContext = ctxt;
         _textBuffer = ctxt.constructReadConstrainedTextBuffer();
     }
 
@@ -281,8 +274,11 @@ public abstract class ParserBase extends ParserMinimalBase
     }
     */
 
-    @Override public void close() throws JacksonException {
+    @Override
+    public void close() throws JacksonException
+    {
         if (!_closed) {
+            super.close(); // will close IOContext (bit early but still)
             // 19-Jan-2018, tatu: as per [core#440] need to ensure no more data assumed available
             _inputPtr = Math.max(_inputPtr, _inputEnd);
             _closed = true;
@@ -294,7 +290,6 @@ public abstract class ParserBase extends ParserMinimalBase
                 // as per [JACKSON-324], do in finally block
                 // Also, internal buffer(s) can now be released as well
                 _releaseBuffers();
-                _ioContext.close();
             }
         }
     }

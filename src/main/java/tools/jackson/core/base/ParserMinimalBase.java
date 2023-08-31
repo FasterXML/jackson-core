@@ -143,7 +143,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * {@link tools.jackson.core.StreamReadFeature}s
      * are enabled.
      */
-    protected int _streamReadFeatures;
+    protected final int _streamReadFeatures;
 
     /**
      * Constraints to use for this parser.
@@ -167,6 +167,14 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final ObjectReadContext _objectReadContext;
 
     /**
+     * I/O context for this reader. It handles buffer allocation
+     * for the reader, including possible reuse/recycling.
+     *
+     * @since 3.0 (at this level)
+     */
+    protected final IOContext _ioContext;
+
+    /**
      * Last token retrieved via {@link #nextToken}, if any.
      * Null before the first call to <code>nextToken()</code>,
      * as well as if token has been explicitly cleared
@@ -185,30 +193,24 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
+    // 31-Aug-2023, tatu: To be removed ASAP
+    /*
     protected ParserMinimalBase(ObjectReadContext readCtxt) {
         super();
         _objectReadContext = readCtxt;
         _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
         _streamReadConstraints = readCtxt.streamReadConstraints();
     }
+    */
 
-    @Deprecated // Not to be used in 3.0?
     protected ParserMinimalBase(ObjectReadContext readCtxt,
-            int streamReadFeatures)
+            IOContext ioCtxt, int streamReadFeatures)
     {
         super();
         _objectReadContext = readCtxt;
+        _ioContext = ioCtxt;
         _streamReadFeatures = streamReadFeatures;
-        _streamReadConstraints = readCtxt.streamReadConstraints();
-    }
-
-    protected ParserMinimalBase(ObjectReadContext readCtxt,
-            IOContext ctxt, int streamReadFeatures)
-    {
-        super();
-        _objectReadContext = readCtxt;
-        _streamReadFeatures = streamReadFeatures;
-        _streamReadConstraints = ctxt.streamReadConstraints();
+        _streamReadConstraints = ioCtxt.streamReadConstraints();
     }
 
     /*
@@ -266,7 +268,13 @@ public abstract class ParserMinimalBase extends JsonParser
     // public JsonToken getCurrentToken()
     // public boolean hasCurrentToken()
 
-    // public abstract void close();
+    @Override
+    public void close() throws JacksonException
+    {
+        // !!! TODO: calls to closeInput(), releaseBuffers()
+        _ioContext.close();
+    }
+
     // public abstract boolean isClosed();
 
     /*

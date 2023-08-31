@@ -129,6 +129,7 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     // @since 2.16
+    @SuppressWarnings("deprecation")
     protected GeneratorBase(int features, ObjectCodec codec, IOContext ioContext, JsonWriteContext jsonWriteContext) {
         super();
         _features = features;

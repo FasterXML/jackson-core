@@ -104,6 +104,33 @@ instance of which is constructed by `JsonFactory`:
 
 An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
+## Processing limits
+
+Starting with [Jackson 2.15](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.15) Jackson has configurable limits for some aspects of input decoding and output generation.
+
+Implemented limits are:
+
+* Length are expressed in input/output units -- `byte`s or `char`s -- depending on input source
+* Defined as longest allowed length, but not necessarily imposed at 100% accuracy: that is, if maximum allowed length is specified as 1000 units, something with length of, say 1003 may not cause exception (but 1500 would typically do)
+* Defined using new `StreamReadConstraints` / `StreamWriteConstraints` classes, configurable on per-`JsonFactory` basis
+* Main focus is to reduce likelihood of excessive memory usage/retention and/or processing costs; not validation
+
+### Input parsing limits
+
+* Maximum number token length (2.15+): (see https://github.com/FasterXML/jackson-core/issues/815)
+    * Default: Maximum 1000 for both integral and floating-point numbers.
+* Maximum String value length (2.15+): (see https://github.com/FasterXML/jackson-core/issues/863)
+    * Default: 20_000_000 (20 million) (since 2.15.1; 2.15.0 had lower limit, 5 million)
+* Maximum Input nesting depth (2.15+): (see https://github.com/FasterXML/jackson-core/pull/943)
+    * Default: 1000 levels
+
+### Output generation limits
+
+* Maximum Output nesting depth (2.16+): (see https://github.com/FasterXML/jackson-core/pull/1055)
+    * Default: 1000 levels
+* Maximum Property name length (2.16+): (see https://github.com/FasterXML/jackson-core/issues/1047)
+    * Default: 50,000
+
 -----
 
 ## Compatibility

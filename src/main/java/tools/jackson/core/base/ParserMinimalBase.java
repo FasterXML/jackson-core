@@ -193,16 +193,13 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    // 31-Aug-2023, tatu: To be removed ASAP
-    /*
-    protected ParserMinimalBase(ObjectReadContext readCtxt) {
-        super();
-        _objectReadContext = readCtxt;
-        _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
-        _streamReadConstraints = readCtxt.streamReadConstraints();
-    }
-    */
-
+    /**
+     * Main constructor for sub-classes to use
+     *
+     * @param readCtxt Context for databinding
+     * @param ioCtxt Context for I/O handling, buffering
+     * @param streamReadFeatures Bit set of {@link StreamReadFeature}s.
+     */
     protected ParserMinimalBase(ObjectReadContext readCtxt,
             IOContext ioCtxt, int streamReadFeatures)
     {
@@ -213,6 +210,21 @@ public abstract class ParserMinimalBase extends JsonParser
         _streamReadConstraints = ioCtxt.streamReadConstraints();
     }
 
+    /**
+     * Alternate constructors for cases where there is no real {@link IOContext}
+     * in use; typically for abstractions that operate over non-streaming/incremental
+     * sources (such as jackson-databind {@code TokenBuffer})/
+     * 
+     * @param readCtxt Context for databinding
+     */
+    protected ParserMinimalBase(ObjectReadContext readCtxt) {
+        super();
+        _objectReadContext = readCtxt;
+        _ioContext = null;
+        _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
+        _streamReadConstraints = readCtxt.streamReadConstraints();
+    }
+    
     /*
     /**********************************************************************
     /* Configuration overrides if any

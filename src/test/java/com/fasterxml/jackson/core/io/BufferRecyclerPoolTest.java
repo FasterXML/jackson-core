@@ -12,28 +12,28 @@ import java.io.OutputStream;
 
 public class BufferRecyclerPoolTest extends BaseTest
 {
-    public void testNoOp() throws IOException {
+    public void testNoOp() throws Exception {
         // no-op pool doesn't actually pool anything, so avoid checking it
         checkBufferRecyclerPoolImpl(BufferRecyclerPool.NonRecyclingPool.shared(), false);
     }
 
-    public void testThreadLocal() throws IOException {
+    public void testThreadLocal() throws Exception {
         checkBufferRecyclerPoolImpl(BufferRecyclerPool.ThreadLocalPool.shared(), true);
     }
 
-    public void testLockFree() throws IOException {
+    public void testLockFree() throws Exception {
         checkBufferRecyclerPoolImpl(BufferRecyclerPool.LockFreePool.nonShared(), true);
     }
 
-    public void testConcurrentDequeue() throws IOException {
+    public void testConcurrentDequeue() throws Exception {
         checkBufferRecyclerPoolImpl(BufferRecyclerPool.ConcurrentDequePool.nonShared(), true);
     }
 
-    public void testBounded() throws IOException {
+    public void testBounded() throws Exception {
         checkBufferRecyclerPoolImpl(BufferRecyclerPool.BoundedPool.nonShared(1), true);
     }
 
-    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool, boolean checkPooledResource) throws IOException {
+    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool, boolean checkPooledResource) throws Exception {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .bufferRecyclerPool(pool)
                 .build();
@@ -50,7 +50,7 @@ public class BufferRecyclerPoolTest extends BaseTest
         }
     }
 
-    private BufferRecycler write(Object value, JsonFactory jsonFactory, int expectedSize) throws IOException {
+    private BufferRecycler write(Object value, JsonFactory jsonFactory, int expectedSize) throws Exception {
         BufferRecycler bufferRecycler;
         NopOutputStream out = new NopOutputStream();
         try (JsonGenerator gen = jsonFactory.createGenerator(out)) {
@@ -61,10 +61,10 @@ public class BufferRecyclerPoolTest extends BaseTest
         return bufferRecycler;
     }
 
-    public class NopOutputStream extends OutputStream {
+    private static class NopOutputStream extends OutputStream {
         protected int size = 0;
 
-        public NopOutputStream() { }
+        NopOutputStream() { }
 
         @Override
         public void write(int b) throws IOException { ++size; }

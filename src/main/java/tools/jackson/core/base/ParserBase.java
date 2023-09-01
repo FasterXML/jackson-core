@@ -341,24 +341,11 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /*
     /**********************************************************************
-    /* Abstract methods for sub-classes to implement
-    /**********************************************************************
-     */
-
-    protected abstract void _closeInput() throws IOException;
-
-    /*
-    /**********************************************************************
     /* Low-level reading, other
     /**********************************************************************
      */
 
-    /**
-     * Method called to release internal buffers owned by the base
-     * reader. This may be called along with {@link #_closeInput} (for
-     * example, when explicitly closing this reader instance), or
-     * separately (if need be).
-     */
+    @Override
     protected void _releaseBuffers() {
         _textBuffer.releaseBuffers();
     }

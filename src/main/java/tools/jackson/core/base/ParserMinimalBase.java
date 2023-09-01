@@ -273,7 +273,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************************
-    /* JsonParser impl: open / close
+    /* JsonParser impl: open / close / release
     /**********************************************************************
      */
 
@@ -290,6 +290,19 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     // public abstract boolean isClosed();
+
+    /**
+     * Abstract method for sub-classes to implement; to be called by
+     * {@link #close()} implementation here.
+     */
+    protected abstract void _closeInput() throws IOException;
+
+    /**
+     * Method called to release internal buffers owned by the base
+     * reader. This is expected to be called after {@link #_closeInput}
+     * since the buffers are expected not to be needed any longer.
+     */
+    protected abstract void _releaseBuffers();
 
     /*
     /**********************************************************************

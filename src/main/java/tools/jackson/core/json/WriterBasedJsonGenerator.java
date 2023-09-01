@@ -1049,10 +1049,8 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void close() throws JacksonException
+    protected void _closeInput() throws JacksonException
     {
-        super.close();
-
         RuntimeException flushFail = null;
         try {
             if ((_outputBuffer != null)
@@ -1098,9 +1096,6 @@ public class WriterBasedJsonGenerator
                 throw je;
             }
         }
-        // Internal buffer(s) generator has can now be released as well
-        _releaseBuffers();
-
         if (flushFail != null) {
             throw flushFail;
         }

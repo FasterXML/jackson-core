@@ -289,7 +289,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override
     public boolean isClosed() { return _closed; }
-    
+
     @Override
     public void close() throws JacksonException
     {

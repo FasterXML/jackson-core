@@ -1244,10 +1244,8 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void close() throws JacksonException
+    protected void _closeInput() throws JacksonException
     {
-        super.close();
-
         RuntimeException flushFail = null;
         try {
             if ((_outputBuffer != null)
@@ -1293,9 +1291,6 @@ public class UTF8JsonGenerator
                 throw je;
             }
         }
-        // Internal buffer(s) generator has can now be released as well
-        _releaseBuffers();
-
         if (flushFail != null) {
             throw flushFail;
         }

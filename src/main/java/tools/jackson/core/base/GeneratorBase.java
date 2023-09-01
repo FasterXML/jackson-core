@@ -1,5 +1,6 @@
 package tools.jackson.core.base;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -309,20 +310,30 @@ public abstract class GeneratorBase extends JsonGenerator
 //    @Override public abstract void flush();
 
     @Override
+    public boolean isClosed() { return _closed; }
+
+    @Override
     public void close() {
         if (!_closed) {
             _closed = true;
-            _ioContext.close();
+            try {
+                _closeInput();
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            } finally {
+                _releaseBuffers();
+                _ioContext.close();
+            }
         }
     }
-
-    @Override public boolean isClosed() { return _closed; }
 
     /*
     /**********************************************************************
     /* Package methods for this, sub-classes
     /**********************************************************************
      */
+
+    protected abstract void _closeInput() throws IOException;
 
     /**
      * Method called to release any buffers generator may be holding,

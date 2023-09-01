@@ -1,7 +1,5 @@
 package tools.jackson.core.base;
 
-import java.io.IOException;
-//import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -26,20 +24,7 @@ public abstract class ParserBase extends ParserMinimalBase
 {
     /*
     /**********************************************************************
-    /* Generic I/O state
-    /**********************************************************************
-     */
-
-    /**
-     * Flag that indicates whether parser is closed or not. Gets
-     * set when parser is either closed by explicit call
-     * ({@link #close}) or when end-of-input is reached.
-     */
-    protected boolean _closed;
-
-    /*
-    /**********************************************************************
-    /* Current input data
+    /* Current input data offsets
     /**********************************************************************
      */
 
@@ -277,24 +262,10 @@ public abstract class ParserBase extends ParserMinimalBase
     @Override
     public void close() throws JacksonException
     {
-        if (!_closed) {
-            super.close(); // will close IOContext (bit early but still)
-            // 19-Jan-2018, tatu: as per [core#440] need to ensure no more data assumed available
-            _inputPtr = Math.max(_inputPtr, _inputEnd);
-            _closed = true;
-            try {
-                _closeInput();
-            } catch (IOException e) {
-                throw _wrapIOFailure(e);
-            } finally {
-                // as per [JACKSON-324], do in finally block
-                // Also, internal buffer(s) can now be released as well
-                _releaseBuffers();
-            }
-        }
+        super.close();
+        // 19-Jan-2018, tatu: as per [core#440] need to ensure no more data assumed available
+        _inputPtr = Math.max(_inputPtr, _inputEnd);
     }
-
-    @Override public boolean isClosed() { return _closed; }
 
 //    public JsonLocation getTokenLocation()
 //   public JsonLocation getCurrentLocation()

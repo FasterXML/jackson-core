@@ -175,6 +175,13 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final IOContext _ioContext;
 
     /**
+     * Flag that indicates whether parser is closed or not. Gets
+     * set when parser is either closed by explicit call
+     * ({@link #close}) or when end-of-input is reached.
+     */
+    protected boolean _closed;
+    
+    /**
      * Last token retrieved via {@link #nextToken}, if any.
      * Null before the first call to <code>nextToken()</code>,
      * as well as if token has been explicitly cleared
@@ -281,15 +288,34 @@ public abstract class ParserMinimalBase extends JsonParser
     // public boolean hasCurrentToken()
 
     @Override
+    public boolean isClosed() { return _closed; }
+    
+    @Override
     public void close() throws JacksonException
     {
-        // !!! TODO: calls to closeInput(), releaseBuffers()
-        if (_ioContext != null) { // is case for some "virtual" parsers
-            _ioContext.close();
+        if (_closed) {
+            return;
+        }
+        _closed = true;
+
+        // Ordering is important: needs to be done in following order:
+        //
+        // 1. Close actual input source that may use buffering
+        // 2. Close (release) underlying buffers (to/via IOContext)
+        // 3. Close IOContext which will then release recycler (if any)
+        try {
+            _closeInput();
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        } finally {
+            // Do in finally block so occurs even if stream closing fails
+            // with exception
+            _releaseBuffers();
+            if (_ioContext != null) { // is case for some "virtual" parsers
+                _ioContext.close();
+            }
         }
     }
-
-    // public abstract boolean isClosed();
 
     /**
      * Abstract method for sub-classes to implement; to be called by

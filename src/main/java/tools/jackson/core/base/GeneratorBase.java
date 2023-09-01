@@ -315,7 +315,6 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override
     public void close() {
         if (!_closed) {
-            _closed = true;
             try {
                 _closeInput();
             } catch (IOException e) {
@@ -323,6 +322,7 @@ public abstract class GeneratorBase extends JsonGenerator
             } finally {
                 _releaseBuffers();
                 _ioContext.close();
+                _closed = true;
             }
         }
     }

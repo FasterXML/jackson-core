@@ -319,6 +319,19 @@ public class StreamReadConstraints
     }
 
     /**
+     * Convenience method, basically same as:
+     *<pre>
+     *  getMaxDocumentLength() > 0L
+     *</pre>
+     *
+     * @return {@code True} if this constraints instance has a limit for maximum
+     *    document length to enforce; {@code false} otherwise.
+     */
+    public boolean hasMaxDocumentLength() {
+        return _maxDocLen > 0L;
+    }
+
+    /**
      * Accessor for maximum length of numbers to decode.
      * see {@link Builder#maxNumberLength(int)} for details.
      *
@@ -394,7 +407,7 @@ public class StreamReadConstraints
                 // Note: -1L used as marker for "unlimited"
                 && (_maxDocLen > 0L)) {
             throw _constructException(
-                    "Document nesting depth (%d) exceeds the maximum allowed (%d, from %s)",
+                    "Document length (%d) exceeds the maximum allowed (%d, from %s)",
                     len, _maxDocLen,
                     _constrainRef("getMaxDocumentLength"));
         }

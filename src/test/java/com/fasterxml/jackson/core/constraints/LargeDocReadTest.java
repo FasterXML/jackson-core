@@ -57,8 +57,16 @@ public class LargeDocReadTest extends AsyncTestBase
     {
         final byte[] doc = utf8Bytes(generateJSON(25_000));
 
-        AsyncReaderWrapper p = asyncForBytes(JSON_F_DOC_10K, 1000, doc, 1);
-        try {
+        // first with byte[] backend
+        try (AsyncReaderWrapper p = asyncForBytes(JSON_F_DOC_10K, 1000, doc, 1)) {
+            consumeAsync(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
+
+        // then with byte buffer
+        try (AsyncReaderWrapper p = asyncForByteBuffer(JSON_F_DOC_10K, 1000, doc, 1)) {
             consumeAsync(p);
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {

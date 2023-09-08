@@ -198,19 +198,18 @@ public class UTF8StreamJsonParser
             if (space == 0) { // only occurs when we've been closed
                 return false;
             }
+            final int count;
+            try {
+                count = _inputStream.read(_inputBuffer, 0, space);
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
 
             final int bufSize = _inputEnd;
             _currInputProcessed += bufSize;
             _currInputRowStart -= bufSize;
             // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
             streamReadConstraints().validateDocumentLength(_currInputProcessed);
-
-            int count;
-            try {
-                count = _inputStream.read(_inputBuffer, 0, space);
-            } catch (IOException e) {
-                throw _wrapIOFailure(e);
-            }
 
             if (count > 0) {
                 // 26-Nov-2015, tatu: Since name-offset requires it too, must offset

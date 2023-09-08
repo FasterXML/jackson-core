@@ -94,13 +94,12 @@ public final class ByteQuadsCanonicalizer
      */
 
     /**
-     * Whether canonical symbol Strings are to be intern()ed before added
-     * to the table or not.
-     *<p>
-     * NOTE: non-final to allow disabling intern()ing in case of excessive
-     * collisions.
+     * Entity that knows how to {@code intern} Strings, if needed,
+     * or {@code null} if no interning is wanted.
+     *
+     * @since 2.16
      */
-    protected final boolean _intern;
+    protected final InternCache _interner;
 
     /**
      * Flag that indicates whether we should throw an exception if enough
@@ -233,7 +232,7 @@ public final class ByteQuadsCanonicalizer
         // and mark as shared just in case to prevent modifications
         _hashShared = true;
         _seed = seed;
-        _intern = false;
+        _interner = null;
         _failOnDoS = true;
         // Sanity check: let's now allow hash sizes below certain minimum value
         if (sz < MIN_HASH_SIZE) {
@@ -261,7 +260,7 @@ public final class ByteQuadsCanonicalizer
     {
         _parent = parent;
         _seed = seed;
-        _intern = intern;
+        _interner = intern ? InternCache.instance : null;
         _failOnDoS = failOnDoS;
         _tableInfo = null; // not used by child tables
 
@@ -295,7 +294,7 @@ public final class ByteQuadsCanonicalizer
     {
         _parent = null;
         _seed = 0;
-        _intern = false;
+        _interner = null;
         _failOnDoS = true;
         _tableInfo = null; // not used by child tables
 
@@ -872,8 +871,8 @@ public final class ByteQuadsCanonicalizer
      */
     public String addName(String name, int q1) throws StreamConstraintsException {
         _verifySharing();
-        if (_intern) {
-            name = InternCache.instance.intern(name);
+        if (_interner != null) {
+            name = _interner.intern(name);
         }
         int offset = _findOffsetForAdd(calcHash(q1));
         _hashArea[offset] = q1;
@@ -892,8 +891,8 @@ public final class ByteQuadsCanonicalizer
      */
     public String addName(String name, int q1, int q2) throws StreamConstraintsException {
         _verifySharing();
-        if (_intern) {
-            name = InternCache.instance.intern(name);
+        if (_interner != null) {
+            name = _interner.intern(name);
         }
 
         // 20-Mar-2021, tatu: For some reason, pre-2.13 there was logic
@@ -920,8 +919,8 @@ public final class ByteQuadsCanonicalizer
      */
     public String addName(String name, int q1, int q2, int q3) throws StreamConstraintsException {
         _verifySharing();
-        if (_intern) {
-            name = InternCache.instance.intern(name);
+        if (_interner != null) {
+            name = _interner.intern(name);
         }
         int offset = _findOffsetForAdd(calcHash(q1, q2, q3));
         _hashArea[offset] = q1;
@@ -943,8 +942,8 @@ public final class ByteQuadsCanonicalizer
     public String addName(String name, int[] q, int qlen) throws StreamConstraintsException
     {
         _verifySharing();
-        if (_intern) {
-            name = InternCache.instance.intern(name);
+        if (_interner != null) {
+            name = _interner.intern(name);
         }
         int offset;
 

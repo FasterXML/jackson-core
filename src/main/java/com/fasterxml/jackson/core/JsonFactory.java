@@ -227,9 +227,6 @@ public class JsonFactory
     /**
      * Alternative to the basic symbol table, some stream-based
      * parsers use different name canonicalization method.
-     *<p>
-     * TODO: should clean up this; looks messy having 2 alternatives
-     * with not very clear differences.
      *
      * @since 2.6
      */

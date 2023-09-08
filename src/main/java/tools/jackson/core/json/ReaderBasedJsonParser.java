@@ -245,27 +245,29 @@ public class ReaderBasedJsonParser
     protected boolean _loadMore() throws JacksonException
     {
         if (_reader != null) {
+            final int bufSize = _inputEnd;
+            _currInputProcessed += bufSize;
+            _currInputRowStart -= bufSize;
+            // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
+            streamReadConstraints().validateDocumentLength(_currInputProcessed);
+
             int count;
             try {
                 count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
             } catch (IOException e) {
                 throw _wrapIOFailure(e);
             }
-            if (count > 0) {
-                final int bufSize = _inputEnd;
-                _currInputProcessed += bufSize;
-                _currInputRowStart -= bufSize;
 
+            if (count > 0) {
                 // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
                 //   this increase to avoid "moving" name-offset, resulting most likely
                 //   in negative value, which is fine as combine value remains unchanged.
                 _nameStartOffset -= bufSize;
-
                 _inputPtr = 0;
                 _inputEnd = count;
-
                 return true;
             }
+            _inputPtr = _inputEnd = 0;
             // End of input
             _closeInput();
             // Should never return 0, so let's fail

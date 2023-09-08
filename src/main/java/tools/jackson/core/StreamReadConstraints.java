@@ -21,6 +21,9 @@ import tools.jackson.core.exc.StreamReadException;
  *   </li>
  *  <li>Maximum Nesting depth: default 1000 (see {@link #DEFAULT_MAX_DEPTH})
  *   </li>
+ *  <li>Maximum Document length: default {@code unlimited} (coded as {@code -1},
+ *      (see {@link #DEFAULT_MAX_DOC_LEN})
+ *   </li>
  * </ul>
  */
 public class StreamReadConstraints
@@ -35,7 +38,13 @@ public class StreamReadConstraints
     public static final int DEFAULT_MAX_DEPTH = 1000;
 
     /**
-     * Default setting for maximum number length: see {@link Builder#maxNumberLength(int)} for details.
+     * Default setting for maximum document length:
+     * see {@link Builder#maxDocumentLength} for details.
+     */
+    public static final long DEFAULT_MAX_DOC_LEN = -1L;
+
+    /**
+     * @since 2.16
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 
@@ -64,13 +73,16 @@ public class StreamReadConstraints
     private static final int MAX_BIGINT_SCALE_MAGNITUDE = 100_000;
 
     protected final int _maxNestingDepth;
+    protected final long _maxDocLen;
+
     protected final int _maxNumLen;
     protected final int _maxStringLen;
     protected final int _maxNameLen;
 
     private static StreamReadConstraints DEFAULT =
-        new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN,
-                DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
+        new StreamReadConstraints(DEFAULT_MAX_DEPTH,
+                DEFAULT_MAX_DOC_LEN,
+                DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
 
     /**
      * Override the default StreamReadConstraints. These defaults are only used when {@link TokenStreamFactory}
@@ -91,13 +103,15 @@ public class StreamReadConstraints
      */
     public static void overrideDefaultStreamReadConstraints(final StreamReadConstraints streamReadConstraints) {
         if (streamReadConstraints == null) {
-            DEFAULT = new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+            DEFAULT = new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_DOC_LEN,
+                    DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
         } else {
             DEFAULT = streamReadConstraints;
         }
     }
 
     public static final class Builder {
+        private long maxDocLen;
         private int maxNestingDepth;
         private int maxNumLen;
         private int maxStringLen;
@@ -117,6 +131,28 @@ public class StreamReadConstraints
                 throw new IllegalArgumentException("Cannot set maxNestingDepth to a negative value");
             }
             this.maxNestingDepth = maxNestingDepth;
+            return this;
+        }
+
+        /**
+         * Sets the maximum allowed document length (for positive values over 0) or
+         * indicate that any length is acceptable ({@code 0} or negative number).
+         * The length is in input units of the input source, that is, in
+         * {@code byte}s or {@code char}s.
+         *
+         * @param maxDocLen the maximum allowed document if positive number above 0; otherwise
+         *   ({@code 0} or negative number) means "unlimited".
+         *
+         * @return this builder
+         *
+         * @since 2.16
+         */
+        public Builder maxDocumentLength(long maxDocLen) {
+            // Negative values and 0 mean "unlimited", mark with -1L
+            if (maxDocLen <= 0L) {
+                maxDocLen = -1L;
+            }
+            this.maxDocLen = maxDocLen;
             return this;
         }
 
@@ -184,11 +220,14 @@ public class StreamReadConstraints
         }
 
         Builder() {
-            this(DEFAULT_MAX_DEPTH, DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
+            this(DEFAULT_MAX_DEPTH, DEFAULT_MAX_DOC_LEN,
+                    DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
         }
 
-        Builder(final int maxNestingDepth, final int maxNumLen, final int maxStringLen, final int maxNameLen) {
+        Builder(final int maxNestingDepth, final long maxDocLen,
+                final int maxNumLen, final int maxStringLen, final int maxNameLen) {
             this.maxNestingDepth = maxNestingDepth;
+            this.maxDocLen = maxDocLen;
             this.maxNumLen = maxNumLen;
             this.maxStringLen = maxStringLen;
             this.maxNameLen = maxNameLen;
@@ -196,13 +235,15 @@ public class StreamReadConstraints
 
         Builder(StreamReadConstraints src) {
             maxNestingDepth = src._maxNestingDepth;
+            maxDocLen = src._maxDocLen;
             maxNumLen = src._maxNumLen;
             maxStringLen = src._maxStringLen;
             maxNameLen = src._maxNameLen;
         }
 
         public StreamReadConstraints build() {
-            return new StreamReadConstraints(maxNestingDepth, maxNumLen, maxStringLen, maxNameLen);
+            return new StreamReadConstraints(maxNestingDepth, maxDocLen,
+                    maxNumLen, maxStringLen, maxNameLen);
         }
     }
 
@@ -213,13 +254,19 @@ public class StreamReadConstraints
      */
 
     @Deprecated // since 2.16
-    protected StreamReadConstraints(final int maxNestingDepth, final int maxNumLen, final int maxStringLen) {
-        this(maxNestingDepth, maxNumLen, maxStringLen, DEFAULT_MAX_NAME_LEN);
+    protected StreamReadConstraints(final int maxNestingDepth, final long maxDocLen,
+            final int maxNumLen, final int maxStringLen) {
+        this(maxNestingDepth, DEFAULT_MAX_DOC_LEN,
+                maxNumLen, maxStringLen, DEFAULT_MAX_NAME_LEN);
     }
 
-    protected StreamReadConstraints(final int maxNestingDepth, final int maxNumLen,
-                                    final int maxStringLen, final int maxNameLen) {
+    /**
+     * @since 2.16
+     */
+    protected StreamReadConstraints(final int maxNestingDepth, final long maxDocLen,
+            final int maxNumLen, final int maxStringLen, final int maxNameLen) {
         _maxNestingDepth = maxNestingDepth;
+        _maxDocLen = maxDocLen;
         _maxNumLen = maxNumLen;
         _maxStringLen = maxStringLen;
         _maxNameLen = maxNameLen;
@@ -259,6 +306,29 @@ public class StreamReadConstraints
      */
     public int getMaxNestingDepth() {
         return _maxNestingDepth;
+    }
+
+    /**
+     * Accessor for maximum document length.
+     * see {@link Builder#maxDocumentLength(long)} for details.
+     *
+     * @return Maximum allowed depth
+     */
+    public long getMaxDocumentLength() {
+        return _maxDocLen;
+    }
+
+    /**
+     * Convenience method, basically same as:
+     *<pre>
+     *  getMaxDocumentLength() > 0L
+     *</pre>
+     *
+     * @return {@code True} if this constraints instance has a limit for maximum
+     *    document length to enforce; {@code false} otherwise.
+     */
+    public boolean hasMaxDocumentLength() {
+        return _maxDocLen > 0L;
     }
 
     /**
@@ -315,6 +385,31 @@ public class StreamReadConstraints
                     "Document nesting depth (%d) exceeds the maximum allowed (%d, from %s)",
                     depth, _maxNestingDepth,
                     _constrainRef("getMaxNestingDepth"));
+        }
+    }
+
+    /**
+     * Convenience method that can be used to verify that the
+     * document length does not exceed the maximum specified by this
+     * constraints object (if any): if it does, a
+     * {@link StreamConstraintsException}
+     * is thrown.
+     *
+     * @param len Current length of processed document content
+     *
+     * @throws StreamConstraintsException If length exceeds maximum
+     *
+     * @since 2.16
+     */
+    public void validateDocumentLength(long len) throws StreamConstraintsException
+    {
+        if ((len > _maxDocLen)
+                // Note: -1L used as marker for "unlimited"
+                && (_maxDocLen > 0L)) {
+            throw _constructException(
+                    "Document length (%d) exceeds the maximum allowed (%d, from %s)",
+                    len, _maxDocLen,
+                    _constrainRef("getMaxDocumentLength"));
         }
     }
 

@@ -21,8 +21,8 @@ import tools.jackson.core.sym.ByteQuadsCanonicalizer;
  * it is strict subset of UTF-8): other encodings are not supported.
  */
 public class NonBlockingByteBufferJsonParser
-        extends NonBlockingUtf8JsonParserBase
-        implements ByteBufferFeeder
+    extends NonBlockingUtf8JsonParserBase
+    implements ByteBufferFeeder
 {
     private ByteBuffer _inputBuffer = ByteBuffer.wrap(NO_BYTES);
 
@@ -55,6 +55,9 @@ public class NonBlockingByteBufferJsonParser
         }
         // Time to update pointers first
         _currInputProcessed += _origBufferLen;
+
+        // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
+        streamReadConstraints().validateDocumentLength(_currInputProcessed);
 
         // Also need to adjust row start, to work as if it extended into the past wrt new buffer
         _currInputRowStart = start - (_inputEnd - _currInputRowStart);

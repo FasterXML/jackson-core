@@ -117,12 +117,14 @@ Implemented limits are:
 
 ### Input parsing limits
 
-* Maximum number token length (2.15+): (see https://github.com/FasterXML/jackson-core/issues/815)
+* Maximum Number token length (2.15+): (see https://github.com/FasterXML/jackson-core/issues/815)
     * Default: Maximum 1000 for both integral and floating-point numbers.
 * Maximum String value length (2.15+): (see https://github.com/FasterXML/jackson-core/issues/863)
     * Default: 20_000_000 (20 million) (since 2.15.1; 2.15.0 had lower limit, 5 million)
 * Maximum Input nesting depth (2.15+): (see https://github.com/FasterXML/jackson-core/pull/943)
     * Default: 1000 levels
+* Maximum Document length (2.16+): (see https://github.com/FasterXML/jackson-core/issues/1046)
+    * Default: Unlimited (-1)
 
 ### Output generation limits
 
@@ -137,6 +139,7 @@ You can change per-factory limits as follows:
 
 ```java
 JsonFactory f = JsonFactory.builder()
+  .streamReadConstraints(StreamReadConstraints.builder().maxDocumentLength(10_000_000L).build())
   .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(250).build())
   .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(2000).build())
   .build();

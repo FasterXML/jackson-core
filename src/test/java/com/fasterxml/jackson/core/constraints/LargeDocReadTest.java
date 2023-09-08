@@ -33,7 +33,7 @@ public class LargeDocReadTest extends AsyncTestBase
 
     public void testLargeNameWithSmallLimitBytes() throws Exception
     {
-        final String doc = generateJSON(15_000);
+        final String doc = generateJSON(12_000);
         try (JsonParser p = createParserUsingStream(JSON_F_DOC_10K, doc, "UTF-8")) {
             consumeTokens(p);
             fail("expected StreamConstraintsException");
@@ -44,7 +44,7 @@ public class LargeDocReadTest extends AsyncTestBase
 
     public void testLargeNameWithSmallLimitChars() throws Exception
     {
-        final String doc = generateJSON(15_000);
+        final String doc = generateJSON(12_000);
         try (JsonParser p = createParserUsingReader(JSON_F_DOC_10K, doc)) {
             consumeTokens(p);
             fail("expected StreamConstraintsException");
@@ -55,7 +55,7 @@ public class LargeDocReadTest extends AsyncTestBase
 
     public void testLargeNameWithSmallLimitAsync() throws Exception
     {
-        final byte[] doc = utf8Bytes(generateJSON(25_000));
+        final byte[] doc = utf8Bytes(generateJSON(12_000));
 
         // first with byte[] backend
         try (AsyncReaderWrapper p = asyncForBytes(JSON_F_DOC_10K, 1000, doc, 1)) {

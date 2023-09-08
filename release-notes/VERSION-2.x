@@ -31,6 +31,8 @@ a pure JSON library.
 #1041: Start using AssertJ in unit tests
 #1042: Allow configuring spaces before and/or after the colon in `DefaultPrettyPrinter`
  (contributed by @digulla)
+#1046: Add configurable limit for the maximum number of bytes/chars
+  of content to parse before failing
 #1047: Add configurable limit for the maximum length of Object property names
   to parse before failing (default max: 50,000 chars)
  (contributed by @pjfanning)

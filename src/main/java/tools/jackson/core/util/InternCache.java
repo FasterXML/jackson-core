@@ -33,7 +33,11 @@ public final class InternCache
      */
     private final Object lock = new Object();
 
-    private InternCache() { super(MAX_ENTRIES, 0.8f, 4); }
+    public InternCache() { this(MAX_ENTRIES, 0.8f, 4); }
+
+    public InternCache(int maxSize, float loadFactor, int concurrency) {
+        super(maxSize, loadFactor, concurrency);
+    }
 
     public String intern(String input) {
         String result = get(input);

@@ -273,11 +273,14 @@ public class ReaderBasedJsonParser
     protected boolean _loadMore() throws IOException
     {
         if (_reader != null) {
+            final int bufSize = _inputEnd;
+            _currInputProcessed += bufSize;
+            _currInputRowStart -= bufSize;
+            // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
+            streamReadConstraints().validateDocumentLength(_currInputProcessed);
+
             int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
             if (count > 0) {
-                final int bufSize = _inputEnd;
-                _currInputProcessed += bufSize;
-                _currInputRowStart -= bufSize;
 
                 // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
                 //   this increase to avoid "moving" name-offset, resulting most likely
@@ -289,6 +292,7 @@ public class ReaderBasedJsonParser
 
                 return true;
             }
+            _inputPtr = _inputEnd = 0;
             // End of input
             _closeInput();
             // Should never return 0, so let's fail

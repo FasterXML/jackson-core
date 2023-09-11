@@ -2150,7 +2150,7 @@ public class JsonFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        return _getBufferRecyclerPool().acquireBufferRecycler();
+        return _getBufferRecyclerPool()._internalAcquire();
     }
 
     /**

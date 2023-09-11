@@ -56,6 +56,10 @@ public interface BufferRecyclerPool extends Serializable
      */
     void releaseBufferRecycler(BufferRecycler recycler);
 
+    default BufferRecycler _internalAcquire() {
+        return acquireBufferRecycler().withPool(this);
+    }
+
     /**
      * @return the default {@link BufferRecyclerPool} implementation
      *   which is the thread local based one:
@@ -134,6 +138,11 @@ public interface BufferRecyclerPool extends Serializable
         public void releaseBufferRecycler(BufferRecycler recycler) {
             ; // nothing to do, relies on ThreadLocal
         }
+
+        public BufferRecycler _internalAcquire() {
+            // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
+            return acquireBufferRecycler();
+        }
     }
 
     /**
@@ -174,6 +183,11 @@ public interface BufferRecyclerPool extends Serializable
         @Override
         public void releaseBufferRecycler(BufferRecycler recycler) {
             ; // nothing to do, there is no underlying pool
+        }
+
+        public BufferRecycler _internalAcquire() {
+            // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
+            return acquireBufferRecycler();
         }
     }
 
@@ -266,7 +280,7 @@ public interface BufferRecyclerPool extends Serializable
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();
             }
-            return bufferRecycler.withPool(this);
+            return bufferRecycler;
         }
 
         @Override
@@ -333,7 +347,7 @@ public interface BufferRecyclerPool extends Serializable
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
-            return _getRecycler().withPool(this);
+            return _getRecycler();
         }
 
         private BufferRecycler _getRecycler() {
@@ -448,7 +462,7 @@ public interface BufferRecyclerPool extends Serializable
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();
             }
-            return bufferRecycler.withPool(this);
+            return bufferRecycler;
         }
 
         @Override

@@ -2141,25 +2141,12 @@ public class JsonFactory
      */
 
     /**
-     * Method used by factory to create buffer recycler instances
-     * for parsers and generators.
-     *<p>
-     * Note: only public to give access for {@code ObjectMapper}
-     *
-     * @return Buffer recycler instance to use
-     */
-    public BufferRecycler _getBufferRecycler()
-    {
-        return _getBufferRecyclerPool().acquireBufferRecycler();
-    }
-
-    /**
      * Accessor for getting access to {@link BufferRecyclerPool} for getting
      * {@link BufferRecycler} instance to use.
      *
      * @since 2.16
      */
-    public BufferRecyclerPool _getBufferRecyclerPool() {
+    private BufferRecyclerPool _getBufferRecyclerPool() {
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
@@ -2183,8 +2170,9 @@ public class JsonFactory
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
         }
+        BufferRecyclerPool pool = _getBufferRecyclerPool();
         return new IOContext(_streamReadConstraints, _streamWriteConstraints, _errorReportConfiguration,
-                _getBufferRecycler(), _getBufferRecyclerPool(), contentRef, resourceManaged);
+                pool.acquireBufferRecycler(), pool, contentRef, resourceManaged);
     }
 
     /**
@@ -2199,8 +2187,9 @@ public class JsonFactory
      */
     @Deprecated // @since 2.13
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
+        BufferRecyclerPool pool = _getBufferRecyclerPool();
         return new IOContext(_streamReadConstraints, _streamWriteConstraints, _errorReportConfiguration,
-                _getBufferRecycler(), _getBufferRecyclerPool(),
+                pool.acquireBufferRecycler(), pool,
                 _createContentReference(rawContentRef),
                 resourceManaged);
     }
@@ -2218,8 +2207,9 @@ public class JsonFactory
     protected IOContext _createNonBlockingContext(Object srcRef) {
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
+        BufferRecyclerPool pool = _getBufferRecyclerPool();
         return new IOContext(_streamReadConstraints, _streamWriteConstraints, _errorReportConfiguration,
-                _getBufferRecycler(), _getBufferRecyclerPool(),
+                pool.acquireBufferRecycler(), pool,
                 _createContentReference(srcRef),
                 false);
     }

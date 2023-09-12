@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 import com.fasterxml.jackson.core.util.ReadConstrainedTextBuffer;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
@@ -63,6 +64,8 @@ public class IOContext implements AutoCloseable
      * Recycler used for actual allocation/deallocation/reuse
      */
     protected final BufferRecycler _bufferRecycler;
+
+    private final BufferRecyclerPool _bufferRecyclerPool;
 
     /**
      * @since 2.15
@@ -133,6 +136,7 @@ public class IOContext implements AutoCloseable
      * @param src constraints for streaming reads
      * @param swc constraints for streaming writes
      * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param brPool BufferRecyclerPool the pool from where the BufferRecycler has been acquired, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      * @param erc Error report configuration to use
@@ -140,12 +144,13 @@ public class IOContext implements AutoCloseable
      * @since 2.16
      */
     public IOContext(StreamReadConstraints src, StreamWriteConstraints swc, ErrorReportConfiguration erc,
-            BufferRecycler br, ContentReference contentRef, boolean managedResource)
+            BufferRecycler br, BufferRecyclerPool brPool, ContentReference contentRef, boolean managedResource)
     {
         _streamReadConstraints = src;
         _streamWriteConstraints = swc;
         _errorReportConfiguration = erc;
         _bufferRecycler = br;
+        _bufferRecyclerPool = brPool;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
@@ -168,7 +173,7 @@ public class IOContext implements AutoCloseable
                      ContentReference contentRef, boolean managedResource)
     {
         this(src, StreamWriteConstraints.defaults(), ErrorReportConfiguration.defaults(),
-                br, contentRef, managedResource);
+                br, null, contentRef, managedResource);
     }
 
     /**
@@ -186,7 +191,7 @@ public class IOContext implements AutoCloseable
     public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
         this(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(), ErrorReportConfiguration.defaults(),
-                br, contentRef, managedResource);
+                br, null, contentRef, managedResource);
     }
 
     @Deprecated // since 2.13
@@ -464,7 +469,9 @@ public class IOContext implements AutoCloseable
     @Override
     public void close() {
         if (!_closed) {
-            _bufferRecycler.release();
+            if (_bufferRecyclerPool != null) {
+                _bufferRecycler.release(_bufferRecyclerPool);
+            }
             _closed = true;
         }
     }

@@ -266,7 +266,7 @@ public interface BufferRecyclerPool extends Serializable
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();
             }
-            return bufferRecycler.withPool(this);
+            return bufferRecycler;
         }
 
         @Override
@@ -333,7 +333,7 @@ public interface BufferRecyclerPool extends Serializable
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
-            return _getRecycler().withPool(this);
+            return _getRecycler();
         }
 
         private BufferRecycler _getRecycler() {
@@ -448,7 +448,7 @@ public interface BufferRecyclerPool extends Serializable
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();
             }
-            return bufferRecycler.withPool(this);
+            return bufferRecycler;
         }
 
         @Override

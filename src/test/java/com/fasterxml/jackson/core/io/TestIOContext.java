@@ -13,7 +13,7 @@ public class TestIOContext
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.defaults(),
                 ErrorReportConfiguration.defaults(),
-                new BufferRecycler(),
+                new BufferRecycler(), null,
                 ContentReference.rawReference("N/A"), true);
 
         /* I/O Read buffer */

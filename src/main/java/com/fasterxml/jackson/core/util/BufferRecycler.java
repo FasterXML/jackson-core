@@ -86,8 +86,6 @@ public class BufferRecycler
     // Note: changed from simple array in 2.10:
     protected final AtomicReferenceArray<char[]> _charBuffers;
 
-    private BufferRecyclerPool _pool;
-
     /*
     /**********************************************************
     /* Construction
@@ -197,34 +195,11 @@ public class BufferRecycler
     protected char[] calloc(int size) { return new char[size]; }
 
     /**
-     * Method called by owner of this recycler instance, to provide reference to
-     * {@link BufferRecyclerPool} into which instance is to be released (if any)
+     * Method called when owner of this recycler no longer wishes use it.
      *
      * @since 2.16
      */
-    BufferRecycler withPool(BufferRecyclerPool pool) {
-        if (this._pool != null) {
-            throw new IllegalStateException("BufferRecycler already linked to pool: "+pool);
-        }
-        // assign to pool to which this BufferRecycler belongs in order to release it
-        // to the same pool when the work will be completed
-        _pool = Objects.requireNonNull(pool);
-        return this;
-    }
-
-    /**
-     * Method called when owner of this recycler no longer wishes use it; this should
-     * return it to pool passed via {@code withPool()} (if any).
-     *
-     * @since 2.16
-     */
-    public void release() {
-        if (_pool != null) {
-            BufferRecyclerPool tmpPool = _pool;
-            // nullify the reference to the pool in order to avoid the risk of releasing
-            // the same BufferRecycler more than once, thus compromising the pool integrity
-            _pool = null;
-            tmpPool.releaseBufferRecycler(this);
-        }
+    public void release(BufferRecyclerPool pool) {
+        pool.releaseBufferRecycler(this);
     }
 }

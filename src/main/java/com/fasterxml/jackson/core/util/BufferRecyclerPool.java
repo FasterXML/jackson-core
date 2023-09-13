@@ -35,10 +35,8 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @since 2.16
  */
-public abstract class BufferRecyclerPool implements Serializable
+public interface BufferRecyclerPool extends Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Method called to obtain {@link BufferRecycler}; possibly
      * (but necessarily) a pooled recycler instance (depends on implementation
@@ -50,7 +48,7 @@ public abstract class BufferRecyclerPool implements Serializable
      * @return {@link BufferRecycler} for caller to use; caller expected
      *   to call {@link #releaseBufferRecycler} after it is done using recycler.
      */
-    public BufferRecycler acquireBufferRecycler() {
+    default BufferRecycler acquireBufferRecycler() {
         return _internalAcquire().withPool(this);
     }
 
@@ -58,7 +56,7 @@ public abstract class BufferRecyclerPool implements Serializable
      * Method for sub-classes to implement for actual acquire logic; called
      * by {@link #acquireBufferRecycler()}
      */
-    protected abstract BufferRecycler _internalAcquire();
+    abstract BufferRecycler _internalAcquire();
 
     /**
      * Method that should be called when previously acquired (see {@link #acquireBufferRecycler})
@@ -67,7 +65,7 @@ public abstract class BufferRecyclerPool implements Serializable
      *
      * @param recycler
      */
-    public abstract void releaseBufferRecycler(BufferRecycler recycler);
+    void releaseBufferRecycler(BufferRecycler recycler);
 
     /**
      * @return the default {@link BufferRecyclerPool} implementation
@@ -111,7 +109,7 @@ public abstract class BufferRecyclerPool implements Serializable
      * Android), or on platforms where {@link java.lang.Thread}s are not
      * long-living or reused (like Project Loom).
      */
-    public static class ThreadLocalPool extends BufferRecyclerPool
+    public static class ThreadLocalPool implements BufferRecyclerPool
     {
         private static final long serialVersionUID = 1L;
 
@@ -141,7 +139,7 @@ public abstract class BufferRecyclerPool implements Serializable
 
         @SuppressWarnings("deprecation")
         @Override
-        protected BufferRecycler _internalAcquire() {
+        public BufferRecycler _internalAcquire() {
             return BufferRecyclers.getBufferRecycler();
         }
 
@@ -159,7 +157,7 @@ public abstract class BufferRecyclerPool implements Serializable
      * {@link BufferRecyclerPool} implementation that does not use
      * any pool but simply creates new instances when necessary.
      */
-    public static class NonRecyclingPool extends BufferRecyclerPool
+    public static class NonRecyclingPool implements BufferRecyclerPool
     {
         private static final long serialVersionUID = 1L;
 
@@ -187,7 +185,7 @@ public abstract class BufferRecyclerPool implements Serializable
         }
 
         @Override
-        protected BufferRecycler _internalAcquire() {
+        public BufferRecycler _internalAcquire() {
             // Could link back to this pool as marker? For now just leave back-ref empty
             return new BufferRecycler();
         }
@@ -207,7 +205,7 @@ public abstract class BufferRecyclerPool implements Serializable
      * special handling with respect to JDK serialization, to retain
      * "global" reference distinct from non-shared ones.
      */
-    public abstract static class StatefulImplBase extends BufferRecyclerPool
+    public abstract static class StatefulImplBase implements BufferRecyclerPool
     {
         private static final long serialVersionUID = 1L;
 
@@ -278,7 +276,7 @@ public abstract class BufferRecyclerPool implements Serializable
         // // // Actual API implementation
         
         @Override
-        protected BufferRecycler _internalAcquire() {
+        public BufferRecycler _internalAcquire() {
             BufferRecycler bufferRecycler = pool.pollFirst();
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();
@@ -349,7 +347,7 @@ public abstract class BufferRecyclerPool implements Serializable
         // // // Actual API implementation
 
         @Override
-        protected BufferRecycler _internalAcquire() {
+        public BufferRecycler _internalAcquire() {
             // This simple lock free algorithm uses an optimistic compareAndSet strategy to
             // populate the underlying linked list in a thread-safe way. However, under very
             // heavy contention, the compareAndSet could fail multiple times, so it seems a
@@ -456,7 +454,7 @@ public abstract class BufferRecyclerPool implements Serializable
         // // // Actual API implementation
 
         @Override
-        protected BufferRecycler _internalAcquire() {
+        public BufferRecycler _internalAcquire() {
             BufferRecycler bufferRecycler = pool.poll();
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();

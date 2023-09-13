@@ -82,7 +82,7 @@ public class BufferRecyclerPoolTest extends BaseTest
 
 
     @SuppressWarnings("serial")
-    class TestPool extends BufferRecyclerPool
+    class TestPool implements BufferRecyclerPool
     {
         private BufferRecycler bufferRecycler;
 

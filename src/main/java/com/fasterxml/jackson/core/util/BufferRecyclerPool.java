@@ -75,7 +75,7 @@ public interface BufferRecyclerPool extends Serializable
      *   which is the thread local based one:
      *   basically alias to {@link #threadLocalPool()}).
      */
-    public static BufferRecyclerPool defaultPool() {
+    static BufferRecyclerPool defaultPool() {
         return threadLocalPool();
     }
 
@@ -83,7 +83,7 @@ public interface BufferRecyclerPool extends Serializable
      * @return Globally shared instance of {@link ThreadLocalPool}; same as calling
      *   {@link ThreadLocalPool#shared()}.
      */
-    public static BufferRecyclerPool threadLocalPool() {
+    static BufferRecyclerPool threadLocalPool() {
         return ThreadLocalPool.shared();
     }
 
@@ -91,7 +91,7 @@ public interface BufferRecyclerPool extends Serializable
      * @return Globally shared instance of {@link NonRecyclingPool}; same as calling
      *   {@link NonRecyclingPool#shared()}.
      */
-    public static BufferRecyclerPool nonRecyclingPool() {
+    static BufferRecyclerPool nonRecyclingPool() {
         return NonRecyclingPool.shared();
     }
 
@@ -112,7 +112,7 @@ public interface BufferRecyclerPool extends Serializable
      * Android), or on platforms where {@link java.lang.Thread}s are not
      * long-living or reused (like Project Loom).
      */
-    public class ThreadLocalPool implements BufferRecyclerPool
+    class ThreadLocalPool implements BufferRecyclerPool
     {
         private static final long serialVersionUID = 1L;
 
@@ -160,7 +160,7 @@ public interface BufferRecyclerPool extends Serializable
      * {@link BufferRecyclerPool} implementation that does not use
      * any pool but simply creates new instances when necessary.
      */
-    public class NonRecyclingPool implements BufferRecyclerPool
+    class NonRecyclingPool implements BufferRecyclerPool
     {
         private static final long serialVersionUID = 1L;
 
@@ -241,7 +241,7 @@ public interface BufferRecyclerPool extends Serializable
      *<p>
      * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
      */
-    public class ConcurrentDequePool extends StatefulImplBase
+    class ConcurrentDequePool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 
@@ -308,7 +308,7 @@ public interface BufferRecyclerPool extends Serializable
      * Pool is unbounded: see {@link BufferRecyclerPool} for
      * details on what this means.
      */
-    public class LockFreePool extends StatefulImplBase
+    class LockFreePool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 
@@ -405,7 +405,7 @@ public interface BufferRecyclerPool extends Serializable
      * {@link BufferRecycler} instances than its size configuration:
      * the default size is {@link BoundedPool#DEFAULT_CAPACITY}.
      */
-    public class BoundedPool extends StatefulImplBase
+    class BoundedPool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 

@@ -38,28 +38,31 @@ import java.util.concurrent.atomic.AtomicReference;
 public interface BufferRecyclerPool extends Serializable
 {
     /**
-     * Method called to obtain {@link BufferRecycler}; possibly
-     * (but necessarily) a pooled recycler instance (depends on implementation
-     * and pool state) AND make sure it is linked back to this
+     * Method called to acquire a {@link BufferRecycler} from this pool
+     * AND make sure it is linked back to this
      * {@link BufferRecyclerPool} as necessary for it to be
      * released (see {@link #releaseBufferRecycler}) later on after
      * usage ends.
+     * Actual acquisition is done by a call to {@link #acquireBufferRecycler()}.
+     *<p>
+     * Default implementation calls {@link #acquireBufferRecycler()} followed by
+     * a call to {@link BufferRecycler#withPool}.
      *
      * @return {@link BufferRecycler} for caller to use; caller expected
      *   to call {@link #releaseBufferRecycler} after it is done using recycler.
      */
-    default BufferRecycler acquireBufferRecycler() {
-        return _internalAcquire().withPool(this);
+    default BufferRecycler acquireAndLinkBufferRecycler() {
+        return acquireBufferRecycler().withPool(this);
     }
 
     /**
      * Method for sub-classes to implement for actual acquire logic; called
-     * by {@link #acquireBufferRecycler()}
+     * by {@link #acquireAndLinkBufferRecycler()}.
      */
-    abstract BufferRecycler _internalAcquire();
+    abstract BufferRecycler acquireBufferRecycler();
 
     /**
-     * Method that should be called when previously acquired (see {@link #acquireBufferRecycler})
+     * Method that should be called when previously acquired (see {@link #acquireAndLinkBufferRecycler})
      * recycler instances is no longer needed; this lets pool to take ownership
      * for possible reuse.
      *
@@ -109,7 +112,7 @@ public interface BufferRecyclerPool extends Serializable
      * Android), or on platforms where {@link java.lang.Thread}s are not
      * long-living or reused (like Project Loom).
      */
-    public static class ThreadLocalPool implements BufferRecyclerPool
+    public class ThreadLocalPool implements BufferRecyclerPool
     {
         private static final long serialVersionUID = 1L;
 
@@ -132,14 +135,14 @@ public interface BufferRecyclerPool extends Serializable
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
+        public BufferRecycler acquireAndLinkBufferRecycler() {
             // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
-            return _internalAcquire();
+            return acquireBufferRecycler();
         }
 
         @SuppressWarnings("deprecation")
         @Override
-        public BufferRecycler _internalAcquire() {
+        public BufferRecycler acquireBufferRecycler() {
             return BufferRecyclers.getBufferRecycler();
         }
 
@@ -157,7 +160,7 @@ public interface BufferRecyclerPool extends Serializable
      * {@link BufferRecyclerPool} implementation that does not use
      * any pool but simply creates new instances when necessary.
      */
-    public static class NonRecyclingPool implements BufferRecyclerPool
+    public class NonRecyclingPool implements BufferRecyclerPool
     {
         private static final long serialVersionUID = 1L;
 
@@ -179,13 +182,13 @@ public interface BufferRecyclerPool extends Serializable
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
+        public BufferRecycler acquireAndLinkBufferRecycler() {
             // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
-            return _internalAcquire();
+            return acquireBufferRecycler();
         }
 
         @Override
-        public BufferRecycler _internalAcquire() {
+        public BufferRecycler acquireBufferRecycler() {
             // Could link back to this pool as marker? For now just leave back-ref empty
             return new BufferRecycler();
         }
@@ -238,7 +241,7 @@ public interface BufferRecyclerPool extends Serializable
      *<p>
      * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
      */
-    public static class ConcurrentDequePool extends StatefulImplBase
+    public class ConcurrentDequePool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 
@@ -276,7 +279,7 @@ public interface BufferRecyclerPool extends Serializable
         // // // Actual API implementation
         
         @Override
-        public BufferRecycler _internalAcquire() {
+        public BufferRecycler acquireBufferRecycler() {
             BufferRecycler bufferRecycler = pool.pollFirst();
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();
@@ -305,7 +308,7 @@ public interface BufferRecyclerPool extends Serializable
      * Pool is unbounded: see {@link BufferRecyclerPool} for
      * details on what this means.
      */
-    public static class LockFreePool extends StatefulImplBase
+    public class LockFreePool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 
@@ -347,7 +350,7 @@ public interface BufferRecyclerPool extends Serializable
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler _internalAcquire() {
+        public BufferRecycler acquireBufferRecycler() {
             // This simple lock free algorithm uses an optimistic compareAndSet strategy to
             // populate the underlying linked list in a thread-safe way. However, under very
             // heavy contention, the compareAndSet could fail multiple times, so it seems a
@@ -402,7 +405,7 @@ public interface BufferRecyclerPool extends Serializable
      * {@link BufferRecycler} instances than its size configuration:
      * the default size is {@link BoundedPool#DEFAULT_CAPACITY}.
      */
-    public static class BoundedPool extends StatefulImplBase
+    public class BoundedPool extends StatefulImplBase
     {
         private static final long serialVersionUID = 1L;
 
@@ -454,7 +457,7 @@ public interface BufferRecyclerPool extends Serializable
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler _internalAcquire() {
+        public BufferRecycler acquireBufferRecycler() {
             BufferRecycler bufferRecycler = pool.poll();
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();

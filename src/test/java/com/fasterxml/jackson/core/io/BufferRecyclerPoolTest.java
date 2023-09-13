@@ -45,7 +45,7 @@ public class BufferRecyclerPoolTest extends BaseTest
 
         if (checkPooledResource) {
             // acquire the pooled BufferRecycler again and check if it is the same instance used before
-            BufferRecycler pooledBufferRecycler = pool.acquireBufferRecycler();
+            BufferRecycler pooledBufferRecycler = pool.acquireAndLinkBufferRecycler();
             try {
                 assertSame(usedBufferRecycler, pooledBufferRecycler);
             } finally {
@@ -87,7 +87,7 @@ public class BufferRecyclerPoolTest extends BaseTest
         private BufferRecycler bufferRecycler;
 
         @Override
-        public BufferRecycler _internalAcquire() {
+        public BufferRecycler acquireBufferRecycler() {
             if (bufferRecycler != null) {
                 BufferRecycler tmp = bufferRecycler;
                 this.bufferRecycler = null;

@@ -59,7 +59,7 @@ public interface BufferRecyclerPool extends Serializable
      * Method for sub-classes to implement for actual acquire logic; called
      * by {@link #acquireAndLinkBufferRecycler()}.
      */
-    abstract BufferRecycler acquireBufferRecycler();
+    BufferRecycler acquireBufferRecycler();
 
     /**
      * Method that should be called when previously acquired (see {@link #acquireAndLinkBufferRecycler})

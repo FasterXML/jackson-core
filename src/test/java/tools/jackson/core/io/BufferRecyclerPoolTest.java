@@ -34,6 +34,10 @@ public class BufferRecyclerPoolTest extends BaseTest
         checkBufferRecyclerPoolImpl(BufferRecyclerPool.BoundedPool.nonShared(1), true);
     }
 
+    public void testPluggingPool() throws Exception {
+        checkBufferRecyclerPoolImpl(new TestPool(), true);
+    }
+
     private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool, boolean checkPooledResource) throws Exception {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .bufferRecyclerPool(pool)
@@ -42,7 +46,7 @@ public class BufferRecyclerPoolTest extends BaseTest
 
         if (checkPooledResource) {
             // acquire the pooled BufferRecycler again and check if it is the same instance used before
-            BufferRecycler pooledBufferRecycler = pool.acquireBufferRecycler();
+            BufferRecycler pooledBufferRecycler = pool.acquireAndLinkBufferRecycler();
             try {
                 assertSame(usedBufferRecycler, pooledBufferRecycler);
             } finally {
@@ -77,5 +81,27 @@ public class BufferRecyclerPoolTest extends BaseTest
 
         @Override
         public void write(byte[] b, int offset, int len) throws IOException { size += len; }
+    }
+
+
+    @SuppressWarnings("serial")
+    class TestPool implements BufferRecyclerPool
+    {
+        private BufferRecycler bufferRecycler;
+
+        @Override
+        public BufferRecycler acquireBufferRecycler() {
+            if (bufferRecycler != null) {
+                BufferRecycler tmp = bufferRecycler;
+                this.bufferRecycler = null;
+                return tmp;
+            }
+            return new BufferRecycler();
+        }
+
+        @Override
+        public void releaseBufferRecycler(BufferRecycler recycler) {
+            this.bufferRecycler = recycler;
+        }
     }
 }

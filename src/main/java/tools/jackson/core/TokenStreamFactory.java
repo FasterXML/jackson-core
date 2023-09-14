@@ -1224,7 +1224,7 @@ public abstract class TokenStreamFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        return _getBufferRecyclerPool().acquireBufferRecycler();
+        return _getBufferRecyclerPool().acquireAndLinkBufferRecycler();
     }
 
     /**

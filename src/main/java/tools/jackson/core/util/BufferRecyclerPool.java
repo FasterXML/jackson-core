@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Interface for entity that controls creation and possible reuse of {@link BufferRecycler}
+ * API for entity that controls creation and possible reuse of {@link BufferRecycler}
  * instances used for recycling of underlying input/output buffers.
  *<p>
  * Different pool implementations use different strategies on retaining
@@ -37,17 +37,31 @@ import java.util.concurrent.atomic.AtomicReference;
 public interface BufferRecyclerPool extends Serializable
 {
     /**
-     * Method called to acquire {@link BufferRecycler}; possibly
-     * (but necessarily) a pooled recycler instance (depends on implementation
-     * and pool state).
+     * Method called to acquire a {@link BufferRecycler} from this pool
+     * AND make sure it is linked back to this
+     * {@link BufferRecyclerPool} as necessary for it to be
+     * released (see {@link #releaseBufferRecycler}) later on after
+     * usage ends.
+     * Actual acquisition is done by a call to {@link #acquireBufferRecycler()}.
+     *<p>
+     * Default implementation calls {@link #acquireBufferRecycler()} followed by
+     * a call to {@link BufferRecycler#withPool}.
      *
      * @return {@link BufferRecycler} for caller to use; caller expected
      *   to call {@link #releaseBufferRecycler} after it is done using recycler.
      */
+    default BufferRecycler acquireAndLinkBufferRecycler() {
+        return acquireBufferRecycler().withPool(this);
+    }
+
+    /**
+     * Method for sub-classes to implement for actual acquire logic; called
+     * by {@link #acquireAndLinkBufferRecycler()}.
+     */
     BufferRecycler acquireBufferRecycler();
 
     /**
-     * Method that should be called when previously acquired (see {@link #acquireBufferRecycler})
+     * Method that should be called when previously acquired (see {@link #acquireAndLinkBufferRecycler})
      * recycler instances is no longer needed; this lets pool to take ownership
      * for possible reuse.
      *
@@ -125,11 +139,13 @@ public interface BufferRecyclerPool extends Serializable
         // No instances beyond shared one should be constructed
         private ThreadLocalPool() { }
 
-        // // // JDK serialization support
-
-        protected Object readResolve() { return GLOBAL; }
-
         // // // Actual API implementation
+
+        @Override
+        public BufferRecycler acquireAndLinkBufferRecycler() {
+            // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
+            return acquireBufferRecycler();
+        }
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
@@ -148,6 +164,10 @@ public interface BufferRecyclerPool extends Serializable
         public void releaseBufferRecycler(BufferRecycler recycler) {
             ; // nothing to do, relies on ThreadLocal
         }
+
+        // // // JDK serialization support
+
+        protected Object readResolve() { return GLOBAL; }
     }
 
     /**
@@ -173,11 +193,13 @@ public interface BufferRecyclerPool extends Serializable
             return GLOBAL;
         }
 
-        // // // JDK serialization support
-
-        protected Object readResolve() { return GLOBAL; }
-
         // // // Actual API implementation
+
+        @Override
+        public BufferRecycler acquireAndLinkBufferRecycler() {
+            // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
+            return acquireBufferRecycler();
+        }
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
@@ -189,6 +211,10 @@ public interface BufferRecyclerPool extends Serializable
         public void releaseBufferRecycler(BufferRecycler recycler) {
             ; // nothing to do, there is no underlying pool
         }
+
+        // // // JDK serialization support
+
+        protected Object readResolve() { return GLOBAL; }
     }
 
     /**
@@ -196,7 +222,8 @@ public interface BufferRecyclerPool extends Serializable
      * special handling with respect to JDK serialization, to retain
      * "global" reference distinct from non-shared ones.
      */
-    abstract class StatefulImplBase implements BufferRecyclerPool {
+    public abstract static class StatefulImplBase implements BufferRecyclerPool
+    {
         private static final long serialVersionUID = 1L;
 
         protected final static int SERIALIZATION_SHARED = -1;
@@ -263,15 +290,6 @@ public interface BufferRecyclerPool extends Serializable
             return new ConcurrentDequePool(SERIALIZATION_NON_SHARED);
         }
 
-        // // // JDK serialization support
-
-        /**
-         * Make sure to re-link to global/shared or non-shared.
-         */
-        protected Object readResolve() {
-            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
-        }
-
         // // // Actual API implementation
         
         @Override
@@ -280,14 +298,23 @@ public interface BufferRecyclerPool extends Serializable
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();
             }
-            return bufferRecycler.withPool(this);
+            return bufferRecycler;
         }
 
         @Override
         public void releaseBufferRecycler(BufferRecycler bufferRecycler) {
             pool.offerLast(bufferRecycler);
         }
-    }
+
+        // // // JDK serialization support
+
+        /**
+         * Make sure to re-link to global/shared or non-shared.
+         */
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
+        }
+}
 
     /**
      * {@link BufferRecyclerPool} implementation that uses
@@ -309,7 +336,7 @@ public interface BufferRecyclerPool extends Serializable
 
         // // // Life-cycle (constructors, factory methods)
 
-        private LockFreePool(int serialization) {
+        protected LockFreePool(int serialization) {
             super(serialization);
             head = new AtomicReference<>();
         }
@@ -334,23 +361,10 @@ public interface BufferRecyclerPool extends Serializable
             return new LockFreePool(SERIALIZATION_NON_SHARED);
         }
 
-        // // // JDK serialization support
-
-        /**
-         * Make sure to re-link to global/shared or non-shared.
-         */
-        protected Object readResolve() {
-            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
-        }
-
         // // // Actual API implementation
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
-            return _getRecycler().withPool(this);
-        }
-
-        private BufferRecycler _getRecycler() {
             // This simple lock free algorithm uses an optimistic compareAndSet strategy to
             // populate the underlying linked list in a thread-safe way. However, under very
             // heavy contention, the compareAndSet could fail multiple times, so it seems a
@@ -377,6 +391,15 @@ public interface BufferRecyclerPool extends Serializable
                     return;
                 }
             }
+        }
+
+        // // // JDK serialization support
+
+        /**
+         * Make sure to re-link to global/shared or non-shared.
+         */
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
         }
 
         private static class Node {
@@ -445,15 +468,6 @@ public interface BufferRecyclerPool extends Serializable
             return new BoundedPool(capacity);
         }
 
-        // // // JDK serialization support
-
-        /**
-         * Make sure to re-link to global/shared or non-shared.
-         */
-        protected Object readResolve() {
-            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared(_serialization));
-        }
-
         // // // Actual API implementation
 
         @Override
@@ -462,12 +476,21 @@ public interface BufferRecyclerPool extends Serializable
             if (bufferRecycler == null) {
                 bufferRecycler = new BufferRecycler();
             }
-            return bufferRecycler.withPool(this);
+            return bufferRecycler;
         }
 
         @Override
         public void releaseBufferRecycler(BufferRecycler bufferRecycler) {
             pool.offer(bufferRecycler);
+        }
+
+        // // // JDK serialization support
+
+        /**
+         * Make sure to re-link to global/shared or non-shared.
+         */
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared(_serialization));
         }
 
         // // // Other methods

@@ -95,6 +95,73 @@ public class BasicParserFilteringTest extends BaseTest
         }
     }
 
+    static class LoggingFilter extends TokenFilter
+    {
+        final TokenFilter _parent;
+        final ArrayList<String> _log;
+
+        LoggingFilter(final TokenFilter parent) {
+            _parent = parent;
+            _log = new ArrayList<>();
+        }
+
+        LoggingFilter(final TokenFilter parent, final ArrayList<String> log) {
+            _parent = parent;
+            _log = log;
+        }
+
+        TokenFilter rewrap(final TokenFilter filter) {
+            if (filter == null) {
+                return null;
+            } else if (filter == TokenFilter.INCLUDE_ALL) {
+                return TokenFilter.INCLUDE_ALL;
+            }
+            return new LoggingFilter(filter, _log);
+        }
+
+        @Override
+        public TokenFilter includeElement(final int index) {
+            _log.add("includeElement: " + index);
+            return rewrap(_parent.includeElement(index));
+        }
+
+        @Override
+        public TokenFilter includeProperty(final String name) {
+            _log.add("includeProperty: " + name);
+            return rewrap(_parent.includeProperty(name));
+        }
+
+        @Override
+        public TokenFilter filterStartObject() {
+            _log.add("filterStartObject");
+            return rewrap(_parent.filterStartObject());
+        }
+
+        @Override
+        public TokenFilter filterStartArray() {
+            _log.add("filterStartArray");
+            return rewrap(_parent.filterStartArray());
+        }
+
+        @Override
+        public void filterFinishObject() {
+            _log.add("filterFinishObject");
+            _parent.filterFinishObject();
+        }
+
+        @Override
+        public void filterFinishArray() {
+            _log.add("filterFinishArray");
+            _parent.filterFinishArray();
+        }
+
+        @Override
+        protected boolean _includeScalar() {
+            _log.add("_includeScalar");
+            return _parent._includeScalar();
+        }
+    }
+
     static final TokenFilter INCLUDE_EMPTY_IF_NOT_FILTERED = new TokenFilter() {
         @Override
         public boolean includeEmptyArray(boolean contentsFiltered) {
@@ -762,5 +829,22 @@ public class BasicParserFilteringTest extends BaseTest
                 true // multipleMatches
         );
         assertEquals(a2q("[[]]"), readAndWrite(JSON_F, p));
+    }
+
+    public void testCallbacksFromFilteringParserDelegate1() throws Exception {
+        LoggingFilter loggingFilter = new LoggingFilter(new JsonPointerBasedFilter("/parent"));
+
+        JsonParser p0 = JSON_F.createParser(a2q(
+                "{'parent':{'child':1}}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                loggingFilter,
+                Inclusion.ONLY_INCLUDE_ALL,
+                true
+        );
+        assertEquals(a2q("{'child':1}"), readAndWrite(JSON_F, p));
+
+        assertEquals(
+                Arrays.asList("filterStartObject", "includeProperty: parent", "filterFinishObject"),
+                loggingFilter._log);
     }
 }

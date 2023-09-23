@@ -373,7 +373,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 boolean returnEnd = _headContext.isStartHandled();
                 f = _headContext.getFilter();
                 if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
-                    f.filterFinishArray();
+                    if (t.id() == JsonTokenId.ID_END_ARRAY) {
+                        f.filterFinishArray();
+                    } else {
+                        f.filterFinishObject();
+                    }
                 }
                 _headContext = _headContext.getParent();
                 _itemFilter = _headContext.getFilter();

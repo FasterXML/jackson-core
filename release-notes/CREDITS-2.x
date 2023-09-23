@@ -367,23 +367,28 @@ Markus Spika  (DemonicTutor@github)
  * Contributed #1036: Allow all array elements in `JsonPointerBasedFilter`
   (2.16.0)
 
-Pedro Nacht (pnacht@github)
+Pedro Nacht (@pnacht@)
  * Contributed #844: Add SLSA provenance via build script
   (2.15.0)
 
-Jonas Konrad (yawkat@github)
+Jonas Konrad (@yawkat)
  * Contributed #921: Add `JsonFactory.Feature` to disable charset detection
   (2.15.0)
 
-Carter Kozak (carterkozak@github)
+Carter Kozak (@carterkozak)
  * Contributed #1015: `JsonFactory` implementations should respect `CANONICALIZE_FIELD_NAMES`
   (2.15.1)
 
-Armin Samii (artoonie@github)
+Dai Mikurube (dmikurube@github)
+ * Contributed #1111: Call the right `filterFinishArray()`/`filterFinishObject()`
+   from `FilteringParserDelegate`
+  (2.15.3)
+
+Armin Samii (@artoonie)
  * Contributed #1050: Compare `_snapshotInfo` in `Version`
   (2.16.0)
 
-Joo Hyuk Kim (JooHyukKim@github)
+Joo Hyuk Kim (@JooHyukKim)
  * Contributed #1067: Add `ErrorReportConfiguration`
   (2.16.0)
 

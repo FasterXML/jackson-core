@@ -14,6 +14,12 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.15.3 (not yet released)
+
+#1111: Call the right `filterFinishArray()`/`filterFinishObject()`
+  from `FilteringParserDelegate`
+ (fix contributed by Dai M)
+
 2.15.2 (30-May-2023)
 
 #1019: Allow override of `StreamReadContraints` default with

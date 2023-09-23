@@ -367,3 +367,8 @@ Pedro Nacht (pnacht@github)
 Jonas Konrad (yawkat@github)
   * Contributed #921: Add `JsonFactory.Feature` to disable charset detection
   (2.15.0)
+
+Dai Mikurube (dmikurube@github)
+  * Contributed #1111: Call the right `filterFinishArray()`/`filterFinishObject()`
+   from `FilteringParserDelegate`
+  (2.15.3)

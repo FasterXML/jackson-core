@@ -45,6 +45,17 @@ public class JsonPointerBasedFilter extends TokenFilter
         _includeAllElements = includeAllElements;
     }
 
+    /**
+     * Overridable factory method use for creating new instances by
+     * default {@link #includeElement} and {@link #includeProperty} methods:
+     * needs to be overridden if sub-classing this class.
+     *
+     * @since 2.16
+     */
+    protected JsonPointerBasedFilter construct(JsonPointer pathToMatch, boolean includeAllElements) {
+        return new JsonPointerBasedFilter(pathToMatch, includeAllElements);
+    }
+
     @Override
     public TokenFilter includeElement(int index) {
         JsonPointer next;
@@ -59,7 +70,7 @@ public class JsonPointerBasedFilter extends TokenFilter
         if (next.matches()) {
             return TokenFilter.INCLUDE_ALL;
         }
-        return new JsonPointerBasedFilter(next, _includeAllElements);
+        return construct(next, _includeAllElements);
     }
 
     @Override
@@ -71,7 +82,7 @@ public class JsonPointerBasedFilter extends TokenFilter
         if (next.matches()) {
             return TokenFilter.INCLUDE_ALL;
         }
-        return new JsonPointerBasedFilter(next, _includeAllElements);
+        return construct(next, _includeAllElements);
     }
 
     @Override

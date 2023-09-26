@@ -37,7 +37,8 @@ public class BufferRecyclerPoolTest extends BaseTest
         checkBufferRecyclerPoolImpl(new TestPool(), true);
     }
 
-    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool, boolean checkPooledResource) throws Exception {
+    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool<BufferRecycler> pool,
+            boolean checkPooledResource) throws Exception {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .bufferRecyclerPool(pool)
                 .build();
@@ -82,7 +83,7 @@ public class BufferRecyclerPoolTest extends BaseTest
 
 
     @SuppressWarnings("serial")
-    class TestPool implements BufferRecyclerPool
+    class TestPool implements BufferRecyclerPool<BufferRecycler>
     {
         private BufferRecycler bufferRecycler;
 

@@ -262,7 +262,7 @@ public class JsonFactory
     /**
      * @since 2.16
      */
-    protected BufferRecyclerPool _bufferRecyclerPool;
+    protected BufferRecyclerPool<BufferRecycler> _bufferRecyclerPool;
 
     /**
      * Object that implements conversion functionality between
@@ -2159,7 +2159,7 @@ public class JsonFactory
      *
      * @since 2.16
      */
-    public BufferRecyclerPool _getBufferRecyclerPool() {
+    public BufferRecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)

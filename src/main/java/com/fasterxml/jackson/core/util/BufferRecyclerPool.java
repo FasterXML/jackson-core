@@ -35,8 +35,12 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @since 2.16
  */
-public interface BufferRecyclerPool extends Serializable
+public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> extends Serializable
 {
+    public interface WithPool<P extends WithPool<P>> {
+        P withPool(BufferRecyclerPool<P> pool);
+    }
+
     /**
      * Method called to acquire a {@link BufferRecycler} from this pool
      * AND make sure it is linked back to this
@@ -51,7 +55,7 @@ public interface BufferRecyclerPool extends Serializable
      * @return {@link BufferRecycler} for caller to use; caller expected
      *   to call {@link #releaseBufferRecycler} after it is done using recycler.
      */
-    default BufferRecycler acquireAndLinkBufferRecycler() {
+    default P acquireAndLinkBufferRecycler() {
         return acquireBufferRecycler().withPool(this);
     }
 
@@ -59,7 +63,7 @@ public interface BufferRecyclerPool extends Serializable
      * Method for sub-classes to implement for actual acquire logic; called
      * by {@link #acquireAndLinkBufferRecycler()}.
      */
-    BufferRecycler acquireBufferRecycler();
+    P acquireBufferRecycler();
 
     /**
      * Method that should be called when previously acquired (see {@link #acquireAndLinkBufferRecycler})
@@ -68,14 +72,14 @@ public interface BufferRecyclerPool extends Serializable
      *
      * @param recycler
      */
-    void releaseBufferRecycler(BufferRecycler recycler);
+    void releaseBufferRecycler(P recycler);
 
     /**
      * @return the default {@link BufferRecyclerPool} implementation
      *   which is the thread local based one:
      *   basically alias to {@link #threadLocalPool()}).
      */
-    static BufferRecyclerPool defaultPool() {
+    static BufferRecyclerPool<BufferRecycler> defaultPool() {
         return threadLocalPool();
     }
 
@@ -83,7 +87,7 @@ public interface BufferRecyclerPool extends Serializable
      * @return Globally shared instance of {@link ThreadLocalPool}; same as calling
      *   {@link ThreadLocalPool#shared()}.
      */
-    static BufferRecyclerPool threadLocalPool() {
+    static BufferRecyclerPool<BufferRecycler> threadLocalPool() {
         return ThreadLocalPool.shared();
     }
 
@@ -91,7 +95,7 @@ public interface BufferRecyclerPool extends Serializable
      * @return Globally shared instance of {@link NonRecyclingPool}; same as calling
      *   {@link NonRecyclingPool#shared()}.
      */
-    static BufferRecyclerPool nonRecyclingPool() {
+    static BufferRecyclerPool<BufferRecycler> nonRecyclingPool() {
         return NonRecyclingPool.shared();
     }
 
@@ -112,11 +116,11 @@ public interface BufferRecyclerPool extends Serializable
      * Android), or on platforms where {@link java.lang.Thread}s are not
      * long-living or reused (like Project Loom).
      */
-    class ThreadLocalPool implements BufferRecyclerPool
+    class ThreadLocalPool implements BufferRecyclerPool<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 
-        private static final BufferRecyclerPool GLOBAL = new ThreadLocalPool();
+        private static final ThreadLocalPool GLOBAL = new ThreadLocalPool();
 
         /**
          * Accessor for the global, shared instance of {@link ThreadLocal}-based
@@ -125,7 +129,7 @@ public interface BufferRecyclerPool extends Serializable
          *
          * @return Shared pool instance
          */
-        public static BufferRecyclerPool shared() {
+        public static ThreadLocalPool shared() {
             return GLOBAL;
         }
 
@@ -160,11 +164,11 @@ public interface BufferRecyclerPool extends Serializable
      * {@link BufferRecyclerPool} implementation that does not use
      * any pool but simply creates new instances when necessary.
      */
-    class NonRecyclingPool implements BufferRecyclerPool
+    class NonRecyclingPool implements BufferRecyclerPool<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 
-        private static final BufferRecyclerPool GLOBAL = new NonRecyclingPool();
+        private static final NonRecyclingPool GLOBAL = new NonRecyclingPool();
 
         // No instances beyond shared one should be constructed
         private NonRecyclingPool() { }
@@ -175,7 +179,7 @@ public interface BufferRecyclerPool extends Serializable
          *
          * @return Shared pool instance
          */
-        public static BufferRecyclerPool shared() {
+        public static NonRecyclingPool shared() {
             return GLOBAL;
         }
 
@@ -208,7 +212,8 @@ public interface BufferRecyclerPool extends Serializable
      * special handling with respect to JDK serialization, to retain
      * "global" reference distinct from non-shared ones.
      */
-    public abstract static class StatefulImplBase implements BufferRecyclerPool
+    public abstract static class StatefulImplBase<P extends WithPool<P>>
+        implements BufferRecyclerPool<P>
     {
         private static final long serialVersionUID = 1L;
 
@@ -227,7 +232,7 @@ public interface BufferRecyclerPool extends Serializable
             _serialization = serialization;
         }
 
-        protected Optional<BufferRecyclerPool> _resolveToShared(BufferRecyclerPool shared) {
+        protected Optional<StatefulImplBase<P>> _resolveToShared(StatefulImplBase<P> shared) {
             if (_serialization == SERIALIZATION_SHARED) {
                 return Optional.of(shared);
             }
@@ -241,7 +246,7 @@ public interface BufferRecyclerPool extends Serializable
      *<p>
      * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
      */
-    class ConcurrentDequePool extends StatefulImplBase
+    class ConcurrentDequePool extends StatefulImplBase<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 
@@ -308,7 +313,7 @@ public interface BufferRecyclerPool extends Serializable
      * Pool is unbounded: see {@link BufferRecyclerPool} for
      * details on what this means.
      */
-    class LockFreePool extends StatefulImplBase
+    class LockFreePool extends StatefulImplBase<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 
@@ -405,7 +410,7 @@ public interface BufferRecyclerPool extends Serializable
      * {@link BufferRecycler} instances than its size configuration:
      * the default size is {@link BoundedPool#DEFAULT_CAPACITY}.
      */
-    class BoundedPool extends StatefulImplBase
+    class BoundedPool extends StatefulImplBase<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 

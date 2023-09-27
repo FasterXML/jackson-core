@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.core.util;
 
+import java.util.concurrent.ConcurrentLinkedDeque;
+
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.util.BufferRecyclerPool.ConcurrentDequePoolBase;
 
 /**
  * Set of {@link BufferRecyclerPool} implementations to be used by the default
@@ -20,19 +23,23 @@ public final class JsonBufferRecyclers
         return threadLocalPool();
     }
     /**
-     * @return Globally shared instance of {@link ThreadLocalPool}; same as calling
-     *   {@link ThreadLocalPool#shared()}.
+     * Accessor for getting the shared/global {@link ThreadLocalPool} instance
+     * (due to design only one instance ever needed)
+     *
+     * @return Globally shared instance of {@link ThreadLocalPool}
      */
     public static BufferRecyclerPool<BufferRecycler> threadLocalPool() {
-        return ThreadLocalPool.shared();
+        return ThreadLocalPool.GLOBAL;
     }
 
     /**
-     * @return Globally shared instance of {@link NonRecyclingPool}; same as calling
-     *   {@link NonRecyclingPool#shared()}.
+     * Accessor for getting the shared/global {@link NonRecyclingPool} instance
+     * (due to design only one instance ever needed)
+     *
+     * @return Globally shared instance of {@link NonRecyclingPool}.
      */
     public static BufferRecyclerPool<BufferRecycler> nonRecyclingPool() {
-        return NonRecyclingPool.shared();
+        return NonRecyclingPool.GLOBAL;
     }
 
     /*
@@ -52,20 +59,9 @@ public final class JsonBufferRecyclers
     {
         private static final long serialVersionUID = 1L;
 
-        private static final ThreadLocalPool GLOBAL = new ThreadLocalPool();
+        protected static final ThreadLocalPool GLOBAL = new ThreadLocalPool();
 
         private ThreadLocalPool() { }
-        
-        /**
-         * Accessor for the global, shared instance of this pool type:
-         * due to its nature it is a Singleton as there can only
-         * be a single recycled {@link BufferRecycler} per thread.
-         *
-         * @return Shared pool instance
-         */
-        public static ThreadLocalPool shared() {
-            return GLOBAL;
-        }
 
         @SuppressWarnings("deprecation")
         @Override
@@ -87,28 +83,74 @@ public final class JsonBufferRecyclers
     {
         private static final long serialVersionUID = 1L;
 
-        private static final NonRecyclingPool GLOBAL = new NonRecyclingPool();
+        protected static final NonRecyclingPool GLOBAL = new NonRecyclingPool();
 
-        // No instances beyond shared one should be constructed
-        private NonRecyclingPool() { }
+        protected NonRecyclingPool() { }
 
         @Override
         public BufferRecycler acquireBufferRecycler() {
             return new BufferRecycler();
         }
         
-        /**
-         * Accessor for the shared singleton instance; due to implementation having no state
-         * this is preferred over creating instances.
-         *
-         * @return Shared pool instance
-         */
-        public static NonRecyclingPool shared() {
-            return GLOBAL;
-        }
-        
         // // // JDK serialization support
 
         protected Object readResolve() { return GLOBAL; }
+    }
+
+    /**
+     * {@link BufferRecyclerPool} implementation that uses
+     * {@link ConcurrentLinkedDeque} for recycling instances.
+     *<p>
+     * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
+     */
+    public static class ConcurrentDequePool extends ConcurrentDequePoolBase<BufferRecycler>
+    {
+        private static final long serialVersionUID = 1L;
+
+        private static final ConcurrentDequePool GLOBAL = new ConcurrentDequePool(SERIALIZATION_SHARED);
+
+        // // // Life-cycle (constructors, factory methods)
+
+        protected ConcurrentDequePool(int serialization) {
+            super(serialization);
+        }
+
+        /**
+         * Accessor for getting the globally shared singleton instance.
+         * Note that if you choose to use this instance,
+         * pool may be shared by many other {@code JsonFactory} instances.
+         *
+         * @return Shared pool instance
+         */
+        public static ConcurrentDequePool shared() {
+            return GLOBAL;
+        }
+
+        /**
+         * Accessor for creating and returning a new, non-shared pool instance.
+         *
+         * @return Newly constructed, non-shared pool instance
+         */
+        public static ConcurrentDequePool nonShared() {
+            return new ConcurrentDequePool(SERIALIZATION_NON_SHARED);
+        }
+
+        @Override
+        public BufferRecycler acquireBufferRecycler() {
+            BufferRecycler bufferRecycler = pool.pollFirst();
+            if (bufferRecycler == null) {
+                bufferRecycler = new BufferRecycler();
+            }
+            return bufferRecycler;
+        }
+
+        // // // JDK serialization support
+
+        /**
+         * Make sure to re-link to global/shared or non-shared.
+         */
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
+        }
     }
 }

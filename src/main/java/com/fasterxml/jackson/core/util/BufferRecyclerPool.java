@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <li>{@link BoundedPool} is "bounded pool" and retains at most N recyclers (default value being
  *  {@link BoundedPool#DEFAULT_CAPACITY}) at any given time.
  *  </li>
- * <li>Two implementations -- {@link ConcurrentDequePool}, {@link LockFreePool}
+ * <li>Two implementations -- {@link ConcurrentDequePoolBase}, {@link LockFreePool}
  *   -- are "unbounded" and retain any number of recyclers released: in practice
  *   it is at most the highest number of concurrently used {@link BufferRecycler}s.
  *  </li>
@@ -116,7 +116,7 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         public abstract P acquireBufferRecycler();
 
         @Override
-        public void releaseBufferRecycler(P recycler) {
+        public void releaseBufferRecycler(P pooled) {
             ; // nothing to do, relies on ThreadLocal
         }
     }
@@ -141,7 +141,7 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         public abstract P acquireBufferRecycler();
 
         @Override
-        public void releaseBufferRecycler(P recycler) {
+        public void releaseBufferRecycler(P pooled) {
             ; // nothing to do, there is no underlying pool
         }
     }
@@ -151,14 +151,14 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      * special handling with respect to JDK serialization, to retain
      * "global" reference distinct from non-shared ones.
      */
-    public abstract static class StatefulImplBase<P extends WithPool<P>>
+    abstract class StatefulImplBase<P extends WithPool<P>>
         implements BufferRecyclerPool<P>
     {
         private static final long serialVersionUID = 1L;
 
-        protected final static int SERIALIZATION_SHARED = -1;
+        public final static int SERIALIZATION_SHARED = -1;
 
-        protected final static int SERIALIZATION_NON_SHARED = 1;
+        public final static int SERIALIZATION_NON_SHARED = 1;
 
         /**
          * Value that indicates basic aspects of pool for JDK serialization;
@@ -185,66 +185,28 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      *<p>
      * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
      */
-    class ConcurrentDequePool extends StatefulImplBase<BufferRecycler>
+    abstract class ConcurrentDequePoolBase<P extends WithPool<P>>
+        extends StatefulImplBase<P>
     {
         private static final long serialVersionUID = 1L;
 
-        private static final ConcurrentDequePool GLOBAL = new ConcurrentDequePool(SERIALIZATION_SHARED);
+        protected final transient Deque<P> pool;
 
-        private final transient Deque<BufferRecycler> pool;
-
-        // // // Life-cycle (constructors, factory methods)
-
-        protected ConcurrentDequePool(int serialization) {
+        protected ConcurrentDequePoolBase(int serialization) {
             super(serialization);
             pool = new ConcurrentLinkedDeque<>();
         }
 
-        /**
-         * Accessor for getting the globally shared singleton instance.
-         * Note that if you choose to use this instance,
-         * pool may be shared by many other {@code JsonFactory} instances.
-         *
-         * @return Shared pool instance
-         */
-        public static ConcurrentDequePool shared() {
-            return GLOBAL;
-        }
-
-        /**
-         * Accessor for creating and returning a new, non-shared pool instance.
-         *
-         * @return Newly constructed, non-shared pool instance
-         */
-        public static ConcurrentDequePool nonShared() {
-            return new ConcurrentDequePool(SERIALIZATION_NON_SHARED);
-        }
-
         // // // Actual API implementation
-        
-        @Override
-        public BufferRecycler acquireBufferRecycler() {
-            BufferRecycler bufferRecycler = pool.pollFirst();
-            if (bufferRecycler == null) {
-                bufferRecycler = new BufferRecycler();
-            }
-            return bufferRecycler;
-        }
 
         @Override
-        public void releaseBufferRecycler(BufferRecycler bufferRecycler) {
-            pool.offerLast(bufferRecycler);
-        }
+        public abstract P acquireBufferRecycler();
 
-        // // // JDK serialization support
-
-        /**
-         * Make sure to re-link to global/shared or non-shared.
-         */
-        protected Object readResolve() {
-            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
+        @Override
+        public void releaseBufferRecycler(P pooled) {
+            pool.offerLast(pooled);
         }
-}
+    }
 
     /**
      * {@link BufferRecyclerPool} implementation that uses

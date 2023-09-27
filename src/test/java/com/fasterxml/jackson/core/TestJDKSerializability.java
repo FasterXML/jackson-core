@@ -120,13 +120,13 @@ public class TestJDKSerializability extends BaseTest
         _testRecyclerPoolGlobal(JsonBufferRecyclers.nonRecyclingPool());
         _testRecyclerPoolGlobal(JsonBufferRecyclers.threadLocalPool());
 
-        _testRecyclerPoolGlobal(BufferRecyclerPool.ConcurrentDequePool.shared());
+        _testRecyclerPoolGlobal(JsonBufferRecyclers.ConcurrentDequePool.shared());
         _testRecyclerPoolGlobal(BufferRecyclerPool.LockFreePool.shared());
         BufferRecyclerPool.BoundedPool bounded =
                 _testRecyclerPoolGlobal(BufferRecyclerPool.BoundedPool.shared());
         assertEquals(BufferRecyclerPool.BoundedPool.DEFAULT_CAPACITY, bounded.capacity());
 
-        _testRecyclerPoolNonShared(BufferRecyclerPool.ConcurrentDequePool.nonShared());
+        _testRecyclerPoolNonShared(JsonBufferRecyclers.ConcurrentDequePool.nonShared());
         _testRecyclerPoolNonShared(BufferRecyclerPool.LockFreePool.nonShared());
         bounded = _testRecyclerPoolNonShared(BufferRecyclerPool.BoundedPool.nonShared(250));
         assertEquals(250, bounded.capacity());

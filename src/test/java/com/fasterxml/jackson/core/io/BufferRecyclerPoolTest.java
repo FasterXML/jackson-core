@@ -27,7 +27,7 @@ public class BufferRecyclerPoolTest extends BaseTest
     }
 
     public void testConcurrentDequeue() throws Exception {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ConcurrentDequePool.nonShared(), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.ConcurrentDequePool.nonShared(), true);
     }
 
     public void testBounded() throws Exception {

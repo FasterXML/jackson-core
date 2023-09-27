@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * will always simply construct and return new instance when {@code acquireBufferRecycler}
  * is called
  *  </li>
- * <li>{@link ThreadLocalPool} which uses {@link ThreadLocal} to retain at most
+ * <li>{@link ThreadLocalPoolBase} which uses {@link ThreadLocal} to retain at most
  *   1 recycler per {@link Thread}.
  * </li>
  * <li>{@link BoundedPool} is "bounded pool" and retains at most N recyclers (default value being
@@ -33,10 +33,17 @@ import java.util.concurrent.atomic.AtomicReference;
  *<p>
  * Default implementations are also included as nested classes.
  *
+ * @param <P> Type of Objects pool recycles
+ *
  * @since 2.16
  */
 public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> extends Serializable
 {
+    /**
+     * Simple add-on interface that poolable entities must implement.
+     *
+     * @param <P> Self type
+     */
     public interface WithPool<P extends WithPool<P>> {
         P withPool(BufferRecyclerPool<P> pool);
     }
@@ -75,23 +82,6 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
     void releaseBufferRecycler(P recycler);
 
     /**
-     * @return the default {@link BufferRecyclerPool} implementation
-     *   which is the thread local based one:
-     *   basically alias to {@link #threadLocalPool()}).
-     */
-    static BufferRecyclerPool<BufferRecycler> defaultPool() {
-        return threadLocalPool();
-    }
-
-    /**
-     * @return Globally shared instance of {@link ThreadLocalPool}; same as calling
-     *   {@link ThreadLocalPool#shared()}.
-     */
-    static BufferRecyclerPool<BufferRecycler> threadLocalPool() {
-        return ThreadLocalPool.shared();
-    }
-
-    /**
      * @return Globally shared instance of {@link NonRecyclingPool}; same as calling
      *   {@link NonRecyclingPool#shared()}.
      */
@@ -101,14 +91,14 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
 
     /*
     /**********************************************************************
-    /* Default BufferRecyclerPool implementations
+    /* Partial/base BufferRecyclerPool implementations
     /**********************************************************************
      */
 
     /**
      * Default {@link BufferRecyclerPool} implementation that uses
-     * {@link ThreadLocal} for recycling instances. {@link BufferRecycler}
-     * instances are stored using {@link java.lang.ref.SoftReference}s so that
+     * {@link ThreadLocal} for recycling instances. 
+     * Instances are stored using {@link java.lang.ref.SoftReference}s so that
      * they may be Garbage Collected as needed by JVM.
      *<p>
      * Note that this implementation may not work well on platforms where
@@ -116,48 +106,27 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      * Android), or on platforms where {@link java.lang.Thread}s are not
      * long-living or reused (like Project Loom).
      */
-    class ThreadLocalPool implements BufferRecyclerPool<BufferRecycler>
+    abstract class ThreadLocalPoolBase<P extends WithPool<P>> implements BufferRecyclerPool<P>
     {
         private static final long serialVersionUID = 1L;
 
-        private static final ThreadLocalPool GLOBAL = new ThreadLocalPool();
-
-        /**
-         * Accessor for the global, shared instance of {@link ThreadLocal}-based
-         * pool: due to its nature it is essentially Singleton as there can only
-         * be a single recycled {@link BufferRecycler} per thread.
-         *
-         * @return Shared pool instance
-         */
-        public static ThreadLocalPool shared() {
-            return GLOBAL;
-        }
-
-        // No instances beyond shared one should be constructed
-        private ThreadLocalPool() { }
+        protected ThreadLocalPoolBase() { }
 
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler acquireAndLinkBufferRecycler() {
+        public P acquireAndLinkBufferRecycler() {
             // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
             return acquireBufferRecycler();
         }
 
-        @SuppressWarnings("deprecation")
         @Override
-        public BufferRecycler acquireBufferRecycler() {
-            return BufferRecyclers.getBufferRecycler();
-        }
+        public abstract P acquireBufferRecycler();
 
         @Override
-        public void releaseBufferRecycler(BufferRecycler recycler) {
+        public void releaseBufferRecycler(P recycler) {
             ; // nothing to do, relies on ThreadLocal
         }
-
-        // // // JDK serialization support
-
-        protected Object readResolve() { return GLOBAL; }
     }
 
     /**

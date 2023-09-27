@@ -5,6 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
 
 /**
  * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
@@ -117,7 +118,7 @@ public class TestJDKSerializability extends BaseTest
         // First: shared/global pools that will always remain/become globally
         // shared instances
         _testRecyclerPoolGlobal(BufferRecyclerPool.nonRecyclingPool());
-        _testRecyclerPoolGlobal(BufferRecyclerPool.threadLocalPool());
+        _testRecyclerPoolGlobal(JsonBufferRecyclers.threadLocalPool());
 
         _testRecyclerPoolGlobal(BufferRecyclerPool.ConcurrentDequePool.shared());
         _testRecyclerPoolGlobal(BufferRecyclerPool.LockFreePool.shared());

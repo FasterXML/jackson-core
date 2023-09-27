@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.json.JsonGeneratorImpl;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclerPool;
+import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,7 +19,7 @@ public class BufferRecyclerPoolTest extends BaseTest
     }
 
     public void testThreadLocal() throws Exception {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ThreadLocalPool.shared(), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.threadLocalPool(), true);
     }
 
     public void testLockFree() throws Exception {

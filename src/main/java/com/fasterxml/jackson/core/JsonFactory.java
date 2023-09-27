@@ -368,7 +368,7 @@ public class JsonFactory
     public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) {
-        _bufferRecyclerPool = BufferRecyclerPool.defaultPool();
+        _bufferRecyclerPool = JsonBufferRecyclers.defaultPool();
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
@@ -1152,7 +1152,7 @@ public class JsonFactory
     /**********************************************************
      */
 
-    public JsonFactory setBufferRecyclerPool(BufferRecyclerPool p) {
+    public JsonFactory setBufferRecyclerPool(BufferRecyclerPool<BufferRecycler> p) {
         _bufferRecyclerPool = Objects.requireNonNull(p);
         return this;
     }

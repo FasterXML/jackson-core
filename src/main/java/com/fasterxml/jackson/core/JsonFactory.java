@@ -2164,7 +2164,7 @@ public class JsonFactory
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclerPool.nonRecyclingPool();
+            return JsonBufferRecyclers.nonRecyclingPool();
         }
         return _bufferRecyclerPool;
     }

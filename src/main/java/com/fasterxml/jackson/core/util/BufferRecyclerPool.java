@@ -11,10 +11,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * API for entity that controls creation and possible reuse of {@link BufferRecycler}
  * instances used for recycling of underlying input/output buffers.
  *<p>
- * Different pool implementations use different strategies on retaining
+ * Also contains partial base implementations for pools that use different strategies on retaining
  * recyclers for reuse. For example we have:
  *<ul>
- * <li>{@link NonRecyclingPool} which does not retain any recyclers and
+ * <li>{@link NonRecyclingPoolBase} which does not retain or recycler anything and
  * will always simply construct and return new instance when {@code acquireBufferRecycler}
  * is called
  *  </li>
@@ -81,14 +81,6 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      */
     void releaseBufferRecycler(P recycler);
 
-    /**
-     * @return Globally shared instance of {@link NonRecyclingPool}; same as calling
-     *   {@link NonRecyclingPool#shared()}.
-     */
-    static BufferRecyclerPool<BufferRecycler> nonRecyclingPool() {
-        return NonRecyclingPool.shared();
-    }
-
     /*
     /**********************************************************************
     /* Partial/base BufferRecyclerPool implementations
@@ -133,47 +125,25 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      * {@link BufferRecyclerPool} implementation that does not use
      * any pool but simply creates new instances when necessary.
      */
-    class NonRecyclingPool implements BufferRecyclerPool<BufferRecycler>
+    abstract class NonRecyclingPoolBase<P extends WithPool<P>> implements BufferRecyclerPool<P>
     {
         private static final long serialVersionUID = 1L;
-
-        private static final NonRecyclingPool GLOBAL = new NonRecyclingPool();
-
-        // No instances beyond shared one should be constructed
-        private NonRecyclingPool() { }
-
-        /**
-         * Accessor for the shared singleton instance; due to implementation having no state
-         * this is preferred over creating instances.
-         *
-         * @return Shared pool instance
-         */
-        public static NonRecyclingPool shared() {
-            return GLOBAL;
-        }
 
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler acquireAndLinkBufferRecycler() {
+        public P acquireAndLinkBufferRecycler() {
             // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
             return acquireBufferRecycler();
         }
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
-            // Could link back to this pool as marker? For now just leave back-ref empty
-            return new BufferRecycler();
-        }
+        public abstract P acquireBufferRecycler();
 
         @Override
-        public void releaseBufferRecycler(BufferRecycler recycler) {
+        public void releaseBufferRecycler(P recycler) {
             ; // nothing to do, there is no underlying pool
         }
-
-        // // // JDK serialization support
-
-        protected Object readResolve() { return GLOBAL; }
     }
 
     /**

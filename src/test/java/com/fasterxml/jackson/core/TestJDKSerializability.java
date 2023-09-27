@@ -117,7 +117,7 @@ public class TestJDKSerializability extends BaseTest
     {
         // First: shared/global pools that will always remain/become globally
         // shared instances
-        _testRecyclerPoolGlobal(BufferRecyclerPool.nonRecyclingPool());
+        _testRecyclerPoolGlobal(JsonBufferRecyclers.nonRecyclingPool());
         _testRecyclerPoolGlobal(JsonBufferRecyclers.threadLocalPool());
 
         _testRecyclerPoolGlobal(BufferRecyclerPool.ConcurrentDequePool.shared());
@@ -132,7 +132,7 @@ public class TestJDKSerializability extends BaseTest
         assertEquals(250, bounded.capacity());
     }
 
-    private <T extends BufferRecyclerPool> T _testRecyclerPoolGlobal(T pool) throws Exception {
+    private <T extends BufferRecyclerPool<?>> T _testRecyclerPoolGlobal(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
         T result = jdkDeserialize(stuff);
         assertNotNull(result);
@@ -140,7 +140,7 @@ public class TestJDKSerializability extends BaseTest
         return result;
     }
 
-    private <T extends BufferRecyclerPool> T _testRecyclerPoolNonShared(T pool) throws Exception {
+    private <T extends BufferRecyclerPool<?>> T _testRecyclerPoolNonShared(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
         T result = jdkDeserialize(stuff);
         assertNotNull(result);

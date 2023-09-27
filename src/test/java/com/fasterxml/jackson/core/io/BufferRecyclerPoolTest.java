@@ -15,7 +15,7 @@ public class BufferRecyclerPoolTest extends BaseTest
 {
     public void testNoOp() throws Exception {
         // no-op pool doesn't actually pool anything, so avoid checking it
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.NonRecyclingPool.shared(), false);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.nonRecyclingPool(), false);
     }
 
     public void testThreadLocal() throws Exception {

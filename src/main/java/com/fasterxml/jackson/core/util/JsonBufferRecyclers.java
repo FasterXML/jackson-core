@@ -27,6 +27,14 @@ public final class JsonBufferRecyclers
         return ThreadLocalPool.shared();
     }
 
+    /**
+     * @return Globally shared instance of {@link NonRecyclingPool}; same as calling
+     *   {@link NonRecyclingPool#shared()}.
+     */
+    public static BufferRecyclerPool<BufferRecycler> nonRecyclingPool() {
+        return NonRecyclingPool.shared();
+    }
+
     /*
     /**********************************************************************
     /* Concrete BufferRecyclerPool implementations for recycling BufferRecyclers
@@ -65,6 +73,40 @@ public final class JsonBufferRecyclers
             return BufferRecyclers.getBufferRecycler();
         }
 
+        // // // JDK serialization support
+
+        protected Object readResolve() { return GLOBAL; }
+    }
+
+    /**
+     * Dummy {@link BufferRecyclerPool} implementation that does not recycle
+     * anything but simply creates new instances when asked to acquire items.
+     */
+    public static class NonRecyclingPool
+        extends BufferRecyclerPool.NonRecyclingPoolBase<BufferRecycler>
+    {
+        private static final long serialVersionUID = 1L;
+
+        private static final NonRecyclingPool GLOBAL = new NonRecyclingPool();
+
+        // No instances beyond shared one should be constructed
+        private NonRecyclingPool() { }
+
+        @Override
+        public BufferRecycler acquireBufferRecycler() {
+            return new BufferRecycler();
+        }
+        
+        /**
+         * Accessor for the shared singleton instance; due to implementation having no state
+         * this is preferred over creating instances.
+         *
+         * @return Shared pool instance
+         */
+        public static NonRecyclingPool shared() {
+            return GLOBAL;
+        }
+        
         // // // JDK serialization support
 
         protected Object readResolve() { return GLOBAL; }

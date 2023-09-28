@@ -31,7 +31,7 @@ public class BufferRecyclerPoolTest extends BaseTest
     }
 
     public void testBounded() throws Exception {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.BoundedPool.nonShared(1), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newBoundedPool(1), true);
     }
 
     public void testPluggingPool() throws Exception {

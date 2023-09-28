@@ -8,24 +8,24 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * API for entity that controls creation and possible reuse of {@link BufferRecycler}
- * instances used for recycling of underlying input/output buffers.
+ * API for entity that controls creation and possible reuse of pooled
+ * objects (often things like encoding/decoding buffers).
  *<p>
- * Also contains partial base implementations for pools that use different strategies on retaining
- * recyclers for reuse. For example we have:
+ * Also contains partial base implementations for pools that use different
+ * strategies on retaining objects for reuse. For example we have:
  *<ul>
- * <li>{@link NonRecyclingPoolBase} which does not retain or recycler anything and
- * will always simply construct and return new instance when {@code acquireBufferRecycler}
- * is called
+ * <li>{@link NonRecyclingPoolBase} which does not retain or recycle anything and
+ * will always simply construct and return new instance when
+ * {@code acquireBufferRecycler} is called
  *  </li>
  * <li>{@link ThreadLocalPoolBase} which uses {@link ThreadLocal} to retain at most
- *   1 recycler per {@link Thread}.
+ *   1 object per {@link Thread}.
  * </li>
- * <li>{@link BoundedPool} is "bounded pool" and retains at most N recyclers (default value being
- *  {@link BoundedPool#DEFAULT_CAPACITY}) at any given time.
+ * <li>{@link BoundedPoolBase} is "bounded pool" and retains at most N objects (default value being
+ *  {@link BoundedPoolBase#DEFAULT_CAPACITY}) at any given time.
  *  </li>
  * <li>Two implementations -- {@link ConcurrentDequePoolBase}, {@link LockFreePoolBase}
- *   -- are "unbounded" and retain any number of recyclers released: in practice
+ *   -- are "unbounded" and retain any number of objects released: in practice
  *   it is at most the highest number of concurrently used {@link BufferRecycler}s.
  *  </li>
  *</ul>
@@ -283,63 +283,37 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      * {@link BufferRecyclerPool} implementation that uses
      * a bounded queue ({@link ArrayBlockingQueue} for recycling instances.
      * This is "bounded" pool since it will never hold on to more
-     * {@link BufferRecycler} instances than its size configuration:
-     * the default size is {@link BoundedPool#DEFAULT_CAPACITY}.
+     * pooled instances than its size configuration:
+     * the default size is {@link BoundedPoolBase#DEFAULT_CAPACITY}.
      */
-    class BoundedPool extends StatefulImplBase<BufferRecycler>
+    abstract class BoundedPoolBase<P extends WithPool<P>>
+        extends StatefulImplBase<P>
     {
         private static final long serialVersionUID = 1L;
 
         /**
-         * Default capacity which limits number of recyclers that are ever
+         * Default capacity which limits number of items that are ever
          * retained for reuse.
          */
         public final static int DEFAULT_CAPACITY = 100;
 
-        private static final BoundedPool GLOBAL = new BoundedPool(SERIALIZATION_SHARED);
-
-        private final transient ArrayBlockingQueue<BufferRecycler> pool;
+        private final transient ArrayBlockingQueue<P> pool;
 
         private final transient int capacity;
 
         // // // Life-cycle (constructors, factory methods)
 
-        protected BoundedPool(int capacityAsId) {
+        protected BoundedPoolBase(int capacityAsId) {
             super(capacityAsId);
             capacity = (capacityAsId <= 0) ? DEFAULT_CAPACITY : capacityAsId;
             pool = new ArrayBlockingQueue<>(capacity);
         }
 
-        /**
-         * Accessor for getting the globally shared singleton instance.
-         * Note that if you choose to use this instance,
-         * pool may be shared by many other {@code JsonFactory} instances.
-         *
-         * @return Shared pool instance
-         */
-        public static BoundedPool shared() {
-            return GLOBAL;
-        }
-
-        /**
-         * Accessor for creating and returning a new, non-shared pool instance.
-         *
-         * @param capacity Maximum capacity of the pool: must be positive number above zero.
-         *
-         * @return Newly constructed, non-shared pool instance
-         */
-        public static BoundedPool nonShared(int capacity) {
-            if (capacity <= 0) {
-                throw new IllegalArgumentException("capacity must be > 0, was: "+capacity);
-            }
-            return new BoundedPool(capacity);
-        }
-
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler acquirePooled() {
-            BufferRecycler pooled = pool.poll();
+        public P acquirePooled() {
+            P pooled = pool.poll();
             if (pooled == null) {
                 pooled = createPooled();
             }
@@ -347,22 +321,8 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         }
 
         @Override
-        public BufferRecycler createPooled() {
-            return new BufferRecycler();
-        }
-        
-        @Override
-        public void releasePooled(BufferRecycler bufferRecycler) {
+        public void releasePooled(P bufferRecycler) {
             pool.offer(bufferRecycler);
-        }
-
-        // // // JDK serialization support
-
-        /**
-         * Make sure to re-link to global/shared or non-shared.
-         */
-        protected Object readResolve() {
-            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared(_serialization));
         }
 
         // // // Other methods

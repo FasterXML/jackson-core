@@ -226,7 +226,7 @@ public class BufferRecycler
             // nullify the reference to the pool in order to avoid the risk of releasing
             // the same BufferRecycler more than once, thus compromising the pool integrity
             _pool = null;
-            tmpPool.releaseBufferRecycler(this);
+            tmpPool.releasePooled(this);
         }
     }
 }

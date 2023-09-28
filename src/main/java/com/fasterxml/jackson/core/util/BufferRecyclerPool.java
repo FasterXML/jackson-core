@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <li>{@link BoundedPool} is "bounded pool" and retains at most N recyclers (default value being
  *  {@link BoundedPool#DEFAULT_CAPACITY}) at any given time.
  *  </li>
- * <li>Two implementations -- {@link ConcurrentDequePoolBase}, {@link LockFreePool}
+ * <li>Two implementations -- {@link ConcurrentDequePoolBase}, {@link LockFreePoolBase}
  *   -- are "unbounded" and retain any number of recyclers released: in practice
  *   it is at most the highest number of concurrently used {@link BufferRecycler}s.
  *  </li>
@@ -49,37 +49,36 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
     }
 
     /**
-     * Method called to acquire a {@link BufferRecycler} from this pool
+     * Method called to acquire a Pooled value from this pool
      * AND make sure it is linked back to this
      * {@link BufferRecyclerPool} as necessary for it to be
-     * released (see {@link #releaseBufferRecycler}) later on after
-     * usage ends.
-     * Actual acquisition is done by a call to {@link #acquireBufferRecycler()}.
+     * released (see {@link #releasePooled}) later after usage ends.
+     * Actual acquisition is done by a call to {@link #acquirePooled()}.
      *<p>
-     * Default implementation calls {@link #acquireBufferRecycler()} followed by
-     * a call to {@link BufferRecycler#withPool}.
+     * Default implementation calls {@link #acquirePooled()} followed by
+     * a call to {@link WithPool#withPool}.
      *
-     * @return {@link BufferRecycler} for caller to use; caller expected
-     *   to call {@link #releaseBufferRecycler} after it is done using recycler.
+     * @return Pooled instance for caller to use; caller expected
+     *   to call {@link #releasePooled} after it is done using instance.
      */
-    default P acquireAndLinkBufferRecycler() {
-        return acquireBufferRecycler().withPool(this);
+    default P acquireAndLinkPooled() {
+        return acquirePooled().withPool(this);
     }
 
     /**
      * Method for sub-classes to implement for actual acquire logic; called
-     * by {@link #acquireAndLinkBufferRecycler()}.
+     * by {@link #acquireAndLinkPooled()}.
      */
-    P acquireBufferRecycler();
+    P acquirePooled();
 
     /**
-     * Method that should be called when previously acquired (see {@link #acquireAndLinkBufferRecycler})
-     * recycler instances is no longer needed; this lets pool to take ownership
+     * Method that should be called when previously acquired (see {@link #acquireAndLinkPooled})
+     * pooled value that is no longer needed; this lets pool to take ownership
      * for possible reuse.
      *
-     * @param recycler
+     * @param pooled Pooled instance to release back to pool
      */
-    void releaseBufferRecycler(P recycler);
+    void releasePooled(P pooled);
 
     /*
     /**********************************************************************
@@ -107,16 +106,16 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         // // // Actual API implementation
 
         @Override
-        public P acquireAndLinkBufferRecycler() {
+        public P acquireAndLinkPooled() {
             // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
-            return acquireBufferRecycler();
+            return acquirePooled();
         }
 
         @Override
-        public abstract P acquireBufferRecycler();
+        public abstract P acquirePooled();
 
         @Override
-        public void releaseBufferRecycler(P pooled) {
+        public void releasePooled(P pooled) {
             ; // nothing to do, relies on ThreadLocal
         }
     }
@@ -132,16 +131,16 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         // // // Actual API implementation
 
         @Override
-        public P acquireAndLinkBufferRecycler() {
+        public P acquireAndLinkPooled() {
             // since this pool doesn't do anything on release it doesn't need to be registered on the BufferRecycler
-            return acquireBufferRecycler();
+            return acquirePooled();
         }
 
         @Override
-        public abstract P acquireBufferRecycler();
+        public abstract P acquirePooled();
 
         @Override
-        public void releaseBufferRecycler(P pooled) {
+        public void releasePooled(P pooled) {
             ; // nothing to do, there is no underlying pool
         }
     }
@@ -177,6 +176,8 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
             }
             return Optional.empty();
         }
+
+        public abstract P createPooled();
     }
 
     /**
@@ -200,10 +201,17 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         // // // Actual API implementation
 
         @Override
-        public abstract P acquireBufferRecycler();
+        public P acquirePooled() {
+            P pooled = pool.pollFirst();
+            if (pooled == null) {
+                pooled = createPooled();
+            }
+            return pooled;
+        }
 
+        
         @Override
-        public void releaseBufferRecycler(P pooled) {
+        public void releasePooled(P pooled) {
             pool.offerLast(pooled);
         }
     }
@@ -214,69 +222,45 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      * Pool is unbounded: see {@link BufferRecyclerPool} for
      * details on what this means.
      */
-    class LockFreePool extends StatefulImplBase<BufferRecycler>
+    abstract class LockFreePoolBase<P extends WithPool<P>>
+        extends StatefulImplBase<P>
     {
         private static final long serialVersionUID = 1L;
 
-        /**
-         * Globally shared pool instance.
-         */
-        private static final LockFreePool GLOBAL = new LockFreePool(SERIALIZATION_SHARED);
-
         // Needs to be transient to avoid JDK serialization from writing it out
-        private final transient AtomicReference<LockFreePool.Node> head;
+        private final transient AtomicReference<Node<P>> head;
 
         // // // Life-cycle (constructors, factory methods)
 
-        protected LockFreePool(int serialization) {
+        protected LockFreePoolBase(int serialization) {
             super(serialization);
             head = new AtomicReference<>();
-        }
-
-        /**
-         * Accessor for getting the globally shared singleton instance.
-         * Note that if you choose to use this instance,
-         * pool may be shared by many other {@code JsonFactory} instances.
-         *
-         * @return Shared pool instance
-         */
-        public static LockFreePool shared() {
-            return GLOBAL;
-        }
-
-        /**
-         * Accessor for creating and returning a new, non-shared pool instance.
-         *
-         * @return Newly constructed, non-shared pool instance
-         */
-        public static LockFreePool nonShared() {
-            return new LockFreePool(SERIALIZATION_NON_SHARED);
         }
 
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
+        public P acquirePooled() {
             // This simple lock free algorithm uses an optimistic compareAndSet strategy to
             // populate the underlying linked list in a thread-safe way. However, under very
             // heavy contention, the compareAndSet could fail multiple times, so it seems a
             // reasonable heuristic to limit the number of retries in this situation.
             for (int i = 0; i < 3; i++) {
-                Node currentHead = head.get();
+                Node<P> currentHead = head.get();
                 if (currentHead == null) {
-                    return new BufferRecycler();
+                    return createPooled();
                 }
                 if (head.compareAndSet(currentHead, currentHead.next)) {
                     currentHead.next = null;
                     return currentHead.value;
                 }
             }
-            return new BufferRecycler();
+            return createPooled();
         }
 
         @Override
-        public void releaseBufferRecycler(BufferRecycler bufferRecycler) {
-            LockFreePool.Node newHead = new LockFreePool.Node(bufferRecycler);
+        public void releasePooled(P bufferRecycler) {
+            Node<P> newHead = new Node<>(bufferRecycler);
             for (int i = 0; i < 3; i++) {
                 newHead.next = head.get();
                 if (head.compareAndSet(newHead.next, newHead)) {
@@ -285,20 +269,11 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
             }
         }
 
-        // // // JDK serialization support
+        protected static class Node<P> {
+            final P value;
+            Node<P> next;
 
-        /**
-         * Make sure to re-link to global/shared or non-shared.
-         */
-        protected Object readResolve() {
-            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
-        }
-
-        private static class Node {
-            final BufferRecycler value;
-            LockFreePool.Node next;
-
-            Node(BufferRecycler value) {
+            Node(P value) {
                 this.value = value;
             }
         }
@@ -363,16 +338,21 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         // // // Actual API implementation
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
-            BufferRecycler bufferRecycler = pool.poll();
-            if (bufferRecycler == null) {
-                bufferRecycler = new BufferRecycler();
+        public BufferRecycler acquirePooled() {
+            BufferRecycler pooled = pool.poll();
+            if (pooled == null) {
+                pooled = createPooled();
             }
-            return bufferRecycler;
+            return pooled;
         }
 
         @Override
-        public void releaseBufferRecycler(BufferRecycler bufferRecycler) {
+        public BufferRecycler createPooled() {
+            return new BufferRecycler();
+        }
+        
+        @Override
+        public void releasePooled(BufferRecycler bufferRecycler) {
             pool.offer(bufferRecycler);
         }
 

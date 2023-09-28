@@ -23,11 +23,11 @@ public class BufferRecyclerPoolTest extends BaseTest
     }
 
     public void testLockFree() throws Exception {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.LockFreePool.nonShared(), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newLockFreePool(), true);
     }
 
     public void testConcurrentDequeue() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.ConcurrentDequePool.nonShared(), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newConcurrentDequePool(), true);
     }
 
     public void testBounded() throws Exception {
@@ -47,7 +47,7 @@ public class BufferRecyclerPoolTest extends BaseTest
 
         if (checkPooledResource) {
             // acquire the pooled BufferRecycler again and check if it is the same instance used before
-            BufferRecycler pooledBufferRecycler = pool.acquireAndLinkBufferRecycler();
+            BufferRecycler pooledBufferRecycler = pool.acquireAndLinkPooled();
             try {
                 assertSame(usedBufferRecycler, pooledBufferRecycler);
             } finally {
@@ -89,7 +89,7 @@ public class BufferRecyclerPoolTest extends BaseTest
         private BufferRecycler bufferRecycler;
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
+        public BufferRecycler acquirePooled() {
             if (bufferRecycler != null) {
                 BufferRecycler tmp = bufferRecycler;
                 this.bufferRecycler = null;
@@ -99,7 +99,7 @@ public class BufferRecyclerPoolTest extends BaseTest
         }
 
         @Override
-        public void releaseBufferRecycler(BufferRecycler recycler) {
+        public void releasePooled(BufferRecycler recycler) {
             this.bufferRecycler = recycler;
         }
     }

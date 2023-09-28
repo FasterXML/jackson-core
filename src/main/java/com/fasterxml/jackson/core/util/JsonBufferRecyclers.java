@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.util.BufferRecyclerPool.ConcurrentDequePoolBase;
+import com.fasterxml.jackson.core.util.BufferRecyclerPool.LockFreePoolBase;
 
 /**
  * Set of {@link BufferRecyclerPool} implementations to be used by the default
@@ -42,6 +43,42 @@ public final class JsonBufferRecyclers
         return NonRecyclingPool.GLOBAL;
     }
 
+    /**
+     * Accessor for getting the shared/global {@link ConcurrentDequePool} instance.
+     *
+     * @return Globally shared instance of {@link NonRecyclingPool}.
+     */
+    public static BufferRecyclerPool<BufferRecycler> sharedConcurrentDequePool() {
+        return ConcurrentDequePool.GLOBAL;
+    }
+
+    /**
+     * Accessor for constructing a new, non-shared {@link ConcurrentDequePool} instance.
+     *
+     * @return Globally shared instance of {@link NonRecyclingPool}.
+     */
+    public static BufferRecyclerPool<BufferRecycler> newConcurrentDequePool() {
+        return ConcurrentDequePool.construct();
+    }
+
+    /**
+     * Accessor for getting the shared/global {@link LockFreePool} instance.
+     *
+     * @return Globally shared instance of {@link NonRecyclingPool}.
+     */
+    public static BufferRecyclerPool<BufferRecycler> sharedLockFreePool() {
+        return LockFreePool.GLOBAL;
+    }
+
+    /**
+     * Accessor for constructing a new, non-shared {@link LockFreePool} instance.
+     *
+     * @return Globally shared instance of {@link NonRecyclingPool}.
+     */
+    public static BufferRecyclerPool<BufferRecycler> newLockFreePool() {
+        return LockFreePool.construct();
+    }
+
     /*
     /**********************************************************************
     /* Concrete BufferRecyclerPool implementations for recycling BufferRecyclers
@@ -65,7 +102,7 @@ public final class JsonBufferRecyclers
 
         @SuppressWarnings("deprecation")
         @Override
-        public BufferRecycler acquireBufferRecycler() {
+        public BufferRecycler acquirePooled() {
             return BufferRecyclers.getBufferRecycler();
         }
 
@@ -88,7 +125,7 @@ public final class JsonBufferRecyclers
         protected NonRecyclingPool() { }
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
+        public BufferRecycler acquirePooled() {
             return new BufferRecycler();
         }
         
@@ -107,7 +144,7 @@ public final class JsonBufferRecyclers
     {
         private static final long serialVersionUID = 1L;
 
-        private static final ConcurrentDequePool GLOBAL = new ConcurrentDequePool(SERIALIZATION_SHARED);
+        protected static final ConcurrentDequePool GLOBAL = new ConcurrentDequePool(SERIALIZATION_SHARED);
 
         // // // Life-cycle (constructors, factory methods)
 
@@ -115,33 +152,48 @@ public final class JsonBufferRecyclers
             super(serialization);
         }
 
-        /**
-         * Accessor for getting the globally shared singleton instance.
-         * Note that if you choose to use this instance,
-         * pool may be shared by many other {@code JsonFactory} instances.
-         *
-         * @return Shared pool instance
-         */
-        public static ConcurrentDequePool shared() {
-            return GLOBAL;
-        }
-
-        /**
-         * Accessor for creating and returning a new, non-shared pool instance.
-         *
-         * @return Newly constructed, non-shared pool instance
-         */
-        public static ConcurrentDequePool nonShared() {
+        public static ConcurrentDequePool construct() {
             return new ConcurrentDequePool(SERIALIZATION_NON_SHARED);
         }
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
-            BufferRecycler bufferRecycler = pool.pollFirst();
-            if (bufferRecycler == null) {
-                bufferRecycler = new BufferRecycler();
-            }
-            return bufferRecycler;
+        public BufferRecycler createPooled() {
+            return new BufferRecycler();
+        }
+
+        // // // JDK serialization support
+
+        // Make sure to re-link to global/shared or non-shared.
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> construct());
+        }
+    }
+
+    /**
+     * {@link BufferRecyclerPool} implementation that uses
+     * a lock free linked list for recycling instances.
+     * Pool is unbounded: see {@link BufferRecyclerPool} for
+     * details on what this means.
+     */
+    public static class LockFreePool extends LockFreePoolBase<BufferRecycler>
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected static final LockFreePool GLOBAL = new LockFreePool(SERIALIZATION_SHARED);
+
+        // // // Life-cycle (constructors, factory methods)
+
+        protected LockFreePool(int serialization) {
+            super(serialization);
+        }
+
+        public static LockFreePool construct() {
+            return new LockFreePool(SERIALIZATION_NON_SHARED);
+        }
+        
+        @Override
+        public BufferRecycler createPooled() {
+            return new BufferRecycler();
         }
 
         // // // JDK serialization support
@@ -150,7 +202,7 @@ public final class JsonBufferRecyclers
          * Make sure to re-link to global/shared or non-shared.
          */
         protected Object readResolve() {
-            return _resolveToShared(GLOBAL).orElseGet(() -> nonShared());
+            return _resolveToShared(GLOBAL).orElseGet(() -> construct());
         }
     }
 }

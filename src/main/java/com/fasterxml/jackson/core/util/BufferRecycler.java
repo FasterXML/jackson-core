@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * Rewritten in 2.16 to work with {@link BufferRecyclerPool} abstraction.
  */
 public class BufferRecycler
+    implements BufferRecyclerPool.WithPool<BufferRecycler>
 {
     /**
      * Buffer used for reading byte-based input.
@@ -86,7 +87,7 @@ public class BufferRecycler
     // Note: changed from simple array in 2.10:
     protected final AtomicReferenceArray<char[]> _charBuffers;
 
-    private BufferRecyclerPool _pool;
+    private BufferRecyclerPool<BufferRecycler> _pool;
 
     /*
     /**********************************************************
@@ -202,7 +203,8 @@ public class BufferRecycler
      *
      * @since 2.16
      */
-    BufferRecycler withPool(BufferRecyclerPool pool) {
+    @Override
+    public BufferRecycler withPool(BufferRecyclerPool<BufferRecycler> pool) {
         if (this._pool != null) {
             throw new IllegalStateException("BufferRecycler already linked to pool: "+pool);
         }
@@ -220,11 +222,11 @@ public class BufferRecycler
      */
     public void release() {
         if (_pool != null) {
-            BufferRecyclerPool tmpPool = _pool;
+            BufferRecyclerPool<BufferRecycler> tmpPool = _pool;
             // nullify the reference to the pool in order to avoid the risk of releasing
             // the same BufferRecycler more than once, thus compromising the pool integrity
             _pool = null;
-            tmpPool.releaseBufferRecycler(this);
+            tmpPool.releasePooled(this);
         }
     }
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.json.JsonGeneratorImpl;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclerPool;
+import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,30 +15,31 @@ public class BufferRecyclerPoolTest extends BaseTest
 {
     public void testNoOp() throws Exception {
         // no-op pool doesn't actually pool anything, so avoid checking it
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.NonRecyclingPool.shared(), false);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.nonRecyclingPool(), false);
     }
 
     public void testThreadLocal() throws Exception {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ThreadLocalPool.shared(), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.threadLocalPool(), true);
     }
 
     public void testLockFree() throws Exception {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.LockFreePool.nonShared(), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newLockFreePool(), true);
     }
 
     public void testConcurrentDequeue() throws Exception {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.ConcurrentDequePool.nonShared(), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newConcurrentDequePool(), true);
     }
 
     public void testBounded() throws Exception {
-        checkBufferRecyclerPoolImpl(BufferRecyclerPool.BoundedPool.nonShared(1), true);
+        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newBoundedPool(1), true);
     }
 
     public void testPluggingPool() throws Exception {
         checkBufferRecyclerPoolImpl(new TestPool(), true);
     }
 
-    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool pool, boolean checkPooledResource) throws Exception {
+    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool<BufferRecycler> pool,
+            boolean checkPooledResource) throws Exception {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .bufferRecyclerPool(pool)
                 .build();
@@ -45,7 +47,7 @@ public class BufferRecyclerPoolTest extends BaseTest
 
         if (checkPooledResource) {
             // acquire the pooled BufferRecycler again and check if it is the same instance used before
-            BufferRecycler pooledBufferRecycler = pool.acquireAndLinkBufferRecycler();
+            BufferRecycler pooledBufferRecycler = pool.acquireAndLinkPooled();
             try {
                 assertSame(usedBufferRecycler, pooledBufferRecycler);
             } finally {
@@ -82,12 +84,12 @@ public class BufferRecyclerPoolTest extends BaseTest
 
 
     @SuppressWarnings("serial")
-    class TestPool implements BufferRecyclerPool
+    class TestPool implements BufferRecyclerPool<BufferRecycler>
     {
         private BufferRecycler bufferRecycler;
 
         @Override
-        public BufferRecycler acquireBufferRecycler() {
+        public BufferRecycler acquirePooled() {
             if (bufferRecycler != null) {
                 BufferRecycler tmp = bufferRecycler;
                 this.bufferRecycler = null;
@@ -97,7 +99,7 @@ public class BufferRecyclerPoolTest extends BaseTest
         }
 
         @Override
-        public void releaseBufferRecycler(BufferRecycler recycler) {
+        public void releasePooled(BufferRecycler recycler) {
             this.bufferRecycler = recycler;
         }
     }

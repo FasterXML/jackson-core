@@ -11,7 +11,10 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
  * @see BufferRecycler
  *
  * @since 2.9.2
+ *
+ * @deprecated Since 2.16 recycling aspects are handled via {@link BufferRecyclerPool}.
  */
+@Deprecated
 public class BufferRecyclers
 {
     /**

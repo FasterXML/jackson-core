@@ -5,6 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.util.BufferRecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
 
 /**
  * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
@@ -116,22 +117,23 @@ public class TestJDKSerializability extends BaseTest
     {
         // First: shared/global pools that will always remain/become globally
         // shared instances
-        _testRecyclerPoolGlobal(BufferRecyclerPool.nonRecyclingPool());
-        _testRecyclerPoolGlobal(BufferRecyclerPool.threadLocalPool());
+        _testRecyclerPoolGlobal(JsonBufferRecyclers.nonRecyclingPool());
+        _testRecyclerPoolGlobal(JsonBufferRecyclers.threadLocalPool());
 
-        _testRecyclerPoolGlobal(BufferRecyclerPool.ConcurrentDequePool.shared());
-        _testRecyclerPoolGlobal(BufferRecyclerPool.LockFreePool.shared());
-        BufferRecyclerPool.BoundedPool bounded =
-                _testRecyclerPoolGlobal(BufferRecyclerPool.BoundedPool.shared());
-        assertEquals(BufferRecyclerPool.BoundedPool.DEFAULT_CAPACITY, bounded.capacity());
+        _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedConcurrentDequePool());
+        _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedLockFreePool());
+        JsonBufferRecyclers.BoundedPool bounded = (JsonBufferRecyclers.BoundedPool)
+                _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedBoundedPool());
+        assertEquals(BufferRecyclerPool.BoundedPoolBase.DEFAULT_CAPACITY, bounded.capacity());
 
-        _testRecyclerPoolNonShared(BufferRecyclerPool.ConcurrentDequePool.nonShared());
-        _testRecyclerPoolNonShared(BufferRecyclerPool.LockFreePool.nonShared());
-        bounded = _testRecyclerPoolNonShared(BufferRecyclerPool.BoundedPool.nonShared(250));
+        _testRecyclerPoolNonShared(JsonBufferRecyclers.newConcurrentDequePool());
+        _testRecyclerPoolNonShared(JsonBufferRecyclers.newLockFreePool());
+        bounded = (JsonBufferRecyclers.BoundedPool)
+                _testRecyclerPoolNonShared(JsonBufferRecyclers.newBoundedPool(250));
         assertEquals(250, bounded.capacity());
     }
 
-    private <T extends BufferRecyclerPool> T _testRecyclerPoolGlobal(T pool) throws Exception {
+    private <T extends BufferRecyclerPool<?>> T _testRecyclerPoolGlobal(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
         T result = jdkDeserialize(stuff);
         assertNotNull(result);
@@ -139,7 +141,7 @@ public class TestJDKSerializability extends BaseTest
         return result;
     }
 
-    private <T extends BufferRecyclerPool> T _testRecyclerPoolNonShared(T pool) throws Exception {
+    private <T extends BufferRecyclerPool<?>> T _testRecyclerPoolNonShared(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
         T result = jdkDeserialize(stuff);
         assertNotNull(result);

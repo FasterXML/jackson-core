@@ -262,7 +262,7 @@ public class JsonFactory
     /**
      * @since 2.16
      */
-    protected BufferRecyclerPool _bufferRecyclerPool;
+    protected BufferRecyclerPool<BufferRecycler> _bufferRecyclerPool;
 
     /**
      * Object that implements conversion functionality between
@@ -368,7 +368,7 @@ public class JsonFactory
     public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) {
-        _bufferRecyclerPool = BufferRecyclerPool.defaultPool();
+        _bufferRecyclerPool = JsonBufferRecyclers.defaultPool();
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
@@ -1152,7 +1152,7 @@ public class JsonFactory
     /**********************************************************
      */
 
-    public JsonFactory setBufferRecyclerPool(BufferRecyclerPool p) {
+    public JsonFactory setBufferRecyclerPool(BufferRecyclerPool<BufferRecycler> p) {
         _bufferRecyclerPool = Objects.requireNonNull(p);
         return this;
     }
@@ -2150,7 +2150,7 @@ public class JsonFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        return _getBufferRecyclerPool().acquireAndLinkBufferRecycler();
+        return _getBufferRecyclerPool().acquireAndLinkPooled();
     }
 
     /**
@@ -2159,12 +2159,12 @@ public class JsonFactory
      *
      * @since 2.16
      */
-    public BufferRecyclerPool _getBufferRecyclerPool() {
+    public BufferRecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclerPool.nonRecyclingPool();
+            return JsonBufferRecyclers.nonRecyclingPool();
         }
         return _bufferRecyclerPool;
     }

@@ -8,7 +8,7 @@ import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.JsonBufferRecyclers;
-import tools.jackson.core.util.BufferRecyclerPool;
+import tools.jackson.core.util.RecyclerPool;
 
 /**
  * Unit tests to verify that `JsonFactory` and abstractions it relies on
@@ -128,7 +128,7 @@ public class CoreJDKSerializabilityTest extends BaseTest
         _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedLockFreePool());
         JsonBufferRecyclers.BoundedPool bounded = (JsonBufferRecyclers.BoundedPool)
                 _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedBoundedPool());
-        assertEquals(BufferRecyclerPool.BoundedPoolBase.DEFAULT_CAPACITY, bounded.capacity());
+        assertEquals(RecyclerPool.BoundedPoolBase.DEFAULT_CAPACITY, bounded.capacity());
 
         _testRecyclerPoolNonShared(JsonBufferRecyclers.newConcurrentDequePool());
         _testRecyclerPoolNonShared(JsonBufferRecyclers.newLockFreePool());
@@ -137,7 +137,7 @@ public class CoreJDKSerializabilityTest extends BaseTest
         assertEquals(250, bounded.capacity());
     }
 
-    private <T extends BufferRecyclerPool<?>> T _testRecyclerPoolGlobal(T pool) throws Exception {
+    private <T extends RecyclerPool<?>> T _testRecyclerPoolGlobal(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
         T result = jdkDeserialize(stuff);
         assertNotNull(result);
@@ -145,7 +145,7 @@ public class CoreJDKSerializabilityTest extends BaseTest
         return result;
     }
 
-    private <T extends BufferRecyclerPool<?>> T _testRecyclerPoolNonShared(T pool) throws Exception {
+    private <T extends RecyclerPool<?>> T _testRecyclerPoolNonShared(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
         T result = jdkDeserialize(stuff);
         assertNotNull(result);

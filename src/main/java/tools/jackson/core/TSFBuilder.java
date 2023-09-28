@@ -3,13 +3,14 @@ package tools.jackson.core;
 import java.util.Objects;
 
 import tools.jackson.core.util.BufferRecycler;
-import tools.jackson.core.util.BufferRecyclerPool;
 import tools.jackson.core.util.JsonBufferRecyclers;
+import tools.jackson.core.util.RecyclerPool;
 
 /**
  * Since factory instances are immutable, a Builder class is needed for creating
  * configurations for differently configured factory instances.
  */
+
 public abstract class TSFBuilder<F extends TokenStreamFactory,
     B extends TSFBuilder<F,B>>
 {
@@ -41,7 +42,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     /**
      * Buffer recycler provider to use.
      */
-    protected BufferRecyclerPool<BufferRecycler> _bufferRecyclerPool;
+    protected RecyclerPool<BufferRecycler> _bufferRecyclerPool;
     
     /**
      * StreamReadConstraints to use.
@@ -81,7 +82,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
                 base._formatReadFeatures, base._formatWriteFeatures);
     }
 
-    protected TSFBuilder(BufferRecyclerPool<BufferRecycler> brp,
+    protected TSFBuilder(RecyclerPool<BufferRecycler> brp,
             StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int factoryFeatures,
@@ -108,7 +109,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     public int formatReadFeaturesMask() { return _formatReadFeatures; }
     public int formatWriteFeaturesMask() { return _formatWriteFeatures; }
 
-    public BufferRecyclerPool<BufferRecycler> bufferRecyclerPool() {
+    public RecyclerPool<BufferRecycler> bufferRecyclerPool() {
         return _bufferRecyclerPool;
     }
     
@@ -236,7 +237,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
      *
      * @return this builder (for call chaining)
      */
-    public B bufferRecyclerPool(BufferRecyclerPool<BufferRecycler> p) {
+    public B bufferRecyclerPool(RecyclerPool<BufferRecycler> p) {
         _bufferRecyclerPool = Objects.requireNonNull(p);
         return _this();
     }

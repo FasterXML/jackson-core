@@ -8,11 +8,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * API for entity that controls creation and possible reuse of pooled
- * objects (often things like encoding/decoding buffers).
+ * API for object pools that control creation and possible reuse of
+ * objects that are costly to create (often things like encoding/decoding buffers).
  *<p>
- * Also contains partial base implementations for pools that use different
- * strategies on retaining objects for reuse. For example we have:
+ * Also contains partial (base) implementations for pools that use different
+ * strategies on retaining objects for reuse.
+ * Following implementations are included:
  *<ul>
  * <li>{@link NonRecyclingPoolBase} which does not retain or recycle anything and
  * will always simply construct and return new instance when
@@ -35,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @param <P> Type of Objects pool recycles
  */
-public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> extends Serializable
+public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serializable
 {
     /**
      * Simple add-on interface that poolable entities must implement.
@@ -43,13 +44,13 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      * @param <P> Self type
      */
     public interface WithPool<P extends WithPool<P>> {
-        P withPool(BufferRecyclerPool<P> pool);
+        P withPool(RecyclerPool<P> pool);
     }
 
     /**
      * Method called to acquire a Pooled value from this pool
      * AND make sure it is linked back to this
-     * {@link BufferRecyclerPool} as necessary for it to be
+     * {@link RecyclerPool} as necessary for it to be
      * released (see {@link #releasePooled}) later after usage ends.
      * Actual acquisition is done by a call to {@link #acquirePooled()}.
      *<p>
@@ -85,7 +86,7 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      */
 
     /**
-     * Default {@link BufferRecyclerPool} implementation that uses
+     * Default {@link RecyclerPool} implementation that uses
      * {@link ThreadLocal} for recycling instances. 
      * Instances are stored using {@link java.lang.ref.SoftReference}s so that
      * they may be Garbage Collected as needed by JVM.
@@ -95,7 +96,7 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      * Android), or on platforms where {@link java.lang.Thread}s are not
      * long-living or reused (like Project Loom).
      */
-    abstract class ThreadLocalPoolBase<P extends WithPool<P>> implements BufferRecyclerPool<P>
+    abstract class ThreadLocalPoolBase<P extends WithPool<P>> implements RecyclerPool<P>
     {
         private static final long serialVersionUID = 1L;
         protected ThreadLocalPoolBase() { }
@@ -118,10 +119,10 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
     }
 
     /**
-     * {@link BufferRecyclerPool} implementation that does not use
+     * {@link RecyclerPool} implementation that does not use
      * any pool but simply creates new instances when necessary.
      */
-    abstract class NonRecyclingPoolBase<P extends WithPool<P>> implements BufferRecyclerPool<P>
+    abstract class NonRecyclingPoolBase<P extends WithPool<P>> implements RecyclerPool<P>
     {
         private static final long serialVersionUID = 1L;
 
@@ -148,7 +149,7 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
      * "global" reference distinct from non-shared ones.
      */
     abstract class StatefulImplBase<P extends WithPool<P>>
-        implements BufferRecyclerPool<P>
+        implements RecyclerPool<P>
     {
         private static final long serialVersionUID = 1L;
 
@@ -178,10 +179,10 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
     }
 
     /**
-     * {@link BufferRecyclerPool} implementation that uses
+     * {@link RecyclerPool} implementation that uses
      * {@link ConcurrentLinkedDeque} for recycling instances.
      *<p>
-     * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
+     * Pool is unbounded: see {@link RecyclerPool} what this means.
      */
     abstract class ConcurrentDequePoolBase<P extends WithPool<P>>
         extends StatefulImplBase<P>
@@ -214,9 +215,9 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
     }
 
     /**
-     * {@link BufferRecyclerPool} implementation that uses
+     * {@link RecyclerPool} implementation that uses
      * a lock free linked list for recycling instances.
-     * Pool is unbounded: see {@link BufferRecyclerPool} for
+     * Pool is unbounded: see {@link RecyclerPool} for
      * details on what this means.
      */
     abstract class LockFreePoolBase<P extends WithPool<P>>
@@ -256,8 +257,8 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         }
 
         @Override
-        public void releasePooled(P bufferRecycler) {
-            Node<P> newHead = new Node<>(bufferRecycler);
+        public void releasePooled(P pooled) {
+            Node<P> newHead = new Node<>(pooled);
             for (int i = 0; i < 3; i++) {
                 newHead.next = head.get();
                 if (head.compareAndSet(newHead.next, newHead)) {
@@ -277,7 +278,7 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
     }
 
     /**
-     * {@link BufferRecyclerPool} implementation that uses
+     * {@link RecyclerPool} implementation that uses
      * a bounded queue ({@link ArrayBlockingQueue} for recycling instances.
      * This is "bounded" pool since it will never hold on to more
      * pooled instances than its size configuration:
@@ -318,8 +319,8 @@ public interface BufferRecyclerPool<P extends BufferRecyclerPool.WithPool<P>> ex
         }
 
         @Override
-        public void releasePooled(P bufferRecycler) {
-            pool.offer(bufferRecycler);
+        public void releasePooled(P pooled) {
+            pool.offer(pooled);
         }
 
         // // // Other methods

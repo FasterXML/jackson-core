@@ -21,10 +21,10 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.sym.SimpleNameMatcher;
 import tools.jackson.core.util.BufferRecycler;
-import tools.jackson.core.util.BufferRecyclerPool;
 import tools.jackson.core.util.JacksonFeature;
 import tools.jackson.core.util.JsonBufferRecyclers;
 import tools.jackson.core.util.Named;
+import tools.jackson.core.util.RecyclerPool;
 import tools.jackson.core.util.Snapshottable;
 
 /**
@@ -228,7 +228,7 @@ public abstract class TokenStreamFactory
     /**********************************************************************
      */
 
-    protected final BufferRecyclerPool<BufferRecycler> _bufferRecyclerPool;
+    protected final RecyclerPool<BufferRecycler> _bufferRecyclerPool;
 
     /*
     /**********************************************************************
@@ -1229,10 +1229,10 @@ public abstract class TokenStreamFactory
     }
 
     /**
-     * Accessor for getting access to {@link BufferRecyclerPool} for getting
+     * Accessor for getting access to {@link RecyclerPool} for getting
      * {@link BufferRecycler} instance to use.
      */
-    public BufferRecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
+    public RecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)

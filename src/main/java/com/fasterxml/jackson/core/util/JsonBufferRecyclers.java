@@ -101,7 +101,7 @@ public final class JsonBufferRecyclers
 
     /*
     /**********************************************************************
-    /* Concrete BufferRecyclerPool implementations for recycling BufferRecyclers
+    /* Concrete RecyclerPool implementations for recycling BufferRecyclers
     /**********************************************************************
      */
 

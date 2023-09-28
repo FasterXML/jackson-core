@@ -262,7 +262,7 @@ public class JsonFactory
     /**
      * @since 2.16
      */
-    protected RecyclerPool<BufferRecycler> _bufferRecyclerPool;
+    protected RecyclerPool<BufferRecycler> _recyclerPool;
 
     /**
      * Object that implements conversion functionality between
@@ -368,7 +368,7 @@ public class JsonFactory
     public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) {
-        _bufferRecyclerPool = JsonBufferRecyclers.defaultPool();
+        _recyclerPool = JsonBufferRecyclers.defaultPool();
         _objectCodec = oc;
         _quoteChar = DEFAULT_QUOTE_CHAR;
         _streamReadConstraints = StreamReadConstraints.defaults();
@@ -389,7 +389,7 @@ public class JsonFactory
      */
     protected JsonFactory(JsonFactory src, ObjectCodec codec)
     {
-        _bufferRecyclerPool = src._bufferRecyclerPool;
+        _recyclerPool = src._recyclerPool;
         _objectCodec = codec;
 
         // General
@@ -420,7 +420,7 @@ public class JsonFactory
      * @since 2.10
      */
     public JsonFactory(JsonFactoryBuilder b) {
-        _bufferRecyclerPool = b._bufferRecyclerPool;
+        _recyclerPool = b._recyclerPool;
         _objectCodec = null;
 
         // General
@@ -452,7 +452,7 @@ public class JsonFactory
      * @param bogus Argument only needed to separate constructor signature; ignored
      */
     protected JsonFactory(TSFBuilder<?,?> b, boolean bogus) {
-        _bufferRecyclerPool = b._bufferRecyclerPool;
+        _recyclerPool = b._recyclerPool;
         _objectCodec = null;
 
         _factoryFeatures = b._factoryFeatures;
@@ -1152,8 +1152,8 @@ public class JsonFactory
     /**********************************************************
      */
 
-    public JsonFactory setBufferRecyclerPool(RecyclerPool<BufferRecycler> p) {
-        _bufferRecyclerPool = Objects.requireNonNull(p);
+    public JsonFactory setRecyclerPool(RecyclerPool<BufferRecycler> p) {
+        _recyclerPool = Objects.requireNonNull(p);
         return this;
     }
 
@@ -2150,7 +2150,7 @@ public class JsonFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        return _getBufferRecyclerPool().acquireAndLinkPooled();
+        return _getRecyclerPool().acquireAndLinkPooled();
     }
 
     /**
@@ -2159,14 +2159,14 @@ public class JsonFactory
      *
      * @since 2.16
      */
-    public RecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
+    public RecyclerPool<BufferRecycler> _getRecyclerPool() {
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
             return JsonBufferRecyclers.nonRecyclingPool();
         }
-        return _bufferRecyclerPool;
+        return _recyclerPool;
     }
 
     /**

@@ -41,7 +41,7 @@ public class BufferRecyclerPoolTest extends BaseTest
     private void checkBufferRecyclerPoolImpl(RecyclerPool<BufferRecycler> pool,
             boolean checkPooledResource) throws Exception {
         JsonFactory jsonFactory = JsonFactory.builder()
-                .bufferRecyclerPool(pool)
+                .recyclerPool(pool)
                 .build();
         BufferRecycler usedBufferRecycler = write("test", jsonFactory, 6);
 

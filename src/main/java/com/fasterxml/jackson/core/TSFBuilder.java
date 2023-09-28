@@ -76,7 +76,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     /**
      * @since 2.16
      */
-    protected RecyclerPool<BufferRecycler> _bufferRecyclerPool;
+    protected RecyclerPool<BufferRecycler> _recyclerPool;
 
     /**
      * Optional helper object that may decorate input sources, to do
@@ -143,7 +143,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected TSFBuilder(int factoryFeatures,
             int parserFeatures, int generatorFeatures)
     {
-        _bufferRecyclerPool = JsonBufferRecyclers.defaultPool();
+        _recyclerPool = JsonBufferRecyclers.defaultPool();
 
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = parserFeatures;
@@ -171,8 +171,8 @@ public abstract class TSFBuilder<F extends JsonFactory,
     public int streamReadFeatures() { return _streamReadFeatures; }
     public int streamWriteFeatures() { return _streamWriteFeatures; }
 
-    public RecyclerPool<BufferRecycler> bufferRecyclerPool() {
-        return _bufferRecyclerPool;
+    public RecyclerPool<BufferRecycler> recyclerPool() {
+        return _recyclerPool;
     }
 
     public InputDecorator inputDecorator() { return _inputDecorator; }
@@ -317,14 +317,14 @@ public abstract class TSFBuilder<F extends JsonFactory,
     // // // Other configuration, helper objects
 
     /**
-     * @param p BufferRecyclerPool to use for buffer allocation
+     * @param p RecyclerPool to use for buffer allocation
      *
      * @return this builder (for call chaining)
      *
      * @since 2.16
      */
-    public B bufferRecyclerPool(RecyclerPool<BufferRecycler> p) {
-        _bufferRecyclerPool = Objects.requireNonNull(p);
+    public B recyclerPool(RecyclerPool<BufferRecycler> p) {
+        _recyclerPool = Objects.requireNonNull(p);
         return _this();
     }
 

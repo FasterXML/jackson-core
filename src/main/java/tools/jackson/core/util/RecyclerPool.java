@@ -81,7 +81,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
     /*
     /**********************************************************************
-    /* Partial/base BufferRecyclerPool implementations
+    /* Partial/base RecyclerPool implementations
     /**********************************************************************
      */
 

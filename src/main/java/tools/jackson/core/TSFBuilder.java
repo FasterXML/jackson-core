@@ -42,7 +42,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     /**
      * Buffer recycler provider to use.
      */
-    protected RecyclerPool<BufferRecycler> _bufferRecyclerPool;
+    protected RecyclerPool<BufferRecycler> _recyclerPool;
     
     /**
      * StreamReadConstraints to use.
@@ -74,7 +74,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
 
     protected TSFBuilder(TokenStreamFactory base)
     {
-        this(base._bufferRecyclerPool,
+        this(base._recyclerPool,
                 base._streamReadConstraints, base._streamWriteConstraints,
                 base._errorReportConfiguration,
                 base._factoryFeatures,
@@ -89,7 +89,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
             int streamReadFeatures, int streamWriteFeatures,
             int formatReadFeatures, int formatWriteFeatures)
     {
-        _bufferRecyclerPool = Objects.requireNonNull(brp);
+        _recyclerPool = Objects.requireNonNull(brp);
         _streamReadConstraints = Objects.requireNonNull(src);
         _streamWriteConstraints = Objects.requireNonNull(swc);
         _errorReportConfiguration = Objects.requireNonNull(erc);
@@ -109,8 +109,8 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     public int formatReadFeaturesMask() { return _formatReadFeatures; }
     public int formatWriteFeaturesMask() { return _formatWriteFeatures; }
 
-    public RecyclerPool<BufferRecycler> bufferRecyclerPool() {
-        return _bufferRecyclerPool;
+    public RecyclerPool<BufferRecycler> recyclerPool() {
+        return _recyclerPool;
     }
     
     // // // Factory features
@@ -233,12 +233,12 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     // // // Other configuration, helper objects
 
     /**
-     * @param p BufferRecyclerPool to use for buffer allocation
+     * @param p RecyclerPool to use for buffer allocation
      *
      * @return this builder (for call chaining)
      */
-    public B bufferRecyclerPool(RecyclerPool<BufferRecycler> p) {
-        _bufferRecyclerPool = Objects.requireNonNull(p);
+    public B recyclerPool(RecyclerPool<BufferRecycler> p) {
+        _recyclerPool = Objects.requireNonNull(p);
         return _this();
     }
 

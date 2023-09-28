@@ -228,7 +228,7 @@ public abstract class TokenStreamFactory
     /**********************************************************************
      */
 
-    protected final RecyclerPool<BufferRecycler> _bufferRecyclerPool;
+    protected final RecyclerPool<BufferRecycler> _recyclerPool;
 
     /*
     /**********************************************************************
@@ -277,7 +277,7 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = Objects.requireNonNull(src);
         _streamWriteConstraints = Objects.requireNonNull(swc);
         _errorReportConfiguration = Objects.requireNonNull(erc);
-        _bufferRecyclerPool = JsonBufferRecyclers.defaultPool();
+        _recyclerPool = JsonBufferRecyclers.defaultPool();
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -301,7 +301,7 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = Objects.requireNonNull(baseBuilder._streamReadConstraints);
         _streamWriteConstraints = Objects.requireNonNull(baseBuilder._streamWriteConstraints);
         _errorReportConfiguration = Objects.requireNonNull(baseBuilder._errorReportConfiguration);
-        _bufferRecyclerPool = Objects.requireNonNull(baseBuilder._bufferRecyclerPool);
+        _recyclerPool = Objects.requireNonNull(baseBuilder._recyclerPool);
 
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
         _streamReadFeatures = baseBuilder.streamReadFeaturesMask();
@@ -321,7 +321,7 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = src._streamReadConstraints;
         _streamWriteConstraints = src._streamWriteConstraints;
         _errorReportConfiguration = src._errorReportConfiguration;
-        _bufferRecyclerPool = src._bufferRecyclerPool;
+        _recyclerPool = src._recyclerPool;
 
         _factoryFeatures = src._factoryFeatures;
         _streamReadFeatures = src._streamReadFeatures;
@@ -1225,21 +1225,21 @@ public abstract class TokenStreamFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        return _getBufferRecyclerPool().acquireAndLinkPooled();
+        return _getRecyclerPool().acquireAndLinkPooled();
     }
 
     /**
      * Accessor for getting access to {@link RecyclerPool} for getting
      * {@link BufferRecycler} instance to use.
      */
-    public RecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
+    public RecyclerPool<BufferRecycler> _getRecyclerPool() {
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
             return JsonBufferRecyclers.nonRecyclingPool();
         }
-        return _bufferRecyclerPool;
+        return _recyclerPool;
     }
 
     /**

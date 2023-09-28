@@ -853,8 +853,8 @@ public class BasicParserFilteringTest extends BaseTest
     public void testCallbacksFromFilteringParserDelegate1() throws Exception {
         LoggingFilter loggingFilter = new LoggingFilter(new JsonPointerBasedFilter("/parent"));
 
-        JsonParser p0 = JSON_F.createParser(a2q(
-                "{'parent':{'child':1}}"));
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(),
+                a2q("{'parent':{'child':1}}"));
         JsonParser p = new FilteringParserDelegate(p0,
                 loggingFilter,
                 Inclusion.ONLY_INCLUDE_ALL,

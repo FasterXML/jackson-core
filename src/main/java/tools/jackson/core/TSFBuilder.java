@@ -2,7 +2,9 @@ package tools.jackson.core;
 
 import java.util.Objects;
 
+import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.BufferRecyclerPool;
+import tools.jackson.core.util.JsonBufferRecyclers;
 
 /**
  * Since factory instances are immutable, a Builder class is needed for creating
@@ -39,7 +41,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     /**
      * Buffer recycler provider to use.
      */
-    protected BufferRecyclerPool _bufferRecyclerPool;
+    protected BufferRecyclerPool<BufferRecycler> _bufferRecyclerPool;
     
     /**
      * StreamReadConstraints to use.
@@ -61,7 +63,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     protected TSFBuilder(StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int formatReadF, int formatWriteF) {
-        this(BufferRecyclerPool.defaultPool(),
+        this(JsonBufferRecyclers.defaultPool(),
                 src, swc, erc,
                 TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS,
                 TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS,
@@ -79,7 +81,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
                 base._formatReadFeatures, base._formatWriteFeatures);
     }
 
-    protected TSFBuilder(BufferRecyclerPool brp,
+    protected TSFBuilder(BufferRecyclerPool<BufferRecycler> brp,
             StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int factoryFeatures,
@@ -106,7 +108,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     public int formatReadFeaturesMask() { return _formatReadFeatures; }
     public int formatWriteFeaturesMask() { return _formatWriteFeatures; }
 
-    public BufferRecyclerPool bufferRecyclerPool() {
+    public BufferRecyclerPool<BufferRecycler> bufferRecyclerPool() {
         return _bufferRecyclerPool;
     }
     
@@ -234,7 +236,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
      *
      * @return this builder (for call chaining)
      */
-    public B bufferRecyclerPool(BufferRecyclerPool p) {
+    public B bufferRecyclerPool(BufferRecyclerPool<BufferRecycler> p) {
         _bufferRecyclerPool = Objects.requireNonNull(p);
         return _this();
     }

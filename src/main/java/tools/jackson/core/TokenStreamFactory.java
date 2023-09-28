@@ -23,6 +23,7 @@ import tools.jackson.core.sym.SimpleNameMatcher;
 import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.BufferRecyclerPool;
 import tools.jackson.core.util.JacksonFeature;
+import tools.jackson.core.util.JsonBufferRecyclers;
 import tools.jackson.core.util.Named;
 import tools.jackson.core.util.Snapshottable;
 
@@ -227,7 +228,7 @@ public abstract class TokenStreamFactory
     /**********************************************************************
      */
 
-    protected final BufferRecyclerPool _bufferRecyclerPool;
+    protected final BufferRecyclerPool<BufferRecycler> _bufferRecyclerPool;
 
     /*
     /**********************************************************************
@@ -276,7 +277,7 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = Objects.requireNonNull(src);
         _streamWriteConstraints = Objects.requireNonNull(swc);
         _errorReportConfiguration = Objects.requireNonNull(erc);
-        _bufferRecyclerPool = BufferRecyclerPool.defaultPool();
+        _bufferRecyclerPool = JsonBufferRecyclers.defaultPool();
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -1224,19 +1225,19 @@ public abstract class TokenStreamFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        return _getBufferRecyclerPool().acquireAndLinkBufferRecycler();
+        return _getBufferRecyclerPool().acquireAndLinkPooled();
     }
 
     /**
      * Accessor for getting access to {@link BufferRecyclerPool} for getting
      * {@link BufferRecycler} instance to use.
      */
-    public BufferRecyclerPool _getBufferRecyclerPool() {
+    public BufferRecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return BufferRecyclerPool.nonRecyclingPool();
+            return JsonBufferRecyclers.nonRecyclingPool();
         }
         return _bufferRecyclerPool;
     }

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
  *
  * @since 2.9.2
  *
- * @deprecated Since 2.16 recycling aspects are handled via {@link BufferRecyclerPool}.
+ * @deprecated Since 2.16 recycling aspects are handled via {@link RecyclerPool}.
  */
 @Deprecated
 public class BufferRecyclers
@@ -65,7 +65,7 @@ public class BufferRecyclers
      *
      * @return {@link BufferRecycler} to use
      *
-     * @deprecated Since 2.16 should use {@link BufferRecyclerPool} abstraction instead
+     * @deprecated Since 2.16 should use {@link RecyclerPool} abstraction instead
      *   of calling static methods of this class
      */
     @Deprecated // since 2.16

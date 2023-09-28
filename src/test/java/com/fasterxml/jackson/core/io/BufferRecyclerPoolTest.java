@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.json.JsonGeneratorImpl;
 import com.fasterxml.jackson.core.util.BufferRecycler;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool;
+import com.fasterxml.jackson.core.util.RecyclerPool;
 import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class BufferRecyclerPoolTest extends BaseTest
         checkBufferRecyclerPoolImpl(new TestPool(), true);
     }
 
-    private void checkBufferRecyclerPoolImpl(BufferRecyclerPool<BufferRecycler> pool,
+    private void checkBufferRecyclerPoolImpl(RecyclerPool<BufferRecycler> pool,
             boolean checkPooledResource) throws Exception {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .bufferRecyclerPool(pool)
@@ -84,7 +84,7 @@ public class BufferRecyclerPoolTest extends BaseTest
 
 
     @SuppressWarnings("serial")
-    class TestPool implements BufferRecyclerPool<BufferRecycler>
+    class TestPool implements RecyclerPool<BufferRecycler>
     {
         private BufferRecycler bufferRecycler;
 

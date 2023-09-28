@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.io.OutputDecorator;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.BufferRecycler;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool;
+import com.fasterxml.jackson.core.util.RecyclerPool;
 import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
 import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
 
@@ -76,7 +76,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     /**
      * @since 2.16
      */
-    protected BufferRecyclerPool<BufferRecycler> _bufferRecyclerPool;
+    protected RecyclerPool<BufferRecycler> _bufferRecyclerPool;
 
     /**
      * Optional helper object that may decorate input sources, to do
@@ -171,7 +171,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     public int streamReadFeatures() { return _streamReadFeatures; }
     public int streamWriteFeatures() { return _streamWriteFeatures; }
 
-    public BufferRecyclerPool<BufferRecycler> bufferRecyclerPool() {
+    public RecyclerPool<BufferRecycler> bufferRecyclerPool() {
         return _bufferRecyclerPool;
     }
 
@@ -323,7 +323,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
      *
      * @since 2.16
      */
-    public B bufferRecyclerPool(BufferRecyclerPool<BufferRecycler> p) {
+    public B bufferRecyclerPool(RecyclerPool<BufferRecycler> p) {
         _bufferRecyclerPool = Objects.requireNonNull(p);
         return _this();
     }

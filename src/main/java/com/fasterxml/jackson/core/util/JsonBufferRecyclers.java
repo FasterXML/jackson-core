@@ -4,12 +4,12 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool.BoundedPoolBase;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool.ConcurrentDequePoolBase;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool.LockFreePoolBase;
+import com.fasterxml.jackson.core.util.RecyclerPool.BoundedPoolBase;
+import com.fasterxml.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
+import com.fasterxml.jackson.core.util.RecyclerPool.LockFreePoolBase;
 
 /**
- * Set of {@link BufferRecyclerPool} implementations to be used by the default
+ * Set of {@link RecyclerPool} implementations to be used by the default
  * JSON-backed {@link JsonFactory} for recycling {@link BufferRecycler}
  * containers.
  *
@@ -18,11 +18,11 @@ import com.fasterxml.jackson.core.util.BufferRecyclerPool.LockFreePoolBase;
 public final class JsonBufferRecyclers
 {
     /**
-     * @return the default {@link BufferRecyclerPool} implementation
+     * @return the default {@link RecyclerPool} implementation
      *   which is the thread local based one:
      *   basically alias to {@link #threadLocalPool()}).
      */
-    public static BufferRecyclerPool<BufferRecycler> defaultPool() {
+    public static RecyclerPool<BufferRecycler> defaultPool() {
         return threadLocalPool();
     }
     /**
@@ -31,7 +31,7 @@ public final class JsonBufferRecyclers
      *
      * @return Globally shared instance of {@link ThreadLocalPool}
      */
-    public static BufferRecyclerPool<BufferRecycler> threadLocalPool() {
+    public static RecyclerPool<BufferRecycler> threadLocalPool() {
         return ThreadLocalPool.GLOBAL;
     }
 
@@ -41,7 +41,7 @@ public final class JsonBufferRecyclers
      *
      * @return Globally shared instance of {@link NonRecyclingPool}.
      */
-    public static BufferRecyclerPool<BufferRecycler> nonRecyclingPool() {
+    public static RecyclerPool<BufferRecycler> nonRecyclingPool() {
         return NonRecyclingPool.GLOBAL;
     }
 
@@ -50,7 +50,7 @@ public final class JsonBufferRecyclers
      *
      * @return Globally shared instance of {@link NonRecyclingPool}.
      */
-    public static BufferRecyclerPool<BufferRecycler> sharedConcurrentDequePool() {
+    public static RecyclerPool<BufferRecycler> sharedConcurrentDequePool() {
         return ConcurrentDequePool.GLOBAL;
     }
 
@@ -59,7 +59,7 @@ public final class JsonBufferRecyclers
      *
      * @return Globally shared instance of {@link NonRecyclingPool}.
      */
-    public static BufferRecyclerPool<BufferRecycler> newConcurrentDequePool() {
+    public static RecyclerPool<BufferRecycler> newConcurrentDequePool() {
         return ConcurrentDequePool.construct();
     }
 
@@ -68,7 +68,7 @@ public final class JsonBufferRecyclers
      *
      * @return Globally shared instance of {@link LockFreePool}.
      */
-    public static BufferRecyclerPool<BufferRecycler> sharedLockFreePool() {
+    public static RecyclerPool<BufferRecycler> sharedLockFreePool() {
         return LockFreePool.GLOBAL;
     }
 
@@ -77,7 +77,7 @@ public final class JsonBufferRecyclers
      *
      * @return Globally shared instance of {@link LockFreePool}.
      */
-    public static BufferRecyclerPool<BufferRecycler> newLockFreePool() {
+    public static RecyclerPool<BufferRecycler> newLockFreePool() {
         return LockFreePool.construct();
     }
 
@@ -86,7 +86,7 @@ public final class JsonBufferRecyclers
      *
      * @return Globally shared instance of {@link BoundedPool}.
      */
-    public static BufferRecyclerPool<BufferRecycler> sharedBoundedPool() {
+    public static RecyclerPool<BufferRecycler> sharedBoundedPool() {
         return BoundedPool.GLOBAL;
     }
 
@@ -95,7 +95,7 @@ public final class JsonBufferRecyclers
      *
      * @return Globally shared instance of {@link BoundedPool}.
      */
-    public static BufferRecyclerPool<BufferRecycler> newBoundedPool(int size) {
+    public static RecyclerPool<BufferRecycler> newBoundedPool(int size) {
         return BoundedPool.construct(size);
     }
 
@@ -106,13 +106,13 @@ public final class JsonBufferRecyclers
      */
 
     /**
-     * {@link ThreadLocal}-based {@link BufferRecyclerPool} implemenetation used for
+     * {@link ThreadLocal}-based {@link RecyclerPool} implemenetation used for
      * recycling {@link BufferRecycler} instances:
-     * see {@link BufferRecyclerPool.ThreadLocalPoolBase} for full explanation
+     * see {@link RecyclerPool.ThreadLocalPoolBase} for full explanation
      * of functioning.
      */
     public static class ThreadLocalPool
-        extends BufferRecyclerPool.ThreadLocalPoolBase<BufferRecycler>
+        extends RecyclerPool.ThreadLocalPoolBase<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 
@@ -132,11 +132,11 @@ public final class JsonBufferRecyclers
     }
 
     /**
-     * Dummy {@link BufferRecyclerPool} implementation that does not recycle
+     * Dummy {@link RecyclerPool} implementation that does not recycle
      * anything but simply creates new instances when asked to acquire items.
      */
     public static class NonRecyclingPool
-        extends BufferRecyclerPool.NonRecyclingPoolBase<BufferRecycler>
+        extends RecyclerPool.NonRecyclingPoolBase<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 
@@ -155,10 +155,10 @@ public final class JsonBufferRecyclers
     }
 
     /**
-     * {@link BufferRecyclerPool} implementation that uses
+     * {@link RecyclerPool} implementation that uses
      * {@link ConcurrentLinkedDeque} for recycling instances.
      *<p>
-     * Pool is unbounded: see {@link BufferRecyclerPool} what this means.
+     * Pool is unbounded: see {@link RecyclerPool} what this means.
      */
     public static class ConcurrentDequePool extends ConcurrentDequePoolBase<BufferRecycler>
     {
@@ -190,10 +190,10 @@ public final class JsonBufferRecyclers
     }
 
     /**
-     * {@link BufferRecyclerPool} implementation that uses
+     * {@link RecyclerPool} implementation that uses
      * a lock free linked list for recycling instances.
      *<p>
-     * Pool is unbounded: see {@link BufferRecyclerPool} for
+     * Pool is unbounded: see {@link RecyclerPool} for
      * details on what this means.
      */
     public static class LockFreePool extends LockFreePoolBase<BufferRecycler>
@@ -226,7 +226,7 @@ public final class JsonBufferRecyclers
     }
 
     /**
-     * {@link BufferRecyclerPool} implementation that uses
+     * {@link RecyclerPool} implementation that uses
      * a bounded queue ({@link ArrayBlockingQueue} for recycling instances.
      * This is "bounded" pool since it will never hold on to more
      * {@link BufferRecycler} instances than its size configuration:

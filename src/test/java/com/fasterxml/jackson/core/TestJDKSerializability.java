@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 
 import com.fasterxml.jackson.core.io.ContentReference;
-import com.fasterxml.jackson.core.util.BufferRecyclerPool;
+import com.fasterxml.jackson.core.util.RecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
 
@@ -124,7 +124,7 @@ public class TestJDKSerializability extends BaseTest
         _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedLockFreePool());
         JsonBufferRecyclers.BoundedPool bounded = (JsonBufferRecyclers.BoundedPool)
                 _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedBoundedPool());
-        assertEquals(BufferRecyclerPool.BoundedPoolBase.DEFAULT_CAPACITY, bounded.capacity());
+        assertEquals(RecyclerPool.BoundedPoolBase.DEFAULT_CAPACITY, bounded.capacity());
 
         _testRecyclerPoolNonShared(JsonBufferRecyclers.newConcurrentDequePool());
         _testRecyclerPoolNonShared(JsonBufferRecyclers.newLockFreePool());
@@ -133,7 +133,7 @@ public class TestJDKSerializability extends BaseTest
         assertEquals(250, bounded.capacity());
     }
 
-    private <T extends BufferRecyclerPool<?>> T _testRecyclerPoolGlobal(T pool) throws Exception {
+    private <T extends RecyclerPool<?>> T _testRecyclerPoolGlobal(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
         T result = jdkDeserialize(stuff);
         assertNotNull(result);
@@ -141,7 +141,7 @@ public class TestJDKSerializability extends BaseTest
         return result;
     }
 
-    private <T extends BufferRecyclerPool<?>> T _testRecyclerPoolNonShared(T pool) throws Exception {
+    private <T extends RecyclerPool<?>> T _testRecyclerPoolNonShared(T pool) throws Exception {
         byte[] stuff = jdkSerialize(pool);
         T result = jdkDeserialize(stuff);
         assertNotNull(result);

@@ -110,9 +110,9 @@ public class JsonFactory
         FAIL_ON_SYMBOL_HASH_OVERFLOW(true),
 
         /**
-         * Feature that determines whether we will use a {@link BufferRecyclerPool}
+         * Feature that determines whether we will use a {@link RecyclerPool}
          * for allocating and possibly recycling {@link BufferRecycler} or not.
-         * The default {@link BufferRecyclerPool} implementation uses
+         * The default {@link RecyclerPool} implementation uses
          * {@link ThreadLocal} and {@link SoftReference} for efficient reuse of
          * underlying input/output buffers.
          * This usually makes sense on normal J2SE/J2EE server-side processing;
@@ -262,7 +262,7 @@ public class JsonFactory
     /**
      * @since 2.16
      */
-    protected BufferRecyclerPool<BufferRecycler> _bufferRecyclerPool;
+    protected RecyclerPool<BufferRecycler> _bufferRecyclerPool;
 
     /**
      * Object that implements conversion functionality between
@@ -1152,7 +1152,7 @@ public class JsonFactory
     /**********************************************************
      */
 
-    public JsonFactory setBufferRecyclerPool(BufferRecyclerPool<BufferRecycler> p) {
+    public JsonFactory setBufferRecyclerPool(RecyclerPool<BufferRecycler> p) {
         _bufferRecyclerPool = Objects.requireNonNull(p);
         return this;
     }
@@ -2154,12 +2154,12 @@ public class JsonFactory
     }
 
     /**
-     * Accessor for getting access to {@link BufferRecyclerPool} for getting
+     * Accessor for getting access to {@link RecyclerPool} for getting
      * {@link BufferRecycler} instance to use.
      *
      * @since 2.16
      */
-    public BufferRecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
+    public RecyclerPool<BufferRecycler> _getBufferRecyclerPool() {
         // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)

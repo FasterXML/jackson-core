@@ -54,6 +54,13 @@ public final class JsonReadContext extends JsonStreamContext
      */
 
     /**
+     * @param parent Parent context, if any ({@code null} for Root context)
+     * @param nestingDepth Number of parents this context has (0 for Root context)
+     * @param dups Detector used for checking duplicate names, if any ({@code null} if none)
+     * @param type Type to assign to this context node
+     * @param lineNr Line of the starting position of this context
+     * @param colNr Column of the starting position of this context
+     * 
      * @since 2.15
      */
     public JsonReadContext(JsonReadContext parent, int nestingDepth,

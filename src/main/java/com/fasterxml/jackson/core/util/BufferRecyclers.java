@@ -114,12 +114,13 @@ public class BufferRecyclers
      */
 
     /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} instead.
+     * Not to be used any more.
      *
      * @return {@code JsonStringEncoder} instance to use.
      *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
+     * @deprecated Since 2.10 call {@link JsonStringEncoder#getInstance()} instead.
+     *  NOTE: was accidentally removed but reintroduced as deprecated in 2.12.5,
+     *  to be removed from 3.0)
      */
     @Deprecated
     public static JsonStringEncoder getJsonStringEncoder() {
@@ -127,14 +128,15 @@ public class BufferRecyclers
     }
 
     /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
-     * {@code encodeAsUTF8()}) instead.
+     * Not to be used any more.
      *
      * @param text String to encode
      * @return String encoded as UTF-8 bytes.
      *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
+     * @deprecated Since 2.10 call {@link JsonStringEncoder#getInstance()} and then
+     * {@code encodeAsUTF8()}) instead.
+     *  NOTE: was accidentally removed but reintroduced as deprecated in 2.12.5,
+     *  to be removed from 3.0)
      */
     @Deprecated
     public static byte[] encodeAsUTF8(String text) {
@@ -142,15 +144,16 @@ public class BufferRecyclers
     }
 
     /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
-     * {@code quoteAsString()}) instead.
+     * Not to be used any more: 
      *
      * @param rawText String to quote
      *
      * @return Quoted text as {@code char[]}
      *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
+     * @deprecated Since 2.10 call {@link JsonStringEncoder#getInstance()} and then
+     * {@code quoteAsString()}) instead.
+     *  NOTE: was accidentally removed but reintroduced as deprecated in 2.12.5,
+     *  to be removed from 3.0)
      */
     @Deprecated
     public static char[] quoteAsJsonText(String rawText) {
@@ -158,14 +161,15 @@ public class BufferRecyclers
     }
 
     /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
-     * {@code quoteAsString()}) instead.
+     * Not to be used any more.
      *
      * @param input Textual content to quote
      * @param output Builder to append quoted content
      *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
+     * @deprecated Since 2.10 call {@link JsonStringEncoder#getInstance()} and then
+     * {@code quoteAsString()}) instead.
+     *  NOTE: was accidentally removed but reintroduced as deprecated in 2.12.5,
+     *  to be removed from 3.0)
      */
     @Deprecated
     public static void quoteAsJsonText(CharSequence input, StringBuilder output) {
@@ -173,15 +177,16 @@ public class BufferRecyclers
     }
 
     /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
-     * {@code quoteAsUTF8()}) instead.
+     * Not to be used any more.
      *
      * @param rawText String to quote
      *
      * @return Quoted text as {@code byte[]}
      *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
+     * @deprecated Since 2.10 call {@link JsonStringEncoder#getInstance()} (and then
+     * {@code quoteAsUTF8()}) instead.
+     *  NOTE: was accidentally removed but reintroduced as deprecated in 2.12.5,
+     *  to be removed from 3.0)
      */
     @Deprecated
     public static byte[] quoteAsJsonUTF8(String rawText) {

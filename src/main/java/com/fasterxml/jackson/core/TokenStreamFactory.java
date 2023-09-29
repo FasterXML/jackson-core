@@ -137,6 +137,10 @@ public abstract class TokenStreamFactory
     public abstract boolean isEnabled(JsonGenerator.Feature f);
 
     /**
+     * Method for getting bit set of all {@link JsonFactory.Feature}s enabled
+     *
+     * @return Bitset of enabled {@link JsonFactory.Feature}s.
+     *
      * @since 2.16
      */
     public abstract int getFactoryFeatures();
@@ -204,6 +208,10 @@ public abstract class TokenStreamFactory
      * (and US-ASCII since it is proper subset); other encodings are not supported
      * at this point.
      *
+     * @return Constructed parser
+     *
+     * @throws IOException If there are problems constructing parser
+     *
      * @since 2.9
      */
     public abstract JsonParser createNonBlockingByteArrayParser() throws IOException;
@@ -221,6 +229,10 @@ public abstract class TokenStreamFactory
      * Note that JSON-backed factory only supports parsing of UTF-8 encoded JSON content
      * (and US-ASCII since it is proper subset); other encodings are not supported
      * at this point.
+     *
+     * @return Constructed parser
+     *
+     * @throws IOException If there are problems constructing parser
      *
      * @since 2.14
      */

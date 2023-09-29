@@ -82,8 +82,10 @@ public class ErrorReportConfiguration
         private int maxRawContentLength;
 
         /**
-         * @param maxErrorTokenLength Constraints
+         * @param maxErrorTokenLength Maximum error token length setting to use
+         *
          * @return This factory instance (to allow call chaining)
+         *
          * @throws IllegalArgumentException if {@code maxErrorTokenLength} is less than 0
          */
         public Builder maxErrorTokenLength(final int maxErrorTokenLength) {
@@ -93,8 +95,10 @@ public class ErrorReportConfiguration
         }
 
         /**
+         * @param maxRawContentLength Maximum raw content setting to use
          * 
          * @see ErrorReportConfiguration#_maxRawContentLength
+         *
          * @return This builder instance (to allow call chaining)
          */
         public Builder maxRawContentLength(final int maxRawContentLength) {

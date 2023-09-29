@@ -512,6 +512,8 @@ public abstract class JsonParser
     /**
      * Get the constraints to apply when performing streaming reads.
      *
+     * @return Read constraints used by this parser
+     *
      * @since 2.15
      */
     public StreamReadConstraints streamReadConstraints() {

@@ -119,7 +119,11 @@ public class Separators implements Serializable
                 : new Separators(rootSeparator, sep, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
     }
 
-    /** @since 2.16 */
+    /**
+     * @return This instance (for call chaining)
+     *
+     * @since 2.16
+     */
     public Separators withObjectFieldValueSpacing(Spacing spacing) {
         return (objectFieldValueSpacing == spacing) ? this
                 : new Separators(rootSeparator, objectFieldValueSeparator, spacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
@@ -130,7 +134,11 @@ public class Separators implements Serializable
                 : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, sep, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
     }
     
-    /** @since 2.16 */
+    /**
+     * @return This instance (for call chaining)
+     *
+     * @since 2.16
+     */
     public Separators withObjectEntrySpacing(Spacing spacing) {
         return (objectEntrySpacing == spacing) ? this
                 : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, spacing, arrayValueSeparator, arrayValueSpacing);
@@ -140,14 +148,22 @@ public class Separators implements Serializable
         return (arrayValueSeparator == sep) ? this
                 : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, sep, arrayValueSpacing);
     }
-    
-    /** @since 2.16 */
+
+    /**
+     * @return This instance (for call chaining)
+     *
+     * @since 2.16
+     */
     public Separators withArrayValueSpacing(Spacing spacing) {
         return (arrayValueSpacing == spacing) ? this
                 : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, spacing);
     }
 
-    /** @since 2.16 */
+    /**
+     * @return String used as Root value separator
+     *
+     * @since 2.16
+     */
     public String getRootSeparator() {
         return rootSeparator;
     }
@@ -156,7 +172,11 @@ public class Separators implements Serializable
         return objectFieldValueSeparator;
     }
 
-    /** @since 2.16 */
+    /**
+     * @return {@link Spacing} to use for Object fields
+     * 
+     * @since 2.16
+     */
     public Spacing getObjectFieldValueSpacing() {
         return objectFieldValueSpacing;
     }
@@ -165,7 +185,11 @@ public class Separators implements Serializable
         return objectEntrySeparator;
     }
 
-    /** @since 2.16 */
+    /**
+     * @return {@link Spacing} to use for Object entries
+     *
+     * @since 2.16
+     */
     public Spacing getObjectEntrySpacing() {
         return objectEntrySpacing;
     }
@@ -174,7 +198,11 @@ public class Separators implements Serializable
         return arrayValueSeparator;
     }
     
-    /** @since 2.16 */
+    /**
+     * @return {@link Spacing} to use between Array values
+     *
+     * @since 2.16
+     */
     public Spacing getArrayValueSpacing() {
         return arrayValueSpacing;
     }

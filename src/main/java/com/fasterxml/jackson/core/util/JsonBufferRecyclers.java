@@ -93,6 +93,8 @@ public final class JsonBufferRecyclers
     /**
      * Accessor for constructing a new, non-shared {@link BoundedPool} instance.
      *
+     * @param size Maximum number of values to pool
+     *
      * @return Globally shared instance of {@link BoundedPool}.
      */
     public static RecyclerPool<BufferRecycler> newBoundedPool(int size) {

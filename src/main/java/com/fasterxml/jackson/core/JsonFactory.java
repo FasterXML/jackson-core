@@ -2157,6 +2157,8 @@ public class JsonFactory
      * Accessor for getting access to {@link RecyclerPool} for getting
      * {@link BufferRecycler} instance to use.
      *
+     * @return RecyclerPool to use.
+     *
      * @since 2.16
      */
     public RecyclerPool<BufferRecycler> _getRecyclerPool() {

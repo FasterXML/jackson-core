@@ -311,9 +311,11 @@ public final class CharsToNameCanonicalizer
     }
 
     /**
-     * @deprecated Since 2.16 use {@link #createRoot(TokenStreamFactory)} instead
+     * @param seed Seed for hash value calculation
      *
      * @return Root instance to use for constructing new child instances
+     *
+     * @deprecated Since 2.16 use {@link #createRoot(TokenStreamFactory)} instead
      */
     @Deprecated
     public static CharsToNameCanonicalizer createRoot(int seed) {
@@ -376,6 +378,10 @@ public final class CharsToNameCanonicalizer
     }
 
     /**
+     * @param flags Configuration flags (ignored)
+     *
+     * @return Actual canonicalizer instance that can be used by a parser
+     *
      * @deprecated Since 2.16 use {@link #makeChild()} instead.
      */
     @Deprecated

@@ -1228,6 +1228,8 @@ public abstract class ParserBase extends ParserMinimalBase
      * Internal accessor that needs to be used for accessing number value of type
      * {@link BigInteger} which -- as of 2.14 -- is typically lazily parsed.
      *
+     * @return {@link BigInteger} value of the current token
+     *
      * @since 2.14
      */
     protected BigInteger _getBigInteger() throws JsonParseException {
@@ -1251,6 +1253,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Internal accessor that needs to be used for accessing number value of type
      * {@link BigDecimal} which -- as of 2.14 -- is typically lazily parsed.
+     *
+     * @return {@link BigDecimal} value of the current token
      *
      * @since 2.14
      */
@@ -1276,6 +1280,8 @@ public abstract class ParserBase extends ParserMinimalBase
      * Internal accessor that needs to be used for accessing number value of type
      * {@code double} which -- as of 2.15 -- will be lazily parsed.
      *
+     * @return {@code double} value of the current token
+     *
      * @since 2.15
      */
     protected double _getNumberDouble() throws JsonParseException {
@@ -1294,6 +1300,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Internal accessor that needs to be used for accessing number value of type
      * {@code float} which -- as of 2.15 -- will be lazily parsed.
+     *
+     * @return {@code float} value of the current token
      *
      * @since 2.15
      */

@@ -289,7 +289,9 @@ public final class CharTypes
     }
 
     /**
-     * @deprecated Since 2.14
+     * @return Copy of array of 16 upper-case hexadecimal characters
+     *
+     * @deprecated Since 2.14 Use {@link #copyHexChars(boolean)} instead
      */
     @Deprecated // since 2.14
     public static char[] copyHexChars() {
@@ -301,7 +303,9 @@ public final class CharTypes
     }
 
     /**
-     * @deprecated Since 2.14
+     * @return Copy of array of 16 upper-case hexadecimal characters as bytes
+     *
+     * @deprecated Since 2.14 Use {@link #copyHexBytes(boolean)} instead
      */
     @Deprecated // since 2.14
     public static byte[] copyHexBytes() {

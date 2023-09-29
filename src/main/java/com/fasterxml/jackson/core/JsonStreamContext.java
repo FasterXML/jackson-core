@@ -130,6 +130,8 @@ public abstract class JsonStreamContext
      * The nesting depth is a count of objects and arrays that have not
      * been closed, `{` and `[` respectively.
      *
+     * @return Nesting depth
+     *
      * @since 2.15
      */
     public final int getNestingDepth() {

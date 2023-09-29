@@ -306,6 +306,8 @@ public class JsonPointer implements Serializable
      *</code>
      * but more efficient as it avoids likely String allocation.
      *
+     * @return Length of String representation of this pointer instance
+     *
      * @since 2.14
      */
     public int length() {

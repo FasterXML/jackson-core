@@ -226,6 +226,10 @@ public enum JsonToken
      * Helper method for constructing description like "Object value" given
      * {@link JsonToken} encountered.
      *
+     * @param t Token to get description for
+     *
+     * @return String description of given token
+     *
      * @since 2.16
      */
     public static String valueDescFor(JsonToken t) {

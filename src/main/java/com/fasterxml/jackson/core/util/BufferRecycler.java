@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * ideal for use by stream readers.
  *<p>
  * Rewritten in 2.10 to be thread-safe (see [jackson-core#479] for details),
- * to not rely on {@code ThreadLocal} access.<br />
+ * to not rely on {@code ThreadLocal} access.<br>
  * Rewritten in 2.16 to work with {@link RecyclerPool} abstraction.
  */
 public class BufferRecycler

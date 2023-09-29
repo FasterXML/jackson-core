@@ -69,6 +69,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
     /**
      * Method for sub-classes to implement for actual acquire logic; called
      * by {@link #acquireAndLinkPooled()}.
+     *
+     * @return Instance acquired (pooled or just constructed)
      */
     P acquirePooled();
 

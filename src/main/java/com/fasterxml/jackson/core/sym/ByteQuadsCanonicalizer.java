@@ -864,8 +864,8 @@ public final class ByteQuadsCanonicalizer
      */
 
     /**
-     * @param name
-     * @param q1
+     * @param name Name to add
+     * @param q1 Quad representation of the name
      * @return name (possibly interned)
      * @throws StreamConstraintsException if the constraint exceptions
      */
@@ -883,9 +883,9 @@ public final class ByteQuadsCanonicalizer
     }
 
     /**
-     * @param name
-     * @param q1
-     * @param q2
+     * @param name Name to add
+     * @param q1 First quad of name representation
+     * @param q2 Second quad of name representation
      * @return name (possibly interned)
      * @throws StreamConstraintsException if the constraint exceptions
      */
@@ -910,10 +910,10 @@ public final class ByteQuadsCanonicalizer
     }
 
     /**
-     * @param name
-     * @param q1
-     * @param q2
-     * @param q3
+     * @param name Name to add
+     * @param q1 First quad of name representation
+     * @param q2 Second quad of name representation
+     * @param q3 Third quad of name representation
      * @return name (possibly interned)
      * @throws StreamConstraintsException if the constraint exceptions
      */
@@ -933,9 +933,9 @@ public final class ByteQuadsCanonicalizer
     }
 
     /**
-     * @param name
-     * @param q
-     * @param qlen
+     * @param name Name to add
+     * @param q Quads of name representation
+     * @param qlen Number of quads in {@code q}
      * @return name (possibly interned)
      * @throws StreamConstraintsException if the constraint exceptions
      */
@@ -1009,6 +1009,10 @@ public final class ByteQuadsCanonicalizer
 
     /**
      * Method called to find the location within hash table to add a new symbol in.
+     *
+     * @param hash Hash of name for which to find location
+     *
+     * @throws StreamConstraintsException If name length exceeds maximum allowed.
      */
     private int _findOffsetForAdd(int hash) throws StreamConstraintsException
     {

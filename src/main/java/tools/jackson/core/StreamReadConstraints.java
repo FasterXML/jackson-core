@@ -261,6 +261,12 @@ public class StreamReadConstraints
     }
 
     /**
+     * @param maxNestingDepth Maximum input document nesting to allow
+     * @param maxDocLen Maximum input document length to allow
+     * @param maxNumLen Maximum number representation length to allow
+     * @param maxStringLen Maximum String value length to allow
+     * @param maxNameLen Maximum Object property name length to allow
+     *
      * @since 2.16
      */
     protected StreamReadConstraints(final int maxNestingDepth, final long maxDocLen,
@@ -321,7 +327,7 @@ public class StreamReadConstraints
     /**
      * Convenience method, basically same as:
      *<pre>
-     *  getMaxDocumentLength() > 0L
+     *  getMaxDocumentLength() &gt; 0L
      *</pre>
      *
      * @return {@code True} if this constraints instance has a limit for maximum

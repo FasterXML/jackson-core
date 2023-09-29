@@ -50,6 +50,10 @@ public class JsonPointerBasedFilter extends TokenFilter
      * default {@link #includeElement} and {@link #includeProperty} methods:
      * needs to be overridden if sub-classing this class.
      *
+     * @param pathToMatch Remaining path for filter to match
+     * @param includeAllElements Whether to just include all array elements
+     *   of matching Array-valued path automatically
+     *
      * @since 2.16
      */
     protected JsonPointerBasedFilter construct(JsonPointer pathToMatch, boolean includeAllElements) {

@@ -107,7 +107,7 @@ public final class JsonBufferRecyclers
      */
 
     /**
-     * {@link ThreadLocal}-based {@link RecyclerPool} implemenetation used for
+     * {@link ThreadLocal}-based {@link RecyclerPool} implementation used for
      * recycling {@link BufferRecycler} instances:
      * see {@link RecyclerPool.ThreadLocalPoolBase} for full explanation
      * of functioning.

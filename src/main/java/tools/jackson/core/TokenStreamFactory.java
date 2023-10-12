@@ -5,7 +5,6 @@
 package tools.jackson.core;
 
 import java.io.*;
-import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;

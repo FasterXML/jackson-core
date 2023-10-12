@@ -184,9 +184,11 @@ public abstract class TokenStreamFactory
      */
 
     public abstract JsonParser createParser(byte[] data) throws IOException;
-    public abstract JsonParser createParser(byte[] data, int offset, int len) throws IOException;
+    public abstract JsonParser createParser(byte[] data, int offset, int len)
+        throws IOException;
     public abstract JsonParser createParser(char[] content) throws IOException;
-    public abstract JsonParser createParser(char[] content, int offset, int len) throws IOException;
+    public abstract JsonParser createParser(char[] content, int offset, int len)
+        throws IOException;
     public abstract JsonParser createParser(DataInput in) throws IOException;
     public abstract JsonParser createParser(File f) throws IOException;
     public abstract JsonParser createParser(InputStream in) throws IOException;

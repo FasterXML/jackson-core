@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.json.JsonGeneratorImpl;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.RecyclerPool;
-import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
+import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,23 +15,23 @@ public class BufferRecyclerPoolTest extends BaseTest
 {
     public void testNoOp() throws Exception {
         // no-op pool doesn't actually pool anything, so avoid checking it
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.nonRecyclingPool(), false);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.nonRecyclingPool(), false);
     }
 
     public void testThreadLocal() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.threadLocalPool(), true);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.threadLocalPool(), true);
     }
 
     public void testLockFree() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newLockFreePool(), true);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newLockFreePool(), true);
     }
 
     public void testConcurrentDequeue() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newConcurrentDequePool(), true);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newConcurrentDequePool(), true);
     }
 
     public void testBounded() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newBoundedPool(1), true);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newBoundedPool(1), true);
     }
 
     public void testPluggingPool() throws Exception {

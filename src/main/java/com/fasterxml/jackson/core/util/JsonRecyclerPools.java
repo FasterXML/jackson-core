@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.util.RecyclerPool.LockFreePoolBase;
  *
  * @since 2.16
  */
-public final class JsonBufferRecyclers
+public final class JsonRecyclerPools
 {
     /**
      * @return the default {@link RecyclerPool} implementation

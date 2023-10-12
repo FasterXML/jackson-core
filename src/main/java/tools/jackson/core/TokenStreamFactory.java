@@ -114,21 +114,6 @@ public abstract class TokenStreamFactory
         FAIL_ON_SYMBOL_HASH_OVERFLOW(true),
 
         /**
-         * Feature that determines whether we will use {@link BufferRecycler} with
-         * {@link ThreadLocal} and {@link SoftReference}, for efficient reuse of
-         * underlying input/output buffers.
-         * This usually makes sense on normal J2SE/J2EE server-side processing;
-         * but may not make sense on platforms where {@link SoftReference} handling
-         * is broken (like Android), or if there are retention issues due to
-         * {@link ThreadLocal} (see
-         * <a href="https://github.com/FasterXML/jackson-core/issues/189">Issue #189</a>
-         * for a possible case)
-         *<p>
-         * This setting is enabled by default.
-         */
-        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true),
-
-        /**
          * Feature to control charset detection for byte-based inputs ({@code byte[]}, {@link InputStream}...). When
          * this feature is enabled (the default), the factory will allow UTF-16 and UTF-32 inputs and try to detect
          * them, as specified by RFC 4627. When this feature is disabled the factory will assume UTF-8, as specified
@@ -1233,12 +1218,6 @@ public abstract class TokenStreamFactory
      * {@link BufferRecycler} instance to use.
      */
     public RecyclerPool<BufferRecycler> _getRecyclerPool() {
-        // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
-        //   scheme, for cases where it is considered harmful (possibly
-        //   on Android, for example)
-        if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return JsonRecyclerPools.nonRecyclingPool();
-        }
         return _recyclerPool;
     }
 

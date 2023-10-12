@@ -61,12 +61,6 @@ public class JsonFactoryTest
                 .build();
         assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
 
-        // by default, should be enabled
-        assertTrue(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
-        f = f.rebuild().disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
-                .build();
-        assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
-
         assertFalse(f.canHandleBinaryNatively());
     }
 
@@ -80,51 +74,6 @@ public class JsonFactoryTest
 
         assertEquals(JsonReadFeature.class, JSON_F.getFormatReadFeatureType());
         assertEquals(JsonWriteFeature.class, JSON_F.getFormatWriteFeatureType());
-    }
-
-    // for [core#189]: verify that it's ok to disable recycling
-    // Basically simply exercises basic functionality, to ensure
-    // there are no obvious problems; needed since testing never
-    // disables this handling otherwise
-    public void testDisablingBufferRecycling() throws Exception
-    {
-        JsonFactory f = JsonFactory.builder()
-                .disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
-                .build();
-
-        // First, generation
-        for (int i = 0; i < 3; ++i) {
-            StringWriter w = new StringWriter();
-            JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), w);
-            gen.writeStartObject();
-            gen.writeEndObject();
-            gen.close();
-            assertEquals("{}", w.toString());
-        }
-
-        for (int i = 0; i < 3; ++i) {
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
-            gen.writeStartArray();
-            gen.writeEndArray();
-            gen.close();
-            assertEquals("[]", bytes.toString("UTF-8"));
-        }
-
-        // Then parsing:
-        for (int i = 0; i < 3; ++i) {
-            JsonParser p = f.createParser(ObjectReadContext.empty(), "{}");
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.END_OBJECT, p.nextToken());
-            assertNull(p.nextToken());
-            p.close();
-
-            p = f.createParser(ObjectReadContext.empty(), "{}".getBytes("UTF-8"));
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.END_OBJECT, p.nextToken());
-            assertNull(p.nextToken());
-            p.close();
-        }
     }
 
     public void testJsonWithFiles() throws Exception

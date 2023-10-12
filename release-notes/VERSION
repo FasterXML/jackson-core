@@ -39,7 +39,7 @@ JSON library.
 #785: Make `JsonGenerator.writeXxx()` methods chainable
 #793: Rename "com.fasterxml.jackson" -> "tools.jackson"
 #1090: Remove `BufferRecyclers.SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS`
-  functionality from 3.0
+#1125: Remove `TokenStreamFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING`
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

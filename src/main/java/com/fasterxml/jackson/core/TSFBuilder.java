@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.RecyclerPool;
-import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
+import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
 
 /**
@@ -143,7 +143,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected TSFBuilder(int factoryFeatures,
             int parserFeatures, int generatorFeatures)
     {
-        _recyclerPool = JsonBufferRecyclers.defaultPool();
+        _recyclerPool = JsonRecyclerPools.defaultPool();
 
         _factoryFeatures = factoryFeatures;
         _streamReadFeatures = parserFeatures;

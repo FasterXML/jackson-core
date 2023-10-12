@@ -5,7 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.util.RecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.core.util.JsonBufferRecyclers;
+import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 
 /**
  * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
@@ -117,19 +117,19 @@ public class TestJDKSerializability extends BaseTest
     {
         // First: shared/global pools that will always remain/become globally
         // shared instances
-        _testRecyclerPoolGlobal(JsonBufferRecyclers.nonRecyclingPool());
-        _testRecyclerPoolGlobal(JsonBufferRecyclers.threadLocalPool());
+        _testRecyclerPoolGlobal(JsonRecyclerPools.nonRecyclingPool());
+        _testRecyclerPoolGlobal(JsonRecyclerPools.threadLocalPool());
 
-        _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedConcurrentDequePool());
-        _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedLockFreePool());
-        JsonBufferRecyclers.BoundedPool bounded = (JsonBufferRecyclers.BoundedPool)
-                _testRecyclerPoolGlobal(JsonBufferRecyclers.sharedBoundedPool());
+        _testRecyclerPoolGlobal(JsonRecyclerPools.sharedConcurrentDequePool());
+        _testRecyclerPoolGlobal(JsonRecyclerPools.sharedLockFreePool());
+        JsonRecyclerPools.BoundedPool bounded = (JsonRecyclerPools.BoundedPool)
+                _testRecyclerPoolGlobal(JsonRecyclerPools.sharedBoundedPool());
         assertEquals(RecyclerPool.BoundedPoolBase.DEFAULT_CAPACITY, bounded.capacity());
 
-        _testRecyclerPoolNonShared(JsonBufferRecyclers.newConcurrentDequePool());
-        _testRecyclerPoolNonShared(JsonBufferRecyclers.newLockFreePool());
-        bounded = (JsonBufferRecyclers.BoundedPool)
-                _testRecyclerPoolNonShared(JsonBufferRecyclers.newBoundedPool(250));
+        _testRecyclerPoolNonShared(JsonRecyclerPools.newConcurrentDequePool());
+        _testRecyclerPoolNonShared(JsonRecyclerPools.newLockFreePool());
+        bounded = (JsonRecyclerPools.BoundedPool)
+                _testRecyclerPoolNonShared(JsonRecyclerPools.newBoundedPool(250));
         assertEquals(250, bounded.capacity());
     }
 

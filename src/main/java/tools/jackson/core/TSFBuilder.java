@@ -3,7 +3,7 @@ package tools.jackson.core;
 import java.util.Objects;
 
 import tools.jackson.core.util.BufferRecycler;
-import tools.jackson.core.util.JsonBufferRecyclers;
+import tools.jackson.core.util.JsonRecyclerPools;
 import tools.jackson.core.util.RecyclerPool;
 
 /**
@@ -64,7 +64,7 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
     protected TSFBuilder(StreamReadConstraints src, StreamWriteConstraints swc,
             ErrorReportConfiguration erc,
             int formatReadF, int formatWriteF) {
-        this(JsonBufferRecyclers.defaultPool(),
+        this(JsonRecyclerPools.defaultPool(),
                 src, swc, erc,
                 TokenStreamFactory.DEFAULT_FACTORY_FEATURE_FLAGS,
                 TokenStreamFactory.DEFAULT_STREAM_READ_FEATURE_FLAGS,

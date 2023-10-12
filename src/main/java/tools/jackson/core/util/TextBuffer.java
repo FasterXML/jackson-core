@@ -890,11 +890,9 @@ public class TextBuffer
      *    delimiter or end-of-line
      * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
      * @return token as text
-     * @throws IOException If length constraints (of longest allowed Text value) are violated
-     *
-     * @since 2.15
      */
-    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces) throws JacksonException
+    public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces)
+        throws JacksonException
     {
         if (trimTrailingSpaces) {
             // First, see if it's enough to trim end of current segment:

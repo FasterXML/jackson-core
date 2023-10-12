@@ -14,7 +14,7 @@ import tools.jackson.core.util.RecyclerPool.LockFreePoolBase;
  * JSON-backed {@link JsonFactory} for recycling {@link BufferRecycler}
  * containers.
  */
-public final class JsonBufferRecyclers
+public final class JsonRecyclerPools
 {
     /**
      * @return the default {@link RecyclerPool} implementation

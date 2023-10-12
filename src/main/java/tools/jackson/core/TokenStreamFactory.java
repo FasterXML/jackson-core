@@ -22,7 +22,7 @@ import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.sym.SimpleNameMatcher;
 import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.JacksonFeature;
-import tools.jackson.core.util.JsonBufferRecyclers;
+import tools.jackson.core.util.JsonRecyclerPools;
 import tools.jackson.core.util.Named;
 import tools.jackson.core.util.RecyclerPool;
 import tools.jackson.core.util.Snapshottable;
@@ -277,7 +277,7 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = Objects.requireNonNull(src);
         _streamWriteConstraints = Objects.requireNonNull(swc);
         _errorReportConfiguration = Objects.requireNonNull(erc);
-        _recyclerPool = JsonBufferRecyclers.defaultPool();
+        _recyclerPool = JsonRecyclerPools.defaultPool();
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
@@ -1237,7 +1237,7 @@ public abstract class TokenStreamFactory
         //   scheme, for cases where it is considered harmful (possibly
         //   on Android, for example)
         if (!Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            return JsonBufferRecyclers.nonRecyclingPool();
+            return JsonRecyclerPools.nonRecyclingPool();
         }
         return _recyclerPool;
     }

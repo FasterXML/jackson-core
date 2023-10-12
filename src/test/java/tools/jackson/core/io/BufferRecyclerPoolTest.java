@@ -9,30 +9,30 @@ import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonGeneratorBase;
 import tools.jackson.core.util.BufferRecycler;
-import tools.jackson.core.util.JsonBufferRecyclers;
+import tools.jackson.core.util.JsonRecyclerPools;
 import tools.jackson.core.util.RecyclerPool;
 
 public class BufferRecyclerPoolTest extends BaseTest
 {
     public void testNoOp() throws Exception {
         // no-op pool doesn't actually pool anything, so avoid checking it
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.nonRecyclingPool(), false);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.nonRecyclingPool(), false);
     }
 
     public void testThreadLocal() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.threadLocalPool(), true);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.threadLocalPool(), true);
     }
 
     public void testLockFree() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newLockFreePool(), true);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newLockFreePool(), true);
     }
 
     public void testConcurrentDequeue() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newConcurrentDequePool(), true);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newConcurrentDequePool(), true);
     }
 
     public void testBounded() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonBufferRecyclers.newBoundedPool(1), true);
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newBoundedPool(1), true);
     }
 
     public void testPluggingPool() throws Exception {

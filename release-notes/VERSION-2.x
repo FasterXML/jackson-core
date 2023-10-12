@@ -50,7 +50,7 @@ a pure JSON library.
  (contributed by @schlosna)
 #1089: Allow pluggable buffer recycling via new `BufferRecyclerPool` extension point
 
-2.15.3 (not yet released)
+2.15.3 (12-Oct-2023)
 
 #1111: Call the right `filterFinishArray()`/`filterFinishObject()`
   from `FilteringParserDelegate`

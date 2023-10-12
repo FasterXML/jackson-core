@@ -246,11 +246,13 @@ public abstract class TokenStreamFactory
     /**********************************************************************
      */
 
-    public abstract JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException;
+    public abstract JsonGenerator createGenerator(DataOutput out, JsonEncoding enc)
+        throws IOException;
     public abstract JsonGenerator createGenerator(DataOutput out) throws IOException;
     public abstract JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException;
     public abstract JsonGenerator createGenerator(OutputStream out) throws IOException;
-    public abstract JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException;
+    public abstract JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
+        throws IOException;
     public abstract JsonGenerator createGenerator(Writer w) throws IOException;
 
     /*

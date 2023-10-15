@@ -24,6 +24,7 @@ public final class JsonRecyclerPools
     public static RecyclerPool<BufferRecycler> defaultPool() {
         return threadLocalPool();
     }
+
     /**
      * Accessor for getting the shared/global {@link ThreadLocalPool} instance
      * (due to design only one instance ever needed)

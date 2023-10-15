@@ -44,7 +44,21 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * @param <P> Self type
      */
     public interface WithPool<P extends WithPool<P>> {
+        /**
+         * Method to call to add link from pooled item back to pool
+         * that handles it
+         * 
+         * @param pool Pool that "owns" pooled item
+         *
+         * @return This item (for call chaining)
+         */
         P withPool(RecyclerPool<P> pool);
+
+        /**
+         * Method called when this item is to be released back to the
+         * pool that owns it (if any)
+         */
+        void releaseToPool();
     }
 
     /**

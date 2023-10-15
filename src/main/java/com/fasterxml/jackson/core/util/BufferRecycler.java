@@ -197,6 +197,12 @@ public class BufferRecycler
     protected byte[] balloc(int size) { return new byte[size]; }
     protected char[] calloc(int size) { return new char[size]; }
 
+    /*
+    /**********************************************************
+    /* WithPool implementation
+    /**********************************************************
+     */
+
     /**
      * Method called by owner of this recycler instance, to provide reference to
      * {@link RecyclerPool} into which instance is to be released (if any)
@@ -205,7 +211,7 @@ public class BufferRecycler
      */
     @Override
     public BufferRecycler withPool(RecyclerPool<BufferRecycler> pool) {
-        if (this._pool != null) {
+        if (_pool != null) {
             throw new IllegalStateException("BufferRecycler already linked to pool: "+pool);
         }
         // assign to pool to which this BufferRecycler belongs in order to release it
@@ -220,7 +226,8 @@ public class BufferRecycler
      *
      * @since 2.16
      */
-    public void release() {
+    @Override
+    public void releaseToPool() {
         if (_pool != null) {
             RecyclerPool<BufferRecycler> tmpPool = _pool;
             // nullify the reference to the pool in order to avoid the risk of releasing

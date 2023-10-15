@@ -51,7 +51,7 @@ public class BufferRecyclerPoolTest extends BaseTest
             try {
                 assertSame(usedBufferRecycler, pooledBufferRecycler);
             } finally {
-                pooledBufferRecycler.release();
+                pooledBufferRecycler.releaseToPool();
             }
         }
     }

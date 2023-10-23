@@ -123,6 +123,8 @@ Implemented limits are:
     * Default: 20_000_000 (20 million) (since 2.15.1; 2.15.0 had lower limit, 5 million)
 * Maximum Input nesting depth (2.15+): (see https://github.com/FasterXML/jackson-core/pull/943)
     * Default: 1000 levels
+* Maximum Property name length (2.16+): (see https://github.com/FasterXML/jackson-core/issues/1047)
+    * Default: 50,000
 * Maximum Document length (2.16+): (see https://github.com/FasterXML/jackson-core/issues/1046)
     * Default: Unlimited (-1)
 
@@ -130,8 +132,6 @@ Implemented limits are:
 
 * Maximum Output nesting depth (2.16+): (see https://github.com/FasterXML/jackson-core/pull/1055)
     * Default: 1000 levels
-* Maximum Property name length (2.16+): (see https://github.com/FasterXML/jackson-core/issues/1047)
-    * Default: 50,000
 
 ### Re-configuring limits
 

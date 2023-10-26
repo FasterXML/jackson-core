@@ -14,10 +14,12 @@ public class StreamReadConstraintsDefaultsTest
         final int numLen = 1234;
         final int strLen = 12345;
         final int depth = 123;
+        final int nameLen = 2000;
         StreamReadConstraints constraints = StreamReadConstraints.builder()
                 .maxDocumentLength(maxDocLen)
                 .maxNumberLength(numLen)
                 .maxStringLength(strLen)
+                .maxNameLength(nameLen)
                 .maxNestingDepth(depth)
                 .build();
         try {
@@ -25,6 +27,7 @@ public class StreamReadConstraintsDefaultsTest
             assertEquals(maxDocLen, StreamReadConstraints.defaults().getMaxDocumentLength());
             assertEquals(depth, StreamReadConstraints.defaults().getMaxNestingDepth());
             assertEquals(strLen, StreamReadConstraints.defaults().getMaxStringLength());
+            assertEquals(nameLen, StreamReadConstraints.defaults().getMaxNameLength());
             assertEquals(numLen, StreamReadConstraints.defaults().getMaxNumberLength());
         } finally {
             StreamReadConstraints.overrideDefaultStreamReadConstraints(null);
@@ -34,6 +37,8 @@ public class StreamReadConstraintsDefaultsTest
                     StreamReadConstraints.defaults().getMaxNestingDepth());
             assertEquals(StreamReadConstraints.DEFAULT_MAX_STRING_LEN,
                     StreamReadConstraints.defaults().getMaxStringLength());
+            assertEquals(StreamReadConstraints.DEFAULT_MAX_NAME_LEN,
+                    StreamReadConstraints.defaults().getMaxNameLength());
             assertEquals(StreamReadConstraints.DEFAULT_MAX_NUM_LEN,
                     StreamReadConstraints.defaults().getMaxNumberLength());
         }

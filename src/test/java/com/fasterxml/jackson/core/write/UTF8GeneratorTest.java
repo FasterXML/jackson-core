@@ -9,12 +9,15 @@ import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
-import com.fasterxml.jackson.core.testsupport.TestSupport;
 
 public class UTF8GeneratorTest extends BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
+    private final JsonFactory JSON_MAX_NESTING_1 = JsonFactory.builder()
+            .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())
+            .build();
+    
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -45,9 +48,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = TestSupport.testIOContext(StreamWriteConstraints
-                .builder().maxNestingDepth(1).build());
-        try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
+        try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(bytes)) {
             gen.writeStartObject();
             gen.writeFieldName("array");
             gen.writeStartArray();
@@ -61,9 +62,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = TestSupport.testIOContext(StreamWriteConstraints.builder()
-                .maxNestingDepth(1).build());
-        try (JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"')) {
+        try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(bytes)) {
             gen.writeStartObject();
             gen.writeFieldName("object");
             gen.writeStartObject();

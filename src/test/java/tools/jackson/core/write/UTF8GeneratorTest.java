@@ -10,12 +10,15 @@ import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.UTF8JsonGenerator;
-import tools.jackson.core.testsupport.TestSupport;
 
 public class UTF8GeneratorTest extends BaseTest
 {
     private final TokenStreamFactory JSON_F = newStreamFactory();
 
+    private final JsonFactory JSON_MAX_NESTING_1 = JsonFactory.builder()
+            .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())
+            .build();
+    
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -48,11 +51,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = TestSupport.testIOContext(StreamWriteConstraints
-                .builder().maxNestingDepth(1).build());
-        try (JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
-                JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
-                0, '"')) {
+        try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(ObjectWriteContext.empty(), bytes)) {
             gen.writeStartObject();
             gen.writeName("array");
             gen.writeStartArray();
@@ -66,11 +65,7 @@ public class UTF8GeneratorTest extends BaseTest
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = TestSupport.testIOContext(StreamWriteConstraints.builder()
-                .maxNestingDepth(1).build());
-        try (JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
-                JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
-                0, '"')) {
+        try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(ObjectWriteContext.empty(), bytes)) {
             gen.writeStartObject();
             gen.writeName("object");
             gen.writeStartObject();

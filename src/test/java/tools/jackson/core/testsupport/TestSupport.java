@@ -19,24 +19,6 @@ public class TestSupport
                 ErrorReportConfiguration.defaults());
     }
 
-    /**
-     * Factory method for creating {@link IOContext}s for tests
-     */
-    public static IOContext testIOContext(StreamReadConstraints src) {
-        return testIOContext(src,
-                StreamWriteConstraints.defaults(),
-                ErrorReportConfiguration.defaults());
-    }
-
-    /**
-     * Factory method for creating {@link IOContext}s for tests
-     */
-    public static IOContext testIOContext(StreamWriteConstraints swc) {
-        return testIOContext(StreamReadConstraints.defaults(),
-                swc,
-                ErrorReportConfiguration.defaults());
-    }
-
     private static IOContext testIOContext(StreamReadConstraints src,
             StreamWriteConstraints swc,
             ErrorReportConfiguration erc) {

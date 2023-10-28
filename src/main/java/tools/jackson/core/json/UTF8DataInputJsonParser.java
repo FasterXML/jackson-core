@@ -4,7 +4,7 @@ import java.io.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -1135,7 +1135,7 @@ public class UTF8DataInputJsonParser
      *
      * @return Character immediately following zeroes
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     private final int _handleLeadingZeroes() throws IOException

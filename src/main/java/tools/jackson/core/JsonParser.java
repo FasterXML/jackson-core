@@ -12,7 +12,7 @@ import java.math.BigInteger;
 import tools.jackson.core.async.NonBlockingInputFeeder;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.type.ResolvedType;
@@ -487,7 +487,7 @@ public abstract class JsonParser
      * @return Index of the matched property name, if non-negative, or a negative error
      *   code otherwise (see {@link PropertyNameMatcher} for details)
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      *
      * @since 3.0
@@ -530,7 +530,7 @@ public abstract class JsonParser
      * @return Text value of the {@code JsonToken.VALUE_STRING} token parser advanced
      *   to; or {@code null} if next token is of some other type
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public String nextTextValue() throws JacksonException {
@@ -581,7 +581,7 @@ public abstract class JsonParser
      * @return {@code long} value of the {@code JsonToken.VALUE_NUMBER_INT} token parser advanced
      *   to; or {@code defaultValue} if next token is of some other type
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      * @throws tools.jackson.core.exc.InputCoercionException if integer number does not fit in Java {@code long}
      */
@@ -606,7 +606,7 @@ public abstract class JsonParser
      * @return {@code Boolean} value of the {@code JsonToken.VALUE_TRUE} or {@code JsonToken.VALUE_FALSE}
      *   token parser advanced to; or {@code null} if next token is of some other type
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public Boolean nextBooleanValue() throws JacksonException {
@@ -810,7 +810,7 @@ public abstract class JsonParser
      * @return Textual value associated with the current token (one returned
      *   by {@link #nextToken()} or other iteration methods)
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public abstract String getText() throws JacksonException;
@@ -830,7 +830,7 @@ public abstract class JsonParser
      *
      * @return The number of characters written to the Writer
      *
-     * @throws WrappedIOException for low-level read issues, or failed write using {@link Writer}
+     * @throws JacksonIOException for low-level read issues, or failed write using {@link Writer}
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public abstract int getText(Writer writer) throws JacksonException;
@@ -863,7 +863,7 @@ public abstract class JsonParser
      * @return Buffer that contains the current textual value (but not necessarily
      *    at offset 0, and not necessarily until the end of buffer)
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public abstract char[] getTextCharacters() throws JacksonException;
@@ -876,7 +876,7 @@ public abstract class JsonParser
      *   by {@link #getTextCharacters} that are part of
      *   textual content of the current token.
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public abstract int getTextLength() throws JacksonException;
@@ -889,7 +889,7 @@ public abstract class JsonParser
      *   by {@link #getTextCharacters} that is part of
      *   textual content of the current token.
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public abstract int getTextOffset() throws JacksonException;
@@ -1210,7 +1210,7 @@ public abstract class JsonParser
      *
      * @return Decoded binary data
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public abstract byte[] getBinaryValue(Base64Variant bv) throws JacksonException;
@@ -1222,7 +1222,7 @@ public abstract class JsonParser
      *
      * @return Decoded binary data
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public byte[] getBinaryValue() throws JacksonException {
@@ -1241,7 +1241,7 @@ public abstract class JsonParser
      *
      * @return Number of bytes that were decoded and written via {@link OutputStream}
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public int readBinaryValue(OutputStream out) throws JacksonException {
@@ -1257,7 +1257,7 @@ public abstract class JsonParser
      *
      * @return Number of bytes that were decoded and written via {@link OutputStream}
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public int readBinaryValue(Base64Variant bv, OutputStream out) throws JacksonException {

@@ -5,7 +5,7 @@ import java.io.CharConversionException;
 import java.io.InputStream;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.UTF32Reader;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.ThrottledInputStream;
@@ -25,7 +25,7 @@ public class Fuzz32208UTF32ParseTest extends BaseTest
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             String text = p.getText();
             fail("Should not have passed; got text with length of: "+text.length());
-        } catch (WrappedIOException e) {
+        } catch (JacksonIOException e) {
             verifyException(e, "Invalid UTF-32 character ");
         }
         p.close();

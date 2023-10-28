@@ -8,7 +8,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.NumberInput;
@@ -683,7 +683,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * @param expType Numeric type that we will immediately need, if any;
      *   mostly necessary to optimize handling of floating point numbers
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws InputCoercionException if the current token not of numeric type
      * @throws tools.jackson.core.exc.StreamReadException for number decoding problems
      */

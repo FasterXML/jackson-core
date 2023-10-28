@@ -6,7 +6,7 @@ import java.io.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
@@ -1351,7 +1351,7 @@ public class ReaderBasedJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     protected final JsonToken _parseUnsignedNumber(int ch) throws JacksonException
@@ -1539,7 +1539,7 @@ public class ReaderBasedJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     private final JsonToken _parseNumber2(boolean neg, int startPtr) throws JacksonException
@@ -1782,7 +1782,7 @@ public class ReaderBasedJsonParser
      *
      * @param ch First character of likely white space to skip
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     private final void _verifyRootSpace(int ch) throws JacksonException
@@ -1905,7 +1905,7 @@ public class ReaderBasedJsonParser
      *
      * @return Name decoded, if allowed and successful
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     protected String _handleOddName(int i) throws JacksonException
@@ -1999,7 +1999,7 @@ public class ReaderBasedJsonParser
      *
      * @return Type of value decoded, if allowed and successful
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     protected JsonToken _handleOddValue(int i) throws JacksonException
@@ -2226,7 +2226,7 @@ public class ReaderBasedJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     protected final void _skipString() throws JacksonException
@@ -2818,7 +2818,7 @@ public class ReaderBasedJsonParser
      *
      * @return Fully decoded value of base64 content
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     @SuppressWarnings("resource")

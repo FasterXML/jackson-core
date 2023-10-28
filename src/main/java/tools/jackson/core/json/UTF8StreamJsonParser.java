@@ -6,7 +6,7 @@ import java.io.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -1779,7 +1779,7 @@ public class UTF8StreamJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     protected JsonToken _parseUnsignedNumber(int c) throws JacksonException
@@ -2063,7 +2063,7 @@ public class UTF8StreamJsonParser
      *
      * @param ch First character of likely white space to skip
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems (invalid white space)
      */
     private final void _verifyRootSpace(int ch) throws JacksonException
@@ -2435,7 +2435,7 @@ public class UTF8StreamJsonParser
      *
      * @return Name decoded, if allowed and successful
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems (invalid name)
      */
     protected String _handleOddName(int ch) throws JacksonException
@@ -2951,7 +2951,7 @@ public class UTF8StreamJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems (invalid String value)
      */
     protected void _skipString() throws JacksonException
@@ -3021,7 +3021,7 @@ public class UTF8StreamJsonParser
      *
      * @return Type of value decoded, if allowed and successful
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     protected JsonToken _handleUnexpectedValue(int c) throws JacksonException
@@ -4036,7 +4036,7 @@ public class UTF8StreamJsonParser
      *
      * @return Fully decoded value of base64 content
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems (invalid content)
      */
     @SuppressWarnings("resource")

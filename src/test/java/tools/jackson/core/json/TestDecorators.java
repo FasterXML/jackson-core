@@ -3,7 +3,7 @@ package tools.jackson.core.json;
 import java.io.*;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.InputDecorator;
 import tools.jackson.core.io.OutputDecorator;
@@ -32,7 +32,7 @@ public class TestDecorators extends tools.jackson.core.BaseTest
             try {
                 return new ByteArrayInputStream("123".getBytes("UTF-8"));
             } catch (IOException e) {
-                throw WrappedIOException.construct(e, null);
+                throw JacksonIOException.construct(e, null);
             }
         }
 
@@ -43,7 +43,7 @@ public class TestDecorators extends tools.jackson.core.BaseTest
             try {
                 return new ByteArrayInputStream("456".getBytes("UTF-8"));
             } catch (IOException e) {
-                throw WrappedIOException.construct(e, null);
+                throw JacksonIOException.construct(e, null);
             }
         }
 
@@ -62,7 +62,7 @@ public class TestDecorators extends tools.jackson.core.BaseTest
                 out.write("123".getBytes("UTF-8"));
                 out.flush();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e, null);
+                throw JacksonIOException.construct(e, null);
             }
             return new ByteArrayOutputStream();
         }
@@ -74,7 +74,7 @@ public class TestDecorators extends tools.jackson.core.BaseTest
                 w.write("567");
                 w.flush();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e, null);
+                throw JacksonIOException.construct(e, null);
             }
             return new StringWriter();
         }

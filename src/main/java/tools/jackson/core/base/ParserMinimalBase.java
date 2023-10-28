@@ -11,7 +11,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.UnexpectedEndOfInputException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.sym.PropertyNameMatcher;
@@ -810,7 +810,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * @param builder Builder used to buffer binary content decoded
      * @param b64variant Base64 variant expected in content
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws JacksonIOException for low-level read issues
      * @throws StreamReadException for decoding problems
      */
     protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant)
@@ -1099,7 +1099,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     // @since 3.0
     protected JacksonException _wrapIOFailure(IOException e) {
-        return WrappedIOException.construct(e, this);
+        return JacksonIOException.construct(e, this);
     }
 
     protected <T> T _throwInternal() {

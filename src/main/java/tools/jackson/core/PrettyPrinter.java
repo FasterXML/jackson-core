@@ -6,7 +6,7 @@
 package tools.jackson.core;
 
 import tools.jackson.core.exc.StreamWriteException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.util.Separators;
 
@@ -53,7 +53,7 @@ public interface PrettyPrinter
      *
      * @param g Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void writeRootValueSeparator(JsonGenerator g) throws JacksonException;
@@ -72,7 +72,7 @@ public interface PrettyPrinter
      *
      * @param g Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void writeStartObject(JsonGenerator g) throws JacksonException;
@@ -91,7 +91,7 @@ public interface PrettyPrinter
      * @param nrOfEntries Number of direct members of the Object that
      *   have been output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void writeEndObject(JsonGenerator g, int nrOfEntries) throws JacksonException;
@@ -107,7 +107,7 @@ public interface PrettyPrinter
      *
      * @param g Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void writeObjectEntrySeparator(JsonGenerator g) throws JacksonException;
@@ -123,7 +123,7 @@ public interface PrettyPrinter
      *
      * @param g Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void writeObjectNameValueSeparator(JsonGenerator g) throws JacksonException;
@@ -142,7 +142,7 @@ public interface PrettyPrinter
      *
      * @param g Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void writeStartArray(JsonGenerator g) throws JacksonException;
@@ -161,7 +161,7 @@ public interface PrettyPrinter
      * @param nrOfValues Number of direct members of the array that
      *   have been output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void writeEndArray(JsonGenerator g, int nrOfValues) throws JacksonException;
@@ -177,7 +177,7 @@ public interface PrettyPrinter
      *
      * @param g Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void writeArrayValueSeparator(JsonGenerator g) throws JacksonException;
@@ -199,7 +199,7 @@ public interface PrettyPrinter
      *
      * @param g Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void beforeArrayValues(JsonGenerator g) throws JacksonException;
@@ -215,7 +215,7 @@ public interface PrettyPrinter
      *
      * @param g Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
+     * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
     void beforeObjectEntries(JsonGenerator g) throws JacksonException;

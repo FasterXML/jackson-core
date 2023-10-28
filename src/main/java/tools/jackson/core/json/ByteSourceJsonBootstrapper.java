@@ -9,7 +9,7 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.*;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
@@ -457,6 +457,6 @@ public final class ByteSourceJsonBootstrapper
     }
 
     private static JacksonException _wrapIOFailure(IOException e) throws JacksonException {
-        return WrappedIOException.construct(e, null);
+        return JacksonIOException.construct(e, null);
     }
 }

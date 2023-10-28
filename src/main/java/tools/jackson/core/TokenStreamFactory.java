@@ -14,7 +14,7 @@ import java.util.Objects;
 
 import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
@@ -1440,7 +1440,7 @@ offset, len, dataLen));
      */
 
     protected JacksonException _wrapIOFailure(IOException e) {
-        return WrappedIOException.construct(e, this);
+        return JacksonIOException.construct(e, this);
     }
 
     protected <T> T _unsupported() {

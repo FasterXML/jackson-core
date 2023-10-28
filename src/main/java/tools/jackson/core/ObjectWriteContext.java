@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 
 import tools.jackson.core.exc.StreamWriteException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.tree.ArrayTreeNode;
 import tools.jackson.core.tree.ObjectTreeNode;
@@ -99,7 +99,7 @@ public interface ObjectWriteContext
      * @param g Generator to use for serialization
      * @param value Java value to be serialized
      *
-     * @throws WrappedIOException for low-level write problems,
+     * @throws JacksonIOException for low-level write problems,
      * @throws StreamWriteException for encoding problems
      * @throws JacksonException (various subtypes) for databinding problems
      */

@@ -6,6 +6,8 @@ import org.junit.runners.MethodSorters;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
+import java.math.BigDecimal;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // easier to read on IDE
 public class NonStandardNumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -52,6 +54,20 @@ public class NonStandardNumberParsingTest
                 fail("Should not pass");
             } catch (JsonParseException e) {
                 verifyException(e, "Unexpected character ('x'");
+            }
+        }
+    }
+
+    public void testLargeDecimal() throws Exception {
+        final String value = "7976931348623157e309";
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " " + value + " ")) {
+                assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(new BigDecimal(value), p.getDecimalValue());
+                assertFalse(p.isNaN());
+                assertEquals(Double.POSITIVE_INFINITY, p.getValueAsDouble());
+                // PJF: we might want to fix the isNaN check to not be affected by us reading the value as a double
+                assertTrue(p.isNaN());
             }
         }
     }

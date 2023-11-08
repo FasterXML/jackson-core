@@ -14,6 +14,10 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+Not yet released:
+
+#1136: Change parsing error message to mention `-INF`
+
 2.16.0-rc1 (20-Oct-2023)
 
 #991: Change `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` default to `false`

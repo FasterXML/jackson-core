@@ -388,7 +388,7 @@ public abstract class JsonParserBase
     //    does not look like a value or separator.
     protected String _validJsonValueList() {
         if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
-            return "(JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')";
+            return "(JSON String, Number (or 'NaN'/'+INF'/'-INF'), Array, Object or token 'null', 'true' or 'false')";
         }
         return "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
     }

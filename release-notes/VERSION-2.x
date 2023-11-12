@@ -17,6 +17,7 @@ a pure JSON library.
 Not yet released:
 
 #1136: Change parsing error message to mention `-INF`
+- Make `JacksonFeatureSet` serializable
 
 2.16.0-rc1 (20-Oct-2023)
 

@@ -14,12 +14,11 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-Not yet released:
+2.17.0 (not yet released)
 
-#1136: Change parsing error message to mention `-INF`
-- Make `JacksonFeatureSet` serializable
+-
 
-2.16.0-rc1 (20-Oct-2023)
+2.16.0 (15-Nov-2023)
 
 #991: Change `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` default to `false`
   in Jackson 2.16
@@ -54,6 +53,8 @@ Not yet released:
 #1081: Make `ByteSourceJsonBootstrapper` use `StringReader` for < 8KiB byte[] inputs
  (contributed by @schlosna)
 #1089: Allow pluggable buffer recycling via new `BufferRecyclerPool` extension point
+#1136: Change parsing error message to mention `-INF`
+- Make `JacksonFeatureSet` serializable
 
 2.15.3 (12-Oct-2023)
 

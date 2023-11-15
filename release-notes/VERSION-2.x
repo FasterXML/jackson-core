@@ -18,7 +18,7 @@ a pure JSON library.
 
 -
 
-2.16.0-rc1 (15-Nov-2023)
+2.16.0 (15-Nov-2023)
 
 #991: Change `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` default to `false`
   in Jackson 2.16

@@ -21,7 +21,7 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
         }
     }
 
-    public void testMisc() {
+    public void testEquality() {
         Version unk = Version.unknownVersion();
         assertEquals("0.0.0", unk.toString());
         assertEquals("//0.0.0", unk.toFullString());
@@ -31,6 +31,17 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
                 "groupId", "artifactId");
         assertEquals("2.8.4", other.toString());
         assertEquals("groupId/artifactId/2.8.4", other.toFullString());
+
+        // [core#1141]: Avoid NPE for snapshot-info
+        Version unk2 = new Version(0, 0, 0, null, null, null);
+        assertEquals(unk, unk2);
+    }
+
+    public void testMisc() {
+        Version unk = Version.unknownVersion();
+        int hash = unk.hashCode();
+        // Happens to be 0 at this point (Jackson 2.16)
+        assertEquals(0, hash);
     }
 
     /*

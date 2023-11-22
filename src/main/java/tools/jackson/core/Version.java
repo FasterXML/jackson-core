@@ -5,6 +5,8 @@
 
 package tools.jackson.core;
 
+import java.util.Objects;
+
 /**
  * Object that encapsulates versioning information of a component.
  * Version information includes not just version number but also
@@ -70,7 +72,9 @@ public class Version
      */
     public boolean isUnknownVersion() { return (this == UNKNOWN_VERSION); }
 
-    public boolean isSnapshot() { return (_snapshotInfo != null) && (_snapshotInfo.length() > 0); }
+    public boolean isSnapshot() {
+        return (_snapshotInfo != null) && (_snapshotInfo.length() > 0);
+    }
 
     public int getMajorVersion() { return _majorVersion; }
     public int getMinorVersion() { return _minorVersion; }
@@ -83,7 +87,8 @@ public class Version
         return _groupId + '/' + _artifactId + '/' + toString();
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(_majorVersion).append('.');
         sb.append(_minorVersion).append('.');
@@ -94,9 +99,11 @@ public class Version
         return sb.toString();
     }
 
-    @Override public int hashCode() {
-        return _artifactId.hashCode() ^ _groupId.hashCode() ^ _snapshotInfo.hashCode()
-            + _majorVersion - _minorVersion + _patchLevel;
+    @Override
+    public int hashCode() {
+        return _artifactId.hashCode() ^ _groupId.hashCode()
+                ^ Objects.hashCode(_snapshotInfo)
+                + _majorVersion - _minorVersion + _patchLevel;
     }
 
     @Override
@@ -109,7 +116,7 @@ public class Version
         return (other._majorVersion == _majorVersion)
             && (other._minorVersion == _minorVersion)
             && (other._patchLevel == _patchLevel)
-            && other._snapshotInfo.equals(_snapshotInfo)
+            && Objects.equals(other._snapshotInfo, _snapshotInfo)
             && other._artifactId.equals(_artifactId)
             && other._groupId.equals(_groupId)
             ;

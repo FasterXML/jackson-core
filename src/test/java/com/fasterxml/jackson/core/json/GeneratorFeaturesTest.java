@@ -296,7 +296,7 @@ public class GeneratorFeaturesTest
         g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
         g.writeNumber(123);
         g.close();
-        assertEquals(quote("123"), w.toString());
+        assertEquals(q("123"), w.toString());
 
         // but also the opposite
         w = new StringWriter();

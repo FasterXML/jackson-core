@@ -167,7 +167,7 @@ public abstract class BaseTest
         }
     }
 
-    protected final JsonFactory JSON_FACTORY = new JsonFactory();
+    protected final static JsonFactory JSON_FACTORY = new JsonFactory();
 
     /*
     /**********************************************************
@@ -269,19 +269,19 @@ public abstract class BaseTest
     /**********************************************************
      */
 
-    protected JsonGenerator createGenerator(OutputStream out) throws IOException {
+    public static JsonGenerator createGenerator(OutputStream out) throws IOException {
         return createGenerator(JSON_FACTORY, out);
     }
 
-    protected JsonGenerator createGenerator(TokenStreamFactory f, OutputStream out) throws IOException {
+    public static JsonGenerator createGenerator(TokenStreamFactory f, OutputStream out) throws IOException {
         return f.createGenerator(out);
     }
 
-    protected JsonGenerator createGenerator(Writer w) throws IOException {
+    public static JsonGenerator createGenerator(Writer w) throws IOException {
         return createGenerator(JSON_FACTORY, w);
     }
 
-    protected JsonGenerator createGenerator(TokenStreamFactory f, Writer w) throws IOException {
+    public static JsonGenerator createGenerator(TokenStreamFactory f, Writer w) throws IOException {
         return f.createGenerator(w);
     }
 
@@ -344,19 +344,19 @@ public abstract class BaseTest
     /**********************************************************
      */
 
-    protected void assertToken(JsonToken expToken, JsonToken actToken)
+    public static void assertToken(JsonToken expToken, JsonToken actToken)
     {
         if (actToken != expToken) {
             fail("Expected token "+expToken+", current token "+actToken);
         }
     }
 
-    protected void assertToken(JsonToken expToken, JsonParser p)
+    public static void assertToken(JsonToken expToken, JsonParser p)
     {
         assertToken(expToken, p.currentToken());
     }
 
-    protected void assertType(Object ob, Class<?> expType)
+    public static void assertType(Object ob, Class<?> expType)
     {
         if (ob == null) {
             fail("Expected an object of type "+expType.getName()+", got null");
@@ -372,7 +372,7 @@ public abstract class BaseTest
      * @param anyMatches Array of Strings of which AT LEAST ONE ("any") has to be included
      *    in {@code e.getMessage()} -- using case-INSENSITIVE comparison
      */
-    protected void verifyException(Throwable e, String... anyMatches)
+    public static void verifyException(Throwable e, String... anyMatches)
     {
         String msg = e.getMessage();
         String lmsg = (msg == null) ? "" : msg.toLowerCase();
@@ -390,7 +390,7 @@ public abstract class BaseTest
      * available methods, and ensures results are consistent, before
      * returning them
      */
-    protected String getAndVerifyText(JsonParser p) throws IOException
+    public static String getAndVerifyText(JsonParser p) throws IOException
     {
         // Ok, let's verify other accessors
         int actLen = p.getTextLength();
@@ -420,7 +420,7 @@ public abstract class BaseTest
         return json.replace("'", "\"");
     }
 
-    public byte[] encodeInUTF32BE(String input)
+    public static byte[] encodeInUTF32BE(String input)
     {
         int len = input.length();
         byte[] result = new byte[len * 4];
@@ -443,14 +443,14 @@ public abstract class BaseTest
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
-    public String fieldNameFor(int index)
+    public static String fieldNameFor(int index)
     {
         StringBuilder sb = new StringBuilder(16);
         fieldNameFor(sb, index);
         return sb.toString();
     }
     
-    private void fieldNameFor(StringBuilder sb, int index)
+    private static void fieldNameFor(StringBuilder sb, int index)
     {
         /* let's do something like "f1.1" to exercise different
          * field names (important for byte-based codec)
@@ -472,17 +472,17 @@ public abstract class BaseTest
     }
 
     // @since 2.9.7
-    public JsonFactory sharedStreamFactory() {
+    public static JsonFactory sharedStreamFactory() {
         return JSON_FACTORY;
     }
 
     // @since 2.9.7
-    public JsonFactory newStreamFactory() {
+    public static JsonFactory newStreamFactory() {
         return new JsonFactory();
     }
 
     // @since 2.9.8
-    public JsonFactoryBuilder streamFactoryBuilder() {
+    public static JsonFactoryBuilder streamFactoryBuilder() {
         return (JsonFactoryBuilder) JsonFactory.builder();
     }
 
@@ -510,12 +510,12 @@ public abstract class BaseTest
         return result;
     }
 
-    public byte[] readResource(String ref)
+    public static byte[] readResource(String ref)
     {
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
        final byte[] buf = new byte[4000];
 
-       InputStream in = getClass().getResourceAsStream(ref);
+       InputStream in = BaseTest.class.getResourceAsStream(ref);
        if (in != null) {
            try {
                int len;

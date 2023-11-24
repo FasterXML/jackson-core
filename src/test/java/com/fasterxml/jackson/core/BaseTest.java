@@ -171,149 +171,6 @@ public abstract class BaseTest
 
     /*
     /**********************************************************
-    /* High-level helpers
-    /**********************************************************
-     */
-
-    protected void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents)
-        throws IOException
-    {
-        verifyJsonSpecSampleDoc(p, verifyContents, true);
-    }
-
-    protected void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents,
-            boolean requireNumbers)
-        throws IOException
-    {
-        if (!p.hasCurrentToken()) {
-            p.nextToken();
-        }
-        // first basic check, mostly for test coverage
-        assertNull(p.getTypeId());
-        assertNull(p.getObjectId());
-
-        assertToken(JsonToken.START_OBJECT, p.currentToken()); // main object
-
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Image'
-        if (verifyContents) {
-            verifyFieldName(p, "Image");
-        }
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'image' object
-
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Width'
-        if (verifyContents) {
-            verifyFieldName(p, "Width");
-        }
-
-        verifyIntToken(p.nextToken(), requireNumbers);
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_WIDTH);
-        }
-
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Height'
-        if (verifyContents) {
-            verifyFieldName(p, "Height");
-        }
-
-        verifyIntToken(p.nextToken(), requireNumbers);
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_HEIGHT);
-        }
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Title'
-        if (verifyContents) {
-            verifyFieldName(p, "Title");
-        }
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(p));
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Thumbnail'
-        if (verifyContents) {
-            verifyFieldName(p, "Thumbnail");
-        }
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Url'
-        if (verifyContents) {
-            verifyFieldName(p, "Url");
-        }
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        if (verifyContents) {
-            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(p));
-        }
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Height'
-        if (verifyContents) {
-            verifyFieldName(p, "Height");
-        }
-        verifyIntToken(p.nextToken(), requireNumbers);
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_HEIGHT);
-        }
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Width'
-        if (verifyContents) {
-            verifyFieldName(p, "Width");
-        }
-        // Width value is actually a String in the example
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        if (verifyContents) {
-            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, getAndVerifyText(p));
-        }
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'IDs'
-        assertToken(JsonToken.START_ARRAY, p.nextToken()); // 'ids' array
-        verifyIntToken(p.nextToken(), requireNumbers); // ids[0]
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID1);
-        }
-        verifyIntToken(p.nextToken(), requireNumbers); // ids[1]
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID2);
-        }
-        verifyIntToken(p.nextToken(), requireNumbers); // ids[2]
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID3);
-        }
-        verifyIntToken(p.nextToken(), requireNumbers); // ids[3]
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID4);
-        }
-        assertToken(JsonToken.END_ARRAY, p.nextToken()); // 'ids' array
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'image' object
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken()); // main object
-    }
-
-    private void verifyIntToken(JsonToken t, boolean requireNumbers)
-    {
-        if (t == JsonToken.VALUE_NUMBER_INT) {
-            return;
-        }
-        if (requireNumbers) { // to get error
-            assertToken(JsonToken.VALUE_NUMBER_INT, t);
-        }
-        // if not number, must be String
-        if (t != JsonToken.VALUE_STRING) {
-            fail("Expected INT or STRING value, got "+t);
-        }
-    }
-
-    protected void verifyFieldName(JsonParser p, String expName)
-        throws IOException
-    {
-        assertEquals(expName, p.getText());
-        assertEquals(expName, p.getCurrentName());
-    }
-
-    protected void verifyIntValue(JsonParser p, long expValue)
-        throws IOException
-    {
-        // First, via textual
-        assertEquals(String.valueOf(expValue), p.getText());
-    }
-
-    /*
-    /**********************************************************
     /* Parser construction
     /**********************************************************
      */
@@ -555,25 +412,15 @@ public abstract class BaseTest
     /**********************************************************
      */
 
-    @Deprecated // use q instead
-    protected static String quote(String str) {
-        return q(str);
-    }
-
-    protected static String q(String str) {
+    public static String q(String str) {
         return '"'+str+'"';
     }
 
-    @Deprecated // use a2q instead
-    protected static String aposToQuotes(String json) {
-        return a2q(json);
-    }
-
-    protected static String a2q(String json) {
+    public static String a2q(String json) {
         return json.replace("'", "\"");
     }
 
-    protected byte[] encodeInUTF32BE(String input)
+    public byte[] encodeInUTF32BE(String input)
     {
         int len = input.length();
         byte[] result = new byte[len * 4];
@@ -588,15 +435,22 @@ public abstract class BaseTest
     }
 
     // @since 2.9.7
-    protected static byte[] utf8Bytes(String str) {
+    public static byte[] utf8Bytes(String str) {
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
-    protected static String utf8String(ByteArrayOutputStream bytes) {
+    public static String utf8String(ByteArrayOutputStream bytes) {
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
-    protected void fieldNameFor(StringBuilder sb, int index)
+    public String fieldNameFor(int index)
+    {
+        StringBuilder sb = new StringBuilder(16);
+        fieldNameFor(sb, index);
+        return sb.toString();
+    }
+    
+    private void fieldNameFor(StringBuilder sb, int index)
     {
         /* let's do something like "f1.1" to exercise different
          * field names (important for byte-based codec)
@@ -618,25 +472,18 @@ public abstract class BaseTest
     }
 
     // @since 2.9.7
-    protected JsonFactory sharedStreamFactory() {
+    public JsonFactory sharedStreamFactory() {
         return JSON_FACTORY;
     }
 
     // @since 2.9.7
-    protected JsonFactory newStreamFactory() {
+    public JsonFactory newStreamFactory() {
         return new JsonFactory();
     }
 
     // @since 2.9.8
-    protected JsonFactoryBuilder streamFactoryBuilder() {
+    public JsonFactoryBuilder streamFactoryBuilder() {
         return (JsonFactoryBuilder) JsonFactory.builder();
-    }
-
-    protected String fieldNameFor(int index)
-    {
-        StringBuilder sb = new StringBuilder(16);
-        fieldNameFor(sb, index);
-        return sb.toString();
     }
 
     protected int[] calcQuads(String word) {
@@ -663,7 +510,7 @@ public abstract class BaseTest
         return result;
     }
 
-    protected byte[] readResource(String ref)
+    public byte[] readResource(String ref)
     {
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
        final byte[] buf = new byte[4000];

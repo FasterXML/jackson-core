@@ -170,146 +170,7 @@ public abstract class BaseTest
         }
     }
 
-    protected final JsonFactory JSON_FACTORY = new JsonFactory();
-
-    /*
-    /**********************************************************************
-    /* High-level helpers
-    /**********************************************************************
-     */
-
-    protected void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents)
-    {
-        verifyJsonSpecSampleDoc(p, verifyContents, true);
-    }
-
-    protected void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents,
-            boolean requireNumbers)
-    {
-        if (!p.hasCurrentToken()) {
-            p.nextToken();
-        }
-        // first basic check, mostly for test coverage
-        assertNull(p.getTypeId());
-        assertNull(p.getObjectId());
-
-        assertToken(JsonToken.START_OBJECT, p.currentToken()); // main object
-
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Image'
-        if (verifyContents) {
-            verifyFieldName(p, "Image");
-        }
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'image' object
-
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Width'
-        if (verifyContents) {
-            verifyFieldName(p, "Width");
-        }
-
-        verifyIntToken(p.nextToken(), requireNumbers);
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_WIDTH);
-        }
-
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Height'
-        if (verifyContents) {
-            verifyFieldName(p, "Height");
-        }
-
-        verifyIntToken(p.nextToken(), requireNumbers);
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_HEIGHT);
-        }
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Title'
-        if (verifyContents) {
-            verifyFieldName(p, "Title");
-        }
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(p));
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Thumbnail'
-        if (verifyContents) {
-            verifyFieldName(p, "Thumbnail");
-        }
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Url'
-        if (verifyContents) {
-            verifyFieldName(p, "Url");
-        }
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        if (verifyContents) {
-            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(p));
-        }
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Height'
-        if (verifyContents) {
-            verifyFieldName(p, "Height");
-        }
-        verifyIntToken(p.nextToken(), requireNumbers);
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_HEIGHT);
-        }
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Width'
-        if (verifyContents) {
-            verifyFieldName(p, "Width");
-        }
-        // Width value is actually a String in the example
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        if (verifyContents) {
-            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, getAndVerifyText(p));
-        }
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'IDs'
-        assertToken(JsonToken.START_ARRAY, p.nextToken()); // 'ids' array
-        verifyIntToken(p.nextToken(), requireNumbers); // ids[0]
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID1);
-        }
-        verifyIntToken(p.nextToken(), requireNumbers); // ids[1]
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID2);
-        }
-        verifyIntToken(p.nextToken(), requireNumbers); // ids[2]
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID3);
-        }
-        verifyIntToken(p.nextToken(), requireNumbers); // ids[3]
-        if (verifyContents) {
-            verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_ID4);
-        }
-        assertToken(JsonToken.END_ARRAY, p.nextToken()); // 'ids' array
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'image' object
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken()); // main object
-    }
-
-    private void verifyIntToken(JsonToken t, boolean requireNumbers)
-    {
-        if (t == JsonToken.VALUE_NUMBER_INT) {
-            return;
-        }
-        if (requireNumbers) { // to get error
-            assertToken(JsonToken.VALUE_NUMBER_INT, t);
-        }
-        // if not number, must be String
-        if (t != JsonToken.VALUE_STRING) {
-            fail("Expected INT or STRING value, got "+t);
-        }
-    }
-
-    protected void verifyFieldName(JsonParser p, String expName)
-    {
-        assertEquals(expName, p.getText());
-        assertEquals(expName, p.currentName());
-    }
-
-    protected void verifyIntValue(JsonParser p, long expValue)
-    {
-        // First, via textual
-        assertEquals(String.valueOf(expValue), p.getText());
-    }
+    protected final static JsonFactory JSON_FACTORY = new JsonFactory();
 
     /*
     /**********************************************************************
@@ -416,19 +277,19 @@ public abstract class BaseTest
     /**********************************************************************
      */
 
-    protected JsonGenerator createGenerator(OutputStream out) {
+    public static JsonGenerator createGenerator(OutputStream out) {
         return createGenerator(JSON_FACTORY, out);
     }
 
-    protected JsonGenerator createGenerator(TokenStreamFactory f, OutputStream out) {
+    public static JsonGenerator createGenerator(TokenStreamFactory f, OutputStream out) {
         return f.createGenerator(ObjectWriteContext.empty(), out);
     }
 
-    protected JsonGenerator createGenerator(Writer w) {
+    public static JsonGenerator createGenerator(Writer w) {
         return createGenerator(JSON_FACTORY, w);
     }
 
-    protected JsonGenerator createGenerator(TokenStreamFactory f, Writer w) {
+    public static JsonGenerator createGenerator(TokenStreamFactory f, Writer w) {
         return f.createGenerator(ObjectWriteContext.empty(), w);
     }
 
@@ -470,19 +331,19 @@ public abstract class BaseTest
     /**********************************************************************
      */
 
-    protected void assertToken(JsonToken expToken, JsonToken actToken)
+    public static void assertToken(JsonToken expToken, JsonToken actToken)
     {
         if (actToken != expToken) {
             fail("Expected token "+expToken+", current token "+actToken);
         }
     }
 
-    protected void assertToken(JsonToken expToken, JsonParser p)
+    public static void assertToken(JsonToken expToken, JsonParser p)
     {
         assertToken(expToken, p.currentToken());
     }
 
-    protected void assertType(Object ob, Class<?> expType)
+    public static void assertType(Object ob, Class<?> expType)
     {
         if (ob == null) {
             fail("Expected an object of type "+expType.getName()+", got null");
@@ -498,7 +359,7 @@ public abstract class BaseTest
      * @param anyMatches Array of Strings of which AT LEAST ONE ("any") has to be included
      *    in {@code e.getMessage()} -- using case-INSENSITIVE comparison
      */
-    protected void verifyException(Throwable e, String... anyMatches)
+    public static void verifyException(Throwable e, String... anyMatches)
     {
         String msg = e.getMessage();
         String lmsg = (msg == null) ? "" : msg.toLowerCase();
@@ -516,7 +377,7 @@ public abstract class BaseTest
      * available methods, and ensures results are consistent, before
      * returning them
      */
-    protected String getAndVerifyText(JsonParser p)
+    public static String getAndVerifyText(JsonParser p)
     {
         // Ok, let's verify other accessors
         int actLen = p.getTextLength();
@@ -538,15 +399,15 @@ public abstract class BaseTest
     /**********************************************************************
      */
 
-    protected static String q(String str) {
+    public static String q(String str) {
         return '"'+str+'"';
     }
 
-    protected static String a2q(String json) {
+    public static String a2q(String json) {
         return json.replace("'", "\"");
     }
 
-    protected byte[] encodeInUTF32BE(String input)
+    public static byte[] encodeInUTF32BE(String input)
     {
         int len = input.length();
         byte[] result = new byte[len * 4];
@@ -560,11 +421,11 @@ public abstract class BaseTest
         return result;
     }
 
-    protected static byte[] utf8Bytes(String str) {
+    public static byte[] utf8Bytes(String str) {
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
-    protected static String utf8String(ByteArrayOutputStream bytes) {
+    public static String utf8String(ByteArrayOutputStream bytes) {
         try {
             return bytes.toString(StandardCharsets.UTF_8.name());
         } catch (IOException e) {
@@ -572,7 +433,7 @@ public abstract class BaseTest
         }
     }
 
-    protected byte[] readResource(String ref)
+    public byte[] readResource(String ref)
     {
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
        final byte[] buf = new byte[4000];
@@ -595,7 +456,14 @@ public abstract class BaseTest
        return bytes.toByteArray();
     }
 
-    protected void fieldNameFor(StringBuilder sb, int index)
+    public static String fieldNameFor(int index)
+    {
+        StringBuilder sb = new StringBuilder(16);
+        fieldNameFor(sb, index);
+        return sb.toString();
+    }
+    
+    private static void fieldNameFor(StringBuilder sb, int index)
     {
         /* let's do something like "f1.1" to exercise different
          * field names (important for byte-based codec)
@@ -616,23 +484,16 @@ public abstract class BaseTest
         }
     }
 
-    protected JsonFactory sharedStreamFactory() {
+    public static JsonFactory sharedStreamFactory() {
         return JSON_FACTORY;
     }
 
-    protected JsonFactory newStreamFactory() {
+    public static JsonFactory newStreamFactory() {
         return new JsonFactory();
     }
 
-    protected JsonFactoryBuilder streamFactoryBuilder() {
+    public static JsonFactoryBuilder streamFactoryBuilder() {
         return JsonFactory.builder();
-    }
-
-    protected String fieldNameFor(int index)
-    {
-        StringBuilder sb = new StringBuilder(16);
-        fieldNameFor(sb, index);
-        return sb.toString();
     }
 
     protected int[] calcQuads(String word) {

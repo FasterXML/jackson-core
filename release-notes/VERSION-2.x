@@ -14,6 +14,12 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.15.4 (not yet released)
+
+#1146: `JsonParserDelegate` missing overrides for `canParseAsync()`,
+  `getNonBlockingInputFeeder()`
+  (reported by Simon B)
+
 2.15.3 (12-Oct-2023)
 
 #1111: Call the right `filterFinishArray()`/`filterFinishObject()`

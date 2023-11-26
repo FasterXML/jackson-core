@@ -372,3 +372,8 @@ Dai Mikurube (dmikurube@github)
   * Contributed #1111: Call the right `filterFinishArray()`/`filterFinishObject()`
    from `FilteringParserDelegate`
   (2.15.3)
+
+Simon Baslé (simonbasle@github)
+  * Reported #1146: `JsonParserDelegate` missing overrides for `canParseAsync()`,
+    `getNonBlockingInputFeeder()`
+  (2.15.4)

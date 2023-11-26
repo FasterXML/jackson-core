@@ -384,6 +384,11 @@ Dai Mikurube (dmikurube@github)
    from `FilteringParserDelegate`
   (2.15.3)
 
+Simon Baslé (simonbasle@github)
+  * Reported #1146: `JsonParserDelegate` missing overrides for `canParseAsync()`,
+    `getNonBlockingInputFeeder()`
+  (2.15.4)
+
 Armin Samii (@artoonie)
  * Contributed #1050: Compare `_snapshotInfo` in `Version`
   (2.16.0)

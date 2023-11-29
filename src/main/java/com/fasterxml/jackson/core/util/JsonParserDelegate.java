@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 
 /**
  * Helper class that implements
@@ -92,9 +93,25 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
-    @Override public boolean requiresCustomCodec() { return delegate.requiresCustomCodec(); }
+    @Override
+    public boolean canParseAsync() {
+        return delegate.canParseAsync();
+    }
 
-    @Override public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() { return delegate.getReadCapabilities(); }
+    @Override
+    public NonBlockingInputFeeder getNonBlockingInputFeeder() {
+        return delegate.getNonBlockingInputFeeder();
+    }
+
+    @Override
+    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        return delegate.getReadCapabilities();
+    }
+
+    @Override
+    public boolean requiresCustomCodec() {
+        return delegate.requiresCustomCodec();
+    }
 
     /*
     /**********************************************************************

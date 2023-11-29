@@ -9,7 +9,10 @@ package com.fasterxml.jackson.core.util;
  * @since 2.12
  */
 public final class JacksonFeatureSet<F extends JacksonFeature>
+    implements java.io.Serializable // since 2.16
 {
+    private static final long serialVersionUID = 1L;
+
     protected int _enabled;
 
     /**

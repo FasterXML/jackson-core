@@ -14,7 +14,16 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.16.0-rc1 (20-Oct-2023)
+2.17.0 (not yet released)
+
+-
+
+2.16.1 (not yet released)
+
+#1141: NPE in `Version.equals()` if snapshot-info `null`
+ (reported by @TimSchweers)
+
+2.16.0 (15-Nov-2023)
 
 #991: Change `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` default to `false`
   in Jackson 2.16
@@ -49,6 +58,14 @@ a pure JSON library.
 #1081: Make `ByteSourceJsonBootstrapper` use `StringReader` for < 8KiB byte[] inputs
  (contributed by @schlosna)
 #1089: Allow pluggable buffer recycling via new `BufferRecyclerPool` extension point
+#1136: Change parsing error message to mention `-INF`
+- Make `JacksonFeatureSet` serializable
+
+2.15.4 (not yet released)
+
+#1146: `JsonParserDelegate` missing overrides for `canParseAsync()`,
+  `getNonBlockingInputFeeder()`
+  (reported by Simon B)
 
 2.15.3 (12-Oct-2023)
 

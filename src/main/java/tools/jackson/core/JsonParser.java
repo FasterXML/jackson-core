@@ -14,6 +14,7 @@ import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.type.ResolvedType;
 import tools.jackson.core.type.TypeReference;
@@ -740,16 +741,21 @@ public abstract class JsonParser
     public abstract boolean isExpectedNumberIntToken();
 
     /**
-     * Access for checking whether current token is a numeric value token, but
-     * one that is of "not-a-number" (NaN) variety (including both "NaN" AND
-     * positive/negative infinity!): not supported by all formats,
-     * but often supported for {@link JsonToken#VALUE_NUMBER_FLOAT}.
-     * NOTE: roughly equivalent to calling <code>!Double.isFinite()</code>
-     * on value you would get from calling {@link #getDoubleValue()}.
+     * Accessor for checking whether current token is a special
+     * "not-a-number" (NaN) token (including both "NaN" AND
+     * positive/negative infinity!). These values are not supported by all formats:
+     * JSON, for example, only supports them if
+     * {@link JsonReadFeature#ALLOW_NON_NUMERIC_NUMBERS} is enabled.
+     *<p>
+     * NOTE: in case where numeric value is outside range of requested type --
+     * most notably {@link java.lang.Float} or {@link java.lang.Double} -- and
+     * decoding results effectively in a NaN value, this method DOES NOT return
+     * {@code true}: only explicit incoming markers do.
+     * This is because value could still be accessed as a valid {@link BigDecimal}.
      *
-     * @return {@code True} if the current token is of type {@link JsonToken#VALUE_NUMBER_FLOAT}
-     *   but represents a "Not a Number"; {@code false} for other tokens and regular
-     *   floating-point numbers
+     * @return {@code True} if the current token is reported as {@link JsonToken#VALUE_NUMBER_FLOAT}
+     *   and represents a "Not a Number" value; {@code false} for other tokens and regular
+     *   floating-point numbers.
      */
     public abstract boolean isNaN();
 

@@ -60,21 +60,25 @@ public class NonStandardNumberParsingTest
         }
     }
 
+    /**
+     * Test for checking that Overflow for Double value does not lead
+     * to bogus NaN information.
+     */
     public void testLargeDecimal() throws Exception {
-        final String value = "7976931348623157e309";
+        final String biggerThanDouble = "7976931348623157e309";
         for (int mode : ALL_MODES) {
-            try (JsonParser p = createParser(mode, " " + value + " ")) {
+            try (JsonParser p = createParser(mode, " " + biggerThanDouble + " ")) {
                 assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                assertEquals(new BigDecimal(value), p.getDecimalValue());
+                assertEquals(new BigDecimal(biggerThanDouble), p.getDecimalValue());
                 assertFalse(p.isNaN());
                 assertEquals(Double.POSITIVE_INFINITY, p.getValueAsDouble());
-                // PJF: we might want to fix the isNaN check to not be affected by us reading the value as a double
-                assertTrue(p.isNaN());
+                // 01-Dec-2023, tatu: [core#1137] NaN only from explicit value
+                assertFalse(p.isNaN());
             }
         }
     }
 
-    //JSON does not allow numbers to have f or d suffixes
+    // JSON does not allow numbers to have f or d suffixes
     public void testFloatMarker() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " -0.123f ")) {

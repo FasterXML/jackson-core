@@ -154,6 +154,21 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected String _numberString;
 
+    /**
+     * Marker for explicit "Not a Number" (NaN) values that may be read
+     * by some formats: this includes positive and negative infinity,
+     * as well as "NaN" result for some arithmetic operations.
+     *<p>
+     * In case of JSON, such values can only be handled with non-standard
+     * processing: for some other formats they can be passed normally.
+     *<p>
+     * NOTE: this marker is NOT set in case of value overflow/underflow for
+     * {@code double} or {@code float} values.
+     *
+     * @since 2.17
+     */
+    protected boolean _numberIsNaN;
+
     // And then other information about value itself
 
     /**
@@ -389,6 +404,7 @@ public abstract class ParserBase extends ParserMinimalBase
         // May throw StreamConstraintsException:
         _streamReadConstraints.validateIntegerLength(intLen);
         _numberNegative = negative;
+        _numberIsNaN = false;
         _intLength = intLen;
         _fractLength = 0;
         _expLength = 0;
@@ -402,6 +418,7 @@ public abstract class ParserBase extends ParserMinimalBase
         // May throw StreamConstraintsException:
         _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
         _numberNegative = negative;
+        _numberIsNaN = false;
         _intLength = intLen;
         _fractLength = fractLen;
         _expLength = expLen;
@@ -414,17 +431,15 @@ public abstract class ParserBase extends ParserMinimalBase
         _textBuffer.resetWithString(valueStr);
         _numberDouble = value;
         _numTypesValid = NR_DOUBLE;
+        _numberIsNaN = true;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
     @Override
     public boolean isNaN() {
-        if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
-            if ((_numTypesValid & NR_DOUBLE) != 0) {
-                return !Double.isFinite(_getNumberDouble());
-            }
-        }
-        return false;
+        // 01-Dec-2023, tatu: [core#1137] Only return explicit NaN
+        return (_currToken == JsonToken.VALUE_NUMBER_FLOAT)
+                && _numberIsNaN;
     }
 
     /*

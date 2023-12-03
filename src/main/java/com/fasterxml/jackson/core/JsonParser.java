@@ -742,22 +742,24 @@ public abstract class JsonParser
         return getTokenLocation();
     }
 
-    // TODO: deprecate in 2.14 or later
     /**
-     * Alias for {@link #currentLocation()}, to be deprecated in later
-     * Jackson 2.x versions (and removed from Jackson 3.0).
+     * Deprecated alias for {@link #currentLocation()} (removed from Jackson 3.0).
      *
      * @return Location of the last processed input unit (byte or character)
+     *
+     * @deprecated Since 2.17 use {@link #currentLocation()} instead
      */
+    @Deprecated // since 2.17
     public abstract JsonLocation getCurrentLocation();
 
-    // TODO: deprecate in 2.14 or later
     /**
-     * Alias for {@link #currentTokenLocation()}, to be deprecated in later
-     * Jackson 2.x versions (and removed from Jackson 3.0).
+     * Deprecated alias for {@link #currentTokenLocation()} (removed from Jackson 3.0).
      *
      * @return Starting location of the token parser currently points to
+     *
+     * @deprecated Since 2.17 use {@link #currentTokenLocation()} instead
      */
+    @Deprecated // since 2.17
     public abstract JsonLocation getTokenLocation();
 
     /**
@@ -776,8 +778,21 @@ public abstract class JsonParser
      * @since 2.13 (added as replacement for older {@link #getCurrentValue()}
      */
     public Object currentValue() {
-        // TODO: implement directly in 2.14 or later, make getCurrentValue() call this
-        return getCurrentValue();
+        // Note: implemented directly in 2.17, no longer delegating to getCurrentValue()
+        JsonStreamContext ctxt = getParsingContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
+    /**
+     * Deprecated alias for {@link #currentValue()} (removed from Jackson 3.0).
+     *
+     * @return Location of the last processed input unit (byte or character)
+     *
+     * @deprecated Since 2.17 use {@link #currentValue()} instead
+     */
+    @Deprecated // since 2.17
+    public Object getCurrentValue() {
+        return currentValue();
     }
 
     /**
@@ -791,34 +806,23 @@ public abstract class JsonParser
      * @since 2.13 (added as replacement for older {@link #setCurrentValue}
      */
     public void assignCurrentValue(Object v) {
-        // TODO: implement directly in 2.14 or later, make setCurrentValue() call this
-        setCurrentValue(v);
-    }
-
-    // TODO: deprecate in 2.14 or later
-    /**
-     * Alias for {@link #currentValue()}, to be deprecated in later
-     * Jackson 2.x versions (and removed from Jackson 3.0).
-     *
-     * @return Location of the last processed input unit (byte or character)
-     */
-    public Object getCurrentValue() {
-        JsonStreamContext ctxt = getParsingContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
-    }
-
-    // TODO: deprecate in 2.14 or later
-    /**
-     * Alias for {@link #assignCurrentValue}, to be deprecated in later
-     * Jackson 2.x versions (and removed from Jackson 3.0).
-     *
-     * @param v Current value to assign for the current input context of this parser
-     */
-    public void setCurrentValue(Object v) {
+        // Note: implemented directly in 2.17, no longer delegating to setCurrentValue()
         JsonStreamContext ctxt = getParsingContext();
         if (ctxt != null) {
             ctxt.setCurrentValue(v);
         }
+    }
+
+    /**
+     * Deprecated alias for {@link #assignCurrentValue(Object)} (removed from Jackson 3.0).
+     *
+     * @param v Current value to assign for the current input context of this parser
+     *
+     * @deprecated Since 2.17 use {@link #assignCurrentValue} instead
+     */
+    @Deprecated // since 2.17
+    public void setCurrentValue(Object v) {
+        assignCurrentValue(v);
     }
 
     /*
@@ -1398,7 +1402,7 @@ public abstract class JsonParser
     public boolean isExpectedNumberIntToken() { return currentToken() == JsonToken.VALUE_NUMBER_INT; }
 
     /**
-     * Access for checking whether current token is a special
+     * Accessor for checking whether current token is a special
      * "not-a-number" (NaN) token (including both "NaN" AND
      * positive/negative infinity!). These values are not supported by all formats:
      * JSON, for example, only supports them if
@@ -1417,7 +1421,7 @@ public abstract class JsonParser
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      *
-     * @since 2.9
+     * @since 2.9 (slight change in semantics in 2.17)
      */
     public boolean isNaN() throws IOException {
         return false;
@@ -1473,7 +1477,6 @@ public abstract class JsonParser
     /**********************************************************
      */
 
-    // TODO: deprecate in 2.14 or later
     /**
      * Alias of {@link #currentName()}.
      *
@@ -1481,7 +1484,10 @@ public abstract class JsonParser
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
+     *
+     * @deprecated use {@link #currentName} instead.
      */
+    @Deprecated
     public abstract String getCurrentName() throws IOException;
 
     /**

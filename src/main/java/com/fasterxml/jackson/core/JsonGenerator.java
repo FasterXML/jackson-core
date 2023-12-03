@@ -2478,7 +2478,7 @@ public abstract class JsonGenerator
             writeEndArray();
             break;
         case ID_FIELD_NAME:
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             break;
         case ID_STRING:
             _copyCurrentStringValue(p);
@@ -2542,7 +2542,7 @@ public abstract class JsonGenerator
             writeEndArray();
             break;
         case ID_FIELD_NAME:
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             break;
         case ID_STRING:
             _copyCurrentStringValue(p);
@@ -2617,7 +2617,7 @@ public abstract class JsonGenerator
         // Let's handle field-name separately first
         int id = (t == null) ? ID_NOT_AVAILABLE : t.id();
         if (id == ID_FIELD_NAME) {
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             t = p.nextToken();
             id = (t == null) ? ID_NOT_AVAILABLE : t.id();
             // fall-through to copy the associated value
@@ -2647,7 +2647,7 @@ public abstract class JsonGenerator
         while ((t = p.nextToken()) != null) {
             switch (t.id()) {
             case ID_FIELD_NAME:
-                writeFieldName(p.getCurrentName());
+                writeFieldName(p.currentName());
                 break;
 
             case ID_START_ARRAY:

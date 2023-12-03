@@ -27,12 +27,12 @@ public abstract class StreamReadException
     protected RequestPayload _requestPayload;
 
     protected StreamReadException(JsonParser p, String msg) {
-        super(msg, (p == null) ? null : p.getCurrentLocation());
+        super(msg, (p == null) ? null : p.currentLocation());
         _processor = p;
     }
 
     protected StreamReadException(JsonParser p, String msg, Throwable root) {
-        super(msg, (p == null) ? null : p.getCurrentLocation(), root);
+        super(msg, (p == null) ? null : p.currentLocation(), root);
         _processor = p;
     }
 

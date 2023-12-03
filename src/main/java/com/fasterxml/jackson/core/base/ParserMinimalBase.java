@@ -276,7 +276,10 @@ public abstract class ParserMinimalBase extends JsonParser
     //public JsonToken getCurrentToken()
     //public boolean hasCurrentToken()
 
-    @Override public abstract String getCurrentName() throws IOException;
+    @Deprecated // since 2.17 -- still need to implement
+    @Override
+    public abstract String getCurrentName() throws IOException;
+
     @Override public abstract void close() throws IOException;
     @Override public abstract boolean isClosed();
 
@@ -490,7 +493,7 @@ public abstract class ParserMinimalBase extends JsonParser
             return getText();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
             return defaultValue;

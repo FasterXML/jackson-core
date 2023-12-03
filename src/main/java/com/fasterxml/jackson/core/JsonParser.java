@@ -1046,7 +1046,7 @@ public abstract class JsonParser
      * time to get the value for the field.
      * Method is most useful for iterating over value entries
      * of JSON objects; field name will still be available
-     * by calling {@link #getCurrentName} when parser points to
+     * by calling {@link #currentName} when parser points to
      * the value.
      *
      * @return Next non-field-name token from the stream, if any found,
@@ -1065,7 +1065,7 @@ public abstract class JsonParser
      * and returns result of that comparison.
      * It is functionally equivalent to:
      *<pre>
-     *  return (nextToken() == JsonToken.FIELD_NAME) &amp;&amp; str.getValue().equals(getCurrentName());
+     *  return (nextToken() == JsonToken.FIELD_NAME) &amp;&amp; str.getValue().equals(currentName());
      *</pre>
      * but may be faster for parser to verify, and can therefore be used if caller
      * expects to get such a property name from input next.
@@ -1080,13 +1080,13 @@ public abstract class JsonParser
      *   {@link JsonParseException} for decoding problems
      */
     public boolean nextFieldName(SerializableString str) throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
+        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(currentName());
     }
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
      * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
-     * returns same as {@link #getCurrentName()}, otherwise null.
+     * returns same as {@link #currentName()}, otherwise null.
      *
      * @return Name of the the {@code JsonToken.FIELD_NAME} parser advanced to, if any;
      *   {@code null} if next token is of some other type
@@ -1097,7 +1097,7 @@ public abstract class JsonParser
      * @since 2.5
      */
     public String nextFieldName() throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
     }
 
     /**
@@ -1262,6 +1262,7 @@ public abstract class JsonParser
      * @since 2.8
      */
     public JsonToken currentToken() {
+        // !!! TODO: switch direction in 2.18 or later
         return getCurrentToken();
     }
 
@@ -1478,14 +1479,14 @@ public abstract class JsonParser
      */
 
     /**
-     * Alias of {@link #currentName()}.
+     * Deprecated lias of {@link #currentName()}.
      *
      * @return Name of the current field in the parsing context
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      *
-     * @deprecated use {@link #currentName} instead.
+     * @deprecated Since 2.17 use {@link #currentName} instead.
      */
     @Deprecated
     public abstract String getCurrentName() throws IOException;
@@ -1505,6 +1506,7 @@ public abstract class JsonParser
      * @since 2.10
      */
     public String currentName() throws IOException {
+        // !!! TODO: switch direction in 2.18 or later
         return getCurrentName();
     }
 

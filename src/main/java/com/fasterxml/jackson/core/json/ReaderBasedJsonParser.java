@@ -372,7 +372,7 @@ public class ReaderBasedJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(null);
     }
@@ -388,7 +388,7 @@ public class ReaderBasedJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }
@@ -2973,7 +2973,15 @@ public class ReaderBasedJsonParser
      */
 
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentLocation() {
+        final int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_contentReference(),
+                -1L, _currInputProcessed + _inputPtr,
+                _currInputRow, col);
+    }
+
+    @Override
+    public JsonLocation currentTokenLocation()
     {
         if (_currToken == JsonToken.FIELD_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
@@ -2984,12 +2992,16 @@ public class ReaderBasedJsonParser
                 -1L, _tokenInputTotal-1, _tokenInputRow, _tokenInputCol);
     }
 
+    @Deprecated // since 2.17
     @Override
     public JsonLocation getCurrentLocation() {
-        final int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_contentReference(),
-                -1L, _currInputProcessed + _inputPtr,
-                _currInputRow, col);
+        return currentLocation();
+    }
+
+    @Deprecated // since 2.17
+    @Override
+    public JsonLocation getTokenLocation() {
+        return currentTokenLocation();
     }
 
     // @since 2.7

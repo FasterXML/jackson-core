@@ -278,15 +278,16 @@ public abstract class ParserBase extends ParserMinimalBase
         _parsingContext = JsonReadContext.createRootContext(dups);
     }
 
-    @Override public Version version() { return PackageVersion.VERSION; }
+    @Override
+    public Version version() { return PackageVersion.VERSION; }
 
     @Override
-    public Object getCurrentValue() {
+    public Object currentValue() {
         return _parsingContext.getCurrentValue();
     }
 
     @Override
-    public void setCurrentValue(Object v) {
+    public void assignCurrentValue(Object v) {
         _parsingContext.setCurrentValue(v);
     }
 
@@ -373,7 +374,9 @@ public abstract class ParserBase extends ParserMinimalBase
      * Method that can be called to get the name associated with
      * the current event.
      */
-    @Override public String getCurrentName() throws IOException {
+    @Deprecated // since 2.17
+    @Override
+    public String getCurrentName() throws IOException {
         // [JACKSON-395]: start markers require information from parent
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             JsonReadContext parent = _parsingContext.getParent();
@@ -384,7 +387,8 @@ public abstract class ParserBase extends ParserMinimalBase
         return _parsingContext.getCurrentName();
     }
 
-    @Override public void overrideCurrentName(String name) {
+    @Override
+    public void overrideCurrentName(String name) {
         // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
         JsonReadContext ctxt = _parsingContext;
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
@@ -424,6 +428,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * that starts the current token.
      */
     @Override
+    @Deprecated // since 2.17
     public JsonLocation getTokenLocation() {
         return new JsonLocation(_contentReference(),
                 -1L, getTokenCharacterOffset(), // bytes, chars
@@ -436,6 +441,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * usually for error reporting purposes
      */
     @Override
+    @Deprecated // since 2.17
     public JsonLocation getCurrentLocation() {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_contentReference(),

@@ -70,7 +70,7 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         // needs to be same of cours
-        String actName = p.getCurrentName();
+        String actName = p.currentName();
         assertEquals(expName, actName);
         if (enableIntern) {
             assertSame(expName, actName);
@@ -149,7 +149,7 @@ public class SimpleParserTest extends BaseTest
         assertEquals("/", ctxt.toString());
 
         assertTrue(p.hasCurrentToken());
-        JsonLocation loc = p.getTokenLocation();
+        JsonLocation loc = p.currentTokenLocation();
         assertNotNull(loc);
         assertEquals(1, loc.getLineNr());
         if (checkColumn) {
@@ -166,7 +166,7 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         verifyFieldName(p, "key1");
         assertEquals("{\"key1\"}", ctxt.toString());
-        assertEquals(2, p.getTokenLocation().getLineNr());
+        assertEquals(2, p.currentTokenLocation().getLineNr());
 
         ctxt = p.getParsingContext();
         assertFalse(ctxt.inRoot());
@@ -316,7 +316,7 @@ public class SimpleParserTest extends BaseTest
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
             // first, sanity check (field name == getText()
-            String act = p.getCurrentName();
+            String act = p.currentName();
             assertEquals(act, getAndVerifyText(p));
             if (!expResult.equals(act)) {
                 String msg = "Failed for name #"+entry+"/"+NAME_MAP.size();
@@ -395,7 +395,7 @@ public class SimpleParserTest extends BaseTest
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("doc", p.getCurrentName());
+            assertEquals("doc", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
             String act = getAndVerifyText(p);
@@ -407,7 +407,7 @@ public class SimpleParserTest extends BaseTest
             }
 
             // should still know the field name
-            assertEquals("doc", p.getCurrentName());
+            assertEquals("doc", p.currentName());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
 
             // InputDate somewhat special, so:
@@ -462,7 +462,7 @@ public class SimpleParserTest extends BaseTest
         JsonParser p = JSON_FACTORY.createParser(input);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
-        JsonLocation loc = p.getTokenLocation();
+        JsonLocation loc = p.currentTokenLocation();
         assertEquals(3, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -473,7 +473,7 @@ public class SimpleParserTest extends BaseTest
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         // same BOM, but DataInput is more restrictive so can skip but offsets
         // are not reliable...
-        loc = p.getTokenLocation();
+        loc = p.currentTokenLocation();
         assertNotNull(loc);
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
@@ -574,20 +574,20 @@ public class SimpleParserTest extends BaseTest
         JsonParser parser = createParser(mode, JSON);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        assertEquals("a", parser.getCurrentName());
+        assertEquals("a", parser.currentName());
         _getAndVerifyText(parser, "a");
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         _getAndVerifyText(parser, INPUT_TEXT);
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        assertEquals("b", parser.getCurrentName());
+        assertEquals("b", parser.currentName());
         assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
         _getAndVerifyText(parser, "true");
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        assertEquals("c", parser.getCurrentName());
+        assertEquals("c", parser.currentName());
         assertToken(JsonToken.VALUE_NULL, parser.nextToken());
         _getAndVerifyText(parser, "null");
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        assertEquals("d", parser.getCurrentName());
+        assertEquals("d", parser.currentName());
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         _getAndVerifyText(parser, "foobar!");
 
@@ -621,7 +621,7 @@ public class SimpleParserTest extends BaseTest
         JsonParser parser = createParser(MODE_READER, JSON);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        assertEquals("a", parser.getCurrentName());
+        assertEquals("a", parser.currentName());
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
 
         Writer writer = new StringWriter();
@@ -681,14 +681,14 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("request", p.getCurrentName());
+            assertEquals("request", p.currentName());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("mac", p.getCurrentName());
+            assertEquals("mac", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             assertNotNull(p.getText());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("data", p.getCurrentName());
+            assertEquals("data", p.currentName());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
             // ... and from there on, just loop

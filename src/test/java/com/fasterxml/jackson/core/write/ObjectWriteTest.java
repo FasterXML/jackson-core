@@ -238,33 +238,33 @@ public class ObjectWriteTest
         gen.close();
 
         String docStr = sw.toString();
-        JsonParser jp = createParserUsingReader(docStr);
-        assertEquals(JsonToken.START_OBJECT, jp.nextToken());
+        JsonParser p = createParserUsingReader(docStr);
+        assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("str", jp.getCurrentName());
-        assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("str", p.currentName());
+        assertEquals(JsonToken.VALUE_NULL, p.nextToken());
 
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
 
-        assertEquals("big", jp.currentName());
-        assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
+        assertEquals("big", p.currentName());
+        assertEquals(JsonToken.VALUE_NULL, p.nextToken());
 
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("dec", jp.currentName());
-        assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("dec", p.currentName());
+        assertEquals(JsonToken.VALUE_NULL, p.nextToken());
 
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("obj", jp.getCurrentName());
-        assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("obj", p.currentName());
+        assertEquals(JsonToken.VALUE_NULL, p.nextToken());
 
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("bin", jp.getCurrentName());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("bin", p.currentName());
         // no native binary indicator in JSON, so:
-        assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("AQI=", jp.getText());
+        assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("AQI=", p.getText());
 
-        assertEquals(JsonToken.END_OBJECT, jp.nextToken());
-        jp.close();
+        assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
     }
 }

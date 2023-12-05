@@ -229,8 +229,8 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertNull(del.currentToken());
         assertFalse(del.hasCurrentToken());
         assertFalse(del.hasTextCharacters());
-        assertNull(del.getCurrentValue());
-        assertNull(del.getCurrentName());
+        assertNull(del.currentValue());
+        assertNull(del.currentName());
 
         assertToken(JsonToken.START_ARRAY, del.nextToken());
         assertEquals(JsonTokenId.ID_START_ARRAY, del.currentTokenId());
@@ -268,26 +268,26 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
         assertToken(JsonToken.VALUE_TRUE, del.nextToken());
         assertTrue(del.getBooleanValue());
-        assertEquals(parser.getCurrentLocation(), del.getCurrentLocation());
+        assertEquals(parser.currentLocation(), del.currentLocation());
         assertNull(del.getTypeId());
         assertNull(del.getObjectId());
 
         assertToken(JsonToken.VALUE_NULL, del.nextToken());
-        assertNull(del.getCurrentValue());
-        del.setCurrentValue(TOKEN);
+        assertNull(del.currentValue());
+        del.assignCurrentValue(TOKEN);
 
         assertToken(JsonToken.START_OBJECT, del.nextToken());
-        assertNull(del.getCurrentValue());
+        assertNull(del.currentValue());
 
         assertToken(JsonToken.FIELD_NAME, del.nextToken());
-        assertEquals("a", del.getCurrentName());
+        assertEquals("a", del.currentName());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
         assertTrue(del.hasTextCharacters());
         assertEquals("foo", del.getText());
 
         assertToken(JsonToken.END_OBJECT, del.nextToken());
-        assertEquals(TOKEN, del.getCurrentValue());
+        assertEquals(TOKEN, del.currentValue());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
         assertArrayEquals(new byte[] { 1, 2 }, del.getBinaryValue());

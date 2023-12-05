@@ -41,14 +41,14 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
         // no "certain" match with JSON, but solid:
         assertEquals(MatchStrength.SOLID_MATCH, matcher.getMatchStrength());
         // and thus:
-        JsonParser jp = matcher.createParserWithMatch();
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("field", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        JsonParser p = matcher.createParserWithMatch();
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("field", p.currentName());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.nextToken());
+        p.close();
     }
 
     /**

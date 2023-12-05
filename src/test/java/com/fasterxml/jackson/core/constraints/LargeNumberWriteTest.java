@@ -161,7 +161,7 @@ public class LargeNumberWriteTest extends BaseTest
     {
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("field", p.getCurrentName());
+        assertEquals("field", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(bigValue, p.getBigIntegerValue());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -172,7 +172,7 @@ public class LargeNumberWriteTest extends BaseTest
     {
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("field", p.getCurrentName());
+        assertEquals("field", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(bigValue, p.getDecimalValue());
         assertToken(JsonToken.END_OBJECT, p.nextToken());

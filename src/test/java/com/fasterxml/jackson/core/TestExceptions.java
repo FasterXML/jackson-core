@@ -123,7 +123,7 @@ public class TestExceptions extends BaseTest
 
     public void testContentSnippetWithOffset() throws Exception
     {
-        final JsonFactory jsonF = this.streamFactoryBuilder()
+        final JsonFactory jsonF = streamFactoryBuilder()
                 .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
                 .build();
 

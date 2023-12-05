@@ -623,16 +623,16 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(JsonToken.FIELD_NAME, p.getCurrentToken());
         assertTrue(p.hasToken(JsonToken.FIELD_NAME));
         assertTrue(p.hasTokenId(JsonTokenId.ID_FIELD_NAME));
-        assertEquals("ob", p.getCurrentName());
+        assertEquals("ob", p.currentName());
 //        assertEquals("ob", p.getText());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals("ob", p.getCurrentName());
+        assertEquals("ob", p.currentName());
 
-        assertEquals(p0.getCurrentLocation(), p.getCurrentLocation());
+        assertEquals(p0.currentLocation(), p.currentLocation());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("value", p.getCurrentName());
+        assertEquals("value", p.currentName());
         assertEquals("value", p.getText());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());

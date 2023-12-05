@@ -129,7 +129,7 @@ public class NonStandardUnquotedNamesTest
         for (int i = 0; i < REPS; ++i) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("abc"+(i&127), p.getCurrentName());
+            assertEquals("abc"+(i&127), p.currentName());
             assertToken(((i&1) != 0) ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
         }
@@ -144,19 +144,19 @@ public class NonStandardUnquotedNamesTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("_foo", p.getCurrentName());
+        assertEquals("_foo", p.currentName());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("$", p.getCurrentName());
+        assertEquals("$", p.currentName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("money!", p.getText());
 
         // and then regular quoted one should still work too:
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals(" ", p.getCurrentName());
+        assertEquals(" ", p.currentName());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
 
@@ -170,11 +170,11 @@ public class NonStandardUnquotedNamesTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("123", p.getCurrentName());
+        assertEquals("123", p.currentName());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("4", p.getCurrentName());
+        assertEquals("4", p.currentName());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());

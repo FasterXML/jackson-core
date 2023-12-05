@@ -18,6 +18,7 @@ public class ParserFeatureDefaultsTest extends BaseTest
         protected void _handleEOF() {
         }
 
+        @Deprecated
         @Override
         public String getCurrentName() {
             return null;
@@ -85,11 +86,13 @@ public class ParserFeatureDefaultsTest extends BaseTest
             return null;
         }
 
+        @Deprecated
         @Override
         public JsonLocation getCurrentLocation() {
             return null;
         }
 
+        @Deprecated
         @Override
         public JsonLocation getTokenLocation() {
             return null;

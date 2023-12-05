@@ -85,7 +85,7 @@ public class TestJDKSerializability extends BaseTest
         JsonFactory jf = new JsonFactory();
         JsonParser jp = jf.createParser("  { }");
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        JsonLocation loc = jp.getCurrentLocation();
+        JsonLocation loc = jp.currentLocation();
 
         byte[] stuff = jdkSerialize(loc);
         JsonLocation loc2 = jdkDeserialize(stuff);

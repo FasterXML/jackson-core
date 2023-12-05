@@ -48,7 +48,7 @@ public class SymbolsViaParserTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         for (int i = 0; i < 50; ++i) {
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            syms.add(p.getCurrentName());
+            syms.add(p.currentName());
             assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         }
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -83,7 +83,7 @@ public class SymbolsViaParserTest
                     : jsonFactory.createParser(doc);
             assertToken(JsonToken.START_OBJECT, parser.nextToken());
             assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-            assertEquals(field, parser.getCurrentName());
+            assertEquals(field, parser.currentName());
             assertToken(JsonToken.VALUE_STRING, parser.nextToken());
             assertToken(JsonToken.END_OBJECT, parser.nextToken());
             assertNull(parser.nextToken());

@@ -49,7 +49,7 @@ public class TestWithTonsaSymbols
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             for (int i = 0; i < FIELD_COUNT; ++i) {
                 assertToken(JsonToken.FIELD_NAME, p.nextToken());
-                assertEquals(fieldNameFor(i), p.getCurrentName());
+                assertEquals(fieldNameFor(i), p.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(i, p.getIntValue());
             }

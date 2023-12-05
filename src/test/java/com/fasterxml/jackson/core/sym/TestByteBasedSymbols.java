@@ -58,8 +58,8 @@ public class TestByteBasedSymbols
             for (int i = 0; i < len; ++i) {
                 assertToken(JsonToken.FIELD_NAME, jp1.nextToken());
                 assertToken(JsonToken.FIELD_NAME, jp2.nextToken());
-                assertEquals(FIELD_NAMES[i], jp1.getCurrentName());
-                assertEquals(FIELD_NAMES[len-(i+1)], jp2.getCurrentName());
+                assertEquals(FIELD_NAMES[i], jp1.currentName());
+                assertEquals(FIELD_NAMES[len-(i+1)], jp2.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp1.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp2.nextToken());
                 assertEquals(i, jp1.getIntValue());

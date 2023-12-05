@@ -71,90 +71,90 @@ public class ParserWithObjectsTest
     private void  _testNextValueBasic(boolean useStream) throws IOException
     {
         // first array, no change to default
-        JsonParser jp = _getParser("[ 1, 2, 3, 4 ]", useStream);
-        assertToken(JsonToken.START_ARRAY, jp.nextValue());
+        JsonParser p = _getParser("[ 1, 2, 3, 4 ]", useStream);
+        assertToken(JsonToken.START_ARRAY, p.nextValue());
         for (int i = 1; i <= 4; ++i) {
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextValue());
-            assertEquals(i, jp.getIntValue());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextValue());
+            assertEquals(i, p.getIntValue());
         }
-        assertToken(JsonToken.END_ARRAY, jp.nextValue());
-        assertNull(jp.nextValue());
-        jp.close();
+        assertToken(JsonToken.END_ARRAY, p.nextValue());
+        assertNull(p.nextValue());
+        p.close();
 
         // then Object, is different
-        jp = _getParser("{ \"3\" :3, \"4\": 4, \"5\" : 5 }", useStream);
-        assertToken(JsonToken.START_OBJECT, jp.nextValue());
+        p = _getParser("{ \"3\" :3, \"4\": 4, \"5\" : 5 }", useStream);
+        assertToken(JsonToken.START_OBJECT, p.nextValue());
         for (int i = 3; i <= 5; ++i) {
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextValue());
-            assertEquals(String.valueOf(i), jp.getCurrentName());
-            assertEquals(i, jp.getIntValue());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextValue());
+            assertEquals(String.valueOf(i), p.currentName());
+            assertEquals(i, p.getIntValue());
         }
-        assertToken(JsonToken.END_OBJECT, jp.nextValue());
-        assertNull(jp.nextValue());
-        jp.close();
+        assertToken(JsonToken.END_OBJECT, p.nextValue());
+        assertNull(p.nextValue());
+        p.close();
 
         // and then mixed...
-        jp = _getParser("[ true, [ ], { \"a\" : 3 } ]", useStream);
+        p = _getParser("[ true, [ ], { \"a\" : 3 } ]", useStream);
 
-        assertToken(JsonToken.START_ARRAY, jp.nextValue());
-        assertToken(JsonToken.VALUE_TRUE, jp.nextValue());
-        assertToken(JsonToken.START_ARRAY, jp.nextValue());
-        assertToken(JsonToken.END_ARRAY, jp.nextValue());
+        assertToken(JsonToken.START_ARRAY, p.nextValue());
+        assertToken(JsonToken.VALUE_TRUE, p.nextValue());
+        assertToken(JsonToken.START_ARRAY, p.nextValue());
+        assertToken(JsonToken.END_ARRAY, p.nextValue());
 
-        assertToken(JsonToken.START_OBJECT, jp.nextValue());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextValue());
-        assertEquals("a", jp.getCurrentName());
-        assertToken(JsonToken.END_OBJECT, jp.nextValue());
-        assertToken(JsonToken.END_ARRAY, jp.nextValue());
+        assertToken(JsonToken.START_OBJECT, p.nextValue());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextValue());
+        assertEquals("a", p.currentName());
+        assertToken(JsonToken.END_OBJECT, p.nextValue());
+        assertToken(JsonToken.END_ARRAY, p.nextValue());
 
-        assertNull(jp.nextValue());
-        jp.close();
+        assertNull(p.nextValue());
+        p.close();
     }
 
     // [JACKSON-395]
     private void  _testNextValueNested(boolean useStream) throws IOException
     {
         // first array, no change to default
-        JsonParser jp;
+        JsonParser p;
 
         // then object with sub-objects...
-        jp = _getParser("{\"a\": { \"b\" : true, \"c\": false }, \"d\": 3 }", useStream);
+        p = _getParser("{\"a\": { \"b\" : true, \"c\": false }, \"d\": 3 }", useStream);
 
-        assertToken(JsonToken.START_OBJECT, jp.nextValue());
-        assertNull(jp.getCurrentName());
-        assertToken(JsonToken.START_OBJECT, jp.nextValue());
-        assertEquals("a", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_TRUE, jp.nextValue());
-        assertEquals("b", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_FALSE, jp.nextValue());
-        assertEquals("c", jp.getCurrentName());
-        assertToken(JsonToken.END_OBJECT, jp.nextValue());
+        assertToken(JsonToken.START_OBJECT, p.nextValue());
+        assertNull(p.currentName());
+        assertToken(JsonToken.START_OBJECT, p.nextValue());
+        assertEquals("a", p.currentName());
+        assertToken(JsonToken.VALUE_TRUE, p.nextValue());
+        assertEquals("b", p.currentName());
+        assertToken(JsonToken.VALUE_FALSE, p.nextValue());
+        assertEquals("c", p.currentName());
+        assertToken(JsonToken.END_OBJECT, p.nextValue());
         // ideally we should match closing marker with field, too:
-        assertEquals("a", jp.getCurrentName());
+        assertEquals("a", p.currentName());
 
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextValue());
-        assertEquals("d", jp.getCurrentName());
-        assertToken(JsonToken.END_OBJECT, jp.nextValue());
-        assertNull(jp.getCurrentName());
-        assertNull(jp.nextValue());
-        jp.close();
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextValue());
+        assertEquals("d", p.currentName());
+        assertToken(JsonToken.END_OBJECT, p.nextValue());
+        assertNull(p.currentName());
+        assertNull(p.nextValue());
+        p.close();
 
         // and arrays
-        jp = _getParser("{\"a\": [ false ] }", useStream);
+        p = _getParser("{\"a\": [ false ] }", useStream);
 
-        assertToken(JsonToken.START_OBJECT, jp.nextValue());
-        assertNull(jp.getCurrentName());
-        assertToken(JsonToken.START_ARRAY, jp.nextValue());
-        assertEquals("a", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_FALSE, jp.nextValue());
-        assertNull(jp.getCurrentName());
-        assertToken(JsonToken.END_ARRAY, jp.nextValue());
+        assertToken(JsonToken.START_OBJECT, p.nextValue());
+        assertNull(p.currentName());
+        assertToken(JsonToken.START_ARRAY, p.nextValue());
+        assertEquals("a", p.currentName());
+        assertToken(JsonToken.VALUE_FALSE, p.nextValue());
+        assertNull(p.currentName());
+        assertToken(JsonToken.END_ARRAY, p.nextValue());
         // ideally we should match closing marker with field, too:
-        assertEquals("a", jp.getCurrentName());
-        assertToken(JsonToken.END_OBJECT, jp.nextValue());
-        assertNull(jp.getCurrentName());
-        assertNull(jp.nextValue());
-        jp.close();
+        assertEquals("a", p.currentName());
+        assertToken(JsonToken.END_OBJECT, p.nextValue());
+        assertNull(p.currentName());
+        assertNull(p.nextValue());
+        p.close();
     }
 
     private JsonParser _getParser(String doc, boolean useStream)
@@ -162,7 +162,7 @@ public class ParserWithObjectsTest
     {
         JsonFactory jf = new JsonFactory();
         if (useStream) {
-            return jf.createParser(doc.getBytes("UTF-8"));
+            return jf.createParser(utf8Bytes(doc));
         }
         return jf.createParser(new StringReader(doc));
     }

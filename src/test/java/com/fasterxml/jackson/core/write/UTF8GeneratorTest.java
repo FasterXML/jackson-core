@@ -136,7 +136,7 @@ public class UTF8GeneratorTest extends BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("escapes", p.getCurrentName());
+        assertEquals("escapes", p.currentName());
 
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(SAMPLE_WITH_QUOTES, p.getText());

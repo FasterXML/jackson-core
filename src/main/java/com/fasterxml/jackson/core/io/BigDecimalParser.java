@@ -35,10 +35,23 @@ public final class BigDecimalParser
 
     private BigDecimalParser() {}
 
+    /**
+     * Internal Jackson method. Please do not use.
+     *
+     * @param valueStr
+     * @return BigDecimal value
+     * @throws NumberFormatException
+     */
     public static BigDecimal parse(String valueStr) {
         return parse(valueStr.toCharArray());
     }
 
+    /**
+     * Internal Jackson method. Please do not use.
+     *
+     * @return BigDecimal value
+     * @throws NumberFormatException
+     */
     public static BigDecimal parse(final char[] chars, final int off, final int len) {
         try {
             if (len < 500) {
@@ -66,6 +79,13 @@ public final class BigDecimalParser
         }
     }
 
+    /**
+     * Internal Jackson method. Please do not use.
+     *
+     * @param chars
+     * @return BigDecimal value
+     * @throws NumberFormatException
+     */
     public static BigDecimal parse(char[] chars) {
         return parse(chars, 0, chars.length);
     }

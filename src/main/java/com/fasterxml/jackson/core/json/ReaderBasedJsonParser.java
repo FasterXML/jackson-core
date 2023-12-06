@@ -35,6 +35,8 @@ public class ReaderBasedJsonParser
 
     private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
     private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
+    
+    private final static int FEAT_MASK_ALLOW_CONTROL_CHAR = Feature.ALLOW_RS_CONTROL_CHAR.getMask();
 
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
@@ -2538,8 +2540,8 @@ public class ReaderBasedJsonParser
                 _currInputRowStart = _inputPtr;
             } else if (i == INT_CR) {
                 _skipCR();
-            } else if (i != INT_TAB) {
-                _throwInvalidSpace(i);
+            } else if (i != INT_TAB && ((_features & FEAT_MASK_ALLOW_CONTROL_CHAR) != 0 && i != INT_RS)) {
+                    _throwInvalidSpace(i);
             }
         }
 
@@ -2558,7 +2560,7 @@ public class ReaderBasedJsonParser
                     _currInputRowStart = _inputPtr;
                 } else if (i == INT_CR) {
                     _skipCR();
-                } else if (i != INT_TAB) {
+                } else if (i != INT_TAB && ((_features & FEAT_MASK_ALLOW_CONTROL_CHAR) != 0 && i != INT_RS)) {
                     _throwInvalidSpace(i);
                 }
             }

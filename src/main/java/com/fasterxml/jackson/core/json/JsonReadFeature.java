@@ -11,6 +11,21 @@ import com.fasterxml.jackson.core.*;
 public enum JsonReadFeature
     implements FormatFeature
 {
+    // // // Support for non-standard data format constructs: whitespaces
+
+    /**
+     * Feature that determines whether parser will allow use 
+     * of the RS control character (exhibited by 0x1E and parsed as a
+     * tab or /t) within parsed content or not. 
+     *<p>
+     * Since JSON specification does not mention comments as legal
+     * construct,
+     * this is a non-standard feature. As such, feature is
+     * <b>disabled by default</b> for parsers and must be
+     * explicitly enabled.
+     */
+    ALLOW_RS_CONTROL_CHAR(false, JsonParser.Feature.ALLOW_RS_CONTROL_CHAR),
+
     // // // Support for non-standard data format constructs: comments
 
     /**

@@ -12,12 +12,20 @@ import java.util.Arrays;
 // https://github.com/eobermuhlner/big-math/commit/7a5419aac8b2adba2aa700ccf00197f97b2ad89f
 
 /**
- * Helper class used to implement more optimized parsing of {@link BigDecimal} for REALLY
- * big values (over 500 characters)
+ * Internal Jackson Helper class used to implement more optimized parsing of {@link BigDecimal} for REALLY
+ * big values (over 500 characters).
+ *<p>
+ * This class is not meant to be used directly. It is designed to be used by Jackson JSON parsers (and parsers
+ * for other Jackson supported data formats). The parsers check for invalid characters and the length of the number.
+ * Without these checks, this parser is susceptible to performing badly with invalid inputs. If you need to parse
+ * numbers directly, please use JavaBigDecimalParser in <a href="https://github.com/wrandelshofer/FastDoubleParser">fastdoubleparser</a>
+ * instead.
+ *</p>
  *<p>
  * Based on ideas from this
  * <a href="https://github.com/eobermuhlner/big-math/commit/7a5419aac8b2adba2aa700ccf00197f97b2ad89f">this
  * git commit</a>.
+ *</p>
  *
  * @since 2.13
  */

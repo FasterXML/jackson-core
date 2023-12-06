@@ -1,15 +1,15 @@
 package com.fasterxml.jackson.core.base;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.json.PackageVersion;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
 
 /**
  * This base class implements part of API that a JSON generator exposes

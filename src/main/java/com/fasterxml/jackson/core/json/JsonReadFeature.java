@@ -18,11 +18,8 @@ public enum JsonReadFeature
      * of the RS control character (exhibited by 0x1E and parsed as a
      * tab or /t) within parsed content or not. 
      *<p>
-     * Since JSON specification does not mention comments as legal
-     * construct,
-     * this is a non-standard feature. As such, feature is
-     * <b>disabled by default</b> for parsers and must be
-     * explicitly enabled.
+     * Since JSON specification requires quoting for all control characters,
+     * this is a non-standard feature, and as such disabled by default.
      */
     ALLOW_RS_CONTROL_CHAR(false, JsonParser.Feature.ALLOW_RS_CONTROL_CHAR),
 

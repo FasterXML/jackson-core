@@ -143,12 +143,8 @@ public abstract class JsonParser
          * of the RS control character (exhibited by 0x1E and parsed as a
          * tab or /t) within parsed content or not. 
          *<p>
-         * Since JSON specification requires use of double quotes for
-         * field names,
+         * Since JSON specification requires quoting for all control characters,
          * this is a non-standard feature, and as such disabled by default.
-         *<p>
-         * NOTE: while not technically deprecated, since 2.10 recommended to use
-         * {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_SINGLE_QUOTES} instead.
          */
         ALLOW_RS_CONTROL_CHAR(false),
 

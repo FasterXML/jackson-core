@@ -410,8 +410,8 @@ public abstract class JsonGenerator
      * @since 2.13 (added as replacement for older {@link #getCurrentValue()}
      */
     public Object currentValue() {
-        // TODO: implement directly in 2.14 or later, make getCurrentValue() call this
-        return getCurrentValue();
+        JsonStreamContext ctxt = getOutputContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
     }
 
     /**
@@ -425,20 +425,23 @@ public abstract class JsonGenerator
      * @since 2.13 (added as replacement for older {@link #setCurrentValue}
      */
     public void assignCurrentValue(Object v) {
-        // TODO: implement directly in 2.14 or later, make setCurrentValue() call this
-        setCurrentValue(v);
+        JsonStreamContext ctxt = getOutputContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
     }
 
-    // TODO: deprecate in 2.14 or later
     /**
      * Alias for {@link #currentValue()}, to be deprecated in later
      * Jackson 2.x versions (and removed from Jackson 3.0).
      *
      * @return Location of the last processed input unit (byte or character)
+     *
+     * @deprecated Since 2.17 use {@link #currentValue()} instead
      */
+    @Deprecated
     public Object getCurrentValue() {
-        JsonStreamContext ctxt = getOutputContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
+        return currentValue();
     }
 
     // TODO: deprecate in 2.14 or later
@@ -447,12 +450,12 @@ public abstract class JsonGenerator
      * Jackson 2.x versions (and removed from Jackson 3.0).
      *
      * @param v Current value to assign for the current context of this generator
+     *
+     * @deprecated Since 2.17 use {@link #currentValue()} instead
      */
+    @Deprecated
     public void setCurrentValue(Object v) {
-        JsonStreamContext ctxt = getOutputContext();
-        if (ctxt != null) {
-            ctxt.setCurrentValue(v);
-        }
+        assignCurrentValue(v);
     }
 
     /*

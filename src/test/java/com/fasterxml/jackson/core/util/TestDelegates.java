@@ -376,7 +376,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
         final Object MARKER = new Object();
         del.writeStartArray(MARKER);
-        assertSame(MARKER, del.getCurrentValue());
+        assertSame(MARKER, del.currentValue());
 
         del.writeArray(new int[] { 1, 2, 3 }, 0, 3);
         del.writeArray(new long[] { 1, 123456, 2 }, 1, 1);
@@ -397,7 +397,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
         final Object MARKER = new Object();
         del.writeStartArray(MARKER, 5);
-        assertSame(MARKER, del.getCurrentValue());
+        assertSame(MARKER, del.currentValue());
 
         del.writeNumber((short) 1);
         del.writeNumber(12L);

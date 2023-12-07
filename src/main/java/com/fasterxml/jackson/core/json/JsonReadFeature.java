@@ -15,11 +15,15 @@ public enum JsonReadFeature
 
     /**
      * Feature that determines whether parser will allow use 
-     * of the RS control character (exhibited by 0x1E and parsed as a
-     * tab or /t) within parsed content or not. 
+     * of the RS control character ({@code 0x1E}) within ignorable
+     * whitespace portion of input content (similar to TAB which
+     * is an allowed control character).
      *<p>
-     * Since JSON specification requires quoting for all control characters,
+     * Since JSON specification only allows a small set of control characters
+     * as whitespace by default,
      * this is a non-standard feature, and as such disabled by default.
+     *
+     * @since 2.17
      */
     ALLOW_RS_CONTROL_CHAR(false, JsonParser.Feature.ALLOW_RS_CONTROL_CHAR),
 

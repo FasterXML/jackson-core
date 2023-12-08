@@ -16,7 +16,8 @@ a pure JSON library.
 
 2.17.0 (not yet released)
 
--
+#1157: Use fast parser (FDP) for large `BigDecimal`s (500+ chars)
+ (contributed by @pjfanning)
 
 2.16.1 (not yet released)
 

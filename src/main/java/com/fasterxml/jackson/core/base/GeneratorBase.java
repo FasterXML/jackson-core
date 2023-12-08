@@ -150,12 +150,14 @@ public abstract class GeneratorBase extends JsonGenerator
      */
     @Override public Version version() { return PackageVersion.VERSION; }
 
+    // Overridden from JsonGenerator for direct context access:
     @Override
     public Object currentValue() {
         return _writeContext.getCurrentValue();
     }
 
     @Override
+    // Overridden from JsonGenerator for direct context access:
     public void assignCurrentValue(Object v) {
         if (_writeContext != null) {
             _writeContext.setCurrentValue(v);

@@ -444,7 +444,6 @@ public abstract class JsonGenerator
         return currentValue();
     }
 
-    // TODO: deprecate in 2.14 or later
     /**
      * Alias for {@link #assignCurrentValue}, to be deprecated in later
      * Jackson 2.x versions (and removed from Jackson 3.0).

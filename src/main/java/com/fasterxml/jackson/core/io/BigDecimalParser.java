@@ -135,7 +135,7 @@ public final class BigDecimalParser
         if (len <= MAX_CHARS_TO_REPORT) {
             return String.format("\"%s\"", fullValue);
         }
-        return String.format("\"%s\" (truncated to %d chars (from %d)",
+        return String.format("\"%s\" (truncated to %d chars (from %d))",
                 fullValue.substring(0, MAX_CHARS_TO_REPORT),
                 MAX_CHARS_TO_REPORT, len);
     }

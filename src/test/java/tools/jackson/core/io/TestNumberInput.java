@@ -34,13 +34,13 @@ public class TestNumberInput
             stringBuilder.append(7);
         }
         String test1000 = stringBuilder.toString();
-        assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000));
+        assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000, false));
         assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000, true));
         for (int i = 0; i < 1000; i++) {
             stringBuilder.append(7);
         }
         String test2000 = stringBuilder.toString();
-        assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000));
+        assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, false));
         assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, true));
     }
 
@@ -56,10 +56,10 @@ public class TestNumberInput
     public void testParseBigIntegerFailsWithENotation()
     {
         try {
-            NumberInput.parseBigInteger("1e10");
+            NumberInput.parseBigInteger("1e10", false);
             fail("expected NumberFormatException");
-        } catch (NumberFormatException nfe) {
-            // expected
+        } catch (NumberFormatException e) {
+            verifyException(e, "1e10");
         }
     }
 }

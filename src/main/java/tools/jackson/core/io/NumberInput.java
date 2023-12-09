@@ -337,7 +337,6 @@ public final class NumberInput
      * @param def the default to return if `s` is not a parseable number
      * @param useFastParser whether to use {@code FastDoubleParser} or standard JDK parser
      * @return closest matching double (or `def` if there is an issue with `s`)
-     * @since 2.14
      */
     public static double parseAsDouble(String s, final double def, final boolean useFastParser)
     {
@@ -381,6 +380,8 @@ public final class NumberInput
      * @throws NumberFormatException if string cannot be represented by a float where useFastParser=false
      * @see #parseFloat(String, boolean)
      * @since v2.14
+     *
+     * @deprecated Since 2.17 use {@link #parseFloat(String, boolean)} instead
      */
     @Deprecated
     public static float parseFloat(final String s) throws NumberFormatException {
@@ -395,7 +396,10 @@ public final class NumberInput
      * @since v2.14
      */
     public static float parseFloat(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ? JavaFloatParser.parseFloat(s) : Float.parseFloat(s);
+        if (useFastParser) {
+            return JavaFloatParser.parseFloat(s);
+        }
+        return Float.parseFloat(s);
     }
 
     /**
@@ -405,7 +409,7 @@ public final class NumberInput
      */
     @Deprecated
     public static BigDecimal parseBigDecimal(final String s) throws NumberFormatException {
-        return BigDecimalParser.parse(s);
+        return parseBigDecimal(s, false);
     }
 
     /**
@@ -413,12 +417,12 @@ public final class NumberInput
      * @param useFastParser whether to use {@code FastDoubleParser} or standard JDK parser
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
-     * @since v2.15
      */
     public static BigDecimal parseBigDecimal(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ?
-                BigDecimalParser.parseWithFastParser(s) :
-                BigDecimalParser.parse(s);
+        if (useFastParser) {
+            return BigDecimalParser.parseWithFastParser(s);
+        }
+        return BigDecimalParser.parse(s);
     }
 
     /**
@@ -444,10 +448,12 @@ public final class NumberInput
      */
     public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len,
                                              final boolean useFastParser)
-            throws NumberFormatException {
-        return useFastParser ?
-                BigDecimalParser.parseWithFastParser(ch, off, len) :
-                BigDecimalParser.parse(ch, off, len);
+            throws NumberFormatException
+    {
+        if (useFastParser) {
+            return BigDecimalParser.parseWithFastParser(ch, off, len);
+        }
+        return BigDecimalParser.parse(ch, off, len);
     }
 
     /**
@@ -455,6 +461,7 @@ public final class NumberInput
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
      */
+    @Deprecated
     public static BigDecimal parseBigDecimal(final char[] ch) throws NumberFormatException {
         return BigDecimalParser.parse(ch);
     }
@@ -476,10 +483,10 @@ public final class NumberInput
      * @param s a string representing a number to parse
      * @return a BigInteger
      * @throws NumberFormatException if string cannot be represented by a BigInteger
-     * @since v2.14
      */
+    @Deprecated
     public static BigInteger parseBigInteger(final String s) throws NumberFormatException {
-        return new BigInteger(s);
+        return parseBigInteger(s, false);
     }
 
     /**
@@ -487,14 +494,12 @@ public final class NumberInput
      * @param useFastParser whether to use {@code FastDoubleParser} or standard JDK parser
      * @return a BigInteger
      * @throws NumberFormatException if string cannot be represented by a BigInteger
-     * @since v2.15
      */
     public static BigInteger parseBigInteger(final String s, final boolean useFastParser) throws NumberFormatException {
         if (useFastParser) {
             return BigIntegerParser.parseWithFastParser(s);
-        } else {
-            return parseBigInteger(s);
         }
+        return new BigInteger(s);
     }
 
     /**
@@ -503,14 +508,12 @@ public final class NumberInput
      * @param useFastParser whether to use custom fast parser (true) or JDK default (false) parser
      * @return a BigInteger
      * @throws NumberFormatException if string cannot be represented by a BigInteger
-     * @since v2.15
      */
     public static BigInteger parseBigIntegerWithRadix(final String s, final int radix,
-                                                      final boolean useFastParser) throws NumberFormatException {
+            final boolean useFastParser) throws NumberFormatException {
         if (useFastParser) {
             return BigIntegerParser.parseWithFastParser(s, radix);
-        } else {
-            return new BigInteger(s, radix);
         }
+        return new BigInteger(s, radix);
     }
 }

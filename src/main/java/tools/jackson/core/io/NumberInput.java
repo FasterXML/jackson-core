@@ -2,6 +2,7 @@ package tools.jackson.core.io;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.regex.Pattern;
 
 import ch.randelshofer.fastdoubleparser.JavaDoubleParser;
 import ch.randelshofer.fastdoubleparser.JavaFloatParser;
@@ -21,6 +22,15 @@ public final class NumberInput
 
     final static String MIN_LONG_STR_NO_SIGN = String.valueOf(Long.MIN_VALUE).substring(1);
     final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
+
+    /**
+     * Regexp used to pre-validate "Stringified Numbers": slightly looser than
+     * JSON Number definition (allows leading zeroes, positive sign).
+     * 
+     * @since 2.17
+     */
+    private final static Pattern PATTERN_FLOAT = Pattern.compile(
+          "[+-]?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?");
 
     /**
      * Fast method for parsing unsigned integers that are known to fit into
@@ -515,5 +525,31 @@ public final class NumberInput
             return BigIntegerParser.parseWithFastParser(s, radix);
         }
         return new BigInteger(s, radix);
+    }
+
+    /**
+     * Method called to check whether given pattern looks like a valid Java
+     * Number (which is bit looser definition than valid JSON Number).
+     * Used as pre-parsing check when parsing "Stringified numbers".
+     *<p>
+     * The differences to stricter JSON Number are:
+     * <ul>
+     *   <li>Positive sign is allowed
+     *     </li>
+     *   <li>Leading zeroes are allowed
+     *     </li>
+     * </ul>
+     *<p>
+     * Note: no trimming ({@code String.trim()}) nor null checks are performed
+     * on String passed.
+     *
+     * @param s String to validate
+     *
+     * @return True if String looks like valid Java number; false otherwise.
+     *
+     * @since 2.17
+     */
+    public static boolean looksLikeValidNumber(final String s) {
+        return (s != null) && PATTERN_FLOAT.matcher(s).matches();
     }
 }

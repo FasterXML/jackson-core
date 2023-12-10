@@ -4,7 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 
-public class TestMergedStream
+public class MergedStreamTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testSimple() throws Exception

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.core.io;
 
 import java.math.BigInteger;
 
-public class TestNumberInput
+public class NumberInputTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testNastySmallDouble()

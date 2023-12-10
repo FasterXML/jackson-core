@@ -62,4 +62,28 @@ public class TestNumberInput
             verifyException(e, "1e10");
         }
     }
+
+    public void testLooksLikeValidNumber()
+    {
+        assertTrue(NumberInput.looksLikeValidNumber("0"));
+        assertTrue(NumberInput.looksLikeValidNumber("1"));
+        assertTrue(NumberInput.looksLikeValidNumber("-1"));
+        assertTrue(NumberInput.looksLikeValidNumber("0001")); // non-JSON
+
+        assertTrue(NumberInput.looksLikeValidNumber("0.01"));
+        assertTrue(NumberInput.looksLikeValidNumber("-0.10"));
+        assertTrue(NumberInput.looksLikeValidNumber("+0.25")); // non-JSON
+
+        assertTrue(NumberInput.looksLikeValidNumber("1E10"));
+        assertTrue(NumberInput.looksLikeValidNumber("-1E10"));
+        assertTrue(NumberInput.looksLikeValidNumber("1e-10"));
+        assertTrue(NumberInput.looksLikeValidNumber("1e+10"));
+        assertTrue(NumberInput.looksLikeValidNumber("+1e+10"));
+        assertTrue(NumberInput.looksLikeValidNumber("1.4E-45"));
+        assertTrue(NumberInput.looksLikeValidNumber("1.4e+45"));
+
+        assertFalse(NumberInput.looksLikeValidNumber(""));
+        assertFalse(NumberInput.looksLikeValidNumber("   "));
+        assertFalse(NumberInput.looksLikeValidNumber("10_000"));
+    }
 }

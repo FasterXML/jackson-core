@@ -4,7 +4,7 @@ import java.io.*;
 
 import tools.jackson.core.JsonEncoding;
 
-public class TestMergedStream
+public class MergedStreamTest
     extends tools.jackson.core.BaseTest
 {
     public void testSimple() throws Exception

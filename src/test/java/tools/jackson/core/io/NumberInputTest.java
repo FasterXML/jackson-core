@@ -2,7 +2,7 @@ package tools.jackson.core.io;
 
 import java.math.BigInteger;
 
-public class TestNumberInput
+public class NumberInputTest
     extends tools.jackson.core.BaseTest
 {
     public void testNastySmallDouble()

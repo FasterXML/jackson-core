@@ -32,7 +32,12 @@ public final class NumberInput
     final static String MIN_LONG_STR_NO_SIGN = String.valueOf(Long.MIN_VALUE).substring(1);
     final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
 
-    // @since 2.17
+    /**
+     * Regexp used to pre-validate "Stringified Numbers": slightly looser than
+     * JSON Number definition (allows leading zeroes, positive sign).
+     * 
+     * @since 2.17
+     */
     private final static Pattern PATTERN_FLOAT = Pattern.compile(
           "[+-]?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?");
 

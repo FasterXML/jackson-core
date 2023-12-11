@@ -23,6 +23,8 @@ a pure JSON library.
 
 #1141: NPE in `Version.equals()` if snapshot-info `null`
  (reported by @TimSchweers)
+#1161: NPE in "FastDoubleParser", method "JavaBigDecimalParser.parseBigDecimal()"
+ (contributed by @pjfanning)
 
 2.16.0 (15-Nov-2023)
 

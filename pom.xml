@@ -160,6 +160,10 @@ tools.jackson.core.*;version=${project.version}
                   <artifact>ch.randelshofer:fastdoubleparser</artifact>
                   <excludes>
                     <exclude>META-INF/versions/**/module-info.*</exclude>
+		    <!-- 10-Dec-2023, pjfanning: due to
+                        https://github.com/wrandelshofer/FastDoubleParser/issues/79
+                      -->
+                    <exclude>META-INF/versions/22/**/*.*</exclude>
                   </excludes>
                 </filter>
               </filters>
@@ -193,8 +197,8 @@ tools.jackson.core.*;version=${project.version}
                   <shadedPattern>META-INF/versions/17/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>META-INF/versions/19/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/19/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                  <pattern>META-INF/versions/21/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/21/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -282,7 +286,7 @@ tools.jackson.core.*;version=${project.version}
     <dependency>
       <groupId>ch.randelshofer</groupId>
       <artifactId>fastdoubleparser</artifactId>
-      <version>0.9.0</version>
+      <version>1.0.0</version>
     </dependency>
     
     <!-- Test dependencies -->

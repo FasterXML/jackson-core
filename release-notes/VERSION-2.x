@@ -64,6 +64,8 @@ a pure JSON library.
 #1146: `JsonParserDelegate` missing overrides for `canParseAsync()`,
   `getNonBlockingInputFeeder()`
   (reported by Simon B)
+#1161: NPE in "FastDoubleParser", method "JavaBigDecimalParser.parseBigDecimal()"
+  (contributed by @pjfanning)
 
 2.15.3 (12-Oct-2023)
 

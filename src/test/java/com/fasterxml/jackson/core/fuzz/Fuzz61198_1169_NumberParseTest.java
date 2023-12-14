@@ -32,7 +32,7 @@ public class Fuzz61198_1169_NumberParseTest extends BaseTest
     private void _testLeadingPlusMalformed(JsonFactory f, int mode) throws Exception
     {
         // But also, invalid case:
-        try (JsonParser p = createParser(f, mode, "[ +\0  1 ")) {
+        try (JsonParser p = createParser(f, mode, "[ +X  1 ")) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             try {
                 JsonToken t = p.nextToken();
@@ -43,7 +43,7 @@ public class Fuzz61198_1169_NumberParseTest extends BaseTest
                 p.getIntValue();
                 fail("Should not pass, got: "+t);
             } catch (JsonParseException e) {
-                verifyException(e, "Unexpected character (");
+                verifyException(e, "Unexpected character ('X' (code 88");
             }
         }
     }

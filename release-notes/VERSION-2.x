@@ -18,6 +18,8 @@ a pure JSON library.
 
 #1157: Use fast parser (FDP) for large `BigDecimal`s (500+ chars)
  (contributed by @pjfanning)
+#1169: `ArrayIndexOutOfBoundsException` for specific invalid content,
+  with Reader-based parser
 
 2.16.1 (not yet released)
 

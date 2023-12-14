@@ -1556,8 +1556,7 @@ public class ReaderBasedJsonParser
         // This is the place to do leading-zero check(s) too:
         int intLen = 0;
         char c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                : getNextChar("No digit following minus sign", JsonToken.VALUE_NUMBER_INT);
-
+                : getNextChar("No digit following sign", JsonToken.VALUE_NUMBER_INT);
         if (c == '0') {
             c = _verifyNoLeadingZeroes();
         }
@@ -1583,7 +1582,7 @@ public class ReaderBasedJsonParser
         // Also, integer part is not optional
         if (intLen == 0) {
             // [core#611]: allow optionally leading decimal point
-            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
+            if ((c != '.') || !isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
                 return _handleInvalidNumberStart(c, neg);
             }
         }

@@ -38,7 +38,6 @@ public class Fuzz61198_1169_NumberParseTest extends BaseTest
                 JsonToken t = p.nextToken();
                 assertToken(JsonToken.VALUE_NUMBER_INT, t);
                 // Either one works:
-                
 //                p.getNumberType();
                 p.getIntValue();
                 fail("Should not pass, got: "+t);

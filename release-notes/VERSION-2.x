@@ -20,8 +20,6 @@ a pure JSON library.
  (reported by Robert E)
 #1157: Use fast parser (FDP) for large `BigDecimal`s (500+ chars)
  (contributed by @pjfanning)
-#1168: `JsonPointer.append(JsonPointer.tail())` includes the original pointer 
- (reported by Robert E)
 #1169: `ArrayIndexOutOfBoundsException` for specific invalid content,
   with Reader-based parser
 
@@ -31,6 +29,8 @@ a pure JSON library.
  (reported by @TimSchweers)
 #1161: NPE in "FastDoubleParser", method "JavaBigDecimalParser.parseBigDecimal()"
  (contributed by @pjfanning)
+#1168: `JsonPointer.append(JsonPointer.tail())` includes the original pointer
+ (contributed by Robert E)
 
 2.16.0 (15-Nov-2023)
 

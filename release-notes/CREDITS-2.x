@@ -128,7 +128,6 @@ Arnaud Roger (arnaudroger@github)
    to `writeRaw()` instead of `writeRawValue()`
    (2.10.2)
 
-
 Emily Selwood (emilyselwood@github)
   * Reported #382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
    (2.8.9)
@@ -405,3 +404,7 @@ David Schlosnagle (@schlosna)
 Mario Fusco (@mariofusco)
  * Contributed #1064: Add full set of `BufferRecyclerPool` implementations
   (2.16.0)
+
+Robert Elliot (@Mahoney)
+ * Reported #1145: `JsonPointer.appendProperty(String)` does not escape the property name
+  (2.17.0)

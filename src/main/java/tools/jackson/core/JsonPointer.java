@@ -265,15 +265,15 @@ public class JsonPointer implements Serializable
     {
         for (int i = 0, end = segment.length(); i < end; ++i) {
             char c = segment.charAt(i);
-           if (c == '/') {
-               sb.append("~1");
-               continue;
-           }
-           if (c == '~') {
-               sb.append("~0");
-               continue;
-           }
-           sb.append(c);
+            if (c == '/') {
+                sb.append("~1");
+                continue;
+            }
+            if (c == '~') {
+                sb.append("~0");
+                continue;
+            }
+            sb.append(c);
         }
     }
 
@@ -365,42 +365,46 @@ public class JsonPointer implements Serializable
     }
 
     /**
-     * ATTENTION! {@link JsonPointer} is head centric, tail appending is much costlier than head appending.
-     * It is not recommended to overuse the method.
+     * ATTENTION! {@link JsonPointer} is head-centric, tail appending is much costlier
+     * than head appending.
+     * It is recommended that this method is used sparingly due to possible
+     * sub-par performance.
      *
-     * Mutant factory method that will return
+     * Mutant factory method that will return:
      *<ul>
-     * <li>`this` instance if `property` is null or empty String, OR
+     * <li>`this` instance if `property` is null, OR
      *  </li>
      * <li>Newly constructed {@link JsonPointer} instance that starts with all segments
      *    of `this`, followed by new segment of 'property' name.
      *  </li>
      *</ul>
-     *
-     * 'property' format is starting separator (optional, added automatically if not provided) and new segment name.
+     * 'property' is name to match: value is escaped as necessary (for any contained
+     * slashes or tildes).
+     *<p>
+     * NOTE! Before Jackson 2.17, no escaping was performed, and leading slash was
+     * dropped if passed. This was incorrect implementation. Empty {@code property}
+     * was also ignored (similar to {@code null}).
      *
      * @param property new segment property name
      *
      * @return Either `this` instance, or a newly created combination, as per description above.
      */
     public JsonPointer appendProperty(String property) {
-        if (property == null || property.isEmpty()) {
+        if (property == null) {
             return this;
         }
-        if (property.charAt(0) != SEPARATOR) {
-            property = SEPARATOR + property;
-        }
-        String currentJsonPointer = _asString;
-        if (currentJsonPointer.endsWith("/")) {
-            //removes final slash
-            currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
-        }
-        return compile(currentJsonPointer + property);
+        // 14-Dec-2023, tatu: [core#1145] Must escape `property`; accept empty String
+        //    as valid segment to match as well
+        StringBuilder sb = new StringBuilder(_asString).append('/');
+        _appendEscaped(sb, property);
+        return compile(sb.toString());
     }
 
     /**
-     * ATTENTION! {@link JsonPointer} is head centric, tail appending is much costlier than head appending.
-     * It is not recommended to overuse the method.
+     * ATTENTION! {@link JsonPointer} is head-centric, tail appending is much costlier
+     * than head appending.
+     * It is recommended that this method is used sparingly due to possible
+     * sub-par performance.
      *
      * Mutant factory method that will return newly constructed {@link JsonPointer} instance that starts with all
      * segments of `this`, followed by new segment of element 'index'. Element 'index' should be non-negative.

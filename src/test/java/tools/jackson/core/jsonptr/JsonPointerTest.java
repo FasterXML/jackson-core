@@ -193,15 +193,34 @@ public class JsonPointerTest extends BaseTest
     public void testAppendProperty()
     {
         final String INPUT = "/Image/15/name";
-        final String APPEND_WITH_SLASH = "/extension";
         final String APPEND_NO_SLASH = "extension";
+        final String APPEND_WITH_SLASH = "/extension~";
 
         JsonPointer ptr = JsonPointer.compile(INPUT);
-        JsonPointer appendedWithSlash = ptr.appendProperty(APPEND_WITH_SLASH);
         JsonPointer appendedNoSlash = ptr.appendProperty(APPEND_NO_SLASH);
+        JsonPointer appendedWithSlash = ptr.appendProperty(APPEND_WITH_SLASH);
 
-        assertEquals("extension", appendedWithSlash.last().getMatchingProperty());
-        assertEquals("extension", appendedNoSlash.last().getMatchingProperty());
+        assertEquals(APPEND_NO_SLASH, appendedNoSlash.last().getMatchingProperty());
+        assertEquals("/Image/15/name/extension", appendedNoSlash.toString());
+        
+        assertEquals(APPEND_WITH_SLASH, appendedWithSlash.last().getMatchingProperty());
+        assertEquals("/Image/15/name/~1extension~0", appendedWithSlash.toString());
+    }
+
+    // [core#1145]: Escape property
+    public void testAppendPropertyEmpty()
+    {
+        final String BASE = "/Image/72/src";
+
+        JsonPointer basePtr = JsonPointer.compile(BASE);
+
+        // Same as before 2.17
+        assertSame(basePtr, basePtr.appendProperty(null));
+        // but this is different:
+        JsonPointer sub = basePtr.appendProperty("");
+        assertNotSame(basePtr, sub);
+
+        assertEquals(BASE+"/", sub.toString());
     }
 
     public void testAppendIndex()

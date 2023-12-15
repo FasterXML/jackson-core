@@ -375,10 +375,14 @@ public class JsonPointer implements Serializable
         //    re-decoding -- by stitching together segments -- but for now should be fine.
 
         String currentJsonPointer = _asString;
+
+        // 14-Dec-2023, tatu: Pre-2.17 had special handling which makes no sense:
+        /*
         if (currentJsonPointer.endsWith("/")) {
             //removes final slash
             currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
         }
+        */
         return compile(currentJsonPointer + tail._asString);
     }
 

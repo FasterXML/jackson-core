@@ -374,12 +374,12 @@ public class JsonPointer implements Serializable
         // 21-Mar-2017, tatu: Not superbly efficient; could probably improve by not concatenating,
         //    re-decoding -- by stitching together segments -- but for now should be fine.
 
-        String currentJsonPointer = _asString;
+        String currentJsonPointer = toString();
         if (currentJsonPointer.endsWith("/")) {
             //removes final slash
             currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
         }
-        return compile(currentJsonPointer + tail._asString);
+        return compile(currentJsonPointer + tail.toString());
     }
 
     /**
@@ -408,7 +408,7 @@ public class JsonPointer implements Serializable
         if (property.charAt(0) != SEPARATOR) {
             property = SEPARATOR + property;
         }
-        String currentJsonPointer = _asString;
+        String currentJsonPointer = toString();
         if (currentJsonPointer.endsWith("/")) {
             //removes final slash
             currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
@@ -432,7 +432,7 @@ public class JsonPointer implements Serializable
         if (index < 0) {
             throw new IllegalArgumentException("Negative index cannot be appended");
         }
-        String currentJsonPointer = _asString;
+        String currentJsonPointer = toString();
         if (currentJsonPointer.endsWith("/")) {
             //removes final slash
             currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);

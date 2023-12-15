@@ -13,8 +13,14 @@ public class JsonPointer1168Test extends BaseTest
         assertEquals("/b/c", tailPointer.toString());
 
         JsonPointer other = JsonPointer.compile("/a2");
-        JsonPointer concatenated = other.append(tailPointer);
+        assertEquals("/a2", other.toString());
 
-        assertEquals("/a2/b/c", concatenated.toString());
+        assertEquals("/a2/b/c", other.append(tailPointer).toString());
+
+        // And the other way around too
+        assertEquals("/b/c/a2", tailPointer.append(other).toString());
+
+        // And with `appendProperty()`
+        assertEquals("/b/c/xyz", tailPointer.appendProperty("xyz").toString());
     }
 }

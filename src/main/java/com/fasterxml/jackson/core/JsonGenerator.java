@@ -2860,10 +2860,34 @@ public abstract class JsonGenerator
         throw new JsonGenerationException(msg, this);
     }
 
+    /**
+     * Helper method used for constructing and throwing
+     * {@link JsonGenerationException} with given templated message.
+     *<p>
+     * Note that sub-classes may override this method to add more detail
+     * or use a {@link JsonGenerationException} sub-class.
+     *
+     * @param msgTemplate Exception message template to use with {@code String.format()}
+     * @param args Variable-length argument list to apply with {@code String.format()}
+     *
+     * @throws JsonGenerationException constructed
+     *
+     * @since 2.17
+     */
+    protected void _reportError(String msgTemplate, Object...args)
+            throws JsonGenerationException {
+        _reportError(String.format(msgTemplate, args));
+    }
+
     protected final void _throwInternal() { VersionUtil.throwInternal(); }
 
     protected void _reportUnsupportedOperation() {
-        throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
+        _reportUnsupportedOperation("Operation not supported by `JsonGenerator` of type "+getClass().getName());
+    }
+
+    // @since 2.17
+    protected void _reportUnsupportedOperation(String msg) {
+        throw new UnsupportedOperationException(msg);
     }
 
     // @since 2.8

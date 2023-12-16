@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
@@ -2841,7 +2842,7 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************************
-    /* Helper methods for sub-classes
+    /* Helper methods for sub-classes, error reporting
     /**********************************************************************
      */
 
@@ -2857,26 +2858,7 @@ public abstract class JsonGenerator
      * @throws JsonGenerationException constructed
      */
     protected void _reportError(String msg) throws JsonGenerationException {
-        throw new JsonGenerationException(msg, this);
-    }
-
-    /**
-     * Helper method used for constructing and throwing
-     * {@link JsonGenerationException} with given templated message.
-     *<p>
-     * Note that sub-classes may override this method to add more detail
-     * or use a {@link JsonGenerationException} sub-class.
-     *
-     * @param msgTemplate Exception message template to use with {@code String.format()}
-     * @param args Variable-length argument list to apply with {@code String.format()}
-     *
-     * @throws JsonGenerationException constructed
-     *
-     * @since 2.17
-     */
-    protected void _reportError(String msgTemplate, Object...args)
-            throws JsonGenerationException {
-        _reportError(String.format(msgTemplate, args));
+        throw (JsonGenerationException) _constructWriteException(msg);
     }
 
     protected final void _throwInternal() { VersionUtil.throwInternal(); }
@@ -2889,6 +2871,32 @@ public abstract class JsonGenerator
     protected void _reportUnsupportedOperation(String msg) {
         throw new UnsupportedOperationException(msg);
     }
+
+    // @since 2.17
+    protected StreamWriteException _constructWriteException(String msg) {
+        return new JsonGenerationException(msg, this);
+    }
+
+    // @since 2.17
+    protected StreamWriteException _constructWriteException(String msg, Object arg) {
+        return _constructWriteException(String.format(msg, arg));
+    }
+
+    // @since 2.17
+    protected StreamWriteException _constructWriteException(String msg, Object arg1, Object arg2) {
+        return _constructWriteException(String.format(msg, arg1, arg2));
+    }
+
+    // @since 2.17
+    protected StreamWriteException _constructWriteException(String msg, Throwable t) {
+        return new JsonGenerationException(msg, t, this);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes, other
+    /**********************************************************************
+     */
 
     // @since 2.8
     protected final void _verifyOffsets(int arrayLength, int offset, int length)

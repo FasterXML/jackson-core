@@ -2135,7 +2135,11 @@ public abstract class JsonGenerator
     }
 
     protected <T> T _reportUnsupportedOperation() {
-        throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
+        return _reportUnsupportedOperation("Operation not supported by `JsonGenerator` of type "+getClass().getName());
+    }
+
+    protected <T> T _reportUnsupportedOperation(String msg) {
+        throw new UnsupportedOperationException(msg);
     }
 
     /**

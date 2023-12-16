@@ -2466,8 +2466,7 @@ public abstract class JsonGenerator
         final int token = (t == null) ? ID_NOT_AVAILABLE : t.id();
         switch (token) {
         case ID_NOT_AVAILABLE:
-            _reportError("No current event to copy");
-            break; // never gets here
+            throw _constructWriteException("No current event to copy");
         case ID_START_OBJECT:
             writeStartObject();
             break;
@@ -2530,8 +2529,7 @@ public abstract class JsonGenerator
         final int token = (t == null) ? ID_NOT_AVAILABLE : t.id();
         switch (token) {
         case ID_NOT_AVAILABLE:
-            _reportError("No current event to copy");
-            break; // never gets here
+            throw _constructWriteException("No current event to copy");
         case ID_START_OBJECT:
             writeStartObject();
             break;

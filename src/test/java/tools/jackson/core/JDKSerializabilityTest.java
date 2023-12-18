@@ -14,7 +14,7 @@ import tools.jackson.core.util.RecyclerPool;
  * Unit tests to verify that `JsonFactory` and abstractions it relies on
  * may be JDK serialized/deserialized.
  */
-public class CoreJDKSerializabilityTest extends BaseTest
+public class JDKSerializabilityTest extends BaseTest
 {
     /*
     /**********************************************************************

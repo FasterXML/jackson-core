@@ -10,6 +10,10 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Tests for verifying internal working of {@link JsonLocation} class itself,
+ * as opposed to accuracy of reported location information by parsers.
+ */
 public class JsonLocationTest extends BaseTest
 {
     static class Foobar { }

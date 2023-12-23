@@ -560,7 +560,7 @@ public abstract class BaseTest
         return q(str);
     }
 
-    protected static String q(String str) {
+    public static String q(String str) {
         return '"'+str+'"';
     }
 
@@ -569,7 +569,7 @@ public abstract class BaseTest
         return a2q(json);
     }
 
-    protected static String a2q(String json) {
+    public static String a2q(String json) {
         return json.replace("'", "\"");
     }
 

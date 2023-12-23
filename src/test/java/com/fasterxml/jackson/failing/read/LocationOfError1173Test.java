@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.failing.read;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -16,14 +13,20 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+
+import static com.fasterxml.jackson.core.BaseTest.a2q;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests that the {@link JsonLocation} attached to a thrown {@link JsonProcessingException} due to invalid json points
  * to the correct character.
  */
-public class LocationOfError1173Test extends BaseTest
+public class LocationOfError1173Test
 {
-    private static final JsonFactory JSON_F = new JsonFactory();
+    static final JsonFactory JSON_F = new JsonFactory();
 
     /** Represents the different parser backends */
     public enum ParserVariant
@@ -79,7 +82,7 @@ public class LocationOfError1173Test extends BaseTest
             this.supportsColumnNr = supportsColumnNr;
         }
 
-        public JsonParser createParser(String input) throws IOException
+        public JsonParser createParser(String input) throws Exception
         {
             return _parserGenerator.createParser(input);
         }
@@ -94,7 +97,7 @@ public class LocationOfError1173Test extends BaseTest
     private static final List<InvalidJson> INVALID_JSON_CASES = Arrays.asList(
         new InvalidJson(
             "Object property missing colon",
-            "{\"invalid\" \"json\"}",
+            a2q("{'invalid' 'json'}"),
             11, // byte offset
             11, // char offset
             1,  // line number
@@ -251,34 +254,33 @@ public class LocationOfError1173Test extends BaseTest
 
     @ParameterizedTest
     @MethodSource("_generateTestData")
-    public void testParserBackendWithInvalidJson(ParserVariant variant, InvalidJson invalidJson) throws IOException
+    public void testParserBackendWithInvalidJson(ParserVariant variant, InvalidJson invalidJson)
+        throws Exception
     {
         try (JsonParser parser = variant.createParser(invalidJson.input))
         {
-            JsonProcessingException jpe = Assertions.assertThrows(
-                JsonProcessingException.class,
+            StreamReadException e = Assertions.assertThrows(
+                    StreamReadException.class,
                 () -> {
                     // Blindly advance the parser through the end of input
                     while (parser.nextToken() != null) {}
                 }
             );
 
-            JsonLocation location = jpe.getLocation();
+            JsonLocation location = e.getLocation();
             assertEquals(invalidJson.lineNr, location.getLineNr());
-
-            if (variant.supportsColumnNr)
-            {
-                assertEquals(invalidJson.columnNr, location.getColumnNr());
-            }
 
             if (variant.supportsByteOffset)
             {
-                assertEquals(invalidJson.byteOffset, location.getByteOffset());
+                assertEquals("Incorrect byte offset", invalidJson.byteOffset, location.getByteOffset());
             }
-
             if (variant.supportsCharOffset)
             {
-                assertEquals(invalidJson.charOffset, location.getCharOffset());
+                assertEquals("Incorrect char offset",invalidJson.charOffset, location.getCharOffset());
+            }
+            if (variant.supportsColumnNr)
+            {
+                assertEquals("Incorrect column", invalidJson.columnNr, location.getColumnNr());
             }
         }
     }
@@ -294,12 +296,13 @@ public class LocationOfError1173Test extends BaseTest
     @FunctionalInterface
     public interface ParserGenerator
     {
-        JsonParser createParser(String input) throws IOException;
+        JsonParser createParser(String input) throws Exception;
     }
 
-    public static class InvalidJson
+    static class InvalidJson
     {
-        InvalidJson(String name, String input, int byteOffset, int charOffset, int lineNr, int columnNr)
+        InvalidJson(String name, String input, int byteOffset, int charOffset,
+                int lineNr, int columnNr)
         {
             _name = name;
 

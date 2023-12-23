@@ -169,7 +169,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         g.close();
         String json = bytes.toString("UTF-8");
 
-        assertEquals("["+quote(VALUE)+"]", json);
+        assertEquals("["+q(VALUE)+"]", json);
 
         // And then with forced ASCII; first, values
 
@@ -185,7 +185,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         g.writeEndArray();
         g.close();
         json = bytes.toString("UTF-8");
-        assertEquals("["+quote("chars: [\\u00A0]/[\\u1234]\\\\")+"]", json);
+        assertEquals("["+q("chars: [\\u00A0]/[\\u1234]\\\\")+"]", json);
 
         // and then keys
         bytes = new ByteArrayOutputStream();
@@ -201,7 +201,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         g.writeEndObject();
         g.close();
         json = bytes.toString("UTF-8");
-        assertEquals("{"+quote("fun:\\u0088:\\u3456\\\\")+":true}", json);
+        assertEquals("{"+q("fun:\\u0088:\\u3456\\\\")+":true}", json);
     }
 
     @SuppressWarnings("resource")

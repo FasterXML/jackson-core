@@ -3067,6 +3067,7 @@ public class ReaderBasedJsonParser
         if (i == INT_RBRACKET) {
             _updateLocation();
             if (!_parsingContext.inArray()) {
+                --_inputPtr; // for correct error reporting
                 _reportMismatchedEndMarker(i, '}');
             }
             _parsingContext = _parsingContext.clearAndGetParent();
@@ -3075,6 +3076,7 @@ public class ReaderBasedJsonParser
         if (i == INT_RCURLY) {
             _updateLocation();
             if (!_parsingContext.inObject()) {
+                --_inputPtr; // for correct error reporting
                 _reportMismatchedEndMarker(i, ']');
             }
             _parsingContext = _parsingContext.clearAndGetParent();

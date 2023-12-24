@@ -3938,6 +3938,7 @@ public class UTF8StreamJsonParser
     private final void _closeArrayScope() throws JsonParseException {
         _updateLocation();
         if (!_parsingContext.inArray()) {
+            --_inputPtr; // for correct error reporting
             _reportMismatchedEndMarker(']', '}');
         }
         _parsingContext = _parsingContext.clearAndGetParent();
@@ -3946,6 +3947,7 @@ public class UTF8StreamJsonParser
     private final void _closeObjectScope() throws JsonParseException {
         _updateLocation();
         if (!_parsingContext.inObject()) {
+            --_inputPtr; // for correct error reporting
             _reportMismatchedEndMarker('}', ']');
         }
         _parsingContext = _parsingContext.clearAndGetParent();

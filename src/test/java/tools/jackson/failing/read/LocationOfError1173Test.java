@@ -67,7 +67,8 @@ public class LocationOfError1173Test
             true,
             false,
             true
-        );
+        )
+        ;
 
         ParserVariant(
             ParserGenerator parserGenerator,
@@ -106,7 +107,7 @@ public class LocationOfError1173Test
         ),
         new InvalidJson(
             "Comma after key in object property",
-            "{\"invalid\", \"json\"}",
+            a2q("{'invalid', 'json'}"),
             10,
             10,
             1,
@@ -114,7 +115,7 @@ public class LocationOfError1173Test
         ),
         new InvalidJson(
             "Missing comma between object properties",
-            "{\"key1\":\"value1\" \"key2\":\"value2\"}",
+            a2q("{'key1':'value1' 'key2':'value2'}"),
             17,
             17,
             1,
@@ -270,18 +271,22 @@ public class LocationOfError1173Test
 
             JsonLocation location = e.getLocation();
             assertEquals(invalidJson.lineNr, location.getLineNr());
+            final String msg = e.getOriginalMessage();
 
             if (variant.supportsByteOffset)
             {
-                assertEquals("Incorrect byte offset", invalidJson.byteOffset, location.getByteOffset());
+                assertEquals("Incorrect byte offset (for '"+msg+"')",
+                        invalidJson.byteOffset, location.getByteOffset());
             }
             if (variant.supportsCharOffset)
             {
-                assertEquals("Incorrect char offset",invalidJson.charOffset, location.getCharOffset());
+                assertEquals("Incorrect char offset (for '"+msg+"')",
+                        invalidJson.charOffset, location.getCharOffset());
             }
             if (variant.supportsColumnNr)
             {
-                assertEquals("Incorrect column", invalidJson.columnNr, location.getColumnNr());
+                assertEquals("Incorrect column (for '"+msg+"')",
+                        invalidJson.columnNr, location.getColumnNr());
             }
         }
     }

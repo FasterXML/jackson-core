@@ -23,7 +23,7 @@ a pure JSON library.
 #1169: `ArrayIndexOutOfBoundsException` for specific invalid content,
   with Reader-based parser
 
-2.16.1 (not yet released)
+2.16.1 (24-Dec-2023)
 
 #1141: NPE in `Version.equals()` if snapshot-info `null`
  (reported by @TimSchweers)

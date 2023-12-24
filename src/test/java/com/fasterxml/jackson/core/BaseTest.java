@@ -434,7 +434,6 @@ public abstract class BaseTest
         return result;
     }
 
-    // @since 2.9.7
     public static byte[] utf8Bytes(String str) {
         return str.getBytes(StandardCharsets.UTF_8);
     }

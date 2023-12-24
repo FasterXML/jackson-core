@@ -2387,6 +2387,7 @@ public class ReaderBasedJsonParser
                     return i;
                 }
                 if (i != INT_COLON) {
+                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
                 gotColon = true;

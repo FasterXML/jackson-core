@@ -233,6 +233,92 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals("1[2]{\"a\":3}", _printTestData(pp, false, writeTestData));
     }
 
+    public void testObjectEmptySeparatorDefault() throws IOException
+    {
+        Separators separators = new Separators()
+            .withRootSeparator(null)
+            .withObjectFieldValueSpacing(Spacing.NONE);
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
+
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeStartObject();
+            gen.writeFieldName("objectEmptySeparatorDefault");
+            gen.writeStartObject();
+            gen.writeEndObject();
+            gen.writeEndObject();
+        };
+        
+        assertEquals("{\"objectEmptySeparatorDefault\":{ }}", _printTestData(pp, false, writeTestData));
+    }
+
+    public void testObjectEmptySeparatorCustom() throws IOException
+    {
+        Separators separators = new Separators()
+            .withRootSeparator(null)
+            .withObjectFieldValueSpacing(Spacing.NONE)
+            .withObjectEmptySeparator("    ");
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
+
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeStartObject();
+            gen.writeFieldName("objectEmptySeparatorCustom");
+            gen.writeStartObject();
+            gen.writeEndObject();
+            gen.writeEndObject();
+        };
+        
+        assertEquals("{\"objectEmptySeparatorCustom\":{    }}", _printTestData(pp, false, writeTestData));
+    }
+
+    public void testArrayEmptySeparatorDefault() throws IOException
+    {
+        Separators separators = new Separators()
+            .withRootSeparator(null)
+            .withObjectFieldValueSpacing(Spacing.NONE);
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
+
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeStartObject();
+            gen.writeFieldName("arrayEmptySeparatorDefault");
+            gen.writeStartArray();
+            gen.writeEndArray();
+            gen.writeEndObject();
+        };
+        
+        assertEquals("{\"arrayEmptySeparatorDefault\":[ ]}", _printTestData(pp, false, writeTestData));
+    }
+
+    public void testArrayEmptySeparatorCustom() throws IOException
+    {
+        Separators separators = new Separators()
+            .withRootSeparator(null)
+            .withObjectFieldValueSpacing(Spacing.NONE)
+            .withArrayEmptySeparator("    ");
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
+
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeStartObject();
+            gen.writeFieldName("arrayEmptySeparatorCustom");
+            gen.writeStartArray();
+            gen.writeEndArray();
+            gen.writeEndObject();
+        };
+        
+        assertEquals("{\"arrayEmptySeparatorCustom\":[    ]}", _printTestData(pp, false, writeTestData));
+    }
+
     private String _printTestData(PrettyPrinter pp, boolean useBytes) throws IOException
     {
         return _printTestData(pp, useBytes, gen -> {

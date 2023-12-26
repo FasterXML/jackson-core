@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Value class used with some {@link com.fasterxml.jackson.core.PrettyPrinter}
@@ -22,6 +23,16 @@ public class Separators implements Serializable
      * @since 2.16
      */
     public final static String DEFAULT_ROOT_VALUE_SEPARATOR = " ";
+
+    /**
+     * @since 2.17
+     */
+    public final static String DEFAULT_OBJECT_EMPTY_SEPARATOR = " ";
+
+    /**
+     * @since 2.17
+     */
+    public final static String DEFAULT_ARRAY_EMPTY_SEPARATOR = " ";
 
     /**
      * Define the spacing around elements like commas and colons.
@@ -59,8 +70,10 @@ public class Separators implements Serializable
     private final Spacing objectFieldValueSpacing;
     private final char objectEntrySeparator;
     private final Spacing objectEntrySpacing;
+    private final String objectEmptySeparator;
     private final char arrayValueSeparator;
     private final Spacing arrayValueSpacing;
+    private final String arrayEmptySeparator;
     private final String rootSeparator;
 
     public static Separators createDefaultInstance() {
@@ -82,8 +95,8 @@ public class Separators implements Serializable
     ) {
         this(DEFAULT_ROOT_VALUE_SEPARATOR,
                 objectFieldValueSeparator, Spacing.BOTH,
-                objectEntrySeparator, Spacing.NONE,
-                arrayValueSeparator, Spacing.NONE);
+                objectEntrySeparator, Spacing.NONE, DEFAULT_OBJECT_EMPTY_SEPARATOR,
+                arrayValueSeparator, Spacing.NONE, DEFAULT_ARRAY_EMPTY_SEPARATOR);
     }
 
     /**
@@ -97,26 +110,30 @@ public class Separators implements Serializable
             Spacing objectFieldValueSpacing,
             char objectEntrySeparator,
             Spacing objectEntrySpacing,
+            String objectEmptySeparator,
             char arrayValueSeparator,
-            Spacing arrayValueSpacing
+            Spacing arrayValueSpacing,
+            String arrayEmptySeparator
     ) {
         this.rootSeparator = rootSeparator;
         this.objectFieldValueSeparator = objectFieldValueSeparator;
         this.objectFieldValueSpacing = objectFieldValueSpacing;
         this.objectEntrySeparator = objectEntrySeparator;
         this.objectEntrySpacing = objectEntrySpacing;
+        this.objectEmptySeparator = objectEmptySeparator;
         this.arrayValueSeparator = arrayValueSeparator;
         this.arrayValueSpacing = arrayValueSpacing;
+        this.arrayEmptySeparator = arrayEmptySeparator;
     }
 
     public Separators withRootSeparator(String sep) {
         return (rootSeparator.equals(sep)) ? this
-                : new Separators(sep, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
+                : new Separators(sep, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, objectEmptySeparator, arrayValueSeparator, arrayValueSpacing, arrayEmptySeparator);
     }
     
     public Separators withObjectFieldValueSeparator(char sep) {
         return (objectFieldValueSeparator == sep) ? this
-                : new Separators(rootSeparator, sep, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
+                : new Separators(rootSeparator, sep, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, objectEmptySeparator, arrayValueSeparator, arrayValueSpacing, arrayEmptySeparator);
     }
 
     /**
@@ -126,12 +143,12 @@ public class Separators implements Serializable
      */
     public Separators withObjectFieldValueSpacing(Spacing spacing) {
         return (objectFieldValueSpacing == spacing) ? this
-                : new Separators(rootSeparator, objectFieldValueSeparator, spacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
+                : new Separators(rootSeparator, objectFieldValueSeparator, spacing, objectEntrySeparator, objectEntrySpacing, objectEmptySeparator, arrayValueSeparator, arrayValueSpacing, arrayEmptySeparator);
     }
     
     public Separators withObjectEntrySeparator(char sep) {
         return (objectEntrySeparator == sep) ? this
-                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, sep, objectEntrySpacing, arrayValueSeparator, arrayValueSpacing);
+                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, sep, objectEntrySpacing, objectEmptySeparator, arrayValueSeparator, arrayValueSpacing, arrayEmptySeparator);
     }
     
     /**
@@ -141,12 +158,22 @@ public class Separators implements Serializable
      */
     public Separators withObjectEntrySpacing(Spacing spacing) {
         return (objectEntrySpacing == spacing) ? this
-                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, spacing, arrayValueSeparator, arrayValueSpacing);
+                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, spacing, objectEmptySeparator, arrayValueSeparator, arrayValueSpacing, arrayEmptySeparator);
+    }
+
+    /**
+     * @return This instance (for call chaining)
+     *
+     * @since 2.17
+     */
+    public Separators withObjectEmptySeparator(String sep) {
+        return (Objects.equals(arrayEmptySeparator, sep)) ? this
+                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, sep, arrayValueSeparator, arrayValueSpacing, arrayEmptySeparator);
     }
 
     public Separators withArrayValueSeparator(char sep) {
         return (arrayValueSeparator == sep) ? this
-                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, sep, arrayValueSpacing);
+                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, objectEmptySeparator, sep, arrayValueSpacing, arrayEmptySeparator);
     }
 
     /**
@@ -156,7 +183,17 @@ public class Separators implements Serializable
      */
     public Separators withArrayValueSpacing(Spacing spacing) {
         return (arrayValueSpacing == spacing) ? this
-                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, arrayValueSeparator, spacing);
+                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, objectEmptySeparator, arrayValueSeparator, spacing, arrayEmptySeparator);
+    }
+
+    /**
+     * @return This instance (for call chaining)
+     *
+     * @since 2.17
+     */
+    public Separators withArrayEmptySeparator(String sep) {
+        return (Objects.equals(arrayEmptySeparator, sep)) ? this
+                : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, objectEmptySeparator, arrayValueSeparator, arrayValueSpacing, sep);
     }
 
     /**
@@ -193,6 +230,15 @@ public class Separators implements Serializable
     public Spacing getObjectEntrySpacing() {
         return objectEntrySpacing;
     }
+
+    /**
+     * @return String to use in empty Object
+     * 
+     * @since 2.17
+     */
+    public String getObjectEmptySeparator() {
+        return objectEmptySeparator;
+    }
     
     public char getArrayValueSeparator() {
         return arrayValueSeparator;
@@ -205,5 +251,14 @@ public class Separators implements Serializable
      */
     public Spacing getArrayValueSpacing() {
         return arrayValueSpacing;
+    }
+
+    /**
+     * @return String to use in empty Array
+     * 
+     * @since 2.17
+     */
+    public String getArrayEmptySeparator() {
+        return arrayEmptySeparator;
     }
 }

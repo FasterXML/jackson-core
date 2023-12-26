@@ -111,9 +111,19 @@ public class DefaultPrettyPrinter
     protected String _objectEntrySeparator;
 
     /**
+     * @since 2.17
+     */
+    protected String _objectEmptySeparator;
+
+    /**
      * @since 2.16
      */
     protected String _arrayValueSeparator;
+
+    /**
+     * @since 2.17
+     */
+    protected String _arrayEmptySeparator;
     
     /*
     /**********************************************************
@@ -167,7 +177,9 @@ public class DefaultPrettyPrinter
         _separators = base._separators;
         _objectFieldValueSeparatorWithSpaces = base._objectFieldValueSeparatorWithSpaces;
         _objectEntrySeparator = base._objectEntrySeparator;
+        _objectEmptySeparator = base._objectEmptySeparator;
         _arrayValueSeparator = base._arrayValueSeparator;
+        _arrayEmptySeparator = base._arrayEmptySeparator;
 
         _rootSeparator = rootSeparator;
     }
@@ -183,7 +195,9 @@ public class DefaultPrettyPrinter
         _objectFieldValueSeparatorWithSpaces = separators.getObjectFieldValueSpacing().apply(
                 separators.getObjectFieldValueSeparator());
         _objectEntrySeparator = separators.getObjectEntrySpacing().apply(separators.getObjectEntrySeparator());
+        _objectEmptySeparator = separators.getObjectEmptySeparator();
         _arrayValueSeparator = separators.getArrayValueSpacing().apply(separators.getArrayValueSeparator());
+        _arrayEmptySeparator = separators.getArrayEmptySeparator();
     }
     
     /**
@@ -202,7 +216,9 @@ public class DefaultPrettyPrinter
         _separators = base._separators;
         _objectFieldValueSeparatorWithSpaces = base._objectFieldValueSeparatorWithSpaces;
         _objectEntrySeparator = base._objectEntrySeparator;
+        _objectEmptySeparator = base._objectEmptySeparator;
         _arrayValueSeparator = base._arrayValueSeparator;
+        _arrayEmptySeparator = base._arrayEmptySeparator;
     }
 
     /**
@@ -328,7 +344,9 @@ public class DefaultPrettyPrinter
         result._objectFieldValueSeparatorWithSpaces = separators.getObjectFieldValueSpacing().apply(
                 separators.getObjectFieldValueSeparator());
         result._objectEntrySeparator = separators.getObjectEntrySpacing().apply(separators.getObjectEntrySeparator());
+        result._objectEmptySeparator = separators.getObjectEmptySeparator();
         result._arrayValueSeparator = separators.getArrayValueSpacing().apply(separators.getArrayValueSeparator());
+        result._arrayEmptySeparator = separators.getArrayEmptySeparator();
 
         return result;
     }
@@ -417,7 +435,7 @@ public class DefaultPrettyPrinter
         if (nrOfEntries > 0) {
             _objectIndenter.writeIndentation(g, _nesting);
         } else {
-            g.writeRaw(' ');
+            g.writeRaw(_objectEmptySeparator);
         }
         g.writeRaw('}');
     }
@@ -461,7 +479,7 @@ public class DefaultPrettyPrinter
         if (nrOfValues > 0) {
             _arrayIndenter.writeIndentation(g, _nesting);
         } else {
-            g.writeRaw(' ');
+            g.writeRaw(_arrayEmptySeparator);
         }
         g.writeRaw(']');
     }

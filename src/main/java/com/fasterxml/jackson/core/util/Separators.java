@@ -25,11 +25,15 @@ public class Separators implements Serializable
     public final static String DEFAULT_ROOT_VALUE_SEPARATOR = " ";
 
     /**
+     * String to use in empty Object. One space by default : { }
+     * 
      * @since 2.17
      */
     public final static String DEFAULT_OBJECT_EMPTY_SEPARATOR = " ";
 
     /**
+     * String to use in empty Array. One space by default : [ ]
+     * 
      * @since 2.17
      */
     public final static String DEFAULT_ARRAY_EMPTY_SEPARATOR = " ";

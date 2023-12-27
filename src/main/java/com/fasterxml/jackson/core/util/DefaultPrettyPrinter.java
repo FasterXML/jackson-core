@@ -111,6 +111,8 @@ public class DefaultPrettyPrinter
     protected String _objectEntrySeparator;
 
     /**
+     * String to use for empty Object. One space by default : { }
+     * 
      * @since 2.17
      */
     protected String _objectEmptySeparator;
@@ -121,6 +123,8 @@ public class DefaultPrettyPrinter
     protected String _arrayValueSeparator;
 
     /**
+     * String to use for empty Array. One space by default : [ ]
+     * 
      * @since 2.17
      */
     protected String _arrayEmptySeparator;

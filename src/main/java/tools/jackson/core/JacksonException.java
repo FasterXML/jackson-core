@@ -28,7 +28,7 @@ public abstract class JacksonException
     }
 
     protected JacksonException(String msg, Throwable rootCause) {
-        super(msg, rootCause);
+        this(msg, null, rootCause);
     }
 
     protected JacksonException(String msg, JsonLocation loc, Throwable rootCause) {

@@ -1660,6 +1660,6 @@ public abstract class JsonParser
     }
 
     protected final StreamReadException _constructReadException(String msg, Throwable t) {
-        return new StreamReadException(this, msg, t);
+        return new StreamReadException(this, msg, currentLocation(), t);
     }
 }

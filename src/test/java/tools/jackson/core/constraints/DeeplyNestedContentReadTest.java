@@ -4,6 +4,8 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Unit test(s) for verifying handling of new (in 2.15) StreamReadConstraints
  * wrt maximum nesting depth.
@@ -33,8 +35,8 @@ public class DeeplyNestedContentReadTest
             while (p.nextToken() != null) { }
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
-            assertEquals("Document nesting depth (1001) exceeds the maximum allowed (1000, from `StreamReadConstraints.getMaxNestingDepth()`)",
-                    e.getMessage());
+            assertThat(e.getMessage())
+                .startsWith("Document nesting depth (1001) exceeds the maximum allowed (1000, from `StreamReadConstraints.getMaxNestingDepth()`)");
         }
     }
 

@@ -1,5 +1,7 @@
 package tools.jackson.core.write;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.*;
 
 import tools.jackson.core.*;
@@ -56,9 +58,9 @@ public class UTF8GeneratorTest extends BaseTest
             gen.writeName("array");
             gen.writeStartArray();
             fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException sce) {
-            String expected = "Document nesting depth (2) exceeds the maximum allowed (1, from `StreamWriteConstraints.getMaxNestingDepth()`)";
-            assertEquals(expected, sce.getMessage());
+        } catch (StreamConstraintsException e) {
+            assertThat(e.getMessage())
+                .startsWith("Document nesting depth (2) exceeds the maximum allowed (1, from `StreamWriteConstraints.getMaxNestingDepth()`)");
         }
     }
 
@@ -70,9 +72,9 @@ public class UTF8GeneratorTest extends BaseTest
             gen.writeName("object");
             gen.writeStartObject();
             fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException sce) {
-            String expected = "Document nesting depth (2) exceeds the maximum allowed (1, from `StreamWriteConstraints.getMaxNestingDepth()`)";
-            assertEquals(expected, sce.getMessage());
+        } catch (StreamConstraintsException e) {
+            assertThat(e.getMessage())
+                .startsWith("Document nesting depth (2) exceeds the maximum allowed (1, from `StreamWriteConstraints.getMaxNestingDepth()`)");
         }
     }
 

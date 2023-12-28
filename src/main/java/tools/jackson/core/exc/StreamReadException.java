@@ -33,7 +33,7 @@ public class StreamReadException
         _processor = p;
     }
 
-    protected StreamReadException(JsonParser p, String msg, JsonLocation loc,
+    public StreamReadException(JsonParser p, String msg, JsonLocation loc,
             Throwable rootCause) {
         super(msg, loc, rootCause);
         _processor = p;

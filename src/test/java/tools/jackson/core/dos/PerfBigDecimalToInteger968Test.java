@@ -7,6 +7,8 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 // For [core#968]]
 public class PerfBigDecimalToInteger968Test
 {
@@ -23,7 +25,8 @@ public class PerfBigDecimalToInteger968Test
                 p.getBigIntegerValue();
                 Assert.fail("Should not pass");
             } catch (StreamConstraintsException e) {
-                Assert.assertEquals("BigDecimal scale (-25000000) magnitude exceeds the maximum allowed (100000)", e.getMessage());
+                assertThat(e.getMessage())
+                    .startsWith("BigDecimal scale (-25000000) magnitude exceeds the maximum allowed (100000)");
             }
         }
     }
@@ -38,7 +41,8 @@ public class PerfBigDecimalToInteger968Test
                 p.getBigIntegerValue();
                 Assert.fail("Should not pass");
             } catch (StreamConstraintsException e) {
-                Assert.assertEquals("BigDecimal scale (25000000) magnitude exceeds the maximum allowed (100000)", e.getMessage());
+                assertThat(e.getMessage())
+                    .startsWith("BigDecimal scale (25000000) magnitude exceeds the maximum allowed (100000)");
             }
         }
     }

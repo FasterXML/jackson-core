@@ -774,7 +774,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected final JsonParseException _constructError(String msg, Throwable t) {
-        return new JsonParseException(this, msg, t);
+        return new JsonParseException(this, msg, currentLocation(), t);
     }
 
     @Deprecated // since 2.11

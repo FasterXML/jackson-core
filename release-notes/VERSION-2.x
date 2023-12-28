@@ -14,6 +14,12 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.16.2 (not yet released)
+
+#1173: `JsonLocation` consistently off by one character for many invalid JSON
+  parsing cases
+ (reported by Paul B)
+
 2.16.1 (24-Dec-2023)
 
 #1141: NPE in `Version.equals()` if snapshot-info `null`

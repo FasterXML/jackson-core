@@ -95,6 +95,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
         } catch (JsonParseException e) {
+            e.printStackTrace();
             verifyException(e, "expected space");
         }
     }

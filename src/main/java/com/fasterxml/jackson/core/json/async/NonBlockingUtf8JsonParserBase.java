@@ -527,6 +527,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (ch == INT_SLASH) {
                 return _startSlashComment(MINOR_FIELD_LEADING_COMMA);
             }
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
         }
         int ptr = _inputPtr;
@@ -666,6 +667,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (ch == INT_HASH) {
                 return _finishHashComment(MINOR_VALUE_EXPECTING_COMMA);
             }
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
         }
 
@@ -760,6 +762,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _finishHashComment(MINOR_VALUE_EXPECTING_COLON);
             }
             // can not omit colon here
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(ch, "was expecting a colon to separate field name and value");
         }
         int ptr = _inputPtr;
@@ -921,6 +924,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishNonStdToken(NON_STD_TOKEN_INFINITY, 1);
         }
         // !!! TODO: maybe try to collect more information for better diagnostics
+        --_inputPtr; // for correct error reporting
         _reportUnexpectedChar(ch, "expected a valid value "+_validJsonValueList());
         return null;
     }
@@ -957,6 +961,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     private final JsonToken _startSlashComment(int fromMinorState) throws IOException
     {
         if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
 
@@ -973,6 +978,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (ch == INT_SLASH) { // c++-style
             return _finishCppComment(fromMinorState);
         }
+        --_inputPtr; // for correct error reporting
         _reportUnexpectedChar(ch & 0xFF, "was expecting either '*' or '/' for a comment");
         return null;
     }
@@ -981,6 +987,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         // Could by-pass this check by refactoring, but for now simplest way...
         if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
         while (true) {
@@ -1344,11 +1351,13 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _finishNumberLeadingNegZeroes();
             }
             // One special case: if first char is 0, must not be followed by a digit
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         } else if (ch > INT_9) {
             if (ch == 'I') {
                 return _finishNonStdToken(NON_STD_TOKEN_MINUS_INFINITY, 2);
             }
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1408,19 +1417,23 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (ch <= INT_0) {
             if (ch == INT_0) {
                 if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
                 }
                 return _finishNumberLeadingPosZeroes();
             }
             // One special case: if first char is 0, must not be followed by a digit
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
         } else if (ch > INT_9) {
             if (ch == 'I') {
                 return _finishNonStdToken(NON_STD_TOKEN_PLUS_INFINITY, 2);
             }
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1503,6 +1516,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             // (colon not possible since this is within value, not after key)
             //
             if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(ch,
                         "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
             }
@@ -1532,6 +1546,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _finishNumberLeadingNegZeroes();
                 } else {
                     if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                        --_inputPtr; // for correct error reporting
                         _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
                     }
                     return _finishNumberLeadingPosZeroes();
@@ -1542,6 +1557,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _finishNumberLeadingNegZeroes();
                 } else {
                     if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                        --_inputPtr; // for correct error reporting
                         _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
                     }
                     _inputPtr--;
@@ -1551,6 +1567,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             final String message = negative ?
                     "expected digit (0-9) to follow minus sign, for valid numeric value" :
                     "expected digit (0-9) for valid numeric value";
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar(ch, message);
         } else if (ch > INT_9) {
             if (ch == 'I') {
@@ -1560,6 +1577,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             final String message = negative ?
                     "expected digit (0-9) to follow minus sign, for valid numeric value" :
                     "expected digit (0-9) for valid numeric value";
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar(ch, message);
         }
         if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
@@ -1600,6 +1618,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // (colon not possible since this is within value, not after key)
                 //
                 if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
+                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
                 }
@@ -1660,6 +1679,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // (colon not possible since this is within value, not after key)
                 //
                 if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
+                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
                 }
@@ -1744,6 +1764,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // must be followed by sequence of ints, one minimum
                     if (fractLen == 0) {
                         if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                            --_inputPtr; // for correct error reporting
                             _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
                         }
                     }
@@ -1800,6 +1821,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             // must be followed by sequence of ints, one minimum
             ch &= 0xFF;
             if (expLen == 0) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
             }
         }
@@ -1834,8 +1856,10 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 ch = getNextSignedByteFromBuffer();
             } else if (ch == 'f' || ch == 'd' || ch == 'F' || ch == 'D') {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
             } else if (ch == INT_PERIOD) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
             } else {
                 loop = false;
@@ -1846,6 +1870,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // must be followed by sequence of ints, one minimum
         if (fractLen == 0) {
             if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
             }
         }
@@ -1907,6 +1932,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // must be followed by sequence of ints, one minimum
         ch &= 0xFF;
         if (expLen == 0) {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
         }
         // push back the last char
@@ -2214,6 +2240,7 @@ public abstract class NonBlockingUtf8JsonParserBase
          // !!! TODO: Decode UTF-8 characters properly...
 //            char c = (char) _decodeCharForError(ch);
             char c = (char) ch;
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");
         }
         // Also: note that although we use a different table here, it does NOT handle UTF-8
@@ -2221,6 +2248,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         final int[] codes = CharTypes.getInputCodeUtf8JsNames();
         // Also: must start with a valid character...
         if (codes[ch] != 0) {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
         }
 
@@ -2480,6 +2508,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (true) {
             int digit = CharTypes.charToHex(c);
             if (digit < 0) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedChar(c & 0xFF, "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
@@ -2939,6 +2968,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
             }
         }
+        --_inputPtr; // for correct error reporting
         _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
         return -1;
     }

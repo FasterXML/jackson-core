@@ -779,6 +779,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
@@ -977,6 +978,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
@@ -1062,6 +1064,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
@@ -1685,6 +1688,7 @@ public class UTF8StreamJsonParser
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
                 if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
                 }
             }
@@ -1732,6 +1736,7 @@ public class UTF8StreamJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(c, "Exponent indicator not followed by a digit");
             }
         }
@@ -2144,6 +2149,7 @@ public class UTF8StreamJsonParser
         // Allow unquoted names if feature enabled:
         if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
             char c = (char) _decodeCharForError(ch);
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");
         }
         /* Also: note that although we use a different table here,
@@ -2153,6 +2159,7 @@ public class UTF8StreamJsonParser
         final int[] codes = CharTypes.getInputCodeUtf8JsNames();
         // Also: must start with a valid character...
         if (codes[ch] != 0) {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
         }
 
@@ -2758,6 +2765,7 @@ public class UTF8StreamJsonParser
         case '}':
             // Error: neither is valid at this point; valid closers have
             // been handled earlier
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(c, "expected a value");
         case '\'':
             if ((_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
@@ -2791,6 +2799,7 @@ public class UTF8StreamJsonParser
             _reportInvalidToken(""+((char) c), _validJsonTokenList());
         }
         // but if it doesn't look like a token:
+        --_inputPtr; // for correct error reporting
         _reportUnexpectedChar(c, "expected a valid value "+_validJsonValueList());
         return null;
     }
@@ -2923,11 +2932,13 @@ public class UTF8StreamJsonParser
                     match);
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature()) && hasSign && !neg) {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         final String message = neg ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :
                 "expected digit (0-9) for valid numeric value";
+        --_inputPtr; // for correct error reporting
         _reportUnexpectedNumberChar(ch, message);
         return null;
     }
@@ -3253,6 +3264,7 @@ public class UTF8StreamJsonParser
                     return i;
                 }
                 if (i != INT_COLON) {
+                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
                 gotColon = true;
@@ -3275,6 +3287,7 @@ public class UTF8StreamJsonParser
     private final void _skipComment() throws IOException
     {
         if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
@@ -3287,6 +3300,7 @@ public class UTF8StreamJsonParser
         } else if (c == INT_ASTERISK) {
             _skipCComment();
         } else {
+            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(c, "was expecting either '*' or '/' for a comment");
         }
     }
@@ -3432,6 +3446,7 @@ public class UTF8StreamJsonParser
             int ch = _inputBuffer[_inputPtr++];
             int digit = CharTypes.charToHex(ch);
             if (digit < 0) {
+                --_inputPtr; // for correct error reporting
                 _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
@@ -3933,6 +3948,7 @@ public class UTF8StreamJsonParser
     private final void _closeArrayScope() throws JsonParseException {
         _updateLocation();
         if (!_parsingContext.inArray()) {
+            --_inputPtr; // for correct error reporting
             _reportMismatchedEndMarker(']', '}');
         }
         _parsingContext = _parsingContext.clearAndGetParent();
@@ -3941,6 +3957,7 @@ public class UTF8StreamJsonParser
     private final void _closeObjectScope() throws JsonParseException {
         _updateLocation();
         if (!_parsingContext.inObject()) {
+            --_inputPtr; // for correct error reporting
             _reportMismatchedEndMarker('}', ']');
         }
         _parsingContext = _parsingContext.clearAndGetParent();

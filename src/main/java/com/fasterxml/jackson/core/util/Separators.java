@@ -86,6 +86,10 @@ public class Separators implements Serializable
         return new Separators();
     }
 
+    /**
+     * Constructor for creating an instance with default settings for all
+     * separators.
+     */
     public Separators() {
         this(':', ',', ',');
     }
@@ -112,7 +116,7 @@ public class Separators implements Serializable
      *
      * @deprecated Since 2.17 use new canonical constructor
      */
-    @Deprecated // since 2.16
+    @Deprecated // since 2.17
     public Separators(
             String rootSeparator,
             char objectFieldValueSeparator,
@@ -128,8 +132,9 @@ public class Separators implements Serializable
     }
 
     /**
-     * Create an instance with the specified separator characters and spaces around those characters.
-     * 
+     * Canonical constructor for creating an instance with the specified separator
+     * characters and spaces around those characters.
+     *
      * @since 2.17
      */
     public Separators(

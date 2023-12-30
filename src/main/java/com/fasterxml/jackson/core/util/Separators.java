@@ -25,14 +25,16 @@ public class Separators implements Serializable
     public final static String DEFAULT_ROOT_VALUE_SEPARATOR = " ";
 
     /**
-     * String to use in empty Object. One space by default : { }
+     * String to use in empty Object to separate start and end markers.
+     * Default is single space, resulting in output of {@code { }}.
      * 
      * @since 2.17
      */
     public final static String DEFAULT_OBJECT_EMPTY_SEPARATOR = " ";
 
     /**
-     * String to use in empty Array. One space by default : [ ]
+     * String to use in empty Array to separate start and end markers.
+     * Default is single space, resulting in output of {@code [ ]}.
      * 
      * @since 2.17
      */
@@ -107,6 +109,28 @@ public class Separators implements Serializable
      * Create an instance with the specified separator characters and spaces around those characters.
      * 
      * @since 2.16
+     *
+     * @deprecated Since 2.17 use new canonical constructor
+     */
+    @Deprecated // since 2.16
+    public Separators(
+            String rootSeparator,
+            char objectFieldValueSeparator,
+            Spacing objectFieldValueSpacing,
+            char objectEntrySeparator,
+            Spacing objectEntrySpacing,
+            char arrayValueSeparator,
+            Spacing arrayValueSpacing
+    ) {
+        this(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing,
+                objectEntrySeparator, objectEntrySpacing, DEFAULT_OBJECT_EMPTY_SEPARATOR,
+                arrayValueSeparator, arrayValueSpacing, DEFAULT_ARRAY_EMPTY_SEPARATOR);
+    }
+
+    /**
+     * Create an instance with the specified separator characters and spaces around those characters.
+     * 
+     * @since 2.17
      */
     public Separators(
             String rootSeparator,
@@ -171,7 +195,7 @@ public class Separators implements Serializable
      * @since 2.17
      */
     public Separators withObjectEmptySeparator(String sep) {
-        return (Objects.equals(arrayEmptySeparator, sep)) ? this
+        return Objects.equals(arrayEmptySeparator, sep) ? this
                 : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, sep, arrayValueSeparator, arrayValueSpacing, arrayEmptySeparator);
     }
 
@@ -196,7 +220,7 @@ public class Separators implements Serializable
      * @since 2.17
      */
     public Separators withArrayEmptySeparator(String sep) {
-        return (Objects.equals(arrayEmptySeparator, sep)) ? this
+        return Objects.equals(arrayEmptySeparator, sep) ? this
                 : new Separators(rootSeparator, objectFieldValueSeparator, objectFieldValueSpacing, objectEntrySeparator, objectEntrySpacing, objectEmptySeparator, arrayValueSeparator, arrayValueSpacing, sep);
     }
 

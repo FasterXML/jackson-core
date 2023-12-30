@@ -111,7 +111,8 @@ public class DefaultPrettyPrinter
     protected String _objectEntrySeparator;
 
     /**
-     * String to use for empty Object. One space by default : { }
+     * String to use in empty Object to separate start and end markers.
+     * Default is single space, resulting in output of {@code { }}.
      * 
      * @since 2.17
      */
@@ -123,7 +124,8 @@ public class DefaultPrettyPrinter
     protected String _arrayValueSeparator;
 
     /**
-     * String to use for empty Array. One space by default : [ ]
+     * String to use in empty Array to separate start and end markers.
+     * Default is single space, resulting in output of {@code [ ]}.
      * 
      * @since 2.17
      */
@@ -149,7 +151,7 @@ public class DefaultPrettyPrinter
      * @param rootSeparator String to use as root value separator
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter(String rootSeparator) {
         this((rootSeparator == null) ? null : new SerializedString(rootSeparator));
     }
@@ -161,7 +163,7 @@ public class DefaultPrettyPrinter
      * @param rootSeparator String to use as root value separator
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter(SerializableString rootSeparator) {
         this(DEFAULT_SEPARATORS.withRootSeparator(rootSeparator.getValue()));
     }
@@ -169,7 +171,7 @@ public class DefaultPrettyPrinter
     /**
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter(DefaultPrettyPrinter base,
             SerializableString rootSeparator)
     {
@@ -228,7 +230,7 @@ public class DefaultPrettyPrinter
     /**
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter withRootSeparator(SerializableString rootSeparator)
     {
         if (_rootSeparator == rootSeparator ||
@@ -248,7 +250,7 @@ public class DefaultPrettyPrinter
      * @since 2.6
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter withRootSeparator(String rootSeparator) {
         return withRootSeparator((rootSeparator == null) ? null : new SerializedString(rootSeparator));
     }
@@ -298,7 +300,7 @@ public class DefaultPrettyPrinter
      * @since 2.3
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter withSpacesInObjectEntries() {
         return _withSpaces(true);
     }
@@ -314,7 +316,7 @@ public class DefaultPrettyPrinter
      * @since 2.3
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter withoutSpacesInObjectEntries() {
         return _withSpaces(false);
     }

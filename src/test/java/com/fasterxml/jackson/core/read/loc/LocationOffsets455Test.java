@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.read;
+package com.fasterxml.jackson.core.read.loc;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;

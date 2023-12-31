@@ -1,4 +1,4 @@
-package tools.jackson.core.read;
+package tools.jackson.core.read.loc;
 
 import tools.jackson.core.JsonLocation;
 import tools.jackson.core.JsonParser;

@@ -72,25 +72,37 @@ public class DefaultPrettyPrinter
      */
     protected transient int _nesting;
 
-    protected Separators _separators;
+    protected final Separators _separators;
 
     /**
      * Separator between Object property names and values,
      * including possible before/after spaces.
      */
-    protected String _objectNameValueSeparator;
+    protected final String _objectNameValueSeparator;
 
     /**
      * Separator between Object property entries, 
      * including possible before/after spaces.
      */
-    protected String _objectEntrySeparator;
+    protected final String _objectEntrySeparator;
+
+    /**
+     * String to use in empty Object to separate start and end markers.
+     * Default is single space, resulting in output of {@code { }}.
+     */
+    protected final String _objectEmptySeparator;
 
     /**
      * Separator between Array elements, 
      * including possible before/after spaces.
      */
-    protected String _arrayElementSeparator;
+    protected final String _arrayElementSeparator;
+
+    /**
+     * String to use in empty Array to separate start and end markers.
+     * Default is single space, resulting in output of {@code [ ]}.
+     */
+    protected final String _arrayEmptySeparator;    
 
     /*
     /**********************************************************************
@@ -113,7 +125,9 @@ public class DefaultPrettyPrinter
         _objectNameValueSeparator = separators.getObjectNameValueSpacing().apply(
                 separators.getObjectNameValueSeparator());
         _objectEntrySeparator = separators.getObjectEntrySpacing().apply(separators.getObjectEntrySeparator());
+        _objectEmptySeparator = separators.getObjectEmptySeparator();
         _arrayElementSeparator = separators.getArrayElementSpacing().apply(separators.getArrayElementSeparator());
+        _arrayEmptySeparator = separators.getArrayEmptySeparator();
     }
     
     /**
@@ -130,7 +144,9 @@ public class DefaultPrettyPrinter
         _rootValueSeparator = base._rootValueSeparator;
         _objectNameValueSeparator = base._objectNameValueSeparator;
         _objectEntrySeparator = base._objectEntrySeparator;
+        _objectEmptySeparator = base._objectEmptySeparator;
         _arrayElementSeparator = base._arrayElementSeparator;
+        _arrayEmptySeparator = base._arrayEmptySeparator;
     }
 
     public DefaultPrettyPrinter(DefaultPrettyPrinter base, Separators separators) {
@@ -143,8 +159,9 @@ public class DefaultPrettyPrinter
         _objectNameValueSeparator = separators.getObjectNameValueSpacing().apply(
                 separators.getObjectNameValueSeparator());
         _objectEntrySeparator = separators.getObjectEntrySpacing().apply(separators.getObjectEntrySeparator());
+        _objectEmptySeparator = separators.getObjectEmptySeparator();
         _arrayElementSeparator = separators.getArrayElementSpacing().apply(separators.getArrayElementSeparator());
-    
+        _arrayEmptySeparator = separators.getArrayEmptySeparator();
     }
     
     public void indentArraysWith(Indenter i) {
@@ -281,7 +298,7 @@ public class DefaultPrettyPrinter
         if (nrOfEntries > 0) {
             _objectIndenter.writeIndentation(g, _nesting);
         } else {
-            g.writeRaw(' ');
+            g.writeRaw(_objectEmptySeparator);
         }
         g.writeRaw('}');
     }
@@ -325,7 +342,7 @@ public class DefaultPrettyPrinter
         if (nrOfValues > 0) {
             _arrayIndenter.writeIndentation(g, _nesting);
         } else {
-            g.writeRaw(' ');
+            g.writeRaw(_arrayEmptySeparator);
         }
         g.writeRaw(']');
     }

@@ -1,7 +1,6 @@
 package tools.jackson.core.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.StringWriter;
 
 import tools.jackson.core.*;
@@ -14,7 +13,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testSystemLinefeed() throws IOException
+    public void testSystemLinefeed() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter();
         String LF = System.getProperty("line.separator");
@@ -26,7 +25,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testWithLineFeed() throws IOException
+    public void testWithLineFeed() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter().withLinefeed("\n"));
@@ -38,7 +37,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testWithIndent() throws IOException
+    public void testWithIndent() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter().withLinefeed("\n").withIndent(" "));
@@ -50,7 +49,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testUnixLinefeed() throws IOException
+    public void testUnixLinefeed() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
                 .withObjectIndenter(new DefaultIndenter("  ", "\n"));
@@ -62,7 +61,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testWindowsLinefeed() throws IOException
+    public void testWindowsLinefeed() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter("  ", "\r\n"));
@@ -74,7 +73,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testTabIndent() throws IOException
+    public void testTabIndent() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter("\t", "\n"));
@@ -86,7 +85,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
     
-    public void testObjectNameValueSpacingAfter() throws IOException
+    public void testObjectNameValueSpacingAfter() throws Exception
     {
         Separators separators = new Separators()
                 .withObjectNameValueSpacing(Spacing.AFTER);
@@ -101,7 +100,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
     
-    public void testObjectNameValueSpacingNone() throws IOException
+    public void testObjectNameValueSpacingNone() throws Exception
     {
         Separators separators = new Separators()
                 .withObjectNameValueSpacing(Spacing.NONE);
@@ -116,7 +115,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testCopyConfigNew() throws IOException
+    public void testCopyConfigNew() throws Exception
     {
         Separators separators = new Separators()
                 .withObjectNameValueSpacing(Spacing.AFTER)
@@ -133,7 +132,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(expected, _printTestData(copy, true));
     }
 
-    public void testRootSeparator() throws IOException
+    public void testRootSeparator() throws Exception
     {
         Separators separators = new Separators()
                 .withRootSeparator("|");
@@ -151,7 +150,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true, writeTestData));
     }
 
-    public void testWithoutSeparatorsNew() throws IOException
+    public void testWithoutSeparatorsNew() throws Exception
     {
         Separators separators = new Separators()
                 .withRootSeparator(null)
@@ -175,7 +174,95 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals("1[2]{\"a\":3}", _printTestData(pp, false, writeTestData));
     }
 
-    private String _printTestData(final PrettyPrinter pp, boolean useBytes) throws IOException
+    public void testObjectEmptySeparatorDefault() throws Exception
+    {
+        Separators separators = new Separators()
+            .withRootSeparator(null)
+            .withObjectNameValueSpacing(Spacing.NONE);
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
+
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeStartObject();
+            gen.writeName("objectEmptySeparatorDefault");
+            gen.writeStartObject();
+            gen.writeEndObject();
+            gen.writeEndObject();
+        };
+        
+        assertEquals("{\"objectEmptySeparatorDefault\":{ }}", _printTestData(pp, false, writeTestData));
+    }
+
+    public void testObjectEmptySeparatorCustom() throws Exception
+    {
+        Separators separators = new Separators()
+            .withRootSeparator(null)
+            .withObjectNameValueSpacing(Spacing.NONE)
+            .withObjectEmptySeparator("    ");
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
+
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeStartObject();
+            gen.writeName("objectEmptySeparatorCustom");
+            gen.writeStartObject();
+            gen.writeEndObject();
+            gen.writeEndObject();
+        };
+        
+        assertEquals("{\"objectEmptySeparatorCustom\":{    }}",
+                _printTestData(pp, false, writeTestData));
+    }
+
+    public void testArrayEmptySeparatorDefault() throws Exception
+    {
+        Separators separators = new Separators()
+            .withRootSeparator(null)
+            .withObjectNameValueSpacing(Spacing.NONE);
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
+
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeStartObject();
+            gen.writeName("arrayEmptySeparatorDefault");
+            gen.writeStartArray();
+            gen.writeEndArray();
+            gen.writeEndObject();
+        };
+        
+        assertEquals("{\"arrayEmptySeparatorDefault\":[ ]}", _printTestData(pp, false, writeTestData));
+    }
+
+    public void testArrayEmptySeparatorCustom() throws Exception
+    {
+        Separators separators = new Separators()
+            .withRootSeparator(null)
+            .withObjectNameValueSpacing(Spacing.NONE)
+            .withArrayEmptySeparator("    ");
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
+                .withSeparators(separators)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null);
+
+        ThrowingConsumer<JsonGenerator> writeTestData = gen -> {
+            gen.writeStartObject();
+            gen.writeName("arrayEmptySeparatorCustom");
+            gen.writeStartArray();
+            gen.writeEndArray();
+            gen.writeEndObject();
+        };
+        
+        assertEquals("{\"arrayEmptySeparatorCustom\":[    ]}",
+                _printTestData(pp, false, writeTestData));
+    }
+
+    private String _printTestData(final PrettyPrinter pp, boolean useBytes) throws Exception
     {
         return _printTestData(pp, useBytes, gen -> {
             gen.writeStartObject();
@@ -187,7 +274,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         });
     }
     
-    private String _printTestData(PrettyPrinter pp, boolean useBytes, ThrowingConsumer<JsonGenerator> writeTestData) throws IOException
+    private String _printTestData(PrettyPrinter pp, boolean useBytes, ThrowingConsumer<JsonGenerator> writeTestData)
+        throws Exception
     {
         JsonGenerator gen;
         StringWriter sw;

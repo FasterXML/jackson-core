@@ -22,6 +22,9 @@ a pure JSON library.
  (contributed by @pjfanning)
 #1169: `ArrayIndexOutOfBoundsException` for specific invalid content,
   with Reader-based parser
+#1179: Allow configuring `DefaultPrettyPrinter` separators for empty
+  Arrays and Objects
+ (contributed by Guillaume L)
 
 2.16.2 (not yet released)
 

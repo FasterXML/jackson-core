@@ -415,3 +415,8 @@ Robert Elliot (@Mahoney)
   (2.17.0)
  * Reported #1168: `JsonPointer.append(JsonPointer.tail())` includes the original pointer
   (2.16.1)
+
+Guillaume Lecroc (@gulecroc)
+ * Contributed #1179: Allow configuring `DefaultPrettyPrinter` separators for empty
+   Arrays and Objects
+  (2.17.0)

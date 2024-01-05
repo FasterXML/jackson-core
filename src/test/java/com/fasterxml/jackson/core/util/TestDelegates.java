@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.JsonParser.NumberTypeFP;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -263,6 +264,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertFalse(del.isNaN());
         assertTrue(del.isExpectedNumberIntToken());
         assertEquals(NumberType.INT, del.getNumberType());
+        assertEquals(NumberTypeFP.UNKNOWN, del.getNumberTypeFP());
         assertEquals(Integer.valueOf(1), del.getNumberValue());
         assertNull(del.getEmbeddedObject());
 

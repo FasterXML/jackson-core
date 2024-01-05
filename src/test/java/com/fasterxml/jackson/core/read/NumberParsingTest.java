@@ -71,6 +71,7 @@ public class NumberParsingTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+        assertEquals(JsonParser.NumberTypeFP.UNKNOWN, p.getNumberTypeFP());
         assertTrue(p.isExpectedNumberIntToken());
         assertEquals(""+EXP_I, p.getText());
 

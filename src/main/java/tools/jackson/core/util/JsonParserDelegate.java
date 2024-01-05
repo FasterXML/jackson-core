@@ -215,6 +215,9 @@ public class JsonParserDelegate extends JsonParser
     public NumberType getNumberType() { return delegate.getNumberType(); }
 
     @Override
+    public NumberTypeFP getNumberTypeFP() { return delegate.getNumberTypeFP(); }
+
+    @Override
     public Number getNumberValue() throws InputCoercionException { return delegate.getNumberValue(); }
 
     @Override

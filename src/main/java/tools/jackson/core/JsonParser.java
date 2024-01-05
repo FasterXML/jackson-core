@@ -39,6 +39,44 @@ public abstract class JsonParser
     }
 
     /**
+     * Enumeration of possible physical Floating-Point types that
+     * underlying format uses. Used to indicate most accurate (and
+     * efficient) representation if known (if not known,
+     * {@link NumberTypeFP#UNKNOWN} is used).
+     */
+    public enum NumberTypeFP {
+        /**
+         * Special "mini-float" that some binary formats support.
+         */
+        FLOAT16,
+
+        /**
+         * Standard IEEE-754 single-precision 32-bit binary value
+         */
+        FLOAT32,
+
+        /**
+         * Standard IEEE-754 double-precision 64-bit binary value
+         */
+        DOUBLE64,
+
+        /**
+         * Unlimited precision, decimal (10-based) values
+         */
+        BIG_DECIMAL,
+
+        /**
+         * Constant used when type is not known, or there is no specific
+         * type to match: most commonly used for textual formats like JSON
+         * where representation does not necessarily have single easily detectable
+         * optimal representation (for example, value {@code 0.1} has no
+         * exact binary representation whereas {@code 0.25} has exact representation
+         * in every binary type supported)
+         */
+        UNKNOWN;
+    }
+
+    /**
      * Set of default {@link StreamReadCapability}ies enabled: usable as basis
      * for format-specific instances or placeholder if non-null instance needed.
      */
@@ -987,6 +1025,16 @@ public abstract class JsonParser
      * @return Type of current number, if parser points to numeric token; {@code null} otherwise
      */
     public abstract NumberType getNumberType();
+
+    /**
+     * If current token is of type
+     * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
+     * one of {@link NumberTypeFP} constants; otherwise returns
+     * {@link NumberTypeFP#UNKNOWN}.
+     *
+     * @return Type of current number, if parser points to numeric token; {@code null} otherwise
+     */
+    public abstract NumberTypeFP getNumberTypeFP();
 
     /**
      * Numeric accessor that can be called when the current

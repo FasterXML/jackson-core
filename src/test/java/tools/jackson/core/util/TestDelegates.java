@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.JsonParser.NumberTypeFP;
 import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -181,6 +182,7 @@ public class TestDelegates extends tools.jackson.core.BaseTest
         assertFalse(del.isNaN());
         assertTrue(del.isExpectedNumberIntToken());
         assertEquals(NumberType.INT, del.getNumberType());
+        assertEquals(NumberTypeFP.UNKNOWN, del.getNumberTypeFP());
         assertEquals(Integer.valueOf(1), del.getNumberValue());
         assertNull(del.getEmbeddedObject());
 

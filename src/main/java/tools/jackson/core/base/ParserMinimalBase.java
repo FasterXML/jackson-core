@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import tools.jackson.core.*;
-import tools.jackson.core.JsonParser.NumberTypeFP;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.UnexpectedEndOfInputException;

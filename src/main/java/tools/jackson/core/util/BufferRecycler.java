@@ -141,7 +141,12 @@ public class BufferRecycler
     }
 
     public void releaseByteBuffer(int ix, byte[] buffer) {
-        _byteBuffers.set(ix, buffer);
+        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
+        byte[] oldBuffer = _byteBuffers.get(ix);
+        if ((oldBuffer == null) || buffer.length > oldBuffer.length) {
+            // Could use CAS, but should not really matter
+            _byteBuffers.set(ix, buffer);
+        }
     }
 
     /*
@@ -167,7 +172,12 @@ public class BufferRecycler
     }
 
     public void releaseCharBuffer(int ix, char[] buffer) {
-        _charBuffers.set(ix, buffer);
+        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
+        char[] oldBuffer = _charBuffers.get(ix);
+        if ((oldBuffer == null) || buffer.length > oldBuffer.length) {
+            // Could use CAS, but should not really matter
+            _charBuffers.set(ix, buffer);
+        }
     }
 
     /*

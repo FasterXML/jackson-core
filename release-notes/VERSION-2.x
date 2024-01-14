@@ -26,6 +26,8 @@ a pure JSON library.
 #1179: Allow configuring `DefaultPrettyPrinter` separators for empty
   Arrays and Objects
  (contributed by Guillaume L)
+#1186: `BufferRecycler` should avoid setting replacement if one already returned, bigger
+ (suggested by @kkkkkhhhh)
 
 2.16.2 (not yet released)
 

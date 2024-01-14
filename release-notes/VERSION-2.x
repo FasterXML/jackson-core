@@ -16,6 +16,8 @@ a pure JSON library.
 
 2.17.0 (not yet released)
 
+#1137: Improve detection of "is a NaN" to only consider explicit cases,
+  not `double` overflow/underflow
 #1145: `JsonPointer.appendProperty(String)` does not escape the property name
  (reported by Robert E)
 #1149: Add `JsonParser.getNumberTypeFP()`

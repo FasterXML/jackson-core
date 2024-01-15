@@ -16,17 +16,44 @@ import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 public class FilteringOnAsyncInfiniteLoop1144Test
 {
+    private final JsonFactory JSON_F = new JsonFactory();
+
+    private final byte[] DOC = "{\"first\":1,\"second\":2}"
+            .getBytes(StandardCharsets.UTF_8);
+
+    // Just to show expected filtering behavior with blocking alternative
+    @Test
+    public void testFilteringBlockingParser() throws Exception
+    {
+        try (JsonParser p = JSON_F.createParser(DOC)) {
+            try (JsonParser fp = new FilteringParserDelegate(p,
+                new JsonPointerBasedFilter("/second"),
+                    TokenFilter.Inclusion.ONLY_INCLUDE_ALL, false)) {
+                assertEquals(JsonToken.VALUE_NUMBER_INT, fp.nextToken());
+                assertEquals(2, fp.getIntValue());
+                assertNull(fp.nextToken());
+            }
+        }
+    }
+
+    // And here's reproduction of infinite loop
     @SuppressWarnings("resource")
     @Test
     public void testFilteringNonBlockingParser() throws Exception
     {
-        JsonFactory factory = new JsonFactoryBuilder().build();
-        JsonParser nonBlockingParser = factory.createNonBlockingByteArrayParser();
+        JsonParser nonBlockingParser = JSON_F.createNonBlockingByteArrayParser();
         ByteArrayFeeder inputFeeder = (ByteArrayFeeder) nonBlockingParser.getNonBlockingInputFeeder();
-        String json = "{\"first\":1,\"second\":2}";
-        byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
+
+        // If we did this, things would work:
+        /*
+        inputFeeder.feedInput(DOC, 0, DOC.length);
+        inputFeeder.endOfInput();
+         */
 
         JsonParser filteringParser = new FilteringParserDelegate(nonBlockingParser,
                 new JsonPointerBasedFilter("/second"),
@@ -35,7 +62,8 @@ public class FilteringOnAsyncInfiniteLoop1144Test
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.schedule(() -> {
             try {
-                inputFeeder.feedInput(jsonBytes, 0, jsonBytes.length);
+                // This doesn't seem to make a difference:
+                inputFeeder.feedInput(DOC, 0, DOC.length);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

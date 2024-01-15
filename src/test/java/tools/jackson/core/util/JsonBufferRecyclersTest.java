@@ -40,7 +40,7 @@ public class JsonBufferRecyclersTest extends BaseTest
                 .build();
 
         JsonParser p = jsonF.createParser(ObjectReadContext.empty(),
-                ("{'a':123,'b':'foobar'}"));
+                a2q("{'a':123,'b':'foobar'}"));
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());

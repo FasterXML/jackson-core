@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 import java.io.IOException;
 import java.io.OutputStream;
 
+// Tests for [core#1064] wrt custom `BufferRecycler`
 public class BufferRecyclerPoolTest extends BaseTest
 {
     public void testNoOp() throws Exception {

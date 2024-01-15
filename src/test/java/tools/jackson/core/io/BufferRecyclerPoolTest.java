@@ -12,6 +12,7 @@ import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.JsonRecyclerPools;
 import tools.jackson.core.util.RecyclerPool;
 
+// Tests for [core#1064] wrt custom `BufferRecycler`
 public class BufferRecyclerPoolTest extends BaseTest
 {
     public void testNoOp() throws Exception {

@@ -32,7 +32,7 @@ public class JsonBufferRecyclersTest extends BaseTest
         _testParser(JsonRecyclerPools.newBoundedPool(5));
         _testParser(JsonRecyclerPools.sharedBoundedPool());
     }
-    
+
     private void _testParser(RecyclerPool<BufferRecycler> pool) throws Exception
     {
         JsonFactory jsonF = JsonFactory.builder()
@@ -55,7 +55,7 @@ public class JsonBufferRecyclersTest extends BaseTest
         
         p.close();
     }
-    
+
     // // Generators with RecyclerPools:
 
     public void testGeneratorWithThreadLocalPool() throws Exception {
@@ -98,5 +98,51 @@ public class JsonBufferRecyclersTest extends BaseTest
         g.close();
 
         assertEquals(a2q("{'a':-42,'b':'barfoo'}"), w.toString());
+    }
+
+    // // Read-and-Write: Parser and Generator, overlapping usage
+
+    public void testCopyWithThreadLocalPool() throws Exception {
+        _testCopy(JsonRecyclerPools.threadLocalPool());
+    }
+
+    public void testCopyWithNopLocalPool() throws Exception {
+        _testCopy(JsonRecyclerPools.nonRecyclingPool());
+    }
+
+    public void testCopyWithDequeuPool() throws Exception {
+        _testCopy(JsonRecyclerPools.newConcurrentDequePool());
+        _testCopy(JsonRecyclerPools.sharedConcurrentDequePool());
+    }
+
+    public void testCopyWithLockFreePool() throws Exception {
+        _testCopy(JsonRecyclerPools.newLockFreePool());
+        _testCopy(JsonRecyclerPools.sharedLockFreePool());
+    }
+
+    public void testCopyWithBoundedPool() throws Exception {
+        _testCopy(JsonRecyclerPools.newBoundedPool(5));
+        _testCopy(JsonRecyclerPools.sharedBoundedPool());
+    }
+
+    private void _testCopy(RecyclerPool<BufferRecycler> pool) throws Exception
+    {
+        JsonFactory jsonF = JsonFactory.builder()
+                .recyclerPool(pool)
+                .build();
+
+        final String DOC = a2q("{'a':123,'b':'foobar'}");
+        JsonParser p = jsonF.createParser(DOC);
+        StringWriter w = new StringWriter();
+        JsonGenerator g = jsonF.createGenerator(w);
+
+        while (p.nextToken() != null) {
+            g.copyCurrentEvent(p);
+        }
+
+        p.close();
+        g.close();
+
+        assertEquals(DOC, w.toString());
     }
 }

@@ -121,6 +121,8 @@ public class IOContext implements AutoCloseable
 
     private boolean _closed = false;
 
+    private boolean ownBufferRecycler = true;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -464,8 +466,15 @@ public class IOContext implements AutoCloseable
     @Override
     public void close() {
         if (!_closed) {
-            _bufferRecycler.releaseToPool();
+            if (ownBufferRecycler) {
+                _bufferRecycler.releaseToPool();
+            }
             _closed = true;
         }
+    }
+
+    public IOContext withExternalBufferRecycler(boolean externalBufferRecycler) {
+        this.ownBufferRecycler = !externalBufferRecycler;
+        return this;
     }
 }

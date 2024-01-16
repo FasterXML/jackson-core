@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
+import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.BufferRecyclerOwner;
 
 /**
  * Abstraction that encloses information about content being processed --
@@ -20,7 +22,7 @@ import com.fasterxml.jackson.core.ErrorReportConfiguration;
  */
 public class ContentReference
     // sort of: we will read back as "UNKNOWN"
-    implements java.io.Serializable
+    implements java.io.Serializable, BufferRecyclerOwner
 {
     private static final long serialVersionUID = 1L;
 
@@ -481,5 +483,12 @@ public class ContentReference
     @Override
     public int hashCode() {
         return Objects.hashCode(_rawContent);
+    }
+
+    @Override
+    public BufferRecycler getBufferRecycler() {
+        return _rawContent instanceof BufferRecyclerOwner
+                ? ((BufferRecyclerOwner) _rawContent).getBufferRecycler()
+                : null;
     }
 }

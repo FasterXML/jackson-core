@@ -26,7 +26,7 @@ import java.util.*;
  * theoretically this builder can aggregate more content it will not be usable
  * as things are. Behavior may be improved if we solve the access problem.
  */
-public final class ByteArrayBuilder extends OutputStream
+public final class ByteArrayBuilder extends OutputStream implements BufferRecyclerOwner
 {
     public final static byte[] NO_BYTES = new byte[0];
 
@@ -79,6 +79,11 @@ public final class ByteArrayBuilder extends OutputStream
         if (!_pastBlocks.isEmpty()) {
             _pastBlocks.clear();
         }
+    }
+
+    @Override
+    public BufferRecycler getBufferRecycler() {
+        return _bufferRecycler;
     }
 
     /**
@@ -260,7 +265,6 @@ public final class ByteArrayBuilder extends OutputStream
         append(b);
     }
 
-    @Override public void close() { /* NOP */ }
     @Override public void flush() { /* NOP */ }
 
     /*

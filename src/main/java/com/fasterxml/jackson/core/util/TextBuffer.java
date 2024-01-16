@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
  *    </li>
  * </ul>
  */
-public class TextBuffer
+public class TextBuffer implements BufferRecyclerOwner
 {
     final static char[] NO_CHARS = new char[0];
 
@@ -131,6 +131,11 @@ public class TextBuffer
         _currentSegment = initialSegment;
         _currentSize = initialSegment.length;
         _inputStart = -1;
+    }
+
+    @Override
+    public BufferRecycler getBufferRecycler() {
+        return _allocator;
     }
 
     /**

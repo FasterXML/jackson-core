@@ -2185,8 +2185,12 @@ public class JsonFactory
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
         }
+
+        BufferRecycler br = contentRef.getBufferRecycler();
+        boolean externalBufferRecycler = br != null;
         return new IOContext(_streamReadConstraints, _streamWriteConstraints, _errorReportConfiguration,
-                _getBufferRecycler(), contentRef, resourceManaged);
+                externalBufferRecycler ? br : _getBufferRecycler(), contentRef, resourceManaged)
+                .withExternalBufferRecycler(externalBufferRecycler);
     }
 
     /**

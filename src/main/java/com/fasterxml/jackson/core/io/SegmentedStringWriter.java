@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.io;
 import java.io.*;
 
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.BufferRecyclerOwner;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
 /**
@@ -13,7 +14,7 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  * if so, instance of this class can be given as the writer to
  * <code>JsonGenerator</code>.
  */
-public final class SegmentedStringWriter extends Writer {
+public final class SegmentedStringWriter extends Writer implements BufferRecyclerOwner {
     final private TextBuffer _buffer;
 
     public SegmentedStringWriter(BufferRecycler br) {
@@ -48,10 +49,12 @@ public final class SegmentedStringWriter extends Writer {
     }
 
     @Override
-    public void close() { } // NOP
+    public void flush() { } // NOP
 
     @Override
-    public void flush() { } // NOP
+    public void close() throws IOException {
+        BufferRecyclerOwner.super.close();
+    }
 
     @Override
     public void write(char[] cbuf) throws IOException {
@@ -76,6 +79,11 @@ public final class SegmentedStringWriter extends Writer {
     @Override
     public void write(String str, int off, int len) throws IOException {
         _buffer.append(str, off, len);
+    }
+
+    @Override
+    public BufferRecycler getBufferRecycler() {
+        return _buffer.getBufferRecycler();
     }
 
     /*

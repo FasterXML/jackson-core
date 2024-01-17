@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.base;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
@@ -773,6 +774,11 @@ public abstract class ParserMinimalBase extends JsonParser
         VersionUtil.throwInternal();
     }
 
+    // @since 2.17
+    protected final <T> T _throwInternalReturnAny() {
+        return VersionUtil.throwInternalReturnAny();
+    }
+
     protected final JsonParseException _constructError(String msg, Throwable t) {
         return new JsonParseException(this, msg, currentLocation(), t);
     }
@@ -788,10 +794,6 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Deprecated // since 2.11
     protected static String _ascii(byte[] b) {
-        try {
-            return new String(b, "US-ASCII");
-        } catch (IOException e) { // never occurs
-            throw new RuntimeException(e);
-        }
+        return new String(b, StandardCharsets.US_ASCII);
     }
 }

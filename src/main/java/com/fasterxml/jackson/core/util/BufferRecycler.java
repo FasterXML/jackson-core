@@ -21,6 +21,20 @@ public class BufferRecycler
     implements RecyclerPool.WithPool<BufferRecycler>
 {
     /**
+     * Tag-on interface to allow various other types to expose {@link BufferRecycler}
+     * they are constructed with.
+     *
+     * @since 2.17
+     */
+    public interface Gettable {
+        /**
+         * @return Buffer recycler instance object is configured with, if any;
+         *    whether this can be {@code null} depends on type of object
+         */
+        public BufferRecycler bufferRecycler();
+    }
+
+    /**
      * Buffer used for reading byte-based input.
      */
     public final static int BYTE_READ_IO_BUFFER = 0;

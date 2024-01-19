@@ -132,9 +132,9 @@ public class JsonBufferRecyclersTest extends BaseTest
                 .build();
 
         final String DOC = a2q("{'a':123,'b':'foobar'}");
-        JsonParser p = jsonF.createParser(DOC);
+        JsonParser p = jsonF.createParser(ObjectReadContext.empty(), DOC);
         StringWriter w = new StringWriter();
-        JsonGenerator g = jsonF.createGenerator(w);
+        JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w);
 
         while (p.nextToken() != null) {
             g.copyCurrentEvent(p);

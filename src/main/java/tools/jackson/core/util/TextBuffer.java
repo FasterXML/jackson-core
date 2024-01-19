@@ -364,6 +364,13 @@ public class TextBuffer
      */
 
     /**
+     * @since 2.17
+     */
+    public BufferRecycler bufferRecycler() {
+        return _allocator;
+    }
+
+    /**
      * @return Number of characters currently stored in this buffer
      */
     public int size() {

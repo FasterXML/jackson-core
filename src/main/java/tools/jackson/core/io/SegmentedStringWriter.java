@@ -14,12 +14,26 @@ import tools.jackson.core.util.TextBuffer;
  * if so, instance of this class can be given as the writer to
  * {@code JsonGenerator}.
  */
-public final class SegmentedStringWriter extends Writer {
+public final class SegmentedStringWriter
+    extends Writer
+    implements BufferRecycler.Gettable
+{
     final private TextBuffer _buffer;
 
     public SegmentedStringWriter(BufferRecycler br) {
         super();
         _buffer = new TextBuffer(br);
+    }
+
+    /*
+    /**********************************************************************
+    /* BufferRecycler.Gettable implementation
+    /**********************************************************************
+     */
+
+    @Override
+    public BufferRecycler bufferRecycler() {
+        return _buffer.bufferRecycler();
     }
 
     /*
@@ -80,9 +94,9 @@ public final class SegmentedStringWriter extends Writer {
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -26,7 +26,9 @@ import java.util.*;
  * theoretically this builder can aggregate more content it will not be usable
  * as things are. Behavior may be improved if we solve the access problem.
  */
-public final class ByteArrayBuilder extends OutputStream
+public final class ByteArrayBuilder
+    extends OutputStream
+    implements BufferRecycler.Gettable
 {
     public final static byte[] NO_BYTES = new byte[0];
 
@@ -176,6 +178,17 @@ public final class ByteArrayBuilder extends OutputStream
             reset();
         }
         return result;
+    }
+
+    /*
+    /**********************************************************************
+    /* BufferRecycler.Gettable implementation
+    /**********************************************************************
+     */
+
+    @Override
+    public BufferRecycler bufferRecycler() {
+        return _bufferRecycler;
     }
 
     /*

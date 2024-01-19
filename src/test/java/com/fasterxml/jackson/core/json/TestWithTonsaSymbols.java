@@ -67,7 +67,7 @@ public class TestWithTonsaSymbols
                 sb.append(',');
             }
             sb.append('"');
-            fieldNameFor(sb, i);
+            sb.append(fieldNameFor(i));
             sb.append('"');
             sb.append(':');
             sb.append(i);

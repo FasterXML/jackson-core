@@ -14,7 +14,9 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  * if so, instance of this class can be given as the writer to
  * <code>JsonGenerator</code>.
  */
-public final class SegmentedStringWriter extends Writer implements BufferRecyclerOwner {
+public final class SegmentedStringWriter extends Writer
+    implements BufferRecyclerOwner,BufferRecycler.Gettable
+{
     final private TextBuffer _buffer;
 
     public SegmentedStringWriter(BufferRecycler br) {
@@ -23,9 +25,20 @@ public final class SegmentedStringWriter extends Writer implements BufferRecycle
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* BufferRecycler.Gettable implementation
+    /**********************************************************************
+     */
+
+    @Override
+    public BufferRecycler bufferRecycler() {
+        return _buffer.bufferRecycler();
+    }
+
+    /*
+    /**********************************************************************
     /* java.io.Writer implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -62,6 +75,7 @@ public final class SegmentedStringWriter extends Writer implements BufferRecycle
     }
 
     @Override
+
     public void write(char[] cbuf, int off, int len) throws IOException {
         _buffer.append(cbuf, off, len);
     }
@@ -87,9 +101,9 @@ public final class SegmentedStringWriter extends Writer implements BufferRecycle
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -372,7 +372,7 @@ public class ReaderBasedJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(null);
     }
@@ -388,7 +388,7 @@ public class ReaderBasedJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }
@@ -1585,8 +1585,7 @@ public class ReaderBasedJsonParser
         // This is the place to do leading-zero check(s) too:
         int intLen = 0;
         char c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                : getNextChar("No digit following minus sign", JsonToken.VALUE_NUMBER_INT);
-
+                : getNextChar("No digit following sign", JsonToken.VALUE_NUMBER_INT);
         if (c == '0') {
             c = _verifyNoLeadingZeroes();
         }
@@ -1612,7 +1611,7 @@ public class ReaderBasedJsonParser
         // Also, integer part is not optional
         if (intLen == 0) {
             // [core#611]: allow optionally leading decimal point
-            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+            if ((c != '.') || !isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
                 return _handleInvalidNumberStart(c, neg);
             }
         }
@@ -2988,7 +2987,15 @@ public class ReaderBasedJsonParser
      */
 
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentLocation() {
+        final int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_contentReference(),
+                -1L, _currInputProcessed + _inputPtr,
+                _currInputRow, col);
+    }
+
+    @Override
+    public JsonLocation currentTokenLocation()
     {
         if (_currToken == JsonToken.FIELD_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
@@ -2999,12 +3006,16 @@ public class ReaderBasedJsonParser
                 -1L, _tokenInputTotal-1, _tokenInputRow, _tokenInputCol);
     }
 
+    @Deprecated // since 2.17
     @Override
     public JsonLocation getCurrentLocation() {
-        final int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_contentReference(),
-                -1L, _currInputProcessed + _inputPtr,
-                _currInputRow, col);
+        return currentLocation();
+    }
+
+    @Deprecated // since 2.17
+    @Override
+    public JsonLocation getTokenLocation() {
+        return currentTokenLocation();
     }
 
     // @since 2.7

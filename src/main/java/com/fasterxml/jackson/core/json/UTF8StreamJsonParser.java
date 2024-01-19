@@ -383,7 +383,7 @@ public class UTF8StreamJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(null);
     }
@@ -400,7 +400,7 @@ public class UTF8StreamJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }
@@ -3879,9 +3879,17 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    // As per [core#108], must ensure we call the right method
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentLocation()
+    {
+        int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_contentReference(),
+                _currInputProcessed + _inputPtr, -1L, // bytes, chars
+                _currInputRow, col);
+    }
+
+    @Override
+    public JsonLocation currentTokenLocation()
     {
         if (_currToken == JsonToken.FIELD_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
@@ -3892,14 +3900,16 @@ public class UTF8StreamJsonParser
                 _tokenInputTotal-1, -1L, _tokenInputRow, _tokenInputCol);
     }
 
-    // As per [core#108], must ensure we call the right method
+    @Deprecated // since 2.17
     @Override
-    public JsonLocation getCurrentLocation()
-    {
-        int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_contentReference(),
-                _currInputProcessed + _inputPtr, -1L, // bytes, chars
-                _currInputRow, col);
+    public JsonLocation getCurrentLocation() {
+        return currentLocation();
+    }
+
+    @Deprecated // since 2.17
+    @Override
+    public JsonLocation getTokenLocation() {
+        return currentTokenLocation();
     }
 
     // @since 2.7

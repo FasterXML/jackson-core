@@ -2,7 +2,7 @@ package com.fasterxml.jackson.core.io;
 
 import java.math.BigInteger;
 
-public class TestNumberInput
+public class NumberInputTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testNastySmallDouble()
@@ -10,20 +10,20 @@ public class TestNumberInput
         //relates to https://github.com/FasterXML/jackson-core/issues/750
         //prior to jackson v2.14, this value used to be returned as Double.MIN_VALUE
         final String nastySmallDouble = "2.2250738585072012e-308";
-        assertEquals(Double.parseDouble(nastySmallDouble), NumberInput.parseDouble(nastySmallDouble));
+        assertEquals(Double.parseDouble(nastySmallDouble), NumberInput.parseDouble(nastySmallDouble, false));
         assertEquals(Double.parseDouble(nastySmallDouble), NumberInput.parseDouble(nastySmallDouble, true));
     }
 
     public void testParseFloat()
     {
         final String exampleFloat = "1.199999988079071";
-        assertEquals(1.1999999f, NumberInput.parseFloat(exampleFloat));
+        assertEquals(1.1999999f, NumberInput.parseFloat(exampleFloat, false));
         assertEquals(1.1999999f, NumberInput.parseFloat(exampleFloat, true));
-        assertEquals(1.2f, (float)NumberInput.parseDouble(exampleFloat));
+        assertEquals(1.2f, (float)NumberInput.parseDouble(exampleFloat, false));
         assertEquals(1.2f, (float)NumberInput.parseDouble(exampleFloat, true));
 
         final String exampleFloat2 = "7.006492321624086e-46";
-        assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2)));
+        assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2, false)));
         assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2, true)));
     }
 
@@ -34,13 +34,13 @@ public class TestNumberInput
             stringBuilder.append(7);
         }
         String test1000 = stringBuilder.toString();
-        assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000));
+        assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000, false));
         assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000, true));
         for (int i = 0; i < 1000; i++) {
             stringBuilder.append(7);
         }
         String test2000 = stringBuilder.toString();
-        assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000));
+        assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, false));
         assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, true));
     }
 
@@ -56,10 +56,34 @@ public class TestNumberInput
     public void testParseBigIntegerFailsWithENotation()
     {
         try {
-            NumberInput.parseBigInteger("1e10");
+            NumberInput.parseBigInteger("1e10", false);
             fail("expected NumberFormatException");
-        } catch (NumberFormatException nfe) {
-            // expected
+        } catch (NumberFormatException e) {
+            verifyException(e, "1e10");
         }
+    }
+
+    public void testLooksLikeValidNumber()
+    {
+        assertTrue(NumberInput.looksLikeValidNumber("0"));
+        assertTrue(NumberInput.looksLikeValidNumber("1"));
+        assertTrue(NumberInput.looksLikeValidNumber("-1"));
+        assertTrue(NumberInput.looksLikeValidNumber("0001")); // non-JSON
+
+        assertTrue(NumberInput.looksLikeValidNumber("0.01"));
+        assertTrue(NumberInput.looksLikeValidNumber("-0.10"));
+        assertTrue(NumberInput.looksLikeValidNumber("+0.25")); // non-JSON
+
+        assertTrue(NumberInput.looksLikeValidNumber("1E10"));
+        assertTrue(NumberInput.looksLikeValidNumber("-1E10"));
+        assertTrue(NumberInput.looksLikeValidNumber("1e-10"));
+        assertTrue(NumberInput.looksLikeValidNumber("1e+10"));
+        assertTrue(NumberInput.looksLikeValidNumber("+1e+10"));
+        assertTrue(NumberInput.looksLikeValidNumber("1.4E-45"));
+        assertTrue(NumberInput.looksLikeValidNumber("1.4e+45"));
+
+        assertFalse(NumberInput.looksLikeValidNumber(""));
+        assertFalse(NumberInput.looksLikeValidNumber("   "));
+        assertFalse(NumberInput.looksLikeValidNumber("10_000"));
     }
 }

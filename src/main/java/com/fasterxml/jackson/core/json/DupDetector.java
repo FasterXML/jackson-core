@@ -58,7 +58,7 @@ public class DupDetector
     public JsonLocation findLocation() {
         // ugly but:
         if (_source instanceof JsonParser) {
-            return ((JsonParser)_source).getCurrentLocation();
+            return ((JsonParser)_source).currentLocation();
         }
         // do generators have a way to provide Location? Apparently not...
         return null;

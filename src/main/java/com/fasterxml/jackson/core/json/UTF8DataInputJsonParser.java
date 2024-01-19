@@ -242,7 +242,7 @@ public class UTF8DataInputJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(null);
     }
@@ -258,7 +258,7 @@ public class UTF8DataInputJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }
@@ -2968,7 +2968,15 @@ public class UTF8DataInputJsonParser
      */
 
     @Override
-    public JsonLocation getTokenLocation() {
+    public JsonLocation currentLocation() {
+        // No column tracking since we do not have pointers, DataInput has no offset
+        final int col = -1;
+        return new JsonLocation(_contentReference(), -1L, -1L,
+                _currInputRow, col);
+    }
+
+    @Override
+    public JsonLocation currentTokenLocation() {
         // 03-Jan-2020, tatu: Should probably track this, similar to how
         //   streaming parsers do it, but... not done yet
 
@@ -2982,14 +2990,18 @@ public class UTF8DataInputJsonParser
         return new JsonLocation(_contentReference(), -1L, -1L, _tokenInputRow, -1);
     }
 
+    @Deprecated // since 2.17
     @Override
     public JsonLocation getCurrentLocation() {
-        // No column tracking since we do not have pointers, DataInput has no offset
-        final int col = -1;
-        return new JsonLocation(_contentReference(), -1L, -1L,
-                _currInputRow, col);
+        return currentLocation();
     }
 
+    @Deprecated // since 2.17
+    @Override
+    public JsonLocation getTokenLocation() {
+        return currentTokenLocation();
+    }
+    
     /*
     /**********************************************************
     /* Internal methods, other

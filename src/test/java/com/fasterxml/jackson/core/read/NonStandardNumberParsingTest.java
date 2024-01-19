@@ -6,6 +6,8 @@ import org.junit.runners.MethodSorters;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
+import java.math.BigDecimal;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // easier to read on IDE
 public class NonStandardNumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -56,7 +58,25 @@ public class NonStandardNumberParsingTest
         }
     }
 
-    //JSON does not allow numbers to have f or d suffixes
+    /**
+     * Test for checking that Overflow for Double value does not lead
+     * to bogus NaN information.
+     */
+    public void testLargeDecimal() throws Exception {
+        final String biggerThanDouble = "7976931348623157e309";
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " " + biggerThanDouble + " ")) {
+                assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(new BigDecimal(biggerThanDouble), p.getDecimalValue());
+                assertFalse(p.isNaN());
+                assertEquals(Double.POSITIVE_INFINITY, p.getValueAsDouble());
+                // 01-Dec-2023, tatu: [core#1137] NaN only from explicit value
+                assertFalse(p.isNaN());
+            }
+        }
+    }
+
+    // JSON does not allow numbers to have f or d suffixes
     public void testFloatMarker() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " -0.123f ")) {

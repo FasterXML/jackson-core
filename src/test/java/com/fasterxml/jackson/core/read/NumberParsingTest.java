@@ -71,6 +71,7 @@ public class NumberParsingTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+        assertEquals(JsonParser.NumberTypeFP.UNKNOWN, p.getNumberTypeFP());
         assertTrue(p.isExpectedNumberIntToken());
         assertEquals(""+EXP_I, p.getText());
 
@@ -431,12 +432,39 @@ public class NumberParsingTest
         BigInteger biggie = new BigInteger(NUMBER_STR);
 
         for (int mode : ALL_MODES) {
-            JsonParser p = createParser(jsonFactory(), mode, NUMBER_STR +" ");
-            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-            assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
-            assertEquals(NUMBER_STR, p.getText());
-            assertEquals(biggie, p.getBigIntegerValue());
-            p.close();
+            try (JsonParser p = createParser(jsonFactory(), mode, NUMBER_STR +" ")) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+                assertEquals(NUMBER_STR, p.getText());
+                assertEquals(biggie, p.getBigIntegerValue());
+            }
+        }
+    }
+
+    // Related to [core#1135]: JsonParser.isNaN() should not be fooled
+    // by possible Double overflow
+    public void testBiggerThanFloatHandling() throws Exception
+    {
+        BigDecimal tooBig = BigDecimal.valueOf(Double.MAX_VALUE);
+        tooBig = tooBig.add(tooBig);
+        // Otherwise becomes an int, need to add fractional part
+        tooBig = tooBig.add(BigDecimal.valueOf(0.25));
+        String tooBigString = tooBig.toPlainString();
+
+        // sanity check that it is beyond Double range:
+        assertTrue(new Double(tooBigString).isInfinite());
+
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(jsonFactory(), mode, tooBigString +" ")) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                // NOTE! We MUST NOT call `p.getNumberType()` as that would make
+                // it `NumberType.DOUBLE`
+//                assertEquals(JsonParser.NumberType.BIG_DECIMAL, p.getNumberType());
+                assertFalse(p.isNaN());
+                assertEquals(tooBigString, p.getText());
+                assertEquals(tooBig, p.getDecimalValue());
+                assertFalse(p.isNaN());
+            }
         }
     }
 

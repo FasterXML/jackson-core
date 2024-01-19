@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.base;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
@@ -276,7 +277,10 @@ public abstract class ParserMinimalBase extends JsonParser
     //public JsonToken getCurrentToken()
     //public boolean hasCurrentToken()
 
-    @Override public abstract String getCurrentName() throws IOException;
+    @Deprecated // since 2.17 -- still need to implement
+    @Override
+    public abstract String getCurrentName() throws IOException;
+
     @Override public abstract void close() throws IOException;
     @Override public abstract boolean isClosed();
 
@@ -490,7 +494,7 @@ public abstract class ParserMinimalBase extends JsonParser
             return getText();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
             return defaultValue;
@@ -770,8 +774,13 @@ public abstract class ParserMinimalBase extends JsonParser
         VersionUtil.throwInternal();
     }
 
+    // @since 2.17
+    protected final <T> T _throwInternalReturnAny() {
+        return VersionUtil.throwInternalReturnAny();
+    }
+
     protected final JsonParseException _constructError(String msg, Throwable t) {
-        return new JsonParseException(this, msg, t);
+        return new JsonParseException(this, msg, currentLocation(), t);
     }
 
     @Deprecated // since 2.11
@@ -785,10 +794,6 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Deprecated // since 2.11
     protected static String _ascii(byte[] b) {
-        try {
-            return new String(b, "US-ASCII");
-        } catch (IOException e) { // never occurs
-            throw new RuntimeException(e);
-        }
+        return new String(b, StandardCharsets.US_ASCII);
     }
 }

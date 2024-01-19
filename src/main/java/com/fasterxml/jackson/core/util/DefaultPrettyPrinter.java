@@ -111,9 +111,25 @@ public class DefaultPrettyPrinter
     protected String _objectEntrySeparator;
 
     /**
+     * String to use in empty Object to separate start and end markers.
+     * Default is single space, resulting in output of {@code { }}.
+     * 
+     * @since 2.17
+     */
+    protected String _objectEmptySeparator;
+
+    /**
      * @since 2.16
      */
     protected String _arrayValueSeparator;
+
+    /**
+     * String to use in empty Array to separate start and end markers.
+     * Default is single space, resulting in output of {@code [ ]}.
+     * 
+     * @since 2.17
+     */
+    protected String _arrayEmptySeparator;
     
     /*
     /**********************************************************
@@ -135,7 +151,7 @@ public class DefaultPrettyPrinter
      * @param rootSeparator String to use as root value separator
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter(String rootSeparator) {
         this((rootSeparator == null) ? null : new SerializedString(rootSeparator));
     }
@@ -147,7 +163,7 @@ public class DefaultPrettyPrinter
      * @param rootSeparator String to use as root value separator
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter(SerializableString rootSeparator) {
         this(DEFAULT_SEPARATORS.withRootSeparator(rootSeparator.getValue()));
     }
@@ -155,7 +171,7 @@ public class DefaultPrettyPrinter
     /**
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter(DefaultPrettyPrinter base,
             SerializableString rootSeparator)
     {
@@ -167,7 +183,9 @@ public class DefaultPrettyPrinter
         _separators = base._separators;
         _objectFieldValueSeparatorWithSpaces = base._objectFieldValueSeparatorWithSpaces;
         _objectEntrySeparator = base._objectEntrySeparator;
+        _objectEmptySeparator = base._objectEmptySeparator;
         _arrayValueSeparator = base._arrayValueSeparator;
+        _arrayEmptySeparator = base._arrayEmptySeparator;
 
         _rootSeparator = rootSeparator;
     }
@@ -183,7 +201,9 @@ public class DefaultPrettyPrinter
         _objectFieldValueSeparatorWithSpaces = separators.getObjectFieldValueSpacing().apply(
                 separators.getObjectFieldValueSeparator());
         _objectEntrySeparator = separators.getObjectEntrySpacing().apply(separators.getObjectEntrySeparator());
+        _objectEmptySeparator = separators.getObjectEmptySeparator();
         _arrayValueSeparator = separators.getArrayValueSpacing().apply(separators.getArrayValueSeparator());
+        _arrayEmptySeparator = separators.getArrayEmptySeparator();
     }
     
     /**
@@ -202,13 +222,15 @@ public class DefaultPrettyPrinter
         _separators = base._separators;
         _objectFieldValueSeparatorWithSpaces = base._objectFieldValueSeparatorWithSpaces;
         _objectEntrySeparator = base._objectEntrySeparator;
+        _objectEmptySeparator = base._objectEmptySeparator;
         _arrayValueSeparator = base._arrayValueSeparator;
+        _arrayEmptySeparator = base._arrayEmptySeparator;
     }
 
     /**
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter withRootSeparator(SerializableString rootSeparator)
     {
         if (_rootSeparator == rootSeparator ||
@@ -228,7 +250,7 @@ public class DefaultPrettyPrinter
      * @since 2.6
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter withRootSeparator(String rootSeparator) {
         return withRootSeparator((rootSeparator == null) ? null : new SerializedString(rootSeparator));
     }
@@ -278,7 +300,7 @@ public class DefaultPrettyPrinter
      * @since 2.3
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter withSpacesInObjectEntries() {
         return _withSpaces(true);
     }
@@ -294,7 +316,7 @@ public class DefaultPrettyPrinter
      * @since 2.3
      * @deprecated in 2.16. Use the Separators API instead.
      */
-    @Deprecated
+    @Deprecated // since 2.16
     public DefaultPrettyPrinter withoutSpacesInObjectEntries() {
         return _withSpaces(false);
     }
@@ -328,7 +350,9 @@ public class DefaultPrettyPrinter
         result._objectFieldValueSeparatorWithSpaces = separators.getObjectFieldValueSpacing().apply(
                 separators.getObjectFieldValueSeparator());
         result._objectEntrySeparator = separators.getObjectEntrySpacing().apply(separators.getObjectEntrySeparator());
+        result._objectEmptySeparator = separators.getObjectEmptySeparator();
         result._arrayValueSeparator = separators.getArrayValueSpacing().apply(separators.getArrayValueSeparator());
+        result._arrayEmptySeparator = separators.getArrayEmptySeparator();
 
         return result;
     }
@@ -417,7 +441,7 @@ public class DefaultPrettyPrinter
         if (nrOfEntries > 0) {
             _objectIndenter.writeIndentation(g, _nesting);
         } else {
-            g.writeRaw(' ');
+            g.writeRaw(_objectEmptySeparator);
         }
         g.writeRaw('}');
     }
@@ -461,7 +485,7 @@ public class DefaultPrettyPrinter
         if (nrOfValues > 0) {
             _arrayIndenter.writeIndentation(g, _nesting);
         } else {
-            g.writeRaw(' ');
+            g.writeRaw(_arrayEmptySeparator);
         }
         g.writeRaw(']');
     }

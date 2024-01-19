@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.RequestPayload;
@@ -39,7 +40,47 @@ public abstract class JsonParser
      */
     public enum NumberType {
         INT, LONG, BIG_INTEGER, FLOAT, DOUBLE, BIG_DECIMAL
-    };
+    }
+
+    /**
+     * Enumeration of possible physical Floating-Point types that
+     * underlying format uses. Used to indicate most accurate (and
+     * efficient) representation if known (if not known,
+     * {@link NumberTypeFP#UNKNOWN} is used).
+     *
+     * @since 2.17
+     */
+    public enum NumberTypeFP {
+        /**
+         * Special "mini-float" that some binary formats support.
+         */
+        FLOAT16,
+        
+        /**
+         * Standard IEEE-754 single-precision 32-bit binary value
+         */
+        FLOAT32,
+        
+        /**
+         * Standard IEEE-754 double-precision 64-bit binary value
+         */
+        DOUBLE64,
+        
+        /**
+         * Unlimited precision, decimal (10-based) values
+         */
+        BIG_DECIMAL,
+
+        /**
+         * Constant used when type is not known, or there is no specific
+         * type to match: most commonly used for textual formats like JSON
+         * where representation does not necessarily have single easily detectable
+         * optimal representation (for example, value {@code 0.1} has no
+         * exact binary representation whereas {@code 0.25} has exact representation
+         * in every binary type supported)
+         */
+        UNKNOWN;
+    }
 
     /**
      * Default set of {@link StreamReadCapability}ies that may be used as
@@ -741,22 +782,24 @@ public abstract class JsonParser
         return getTokenLocation();
     }
 
-    // TODO: deprecate in 2.14 or later
     /**
-     * Alias for {@link #currentLocation()}, to be deprecated in later
-     * Jackson 2.x versions (and removed from Jackson 3.0).
+     * Deprecated alias for {@link #currentLocation()} (removed from Jackson 3.0).
      *
      * @return Location of the last processed input unit (byte or character)
+     *
+     * @deprecated Since 2.17 use {@link #currentLocation()} instead
      */
+    @Deprecated // since 2.17
     public abstract JsonLocation getCurrentLocation();
 
-    // TODO: deprecate in 2.14 or later
     /**
-     * Alias for {@link #currentTokenLocation()}, to be deprecated in later
-     * Jackson 2.x versions (and removed from Jackson 3.0).
+     * Deprecated alias for {@link #currentTokenLocation()} (removed from Jackson 3.0).
      *
      * @return Starting location of the token parser currently points to
+     *
+     * @deprecated Since 2.17 use {@link #currentTokenLocation()} instead
      */
+    @Deprecated // since 2.17
     public abstract JsonLocation getTokenLocation();
 
     /**
@@ -775,8 +818,21 @@ public abstract class JsonParser
      * @since 2.13 (added as replacement for older {@link #getCurrentValue()}
      */
     public Object currentValue() {
-        // TODO: implement directly in 2.14 or later, make getCurrentValue() call this
-        return getCurrentValue();
+        // Note: implemented directly in 2.17, no longer delegating to getCurrentValue()
+        JsonStreamContext ctxt = getParsingContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
+    /**
+     * Deprecated alias for {@link #currentValue()} (removed from Jackson 3.0).
+     *
+     * @return Location of the last processed input unit (byte or character)
+     *
+     * @deprecated Since 2.17 use {@link #currentValue()} instead
+     */
+    @Deprecated // since 2.17
+    public Object getCurrentValue() {
+        return currentValue();
     }
 
     /**
@@ -790,34 +846,23 @@ public abstract class JsonParser
      * @since 2.13 (added as replacement for older {@link #setCurrentValue}
      */
     public void assignCurrentValue(Object v) {
-        // TODO: implement directly in 2.14 or later, make setCurrentValue() call this
-        setCurrentValue(v);
-    }
-
-    // TODO: deprecate in 2.14 or later
-    /**
-     * Alias for {@link #currentValue()}, to be deprecated in later
-     * Jackson 2.x versions (and removed from Jackson 3.0).
-     *
-     * @return Location of the last processed input unit (byte or character)
-     */
-    public Object getCurrentValue() {
-        JsonStreamContext ctxt = getParsingContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
-    }
-
-    // TODO: deprecate in 2.14 or later
-    /**
-     * Alias for {@link #assignCurrentValue}, to be deprecated in later
-     * Jackson 2.x versions (and removed from Jackson 3.0).
-     *
-     * @param v Current value to assign for the current input context of this parser
-     */
-    public void setCurrentValue(Object v) {
+        // Note: implemented directly in 2.17, no longer delegating to setCurrentValue()
         JsonStreamContext ctxt = getParsingContext();
         if (ctxt != null) {
             ctxt.setCurrentValue(v);
         }
+    }
+
+    /**
+     * Deprecated alias for {@link #assignCurrentValue(Object)} (removed from Jackson 3.0).
+     *
+     * @param v Current value to assign for the current input context of this parser
+     *
+     * @deprecated Since 2.17 use {@link #assignCurrentValue} instead
+     */
+    @Deprecated // since 2.17
+    public void setCurrentValue(Object v) {
+        assignCurrentValue(v);
     }
 
     /*
@@ -1041,7 +1086,7 @@ public abstract class JsonParser
      * time to get the value for the field.
      * Method is most useful for iterating over value entries
      * of JSON objects; field name will still be available
-     * by calling {@link #getCurrentName} when parser points to
+     * by calling {@link #currentName} when parser points to
      * the value.
      *
      * @return Next non-field-name token from the stream, if any found,
@@ -1060,7 +1105,7 @@ public abstract class JsonParser
      * and returns result of that comparison.
      * It is functionally equivalent to:
      *<pre>
-     *  return (nextToken() == JsonToken.FIELD_NAME) &amp;&amp; str.getValue().equals(getCurrentName());
+     *  return (nextToken() == JsonToken.FIELD_NAME) &amp;&amp; str.getValue().equals(currentName());
      *</pre>
      * but may be faster for parser to verify, and can therefore be used if caller
      * expects to get such a property name from input next.
@@ -1075,13 +1120,13 @@ public abstract class JsonParser
      *   {@link JsonParseException} for decoding problems
      */
     public boolean nextFieldName(SerializableString str) throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
+        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(currentName());
     }
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
      * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
-     * returns same as {@link #getCurrentName()}, otherwise null.
+     * returns same as {@link #currentName()}, otherwise null.
      *
      * @return Name of the the {@code JsonToken.FIELD_NAME} parser advanced to, if any;
      *   {@code null} if next token is of some other type
@@ -1092,7 +1137,7 @@ public abstract class JsonParser
      * @since 2.5
      */
     public String nextFieldName() throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
     }
 
     /**
@@ -1257,6 +1302,7 @@ public abstract class JsonParser
      * @since 2.8
      */
     public JsonToken currentToken() {
+        // !!! TODO: switch direction in 2.18 or later
         return getCurrentToken();
     }
 
@@ -1397,21 +1443,26 @@ public abstract class JsonParser
     public boolean isExpectedNumberIntToken() { return currentToken() == JsonToken.VALUE_NUMBER_INT; }
 
     /**
-     * Access for checking whether current token is a numeric value token, but
-     * one that is of "not-a-number" (NaN) variety (including both "NaN" AND
-     * positive/negative infinity!): not supported by all formats,
-     * but often supported for {@link JsonToken#VALUE_NUMBER_FLOAT}.
-     * NOTE: roughly equivalent to calling <code>!Double.isFinite()</code>
-     * on value you would get from calling {@link #getDoubleValue()}.
+     * Accessor for checking whether current token is a special
+     * "not-a-number" (NaN) token (including both "NaN" AND
+     * positive/negative infinity!). These values are not supported by all formats:
+     * JSON, for example, only supports them if
+     * {@link JsonReadFeature#ALLOW_NON_NUMERIC_NUMBERS} is enabled.
+     *<p>
+     * NOTE: in case where numeric value is outside range of requested type --
+     * most notably {@link java.lang.Float} or {@link java.lang.Double} -- and
+     * decoding results effectively in a NaN value, this method DOES NOT return
+     * {@code true}: only explicit incoming markers do.
+     * This is because value could still be accessed as a valid {@link BigDecimal}.
      *
-     * @return {@code True} if the current token is of type {@link JsonToken#VALUE_NUMBER_FLOAT}
-     *   but represents a "Not a Number"; {@code false} for other tokens and regular
-     *   floating-point numbers
+     * @return {@code True} if the current token is reported as {@link JsonToken#VALUE_NUMBER_FLOAT}
+     *   and represents a "Not a Number" value; {@code false} for other tokens and regular
+     *   floating-point numbers.
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      *
-     * @since 2.9
+     * @since 2.9 (slight change in semantics in 2.17)
      */
     public boolean isNaN() throws IOException {
         return false;
@@ -1467,15 +1518,17 @@ public abstract class JsonParser
     /**********************************************************
      */
 
-    // TODO: deprecate in 2.14 or later
     /**
-     * Alias of {@link #currentName()}.
+     * Deprecated alias of {@link #currentName()}.
      *
      * @return Name of the current field in the parsing context
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
+     *
+     * @deprecated Since 2.17 use {@link #currentName} instead.
      */
+    @Deprecated
     public abstract String getCurrentName() throws IOException;
 
     /**
@@ -1493,6 +1546,7 @@ public abstract class JsonParser
      * @since 2.10
      */
     public String currentName() throws IOException {
+        // !!! TODO: switch direction in 2.18 or later
         return getCurrentName();
     }
 
@@ -1701,7 +1755,7 @@ public abstract class JsonParser
      * If current token is of type
      * {@link JsonToken#VALUE_NUMBER_INT} or
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
-     * one of {@link NumberType} constants; otherwise returns null.
+     * one of {@link NumberType} constants; otherwise returns {@code null}.
      *
      * @return Type of current number, if parser points to numeric token; {@code null} otherwise
      *
@@ -1709,6 +1763,23 @@ public abstract class JsonParser
      *   {@link JsonParseException} for decoding problems
      */
     public abstract NumberType getNumberType() throws IOException;
+
+    /**
+     * If current token is of type
+     * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
+     * one of {@link NumberTypeFP} constants; otherwise returns
+     * {@link NumberTypeFP#UNKNOWN}.
+     *
+     * @return Type of current number, if parser points to numeric token; {@code null} otherwise
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
+     * @since 2.17
+     */
+    public NumberTypeFP getNumberTypeFP() throws IOException {
+        return NumberTypeFP.UNKNOWN;
+    }
 
     /**
      * Numeric accessor that can be called when the current

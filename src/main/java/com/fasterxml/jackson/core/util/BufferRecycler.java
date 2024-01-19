@@ -21,6 +21,20 @@ public class BufferRecycler
     implements RecyclerPool.WithPool<BufferRecycler>
 {
     /**
+     * Tag-on interface to allow various other types to expose {@link BufferRecycler}
+     * they are constructed with.
+     *
+     * @since 2.17
+     */
+    public interface Gettable {
+        /**
+         * @return Buffer recycler instance object is configured with, if any;
+         *    whether this can be {@code null} depends on type of object
+         */
+        public BufferRecycler bufferRecycler();
+    }
+
+    /**
      * Buffer used for reading byte-based input.
      */
     public final static int BYTE_READ_IO_BUFFER = 0;
@@ -145,7 +159,12 @@ public class BufferRecycler
     }
 
     public void releaseByteBuffer(int ix, byte[] buffer) {
-        _byteBuffers.set(ix, buffer);
+        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
+        byte[] oldBuffer = _byteBuffers.get(ix);
+        if ((oldBuffer == null) || buffer.length > oldBuffer.length) {
+            // Could use CAS, but should not really matter
+            _byteBuffers.set(ix, buffer);
+        }
     }
 
     /*
@@ -171,7 +190,12 @@ public class BufferRecycler
     }
 
     public void releaseCharBuffer(int ix, char[] buffer) {
-        _charBuffers.set(ix, buffer);
+        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
+        char[] oldBuffer = _charBuffers.get(ix);
+        if ((oldBuffer == null) || buffer.length > oldBuffer.length) {
+            // Could use CAS, but should not really matter
+            _charBuffers.set(ix, buffer);
+        }
     }
 
     /*

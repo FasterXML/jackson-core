@@ -345,7 +345,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public JsonLocation getCurrentLocation()
+    public JsonLocation currentLocation()
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         // Since we track CR and LF separately, max should gives us right answer
@@ -356,10 +356,22 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentTokenLocation()
     {
         return new JsonLocation(_contentReference(),
                 _tokenInputTotal, -1L, _tokenInputRow, _tokenInputCol);
+    }
+
+    @Deprecated // since 2.17
+    @Override
+    public JsonLocation getCurrentLocation() {
+        return currentLocation();
+    }
+
+    @Deprecated // since 2.17
+    @Override
+    public JsonLocation getTokenLocation() {
+        return currentTokenLocation();
     }
 
     /*
@@ -442,7 +454,7 @@ public abstract class NonBlockingJsonParserBase
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(null);
     }
@@ -455,7 +467,7 @@ public abstract class NonBlockingJsonParserBase
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }

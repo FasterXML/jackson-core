@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing.read;
+package com.fasterxml.jackson.core.read.loc;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -21,8 +21,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Tests that the {@link JsonLocation} attached to a thrown {@link JsonProcessingException} due to invalid json points
- * to the correct character.
+ * Tests that the {@link JsonLocation} attached to a thrown {@link StreamReadException}
+ * due to invalid JSON points to the correct character.
  */
 public class LocationOfError1173Test
 {
@@ -199,39 +199,6 @@ public class LocationOfError1173Test
             1,
             1,
             2
-        ),
-        new InvalidJson(
-            "Incorrect case for false literal",
-            "{\"isThisValidJson\": FALSE}",
-            24,
-            24,
-            1,
-            25
-        ),
-        new InvalidJson(
-            "Incorrect case for true literal",
-            "{\"shouldYouAvoidWritingJsonLikeThis\": TRUE}",
-            41,
-            41,
-            1,
-            42
-        ),
-        new InvalidJson(
-            "Incorrect case for null literal",
-            "{\"licensePlate\": NULL}",
-            20,
-            20,
-            1,
-            21
-        ),
-        new InvalidJson(
-            "Invalid JSON with raw unicode character",
-            // javac will parse the 3-byte unicode control sequence, it will be passed to the parser as a raw unicode character
-            a2q("{'validJson':'\u274c','right', 'here'}"),
-            26,
-            24,
-            1,
-            25
         ),
         new InvalidJson(
             "Error in middle of line for multiline input",

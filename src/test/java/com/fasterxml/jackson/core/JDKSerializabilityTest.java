@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 /**
  * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
  */
-public class TestJDKSerializability extends BaseTest
+public class JDKSerializabilityTest extends BaseTest
 {
     /*
     /**********************************************************************

@@ -150,16 +150,19 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**********************************************************
      */
 
-    @Override public JsonToken getCurrentToken() { return _currToken; }
     @Override public JsonToken currentToken() { return _currToken; }
 
-    @Deprecated // since 2.12
-    @Override public final int getCurrentTokenId() {
-        return currentTokenId();
-    }
+    @Override
+    @Deprecated // since 2.17
+    public JsonToken getCurrentToken() { return _currToken; }
+
     @Override public final int currentTokenId() {
         final JsonToken t = _currToken;
         return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
+    }
+    @Deprecated // since 2.12
+    @Override public final int getCurrentTokenId() {
+        return currentTokenId();
     }
 
     @Override public boolean hasCurrentToken() { return _currToken != null; }
@@ -178,15 +181,31 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
 
-    @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
+    @Override
+    public JsonLocation currentLocation() {
+        return delegate.currentLocation();
+    }
 
+    @Override
+    @Deprecated // since 2.17
+    public JsonLocation getCurrentLocation() {
+        return delegate.getCurrentLocation();
+    }
+
+    @Override
+    public JsonLocation currentTokenLocation() { return delegate.currentTokenLocation(); }
+
+    @Override
+    @Deprecated // since 2.17
+    public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
+    
     @Override
     public JsonStreamContext getParsingContext() {
         return _filterContext();
     }
 
-    // !!! TODO: Verify it works as expected: copied from standard JSON parser impl
     @Override
+    @Deprecated // since 2.17
     public String getCurrentName() throws IOException {
         JsonStreamContext ctxt = _filterContext();
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
@@ -419,7 +438,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
         case ID_FIELD_NAME:
             {
-                final String name = delegate.getCurrentName();
+                final String name = delegate.currentName();
                 // note: this will also set 'needToHandleName'
                 f = _headContext.setFieldName(name);
                 if (f == TokenFilter.INCLUDE_ALL) {
@@ -609,7 +628,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
             case ID_FIELD_NAME:
                 {
-                    final String name = delegate.getCurrentName();
+                    final String name = delegate.currentName();
                     f = _headContext.setFieldName(name);
                     if (f == TokenFilter.INCLUDE_ALL) {
                         _itemFilter = f;
@@ -796,7 +815,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
             case ID_FIELD_NAME:
                 {
-                    final String name = delegate.getCurrentName();
+                    final String name = delegate.currentName();
                     f = _headContext.setFieldName(name);
                     if (f == TokenFilter.INCLUDE_ALL) {
                         _itemFilter = f;
@@ -1046,7 +1065,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public Object getEmbeddedObject() throws IOException { return delegate.getEmbeddedObject(); }
     @Override public byte[] getBinaryValue(Base64Variant b64variant) throws IOException { return delegate.getBinaryValue(b64variant); }
     @Override public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException { return delegate.readBinaryValue(b64variant, out); }
-    @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
 
     /*
     /**********************************************************

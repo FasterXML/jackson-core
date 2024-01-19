@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
@@ -410,8 +411,8 @@ public abstract class JsonGenerator
      * @since 2.13 (added as replacement for older {@link #getCurrentValue()}
      */
     public Object currentValue() {
-        // TODO: implement directly in 2.14 or later, make getCurrentValue() call this
-        return getCurrentValue();
+        JsonStreamContext ctxt = getOutputContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
     }
 
     /**
@@ -425,34 +426,36 @@ public abstract class JsonGenerator
      * @since 2.13 (added as replacement for older {@link #setCurrentValue}
      */
     public void assignCurrentValue(Object v) {
-        // TODO: implement directly in 2.14 or later, make setCurrentValue() call this
-        setCurrentValue(v);
+        JsonStreamContext ctxt = getOutputContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
     }
 
-    // TODO: deprecate in 2.14 or later
     /**
      * Alias for {@link #currentValue()}, to be deprecated in later
      * Jackson 2.x versions (and removed from Jackson 3.0).
      *
      * @return Location of the last processed input unit (byte or character)
+     *
+     * @deprecated Since 2.17 use {@link #currentValue()} instead
      */
+    @Deprecated
     public Object getCurrentValue() {
-        JsonStreamContext ctxt = getOutputContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
+        return currentValue();
     }
 
-    // TODO: deprecate in 2.14 or later
     /**
      * Alias for {@link #assignCurrentValue}, to be deprecated in later
      * Jackson 2.x versions (and removed from Jackson 3.0).
      *
      * @param v Current value to assign for the current context of this generator
+     *
+     * @deprecated Since 2.17 use {@link #currentValue()} instead
      */
+    @Deprecated
     public void setCurrentValue(Object v) {
-        JsonStreamContext ctxt = getOutputContext();
-        if (ctxt != null) {
-            ctxt.setCurrentValue(v);
-        }
+        assignCurrentValue(v);
     }
 
     /*
@@ -2463,8 +2466,7 @@ public abstract class JsonGenerator
         final int token = (t == null) ? ID_NOT_AVAILABLE : t.id();
         switch (token) {
         case ID_NOT_AVAILABLE:
-            _reportError("No current event to copy");
-            break; // never gets here
+            throw _constructWriteException("No current event to copy");
         case ID_START_OBJECT:
             writeStartObject();
             break;
@@ -2478,7 +2480,7 @@ public abstract class JsonGenerator
             writeEndArray();
             break;
         case ID_FIELD_NAME:
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             break;
         case ID_STRING:
             _copyCurrentStringValue(p);
@@ -2527,8 +2529,7 @@ public abstract class JsonGenerator
         final int token = (t == null) ? ID_NOT_AVAILABLE : t.id();
         switch (token) {
         case ID_NOT_AVAILABLE:
-            _reportError("No current event to copy");
-            break; // never gets here
+            throw _constructWriteException("No current event to copy");
         case ID_START_OBJECT:
             writeStartObject();
             break;
@@ -2542,7 +2543,7 @@ public abstract class JsonGenerator
             writeEndArray();
             break;
         case ID_FIELD_NAME:
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             break;
         case ID_STRING:
             _copyCurrentStringValue(p);
@@ -2617,7 +2618,7 @@ public abstract class JsonGenerator
         // Let's handle field-name separately first
         int id = (t == null) ? ID_NOT_AVAILABLE : t.id();
         if (id == ID_FIELD_NAME) {
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             t = p.nextToken();
             id = (t == null) ? ID_NOT_AVAILABLE : t.id();
             // fall-through to copy the associated value
@@ -2647,7 +2648,7 @@ public abstract class JsonGenerator
         while ((t = p.nextToken()) != null) {
             switch (t.id()) {
             case ID_FIELD_NAME:
-                writeFieldName(p.getCurrentName());
+                writeFieldName(p.currentName());
                 break;
 
             case ID_START_ARRAY:
@@ -2839,7 +2840,7 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************************
-    /* Helper methods for sub-classes
+    /* Helper methods for sub-classes, error reporting
     /**********************************************************************
      */
 
@@ -2855,14 +2856,45 @@ public abstract class JsonGenerator
      * @throws JsonGenerationException constructed
      */
     protected void _reportError(String msg) throws JsonGenerationException {
-        throw new JsonGenerationException(msg, this);
+        throw (JsonGenerationException) _constructWriteException(msg);
     }
 
     protected final void _throwInternal() { VersionUtil.throwInternal(); }
 
     protected void _reportUnsupportedOperation() {
-        throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
+        _reportUnsupportedOperation("Operation not supported by `JsonGenerator` of type "+getClass().getName());
     }
+
+    // @since 2.17
+    protected void _reportUnsupportedOperation(String msg) {
+        throw new UnsupportedOperationException(msg);
+    }
+
+    // @since 2.17
+    protected StreamWriteException _constructWriteException(String msg) {
+        return new JsonGenerationException(msg, this);
+    }
+
+    // @since 2.17
+    protected StreamWriteException _constructWriteException(String msg, Object arg) {
+        return _constructWriteException(String.format(msg, arg));
+    }
+
+    // @since 2.17
+    protected StreamWriteException _constructWriteException(String msg, Object arg1, Object arg2) {
+        return _constructWriteException(String.format(msg, arg1, arg2));
+    }
+
+    // @since 2.17
+    protected StreamWriteException _constructWriteException(String msg, Throwable t) {
+        return new JsonGenerationException(msg, t, this);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes, other
+    /**********************************************************************
+     */
 
     // @since 2.8
     protected final void _verifyOffsets(int arrayLength, int offset, int length)

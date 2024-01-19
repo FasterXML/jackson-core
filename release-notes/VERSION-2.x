@@ -14,6 +14,23 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.17.0 (not yet released)
+
+#1137: Improve detection of "is a NaN" to only consider explicit cases,
+  not `double` overflow/underflow
+#1145: `JsonPointer.appendProperty(String)` does not escape the property name
+ (reported by Robert E)
+#1149: Add `JsonParser.getNumberTypeFP()`
+#1157: Use fast parser (FDP) for large `BigDecimal`s (500+ chars)
+ (contributed by @pjfanning)
+#1169: `ArrayIndexOutOfBoundsException` for specific invalid content,
+  with Reader-based parser
+#1179: Allow configuring `DefaultPrettyPrinter` separators for empty
+  Arrays and Objects
+ (contributed by Guillaume L)
+#1186: `BufferRecycler` should avoid setting replacement if one already returned, bigger
+ (suggested by @kkkkkhhhh)
+
 2.16.2 (not yet released)
 
 #1173: `JsonLocation` consistently off by one character for many invalid JSON

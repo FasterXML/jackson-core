@@ -217,6 +217,21 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected String _numberString;
 
+    /**
+     * Marker for explicit "Not a Number" (NaN) values that may be read
+     * by some formats: this includes positive and negative infinity,
+     * as well as "NaN" result for some arithmetic operations.
+     *<p>
+     * In case of JSON, such values can only be handled with non-standard
+     * processing: for some other formats they can be passed normally.
+     *<p>
+     * NOTE: this marker is NOT set in case of value overflow/underflow for
+     * {@code double} or {@code float} values.
+     *
+     * @since 2.17
+     */
+    protected boolean _numberIsNaN;
+
     // And then other information about value itself
 
     /**
@@ -263,15 +278,16 @@ public abstract class ParserBase extends ParserMinimalBase
         _parsingContext = JsonReadContext.createRootContext(dups);
     }
 
-    @Override public Version version() { return PackageVersion.VERSION; }
+    @Override
+    public Version version() { return PackageVersion.VERSION; }
 
     @Override
-    public Object getCurrentValue() {
+    public Object currentValue() {
         return _parsingContext.getCurrentValue();
     }
 
     @Override
-    public void setCurrentValue(Object v) {
+    public void assignCurrentValue(Object v) {
         _parsingContext.setCurrentValue(v);
     }
 
@@ -358,7 +374,9 @@ public abstract class ParserBase extends ParserMinimalBase
      * Method that can be called to get the name associated with
      * the current event.
      */
-    @Override public String getCurrentName() throws IOException {
+    @Deprecated // since 2.17
+    @Override
+    public String getCurrentName() throws IOException {
         // [JACKSON-395]: start markers require information from parent
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             JsonReadContext parent = _parsingContext.getParent();
@@ -369,7 +387,8 @@ public abstract class ParserBase extends ParserMinimalBase
         return _parsingContext.getCurrentName();
     }
 
-    @Override public void overrideCurrentName(String name) {
+    @Override
+    public void overrideCurrentName(String name) {
         // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
         JsonReadContext ctxt = _parsingContext;
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
@@ -409,6 +428,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * that starts the current token.
      */
     @Override
+    @Deprecated // since 2.17
     public JsonLocation getTokenLocation() {
         return new JsonLocation(_contentReference(),
                 -1L, getTokenCharacterOffset(), // bytes, chars
@@ -421,6 +441,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * usually for error reporting purposes
      */
     @Override
+    @Deprecated // since 2.17
     public JsonLocation getCurrentLocation() {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_contentReference(),
@@ -571,6 +592,7 @@ public abstract class ParserBase extends ParserMinimalBase
         // May throw StreamConstraintsException:
         _streamReadConstraints.validateIntegerLength(intLen);
         _numberNegative = negative;
+        _numberIsNaN = false;
         _intLength = intLen;
         _fractLength = 0;
         _expLength = 0;
@@ -584,6 +606,7 @@ public abstract class ParserBase extends ParserMinimalBase
         // May throw StreamConstraintsException:
         _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
         _numberNegative = negative;
+        _numberIsNaN = false;
         _intLength = intLen;
         _fractLength = fractLen;
         _expLength = expLen;
@@ -597,17 +620,15 @@ public abstract class ParserBase extends ParserMinimalBase
         _textBuffer.resetWithString(valueStr);
         _numberDouble = value;
         _numTypesValid = NR_DOUBLE;
+        _numberIsNaN = true;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
     @Override
     public boolean isNaN() throws IOException {
-        if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
-            if ((_numTypesValid & NR_DOUBLE) != 0) {
-                return !Double.isFinite(_getNumberDouble());
-            }
-        }
-        return false;
+        // 01-Dec-2023, tatu: [core#1137] Only return explicit NaN
+        return (_currToken == JsonToken.VALUE_NUMBER_FLOAT)
+                && _numberIsNaN;
     }
 
     /*

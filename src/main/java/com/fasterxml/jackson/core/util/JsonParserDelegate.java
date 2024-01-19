@@ -135,8 +135,8 @@ public class JsonParserDelegate extends JsonParser
     @Override // since 2.13
     public void assignCurrentValue(Object v) { delegate.assignCurrentValue(v); }
 
-    // TODO: deprecate in 2.14 or later
     @Override
+    @Deprecated
     public void setCurrentValue(Object v) { delegate.setCurrentValue(v); }
 
     /*
@@ -150,27 +150,34 @@ public class JsonParserDelegate extends JsonParser
     @Override public JsonToken currentToken() { return delegate.currentToken(); }
     @Override public int currentTokenId() { return delegate.currentTokenId(); }
     @Override public String currentName() throws IOException { return delegate.currentName(); }
-    @Override // since 2.13
-    public Object currentValue() { return delegate.currentValue(); }
+    @Override public Object currentValue() { return delegate.currentValue(); }
 
-    @Override // since 2.13
-    public JsonLocation currentLocation() { return delegate.getCurrentLocation(); }
-    @Override // since 2.13
-    public JsonLocation currentTokenLocation() { return delegate.getTokenLocation(); }
+    @Override public JsonLocation currentLocation() { return delegate.currentLocation(); }
+    @Override public JsonLocation currentTokenLocation() { return delegate.currentTokenLocation(); }
 
-    // TODO: deprecate in 2.14 or later
-    @Override public JsonToken getCurrentToken() { return delegate.getCurrentToken(); }
+    @Override
+    @Deprecated
+    public JsonToken getCurrentToken() { return delegate.getCurrentToken(); }
+
     @Deprecated // since 2.12
-    @Override public int getCurrentTokenId() { return delegate.getCurrentTokenId(); }
-    // TODO: deprecate in 2.14 or later
-    @Override public String getCurrentName() throws IOException { return delegate.getCurrentName(); }
-    // TODO: deprecate in 2.14 or later
-    @Override public Object getCurrentValue() { return delegate.getCurrentValue(); }
+    @Override
+    public int getCurrentTokenId() { return delegate.getCurrentTokenId(); }
 
-    // TODO: deprecate in 2.14 or later
-    @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
-    // TODO: deprecate in 2.14 or later
-    @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
+    @Override
+    @Deprecated // since 2.17
+    public String getCurrentName() throws IOException { return delegate.getCurrentName(); }
+
+    @Override
+    @Deprecated // since 2.17
+    public Object getCurrentValue() { return delegate.getCurrentValue(); }
+
+    @Override
+    @Deprecated // since 2.17
+    public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
+
+    @Override
+    @Deprecated // since 2.17
+    public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
 
     /*
     /**********************************************************************
@@ -236,6 +243,9 @@ public class JsonParserDelegate extends JsonParser
 
     @Override
     public NumberType getNumberType() throws IOException { return delegate.getNumberType(); }
+
+    @Override
+    public NumberTypeFP getNumberTypeFP() throws IOException { return delegate.getNumberTypeFP(); }
 
     @Override
     public Number getNumberValue() throws IOException { return delegate.getNumberValue(); }

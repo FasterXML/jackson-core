@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.read;
+package com.fasterxml.jackson.core.read.loc;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
  * Set of tests that checks getCurrentLocation() and getTokenLocation() are as expected during
  * parsing.
  */
-public class LocationDuringReaderParsingTest extends BaseTest
+public class LocationDuringStreamParsingTest extends BaseTest
 {
     public void testLocationAtEndOfParse() throws Exception
     {
@@ -39,7 +39,7 @@ public class LocationDuringReaderParsingTest extends BaseTest
 
     private void testLocationAtEndOfParse(LocationTestCase test) throws Exception
     {
-        JsonParser p = createParserUsingReader(test.json);
+        JsonParser p = createParserUsingStream(test.json, "UTF8");
         while (p.nextToken() != null) {
             p.nextToken();
         }
@@ -49,7 +49,7 @@ public class LocationDuringReaderParsingTest extends BaseTest
 
     private void testInitialLocation(LocationTestCase test) throws Exception
     {
-        JsonParser p = createParserUsingReader(test.json);
+        JsonParser p = createParserUsingStream(test.json, "UTF8");
         JsonLocation loc = p.currentLocation();
         p.close();
 
@@ -58,7 +58,7 @@ public class LocationDuringReaderParsingTest extends BaseTest
 
     private void testTokenLocations(LocationTestCase test) throws Exception
     {
-        JsonParser p = createParserUsingReader(test.json);
+        JsonParser p = createParserUsingStream(test.json, "UTF8");
         int i = 0;
         while (p.nextToken() != null) {
             assertTokenLocation(p, test.locations.get(i));
@@ -118,12 +118,12 @@ public class LocationDuringReaderParsingTest extends BaseTest
 
         SIMPLE_VALUE_WITH_MULTIBYTE_CHARS("\"Правда\"",
                 at(1, 1, 0),
-                at(1, 9, 8)
+                at(1, 15, 14) // one byte for each ", two for each Cyrillic char
         ),
 
         SIMPLE_VALUE_INCLUDING_SURROGATE_PAIR_CHARS("\"a П \uD83D\uDE01\"",
                 at(1, 1, 0),
-                at(1, 9, 8) // reader counts surrogate pairs as two chars
+                at(1, 12, 11) // one byte for each ", a and space; two for П, four for smiley emoji
         ),
 
         ARRAY_IN_ONE_LINE("[\"hello\",42,true]",
@@ -216,4 +216,5 @@ public class LocationDuringReaderParsingTest extends BaseTest
             return locations.get(locations.size() - 1);
         }
     }
+
 }

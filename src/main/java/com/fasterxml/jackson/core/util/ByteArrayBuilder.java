@@ -273,7 +273,12 @@ public final class ByteArrayBuilder
         append(b);
     }
 
-    @Override public void close() { /* NOP */ }
+    @Override
+    public void close() {
+        // Since 2.17 release on close()
+        release();
+    }
+
     @Override public void flush() { /* NOP */ }
 
     /*

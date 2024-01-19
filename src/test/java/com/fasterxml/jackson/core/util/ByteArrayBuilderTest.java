@@ -7,7 +7,6 @@ import org.junit.Assert;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.base.GeneratorBase;
-import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 
 public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
 {

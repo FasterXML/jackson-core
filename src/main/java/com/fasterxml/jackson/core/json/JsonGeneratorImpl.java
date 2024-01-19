@@ -236,23 +236,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     /*
     /**********************************************************
-    /* Misc other accessors
-    /**********************************************************
-     */
-
-    /**
-     * Accessor for use by {@code jackson-core} itself (tests in particular).
-     *
-     * @return {@link IOContext} in use by this generator
-     *
-     * @since 2.16
-     */
-    public IOContext ioContext() {
-        return _ioContext;
-    }
-
-    /*
-    /**********************************************************
     /* Shared helper methods
     /**********************************************************
      */

@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
 public class SegmentedStringWriterTest
@@ -43,5 +45,22 @@ public class SegmentedStringWriterTest
 
         String act = w.getAndClear();
         assertEquals(exp.toString(), act);
+    }
+
+    // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
+    public void testBufferRecyclerReuse() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        BufferRecycler br = new BufferRecycler();
+
+        SegmentedStringWriter ssw = new SegmentedStringWriter(br);
+        assertSame(br, ssw.bufferRecycler());
+
+        try (JsonGenerator g = f.createGenerator(ssw)) {
+            assertSame(br, ((GeneratorBase) g).ioContext().bufferRecycler());
+            g.writeStartArray();
+            g.writeEndArray();
+        }
+        assertEquals("[]", ssw.getAndClear());
     }
 }

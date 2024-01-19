@@ -298,6 +298,11 @@ public abstract class GeneratorBase extends JsonGenerator
      */
     @Override public JsonStreamContext getOutputContext() { return _writeContext; }
 
+    // @since 2.17, for test access
+    public IOContext ioContext() {
+        return _ioContext;
+    }
+
     /*
     /**********************************************************
     /* Public API, write methods, structural

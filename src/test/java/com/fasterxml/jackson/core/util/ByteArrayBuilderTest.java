@@ -47,7 +47,8 @@ public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
             assertSame(br, ((GeneratorBase) g).ioContext().bufferRecycler());
             g.writeStartArray();
             g.writeEndArray();
+            g.flush();
+            assertEquals("[]", new String(bab.toByteArray(), StandardCharsets.UTF_8));
         }
-        assertEquals("[]", new String(bab.toByteArray(), StandardCharsets.UTF_8));
     }
 }

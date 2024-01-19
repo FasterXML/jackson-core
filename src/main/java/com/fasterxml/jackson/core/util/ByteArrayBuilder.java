@@ -95,7 +95,10 @@ public final class ByteArrayBuilder
     /**
      * Clean up method to call to release all buffers this object may be
      * using. After calling the method, no other accessors can be used (and
-     * attempt to do so may result in an exception)
+     * attempt to do so may result in an exception).
+     *<p>
+     * NOTE: calling  {@link #close()} will implicitly call this method,
+     * as of Jackson 2.17.
      */
     public void release() {
         reset();
@@ -273,6 +276,10 @@ public final class ByteArrayBuilder
         append(b);
     }
 
+    /**
+     * NOTE: calling this method will also implicitly call {@link #release()}
+     * (as of Jackson 2.17)
+     */
     @Override
     public void close() {
         // Since 2.17 release on close()

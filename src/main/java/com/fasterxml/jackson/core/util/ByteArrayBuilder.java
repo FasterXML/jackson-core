@@ -182,6 +182,26 @@ public final class ByteArrayBuilder
         return result;
     }
 
+    /**
+     * Method functionally same as calling:
+     *<pre>
+     *  byte[] bytes = toByteArray();
+     *  release();
+     *  return bytes;
+     *</pre>
+     * that is; aggregates output contained in the builder (if any),
+     * clear state; returns buffer(s) to {@link BufferRecycler} configured,
+     * if any, and returns output to caller.
+     *
+     * @since 2.17
+     */
+    public byte[] getClearAndRelease()
+    {
+        byte[] result = toByteArray();
+        release();
+        return result;
+    }
+
     /*
     /**********************************************************
     /* BufferRecycler.Gettable implementation

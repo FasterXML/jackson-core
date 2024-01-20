@@ -259,6 +259,11 @@ public class IOContext implements AutoCloseable
     @Deprecated
     public Object getSourceReference() { return _sourceRef; }
 
+    // @since 2.17
+    public BufferRecycler bufferRecycler() {
+        return _bufferRecycler;
+    }
+
     /*
     /**********************************************************************
     /* Public API, buffer management

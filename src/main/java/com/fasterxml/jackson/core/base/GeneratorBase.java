@@ -296,7 +296,19 @@ public abstract class GeneratorBase extends JsonGenerator
      * base type in 2.8 to allow for overriding by subtypes that use
      * custom context type.
      */
-    @Override public JsonStreamContext getOutputContext() { return _writeContext; }
+    @Override
+    public JsonStreamContext getOutputContext() { return _writeContext; }
+
+    /**
+     * Accessor for use by {@code jackson-core} itself (tests in particular).
+     *
+     * @return {@link IOContext} in use by this generator
+     *
+     * @since 2.17
+     */
+    public IOContext ioContext() {
+        return _ioContext;
+    }
 
     /*
     /**********************************************************

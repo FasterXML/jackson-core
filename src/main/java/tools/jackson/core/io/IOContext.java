@@ -181,6 +181,11 @@ public class IOContext implements AutoCloseable
         return _contentReference;
     }
 
+    // @since 2.17
+    public BufferRecycler bufferRecycler() {
+        return _bufferRecycler;
+    }
+
     /*
     /**********************************************************************
     /* Public API, buffer management

@@ -6,8 +6,8 @@ import java.io.OutputStream;
 import tools.jackson.core.BaseTest;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.base.GeneratorBase;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.json.JsonGeneratorBase;
 import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.JsonRecyclerPools;
 import tools.jackson.core.util.RecyclerPool;
@@ -62,10 +62,8 @@ public class BufferRecyclerPoolTest extends BaseTest
         BufferRecycler bufferRecycler;
         NopOutputStream out = new NopOutputStream();
         try (JsonGenerator gen = jsonFactory.createGenerator(ObjectWriteContext.empty(), out)) {
-            bufferRecycler = ((JsonGeneratorBase) gen).ioContext()._bufferRecycler;
+            bufferRecycler = ((GeneratorBase) gen).ioContext().bufferRecycler();
             gen.writeString(value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
         assertEquals(expectedSize, out.size);
         return bufferRecycler;
@@ -85,7 +83,6 @@ public class BufferRecyclerPoolTest extends BaseTest
         @Override
         public void write(byte[] b, int offset, int len) throws IOException { size += len; }
     }
-
 
     @SuppressWarnings("serial")
     class TestPool implements RecyclerPool<BufferRecycler>

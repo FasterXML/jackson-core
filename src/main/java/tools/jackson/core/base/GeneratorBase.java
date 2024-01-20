@@ -173,6 +173,15 @@ public abstract class GeneratorBase extends JsonGenerator
 
     @Override public ObjectWriteContext objectWriteContext() { return _objectWriteContext; }
 
+    /**
+     * Accessor for use by {@code jackson-core} itself (tests in particular).
+     *
+     * @return {@link IOContext} in use by this generator
+     */
+    public IOContext ioContext() {
+        return _ioContext;
+    }
+
     /*
     /**********************************************************************
     /* Public API, write methods, structural

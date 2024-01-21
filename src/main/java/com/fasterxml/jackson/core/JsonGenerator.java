@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
@@ -519,6 +520,20 @@ public abstract class JsonGenerator
      * @since 2.10
      */
     public boolean isEnabled(StreamWriteFeature f) {
+        return isEnabled(f.mappedFeature());
+    }
+
+    /**
+     * Method for checking whether given feature is enabled.
+     * Check {@link Feature} for list of available features.
+     *
+     * @param f Feature to check
+     *
+     * @return True if specified feature is enabled; false if not
+     *
+     * @since 2.17
+     */
+    public boolean isEnabled(JsonWriteFeature f) {
         return isEnabled(f.mappedFeature());
     }
 

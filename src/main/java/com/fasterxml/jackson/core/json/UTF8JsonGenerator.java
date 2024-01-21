@@ -142,6 +142,7 @@ public class UTF8JsonGenerator
         if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
             setHighestNonEscapedChar(127);
         }
+        _outputEscapes = escapeForwardSlash(_outputEscapes); // since 2.17
     }
 
     // @since 2.10
@@ -165,6 +166,7 @@ public class UTF8JsonGenerator
         _outputMaxContiguous = (_outputEnd >> 3);
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
+        _outputEscapes = escapeForwardSlash(_outputEscapes); // since 2.17
     }
 
     @Deprecated // since 2.10

@@ -115,6 +115,7 @@ public class WriterBasedJsonGenerator
         if (quoteChar != '"') { // since 2.10
             _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
         }
+        _outputEscapes = escapeForwardSlash(_outputEscapes); // since 2.17
     }
 
     /*

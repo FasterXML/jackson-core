@@ -7,6 +7,7 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
@@ -32,6 +34,12 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public abstract class JsonGenerator
     implements Closeable, Flushable, Versioned
 {
+
+    /**
+     * @since 2.17
+     */
+    protected final static int INT_FORWARD_SLASH = 47;
+
     /**
      * Default set of {@link StreamWriteCapability}ies that may be used as
      * basis for format-specific readers (or as bogus instance if non-null
@@ -266,7 +274,16 @@ public abstract class JsonGenerator
          * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_HEX_UPPER_CASE} instead
          */
         @Deprecated
-        WRITE_HEX_UPPER_CASE(true);
+        WRITE_HEX_UPPER_CASE(true),
+
+        /**
+         * Feature that specifies whether {@link JsonGenerator} should escape forward slashes.
+         * <p>
+         * Feature is disabled by default for Jackson 2.x version, and enabled by default in Jackson 3.0.
+         *
+         * @since 2.17
+         */
+        ESCAPE_FORWARD_SLASHES(false);
 
         private final boolean _defaultState;
         private final int _mask;
@@ -519,6 +536,20 @@ public abstract class JsonGenerator
      * @since 2.10
      */
     public boolean isEnabled(StreamWriteFeature f) {
+        return isEnabled(f.mappedFeature());
+    }
+
+    /**
+     * Method for checking whether given feature is enabled.
+     * Check {@link Feature} for list of available features.
+     *
+     * @param f Feature to check
+     *
+     * @return True if specified feature is enabled; false if not
+     *
+     * @since 2.17
+     */
+    public boolean isEnabled(JsonWriteFeature f) {
         return isEnabled(f.mappedFeature());
     }
 
@@ -2976,5 +3007,19 @@ public abstract class JsonGenerator
         }
         throw new IllegalStateException("No ObjectCodec defined for the generator, can only serialize simple wrapper types (type passed "
                 +value.getClass().getName()+")");
+    }
+
+    /**
+     * Returns a new {@code int[]} of escape table with additional forward-slash escaping configured
+     * as configured by {@link JsonWriteFeature#ESCAPE_FORWARD_SLASHES}.
+     *
+     * @since 2.17
+     */
+    protected int[] escapeForwardSlash(int[] escapes) {
+        int[] esc = Arrays.copyOf(escapes, escapes.length);
+        int ifdw = esc[INT_FORWARD_SLASH];
+        esc[INT_FORWARD_SLASH] = isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                ? INT_FORWARD_SLASH : CharacterEscapes.ESCAPE_NONE;
+        return esc;
     }
 }

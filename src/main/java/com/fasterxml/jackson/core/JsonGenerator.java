@@ -32,12 +32,6 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public abstract class JsonGenerator
     implements Closeable, Flushable, Versioned
 {
-
-    /**
-     * @since 2.17
-     */
-    protected final static int INT_FORWARD_SLASH = 47;
-
     /**
      * Default set of {@link StreamWriteCapability}ies that may be used as
      * basis for format-specific readers (or as bogus instance if non-null

@@ -125,6 +125,7 @@ public class UTF8JsonGenerator
         if (quoteChar != '"') { // since 2.10
             _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
         }
+        _outputEscapes = escapeForwardSlash(_outputEscapes); // since 2.17
 
         _bufferRecyclable = true;
         _outputBuffer = ctxt.allocWriteEncodingBuffer();
@@ -142,7 +143,6 @@ public class UTF8JsonGenerator
         if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
             setHighestNonEscapedChar(127);
         }
-        _outputEscapes = escapeForwardSlash(_outputEscapes); // since 2.17
     }
 
     // @since 2.10

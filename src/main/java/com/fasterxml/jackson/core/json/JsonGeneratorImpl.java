@@ -25,11 +25,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      */
 
     /**
-     * @since 2.17
-     */
-    protected final static int INT_FORWARD_SLASH = 47;
-
-    /**
      * This is the default set of escape codes, over 7-bit ASCII range
      * (first 128 character codes), used for single-byte UTF-8 characters.
      */

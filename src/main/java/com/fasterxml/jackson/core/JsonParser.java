@@ -1519,7 +1519,7 @@ public abstract class JsonParser
      */
 
     /**
-     * Deprecated lias of {@link #currentName()}.
+     * Deprecated alias of {@link #currentName()}.
      *
      * @return Name of the current field in the parsing context
      *

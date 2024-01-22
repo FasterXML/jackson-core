@@ -19,6 +19,8 @@ a pure JSON library.
 #507: Add `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` to allow escaping of '/' for
   String values
  (contributed by Joo-Hyuk K)
+#1137: Improve detection of "is a NaN" to only consider explicit cases,
+  not `double` overflow/underflow
 #1145: `JsonPointer.appendProperty(String)` does not escape the property name
  (reported by Robert E)
 #1149: Add `JsonParser.getNumberTypeFP()`
@@ -29,6 +31,8 @@ a pure JSON library.
 #1179: Allow configuring `DefaultPrettyPrinter` separators for empty
   Arrays and Objects
  (contributed by Guillaume L)
+#1186: `BufferRecycler` should avoid setting replacement if one already returned, bigger
+ (suggested by @kkkkkhhhh)
 
 2.16.2 (not yet released)
 

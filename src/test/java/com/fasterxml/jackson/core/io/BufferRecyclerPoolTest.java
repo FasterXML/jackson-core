@@ -1,16 +1,17 @@
 package com.fasterxml.jackson.core.io;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.json.JsonGeneratorImpl;
+import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.RecyclerPool;
 import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
+// Tests for [core#1064] wrt custom `BufferRecycler`
 public class BufferRecyclerPoolTest extends BaseTest
 {
     public void testNoOp() throws Exception {
@@ -60,7 +61,7 @@ public class BufferRecyclerPoolTest extends BaseTest
         BufferRecycler bufferRecycler;
         NopOutputStream out = new NopOutputStream();
         try (JsonGenerator gen = jsonFactory.createGenerator(out)) {
-            bufferRecycler = ((JsonGeneratorImpl) gen).ioContext()._bufferRecycler;
+            bufferRecycler = ((GeneratorBase) gen).ioContext().bufferRecycler();
             gen.writeObject(value);
         }
         assertEquals(expectedSize, out.size);

@@ -22,23 +22,8 @@ public class JsonWriteFeatureEscapeForwardSlashTest
                 .build();
         final String expJson = "{\"url\":\"http://example.com\"}";
 
-        // Given
-        Writer jsonWriter = new StringWriter();
-        // When
-        try (JsonGenerator generator = jsonF.createGenerator(jsonWriter)) {
-            _writeDoc(generator);
-        }
-        // Then
-        assertEquals(expJson, jsonWriter.toString());
-
-        // Also test with byte-backed output
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        // When
-        try (JsonGenerator generator = jsonF.createGenerator(bytes)) {
-            _writeDoc(generator);
-        }
-        // Then
-        assertEquals(expJson, bytes.toString("UTF-8"));
+        _testWithStringWriter(jsonF, expJson);
+        _testWithByteArrayOutputStream(jsonF, expJson); // Also test with byte-backed output
     }
 
     @Test
@@ -48,6 +33,11 @@ public class JsonWriteFeatureEscapeForwardSlashTest
                 .build();
         final String expJson = "{\"url\":\"http:\\/\\/example.com\"}";
 
+        _testWithStringWriter(jsonF, expJson);
+        _testWithByteArrayOutputStream(jsonF, expJson); // Also test with byte-backed output
+    }
+
+    private void _testWithStringWriter(JsonFactory jsonF, String expJson) throws Exception {
         // Given
         Writer jsonWriter = new StringWriter();
         // When
@@ -56,15 +46,17 @@ public class JsonWriteFeatureEscapeForwardSlashTest
         }
         // Then
         assertEquals(expJson, jsonWriter.toString());
+    }
 
-        // Also test with byte-backed output
+    private void _testWithByteArrayOutputStream(JsonFactory jsonF, String expJson) throws Exception {
+        // Given
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         // When
         try (JsonGenerator generator = jsonF.createGenerator(bytes)) {
             _writeDoc(generator);
         }
         // Then
-        assertEquals(expJson, bytes.toString("UTF-8"));
+        assertEquals(expJson, bytes.toString());
     }
 
     private void _writeDoc(JsonGenerator generator) throws Exception

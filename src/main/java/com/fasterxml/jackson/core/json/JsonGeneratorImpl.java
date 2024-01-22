@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.GeneratorBase;
@@ -291,5 +292,22 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     {
         _reportError(String.format("Can not %s, expecting field name (context: %s)",
                 typeMsg, _writeContext.typeDesc()));
+    }
+
+    /**
+     * Returns a new {@code int[]} of escape table with additional forward-slash escaping configured
+     * as configured by {@link JsonWriteFeature#ESCAPE_FORWARD_SLASHES}.
+     *
+     * @since 2.17
+     */
+    protected int[] escapeForwardSlash(int[] escapes) {
+        int newEscape = isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES.mappedFeature())
+                ? INT_FORWARD_SLASH : CharacterEscapes.ESCAPE_NONE;
+        if (escapes[INT_FORWARD_SLASH] == newEscape) {
+            return escapes;
+        }
+        int[] esc = Arrays.copyOf(escapes, escapes.length);
+        esc[INT_FORWARD_SLASH] = newEscape;
+        return esc;
     }
 }

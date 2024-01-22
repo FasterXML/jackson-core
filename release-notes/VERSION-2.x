@@ -16,6 +16,9 @@ a pure JSON library.
 
 2.17.0 (not yet released)
 
+#507: Add `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` to allow escaping of '/' for
+  String values
+ (contributed by Joo-Hyuk K)
 #1145: `JsonPointer.appendProperty(String)` does not escape the property name
  (reported by Robert E)
 #1149: Add `JsonParser.getNumberTypeFP()`

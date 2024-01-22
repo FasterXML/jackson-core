@@ -395,6 +395,9 @@ Armin Samii (@artoonie)
 Joo Hyuk Kim (@JooHyukKim)
  * Contributed #1067: Add `ErrorReportConfiguration`
   (2.16.0)
+ * Contributed #507: Add `JsonWriteFeature.ESCAPE_FORWARD_SLASHES`
+   to allow escaping of '/' for String values
+  (2.17.0)
 
 David Schlosnagle (@schlosna)
  * Contributed #1081: Make `ByteSourceJsonBootstrapper` use `StringReader` for < 8KiB

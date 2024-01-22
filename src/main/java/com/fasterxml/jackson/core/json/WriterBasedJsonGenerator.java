@@ -105,17 +105,16 @@ public class WriterBasedJsonGenerator
     public WriterBasedJsonGenerator(IOContext ctxt, int features,
             ObjectCodec codec, Writer w,
             char quoteChar)
-
     {
         super(ctxt, features, codec);
         _writer = w;
         _outputBuffer = ctxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
         _quoteChar = quoteChar;
-        if (quoteChar != '"') { // since 2.10
-            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
+        boolean escapeSlash = isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES.mappedFeature());
+        if (quoteChar != '"' || escapeSlash) {
+            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar, escapeSlash);
         }
-        _outputEscapes = escapeForwardSlash(_outputEscapes); // since 2.17
     }
 
     /*

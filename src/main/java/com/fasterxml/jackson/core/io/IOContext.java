@@ -65,6 +65,16 @@ public class IOContext implements AutoCloseable
     protected final BufferRecycler _bufferRecycler;
 
     /**
+     * Flag that indicates whether this context instance should release
+     * configured {@code _bufferRecycler} or not: if it does, it needs to call
+     * (via {@link BufferRecycler#releaseToPool()} when closed; if not,
+     * should do nothing (recycler life-cycle is externally managed)
+     *
+     * @since 2.17
+     */
+    protected boolean _releaseRecycler = true;
+
+    /**
      * @since 2.15
      */
     protected final StreamReadConstraints _streamReadConstraints;
@@ -192,6 +202,18 @@ public class IOContext implements AutoCloseable
     @Deprecated // since 2.13
     public IOContext(BufferRecycler br, Object rawContent, boolean managedResource) {
         this(br, ContentReference.rawReference(rawContent), managedResource);
+    }
+
+    /**
+     * Method to call to prevent {@link #_bufferRecycler} release upon
+     * {@link #close()}: called when {@link #_bufferRecycler} life-cycle is
+     * externally managed.
+     *
+     * @since 2.17
+     */
+    public IOContext markBufferRecyclerReleased() {
+        _releaseRecycler = false;
+        return this;
     }
 
     /*
@@ -469,8 +491,11 @@ public class IOContext implements AutoCloseable
     @Override
     public void close() {
         if (!_closed) {
-            _bufferRecycler.releaseToPool();
             _closed = true;
+            if (_releaseRecycler) {
+                _releaseRecycler = false;
+                _bufferRecycler.releaseToPool();
+            }
         }
     }
 }

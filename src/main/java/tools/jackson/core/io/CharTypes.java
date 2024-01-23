@@ -246,7 +246,7 @@ public final class CharTypes
             }
             return sOutputEscapes128NoSlash;
         }
-        return AltEscapes.instance.escapesFor(quoteChar, escapeSlash);
+        return AltQuoteEscapes.instance.altEscapesFor(quoteChar, escapeSlash);
     }
 
     public static int charToHex(int ch)
@@ -316,15 +316,15 @@ public final class CharTypes
      * table, used for escaping content that uses non-standard quote
      * character (usually apostrophe).
      */
-    private static class AltEscapes {
-        public final static AltEscapes instance = new AltEscapes();
+    private static class AltQuoteEscapes {
+        public final static AltQuoteEscapes instance = new AltQuoteEscapes();
 
         private int[][] _altEscapesNoSlash = new int[128][];
 
         // @since 2.17
         private int[][] _altEscapesWithSlash = new int[128][];
 
-        public int[] escapesFor(int quoteChar, boolean escapeSlash)
+        public int[] altEscapesFor(int quoteChar, boolean escapeSlash)
         {
             int[] esc = escapeSlash
                     ? _altEscapesWithSlash[quoteChar]

@@ -33,6 +33,8 @@ a pure JSON library.
  (contributed by Guillaume L)
 #1186: `BufferRecycler` should avoid setting replacement if one already returned, bigger
  (suggested by @kkkkkhhhh)
+#1195: Use `BufferRecycler` provided by output (`OutputStream`, `Writer`) object if available
+ (contributed by Mario F)
 
 2.16.2 (not yet released)
 

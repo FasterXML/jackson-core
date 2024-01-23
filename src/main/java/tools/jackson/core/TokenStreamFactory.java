@@ -1230,10 +1230,7 @@ public abstract class TokenStreamFactory
      * @return Context constructed
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
-        return new IOContext(_streamReadConstraints, _streamWriteConstraints,
-                _errorReportConfiguration,
-                _getBufferRecycler(), contentRef,
-                resourceManaged, null);
+        return _createContext(contentRef, resourceManaged, null);
     }
 
     /**
@@ -1248,10 +1245,25 @@ public abstract class TokenStreamFactory
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged,
             JsonEncoding enc) {
-        return new IOContext(_streamReadConstraints, _streamWriteConstraints,
+        BufferRecycler br = null;
+        Object content = (contentRef == null) ? null : contentRef.getRawContent();
+        // 18-Jan-2024, tatu: [core#1195] Let's see if we can reuse already allocated recycler
+        //   (is the case when SegmentedStringWriter / ByteArrayBuilder passed)
+        if (content instanceof BufferRecycler.Gettable) {
+            br = ((BufferRecycler.Gettable) content).bufferRecycler();
+        }
+        boolean recyclerExternal = (br != null);
+        if (!recyclerExternal) {
+            br = _getBufferRecycler();
+        }
+        IOContext ctxt = new IOContext(_streamReadConstraints, _streamWriteConstraints,
                 _errorReportConfiguration,
-                _getBufferRecycler(), contentRef,
+                br, contentRef,
                 resourceManaged, enc);
+        if (recyclerExternal) {
+            ctxt.markBufferRecyclerReleased();
+        }
+        return ctxt;
     }
 
     /**

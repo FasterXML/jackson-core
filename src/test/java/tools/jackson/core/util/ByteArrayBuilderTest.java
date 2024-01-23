@@ -1,6 +1,13 @@
 package tools.jackson.core.util;
 
+import java.nio.charset.StandardCharsets;
+
 import org.junit.Assert;
+
+import tools.jackson.core.*;
+import tools.jackson.core.base.GeneratorBase;
+import tools.jackson.core.io.IOContext;
+import tools.jackson.core.json.JsonFactory;
 
 public class ByteArrayBuilderTest extends tools.jackson.core.BaseTest
 {
@@ -66,5 +73,38 @@ public class ByteArrayBuilderTest extends tools.jackson.core.BaseTest
 
         assertEquals(0, byteArrayBuilder.getCurrentSegmentLength());
         byteArrayBuilder.close();
+    }
+
+    // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
+    public void testBufferRecyclerReuse() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        BufferRecycler br = new BufferRecycler()
+                // need to link with some pool
+                .withPool(JsonRecyclerPools.newBoundedPool(3));
+
+        ByteArrayBuilder bab = new ByteArrayBuilder(br, 20);
+        assertSame(br, bab.bufferRecycler());
+
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bab);
+        IOContext ioCtxt = ((GeneratorBase) g).ioContext();
+        assertSame(br, ioCtxt.bufferRecycler());
+        assertTrue(ioCtxt.bufferRecycler().isLinkedWithPool());
+
+        g.writeStartArray();
+        g.writeEndArray();
+        g.close();
+
+        // Generator.close() should NOT release buffer recycler
+        assertTrue(br.isLinkedWithPool());
+
+        byte[] result = bab.getClearAndRelease();
+        assertEquals("[]", new String(result, StandardCharsets.UTF_8));
+        // Nor accessing contents
+        assertTrue(br.isLinkedWithPool());
+
+        // only explicit release does
+        br.releaseToPool();
+        assertFalse(br.isLinkedWithPool());
     }
 }

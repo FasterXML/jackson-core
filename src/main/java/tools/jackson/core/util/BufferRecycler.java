@@ -103,7 +103,7 @@ public class BufferRecycler
 
     /*
     /**********************************************************
-    /* Construction
+    /* Life-cycle
     /**********************************************************
      */
 
@@ -125,6 +125,16 @@ public class BufferRecycler
     protected BufferRecycler(int bbCount, int cbCount) {
         _byteBuffers = new AtomicReferenceArray<byte[]>(bbCount);
         _charBuffers = new AtomicReferenceArray<char[]>(cbCount);
+    }
+
+    /**
+     * @return True if this recycler is linked to pool and may be released
+     *   with {@link #releaseToPool()}; false if no linkage exists.
+     *
+     * @since 2.17
+     */
+    public boolean isLinkedWithPool() {
+        return _pool != null;
     }
 
     /*

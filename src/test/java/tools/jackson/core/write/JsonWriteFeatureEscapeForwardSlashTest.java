@@ -7,15 +7,28 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonGeneratorBase;
 import tools.jackson.core.json.JsonWriteFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * @since 2.17
- */
 public class JsonWriteFeatureEscapeForwardSlashTest
 {
+    @Test
+    public void testDefaultSettings() {
+        JsonFactory jsonF = new JsonFactory();
+        assertTrue(jsonF.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
+        try (JsonGeneratorBase g = (JsonGeneratorBase) jsonF.createGenerator(ObjectWriteContext.empty(),
+                new StringWriter())) {
+            assertTrue(g.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
+        }
+        try (JsonGeneratorBase g = (JsonGeneratorBase) jsonF.createGenerator(ObjectWriteContext.empty(),
+                new ByteArrayOutputStream())) {
+            assertTrue(g.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
+        }
+    }
+
     @Test
     public void testDontEscapeForwardSlash() throws Exception {
         final JsonFactory jsonF = JsonFactory.builder()

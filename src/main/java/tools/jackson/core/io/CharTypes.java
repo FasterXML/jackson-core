@@ -334,8 +334,21 @@ public final class CharTypes
                         ? sOutputEscapes128WithSlash
                         : sOutputEscapes128NoSlash;
                 esc = Arrays.copyOf(esc, esc.length);
-                _altEscapesWithSlash[quoteChar] = esc;
-                if (escapeSlash) {
+                // Only add escape setting if character does not already have it
+                if (esc[quoteChar] == 0) {
+                    // And try to use "natural" escape for apos
+                    int quoteStyle;
+                    switch (quoteChar) {
+                    case '\'':
+                    case '"':
+                        quoteStyle = quoteChar;
+                        break;
+                    default:
+                        quoteStyle = CharacterEscapes.ESCAPE_STANDARD;
+                    }
+                    esc[quoteChar] = quoteStyle;
+                }
+               if (escapeSlash) {
                     _altEscapesWithSlash[quoteChar] = esc;
                 } else {
                     _altEscapesNoSlash[quoteChar] = esc;

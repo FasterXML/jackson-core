@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 
 public class SegmentedStringWriterTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -43,5 +46,37 @@ public class SegmentedStringWriterTest
 
         String act = w.getAndClear();
         assertEquals(exp.toString(), act);
+    }
+
+    // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
+    public void testBufferRecyclerReuse() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        BufferRecycler br = new BufferRecycler()
+                // need to link with some pool
+                .withPool(JsonRecyclerPools.newBoundedPool(3));
+
+        SegmentedStringWriter ssw = new SegmentedStringWriter(br);
+        assertSame(br, ssw.bufferRecycler());
+
+        JsonGenerator g = f.createGenerator(ssw);
+        IOContext ioCtxt = ((GeneratorBase) g).ioContext();
+        assertSame(br, ioCtxt.bufferRecycler());
+        assertTrue(ioCtxt.bufferRecycler().isLinkedWithPool());
+
+        g.writeStartArray();
+        g.writeEndArray();
+        g.close();
+
+        // Generator.close() should NOT release buffer recycler
+        assertTrue(br.isLinkedWithPool());
+
+        // Nor accessing contents
+        assertEquals("[]", ssw.getAndClear());
+        assertTrue(br.isLinkedWithPool());
+
+        // only explicit release does
+        br.releaseToPool();
+        assertFalse(br.isLinkedWithPool());
     }
 }

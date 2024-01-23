@@ -2181,12 +2181,29 @@ public class JsonFactory
      * @return I/O context created
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
-        // 21-Mar-2021, tatu: Bit of defensive coding for backwards compatibility
+        BufferRecycler br = null;
+        boolean recyclerExternal = false;
+
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
+        } else {
+            Object content = contentRef.getRawContent();
+            // 18-Jan-2024, tatu: [core#1195] Let's see if we can reuse already allocated recycler
+            //   (is the case when SegmentedStringWriter / ByteArrayBuilder passed)
+            if (content instanceof BufferRecycler.Gettable) {
+                br = ((BufferRecycler.Gettable) content).bufferRecycler();
+                recyclerExternal = (br != null);
+            }
         }
-        return new IOContext(_streamReadConstraints, _streamWriteConstraints, _errorReportConfiguration,
-                _getBufferRecycler(), contentRef, resourceManaged);
+        if (br == null) {
+            br = _getBufferRecycler();
+        }
+        IOContext ctxt = new IOContext(_streamReadConstraints, _streamWriteConstraints, _errorReportConfiguration,
+                br, contentRef, resourceManaged);
+        if (recyclerExternal) {
+            ctxt.markBufferRecyclerReleased();
+        }
+        return ctxt;
     }
 
     /**

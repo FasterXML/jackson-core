@@ -100,8 +100,11 @@ public class BufferRecyclerPoolTest extends BaseTest
         }
 
         @Override
-        public void releasePooled(BufferRecycler recycler) {
-            this.bufferRecycler = recycler;
+        public void releasePooled(BufferRecycler r) {
+            if (bufferRecycler == r) { // just sanity check for this test
+                throw new IllegalStateException("BufferRecyler released more than once");
+            }
+            bufferRecycler = r;
         }
     }
 }

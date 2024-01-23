@@ -217,8 +217,8 @@ public class TestCustomEscaping extends tools.jackson.core.BaseTest
         JsonFactory f = JsonFactory.builder()
                 .characterEscapes(new MyEscapes(customRepl))
                 .build();
-        final String STR_IN = "[abcd/"+((char) TWO_BYTE_ESCAPED)+"/"+((char) THREE_BYTE_ESCAPED)+"]";
-        final String STR_OUT = "[\\A\\u0062c"+customRepl+"/"+TWO_BYTE_ESCAPED_STRING+"/"+THREE_BYTE_ESCAPED_STRING+"]";
+        final String STR_IN = "[abcd-"+((char) TWO_BYTE_ESCAPED)+"-"+((char) THREE_BYTE_ESCAPED)+"]";
+        final String STR_OUT = "[\\A\\u0062c"+customRepl+"-"+TWO_BYTE_ESCAPED_STRING+"-"+THREE_BYTE_ESCAPED_STRING+"]";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator g;
 

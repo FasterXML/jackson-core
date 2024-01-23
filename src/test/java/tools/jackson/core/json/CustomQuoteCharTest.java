@@ -75,14 +75,14 @@ public class CustomQuoteCharTest
         _writeObject(g, "key", "It's \"fun\"");
         g.close();
         // should escape apostrophes but not quotes?
-        assertEquals("{'key':'It\\u0027s \\\"fun\\\"'}", w.toString());
+        assertEquals("{'key':'It\\'s \\\"fun\\\"'}", w.toString());
 
         // with Array
         w = new StringWriter();
         g = createGenerator(JSON_F, w);
         _writeArray(g, "It's a sin");
         g.close();
-        assertEquals("['It\\u0027s a sin']", w.toString());
+        assertEquals("['It\\'s a sin']", w.toString());
     }
 
     public void testAposQuotingWithByteBased() throws Exception
@@ -96,14 +96,14 @@ public class CustomQuoteCharTest
         _writeObject(g, "key", "It's \"fun\"");
         g.close();
         // should escape apostrophes but not quotes?
-        assertEquals("{'key':'It\\u0027s \\\"fun\\\"'}", out.toString("UTF-8"));
+        assertEquals("{'key':'It\\'s \\\"fun\\\"'}", out.toString("UTF-8"));
 
         // with Array
         out = new ByteArrayOutputStream();
         g = createGenerator(JSON_F, out);
         _writeArray(g, "It's a sin");
         g.close();
-        assertEquals("['It\\u0027s a sin']", out.toString("UTF-8"));
+        assertEquals("['It\\'s a sin']", out.toString("UTF-8"));
     }
 
     private void _writeObject(JsonGenerator g, String key, String value) throws Exception {

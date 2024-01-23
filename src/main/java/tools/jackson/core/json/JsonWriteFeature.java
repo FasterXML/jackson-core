@@ -103,11 +103,9 @@ public enum JsonWriteFeature
     /**
      * Feature that specifies whether {@link JsonGenerator} should escape forward slashes.
      * <p>
-     * Feature is disabled by default for Jackson 2.x version, and enabled by default in Jackson 3.0.
-     *
-     * @since 2.17
+     * Feature is enabled by default in Jackson 3.0 (was disabled in 2.x).
      */
-    ESCAPE_FORWARD_SLASHES(false),
+    ESCAPE_FORWARD_SLASHES(true),
 
     ;
 

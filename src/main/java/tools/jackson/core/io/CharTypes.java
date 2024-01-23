@@ -153,7 +153,7 @@ public final class CharTypes
      * Lookup table used for determining which output characters in
      * 7-bit ASCII range need to be quoted.
      */
-    protected final static int[] sOutputEscapes128;
+    protected final static int[] sOutputEscapes128NoSlash;
     static {
         int[] table = new int[128];
         // Control chars need generic escape sequence
@@ -170,16 +170,16 @@ public final class CharTypes
         table[0x0C] = 'f';
         table[0x0A] = 'n';
         table[0x0D] = 'r';
-        sOutputEscapes128 = table;
+        sOutputEscapes128NoSlash = table;
     }
 
     /**
-     * Lookup table same as {@link #sOutputEscapes128} except that
+     * Lookup table same as {@link #sOutputEscapes128NoSlash} except that
      * forward slash ('/') is also escaped
      */
     protected final static int[] sOutputEscapes128WithSlash;
     static {
-        sOutputEscapes128WithSlash = Arrays.copyOf(sOutputEscapes128, sOutputEscapes128.length);
+        sOutputEscapes128WithSlash = Arrays.copyOf(sOutputEscapes128NoSlash, sOutputEscapes128NoSlash.length);
         sOutputEscapes128WithSlash['/'] = '/';
     }
 
@@ -217,25 +217,13 @@ public final class CharTypes
      * Value of 0 means "no escaping"; other positive values that value is character
      * to use after backslash; and negative values that generic (backslash - u)
      * escaping is to be used.
+     *<p>
+     * NOTE: as of Jackson 3.0, forward slash ({@code "/"}) is escaped by default.
      *
      * @return 128-entry {@code int[]} that contains escape definitions
      */
-    public static int[] get7BitOutputEscapes() { return sOutputEscapes128; }
-
-    /**
-     * Alternative to {@link #get7BitOutputEscapes()} when a non-standard quote character
-     * is used.
-     *
-     * @param quoteChar Character used for quoting textual values and property names;
-     *    usually double-quote but sometimes changed to single-quote (apostrophe)
-     *
-     * @return 128-entry {@code int[]} that contains escape definitions
-     */
-    public static int[] get7BitOutputEscapes(int quoteChar) {
-        if (quoteChar == '"') {
-            return sOutputEscapes128;
-        }
-        return AltEscapes.instance.escapesFor(quoteChar);
+    public static int[] get7BitOutputEscapes() {
+        return get7BitOutputEscapes('"', true);
     }
 
     /**
@@ -244,7 +232,8 @@ public final class CharTypes
      *
      * @param quoteChar Character used for quoting textual values and property names;
      *    usually double-quote but sometimes changed to single-quote (apostrophe)
-     * @param escapeSlash
+     * @param escapeSlash Whether forward slash ({@code "/"}) is escaped by default
+     *    or not.
      *
      * @return 128-entry {@code int[]} that contains escape definitions
      *
@@ -255,9 +244,9 @@ public final class CharTypes
             if (escapeSlash) {
                 return sOutputEscapes128WithSlash;
             }
-            return sOutputEscapes128;
+            return sOutputEscapes128NoSlash;
         }
-        return AltEscapes.instance.escapesFor(quoteChar, escapeSlash);
+        return AltQuoteEscapes.instance.altEscapesFor(quoteChar, escapeSlash);
     }
 
     public static int charToHex(int ch)
@@ -283,7 +272,7 @@ public final class CharTypes
      * @param content Unescaped String value to append with escaping applied
      */
     public static void appendQuoted(StringBuilder sb, String content) {
-        final int[] escCodes = sOutputEscapes128;
+        final int[] escCodes = sOutputEscapes128WithSlash;
         final int escLen = escCodes.length;
         for (int i = 0, len = content.length(); i < len; ++i) {
             char c = content.charAt(i);
@@ -327,38 +316,43 @@ public final class CharTypes
      * table, used for escaping content that uses non-standard quote
      * character (usually apostrophe).
      */
-    private static class AltEscapes {
-        public final static AltEscapes instance = new AltEscapes();
+    private static class AltQuoteEscapes {
+        public final static AltQuoteEscapes instance = new AltQuoteEscapes();
 
-        private int[][] _altEscapes = new int[128][];
+        private int[][] _altEscapesNoSlash = new int[128][];
 
         // @since 2.17
         private int[][] _altEscapesWithSlash = new int[128][];
 
-        public int[] escapesFor(int quoteChar) {
-            int[] esc = _altEscapes[quoteChar];
+        public int[] altEscapesFor(int quoteChar, boolean escapeSlash)
+        {
+            int[] esc = escapeSlash
+                    ? _altEscapesWithSlash[quoteChar]
+                    : _altEscapesNoSlash[quoteChar];
             if (esc == null) {
-                esc = Arrays.copyOf(sOutputEscapes128, 128);
+                esc = escapeSlash
+                        ? sOutputEscapes128WithSlash
+                        : sOutputEscapes128NoSlash;
+                esc = Arrays.copyOf(esc, esc.length);
                 // Only add escape setting if character does not already have it
                 if (esc[quoteChar] == 0) {
-                    esc[quoteChar] = CharacterEscapes.ESCAPE_STANDARD;
+                    // And try to use "natural" escape for apos
+                    int quoteStyle;
+                    switch (quoteChar) {
+                    case '\'':
+                    case '"':
+                        quoteStyle = quoteChar;
+                        break;
+                    default:
+                        quoteStyle = CharacterEscapes.ESCAPE_STANDARD;
+                    }
+                    esc[quoteChar] = quoteStyle;
                 }
-                _altEscapes[quoteChar] = esc;
-            }
-            return esc;
-        }
-
-        // @since 2.17
-        public int[] escapesFor(int quoteChar, boolean escapeSlash)
-        {
-            if (!escapeSlash) {
-                return escapesFor(quoteChar);
-            }
-            int[] esc = _altEscapesWithSlash[quoteChar];
-            if (esc == null) {
-                esc = escapesFor(quoteChar);
-                esc['/'] = '/';
-                _altEscapesWithSlash[quoteChar] = esc;
+               if (escapeSlash) {
+                    _altEscapesWithSlash[quoteChar] = esc;
+                } else {
+                    _altEscapesNoSlash[quoteChar] = esc;
+                }
             }
             return esc;
         }

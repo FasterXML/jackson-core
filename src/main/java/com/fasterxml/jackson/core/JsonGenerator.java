@@ -266,7 +266,16 @@ public abstract class JsonGenerator
          * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_HEX_UPPER_CASE} instead
          */
         @Deprecated
-        WRITE_HEX_UPPER_CASE(true);
+        WRITE_HEX_UPPER_CASE(true),
+
+        /**
+         * Feature that specifies whether {@link JsonGenerator} should escape forward slashes.
+         * <p>
+         * Feature is disabled by default for Jackson 2.x version, and enabled by default in Jackson 3.0.
+         *
+         * @since 2.17
+         */
+        ESCAPE_FORWARD_SLASHES(false);
 
         private final boolean _defaultState;
         private final int _mask;

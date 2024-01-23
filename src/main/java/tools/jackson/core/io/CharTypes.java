@@ -217,10 +217,14 @@ public final class CharTypes
      * Value of 0 means "no escaping"; other positive values that value is character
      * to use after backslash; and negative values that generic (backslash - u)
      * escaping is to be used.
+     *<p>
+     * NOTE: as of Jackson 3.0, forward slash ({@code "/"}) is escaped by default.
      *
      * @return 128-entry {@code int[]} that contains escape definitions
      */
-    public static int[] get7BitOutputEscapes() { return sOutputEscapes128WithSlash; }
+    public static int[] get7BitOutputEscapes() {
+        return get7BitOutputEscapes('"', true);
+    }
 
     /**
      * Alternative to {@link #get7BitOutputEscapes()} when either a non-standard
@@ -228,7 +232,8 @@ public final class CharTypes
      *
      * @param quoteChar Character used for quoting textual values and property names;
      *    usually double-quote but sometimes changed to single-quote (apostrophe)
-     * @param escapeSlash
+     * @param escapeSlash Whether forward slash ({@code "/"}) is escaped by default
+     *    or not.
      *
      * @return 128-entry {@code int[]} that contains escape definitions
      *

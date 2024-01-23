@@ -174,6 +174,16 @@ public final class CharTypes
     }
 
     /**
+     * Lookup table same as {@link #sOutputEscapes128} except that
+     * forward slash ('/') is also escaped
+     */
+    protected final static int[] sOutputEscapes128WithSlash;
+    static {
+        sOutputEscapes128WithSlash = Arrays.copyOf(sOutputEscapes128, sOutputEscapes128.length);
+        sOutputEscapes128WithSlash['/'] = '/';
+    }
+
+    /**
      * Lookup table for the first 256 Unicode characters (ASCII / UTF-8)
      * range. For actual hex digits, contains corresponding value;
      * for others -1.
@@ -228,6 +238,28 @@ public final class CharTypes
         return AltEscapes.instance.escapesFor(quoteChar);
     }
 
+    /**
+     * Alternative to {@link #get7BitOutputEscapes()} when either a non-standard
+     * quote character is used, or forward slash is to be escaped.
+     *
+     * @param quoteChar Character used for quoting textual values and property names;
+     *    usually double-quote but sometimes changed to single-quote (apostrophe)
+     * @param escapeSlash
+     *
+     * @return 128-entry {@code int[]} that contains escape definitions
+     *
+     * @since 2.17
+     */
+    public static int[] get7BitOutputEscapes(int quoteChar, boolean escapeSlash) {
+        if (quoteChar == '"') {
+            if (escapeSlash) {
+                return sOutputEscapes128WithSlash;
+            }
+            return sOutputEscapes128;
+        }
+        return AltEscapes.instance.escapesFor(quoteChar, escapeSlash);
+    }
+
     public static int charToHex(int ch)
     {
         // 08-Nov-2019, tatu: As per [core#540] and [core#578], changed to
@@ -240,7 +272,6 @@ public final class CharTypes
     {
         return HC[ch];
     }
-
 
     /**
      * Helper method for appending JSON-escaped version of contents
@@ -301,6 +332,9 @@ public final class CharTypes
 
         private int[][] _altEscapes = new int[128][];
 
+        // @since 2.17
+        private int[][] _altEscapesWithSlash = new int[128][];
+
         public int[] escapesFor(int quoteChar) {
             int[] esc = _altEscapes[quoteChar];
             if (esc == null) {
@@ -313,6 +347,20 @@ public final class CharTypes
             }
             return esc;
         }
+
+        // @since 2.17
+        public int[] escapesFor(int quoteChar, boolean escapeSlash)
+        {
+            if (!escapeSlash) {
+                return escapesFor(quoteChar);
+            }
+            int[] esc = _altEscapesWithSlash[quoteChar];
+            if (esc == null) {
+                esc = escapesFor(quoteChar);
+                esc['/'] = '/';
+                _altEscapesWithSlash[quoteChar] = esc;
+            }
+            return esc;
+        }
     }
 }
-

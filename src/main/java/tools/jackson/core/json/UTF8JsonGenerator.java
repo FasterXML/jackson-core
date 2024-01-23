@@ -163,8 +163,8 @@ public class UTF8JsonGenerator
     {
         _characterEscapes = esc;
         if (esc == null) {
-            _outputEscapes =  (_quoteChar == '"') ? DEFAULT_OUTPUT_ESCAPES
-                    : CharTypes.get7BitOutputEscapes(_quoteChar);
+            _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar,
+                    JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
         } else {
             _outputEscapes = esc.getEscapeCodesForAscii();
         }

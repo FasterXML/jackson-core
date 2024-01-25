@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.UTF8Writer;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.json.PackageVersion;
@@ -533,8 +534,7 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
 "Incomplete surrogate pair: first char 0x%04X, second 0x%04X", surr1, surr2);
             _reportError(msg);
         }
-        int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);
-        return c;
+        return (surr1 << 10) + surr2 + UTF8Writer.SURROGATE_BASE;
     }
 
     /*

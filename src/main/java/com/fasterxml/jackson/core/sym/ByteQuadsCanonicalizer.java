@@ -1097,7 +1097,7 @@ public final class ByteQuadsCanonicalizer
     }
 
     static int multiplyByFourFifths(int number) {
-        return (int) (number * 1_717_986_919L >>> 33);
+        return (int) (number * 3_435_973_837L >>> 32);
     }
 
     // Helper method for checking if we should simply rehash() before add

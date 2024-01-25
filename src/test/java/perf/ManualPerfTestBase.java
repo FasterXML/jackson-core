@@ -85,7 +85,7 @@ abstract class ManualPerfTestBase
     protected abstract void testRead2(int reps) throws Exception;
 
     protected static String a2q(String json) {
-        return json.replace("'", "\"");
+        return json.replace('\'', '"');
     }
 }
 

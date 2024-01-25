@@ -1096,13 +1096,17 @@ public final class ByteQuadsCanonicalizer
         return offset;
     }
 
+    static int multiplyByFourFifths(int number) {
+        return (int) (number * 1_717_986_919L >>> 33);
+    }
+
     // Helper method for checking if we should simply rehash() before add
     private boolean _checkNeedForRehash() {
         // Yes if above 80%, or above 50% AND have ~1% spill-overs
         if (_count > (_hashSize >> 1)) { // over 50%
             int spillCount = (_spilloverEnd - _spilloverStart()) >> 2;
             if ((spillCount > (1 + _count >> 7))
-                    || (_count > (_hashSize * 0.80))) {
+                    || (_count > (multiplyByFourFifths(_hashSize)))) {
                 return true;
             }
         }

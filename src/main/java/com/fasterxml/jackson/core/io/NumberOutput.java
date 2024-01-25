@@ -246,7 +246,7 @@ public final class NumberOutput
     }
 
     static int divBy1000(int number) {
-        return (int) (number * 274877907L >>> 38);
+        return (int) (number * 274_877_907L >>> 38);
     }
 
     /*

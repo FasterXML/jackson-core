@@ -1313,7 +1313,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 break;
             }
             if (ch > INT_9) {
-                if (ch == INT_e || ch == INT_E) {
+                if ((ch | 0x20) == INT_e) { // ~ 'eE'
                     _intLength = outPtr;
                     ++_inputPtr;
                     return _startFloat(outBuf, outPtr, ch);
@@ -1382,7 +1382,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 break;
             }
             if (ch > INT_9) {
-                if (ch == INT_e || ch == INT_E) {
+                if ((ch | 0x20) == INT_e) { // ~ 'eE'
                     _intLength = outPtr-1;
                     ++_inputPtr;
                     return _startFloat(outBuf, outPtr, ch);
@@ -1458,7 +1458,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 break;
             }
             if (ch > INT_9) {
-                if (ch == INT_e || ch == INT_E) {
+                if ((ch | 0x20) == INT_e) { // ~ 'eE'
                     _intLength = outPtr-1;
                     ++_inputPtr;
                     return _startFloat(outBuf, outPtr, ch);
@@ -1505,7 +1505,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _startFloat(outBuf, 1, ch);
             }
         } else if (ch > INT_9) {
-            if (ch == INT_e || ch == INT_E) {
+            if ((ch | 0x20) == INT_e) { // ~ 'eE'
                 _inputPtr = ptr;
                 _intLength = 1;
                 char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1608,7 +1608,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _startFloat(outBuf, 1, ch);
                 }
             } else if (ch > INT_9) {
-                if (ch == INT_e || ch == INT_E) {
+                if ((ch | 0x20) == INT_e) { // ~ 'eE'
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                     outBuf[0] = '0';
                     _intLength = 1;
@@ -1668,7 +1668,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _startFloat(outBuf, 2, ch);
                 }
             } else if (ch > INT_9) {
-                if (ch == INT_e || ch == INT_E) {
+                if ((ch | 0x20) == INT_e) { // ~ 'eE'
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                     outBuf[0] = negative ? '-' : '+';
                     outBuf[1] = '0';
@@ -1723,7 +1723,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 break;
             }
             if (ch > INT_9) {
-                if (ch == INT_e || ch == INT_E) {
+                if ((ch | 0x20) == INT_e) { // ~ 'eE'
                     _intLength = outPtr+negMod;
                     ++_inputPtr;
                     return _startFloat(outBuf, outPtr, ch);
@@ -1779,7 +1779,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _fractLength = fractLen;
         int expLen = 0;
-        if (ch == INT_e || ch == INT_E) { // exponent?
+        if ((ch | 0x20) == INT_e) { // ~ 'eE' exponent?
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.expandCurrentSegment();
             }
@@ -1878,7 +1878,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
 
         // Ok: end of floating point number or exponent?
-        if (ch == INT_e || ch == INT_E) { // exponent?
+        if ((ch | 0x20) == INT_e) { // ~ 'eE' exponent?
             _textBuffer.append((char) ch);
             _expLength = 0;
             if (_inputPtr >= _inputEnd) {

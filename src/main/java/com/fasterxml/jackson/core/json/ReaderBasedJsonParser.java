@@ -1418,7 +1418,7 @@ public class ReaderBasedJsonParser
             }
             ++intLen;
         }
-        if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
+        if (ch == INT_PERIOD || (ch | 0x20) == INT_e) { // ~ '.eE'
             _inputPtr = ptr;
             return _parseFloat(ch, startPtr, ptr, false, intLen);
         }
@@ -1462,7 +1462,7 @@ public class ReaderBasedJsonParser
             }
         }
         int expLen = 0;
-        if (ch == 'e' || ch == 'E') { // and/or exponent
+        if ((ch | 0x20) == INT_e) { // ~ 'eE' and/or exponent
             if (ptr >= inputLen) {
                 _inputPtr = startPtr;
                 return _parseNumber2(neg, startPtr);
@@ -1541,7 +1541,7 @@ public class ReaderBasedJsonParser
             ++intLen;
         }
 
-        if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
+        if (ch == INT_PERIOD || (ch | 0x20) == INT_e) { // ~ '.eE'
             _inputPtr = ptr;
             return _parseFloat(ch, startPtr, ptr, negative, intLen);
         }
@@ -1653,7 +1653,7 @@ public class ReaderBasedJsonParser
         }
 
         int expLen = -1;
-        if (c == 'e' || c == 'E') { // exponent?
+        if ((c | 0x20) == INT_e) { // ~ 'eE' exponent?
             expLen = 0;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();

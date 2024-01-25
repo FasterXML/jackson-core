@@ -113,40 +113,31 @@ public final class ByteArrayBuilder
     }
 
     public void appendTwoBytes(int b16) {
-        if ((_currBlockPtr + 1) < _currBlock.length) {
-            _currBlock[_currBlockPtr++] = (byte) (b16 >> 8);
-            _currBlock[_currBlockPtr++] = (byte) b16;
-        } else {
-            append(b16 >> 8);
-            append(b16);
+        if ((_currBlockPtr + 1) >= _currBlock.length) {
+            _allocMore();
         }
+        _currBlock[_currBlockPtr++] = (byte) (b16 >> 8);
+        _currBlock[_currBlockPtr++] = (byte) b16;
     }
 
     public void appendThreeBytes(int b24) {
-        if ((_currBlockPtr + 2) < _currBlock.length) {
-            _currBlock[_currBlockPtr++] = (byte) (b24 >> 16);
-            _currBlock[_currBlockPtr++] = (byte) (b24 >> 8);
-            _currBlock[_currBlockPtr++] = (byte) b24;
-        } else {
-            append(b24 >> 16);
-            append(b24 >> 8);
-            append(b24);
+        if ((_currBlockPtr + 2) >= _currBlock.length) {
+            _allocMore();
         }
+        _currBlock[_currBlockPtr++] = (byte) (b24 >> 16);
+        _currBlock[_currBlockPtr++] = (byte) (b24 >> 8);
+        _currBlock[_currBlockPtr++] = (byte) b24;
     }
 
     // @since 2.9
     public void appendFourBytes(int b32) {
-        if ((_currBlockPtr + 3) < _currBlock.length) {
-            _currBlock[_currBlockPtr++] = (byte) (b32 >> 24);
-            _currBlock[_currBlockPtr++] = (byte) (b32 >> 16);
-            _currBlock[_currBlockPtr++] = (byte) (b32 >> 8);
-            _currBlock[_currBlockPtr++] = (byte) b32;
-        } else {
-            append(b32 >> 24);
-            append(b32 >> 16);
-            append(b32 >> 8);
-            append(b32);
+        if ((_currBlockPtr + 3) >= _currBlock.length) {
+            _allocMore();
         }
+        _currBlock[_currBlockPtr++] = (byte) (b32 >> 24);
+        _currBlock[_currBlockPtr++] = (byte) (b32 >> 16);
+        _currBlock[_currBlockPtr++] = (byte) (b32 >> 8);
+        _currBlock[_currBlockPtr++] = (byte) b32;
     }
 
     /**

@@ -1855,7 +1855,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return JsonToken.NOT_AVAILABLE;
                 }
                 ch = getNextSignedByteFromBuffer();
-            } else if (ch == 'f' || ch == 'd' || ch == 'F' || ch == 'D') {
+            } else if ((ch | 0x22) == 'f') { // ~ fFdD
                 --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
             } else if (ch == INT_PERIOD) {

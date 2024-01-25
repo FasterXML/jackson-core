@@ -1114,7 +1114,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     && (getByteFromBuffer(ptr++) == 's')
                     && (getByteFromBuffer(ptr++) == 'e')) {
                 int ch = getByteFromBuffer(ptr) & 0xFF;
-                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                if (ch < INT_0 || (ch | 0x20) == INT_RCURLY) { //  < '0' || ~ '}]' expected/allowed chars
                     _inputPtr = ptr;
                     return _valueComplete(JsonToken.VALUE_FALSE);
                 }
@@ -1132,7 +1132,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     && (getByteFromBuffer(ptr++) == 'u')
                     && (getByteFromBuffer(ptr++) == 'e')) {
                 int ch = getByteFromBuffer(ptr) & 0xFF;
-                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                if (ch < INT_0 || (ch | 0x20) == INT_RCURLY) { //  < '0' || ~ '}]' expected/allowed chars
                     _inputPtr = ptr;
                     return _valueComplete(JsonToken.VALUE_TRUE);
                 }
@@ -1150,7 +1150,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     && (getByteFromBuffer(ptr++) == 'l')
                     && (getByteFromBuffer(ptr++) == 'l')) {
                 int ch = getByteFromBuffer(ptr) & 0xFF;
-                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                if (ch < INT_0 || (ch | 0x20) == INT_RCURLY) { //  < '0' || ~ '}]' expected/allowed chars
                     _inputPtr = ptr;
                     return _valueComplete(JsonToken.VALUE_NULL);
                 }
@@ -1172,7 +1172,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             int ch = getByteFromBuffer(_inputPtr);
             if (matched == end) { // need to verify trailing separator
-                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                if (ch < INT_0 || (ch | 0x20) == INT_RCURLY) { //  < '0' || ~ '}]' expected/allowed chars
                     return _valueComplete(result);
                 }
                 break;
@@ -1212,7 +1212,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             int ch = getByteFromBuffer(_inputPtr);
             if (matched == end) { // need to verify trailing separator
-                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                if (ch < INT_0 || (ch | 0x20) == INT_RCURLY) { //  < '0' || ~ '}]' expected/allowed chars
                     return _valueNonStdNumberComplete(type);
                 }
                 break;
@@ -1515,7 +1515,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             // Ok; unfortunately we have closing bracket/curly that are valid so need
             // (colon not possible since this is within value, not after key)
             //
-            if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
+            if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
                 --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(ch,
                         "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
@@ -1617,7 +1617,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // Ok; unfortunately we have closing bracket/curly that are valid so need
                 // (colon not possible since this is within value, not after key)
                 //
-                if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
+                if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
                     --_inputPtr; // for correct error reporting
                     _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
@@ -1678,7 +1678,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // Ok; unfortunately we have closing bracket/curly that are valid so need
                 // (colon not possible since this is within value, not after key)
                 //
-                if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
+                if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
                     --_inputPtr; // for correct error reporting
                     _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");

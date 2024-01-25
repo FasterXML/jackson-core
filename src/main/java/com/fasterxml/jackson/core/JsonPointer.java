@@ -666,9 +666,11 @@ public class JsonPointer implements Serializable
             }
         }
         if (len == 10) {
-            long l = NumberInput.parseLong(str);
+            long l = Long.parseLong(str);
             if (l > Integer.MAX_VALUE) {
                 return -1;
+            } else {
+                return (int) l;
             }
         }
         return NumberInput.parseInt(str);

@@ -245,6 +245,12 @@ public final class NumberOutput
         return _outputFullBillion((int) v, b, off);
     }
 
+    /**
+     * Optimized code for integer division by 1000; typically 50% higher
+     * throughput for calculation
+     *
+     * @since 2.17
+     */
     static int divBy1000(int number) {
         return (int) (number * 274_877_907L >>> 38);
     }

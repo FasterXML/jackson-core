@@ -260,6 +260,9 @@ public class JsonFactory
      */
 
     /**
+     * {@link RecyclerPool} configured for use by this factory: used for
+     * recycling underlying read and/or write buffers via {@link BufferRecycler}.
+     *
      * @since 2.16
      */
     protected RecyclerPool<BufferRecycler> _recyclerPool;

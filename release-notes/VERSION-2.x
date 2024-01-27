@@ -35,7 +35,7 @@ a pure JSON library.
  (suggested by @kkkkkhhhh)
 #1195: Use `BufferRecycler` provided by output (`OutputStream`, `Writer`) object if available
  (contributed by Mario F)
-#1202: Add `RecyclerPool.clear()` method for dropping all recycled instances
+#1202: Add `RecyclerPool.clear()` method for dropping all pooled Objects
 
 2.16.2 (not yet released)
 

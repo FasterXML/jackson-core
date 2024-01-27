@@ -256,7 +256,7 @@ public class ReaderBasedJsonParser
             _currInputProcessed += bufSize;
             _currInputRowStart -= bufSize;
             // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
-            streamReadConstraints().validateDocumentLength(_currInputProcessed);
+            _streamReadConstraints.validateDocumentLength(_currInputProcessed);
 
             if (count > 0) {
                 // 26-Nov-2015, tatu: Since name-offset requires it too, must offset

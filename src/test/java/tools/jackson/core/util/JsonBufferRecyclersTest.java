@@ -6,6 +6,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
 // Basic testing for [core#1064] wrt usage by `JsonParser` / `JsonGenerator`
+// (wrt simple reads/writes working without issues)
 public class JsonBufferRecyclersTest extends BaseTest
 {
     // // Parsers with RecyclerPools:

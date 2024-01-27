@@ -49,7 +49,7 @@ public class NonBlockingByteArrayJsonParser
         _currInputProcessed += _origBufferLen;
 
         // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
-        streamReadConstraints().validateDocumentLength(_currInputProcessed);
+        _streamReadConstraints.validateDocumentLength(_currInputProcessed);
 
         // Also need to adjust row start, to work as if it extended into the past wrt new buffer
         _currInputRowStart = start - (_inputEnd - _currInputRowStart);

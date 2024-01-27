@@ -107,7 +107,9 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * @return {@code true} If pool supports operation and dropped all pooled
      *    Objects; {@code false} otherwise.
      */
-    boolean clear();
+    default boolean clear() {
+        return false;
+    }
 
     /*
     /**********************************************************************
@@ -255,7 +257,6 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             return pooled;
         }
 
-        
         @Override
         public void releasePooled(P pooled) {
             pool.offerLast(pooled);

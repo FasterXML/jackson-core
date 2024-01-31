@@ -38,6 +38,9 @@ a pure JSON library.
 #1195: Use `BufferRecycler` provided by output (`OutputStream`, `Writer`) object if available
  (contributed by Mario F)
 #1202: Add `RecyclerPool.clear()` method for dropping all pooled Objects
+#1205: JsonFactory.setStreamReadConstraints(StreamReadConstraints) fails to
+  update "maxNameLength" for symbol tables
+ (reported by @denizk)
 
 2.16.2 (not yet released)
 

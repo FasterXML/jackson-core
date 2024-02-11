@@ -2,14 +2,20 @@ package com.fasterxml.jackson.core;
 
 import java.io.StringWriter;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 
-public class TestExceptions extends BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ExceptionsTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
     // For [core#10]
+    @Test
     public void testOriginalMesssage()
     {
         JsonProcessingException exc = new JsonParseException(null, "Foobar", JsonLocation.NA);
@@ -34,6 +40,7 @@ public class TestExceptions extends BaseTest
     }
 
     // [core#198]
+    @Test
     public void testAccessToParser() throws Exception
     {
         JsonParser p = JSON_F.createParser("{}");
@@ -49,6 +56,7 @@ public class TestExceptions extends BaseTest
     }
 
     // [core#198]
+    @Test
     public void testAccessToGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -61,18 +69,20 @@ public class TestExceptions extends BaseTest
     }
 
     // [core#281]: new eof exception
+    @Test
     public void testEofExceptionsBytes() throws Exception {
         _testEofExceptions(MODE_INPUT_STREAM);
     }
 
     // [core#281]: new eof exception
+    @Test
     public void testEofExceptionsChars() throws Exception {
         _testEofExceptions(MODE_READER);
     }
 
     private void _testEofExceptions(int mode) throws Exception
     {
-        JsonParser p = createParser(mode, "[ ");
+        JsonParser p = createParser(JSON_F, mode, "[ ");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             p.nextToken();
@@ -82,7 +92,7 @@ public class TestExceptions extends BaseTest
         }
         p.close();
 
-        p = createParser(mode, "{ \"foo\" : [ ] ");
+        p = createParser(JSON_F, mode, "{ \"foo\" : [ ] ");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -95,7 +105,7 @@ public class TestExceptions extends BaseTest
         }
         p.close();
 
-        p = createParser(mode, "{ \"fo");
+        p = createParser(JSON_F, mode, "{ \"fo");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             p.nextToken();
@@ -107,7 +117,7 @@ public class TestExceptions extends BaseTest
         }
         p.close();
 
-        p = createParser(mode, "{ \"field\" : ");
+        p = createParser(JSON_F, mode, "{ \"field\" : ");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             p.nextToken();
@@ -121,6 +131,7 @@ public class TestExceptions extends BaseTest
         // any other cases we'd like to test?
     }
 
+    @Test
     public void testContentSnippetWithOffset() throws Exception
     {
         final JsonFactory jsonF = streamFactoryBuilder()

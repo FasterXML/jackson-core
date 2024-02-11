@@ -4,18 +4,24 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.io.ContentReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for verifying internal working of {@link JsonLocation} class itself,
  * as opposed to accuracy of reported location information by parsers.
  */
-public class JsonLocationTest extends BaseTest
+public class JsonLocationTest
+    extends JUnit5TestBase
 {
     static class Foobar { }
 
+    @Test
     public void testBasics()
     {
         JsonLocation loc1 = new JsonLocation(_sourceRef("src"),
@@ -31,6 +37,7 @@ public class JsonLocationTest extends BaseTest
         assertTrue(loc2.hashCode() != 0);
     }
 
+    @Test
     public void testBasicToString() throws Exception
     {
         // no location; presumed to be Binary due to defaulting
@@ -65,6 +72,7 @@ public class JsonLocationTest extends BaseTest
                 new JsonLocation(_rawSourceRef(true, srcRef), 10L, 10L, 1, 2).toString());
     }
 
+    @Test
     public void testTruncatedSource() throws Exception
     {
         StringBuilder sb = new StringBuilder();
@@ -84,6 +92,7 @@ public class JsonLocationTest extends BaseTest
     }
 
     // for [jackson-core#658]
+    @Test
     public void testEscapeNonPrintable() throws Exception
     {
         final String DOC = "[ \"tab:[\t]/null:[\0]\" ]";
@@ -94,6 +103,7 @@ public class JsonLocationTest extends BaseTest
     }
 
     // for [jackson-core#356]
+    @Test
     public void testDisableSourceInclusion() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -130,6 +140,7 @@ public class JsonLocationTest extends BaseTest
     }
     
     // for [jackson-core#739]: try to support equality
+    @Test
     public void testLocationEquality() throws Exception
     {
         // important: create separate but equal instances

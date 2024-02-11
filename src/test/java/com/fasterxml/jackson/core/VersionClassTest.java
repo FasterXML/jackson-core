@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.core;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for class {@link Version}.
- *
- **/
-public class VersionTest
+ */
+public class VersionClassTest
+    extends JUnit5TestBase
 {
     @Test
     public void testEqualsAndHashCode() {

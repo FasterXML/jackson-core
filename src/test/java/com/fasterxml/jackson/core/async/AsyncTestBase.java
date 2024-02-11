@@ -25,8 +25,8 @@ public abstract class AsyncTestBase extends BaseTest
     }
 
     public static AsyncReaderWrapper asyncForByteBuffer(JsonFactory f,
-                                                        int bytesPerRead,
-                                                        byte[] bytes, int padding) throws IOException
+            int bytesPerRead,
+            byte[] bytes, int padding) throws IOException
     {
         return new AsyncReaderWrapperForByteBuffer(f.createNonBlockingByteBufferParser(),
                 bytesPerRead, bytes, padding);
@@ -44,6 +44,6 @@ public abstract class AsyncTestBase extends BaseTest
     }
 
     protected final byte[] _jsonDoc(String doc) throws IOException {
-        return doc.getBytes("UTF-8");
+        return utf8Bytes(doc);
     }
 }

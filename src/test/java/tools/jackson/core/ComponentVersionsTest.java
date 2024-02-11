@@ -2,13 +2,20 @@ package tools.jackson.core;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.json.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests to verify functioning of {@link Version} class.
  */
-public class TestVersions extends BaseTest
+public class ComponentVersionsTest
+    extends JUnit5TestBase
 {
+    @Test
     public void testCoreVersions() throws Exception
     {
         final JsonFactory f = new JsonFactory();
@@ -23,6 +30,7 @@ public class TestVersions extends BaseTest
         }
     }
 
+    @Test
     public void testEquality() {
         Version unk = Version.unknownVersion();
         assertEquals("0.0.0", unk.toString());
@@ -39,6 +47,7 @@ public class TestVersions extends BaseTest
         assertEquals(unk, unk2);
     }
 
+    @Test
     public void testMisc() {
         Version unk = Version.unknownVersion();
         int hash = unk.hashCode();

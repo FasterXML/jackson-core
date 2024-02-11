@@ -1,7 +1,5 @@
 package tools.jackson.core.async;
 
-import java.nio.charset.StandardCharsets;
-
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
@@ -26,9 +24,8 @@ public abstract class AsyncTestBase extends BaseTest
     }
 
     public static AsyncReaderWrapper asyncForByteBuffer(JsonFactory f,
-                                                        int bytesPerRead,
-                                                        byte[] bytes, int padding)
-        throws JacksonException
+            int bytesPerRead,
+            byte[] bytes, int padding) throws JacksonException
     {
         return new AsyncReaderWrapperForByteBuffer(f.createNonBlockingByteBufferParser(ObjectReadContext.empty()),
                 bytesPerRead, bytes, padding);
@@ -46,6 +43,6 @@ public abstract class AsyncTestBase extends BaseTest
     }
 
     protected final byte[] _jsonDoc(String doc) {
-        return doc.getBytes(StandardCharsets.UTF_8);
+        return utf8Bytes(doc);
     }
 }

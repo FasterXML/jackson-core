@@ -4,20 +4,26 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.json.JsonFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Tests for verifying internal working of {@link JsonLocation} class itself,
  * as opposed to accuracy of reported location information by parsers.
  */
-public class JsonLocationTest extends BaseTest
+public class JsonLocationTest
+    extends JUnit5TestBase
 {
     static class Foobar { }
 
+    @Test
     public void testBasics()
     {
         JsonLocation loc1 = new JsonLocation(_sourceRef("src"),
@@ -33,7 +39,8 @@ public class JsonLocationTest extends BaseTest
         assertTrue(loc2.hashCode() != 0);
     }
 
-    public void testBasicToString()
+    @Test
+    public void testBasicToString() throws Exception
     {
         // no location; presumed to be Binary due to defaulting
         assertEquals("[Source: UNKNOWN; byte offset: #10]",
@@ -66,7 +73,8 @@ public class JsonLocationTest extends BaseTest
                 new JsonLocation(_rawSourceRef(true, srcRef), 10L, 10L, 1, 2).toString());
     }
 
-    public void testTruncatedSource()
+    @Test
+    public void testTruncatedSource() throws Exception
     {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH; ++i) {
@@ -85,6 +93,7 @@ public class JsonLocationTest extends BaseTest
     }
 
     // for [jackson-core#658]
+    @Test
     public void testEscapeNonPrintable() throws Exception
     {
         final String DOC = "[ \"tab:[\t]/null:[\0]\" ]";
@@ -95,7 +104,8 @@ public class JsonLocationTest extends BaseTest
     }
 
     // for [jackson-core#356]
-    public void testDisableSourceInclusion()
+    @Test
+    public void testDisableSourceInclusion() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .disable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
@@ -131,6 +141,7 @@ public class JsonLocationTest extends BaseTest
     }
     
     // for [jackson-core#739]: try to support equality
+    @Test
     public void testLocationEquality() throws Exception
     {
         // important: create separate but equal instances

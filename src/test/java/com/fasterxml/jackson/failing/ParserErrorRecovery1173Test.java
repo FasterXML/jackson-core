@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.read;
+package com.fasterxml.jackson.failing;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // Test(s) to see that limited amount of recovery is possible over
 // content: specifically, most single-character problems.
-public class ParserErrorRecoveryTest
+public class ParserErrorRecovery1173Test
     extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();

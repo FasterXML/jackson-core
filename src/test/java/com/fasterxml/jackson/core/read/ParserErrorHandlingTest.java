@@ -2,30 +2,38 @@ package com.fasterxml.jackson.core.read;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserErrorHandlingTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
+    private final JsonFactory JSON_F = newStreamFactory();
+
+    @Test
     public void testInvalidKeywordsBytes() throws Exception {
         _testInvalidKeywords(MODE_INPUT_STREAM);
         _testInvalidKeywords(MODE_INPUT_STREAM_THROTTLED);
         _testInvalidKeywords(MODE_DATA_INPUT);
     }
 
+    @Test
     public void testInvalidKeywordsChars() throws Exception {
         _testInvalidKeywords(MODE_READER);
     }
 
     // Tests for [core#105] ("eager number parsing misses errors")
+    @Test
     public void testMangledIntsBytes() throws Exception {
         _testMangledNumbersInt(MODE_INPUT_STREAM);
         _testMangledNumbersInt(MODE_INPUT_STREAM_THROTTLED);
         _testMangledNumbersInt(MODE_DATA_INPUT);
     }
 
+    @Test
     public void testMangledFloatsBytes() throws Exception {
         _testMangledNumbersFloat(MODE_INPUT_STREAM);
         _testMangledNumbersFloat(MODE_INPUT_STREAM_THROTTLED);
@@ -34,6 +42,7 @@ public class ParserErrorHandlingTest
         _testMangledNumbersFloat(MODE_DATA_INPUT);
     }
 
+    @Test
     public void testMangledNumbersChars() throws Exception {
         _testMangledNumbersInt(MODE_READER);
         _testMangledNumbersFloat(MODE_READER);
@@ -65,7 +74,7 @@ public class ParserErrorHandlingTest
         throws IOException
     {
         String doc = "{ \"key1\" : "+value+" }";
-        JsonParser p = createParser(mode, doc);
+        JsonParser p = createParser(JSON_F, mode, doc);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         // Note that depending on parser impl, we may
         // get the exception early or late...
@@ -82,7 +91,7 @@ public class ParserErrorHandlingTest
 
         // Try as root-level value as well:
         doc = value + " "; // may need space after for DataInput
-        p = createParser(mode, doc);
+        p = createParser(JSON_F, mode, doc);
         try {
             p.nextToken();
             fail("Expected an exception for malformed value keyword");
@@ -96,7 +105,7 @@ public class ParserErrorHandlingTest
 
     private void _testMangledNumbersInt(int mode) throws Exception
     {
-        JsonParser p = createParser(mode, "123true");
+        JsonParser p = createParser(JSON_F, mode, "123true");
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
@@ -109,7 +118,7 @@ public class ParserErrorHandlingTest
     private void _testMangledNumbersFloat(int mode) throws Exception
     {
         // Also test with floats
-        JsonParser p = createParser(mode, "1.5false");
+        JsonParser p = createParser(JSON_F, mode, "1.5false");
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);

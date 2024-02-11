@@ -1,24 +1,32 @@
 package tools.jackson.core.base64;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class Base64Padding912Test
-    extends tools.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
-    
+
+    @Test
     public void testPaddingUsingInputStream() throws Exception
     {
         _testPadding(MODE_INPUT_STREAM);
         _testPadding(MODE_INPUT_STREAM_THROTTLED);
     }
 
+    @Test
     public void testPaddingUsingReader() throws Exception
     {
         _testPadding(MODE_READER);
     }
 
+    @Test
     public void testPaddingUsingDataInput() throws Exception
     {
         _testPadding(MODE_DATA_INPUT);

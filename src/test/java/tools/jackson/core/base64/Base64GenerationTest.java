@@ -2,12 +2,16 @@ package tools.jackson.core.base64;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.ThrottledInputStream;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class Base64GenerationTest
-    extends tools.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
     /* The usual sample input string, from Thomas Hobbes's "Leviathan"
      * (via Wikipedia)
@@ -46,6 +50,7 @@ public class Base64GenerationTest
 
     private final JsonFactory JSON_F = new JsonFactory();
 
+    @Test
     public void testStreamingBinaryWrites() throws Exception
     {
         _testStreamingWrites(JSON_F, true);
@@ -53,6 +58,7 @@ public class Base64GenerationTest
     }
 
     // For [core#55]
+    @Test
     public void testIssue55() throws Exception
     {
         final JsonFactory f = new JsonFactory();
@@ -85,6 +91,7 @@ public class Base64GenerationTest
      * as some kind of sanity check. Reader-side should more thoroughly
      * test things, as it does need writers to construct the data first.
      */
+    @Test
     public void testSimpleBinaryWrite() throws Exception
     {
         _testSimpleBinaryWrite(false);
@@ -92,6 +99,7 @@ public class Base64GenerationTest
     }
 
     // for [core#318]
+    @Test
     public void testBinaryAsEmbeddedObject() throws Exception
     {
         JsonGenerator g;

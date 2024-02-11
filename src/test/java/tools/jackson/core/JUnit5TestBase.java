@@ -64,7 +64,7 @@ public class JUnit5TestBase
         return (JsonFactoryBuilder) JsonFactory.builder();
     }
 
-    protected JsonParser createParser(TokenStreamFactory f, int mode, String doc) throws IOException
+    protected JsonParser createParser(TokenStreamFactory f, int mode, String doc)
     {
         switch (mode) {
         case MODE_INPUT_STREAM:
@@ -84,37 +84,39 @@ public class JUnit5TestBase
         throw new RuntimeException("internal error");
     }
 
-    protected JsonParser createParser(TokenStreamFactory f, int mode, byte[] doc) throws IOException
+    protected JsonParser createParser(TokenStreamFactory f, int mode, byte[] doc)
     {
-        switch (mode) {
-        case MODE_INPUT_STREAM:
-            return f.createParser(testObjectReadContext(),
-                    new ByteArrayInputStream(doc));
-        case MODE_INPUT_STREAM_THROTTLED:
-            return f.createParser(testObjectReadContext(),
-                    new ThrottledInputStream(doc, 1));
-        case MODE_READER:
-            return f.createParser(testObjectReadContext(),
-                    new StringReader(new String(doc, "UTF-8")));
-        case MODE_READER_THROTTLED:
-            return f.createParser(testObjectReadContext(),
-                    new ThrottledReader(new String(doc, "UTF-8"), 1));
-        case MODE_DATA_INPUT:
-            return createParserForDataInput(f, new MockDataInput(doc));
-        default:
+        try {
+            switch (mode) {
+            case MODE_INPUT_STREAM:
+                return f.createParser(testObjectReadContext(),
+                        new ByteArrayInputStream(doc));
+            case MODE_INPUT_STREAM_THROTTLED:
+                return f.createParser(testObjectReadContext(),
+                        new ThrottledInputStream(doc, 1));
+            case MODE_READER:
+                return f.createParser(testObjectReadContext(),
+                        new StringReader(new String(doc, "UTF-8")));
+            case MODE_READER_THROTTLED:
+                return f.createParser(testObjectReadContext(),
+                        new ThrottledReader(new String(doc, "UTF-8"), 1));
+            case MODE_DATA_INPUT:
+                return createParserForDataInput(f, new MockDataInput(doc));
+            default:
+            }
+            throw new RuntimeException("internal error");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        throw new RuntimeException("internal error");
     }
 
     protected JsonParser createParserUsingReader(TokenStreamFactory f, String input)
-        throws IOException
     {
         return f.createParser(testObjectReadContext(), new StringReader(input));
     }
 
     protected JsonParser createParserUsingStream(TokenStreamFactory f,
             String input, String encoding)
-        throws IOException
     {
 
         /* 23-Apr-2008, tatus: UTF-32 is not supported by JDK, have to
@@ -126,7 +128,11 @@ public class JUnit5TestBase
         if (encoding.equalsIgnoreCase("UTF-32")) {
             data = encodeInUTF32BE(input);
         } else {
-            data = input.getBytes(encoding);
+            try {
+                data = input.getBytes(encoding);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         InputStream is = new ByteArrayInputStream(data);
         return f.createParser(testObjectReadContext(), is);
@@ -134,7 +140,6 @@ public class JUnit5TestBase
     
     protected JsonParser createParserForDataInput(TokenStreamFactory f,
             DataInput input)
-        throws IOException
     {
         return f.createParser(testObjectReadContext(), input);
     }

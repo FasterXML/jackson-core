@@ -15,6 +15,10 @@ import tools.jackson.core.util.Named;
 
 import junit.framework.TestCase;
 
+/**
+ * Base class for JUnit 4 based tests. To be deprecated from
+ * Jackson 2.18 or later.
+ */
 @SuppressWarnings("resource")
 public abstract class BaseTest
     extends TestCase

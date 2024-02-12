@@ -409,4 +409,4 @@ Mario Fusco (@mariofusco)
 Paul Bunyan (@hal7df)
  * Reported #1173: `JsonLocation` consistently off by one character for many invalid
    JSON parsing cases
-  (2.16.2)
+  (2.17.0)

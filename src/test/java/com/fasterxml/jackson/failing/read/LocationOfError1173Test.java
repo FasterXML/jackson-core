@@ -226,8 +226,8 @@ public class LocationOfError1173Test
         ),
         new InvalidJson(
             "Invalid JSON with raw unicode character",
-            // javac will parse the 3-byte unicode control sequence, it will be passed to the parser as a raw unicode character
-            a2q("{'validJson':'\u274c','right', 'here'}"),
+            // javac will parse the unicode control sequence, it will be passed to the parser as a raw unicode character
+            "{\"validJson\":\"\u274c\",\"right\", \"here\"}",
             26,
             24,
             1,

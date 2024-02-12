@@ -405,3 +405,8 @@ David Schlosnagle (@schlosna)
 Mario Fusco (@mariofusco)
  * Contributed #1064: Add full set of `BufferRecyclerPool` implementations
   (2.16.0)
+
+Paul Bunyan (@hal7df)
+ * Reported #1173: `JsonLocation` consistently off by one character for many invalid
+   JSON parsing cases
+  (2.17.0)

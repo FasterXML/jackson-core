@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.core.read;
 
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +40,7 @@ public class ParserErrorRecovery1173Test
 
     private void _testRecoverNumber(int mode) throws Exception
     {
-        try (JsonParser p = createParser(JSON_F, mode, "1\n[ , ]\n3")) {
+        try (JsonParser p = createParser(JSON_F, mode, "1\n[ , ]\n3 ")) {
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(1, p.getIntValue());
             assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -56,6 +56,6 @@ public class ParserErrorRecovery1173Test
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(3, p.getIntValue());
             assertNull(p.nextToken());
-}
+        }
     }
 }

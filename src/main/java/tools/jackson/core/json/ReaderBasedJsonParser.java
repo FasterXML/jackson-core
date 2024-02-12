@@ -748,7 +748,6 @@ public class ReaderBasedJsonParser
         case '}':
             // Error: } is not valid at this point; valid closers have
             // been handled earlier
-            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(i, "expected a value");
         case 't':
             _matchTrue();
@@ -1430,7 +1429,6 @@ public class ReaderBasedJsonParser
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
                 if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
-                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
                 }
             }
@@ -1460,7 +1458,6 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
-                --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
             }
         }
@@ -1620,7 +1617,6 @@ public class ReaderBasedJsonParser
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
                 if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
-                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
                 }
             }
@@ -1665,7 +1661,6 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
-                --_inputPtr; // for correct error reporting
                 _reportUnexpectedNumberChar(c, "Exponent indicator not followed by a digit");
             }
         }
@@ -1768,13 +1763,11 @@ public class ReaderBasedJsonParser
             }
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS) && hasSign && !negative) {
-            --_inputPtr; // for correct error reporting
             _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         final String message = negative ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :
                 "expected digit (0-9) for valid numeric value";
-        --_inputPtr; // for correct error reporting
         _reportUnexpectedNumberChar(ch, message);
         return null;
     }
@@ -1922,7 +1915,6 @@ public class ReaderBasedJsonParser
         }
         // Allow unquoted names if feature enabled:
         if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
-            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(i, "was expecting double-quote to start property name");
         }
         final int[] codes = CharTypes.getInputCodeLatin1JsNames();
@@ -1937,7 +1929,6 @@ public class ReaderBasedJsonParser
             firstOk = Character.isJavaIdentifierPart((char) i);
         }
         if (!firstOk) {
-            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(i, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start property name");
         }
         int ptr = _inputPtr;
@@ -2068,7 +2059,6 @@ public class ReaderBasedJsonParser
             _reportInvalidToken(""+((char) i), _validJsonTokenList());
         }
         // but if it doesn't look like a token:
-        --_inputPtr; // for correct error reporting
         _reportUnexpectedChar(i, "expected a valid value "+_validJsonValueList());
         return null;
     }
@@ -2370,7 +2360,6 @@ public class ReaderBasedJsonParser
                     return i;
                 }
                 if (i != INT_COLON) {
-                    --_inputPtr; // for correct error reporting
                     _reportUnexpectedChar(i, "was expecting a colon to separate property name and value");
                 }
                 gotColon = true;
@@ -2444,7 +2433,6 @@ public class ReaderBasedJsonParser
     private final int _skipComma(int i) throws JacksonException
     {
         if (i != INT_COMMA) {
-            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
         }
         while (_inputPtr < _inputEnd) {
@@ -2587,7 +2575,6 @@ public class ReaderBasedJsonParser
     private void _skipComment() throws JacksonException
     {
         if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
-            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
@@ -2600,7 +2587,6 @@ public class ReaderBasedJsonParser
         } else if (c == '*') {
             _skipCComment();
         } else {
-            --_inputPtr; // for correct error reporting
             _reportUnexpectedChar(c, "was expecting either '*' or '/' for a comment");
         }
     }
@@ -2712,7 +2698,6 @@ public class ReaderBasedJsonParser
             int ch = (int) _inputBuffer[_inputPtr++];
             int digit = CharTypes.charToHex(ch);
             if (digit < 0) {
-                --_inputPtr; // for correct error reporting
                 _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
@@ -3041,7 +3026,6 @@ public class ReaderBasedJsonParser
         if (i == INT_RBRACKET) {
             _updateLocation();
             if (!_streamReadContext.inArray()) {
-                --_inputPtr; // for correct error reporting
                 _reportMismatchedEndMarker(i, '}');
             }
             _streamReadContext = _streamReadContext.clearAndGetParent();
@@ -3050,7 +3034,6 @@ public class ReaderBasedJsonParser
         if (i == INT_RCURLY) {
             _updateLocation();
             if (!_streamReadContext.inObject()) {
-                --_inputPtr; // for correct error reporting
                 _reportMismatchedEndMarker(i, ']');
             }
             _streamReadContext = _streamReadContext.clearAndGetParent();

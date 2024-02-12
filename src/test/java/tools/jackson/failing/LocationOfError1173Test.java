@@ -1,4 +1,4 @@
-package tools.jackson.core.read.loc;
+package tools.jackson.failing;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

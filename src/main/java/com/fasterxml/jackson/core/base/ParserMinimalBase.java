@@ -596,7 +596,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * @throws JsonParseException Exception that describes problem with number validity
      */
     protected void reportInvalidNumber(String msg) throws JsonParseException {
-        _reportError("Invalid numeric value: "+msg);
+        throw _constructReadException("Invalid numeric value: "+msg);
     }
 
     protected void _reportMissingRootWS(int ch) throws JsonParseException {
@@ -682,7 +682,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        _reportError(msg);
+        throw _constructReadException(msg, currentLocation());
     }
 
     /**
@@ -698,8 +698,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        _reportError(msg);
-        return null; // never gets here
+        throw _constructReadException(msg, currentLocation());
     }
 
     @Deprecated // @since 2.14
@@ -710,7 +709,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected void _throwInvalidSpace(int i) throws JsonParseException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
-        _reportError(msg);
+        throw _constructReadException(msg);
     }
 
     /*
@@ -718,6 +717,10 @@ public abstract class ParserMinimalBase extends JsonParser
     /* Error reporting, generic
     /**********************************************************
      */
+
+    protected final JsonParseException _constructError(String msg, Throwable t) {
+        return _constructReadException(msg, t);
+    }
 
     protected final static String _getCharDesc(int ch)
     {
@@ -732,21 +735,17 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected final void _reportError(String msg) throws JsonParseException {
-        throw _constructError(msg);
+        throw _constructReadException(msg);
     }
 
     // @since 2.9
     protected final void _reportError(String msg, Object arg) throws JsonParseException {
-        throw _constructError(String.format(msg, arg));
+        throw _constructReadException(msg, arg);
     }
 
     // @since 2.9
     protected final void _reportError(String msg, Object arg1, Object arg2) throws JsonParseException {
-        throw _constructError(String.format(msg, arg1, arg2));
-    }
-
-    protected final void _wrapError(String msg, Throwable t) throws JsonParseException {
-        throw _constructError(msg, t);
+        throw _constructReadException(msg, arg1, arg2);
     }
 
     protected final void _throwInternal() {
@@ -758,8 +757,8 @@ public abstract class ParserMinimalBase extends JsonParser
         return VersionUtil.throwInternalReturnAny();
     }
 
-    protected final JsonParseException _constructError(String msg, Throwable t) {
-        return new JsonParseException(this, msg, currentLocation(), t);
+    protected final void _wrapError(String msg, Throwable t) throws JsonParseException {
+        throw _constructReadException(msg, t);
     }
 
     @Deprecated // since 2.11

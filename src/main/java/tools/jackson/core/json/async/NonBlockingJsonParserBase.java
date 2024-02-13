@@ -859,7 +859,7 @@ public abstract class NonBlockingJsonParserBase
     protected void _reportInvalidChar(int c) throws JacksonException {
         // Either invalid WS or illegal UTF-8 start char
         if (c < INT_SPACE) {
-            _throwInvalidSpace(c);
+            _reportInvalidSpace(c);
         }
         _reportInvalidInitial(c);
     }

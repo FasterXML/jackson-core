@@ -2813,7 +2813,7 @@ public class UTF8DataInputJsonParser
     {
         // Either invalid WS or illegal UTF-8 start char
         if (c < INT_SPACE) {
-            _throwInvalidSpace(c);
+            _reportInvalidSpace(c);
         }
         _reportInvalidInitial(c);
     }

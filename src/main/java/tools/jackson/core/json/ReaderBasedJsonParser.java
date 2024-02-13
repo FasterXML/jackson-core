@@ -2372,7 +2372,7 @@ public class ReaderBasedJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -2451,7 +2451,7 @@ public class ReaderBasedJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -2481,7 +2481,7 @@ public class ReaderBasedJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -2512,7 +2512,7 @@ public class ReaderBasedJsonParser
             } else if (i == INT_CR) {
                 _skipCR();
             } else if (i != INT_TAB) {
-                _throwInvalidSpace(i);
+                _reportInvalidSpace(i);
             }
         }
 
@@ -2532,7 +2532,7 @@ public class ReaderBasedJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -2566,7 +2566,7 @@ public class ReaderBasedJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -2614,7 +2614,7 @@ public class ReaderBasedJsonParser
                     } else if (i == INT_CR) {
                         _skipCR();
                     } else if (i != INT_TAB) {
-                        _throwInvalidSpace(i);
+                        _reportInvalidSpace(i);
                     }
                 }
             }
@@ -2645,7 +2645,7 @@ public class ReaderBasedJsonParser
                     _skipCR();
                     break;
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }

@@ -3357,7 +3357,7 @@ public class UTF8StreamJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -3387,7 +3387,7 @@ public class UTF8StreamJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -3418,7 +3418,7 @@ public class UTF8StreamJsonParser
             } else if (i == INT_CR) {
                 _skipCR();
             } else if (i != INT_TAB) {
-                _throwInvalidSpace(i);
+                _reportInvalidSpace(i);
             }
         }
 
@@ -3438,7 +3438,7 @@ public class UTF8StreamJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -3467,7 +3467,7 @@ public class UTF8StreamJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -3559,7 +3559,7 @@ public class UTF8StreamJsonParser
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+                    _reportInvalidSpace(i);
                 }
             }
         }
@@ -4003,7 +4003,7 @@ public class UTF8StreamJsonParser
     {
         // Either invalid WS or illegal UTF-8 start char
         if (c < INT_SPACE) {
-            _throwInvalidSpace(c);
+            _reportInvalidSpace(c);
         }
         return _reportInvalidInitial(c);
     }

@@ -854,15 +854,6 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    protected <T> T _reportUnexpectedNumberChar(int ch, String comment) throws StreamReadException {
-        String msg = String.format("Unexpected character (%s) in numeric value", _getCharDesc(ch));
-        if (comment != null) {
-            msg += ": "+comment;
-        }
-        _reportError(msg);
-        return null; // never gets here
-    }
-
     /**
      * Method called to throw an exception for input token that looks like a number
      * based on first character(s), but is not valid according to rules of format.
@@ -963,16 +954,22 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    protected <T> T _reportUnexpectedChar(int ch, String comment) throws StreamReadException
+    // @since 3.0
+    protected <T> T _reportBadInputStream(int readLen) throws StreamReadException
     {
-        if (ch < 0) { // sanity check
-            _reportInvalidEOF();
-        }
-        String msg = String.format("Unexpected character (%s)", _getCharDesc(ch));
-        if (comment != null) {
-            msg += ": "+comment;
-        }
-        return _reportError(msg);
+        // 12-Jan-2021, tatu: May need to think about this bit more but for now
+        //    do double-wrapping
+        throw _wrapIOFailure(new IOException(
+"Bad input source: InputStream.read() returned 0 bytes when trying to read "+readLen+" bytes"));
+    }
+
+    // @since 3.0
+    protected <T> T _reportBadReader(int readLen) throws StreamReadException
+    {
+        // 12-Jan-2021, tatu: May need to think about this bit more but for now
+        //    do double-wrapping
+        throw _wrapIOFailure(new IOException(
+"Bad input source: Reader.read() returned 0 bytes when trying to read "+readLen+" bytes"));
     }
 
     protected <T> T _reportInvalidEOF() throws StreamReadException {
@@ -996,32 +993,35 @@ public abstract class ParserMinimalBase extends JsonParser
         throw new UnexpectedEndOfInputException(this, currToken, "Unexpected end-of-input"+msg);
     }
 
+    protected <T> T _reportInvalidSpace(int i) throws StreamReadException {
+        char c = (char) i;
+        String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
+        return _reportError(msg);
+    }
+
     protected <T> T _reportMissingRootWS(int ch) throws StreamReadException {
         return _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
 
-    // @since 3.0
-    protected <T> T _reportBadInputStream(int readLen) throws StreamReadException
+    protected <T> T _reportUnexpectedChar(int ch, String comment) throws StreamReadException
     {
-        // 12-Jan-2021, tatu: May need to think about this bit more but for now
-        //    do double-wrapping
-        throw _wrapIOFailure(new IOException(
-"Bad input source: InputStream.read() returned 0 bytes when trying to read "+readLen+" bytes"));
-    }
-
-    // @since 3.0
-    protected <T> T _reportBadReader(int readLen) throws StreamReadException
-    {
-        // 12-Jan-2021, tatu: May need to think about this bit more but for now
-        //    do double-wrapping
-        throw _wrapIOFailure(new IOException(
-"Bad input source: Reader.read() returned 0 bytes when trying to read "+readLen+" bytes"));
-    }
-
-    protected <T> T _throwInvalidSpace(int i) throws StreamReadException {
-        char c = (char) i;
-        String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
+        if (ch < 0) { // sanity check
+            _reportInvalidEOF();
+        }
+        String msg = String.format("Unexpected character (%s)", _getCharDesc(ch));
+        if (comment != null) {
+            msg += ": "+comment;
+        }
         return _reportError(msg);
+    }
+
+    protected <T> T _reportUnexpectedNumberChar(int ch, String comment) throws StreamReadException {
+        String msg = String.format("Unexpected character (%s) in numeric value", _getCharDesc(ch));
+        if (comment != null) {
+            msg += ": "+comment;
+        }
+        _reportError(msg);
+        return null; // never gets here
     }
 
     protected final static String _getCharDesc(int ch)

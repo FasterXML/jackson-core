@@ -418,7 +418,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ++_currInputRowAlt;
                     _currInputRowStart = _inputPtr;
                 } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
+                    _reportInvalidSpace(ch);
                 }
             }
             if (_inputPtr >= _inputEnd) {
@@ -941,7 +941,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ++_currInputRowAlt;
                     _currInputRowStart = _inputPtr;
                 } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
+                    _reportInvalidSpace(ch);
                 }
             }
             if (_inputPtr >= _inputEnd) {
@@ -999,7 +999,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _currInputRowStart = _inputPtr;
                     break;
                 } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
+                    _reportInvalidSpace(ch);
                 }
             }
         }
@@ -1025,7 +1025,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _currInputRowStart = _inputPtr;
                     break;
                 } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
+                    _reportInvalidSpace(ch);
                 }
             }
         }
@@ -1049,7 +1049,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ++_currInputRowAlt;
                     _currInputRowStart = _inputPtr;
                 } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
+                    _reportInvalidSpace(ch);
                 }
             } else if (ch == INT_ASTERISK) {
                 gotStar = true;

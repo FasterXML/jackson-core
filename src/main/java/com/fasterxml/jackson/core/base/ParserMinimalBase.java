@@ -556,26 +556,33 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
-    /**
-     * @since 2.14
-     *
-     * @param ch Character that was unexpected
-     * @param comment Additional failure comment to add, if any
-     *
-     * @throws JsonParseException
-     */
-    protected <T> T _reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
-        String msg = String.format("Unexpected character (%s) in numeric value", _getCharDesc(ch));
-        if (comment != null) {
-            msg += ": "+comment;
-        }
-        _reportError(msg);
-        return null; // never gets here
+    // @since 2.10
+    protected void _reportInputCoercion(String msg, JsonToken inputType, Class<?> targetType)
+            throws InputCoercionException {
+        throw new InputCoercionException(this, msg, inputType, targetType);
     }
 
-    @Deprecated // @since 2.14
-    protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
-        _reportUnexpectedNumberChar(ch, comment);
+    protected void _reportInvalidEOF() throws JsonParseException {
+        _reportInvalidEOF(" in "+_currToken, _currToken);
+    }
+
+    // @since 2.8
+    protected void _reportInvalidEOFInValue(JsonToken type) throws JsonParseException {
+        String msg;
+        if (type == JsonToken.VALUE_STRING) {
+            msg = " in a String value";
+        } else if ((type == JsonToken.VALUE_NUMBER_INT)
+                || (type == JsonToken.VALUE_NUMBER_FLOAT)) {
+            msg = " in a Number value";
+        } else {
+            msg = " in a value";
+        }
+        _reportInvalidEOF(msg, type);
+    }
+
+    // @since 2.8
+    protected void _reportInvalidEOF(String msg, JsonToken currToken) throws JsonParseException {
+        throw new JsonEOFException(this, currToken, "Unexpected end-of-input"+msg);
     }
 
     /**
@@ -590,6 +597,10 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected void reportInvalidNumber(String msg) throws JsonParseException {
         _reportError("Invalid numeric value: "+msg);
+    }
+
+    protected void _reportMissingRootWS(int ch) throws JsonParseException {
+        _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
 
     /**
@@ -638,12 +649,6 @@ public abstract class ParserMinimalBase extends JsonParser
                 inputType, Long.TYPE);
     }
 
-    // @since 2.10
-    protected void _reportInputCoercion(String msg, JsonToken inputType, Class<?> targetType)
-            throws InputCoercionException {
-        throw new InputCoercionException(this, msg, inputType, targetType);
-    }
-
     // @since 2.9.8
     protected String _longIntegerDesc(String rawNum) {
         int rawLen = rawNum.length();
@@ -680,54 +685,28 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportError(msg);
     }
 
-    protected void _reportInvalidEOF() throws JsonParseException {
-        _reportInvalidEOF(" in "+_currToken, _currToken);
-    }
-
-    // @since 2.8
-    protected void _reportInvalidEOFInValue(JsonToken type) throws JsonParseException {
-        String msg;
-        if (type == JsonToken.VALUE_STRING) {
-            msg = " in a String value";
-        } else if ((type == JsonToken.VALUE_NUMBER_INT)
-                || (type == JsonToken.VALUE_NUMBER_FLOAT)) {
-            msg = " in a Number value";
-        } else {
-            msg = " in a value";
+    /**
+     * @since 2.14
+     *
+     * @param ch Character that was unexpected
+     * @param comment Additional failure comment to add, if any
+     *
+     * @throws JsonParseException
+     */
+    protected <T> T _reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
+        String msg = String.format("Unexpected character (%s) in numeric value", _getCharDesc(ch));
+        if (comment != null) {
+            msg += ": "+comment;
         }
-        _reportInvalidEOF(msg, type);
+        _reportError(msg);
+        return null; // never gets here
     }
 
-    // @since 2.8
-    protected void _reportInvalidEOF(String msg, JsonToken currToken) throws JsonParseException {
-        throw new JsonEOFException(this, currToken, "Unexpected end-of-input"+msg);
+    @Deprecated // @since 2.14
+    protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
+        _reportUnexpectedNumberChar(ch, comment);
     }
-
-    /**
-     * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
-     *
-     * @throws JsonParseException Exception that describes problem with end-of-content within value
-     */
-    @Deprecated // since 2.8
-    protected void _reportInvalidEOFInValue() throws JsonParseException {
-        _reportInvalidEOF(" in a value");
-    }
-
-    /**
-     * @param msg Addition message snippet to append to base exception message
-     * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
-     *
-     * @throws JsonParseException Exception that describes problem with end-of-content within value
-     */
-    @Deprecated // since 2.8
-    protected void _reportInvalidEOF(String msg) throws JsonParseException {
-        throw new JsonEOFException(this, null, "Unexpected end-of-input"+msg);
-    }
-
-    protected void _reportMissingRootWS(int ch) throws JsonParseException {
-        _reportUnexpectedChar(ch, "Expected space separating root-level values");
-    }
-
+    
     protected void _throwInvalidSpace(int i) throws JsonParseException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";

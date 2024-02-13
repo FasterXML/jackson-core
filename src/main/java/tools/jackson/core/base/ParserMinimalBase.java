@@ -996,7 +996,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected <T> T _reportInvalidSpace(int i) throws StreamReadException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
-        return _reportError(msg);
+        throw _constructReadException(msg);
     }
 
     protected <T> T _reportMissingRootWS(int ch) throws StreamReadException {
@@ -1012,7 +1012,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        return _reportError(msg);
+        throw _constructReadException(msg, currentLocation());
     }
 
     protected <T> T _reportUnexpectedNumberChar(int ch, String comment) throws StreamReadException {
@@ -1020,8 +1020,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        _reportError(msg);
-        return null; // never gets here
+        throw _constructReadException(msg, currentLocation());
     }
 
     protected final static String _getCharDesc(int ch)
@@ -1108,7 +1107,6 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected <T> T _throwInternal() {
-        VersionUtil.throwInternal();
-        return null; // never gets here
+        return VersionUtil.throwInternalReturnAny();
     }
 }

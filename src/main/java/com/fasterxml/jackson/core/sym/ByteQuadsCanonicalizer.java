@@ -1096,6 +1096,7 @@ public final class ByteQuadsCanonicalizer
         return offset;
     }
 
+    // @since 2.17
     static int multiplyByFourFifths(int number) {
         return (int) (number * 3_435_973_837L >>> 32);
     }
@@ -1106,7 +1107,7 @@ public final class ByteQuadsCanonicalizer
         if (_count > (_hashSize >> 1)) { // over 50%
             int spillCount = (_spilloverEnd - _spilloverStart()) >> 2;
             if ((spillCount > (1 + _count >> 7))
-                    || (_count > (multiplyByFourFifths(_hashSize)))) {
+                    || (_count > multiplyByFourFifths(_hashSize))) {
                 return true;
             }
         }

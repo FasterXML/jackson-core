@@ -35,6 +35,8 @@ a pure JSON library.
  (suggested by @kkkkkhhhh)
 #1195: Use `BufferRecycler` provided by output (`OutputStream`, `Writer`) object if available
  (contributed by Mario F)
+#1203: Faster division by 1000
+ (contributed by @xtonik)
 
 2.16.2 (not yet released)
 

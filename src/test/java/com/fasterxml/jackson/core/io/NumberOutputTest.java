@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.core.io;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NumberOutputTest
 {
@@ -35,7 +35,7 @@ public class NumberOutputTest
     // but has been run to verify full range manually
     @Test
     // Comment out for manual testing:
-    @Ignore
+    @Disabled
     public void testDivBy1000FullRange() {
         for (int number = 0; number <= Integer.MAX_VALUE; ++number) {
             int expected = number / 1000;

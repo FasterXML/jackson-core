@@ -9,6 +9,9 @@ public final class UTF8Writer extends Writer
     final static int SURR2_FIRST = 0xDC00;
     final static int SURR2_LAST = 0xDFFF;
 
+    /**
+     * @since 2.17
+     */
     public static final int SURROGATE_BASE = 0x10000 - UTF8Writer.SURR2_FIRST - (UTF8Writer.SURR1_FIRST << 10);
 
     final private IOContext _context;

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.io;
 import java.io.*;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 
 public class UTF8WriterTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -137,13 +136,18 @@ public class UTF8WriterTest
         }
     }
 
-    @Ignore
-    public void testSurrogateConversion() {
+    // For [core#1218]
+    // @since 2.17
+    public void testSurrogateConversion()
+    {
         for (int first = UTF8Writer.SURR1_FIRST; first <= UTF8Writer.SURR1_LAST; first++) {
             for (int second = UTF8Writer.SURR2_FIRST; second <= UTF8Writer.SURR2_LAST; second++) {
                 int expected = 0x10000 + ((first - UTF8Writer.SURR1_FIRST) << 10) + (second - UTF8Writer.SURR2_FIRST);
                 int actual = (first << 10) + second + UTF8Writer.SURROGATE_BASE;
-                assertEquals(Integer.toHexString(first) + " " + Integer.toHexString(second), expected, actual);
+                if (expected != actual) {
+                    fail("Mismatch on: "+Integer.toHexString(first) + " " + Integer.toHexString(second)
+                        +"; expected: "+expected+", actual: "+actual);
+                }
             }
         }
     }

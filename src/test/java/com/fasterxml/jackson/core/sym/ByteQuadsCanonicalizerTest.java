@@ -1,19 +1,21 @@
 package com.fasterxml.jackson.core.sym;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-public class ByteQuadsCanonicalizerTest {
+public class ByteQuadsCanonicalizerTest
+{
     @Test
-    @Ignore
-    public void testMultiplyByFourFifths() {
-        for (long i = 0; i <= Integer.MAX_VALUE; i++) {
-            int number = (int) i;
-            int expected = (int) (number * 0.80);
-            int actual = ByteQuadsCanonicalizer.multiplyByFourFifths(number);
-            assertEquals("input=" + number, expected, actual);
+    public void testMultiplyByFourFifths()
+    {
+        int i = 0;
+        for (; i >= 0; i += 7) {
+            int expected = (int) (i * 0.80);
+            int actual = ByteQuadsCanonicalizer.multiplyByFourFifths(i);
+            if (expected != actual) {
+                fail("Input for 80% of "+i+" differs: expected="+expected+", actual="+actual);
+            }
         }
     }
 }

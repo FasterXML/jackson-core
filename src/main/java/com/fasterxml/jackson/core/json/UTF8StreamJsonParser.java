@@ -3888,18 +3888,6 @@ public class UTF8StreamJsonParser
                 _tokenInputTotal-1, -1L, _tokenInputRow, _tokenInputCol);
     }
 
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getCurrentLocation() {
-        return currentLocation();
-    }
-
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getTokenLocation() {
-        return currentTokenLocation();
-    }
-
     // @since 2.7
     private final void _updateLocation()
     {

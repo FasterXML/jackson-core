@@ -34,4 +34,33 @@ public abstract class JsonParserBase
     public final JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
         return JSON_READ_CAPABILITIES;
     }
+
+    /*
+    /**********************************************************************
+    /* Location handling
+    /**********************************************************************
+     */
+
+    // First: override some methods as abstract to force definition by subclasses
+    
+    @Override
+    public abstract JsonLocation currentLocation();
+
+    @Override
+    public abstract JsonLocation currentTokenLocation();
+
+    @Override
+    protected abstract JsonLocation _currentLocationMinusOne();
+
+    @Deprecated // since 2.17
+    @Override
+    public final JsonLocation getCurrentLocation() {
+        return currentLocation();
+    }
+    
+    @Deprecated // since 2.17
+    @Override
+    public final JsonLocation getTokenLocation() {
+        return currentTokenLocation();
+    }
 }

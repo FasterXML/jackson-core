@@ -2990,18 +2990,6 @@ public class UTF8DataInputJsonParser
         return new JsonLocation(_contentReference(), -1L, -1L, _tokenInputRow, -1);
     }
 
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getCurrentLocation() {
-        return currentLocation();
-    }
-
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getTokenLocation() {
-        return currentTokenLocation();
-    }
-    
     /*
     /**********************************************************
     /* Internal methods, other

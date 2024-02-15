@@ -372,18 +372,6 @@ public abstract class NonBlockingJsonParserBase
                 _tokenInputTotal, -1L, _tokenInputRow, _tokenInputCol);
     }
 
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getCurrentLocation() {
-        return currentLocation();
-    }
-
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getTokenLocation() {
-        return currentTokenLocation();
-    }
-
     /*
     /**********************************************************************
     /* Public API, access to token information, text

@@ -68,7 +68,7 @@ public class JsonParserClosedCaseTest {
     }
 
     private static Collection<Object[]> closeParsers(JsonParser... parsersToClose) throws IOException {
-        List<Object[]> list = new ArrayList<Object[]>();
+        List<Object[]> list = new ArrayList<>();
         for (JsonParser p : parsersToClose) {
             p.close();
             list.add(new Object[] { p.getClass().getSimpleName(), p });

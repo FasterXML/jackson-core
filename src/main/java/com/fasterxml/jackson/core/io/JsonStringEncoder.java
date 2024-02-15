@@ -120,7 +120,7 @@ public final class JsonStringEncoder
             int length = (escCode < 0)
                     ? _appendNumeric(d, qbuf)
                     : _appendNamed(escCode, qbuf);
-                    ;
+                    
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
@@ -216,7 +216,7 @@ public final class JsonStringEncoder
             int length = (escCode < 0)
                     ? _appendNumeric(d, qbuf)
                     : _appendNamed(escCode, qbuf);
-                    ;
+                    
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
@@ -344,7 +344,7 @@ public final class JsonStringEncoder
                 outputPtr = 0;
             }
             // Ok, so what did we hit?
-            int ch = (int) text.charAt(inputPtr++);
+            int ch = text.charAt(inputPtr++);
             if (ch <= 0x7F) { // needs quoting
                 int escape = escCodes[ch];
                 // ctrl-char, 6-byte escape...

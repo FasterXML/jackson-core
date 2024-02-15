@@ -933,7 +933,7 @@ public class TextBuffer
      */
     public char[] finishCurrentSegment() throws IOException {
         if (_segments == null) {
-            _segments = new ArrayList<char[]>();
+            _segments = new ArrayList<>();
         }
         _hasSegments = true;
         _segments.add(_currentSegment);
@@ -1098,7 +1098,7 @@ public class TextBuffer
     {
         // First, let's move current segment to segment list:
         if (_segments == null) {
-            _segments = new ArrayList<char[]>();
+            _segments = new ArrayList<>();
         }
         char[] curr = _currentSegment;
         _hasSegments = true;

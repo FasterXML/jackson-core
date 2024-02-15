@@ -44,7 +44,7 @@ public class SymbolsViaParserTest
         JsonParser p = useBytes
                 ? f.createParser(doc.getBytes("UTF-8"))
                 : f.createParser(doc);
-        HashSet<String> syms = new HashSet<String>();
+        HashSet<String> syms = new HashSet<>();
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         for (int i = 0; i < 50; ++i) {
             assertToken(JsonToken.FIELD_NAME, p.nextToken());

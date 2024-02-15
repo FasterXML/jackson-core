@@ -117,10 +117,10 @@ public class AsyncConcurrencyTest extends AsyncTestBase
         final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         final AtomicInteger errorCount = new AtomicInteger(0);
         final AtomicInteger completedCount = new AtomicInteger(0);
-        final AtomicReference<String> errorRef = new AtomicReference<String>();
+        final AtomicReference<String> errorRef = new AtomicReference<>();
 
         // First, add a few shared work units
-        final ArrayBlockingQueue<WorkUnit> q = new ArrayBlockingQueue<WorkUnit>(20);
+        final ArrayBlockingQueue<WorkUnit> q = new ArrayBlockingQueue<>(20);
         for (int i = 0; i < 7; ++i) {
             q.add(new WorkUnit());
         }
@@ -128,7 +128,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
         // then invoke swarm of workers on it...
 
         final int REP_COUNT = 99000;
-        ArrayList<Future<?>> futures = new ArrayList<Future<?>>();
+        ArrayList<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < REP_COUNT; i++) {
             Callable<Void> c = () -> {
                 WorkUnit w = q.take();

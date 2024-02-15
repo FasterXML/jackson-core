@@ -248,7 +248,7 @@ public final class ByteQuadsCanonicalizer
                 sz = curr;
             }
         }
-        _tableInfo = new AtomicReference<TableInfo>(TableInfo.createInitial(sz));
+        _tableInfo = new AtomicReference<>(TableInfo.createInitial(sz));
     }
 
     /**

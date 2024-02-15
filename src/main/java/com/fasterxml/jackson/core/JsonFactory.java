@@ -46,8 +46,7 @@ import com.fasterxml.jackson.core.util.*;
 @SuppressWarnings("resource")
 public class JsonFactory
     extends TokenStreamFactory
-    implements Versioned,
-        java.io.Serializable // since 2.1 (for Android, mostly)
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 2;
 
@@ -545,7 +544,7 @@ public class JsonFactory
         if (src == null) {
             return src;
         }
-        return new ArrayList<T>(src);
+        return new ArrayList<>(src);
     }
 
     /*
@@ -899,7 +898,7 @@ public class JsonFactory
      * @since 2.16
      */
     public JsonFactory setErrorReportConfiguration(ErrorReportConfiguration src) {
-        _errorReportConfiguration = Objects.requireNonNull(src, "Cannot pass null ErrorReportConfiguration");;
+        _errorReportConfiguration = Objects.requireNonNull(src, "Cannot pass null ErrorReportConfiguration");
         return this;
     }
 

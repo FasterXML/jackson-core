@@ -107,16 +107,16 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static BigDecimal BD_MIN_INT = new BigDecimal(BI_MIN_INT);
     protected final static BigDecimal BD_MAX_INT = new BigDecimal(BI_MAX_INT);
 
-    protected final static long MIN_INT_L = (long) Integer.MIN_VALUE;
-    protected final static long MAX_INT_L = (long) Integer.MAX_VALUE;
+    protected final static long MIN_INT_L = Integer.MIN_VALUE;
+    protected final static long MAX_INT_L = Integer.MAX_VALUE;
 
     // These are not very accurate, but have to do... (for bounds checks)
 
-    protected final static double MIN_LONG_D = (double) Long.MIN_VALUE;
-    protected final static double MAX_LONG_D = (double) Long.MAX_VALUE;
+    protected final static double MIN_LONG_D = Long.MIN_VALUE;
+    protected final static double MAX_LONG_D = Long.MAX_VALUE;
 
-    protected final static double MIN_INT_D = (double) Integer.MIN_VALUE;
-    protected final static double MAX_INT_D = (double) Integer.MAX_VALUE;
+    protected final static double MIN_INT_D = Integer.MIN_VALUE;
+    protected final static double MAX_INT_D = Integer.MAX_VALUE;
 
     /*
     /**********************************************************

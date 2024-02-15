@@ -1601,9 +1601,9 @@ public class WriterBasedJsonGenerator
                 _flushBuffer();
             }
             // First, mash 3 bytes into lsb of 32-bit int
-            int b24 = ((int) input[inputPtr++]) << 8;
-            b24 |= ((int) input[inputPtr++]) & 0xFF;
-            b24 = (b24 << 8) | (((int) input[inputPtr++]) & 0xFF);
+            int b24 = (input[inputPtr++]) << 8;
+            b24 |= (input[inputPtr++]) & 0xFF;
+            b24 = (b24 << 8) | ((input[inputPtr++]) & 0xFF);
             _outputTail = b64variant.encodeBase64Chunk(b24, _outputBuffer, _outputTail);
             if (--chunksBeforeLF <= 0) {
                 // note: must quote in JSON value
@@ -1619,9 +1619,9 @@ public class WriterBasedJsonGenerator
             if (_outputTail > safeOutputEnd) { // don't really need 6 bytes but...
                 _flushBuffer();
             }
-            int b24 = ((int) input[inputPtr++]) << 16;
+            int b24 = (input[inputPtr++]) << 16;
             if (inputLeft == 2) {
-                b24 |= (((int) input[inputPtr++]) & 0xFF) << 8;
+                b24 |= ((input[inputPtr++]) & 0xFF) << 8;
             }
             _outputTail = b64variant.encodeBase64Partial(b24, inputLeft, _outputBuffer, _outputTail);
         }
@@ -1652,9 +1652,9 @@ public class WriterBasedJsonGenerator
             if (_outputTail > safeOutputEnd) { // need to flush
                 _flushBuffer();
             }
-            int b24 = ((int) readBuffer[inputPtr++]) << 8;
-            b24 |= ((int) readBuffer[inputPtr++]) & 0xFF;
-            b24 = (b24 << 8) | (((int) readBuffer[inputPtr++]) & 0xFF);
+            int b24 = (readBuffer[inputPtr++]) << 8;
+            b24 |= (readBuffer[inputPtr++]) & 0xFF;
+            b24 = (b24 << 8) | ((readBuffer[inputPtr++]) & 0xFF);
             bytesLeft -= 3;
             _outputTail = b64variant.encodeBase64Chunk(b24, _outputBuffer, _outputTail);
             if (--chunksBeforeLF <= 0) {
@@ -1672,10 +1672,10 @@ public class WriterBasedJsonGenerator
                 if (_outputTail > safeOutputEnd) { // don't really need 6 bytes but...
                     _flushBuffer();
                 }
-                int b24 = ((int) readBuffer[inputPtr++]) << 16;
+                int b24 = (readBuffer[inputPtr++]) << 16;
                 int amount;
                 if (inputPtr < inputEnd) {
-                    b24 |= (((int) readBuffer[inputPtr]) & 0xFF) << 8;
+                    b24 |= ((readBuffer[inputPtr]) & 0xFF) << 8;
                     amount = 2;
                 } else {
                     amount = 1;
@@ -1715,9 +1715,9 @@ public class WriterBasedJsonGenerator
                 _flushBuffer();
             }
             // First, mash 3 bytes into lsb of 32-bit int
-            int b24 = ((int) readBuffer[inputPtr++]) << 8;
-            b24 |= ((int) readBuffer[inputPtr++]) & 0xFF;
-            b24 = (b24 << 8) | (((int) readBuffer[inputPtr++]) & 0xFF);
+            int b24 = (readBuffer[inputPtr++]) << 8;
+            b24 |= (readBuffer[inputPtr++]) & 0xFF;
+            b24 = (b24 << 8) | ((readBuffer[inputPtr++]) & 0xFF);
             bytesDone += 3;
             _outputTail = b64variant.encodeBase64Chunk(b24, _outputBuffer, _outputTail);
             if (--chunksBeforeLF <= 0) {
@@ -1732,10 +1732,10 @@ public class WriterBasedJsonGenerator
             if (_outputTail > safeOutputEnd) { // don't really need 6 bytes but...
                 _flushBuffer();
             }
-            int b24 = ((int) readBuffer[inputPtr++]) << 16;
+            int b24 = (readBuffer[inputPtr++]) << 16;
             int amount = 1;
             if (inputPtr < inputEnd) {
-                b24 |= (((int) readBuffer[inputPtr]) & 0xFF) << 8;
+                b24 |= ((readBuffer[inputPtr]) & 0xFF) << 8;
                 amount = 2;
             }
             bytesDone += amount;

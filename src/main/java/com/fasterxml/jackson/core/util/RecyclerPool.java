@@ -147,7 +147,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         @Override
         public void releasePooled(P pooled) {
-            ; // nothing to do, relies on ThreadLocal
+             // nothing to do, relies on ThreadLocal
         }
 
         // Due to use of ThreadLocal no tracking available; cannot clear
@@ -178,7 +178,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         @Override
         public void releasePooled(P pooled) {
-            ; // nothing to do, there is no underlying pool
+             // nothing to do, there is no underlying pool
         }
 
         /**

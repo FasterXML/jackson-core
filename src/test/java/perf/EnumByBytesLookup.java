@@ -22,14 +22,14 @@ public class EnumByBytesLookup<E extends Enum<E>>
 
     public static <EIN extends Enum<EIN>> EnumByBytesLookup<EIN> buildFor(Class<EIN> enumClass)
     {
-        Trie<EIN> root = new Trie<EIN>(null);
+        Trie<EIN> root = new Trie<>(null);
         int size = 0;
         for (EIN en : enumClass.getEnumConstants()) {
             byte[] key = en.name().getBytes(UTF8);
             root = root.with(en, key);
             ++size;
         }
-        return new EnumByBytesLookup<EIN>(root, size);
+        return new EnumByBytesLookup<>(root, size);
     }
 
     public E find(byte[] rawId) {
@@ -117,7 +117,7 @@ class Trie<T> {
 
     private Trie<T> with(T match, byte[] rawId, int start, int end) {
       if (start == end) {
-        return new Trie<T>(this, match);
+        return new Trie<>(this, match);
       }
       // Ok: two choices; either we follow existing branch; or need to create new one
       final byte b = rawId[start++];
@@ -126,16 +126,16 @@ class Trie<T> {
           // existing branch: good day for delegation...
           Trie<T> old = nextNodes[i];
           // to keep things truly immutable, copy underlying arrays, then
-          return new Trie<T>(this, i, old.with(match, rawId, start, end));
+          return new Trie<>(this, i, old.with(match, rawId, start, end));
         }
       }
       // simplest recursively, but for fun let's convert to iteration. Start with tail
-      Trie<T> curr = new Trie<T>(match);
+      Trie<T> curr = new Trie<>(match);
 
       for (int i = end-1; i >= start; --i) {
-        curr = new Trie<T>(this, rawId[i], curr);
+        curr = new Trie<>(this, rawId[i], curr);
       }
-      return new Trie<T>(this, b, curr);
+      return new Trie<>(this, b, curr);
     }
 
     public T find(byte[] id) {

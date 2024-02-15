@@ -58,7 +58,7 @@ public class BufferRecyclers
      * buffer recycling between reader and writer instances.
      */
     final protected static ThreadLocal<SoftReference<BufferRecycler>> _recyclerRef
-        = new ThreadLocal<SoftReference<BufferRecycler>>();
+        = new ThreadLocal<>();
 
     /**
      * Main accessor to call for accessing possibly recycled {@link BufferRecycler} instance.
@@ -79,7 +79,7 @@ public class BufferRecyclers
             if (_bufferRecyclerTracker != null) {
                 ref = _bufferRecyclerTracker.wrapAndTrack(br);
             } else {
-                ref = new SoftReference<BufferRecycler>(br);
+                ref = new SoftReference<>(br);
             }
             _recyclerRef.set(ref);
         }

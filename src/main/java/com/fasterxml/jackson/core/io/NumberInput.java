@@ -156,7 +156,7 @@ public final class NumberInput
         // Note: caller must ensure length is [10, 18]
         int len1 = len-9;
         long val = parseInt(ch, off, len1) * L_BILLION;
-        return val + (long) parseInt(ch, off+len1, 9);
+        return val + parseInt(ch, off+len1, 9);
     }
 
     /**
@@ -200,7 +200,7 @@ public final class NumberInput
         // that is, if we know they must be ints, call int parsing
         int length = s.length();
         if (length <= 9) {
-            return (long) parseInt(s);
+            return parseInt(s);
         }
         // !!! TODO: implement efficient 2-int parsing...
         return Long.parseLong(s);
@@ -367,8 +367,7 @@ public final class NumberInput
     {
         if (s == null) { return def; }
         s = s.trim();
-        int len = s.length();
-        if (len == 0) {
+        if (s.isEmpty()) {
             return def;
         }
         try {

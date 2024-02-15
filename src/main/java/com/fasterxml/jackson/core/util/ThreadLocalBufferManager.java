@@ -36,13 +36,13 @@ class ThreadLocalBufferManager
      * we do not need to use something like {@link IdentityHashMap}
      */
     private final Map<SoftReference<BufferRecycler>,Boolean> _trackedRecyclers
-        = new ConcurrentHashMap<SoftReference<BufferRecycler>, Boolean>();
+        = new ConcurrentHashMap<>();
 
     /**
      * Queue where gc will put just-cleared SoftReferences, previously referencing BufferRecyclers.
      * We use it to remove the cleared softRefs from the above set.
      */
-    private final ReferenceQueue<BufferRecycler> _refQueue = new ReferenceQueue<BufferRecycler>();
+    private final ReferenceQueue<BufferRecycler> _refQueue = new ReferenceQueue<>();
 
     /*
     /**********************************************************
@@ -79,7 +79,7 @@ class ThreadLocalBufferManager
 
     public SoftReference<BufferRecycler> wrapAndTrack(BufferRecycler br) {
         SoftReference<BufferRecycler> newRef;
-        newRef = new SoftReference<BufferRecycler>(br, _refQueue);
+        newRef = new SoftReference<>(br, _refQueue);
         // also retain softRef to br in a set to be able to release it on shutdown
         _trackedRecyclers.put(newRef, true);
         // gc may have cleared one or more SoftRefs, clean them up to avoid a memleak

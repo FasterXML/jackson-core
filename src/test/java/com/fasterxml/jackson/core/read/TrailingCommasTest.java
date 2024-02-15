@@ -21,7 +21,7 @@ public class TrailingCommasTest extends BaseTest {
   private final int mode;
 
   public TrailingCommasTest(int mode, List<JsonReadFeature> features) {
-      this.features = new HashSet<JsonReadFeature>(features);
+      this.features = new HashSet<>(features);
       JsonFactoryBuilder b = (JsonFactoryBuilder) JsonFactory.builder();
       for (JsonReadFeature feature : features) {
           b = b.enable(feature);
@@ -32,7 +32,7 @@ public class TrailingCommasTest extends BaseTest {
 
   @Parameterized.Parameters(name = "Mode {0}, Features {1}")
   public static Collection<Object[]> getTestCases() {
-    ArrayList<Object[]> cases = new ArrayList<Object[]>();
+    ArrayList<Object[]> cases = new ArrayList<>();
 
     for (int mode : ALL_MODES) {
       cases.add(new Object[]{mode, Collections.emptyList()});

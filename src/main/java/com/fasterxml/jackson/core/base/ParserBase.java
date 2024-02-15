@@ -1373,16 +1373,17 @@ public abstract class ParserBase extends ParserMinimalBase
         if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
             return ch;
         }
-        _reportError("Unrecognized character escape "+_getCharDesc(ch));
-        return ch;
+        throw _constructReadException("Unrecognized character escape "+_getCharDesc(ch),
+                _currentLocationMinusOne());
     }
 
     protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
-        JsonReadContext ctxt = getParsingContext();
-        _reportError(String.format(
+        final JsonReadContext ctxt = getParsingContext();
+        final String msg = String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
                 (char) actCh, expCh, ctxt.typeDesc(),
-                ctxt.startLocation(_contentReference())));
+                ctxt.startLocation(_contentReference()));
+        throw _constructReadException(msg, _currentLocationMinusOne());
     }
 
     /**
@@ -1402,7 +1403,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if (!isEnabled(Feature.ALLOW_UNQUOTED_CONTROL_CHARS) || i > INT_SPACE) {
             char c = (char) i;
             String msg = "Illegal unquoted character ("+_getCharDesc(c)+"): has to be escaped using backslash to be included in "+ctxtDesc;
-            _reportError(msg);
+            throw _constructReadException(msg, _currentLocationMinusOne());
         }
     }
 

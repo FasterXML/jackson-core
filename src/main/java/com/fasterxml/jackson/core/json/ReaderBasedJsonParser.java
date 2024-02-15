@@ -2979,6 +2979,15 @@ public class ReaderBasedJsonParser
                 _currInputRow, col);
     }
 
+    @Override // @since 2.17
+    protected JsonLocation _currentLocationMinusOne() {
+        final int prevInputPtr = _inputPtr - 1;
+        final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_contentReference(),
+                -1L, _currInputProcessed + prevInputPtr,
+                _currInputRow, col);
+    }
+
     @Override
     public JsonLocation currentTokenLocation()
     {

@@ -65,7 +65,7 @@ a pure JSON library.
 #1136: Change parsing error message to mention `-INF`
 - Make `JacksonFeatureSet` serializable
 
-2.15.4 (not yet released)
+2.15.4 (15-Feb-2024)
 
 #1146: `JsonParserDelegate` missing overrides for `canParseAsync()`,
   `getNonBlockingInputFeeder()`

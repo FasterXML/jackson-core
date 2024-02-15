@@ -85,7 +85,7 @@ public final class NumberOutput
                 }
                 return _leading3(v, b, off);
             }
-            int thousands = v / 1000;
+            int thousands = divBy1000(v);
             v -= (thousands * 1000); // == value % 1000
             off = _leading3(thousands, b, off);
             off = _full3(v, b, off);
@@ -107,10 +107,10 @@ public final class NumberOutput
             }
             return _outputFullBillion(v, b, off);
         }
-        int newValue = v / 1000;
+        int newValue = divBy1000(v);
         int ones = (v - (newValue * 1000)); // == value % 1000
         v = newValue;
-        newValue /= 1000;
+        newValue = divBy1000(newValue);
         int thousands = (v - (newValue * 1000));
 
         off = _leading3(newValue, b, off);
@@ -136,7 +136,7 @@ public final class NumberOutput
                     off = _leading3(v, b, off);
                 }
             } else {
-                int thousands = v / 1000;
+                int thousands = divBy1000(v);
                 v -= (thousands * 1000); // == value % 1000
                 off = _leading3(thousands, b, off);
                 off = _full3(v, b, off);
@@ -153,10 +153,10 @@ public final class NumberOutput
             }
             return _outputFullBillion(v, b, off);
         }
-        int newValue = v / 1000;
+        int newValue = divBy1000(v);
         int ones = (v - (newValue * 1000)); // == value % 1000
         v = newValue;
-        newValue /= 1000;
+        newValue = divBy1000(newValue);
         int thousands = (v - (newValue * 1000));
         off = _leading3(newValue, b, off);
         off = _full3(thousands, b, off);
@@ -243,6 +243,16 @@ public final class NumberOutput
             off = _outputFullBillion((int) upper, b, off);
         }
         return _outputFullBillion((int) v, b, off);
+    }
+
+    /**
+     * Optimized code for integer division by 1000; typically 50% higher
+     * throughput for calculation
+     *
+     * @since 2.17
+     */
+    static int divBy1000(int number) {
+        return (int) (number * 274_877_907L >>> 38);
     }
 
     /*
@@ -359,13 +369,13 @@ public final class NumberOutput
             if (v < 1000) {
                 return _leading3(v, b, off);
             }
-            int thousands = v / 1000;
+            int thousands = divBy1000(v);
             int ones = v - (thousands * 1000); // == value % 1000
             return _outputUptoMillion(b, off, thousands, ones);
         }
-        int thousands = v / 1000;
+        int thousands = divBy1000(v);
         int ones = (v - (thousands * 1000)); // == value % 1000
-        int millions = thousands / 1000;
+        int millions = divBy1000(thousands);
         thousands -= (millions * 1000);
 
         off = _leading3(millions, b, off);
@@ -385,9 +395,9 @@ public final class NumberOutput
 
     private static int _outputFullBillion(int v, char[] b, int off)
     {
-        int thousands = v / 1000;
+        int thousands = divBy1000(v);
         int ones = (v - (thousands * 1000)); // == value % 1000
-        int millions = thousands / 1000;
+        int millions = divBy1000(thousands);
 
         int enc = TRIPLET_TO_CHARS[millions];
         b[off++] = (char) (enc >> 16);
@@ -414,13 +424,13 @@ public final class NumberOutput
             if (v < 1000) {
                 return _leading3(v, b, off);
             }
-            int thousands = v / 1000;
+            int thousands = divBy1000(v);
             int ones = v - (thousands * 1000); // == value % 1000
             return _outputUptoMillion(b, off, thousands, ones);
         }
-        int thousands = v / 1000;
+        int thousands = divBy1000(v);
         int ones = (v - (thousands * 1000)); // == value % 1000
-        int millions = thousands / 1000;
+        int millions = divBy1000(thousands);
         thousands -= (millions * 1000);
 
         off = _leading3(millions, b, off);
@@ -440,9 +450,9 @@ public final class NumberOutput
 
     private static int _outputFullBillion(int v, byte[] b, int off)
     {
-        int thousands = v / 1000;
+        int thousands = divBy1000(v);
         int ones = (v - (thousands * 1000)); // == value % 1000
-        int millions = thousands / 1000;
+        int millions = divBy1000(thousands);
         thousands -= (millions * 1000);
 
         int enc = TRIPLET_TO_CHARS[millions];

@@ -326,7 +326,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeStartArray();
         gen.writeBinary(new byte[] { 1 });
         gen.writeNumber((short) 1);
-        gen.writeNumber((int) 2);
+        gen.writeNumber(2);
         gen.writeNumber((long) 3);
         gen.writeNumber(BigInteger.valueOf(4));
         gen.writeRaw(" ");
@@ -338,7 +338,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         gen.writeArrayFieldStart("extra");
         gen.writeNumber((short) 1);
-        gen.writeNumber((int) 2);
+        gen.writeNumber(2);
         gen.writeNumber((long) 3);
         gen.writeNumber(BigInteger.valueOf(4));
         gen.writeNumber(new BigDecimal("5.0"));

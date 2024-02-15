@@ -52,7 +52,7 @@ public class TestNumberPrinting
         Random rnd = new Random(12345L);
         // Bigger value space, need more iterations for long
         for (int i = 0; i < 678000; ++i) {
-            long l = ((long) rnd.nextInt() << 32) | (long) rnd.nextInt();
+            long l = ((long) rnd.nextInt() << 32) | rnd.nextInt();
             assertLongPrint(l, i);
         }
     }

@@ -408,7 +408,7 @@ public abstract class BaseTest
     }
 
     public static String a2q(String json) {
-        return json.replace("'", "\"");
+        return json.replace('\'', '"');
     }
 
     public static byte[] encodeInUTF32BE(String input)

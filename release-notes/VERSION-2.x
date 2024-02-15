@@ -30,6 +30,9 @@ a pure JSON library.
  (contributed by @pjfanning)
 #1169: `ArrayIndexOutOfBoundsException` for specific invalid content,
   with Reader-based parser
+#1173: `JsonLocation` consistently off by one character for many
+  invalid JSON parsing cases
+ (reported by Paul B)
 #1179: Allow configuring `DefaultPrettyPrinter` separators for empty
   Arrays and Objects
  (contributed by Guillaume L)

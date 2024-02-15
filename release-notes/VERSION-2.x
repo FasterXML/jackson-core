@@ -14,7 +14,7 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.15.4 (not yet released)
+2.15.4 (15-Feb-2024)
 
 #1146: `JsonParserDelegate` missing overrides for `canParseAsync()`,
   `getNonBlockingInputFeeder()`

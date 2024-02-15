@@ -543,7 +543,7 @@ public class JsonFactory
         if (src == null) {
             return src;
         }
-        return new ArrayList<T>(src);
+        return new ArrayList<>(src);
     }
 
     /*

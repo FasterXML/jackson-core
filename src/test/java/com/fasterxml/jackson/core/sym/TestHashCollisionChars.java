@@ -87,7 +87,7 @@ public class TestHashCollisionChars
 
     static List<String> collisions() {
         // we'll get 6^4, which is bit over 1k
-        ArrayList<String> result = new ArrayList<String>(36 * 36);
+        ArrayList<String> result = new ArrayList<>(36 * 36);
 
         final String[] FRAGMENTS = MULT_COLLISION_FRAGMENTS;
 

@@ -126,7 +126,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
     private List<byte[]> generateStrings(Random rnd, int totalLength, boolean includeCtrlChars)
         throws IOException
     {
-        ArrayList<byte[]> strings = new ArrayList<byte[]>();
+        ArrayList<byte[]> strings = new ArrayList<>();
         do {
             int len = 2;
             int bits = rnd.nextInt(13);

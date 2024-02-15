@@ -257,7 +257,7 @@ public final class CharsToNameCanonicalizer
         _hashShared = false; // doesn't really matter for root instance
         _longestCollisionList = 0;
 
-        _tableInfo = new AtomicReference<TableInfo>(TableInfo.createInitial(DEFAULT_T_SIZE));
+        _tableInfo = new AtomicReference<>(TableInfo.createInitial(DEFAULT_T_SIZE));
         // and actually do NOT assign buffers so we'll find if anyone tried to
         // use root instance
     }

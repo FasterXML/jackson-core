@@ -23,7 +23,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         private final Set<String> _names;
 
         public NameMatchFilter(String... names) {
-            _names = new HashSet<String>(Arrays.asList(names));
+            _names = new HashSet<>(Arrays.asList(names));
         }
 
         @Override
@@ -49,7 +49,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         private final boolean _inclArrays;
 
         public NameExcludeFilter(boolean inclArrays, String... names) {
-            _names = new HashSet<String>(Arrays.asList(names));
+            _names = new HashSet<>(Arrays.asList(names));
             _inclArrays = inclArrays;
         }
 
@@ -73,7 +73,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         private final Set<String> _names;
 
         public StrictNameMatchFilter(String... names) {
-            _names = new HashSet<String>(Arrays.asList(names));
+            _names = new HashSet<>(Arrays.asList(names));
         }
 
         @Override

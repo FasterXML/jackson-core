@@ -293,7 +293,7 @@ public class SimpleParserTest extends BaseTest
 
     private void _testNameEscaping(int mode) throws IOException
     {
-        final Map<String,String> NAME_MAP = new LinkedHashMap<String,String>();
+        final Map<String,String> NAME_MAP = new LinkedHashMap<>();
         NAME_MAP.put("", "");
         NAME_MAP.put("\\\"funny\\\"", "\"funny\"");
         NAME_MAP.put("\\\\", "\\");

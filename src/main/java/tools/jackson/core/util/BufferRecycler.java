@@ -123,8 +123,8 @@ public class BufferRecycler
      * @param cbCount Number of {@code char[]} buffers to allocate
      */
     protected BufferRecycler(int bbCount, int cbCount) {
-        _byteBuffers = new AtomicReferenceArray<byte[]>(bbCount);
-        _charBuffers = new AtomicReferenceArray<char[]>(cbCount);
+        _byteBuffers = new AtomicReferenceArray<>(bbCount);
+        _charBuffers = new AtomicReferenceArray<>(cbCount);
     }
 
     /**

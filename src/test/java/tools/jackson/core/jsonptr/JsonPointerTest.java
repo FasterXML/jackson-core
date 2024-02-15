@@ -276,7 +276,7 @@ public class JsonPointerTest extends BaseTest
     // [core#133]
     public void testLongNumbers() throws Exception
     {
-        final long LONG_ID = ((long) Integer.MAX_VALUE) + 1L;
+        final long LONG_ID = (Integer.MAX_VALUE) + 1L;
 
         final String INPUT = "/User/"+LONG_ID;
 

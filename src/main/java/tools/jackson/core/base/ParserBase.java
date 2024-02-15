@@ -719,7 +719,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_LONG) != 0) {
             // Let's verify its lossless conversion by simple roundtrip
             int result = (int) _numberLong;
-            if (((long) result) != _numberLong) {
+            if (result != _numberLong) {
                 _reportOverflowInt(getText(), currentToken());
             }
             _numberInt = result;
@@ -753,7 +753,7 @@ public abstract class ParserBase extends ParserMinimalBase
     protected void convertNumberToLong() throws InputCoercionException
     {
         if ((_numTypesValid & NR_INT) != 0) {
-            _numberLong = (long) _numberInt;
+            _numberLong = _numberInt;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             final BigInteger bigInteger = _getBigInteger();
             if (BI_MIN_LONG.compareTo(bigInteger) > 0
@@ -823,14 +823,14 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberDouble = _getBigInteger().doubleValue();
             }
         } else if ((_numTypesValid & NR_LONG) != 0) {
-            _numberDouble = (double) _numberLong;
+            _numberDouble = _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
-            _numberDouble = (double) _numberInt;
+            _numberDouble = _numberInt;
         } else if ((_numTypesValid & NR_FLOAT) != 0) {
             if (_numberString != null) {
                 _numberDouble = _getNumberDouble();
             } else {
-                _numberDouble = (double) _getNumberFloat();
+                _numberDouble = _getNumberFloat();
             }
         } else {
             _throwInternal();
@@ -859,9 +859,9 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberFloat = _getBigInteger().floatValue();
             }
         } else if ((_numTypesValid & NR_LONG) != 0) {
-            _numberFloat = (float) _numberLong;
+            _numberFloat = _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
-            _numberFloat = (float) _numberInt;
+            _numberFloat = _numberInt;
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             if (_numberString != null) {
                 _numberFloat = _getNumberFloat();

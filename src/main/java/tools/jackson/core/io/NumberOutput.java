@@ -9,8 +9,8 @@ public final class NumberOutput
     private static int BILLION = 1000000000;
     private static long BILLION_L = 1000000000L;
 
-    private static long MIN_INT_AS_LONG = (long) Integer.MIN_VALUE;
-    private static long MAX_INT_AS_LONG = (long) Integer.MAX_VALUE;
+    private static long MIN_INT_AS_LONG = Integer.MIN_VALUE;
+    private static long MAX_INT_AS_LONG = Integer.MAX_VALUE;
 
     final static String SMALLEST_INT = String.valueOf(Integer.MIN_VALUE);
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);

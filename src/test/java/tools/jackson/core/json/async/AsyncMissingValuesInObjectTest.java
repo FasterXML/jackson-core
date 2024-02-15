@@ -21,7 +21,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
     private HashSet<JsonReadFeature> features;
 
     public AsyncMissingValuesInObjectTest(Collection<JsonReadFeature> features) {
-        this.features = new HashSet<JsonReadFeature>(features);
+        this.features = new HashSet<>(features);
         JsonFactoryBuilder b = JsonFactory.builder();
         for (JsonReadFeature feature : features) {
             b = b.enable(feature);
@@ -32,7 +32,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
     @Parameterized.Parameters(name = "Features {0}")
     public static Collection<EnumSet<JsonReadFeature>> getTestCases()
     {
-        List<EnumSet<JsonReadFeature>> cases = new ArrayList<EnumSet<JsonReadFeature>>();
+        List<EnumSet<JsonReadFeature>> cases = new ArrayList<>();
         cases.add(EnumSet.noneOf(JsonReadFeature.class));
         cases.add(EnumSet.of(JsonReadFeature.ALLOW_MISSING_VALUES));
         cases.add(EnumSet.of(JsonReadFeature.ALLOW_TRAILING_COMMA));

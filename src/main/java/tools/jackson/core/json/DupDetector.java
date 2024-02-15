@@ -95,7 +95,7 @@ public class DupDetector
             return true;
         }
         if (_seen == null) {
-            _seen = new HashSet<String>(16); // 16 is default, seems reasonable
+            _seen = new HashSet<>(16); // 16 is default, seems reasonable
             _seen.add(_firstName);
             _seen.add(_secondName);
         }

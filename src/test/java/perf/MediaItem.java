@@ -24,7 +24,7 @@ public class MediaItem
 
     public void addPhoto(Photo p) {
         if (_photos == null) {
-            _photos = new ArrayList<Photo>();
+            _photos = new ArrayList<>();
         }
         _photos.add(p);
     }
@@ -175,7 +175,7 @@ public class MediaItem
 
         public void addPerson(String p) {
             if (_persons == null) {
-                _persons = new ArrayList<String>();
+                _persons = new ArrayList<>();
             }
             _persons.add(p);
         }

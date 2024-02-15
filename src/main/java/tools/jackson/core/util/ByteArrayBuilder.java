@@ -43,7 +43,7 @@ public final class ByteArrayBuilder
 
     // Optional buffer recycler instance that we can use for allocating the first block.
     private final BufferRecycler _bufferRecycler;
-    private final List<byte[]> _pastBlocks = new ArrayList<byte[]>();
+    private final List<byte[]> _pastBlocks = new ArrayList<>();
 
     // Number of bytes within byte arrays in {@link _pastBlocks}.
     private int _pastLen;

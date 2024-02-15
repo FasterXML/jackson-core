@@ -52,11 +52,11 @@ desc, allFeatures.length));
                 flags |= f.getMask();
             }
         }
-        return new JacksonFeatureSet<F>(flags);
+        return new JacksonFeatureSet<>(flags);
     }
 
     public static <F extends JacksonFeature> JacksonFeatureSet<F> fromBitmask(int bitmask) {
-        return new JacksonFeatureSet<F>(bitmask);
+        return new JacksonFeatureSet<>(bitmask);
     }
 
     /**
@@ -70,7 +70,7 @@ desc, allFeatures.length));
      */
     public JacksonFeatureSet<F> with(F feature) {
         int newMask = _enabled | feature.getMask();
-        return (newMask == _enabled) ? this : new JacksonFeatureSet<F>(newMask);
+        return (newMask == _enabled) ? this : new JacksonFeatureSet<>(newMask);
     }
 
     /**
@@ -84,7 +84,7 @@ desc, allFeatures.length));
      */
     public JacksonFeatureSet<F> without(F feature) {
         int newMask = _enabled & ~feature.getMask();
-        return (newMask == _enabled) ? this : new JacksonFeatureSet<F>(newMask);
+        return (newMask == _enabled) ? this : new JacksonFeatureSet<>(newMask);
     }
 
     /**

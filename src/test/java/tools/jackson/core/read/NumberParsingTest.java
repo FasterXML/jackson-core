@@ -112,9 +112,9 @@ public class NumberParsingTest
         assertEquals(EXP_I, p.getIntValue());
         assertEquals(EXP_I, p.getValueAsInt(EXP_I + 3));
         assertEquals(EXP_I, p.getValueAsInt());
-        assertEquals((long) EXP_I, p.getLongValue());
+        assertEquals(EXP_I, p.getLongValue());
         assertEquals((double) EXP_I, p.getDoubleValue());
-        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
+        assertEquals(BigDecimal.valueOf(EXP_I), p.getDecimalValue());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 
@@ -127,9 +127,9 @@ public class NumberParsingTest
         int i = p.getIntValue();
 
         assertEquals(EXP_I, i);
-        assertEquals((long) EXP_I, p.getLongValue());
+        assertEquals(EXP_I, p.getLongValue());
         assertEquals((double) EXP_I, p.getDoubleValue());
-        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
+        assertEquals(BigDecimal.valueOf(EXP_I), p.getDecimalValue());
         p.close();
 
         // and finally, coercion from double to int; couple of variants
@@ -315,7 +315,7 @@ public class NumberParsingTest
             assertEquals(Integer.TYPE, e.getTargetType());
         }
         assertEquals((double) EXP_L, p.getDoubleValue());
-        assertEquals(BigDecimal.valueOf((long) EXP_L), p.getDecimalValue());
+        assertEquals(BigDecimal.valueOf(EXP_L), p.getDecimalValue());
         p.close();
     }
 

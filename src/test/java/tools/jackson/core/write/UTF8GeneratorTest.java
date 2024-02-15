@@ -121,7 +121,7 @@ public class UTF8GeneratorTest extends BaseTest
         gen.writeStartObject();
 
         gen.writeName("a");
-        gen.writeNumber((int) 123);
+        gen.writeNumber(123);
 
         gen.writeName("array");
         gen.writeStartArray();

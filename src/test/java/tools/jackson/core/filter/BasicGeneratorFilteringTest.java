@@ -24,7 +24,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         private final Set<String> _names;
 
         public NameMatchFilter(String... names) {
-            _names = new HashSet<String>(Arrays.asList(names));
+            _names = new HashSet<>(Arrays.asList(names));
         }
 
         @Override
@@ -50,7 +50,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         private final boolean _inclArrays;
 
         public NameExcludeFilter(boolean inclArrays, String... names) {
-            _names = new HashSet<String>(Arrays.asList(names));
+            _names = new HashSet<>(Arrays.asList(names));
             _inclArrays = inclArrays;
         }
 
@@ -74,7 +74,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         private final Set<String> _names;
 
         public StrictNameMatchFilter(String... names) {
-            _names = new HashSet<String>(Arrays.asList(names));
+            _names = new HashSet<>(Arrays.asList(names));
         }
 
         @Override
@@ -327,7 +327,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeStartArray();
         gen.writeBinary(new byte[] { 1 });
         gen.writeNumber((short) 1);
-        gen.writeNumber((int) 2);
+        gen.writeNumber(2);
         gen.writeNumber((long) 3);
         gen.writeNumber(BigInteger.valueOf(4));
         gen.writeRaw(" ");
@@ -339,7 +339,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         gen.writeArrayPropertyStart("extra");
         gen.writeNumber((short) 1);
-        gen.writeNumber((int) 2);
+        gen.writeNumber(2);
         gen.writeNumber((long) 3);
         gen.writeNumber(BigInteger.valueOf(4));
         gen.writeNumber(new BigDecimal("5.0"));

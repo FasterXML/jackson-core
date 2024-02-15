@@ -90,7 +90,7 @@ public class ManualCharAccessTest
             if (lf) {
                 ++roundsDone;
                 if ((roundsDone % 7) == 0 && roundsDone > WARMUP_ROUNDS) {
-                    double den = (double) (roundsDone - WARMUP_ROUNDS);
+                    double den = roundsDone - WARMUP_ROUNDS;
                     System.out.printf("Averages after %d rounds (classic, byte[], int[]): "
                             +"%.1f / %.1f / %.1f msecs\n",
                             (int) den

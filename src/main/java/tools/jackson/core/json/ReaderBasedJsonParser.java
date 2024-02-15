@@ -1385,7 +1385,7 @@ public class ReaderBasedJsonParser
                 _inputPtr = startPtr;
                 return _parseNumber2(false, startPtr);
             }
-            ch = (int) _inputBuffer[ptr++];
+            ch = _inputBuffer[ptr++];
             if (ch < INT_0 || ch > INT_9) {
                 break int_loop;
             }
@@ -1420,7 +1420,7 @@ public class ReaderBasedJsonParser
                 if (ptr >= inputLen) {
                     return _parseNumber2(neg, startPtr);
                 }
-                ch = (int) _inputBuffer[ptr++];
+                ch = _inputBuffer[ptr++];
                 if (ch < INT_0 || ch > INT_9) {
                     break fract_loop;
                 }
@@ -1440,13 +1440,13 @@ public class ReaderBasedJsonParser
                 return _parseNumber2(neg, startPtr);
             }
             // Sign indicator?
-            ch = (int) _inputBuffer[ptr++];
+            ch = _inputBuffer[ptr++];
             if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
                 if (ptr >= inputLen) {
                     _inputPtr = startPtr;
                     return _parseNumber2(neg, startPtr);
                 }
-                ch = (int) _inputBuffer[ptr++];
+                ch = _inputBuffer[ptr++];
             }
             while (ch <= INT_9 && ch >= INT_0) {
                 ++expLen;
@@ -1454,7 +1454,7 @@ public class ReaderBasedJsonParser
                     _inputPtr = startPtr;
                     return _parseNumber2(neg, startPtr);
                 }
-                ch = (int) _inputBuffer[ptr++];
+                ch = _inputBuffer[ptr++];
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
@@ -1505,7 +1505,7 @@ public class ReaderBasedJsonParser
             if (ptr >= inputEnd) {
                 return _parseNumber2(negative, startPtr);
             }
-            ch = (int) _inputBuffer[ptr++];
+            ch = _inputBuffer[ptr++];
             if (ch < INT_0 || ch > INT_9) {
                 break int_loop;
             }
@@ -1858,7 +1858,7 @@ public class ReaderBasedJsonParser
                 }
             }
             char c = _inputBuffer[_inputPtr++];
-            int i = (int) c;
+            int i = c;
             if (i <= INT_BACKSLASH) {
                 if (i == INT_BACKSLASH) {
                     /* Although chars outside of BMP are to be escaped as
@@ -2076,7 +2076,7 @@ public class ReaderBasedJsonParser
                 }
             }
             char c = _inputBuffer[_inputPtr++];
-            int i = (int) c;
+            int i = c;
             if (i <= '\\') {
                 if (i == '\\') {
                     // Although chars outside of BMP are to be escaped as
@@ -2118,7 +2118,7 @@ public class ReaderBasedJsonParser
                 }
             }
             char c = _inputBuffer[_inputPtr];
-            int i = (int) c;
+            int i = c;
             if (i < maxCode) {
                 if (codes[i] != 0) {
                     break;
@@ -2195,7 +2195,7 @@ public class ReaderBasedJsonParser
                 }
             }
             char c = _inputBuffer[_inputPtr++];
-            int i = (int) c;
+            int i = c;
             if (i < maxCode && codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     break;
@@ -2247,7 +2247,7 @@ public class ReaderBasedJsonParser
                 inLen = _inputEnd;
             }
             char c = inBuf[inPtr++];
-            int i = (int) c;
+            int i = c;
             if (i <= INT_BACKSLASH) {
                 if (i == INT_BACKSLASH) {
                     // Although chars outside of BMP are to be escaped as an UTF-16 surrogate pair,
@@ -2304,7 +2304,7 @@ public class ReaderBasedJsonParser
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[++_inputPtr];
+                i = _inputBuffer[++_inputPtr];
                 if (i > INT_SPACE) {
                     if (i == INT_SLASH || i == INT_HASH) {
                         return _skipColon2(true);
@@ -2328,7 +2328,7 @@ public class ReaderBasedJsonParser
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[++_inputPtr];
+                i = _inputBuffer[++_inputPtr];
                 if (i > INT_SPACE) {
                     if (i == INT_SLASH || i == INT_HASH) {
                         return _skipColon2(true);
@@ -2345,7 +2345,7 @@ public class ReaderBasedJsonParser
     private final int _skipColon2(boolean gotColon) throws JacksonException
     {
         while (_inputPtr < _inputEnd || _loadMore()) {
-            int i = (int) _inputBuffer[_inputPtr++];
+            int i = _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
                     _skipComment();
@@ -2384,7 +2384,7 @@ public class ReaderBasedJsonParser
     // Variant called when we know there's at least 4 more bytes available
     private final int _skipColonFast(int ptr) throws JacksonException
     {
-        int i = (int) _inputBuffer[ptr++];
+        int i = _inputBuffer[ptr++];
         if (i == INT_COLON) { // common case, no leading space
             i = _inputBuffer[ptr++];
             if (i > INT_SPACE) { // nor trailing
@@ -2393,7 +2393,7 @@ public class ReaderBasedJsonParser
                     return i;
                 }
             } else if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[ptr++];
+                i = _inputBuffer[ptr++];
                 if (i > INT_SPACE) {
                     if (i != INT_SLASH && i != INT_HASH) {
                         _inputPtr = ptr;
@@ -2416,7 +2416,7 @@ public class ReaderBasedJsonParser
                     return i;
                 }
             } else if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[ptr++];
+                i = _inputBuffer[ptr++];
                 if (i > INT_SPACE) {
                     if (i != INT_SLASH && i != INT_HASH) {
                         _inputPtr = ptr;
@@ -2436,7 +2436,7 @@ public class ReaderBasedJsonParser
             _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
         }
         while (_inputPtr < _inputEnd) {
-            i = (int) _inputBuffer[_inputPtr++];
+            i = _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
                 if (i == INT_SLASH || i == INT_HASH) {
                     --_inputPtr;
@@ -2461,7 +2461,7 @@ public class ReaderBasedJsonParser
     private final int _skipAfterComma2() throws JacksonException
     {
         while (_inputPtr < _inputEnd || _loadMore()) {
-            int i = (int) _inputBuffer[_inputPtr++];
+            int i = _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
                     _skipComment();
@@ -2517,7 +2517,7 @@ public class ReaderBasedJsonParser
         }
 
         while (_inputPtr < _inputEnd) {
-            i = (int) _inputBuffer[_inputPtr++];
+            i = _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
                 if (i == INT_SLASH || i == INT_HASH) {
                     --_inputPtr;
@@ -2547,7 +2547,7 @@ public class ReaderBasedJsonParser
                     return _eofAsNextChar();
                 }
             }
-            int i = (int) _inputBuffer[_inputPtr++];
+            int i = _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
                     _skipComment();
@@ -2595,7 +2595,7 @@ public class ReaderBasedJsonParser
     {
         // Ok: need the matching '*/'
         while ((_inputPtr < _inputEnd) || _loadMore()) {
-            int i = (int) _inputBuffer[_inputPtr++];
+            int i = _inputBuffer[_inputPtr++];
             if (i <= '*') {
                 if (i == '*') { // end?
                     if ((_inputPtr >= _inputEnd) && !_loadMore()) {
@@ -2635,7 +2635,7 @@ public class ReaderBasedJsonParser
     {
         // Ok: need to find EOF or linefeed
         while ((_inputPtr < _inputEnd) || _loadMore()) {
-            int i = (int) _inputBuffer[_inputPtr++];
+            int i = _inputBuffer[_inputPtr++];
             if (i < INT_SPACE) {
                 if (i == INT_LF) {
                     ++_currInputRow;
@@ -2661,7 +2661,7 @@ public class ReaderBasedJsonParser
         }
         char c = _inputBuffer[_inputPtr++];
 
-        switch ((int) c) {
+        switch (c) {
             // First, ones that are mapped
         case 'b':
             return '\b';
@@ -2695,7 +2695,7 @@ public class ReaderBasedJsonParser
                     _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
                 }
             }
-            int ch = (int) _inputBuffer[_inputPtr++];
+            int ch = _inputBuffer[_inputPtr++];
             int digit = CharTypes.charToHex(ch);
             if (digit < 0) {
                 _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");

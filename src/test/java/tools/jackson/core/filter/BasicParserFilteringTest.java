@@ -17,7 +17,7 @@ public class BasicParserFilteringTest extends BaseTest
         private final Set<String> _names;
 
         public NameMatchFilter(String... names) {
-            _names = new HashSet<String>(Arrays.asList(names));
+            _names = new HashSet<>(Arrays.asList(names));
         }
 
         @Override
@@ -42,7 +42,7 @@ public class BasicParserFilteringTest extends BaseTest
         private final Set<String> _names;
 
         public StrictNameMatchFilter(String... names) {
-            _names = new HashSet<String>(Arrays.asList(names));
+            _names = new HashSet<>(Arrays.asList(names));
         }
 
         @Override

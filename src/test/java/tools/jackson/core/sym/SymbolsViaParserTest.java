@@ -1,6 +1,7 @@
 package tools.jackson.core.sym;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 
 import tools.jackson.core.*;
@@ -43,7 +44,7 @@ public class SymbolsViaParserTest
         JsonFactory f = new JsonFactory();
 
         JsonParser p = useBytes
-                ? f.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"))
+                ? f.createParser(ObjectReadContext.empty(), doc.getBytes(StandardCharsets.UTF_8))
                 : f.createParser(ObjectReadContext.empty(), doc);
         HashSet<String> syms = new HashSet<>();
         assertToken(JsonToken.START_OBJECT, p.nextToken());

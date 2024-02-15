@@ -1808,7 +1808,7 @@ public class UTF8StreamJsonParser
             ++intLen;
             outBuf[outPtr++] = (char) c;
         }
-        if (c == INT_PERIOD || c == INT_e || c == INT_E) {
+        if (c == INT_PERIOD || (c | 0x20) == INT_e) { // ~ '.eE'
             return _parseFloat(outBuf, outPtr, c, false, intLen);
         }
         --_inputPtr; // to push back trailing char (comma etc)
@@ -1869,7 +1869,7 @@ public class UTF8StreamJsonParser
             ++intLen;
             outBuf[outPtr++] = (char) c;
         }
-        if (c == INT_PERIOD || c == INT_e || c == INT_E) {
+        if (c == INT_PERIOD || (c | 0x20) == INT_e) { // ~ '.eE'
             return _parseFloat(outBuf, outPtr, c, negative, intLen);
         }
 
@@ -1897,7 +1897,7 @@ public class UTF8StreamJsonParser
             }
             int c = (int) _inputBuffer[_inputPtr++] & 0xFF;
             if (c > INT_9 || c < INT_0) {
-                if (c == INT_PERIOD || c == INT_e || c == INT_E) {
+                if (c == INT_PERIOD || (c | 0x20) == INT_e) { // ~ '.eE'
                     return _parseFloat(outBuf, outPtr, c, negative, intPartLength);
                 }
                 break;
@@ -1995,7 +1995,7 @@ public class UTF8StreamJsonParser
         }
 
         int expLen = 0;
-        if (c == INT_e || c == INT_E) { // exponent?
+        if ((c | 0x20) == INT_e) { // ~ 'eE' exponent?
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -3238,7 +3238,7 @@ public class UTF8StreamJsonParser
                    && (buf[ptr++] == 'u')
                    && (buf[ptr++] == 'e')) {
                 int ch = buf[ptr] & 0xFF;
-                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                if (ch < INT_0 || (ch | 0x20) == INT_RCURLY) { //  < '0' || ~ '}]' expected/allowed chars
                     _inputPtr = ptr;
                     return;
                 }
@@ -3257,7 +3257,7 @@ public class UTF8StreamJsonParser
                    && (buf[ptr++] == 's')
                    && (buf[ptr++] == 'e')) {
                 int ch = buf[ptr] & 0xFF;
-                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                if (ch < INT_0 || (ch | 0x20) == INT_RCURLY) { //  < '0' || ~ '}]' expected/allowed chars
                     _inputPtr = ptr;
                     return;
                 }
@@ -3275,7 +3275,7 @@ public class UTF8StreamJsonParser
                    && (buf[ptr++] == 'l')
                    && (buf[ptr++] == 'l')) {
                 int ch = buf[ptr] & 0xFF;
-                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                if (ch < INT_0 || (ch | 0x20) == INT_RCURLY) { //  < '0' || ~ '}]' expected/allowed chars
                     _inputPtr = ptr;
                     return;
                 }

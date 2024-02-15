@@ -692,7 +692,7 @@ public class ReaderBasedJsonParser
         _binaryValue = null;
 
         // Closing scope?
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
+        if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
             _closeScope(i);
             return _currToken;
         }
@@ -703,7 +703,7 @@ public class ReaderBasedJsonParser
 
             // Was that a trailing comma?
             if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
-                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
                     _closeScope(i);
                     return _currToken;
                 }
@@ -853,7 +853,7 @@ public class ReaderBasedJsonParser
         _binaryValue = null;
 
         // Closing scope?
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
+        if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
             _closeScope(i);
             return false;
         }
@@ -863,7 +863,7 @@ public class ReaderBasedJsonParser
 
             // Was that a trailing comma?
             if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
-                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
                     _closeScope(i);
                     return false;
                 }
@@ -927,14 +927,14 @@ public class ReaderBasedJsonParser
             return null;
         }
         _binaryValue = null;
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
+        if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
             _closeScope(i);
             return null;
         }
         if (_streamReadContext.expectComma()) {
             i = _skipComma(i);
             if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
-                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
                     _closeScope(i);
                     return null;
                 }
@@ -1391,7 +1391,7 @@ public class ReaderBasedJsonParser
             }
             ++intLen;
         }
-        if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
+        if (ch == INT_PERIOD || (ch | 0x20) == INT_e) { // ~ '.eE'
             _inputPtr = ptr;
             return _parseFloat(ch, startPtr, ptr, false, intLen);
         }
@@ -1434,7 +1434,7 @@ public class ReaderBasedJsonParser
             }
         }
         int expLen = 0;
-        if (ch == 'e' || ch == 'E') { // and/or exponent
+        if ((ch | 0x20) == INT_e) { // ~ 'eE' and/or exponent
             if (ptr >= inputLen) {
                 _inputPtr = startPtr;
                 return _parseNumber2(neg, startPtr);
@@ -1512,7 +1512,7 @@ public class ReaderBasedJsonParser
             ++intLen;
         }
 
-        if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
+        if (ch == INT_PERIOD || (ch | 0x20) == INT_e) { // ~ '.eE'
             _inputPtr = ptr;
             return _parseFloat(ch, startPtr, ptr, negative, intLen);
         }
@@ -1623,7 +1623,7 @@ public class ReaderBasedJsonParser
         }
 
         int expLen = -1;
-        if (c == 'e' || c == 'E') { // exponent?
+        if ((c | 0x20) == INT_e) { // ~ 'eE' exponent?
             expLen = 0;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();

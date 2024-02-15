@@ -43,6 +43,8 @@ a pure JSON library.
 #1205: JsonFactory.setStreamReadConstraints(StreamReadConstraints) fails to
   update "maxNameLength" for symbol tables
  (reported by @denizk)
+#1217: Optimize char comparison using bitwise OR
+ (contributed by @xtonik)
 
 2.16.2 (not yet released)
 

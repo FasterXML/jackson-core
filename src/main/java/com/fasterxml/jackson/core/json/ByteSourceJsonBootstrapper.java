@@ -411,7 +411,7 @@ public final class ByteSourceJsonBootstrapper
     private static int skipSpace(InputAccessor acc, byte b) throws IOException
     {
         while (true) {
-            int ch = (int) b & 0xFF;
+            int ch = b & 0xFF;
             if (!(ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t')) {
                 return ch;
             }

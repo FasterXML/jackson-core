@@ -344,7 +344,7 @@ public final class JsonStringEncoder
                 outputPtr = 0;
             }
             // Ok, so what did we hit?
-            int ch = (int) text.charAt(inputPtr++);
+            int ch = text.charAt(inputPtr++);
             if (ch <= 0x7F) { // needs quoting
                 int escape = escCodes[ch];
                 // ctrl-char, 6-byte escape...

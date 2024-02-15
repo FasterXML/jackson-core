@@ -659,7 +659,7 @@ public final class CharsToNameCanonicalizer
     public int calcHash(char[] buffer, int start, int len) {
         int hash = _seed;
         for (int i = start, end = start+len; i < end; ++i) {
-            hash = (hash * HASH_MULT) + (int) buffer[i];
+            hash = (hash * HASH_MULT) + buffer[i];
         }
         // NOTE: shuffling, if any, is done in 'findSymbol()', not here:
         return (hash == 0) ? 1 : hash;
@@ -671,7 +671,7 @@ public final class CharsToNameCanonicalizer
 
         int hash = _seed;
         for (int i = 0; i < len; ++i) {
-            hash = (hash * HASH_MULT) + (int) key.charAt(i);
+            hash = (hash * HASH_MULT) + key.charAt(i);
         }
         // NOTE: shuffling, if any, is done in 'findSymbol()', not here:
         return (hash == 0) ? 1 : hash;

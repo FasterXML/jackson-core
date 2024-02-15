@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
@@ -17,7 +16,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * conversion tasks.
  */
 public class ReaderBasedJsonParser
-    extends ParserBase
+    extends JsonParserBase
 {
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
@@ -188,11 +187,6 @@ public class ReaderBasedJsonParser
 
     @Override public ObjectCodec getCodec() { return _objectCodec; }
     @Override public void setCodec(ObjectCodec c) { _objectCodec = c; }
-
-    @Override // @since 2.12
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return JSON_READ_CAPABILITIES;
-    }
 
     @Override
     public int releaseBuffered(Writer w) throws IOException {

@@ -159,7 +159,7 @@ public class UTF32Reader extends Reader
                     reportInvalid(ch, outPtr-start,
                             String.format(" (above 0x%08x)", LAST_VALID_UNICODE_CHAR));
                 }
-                cbuf[outPtr++] = (char) (0xD800 + (ch >> 10));
+                cbuf[outPtr++] = (char) (0xD800 | (ch >> 10));
                 // hmmh. can this ever be 0? (not legal, at least?)
                 lo = (0xDC00 | (ch & 0x03FF));
                 // Room for second part?

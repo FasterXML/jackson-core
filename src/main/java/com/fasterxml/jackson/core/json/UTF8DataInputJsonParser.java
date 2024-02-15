@@ -1919,7 +1919,7 @@ public class UTF8DataInputJsonParser
                     if (cix >= cbuf.length) {
                         cbuf = _textBuffer.expandCurrentSegment();
                     }
-                    cbuf[cix++] = (char) (0xD800 + (ch >> 10));
+                    cbuf[cix++] = (char) (0xD800 | (ch >> 10));
                     ch = 0xDC00 | (ch & 0x03FF);
                 }
             }

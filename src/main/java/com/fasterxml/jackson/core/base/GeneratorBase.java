@@ -533,8 +533,7 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
 "Incomplete surrogate pair: first char 0x%04X, second 0x%04X", surr1, surr2);
             _reportError(msg);
         }
-        int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);
-        return c;
+        return 0x10000 + ((surr1 - SURR1_FIRST) << 10) | (surr2 - SURR2_FIRST);
     }
 
     /*

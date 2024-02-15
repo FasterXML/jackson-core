@@ -369,7 +369,7 @@ public final class UTF8Writer extends Writer
         if (secondPart < SURR2_FIRST || secondPart > SURR2_LAST) {
             throw new IOException("Broken surrogate pair: first char 0x"+Integer.toHexString(firstPart)+", second 0x"+Integer.toHexString(secondPart)+"; illegal combination");
         }
-        return 0x10000 + ((firstPart - SURR1_FIRST) << 10) + (secondPart - SURR2_FIRST);
+        return 0x10000 + ((firstPart - SURR1_FIRST) << 10) | (secondPart - SURR2_FIRST);
     }
 
     protected static void illegalSurrogate(int code) throws IOException {

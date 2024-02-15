@@ -682,7 +682,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        throw _constructReadException(msg, currentLocation());
+        throw _constructReadException(msg, _currentLocationMinusOne());
     }
 
     /**
@@ -698,7 +698,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        throw _constructReadException(msg, currentLocation());
+        throw _constructReadException(msg, _currentLocationMinusOne());
     }
 
     @Deprecated // @since 2.14
@@ -722,6 +722,23 @@ public abstract class ParserMinimalBase extends JsonParser
         return _constructReadException(msg, t);
     }
 
+    /**
+     * Factory method used to provide location for cases where we must read
+     * and consume a single "wrong" character (to possibly allow error recovery),
+     * but need to report accurate location for that character: if so, the
+     * current location is past location we want, and location we want will be
+     * "one location earlier".
+     *<p>
+     * Default implementation simply returns {@link #currentLocation()}
+     *
+     * @since 2.17
+     *
+     * @return Same as {@link #currentLocation()} except offset by -1
+     */
+    protected JsonLocation _currentLocationMinusOne() {
+        return currentLocation();
+    }
+    
     protected final static String _getCharDesc(int ch)
     {
         char c = (char) ch;

@@ -46,8 +46,6 @@ import com.fasterxml.jackson.core.util.*;
 @SuppressWarnings("resource")
 public class JsonFactory
     extends TokenStreamFactory
-    implements Versioned,
-        java.io.Serializable // since 2.1 (for Android, mostly)
 {
     private static final long serialVersionUID = 2;
 

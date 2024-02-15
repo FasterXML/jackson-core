@@ -1707,7 +1707,34 @@ public abstract class JsonParser
         return _constructReadException(String.format(msg, arg1, arg2, arg3));
     }
 
-    protected final StreamReadException _constructReadException(String msg, Throwable t) {
+    /**
+     * Helper method for constructing {@link StreamReadException}
+     * based on current state of the parser and indicating that the given
+     * {@link Throwable} is the root cause.
+     *
+     * @param msg Base exception message to construct exception with
+     * @param t Root cause to assign
+     *
+     * @return Read exception (of type {@link StreamReadException}) constructed
+     */
+    protected StreamReadException _constructReadException(String msg, Throwable t) {
         return new StreamReadException(this, msg, currentLocation(), t);
+    }
+
+    /**
+     * Helper method for constructing {@link StreamReadException}
+     * based on current state of the parser, except for specified
+     * {@link JsonLocation} for problem location (which may not be
+     * the exact current location)
+     *
+     * @param msg Base exception message to construct exception with
+     * @param loc Error location to report
+     *
+     * @return Read exception (of type {@link StreamReadException}) constructed
+     *
+     * @since 2.13
+     */
+    protected StreamReadException _constructReadException(String msg, JsonLocation loc) {
+        return new StreamReadException(this, msg, loc);
     }
 }

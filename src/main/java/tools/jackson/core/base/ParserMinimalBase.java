@@ -338,8 +338,8 @@ public abstract class ParserMinimalBase extends JsonParser
 
     // public abstract TokenStreamContext getParsingContext();
 
-    //  public abstract JsonLocation getTokenLocation();
-    //  public abstract JsonLocation getCurrentLocation();
+    //  public abstract JsonLocation currentTokenLocation();
+    //  public abstract JsonLocation currentLocation();
 
     @Override
     public ObjectReadContext objectReadContext() {
@@ -996,7 +996,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected <T> T _reportInvalidSpace(int i) throws StreamReadException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
-        throw _constructReadException(msg);
+        throw _constructReadException(msg, _currentLocationMinusOne());
     }
 
     protected <T> T _reportMissingRootWS(int ch) throws StreamReadException {
@@ -1012,7 +1012,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        throw _constructReadException(msg, currentLocation());
+        throw _constructReadException(msg, _currentLocationMinusOne());
     }
 
     protected <T> T _reportUnexpectedNumberChar(int ch, String comment) throws StreamReadException {
@@ -1020,7 +1020,24 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        throw _constructReadException(msg, currentLocation());
+        throw _constructReadException(msg, _currentLocationMinusOne());
+    }
+
+    /**
+     * Factory method used to provide location for cases where we must read
+     * and consume a single "wrong" character (to possibly allow error recovery),
+     * but need to report accurate location for that character: if so, the
+     * current location is past location we want, and location we want will be
+     * "one location earlier".
+     *<p>
+     * Default implementation simply returns {@link #currentLocation()}
+     *
+     * @since 2.17
+     *
+     * @return Same as {@link #currentLocation()} except offset by -1
+     */
+    protected JsonLocation _currentLocationMinusOne() {
+        return currentLocation();
     }
 
     protected final static String _getCharDesc(int ch)

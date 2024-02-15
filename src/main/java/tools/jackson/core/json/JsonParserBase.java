@@ -352,16 +352,17 @@ public abstract class JsonParserBase
         if (ch == '\'' && isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
             return ch;
         }
-        _reportError("Unrecognized character escape "+_getCharDesc(ch));
-        return ch;
+        throw _constructReadException("Unrecognized character escape "+_getCharDesc(ch),
+                _currentLocationMinusOne());
     }
 
     // Promoted from `ParserBase` in 3.0
     protected void _reportMismatchedEndMarker(int actCh, char expCh) throws StreamReadException {
         TokenStreamContext ctxt = streamReadContext();
-        _reportError(String.format(
+        final String msg = String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
-                (char) actCh, expCh, ctxt.typeDesc(), ctxt.startLocation(_contentReference())));
+                (char) actCh, expCh, ctxt.typeDesc(), ctxt.startLocation(_contentReference()));
+        throw _constructReadException(msg, _currentLocationMinusOne());
     }
 
     // Method called to report a problem with unquoted control character.
@@ -372,7 +373,7 @@ public abstract class JsonParserBase
         if (!isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS) || i > INT_SPACE) {
             char c = (char) i;
             String msg = "Illegal unquoted character ("+_getCharDesc(c)+"): has to be escaped using backslash to be included in "+ctxtDesc;
-            _reportError(msg);
+            throw _constructReadException(msg, _currentLocationMinusOne());
         }
     }
 

@@ -2974,6 +2974,12 @@ public class UTF8DataInputJsonParser
                 _currInputRow, col);
     }
 
+    // Since we only know row, may as well return currentLocation()
+    @Override // @since 2.17
+    protected JsonLocation _currentLocationMinusOne() {
+        return currentLocation();
+    }
+
     /*
     /**********************************************************************
     /* Internal methods, other

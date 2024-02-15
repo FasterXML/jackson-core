@@ -337,6 +337,16 @@ public abstract class NonBlockingJsonParserBase
                 row, col);
     }
 
+    @Override // @since 2.17
+    protected JsonLocation _currentLocationMinusOne() {
+        final int prevInputPtr = _inputPtr - 1;
+        int row = Math.max(_currInputRow, _currInputRowAlt);
+        final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_contentReference(),
+                _currInputProcessed + (prevInputPtr - _currBufferStart), -1L, // bytes, chars
+                row, col);
+    }
+
     @Override
     public JsonLocation currentTokenLocation()
     {

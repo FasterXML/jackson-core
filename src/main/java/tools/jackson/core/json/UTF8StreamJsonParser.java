@@ -4159,7 +4159,6 @@ public class UTF8StreamJsonParser
     /**********************************************************************
      */
 
-    // As per [core#108], must ensure we call the right method
     @Override
     public JsonLocation currentTokenLocation()
     {
@@ -4172,13 +4171,21 @@ public class UTF8StreamJsonParser
                 _tokenInputTotal-1, -1L, _tokenInputRow, _tokenInputCol);
     }
 
-    // As per [core#108], must ensure we call the right method
     @Override
     public JsonLocation currentLocation()
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_contentReference(),
                 _currInputProcessed + _inputPtr, -1L, // bytes, chars
+                _currInputRow, col);
+    }
+
+    @Override // @since 2.17
+    protected JsonLocation _currentLocationMinusOne() {
+        final int prevInputPtr = _inputPtr - 1;
+        final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_contentReference(),
+                _currInputProcessed + prevInputPtr, -1L, // bytes, chars
                 _currInputRow, col);
     }
 

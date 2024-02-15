@@ -426,3 +426,7 @@ Guillaume Lecroc (@gulecroc)
  * Contributed #1179: Allow configuring `DefaultPrettyPrinter` separators for empty
    Arrays and Objects
   (2.17.0)
+
+Antonin Janec (@xtonic)
+ * Contributed #1203: Faster division by 1000
+  (2.17.0)

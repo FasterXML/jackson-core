@@ -897,7 +897,7 @@ public class JsonFactory
      * @since 2.16
      */
     public JsonFactory setErrorReportConfiguration(ErrorReportConfiguration src) {
-        _errorReportConfiguration = Objects.requireNonNull(src, "Cannot pass null ErrorReportConfiguration");;
+        _errorReportConfiguration = Objects.requireNonNull(src, "Cannot pass null ErrorReportConfiguration");
         return this;
     }
 

@@ -45,6 +45,8 @@ a pure JSON library.
  (reported by @denizk)
 #1217: Optimize char comparison using bitwise OR
  (contributed by @xtonik)
+#1218: Simplify Unicode surrogate pair conversion for generation
+ (contributed by @xtonik)
 
 2.16.2 (not yet released)
 

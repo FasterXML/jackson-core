@@ -432,3 +432,5 @@ Antonin Janec (@xtonic)
   (2.17.0)
  * Contributed #1217: Optimize char comparison using bitwise OR
   (2.17.0)
+ * Contributed #1218: Simplify Unicode surrogate pair conversion for generation
+ (2.17.0)

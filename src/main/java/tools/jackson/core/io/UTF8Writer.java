@@ -9,6 +9,11 @@ public final class UTF8Writer extends Writer
     final static int SURR2_FIRST = 0xDC00;
     final static int SURR2_LAST = 0xDFFF;
 
+    /**
+     * @since 2.17
+     */
+    public static final int SURROGATE_BASE = 0x10000 - UTF8Writer.SURR2_FIRST - (UTF8Writer.SURR1_FIRST << 10);
+
     final private IOContext _context;
 
     private OutputStream _out;
@@ -369,7 +374,7 @@ public final class UTF8Writer extends Writer
         if (secondPart < SURR2_FIRST || secondPart > SURR2_LAST) {
             throw new IOException("Broken surrogate pair: first char 0x"+Integer.toHexString(firstPart)+", second 0x"+Integer.toHexString(secondPart)+"; illegal combination");
         }
-        return 0x10000 + ((firstPart - SURR1_FIRST) << 10) + (secondPart - SURR2_FIRST);
+        return (firstPart << 10) + secondPart + UTF8Writer.SURROGATE_BASE;
     }
 
     protected static void illegalSurrogate(int code) throws IOException {

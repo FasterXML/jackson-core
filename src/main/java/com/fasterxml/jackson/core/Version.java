@@ -82,7 +82,7 @@ public class Version
     public boolean isUnknownVersion() { return (this == UNKNOWN_VERSION); }
 
     public boolean isSnapshot() {
-        return (_snapshotInfo != null) && (_snapshotInfo.length() > 0);
+        return (_snapshotInfo != null) && (!_snapshotInfo.isEmpty());
     }
 
     /**

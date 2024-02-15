@@ -367,8 +367,7 @@ public final class NumberInput
     {
         if (s == null) { return def; }
         s = s.trim();
-        int len = s.length();
-        if (len == 0) {
+        if (s.isEmpty()) {
             return def;
         }
         try {

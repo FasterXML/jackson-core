@@ -430,3 +430,5 @@ Guillaume Lecroc (@gulecroc)
 Antonin Janec (@xtonic)
  * Contributed #1203: Faster division by 1000
   (2.17.0)
+ * Contributed #1217: Optimize char comparison using bitwise OR
+  (2.17.0)

@@ -2,13 +2,16 @@ package com.fasterxml.jackson.core.base64;
 
 import java.util.Arrays;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class Base64CodecTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
+    @Test
     public void testVariantAccess()
     {
         for (Base64Variant var : new Base64Variant[] {
@@ -28,6 +31,7 @@ public class Base64CodecTest
         }
     }
 
+    @Test
     public void testProps()
     {
         Base64Variant std = Base64Variants.MIME;
@@ -42,6 +46,7 @@ public class Base64CodecTest
         assertEquals(76, std.getMaxLineLength());
     }
 
+    @Test
     public void testCharEncoding() throws Exception
     {
         Base64Variant std = Base64Variants.MIME;
@@ -73,9 +78,10 @@ public class Base64CodecTest
         byte[] exp = EXP_STR.getBytes("UTF-8");
         byte[] act = new byte[exp.length];
         std.encodeBase64Chunk(TRIPLET, act, 0);
-        Assert.assertArrayEquals(exp, act);
+        assertArrayEquals(exp, act);
     }
 
+    @Test
     public void testConvenienceMethods() throws Exception
     {
         final Base64Variant std = Base64Variants.MIME;
@@ -83,21 +89,22 @@ public class Base64CodecTest
         byte[] input = new byte[] { 1, 2, 34, 127, -1 };
         String encoded = std.encode(input, false);
         byte[] decoded = std.decode(encoded);
-        Assert.assertArrayEquals(input, decoded);
+        assertArrayEquals(input, decoded);
 
         assertEquals(q(encoded), std.encode(input, true));
 
         // [core#414]: check white-space allow too
         decoded = std.decode("\n"+encoded);
-        Assert.assertArrayEquals(input, decoded);
+        assertArrayEquals(input, decoded);
         decoded = std.decode("   "+encoded);
-        Assert.assertArrayEquals(input, decoded);
+        assertArrayEquals(input, decoded);
         decoded = std.decode(encoded + "   ");
-        Assert.assertArrayEquals(input, decoded);
+        assertArrayEquals(input, decoded);
         decoded = std.decode(encoded + "\n");
-        Assert.assertArrayEquals(input, decoded);
+        assertArrayEquals(input, decoded);
     }
 
+    @Test
     public void testConvenienceMethodWithLFs() throws Exception
     {
         final Base64Variant std = Base64Variants.MIME;
@@ -125,6 +132,7 @@ public class Base64CodecTest
     }
 
     @SuppressWarnings("unused")
+    @Test
     public void testErrors() throws Exception
     {
         try {
@@ -149,6 +157,7 @@ public class Base64CodecTest
         }
     }
 
+    @Test
     public void testPaddingReadBehaviour() throws Exception {
 
         for (Base64Variant variant: Arrays.asList(Base64Variants.MIME, Base64Variants.MIME_NO_LINEFEEDS, Base64Variants.PEM)) {
@@ -209,6 +218,5 @@ public class Base64CodecTest
 
         Base64Variants.MODIFIED_FOR_URL.withPaddingAllowed().decode(BASE64_HELLO_WITHOUT_PADDING);
         Base64Variants.MODIFIED_FOR_URL.withPaddingForbidden().decode(BASE64_HELLO_WITHOUT_PADDING);
-
     }
 }

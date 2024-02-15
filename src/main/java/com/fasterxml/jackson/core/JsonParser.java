@@ -2610,4 +2610,25 @@ public abstract class JsonParser
         }
         return e;
     }
+
+    /**
+     * Helper method for constructing {@link JsonParseException}
+     * based on current state of the parser, except for specified
+     * {@link JsonLocation} for problem location (which may not be
+     * the exact current location)
+     *
+     * @param msg Base exception message to construct exception with
+     * @param loc Error location to report
+     *
+     * @return Read exception (of type {@link JsonParseException}) constructed
+     *
+     * @since 2.13
+     */
+    protected JsonParseException _constructReadException(String msg, JsonLocation loc) {
+        JsonParseException e = new JsonParseException(this, msg, loc);
+        if (_requestPayload != null) {
+            e = e.withRequestPayload(_requestPayload);
+        }
+        return e;
+    }
 }

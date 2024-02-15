@@ -221,8 +221,11 @@ public class JsonFactory
      * Each factory comes equipped with a shared root symbol table.
      * It should not be linked back to the original blueprint, to
      * avoid contents from leaking between factories.
+     *<p>
+     * NOTE: non-final since 2.17 due to need to re-create if
+     * {@link StreamReadConstraints} re-configured for factory.
      */
-    protected final transient CharsToNameCanonicalizer _rootCharSymbols;
+    protected transient CharsToNameCanonicalizer _rootCharSymbols;
 
     /**
      * Alternative to the basic symbol table, some stream-based
@@ -260,6 +263,9 @@ public class JsonFactory
      */
 
     /**
+     * {@link RecyclerPool} configured for use by this factory: used for
+     * recycling underlying read and/or write buffers via {@link BufferRecycler}.
+     *
      * @since 2.16
      */
     protected RecyclerPool<BufferRecycler> _recyclerPool;
@@ -867,7 +873,13 @@ public class JsonFactory
      * @since 2.15
      */
     public JsonFactory setStreamReadConstraints(StreamReadConstraints src) {
+        final int maxNameLen = _streamReadConstraints.getMaxNameLength();
         _streamReadConstraints = Objects.requireNonNull(src);
+        // 30-Jan-2024, tatu: [core#1207] Need to recreate if max-name-length
+        //    setting changes
+        if (_streamReadConstraints.getMaxNameLength() != maxNameLen) {
+            _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
+        }
         return this;
     }
 

@@ -25,10 +25,46 @@ import com.fasterxml.jackson.core.io.NumberInput;
  */
 public class JsonPointer implements Serializable
 {
+    /**
+     * Escape character {@value #ESC} per <a href="https://datatracker.ietf.org/doc/html/rfc6901">RFC6901</a>.
+     * <pre>
+     * escaped         = "~" ( "0" / "1" )
+     *  ; representing '~' and '/', respectively
+     * </pre>   
+     *
+     * @since 2.17
+     */
+    public static final char ESC = '~';
+
+    /**
+     * Escaped slash string {@value #ESC_TILDE} per <a href="https://datatracker.ietf.org/doc/html/rfc6901">RFC6901</a>.
+     * <pre>
+     * escaped         = "~" ( "0" / "1" )
+     *  ; representing '~' and '/', respectively
+     * </pre>   
+     *
+     * @since 2.17
+     */
+    public static final String ESC_SLASH = "~1";
+
+    /**
+     * Escaped tilde string {@value #ESC_TILDE} per <a href="https://datatracker.ietf.org/doc/html/rfc6901">RFC6901</a>.
+     * <pre>
+     * escaped         = "~" ( "0" / "1" )
+     *  ; representing '~' and '/', respectively
+     * </pre>   
+     *
+     * @since 2.17
+     */
+    public static final String ESC_TILDE = "~0";
+
     private static final long serialVersionUID = 1L;
 
     /**
      * Character used to separate segments.
+     * <pre>
+     * json-pointer    = *( "/" reference-token )
+     * </pre>
      *
      * @since 2.9
      */
@@ -158,7 +194,7 @@ public class JsonPointer implements Serializable
             return EMPTY;
         }
         // And then quick validity check:
-        if (expr.charAt(0) != '/') {
+        if (expr.charAt(0) != SEPARATOR) {
             throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "+"\""+expr+"\"");
         }
         return _parseTail(expr);
@@ -249,7 +285,7 @@ public class JsonPointer implements Serializable
             // Let's find the last segment as well, for reverse traversal
             last = next;
             next.pathOffset = pathBuilder.length();
-            pathBuilder.append('/');
+            pathBuilder.append(SEPARATOR);
             if (next.property != null) {
                 _appendEscaped(pathBuilder, next.property);
             } else {
@@ -281,12 +317,12 @@ public class JsonPointer implements Serializable
     {
         for (int i = 0, end = segment.length(); i < end; ++i) {
             char c = segment.charAt(i);
-            if (c == '/') {
-                sb.append("~1");
+            if (c == SEPARATOR) {
+                sb.append(ESC_SLASH);
                 continue;
             }
-            if (c == '~') {
-                sb.append("~0");
+            if (c == ESC) {
+                sb.append(ESC_TILDE);
                 continue;
             }
             sb.append(c);
@@ -417,7 +453,7 @@ public class JsonPointer implements Serializable
         }
         // 14-Dec-2023, tatu: [core#1145] Must escape `property`; accept empty String
         //    as valid segment to match as well
-        StringBuilder sb = toStringBuilder(property.length() + 2).append('/');
+        StringBuilder sb = toStringBuilder(property.length() + 2).append(SEPARATOR);
         _appendEscaped(sb, property);
         return compile(sb.toString());
     }
@@ -578,6 +614,7 @@ public class JsonPointer implements Serializable
      *
      * @param slack Number of characters to reserve in StringBuilder beyond
      *   minimum copied
+     * @return a new StringBuilder
      *
      * @since 2.17
      */
@@ -685,7 +722,7 @@ public class JsonPointer implements Serializable
 
         while (i < end) {
             char c = fullPath.charAt(i);
-            if (c == '/') { // common case, got a segment
+            if (c == SEPARATOR) { // common case, got a segment
                 parent = new PointerParent(parent, startOffset,
                         fullPath.substring(startOffset + 1, i));
                 startOffset = i;
@@ -694,7 +731,7 @@ public class JsonPointer implements Serializable
             }
             ++i;
             // quoting is different; offline this case
-            if (c == '~' && i < end) { // possibly, quote
+            if (c == ESC && i < end) { // possibly, quote
                 // 04-Oct-2022, tatu: Let's decode escaped segment
                 //   instead of recursive call
                 StringBuilder sb = new StringBuilder(32);
@@ -749,11 +786,11 @@ public class JsonPointer implements Serializable
         _appendEscape(sb, input.charAt(i++));
         while (i < end) {
             char c = input.charAt(i);
-            if (c == '/') { // end is nigh!
+            if (c == SEPARATOR) { // end is nigh!
                 return i;
             }
             ++i;
-            if (c == '~' && i < end) {
+            if (c == ESC && i < end) {
                 _appendEscape(sb, input.charAt(i++));
                 continue;
             }
@@ -765,11 +802,11 @@ public class JsonPointer implements Serializable
 
     private static void _appendEscape(StringBuilder sb, char c) {
         if (c == '0') {
-            c = '~';
+            c = ESC;
         } else if (c == '1') {
-            c = '/';
+            c = SEPARATOR;
         } else {
-            sb.append('~');
+            sb.append(ESC);
         }
         sb.append(c);
     }

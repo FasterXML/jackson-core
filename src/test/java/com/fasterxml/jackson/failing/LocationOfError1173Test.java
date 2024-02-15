@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.read.loc;
+package com.fasterxml.jackson.failing;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

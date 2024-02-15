@@ -19,6 +19,8 @@ a pure JSON library.
 #507: Add `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` to allow escaping of '/' for
   String values
  (contributed by Joo-Hyuk K)
+#1117: Change default `RecylerPool` implementation to `newLockFreePool` (from
+  `threadLocalPool`)
 #1137: Improve detection of "is a NaN" to only consider explicit cases,
   not `double` overflow/underflow
 #1145: `JsonPointer.appendProperty(String)` does not escape the property name
@@ -35,14 +37,16 @@ a pure JSON library.
  (suggested by @kkkkkhhhh)
 #1195: Use `BufferRecycler` provided by output (`OutputStream`, `Writer`) object if available
  (contributed by Mario F)
+#1202: Add `RecyclerPool.clear()` method for dropping all pooled Objects
 #1203: Faster division by 1000
  (contributed by @xtonik)
+#1205: JsonFactory.setStreamReadConstraints(StreamReadConstraints) fails to
+  update "maxNameLength" for symbol tables
+ (reported by @denizk)
 
 2.16.2 (not yet released)
 
-#1173: `JsonLocation` consistently off by one character for many invalid JSON
-  parsing cases
- (reported by Paul B)
+-
 
 2.16.1 (24-Dec-2023)
 

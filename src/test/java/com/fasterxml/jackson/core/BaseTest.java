@@ -12,6 +12,10 @@ import com.fasterxml.jackson.core.testsupport.ThrottledReader;
 
 import junit.framework.TestCase;
 
+/**
+ * Base class for JUnit 4 based tests. To be deprecated from
+ * Jackson 2.18 or later.
+ */
 @SuppressWarnings("resource")
 public abstract class BaseTest
     extends TestCase
@@ -417,7 +421,7 @@ public abstract class BaseTest
     }
 
     public static String a2q(String json) {
-        return json.replace("'", "\"");
+        return json.replace('\'', '"');
     }
 
     public static byte[] encodeInUTF32BE(String input)

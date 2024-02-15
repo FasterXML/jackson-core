@@ -609,7 +609,6 @@ public abstract class NonBlockingJsonParserBase
     protected final JsonToken _closeArrayScope() throws IOException
     {
         if (!_parsingContext.inArray()) {
-            --_inputPtr; // for correct error reporting
             _reportMismatchedEndMarker(']', '}');
         }
         JsonReadContext ctxt = _parsingContext.getParent();
@@ -630,7 +629,6 @@ public abstract class NonBlockingJsonParserBase
     protected final JsonToken _closeObjectScope() throws IOException
     {
         if (!_parsingContext.inObject()) {
-            --_inputPtr; // for correct error reporting
             _reportMismatchedEndMarker('}', ']');
         }
         JsonReadContext ctxt = _parsingContext.getParent();

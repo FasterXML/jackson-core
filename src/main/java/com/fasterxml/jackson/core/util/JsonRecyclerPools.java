@@ -18,12 +18,15 @@ import com.fasterxml.jackson.core.util.RecyclerPool.LockFreePoolBase;
 public final class JsonRecyclerPools
 {
     /**
-     * @return the default {@link RecyclerPool} implementation
-     *   which is the thread local based one:
-     *   basically alias to {@link #threadLocalPool()}).
+     * Method to call to get the default recycler pool instance:
+     * as of Jackson 2.17 this is same as calling
+     * {@link #newLockFreePool()}; earlier 
+     *
+     * @return the default {@link RecyclerPool} implementation to use
+     *   if no specific implementation desired.
      */
     public static RecyclerPool<BufferRecycler> defaultPool() {
-        return threadLocalPool();
+        return newLockFreePool();
     }
 
     /**

@@ -1363,14 +1363,6 @@ public abstract class ParserBase extends ParserMinimalBase
     /**********************************************************
      */
 
-    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
-        JsonReadContext ctxt = getParsingContext();
-        _reportError(String.format(
-                "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
-                (char) actCh, expCh, ctxt.typeDesc(),
-                ctxt.startLocation(_contentReference())));
-    }
-
     @SuppressWarnings("deprecation")
     protected char _handleUnrecognizedCharacterEscape(char ch) throws JsonProcessingException {
         // as per [JACKSON-300]
@@ -1383,6 +1375,14 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _reportError("Unrecognized character escape "+_getCharDesc(ch));
         return ch;
+    }
+
+    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
+        JsonReadContext ctxt = getParsingContext();
+        _reportError(String.format(
+                "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
+                (char) actCh, expCh, ctxt.typeDesc(),
+                ctxt.startLocation(_contentReference())));
     }
 
     /**

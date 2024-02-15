@@ -2,15 +2,20 @@ package com.fasterxml.jackson.core;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.util.RecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
  */
-public class JDKSerializabilityTest extends BaseTest
+public class JDKSerializabilityTest
+    extends JUnit5TestBase
 {
     /*
     /**********************************************************************
@@ -18,6 +23,7 @@ public class JDKSerializabilityTest extends BaseTest
     /**********************************************************************
      */
 
+    @Test
     public void testJsonFactorySerializable() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -40,6 +46,7 @@ public class JDKSerializabilityTest extends BaseTest
     /**********************************************************************
      */
 
+    @Test
     public void testBase64Variant() throws Exception
     {
         {
@@ -71,6 +78,7 @@ public class JDKSerializabilityTest extends BaseTest
         }
     }
 
+    @Test
     public void testPrettyPrinter() throws Exception
     {
         PrettyPrinter p = new DefaultPrettyPrinter();
@@ -80,6 +88,7 @@ public class JDKSerializabilityTest extends BaseTest
         assertNotNull(back);
     }
 
+    @Test
     public void testLocation() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -96,6 +105,7 @@ public class JDKSerializabilityTest extends BaseTest
         jp.close();
     }
 
+    @Test
     public void testSourceReference() throws Exception
     {
         ContentReference ref = ContentReference.construct(true, "text",
@@ -113,6 +123,7 @@ public class JDKSerializabilityTest extends BaseTest
     /**********************************************************************
      */
 
+    @Test
     public void testRecyclerPools() throws Exception
     {
         // First: shared/global pools that will always remain/become globally
@@ -156,6 +167,7 @@ public class JDKSerializabilityTest extends BaseTest
     /**********************************************************************
      */
 
+    @Test
     public void testParseException() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -174,6 +186,7 @@ public class JDKSerializabilityTest extends BaseTest
         assertNotNull(result);
     }
 
+    @Test
     public void testGenerationException() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -198,6 +211,7 @@ public class JDKSerializabilityTest extends BaseTest
     /**********************************************************************
      */
 
+    @Test
     public void testPointerSerializationNonEmpty() throws Exception
     {
         // First, see that we can write and read a general JsonPointer
@@ -228,14 +242,15 @@ public class JDKSerializabilityTest extends BaseTest
         assertEquals(leaf.hashCode(), copy.hashCode());
     }
 
+    @Test
     public void testPointerSerializationEmpty() throws Exception
     {
         // and then verify that "empty" instance gets canonicalized
         final JsonPointer emptyP = JsonPointer.empty();
         byte[] ser = jdkSerialize(emptyP);
         JsonPointer result = jdkDeserialize(ser);
-        assertSame("Should get same 'empty' instance when JDK serialize+deserialize",
-                emptyP, result);
+        assertSame(emptyP, result,
+                "Should get same 'empty' instance when JDK serialize+deserialize");
     }
 
     /*

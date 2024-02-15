@@ -1150,7 +1150,8 @@ public class TextBuffer
         int offset = 0;
         final char[] result = carr(size);
         if (_segments != null) {
-            for (char[] curr : _segments) {
+            for (int i = 0, len = _segments.size(); i < len; ++i) {
+                char[] curr = _segments.get(i);
                 int currLen = curr.length;
                 System.arraycopy(curr, 0, result, offset, currLen);
                 offset += currLen;

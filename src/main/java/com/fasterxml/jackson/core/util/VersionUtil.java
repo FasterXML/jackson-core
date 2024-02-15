@@ -69,8 +69,9 @@ public class VersionUtil
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to get Versioned out of "+vClass);
             }
-        } catch (Exception e) { // ok to be missing (not good but acceptable)
-            
+        } catch (Exception e) {
+            // ok to be missing (not good but acceptable)
+            ;
         }
         return (v == null) ? Version.unknownVersion() : v;
     }

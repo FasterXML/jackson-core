@@ -822,7 +822,7 @@ public class UTF8JsonGenerator
             inner_loop:
             while (true) {
                 int ch = cbuf[offset];
-                if (ch >= 0x80) {
+                if (ch > 0x7F) {
                     break inner_loop;
                 }
                 // !!! TODO: fast(er) writes (roll input, output checks in one)

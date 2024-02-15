@@ -1055,7 +1055,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_LONG) != 0) {
             // Let's verify its lossless conversion by simple roundtrip
             int result = (int) _numberLong;
-            if ((result) != _numberLong) {
+            if (result != _numberLong) {
                 reportOverflowInt(getText(), currentToken());
             }
             _numberInt = result;

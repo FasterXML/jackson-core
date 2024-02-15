@@ -1279,7 +1279,7 @@ public abstract class JsonParser
      * @since 2.8
      */
     public void finishToken() throws IOException {
-         // nothing
+        // nothing to do
     }
 
     /*

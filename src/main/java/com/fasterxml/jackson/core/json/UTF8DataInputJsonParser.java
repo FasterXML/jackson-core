@@ -611,7 +611,7 @@ public class UTF8DataInputJsonParser
         _tokenInputRow = _currInputRow;
 
         // Closing scope?
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
+        if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
             _closeScope(i);
             return _currToken;
         }
@@ -625,7 +625,7 @@ public class UTF8DataInputJsonParser
 
             // Was that a trailing comma?
             if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
-                if (i == INT_RBRACKET || i == INT_RCURLY) {
+                if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
                     _closeScope(i);
                     return _currToken;
                 }
@@ -801,7 +801,7 @@ public class UTF8DataInputJsonParser
         _binaryValue = null;
         _tokenInputRow = _currInputRow;
 
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
+        if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
             _closeScope(i);
             return null;
         }
@@ -815,7 +815,7 @@ public class UTF8DataInputJsonParser
 
             // Was that a trailing comma?
             if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
-                if (i == INT_RBRACKET || i == INT_RCURLY) {
+                if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
                     _closeScope(i);
                     return null;
                 }
@@ -1077,7 +1077,7 @@ public class UTF8DataInputJsonParser
             outBuf[outPtr++] = (char) c;
             c = _inputData.readUnsignedByte();
         }
-        if (c == '.' || c == 'e' || c == 'E') {
+        if (c == '.' || (c | 0x20) == INT_e) { // ~ '.eE'
             return _parseFloat(outBuf, outPtr, c, false, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);
@@ -1140,7 +1140,7 @@ public class UTF8DataInputJsonParser
             outBuf[outPtr++] = (char) c;
             c = _inputData.readUnsignedByte();
         }
-        if (c == '.' || c == 'e' || c == 'E') {
+        if (c == '.' || (c | 0x20) == INT_e) { // ~ '.eE'
             return _parseFloat(outBuf, outPtr, c, negative, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);
@@ -1217,7 +1217,7 @@ public class UTF8DataInputJsonParser
         }
 
         int expLen = 0;
-        if (c == INT_e || c == INT_E) { // exponent?
+        if ((c | 0x20) == INT_e) { // ~ 'eE' exponent?
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -17,7 +16,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * based on a {@link java.io.InputStream} as the input source.
  */
 public class UTF8StreamJsonParser
-    extends ParserBase
+    extends JsonParserBase
 {
     final static byte BYTE_LF = (byte) '\n';
 
@@ -209,11 +208,6 @@ public class UTF8StreamJsonParser
     @Override
     public void setCodec(ObjectCodec c) {
         _objectCodec = c;
-    }
-
-    @Override // @since 2.12
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return JSON_READ_CAPABILITIES;
     }
 
     /*

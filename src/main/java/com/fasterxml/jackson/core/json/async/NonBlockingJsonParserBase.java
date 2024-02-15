@@ -3,13 +3,12 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.JsonParserBase;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
 
@@ -19,7 +18,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * @since 2.9
  */
 public abstract class NonBlockingJsonParserBase
-    extends ParserBase
+    extends JsonParserBase
 {
     /*
     /**********************************************************************
@@ -272,13 +271,14 @@ public abstract class NonBlockingJsonParserBase
         throw new UnsupportedOperationException("Can not use ObjectMapper with non-blocking parser");
     }
 
+    /*
+    /**********************************************************
+    /* Capability introspection
+    /**********************************************************
+     */
+    
     @Override // since 2.9
     public boolean canParseAsync() { return true; }
-
-    @Override // @since 2.12
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return JSON_READ_CAPABILITIES;
-    }
 
     /*
     /**********************************************************

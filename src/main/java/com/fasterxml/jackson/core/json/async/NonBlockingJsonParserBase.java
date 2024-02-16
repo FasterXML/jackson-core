@@ -254,16 +254,11 @@ public abstract class NonBlockingJsonParserBase
     public NonBlockingJsonParserBase(IOContext ctxt, int parserFeatures,
             ByteQuadsCanonicalizer sym)
     {
-        super(ctxt, parserFeatures);
+        super(ctxt, parserFeatures, null);
         _symbols = sym;
         _currToken = null;
         _majorState = MAJOR_INITIAL;
         _majorStateAfterValue = MAJOR_ROOT;
-    }
-
-    @Override
-    public ObjectCodec getCodec() {
-        return null;
     }
 
     @Override

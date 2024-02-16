@@ -18,27 +18,6 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public class ReaderBasedJsonParser
     extends JsonParserBase
 {
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
-
-    // Latin1 encoding is not supported, but we do use 8-bit subset for
-    // pre-processing task, to simplify first pass, keep it fast.
-    protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
-
     /*
     /**********************************************************
     /* Input configuration
@@ -75,9 +54,9 @@ public class ReaderBasedJsonParser
 
     protected ObjectCodec _objectCodec;
 
-    final protected CharsToNameCanonicalizer _symbols;
+    protected final CharsToNameCanonicalizer _symbols;
 
-    final protected int _hashSeed;
+    protected final int _hashSeed;
 
     /*
     /**********************************************************
@@ -141,9 +120,8 @@ public class ReaderBasedJsonParser
             char[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
-        super(ctxt, features);
+        super(ctxt, features, codec);
         _reader = r;
-        _objectCodec = codec;
         _inputBuffer = inputBuffer;
         _inputPtr = start;
         _inputEnd = end;
@@ -168,12 +146,11 @@ public class ReaderBasedJsonParser
     public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
         ObjectCodec codec, CharsToNameCanonicalizer st)
     {
-        super(ctxt, features);
+        super(ctxt, features, codec);
         _reader = r;
         _inputBuffer = ctxt.allocTokenBuffer();
         _inputPtr = 0;
         _inputEnd = 0;
-        _objectCodec = codec;
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = true;
@@ -184,9 +161,6 @@ public class ReaderBasedJsonParser
     /* Base method defs, overrides
     /**********************************************************
      */
-
-    @Override public ObjectCodec getCodec() { return _objectCodec; }
-    @Override public void setCodec(ObjectCodec c) { _objectCodec = c; }
 
     @Override
     public int releaseBuffered(Writer w) throws IOException {
@@ -1839,7 +1813,7 @@ public class ReaderBasedJsonParser
         // not cross input buffer boundary, and does not contain escape sequences.
         int ptr = _inputPtr;
         int hash = _hashSeed;
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         while (ptr < _inputEnd) {
             int ch = _inputBuffer[ptr];
@@ -1984,7 +1958,7 @@ public class ReaderBasedJsonParser
         final int inputLen = _inputEnd;
 
         if (ptr < inputLen) {
-            final int[] codes = _icLatin1;
+            final int[] codes = INPUT_CODES_LATIN1;
             final int maxCode = codes.length;
 
             do {
@@ -2176,7 +2150,7 @@ public class ReaderBasedJsonParser
         final int inputLen = _inputEnd;
 
         if (ptr < inputLen) {
-            final int[] codes = _icLatin1;
+            final int[] codes = INPUT_CODES_LATIN1;
             final int maxCode = codes.length;
 
             do {
@@ -2204,7 +2178,7 @@ public class ReaderBasedJsonParser
     {
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
         final int maxCode = codes.length;
 
         while (true) {
@@ -3050,7 +3024,8 @@ public class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    private void _closeScope(int i) throws JsonParseException {
+    private void _closeScope(int i) throws JsonParseException
+    {
         if (i == INT_RBRACKET) {
             _updateLocation();
             if (!_parsingContext.inArray()) {

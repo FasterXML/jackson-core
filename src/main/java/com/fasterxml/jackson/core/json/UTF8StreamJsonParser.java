@@ -18,27 +18,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public class UTF8StreamJsonParser
     extends JsonParserBase
 {
-    final static byte BYTE_LF = (byte) '\n';
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
-
-    // This is the main input-code lookup table, fetched eagerly
-    private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
-
-    // Latin1 encoding is not supported, but we do use 8-bit subset for
-    // pre-processing task, to simplify first pass, keep it fast.
-    protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
+    protected final static byte BYTE_LF = (byte) '\n';
 
     /*
     /**********************************************************
@@ -47,16 +27,9 @@ public class UTF8StreamJsonParser
      */
 
     /**
-     * Codec used for data binding when (if) requested; typically full
-     * <code>ObjectMapper</code>, but that abstract is not part of core
-     * package.
-     */
-    protected ObjectCodec _objectCodec;
-
-    /**
      * Symbol table that contains field names encountered so far
      */
-    final protected ByteQuadsCanonicalizer _symbols;
+    protected final ByteQuadsCanonicalizer _symbols;
 
     /*
     /**********************************************************
@@ -187,9 +160,8 @@ public class UTF8StreamJsonParser
             byte[] inputBuffer, int start, int end, int bytesPreProcessed,
             boolean bufferRecyclable)
     {
-        super(ctxt, features);
+        super(ctxt, features, codec);
         _inputStream = in;
-        _objectCodec = codec;
         _symbols = sym;
         _inputBuffer = inputBuffer;
         _inputPtr = start;
@@ -198,16 +170,6 @@ public class UTF8StreamJsonParser
         // If we have offset, need to omit that from byte offset, so:
         _currInputProcessed = -start + bytesPreProcessed;
         _bufferRecyclable = bufferRecyclable;
-    }
-
-    @Override
-    public ObjectCodec getCodec() {
-        return _objectCodec;
-    }
-
-    @Override
-    public void setCodec(ObjectCodec c) {
-        _objectCodec = c;
     }
 
     /*
@@ -1802,7 +1764,7 @@ public class UTF8StreamJsonParser
          *   later on), and just handle quotes and backslashes here.
          */
         final byte[] input = _inputBuffer;
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         int q = input[_inputPtr++] & 0xFF;
 
@@ -1850,7 +1812,7 @@ public class UTF8StreamJsonParser
     protected final String parseMediumName(int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         // Ok, got 5 name bytes so far
         int i = input[_inputPtr++] & 0xFF;
@@ -1891,7 +1853,7 @@ public class UTF8StreamJsonParser
     protected final String parseMediumName2(int q3, final int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         // Got 9 name bytes so far
         int i = input[_inputPtr++] & 0xFF;
@@ -1936,7 +1898,7 @@ public class UTF8StreamJsonParser
 
         // As explained above, will ignore UTF-8 encoding at this point
         final byte[] input = _inputBuffer;
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
         int qlen = 3;
 
         while ((_inputPtr + 4) <= _inputEnd) {
@@ -2032,7 +1994,7 @@ public class UTF8StreamJsonParser
         // This may seem weird, but here we do not want to worry about
         // UTF-8 decoding yet. Rather, we'll assume that part is ok (if not it will get
         // caught later on), and just handle quotes and backslashes here.
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         while (true) {
             if (codes[ch] != 0) {
@@ -2218,7 +2180,7 @@ public class UTF8StreamJsonParser
 
         // Copied from parseEscapedFieldName, with minor mods:
 
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         while (true) {
             if (ch == INT_APOS) {
@@ -2506,7 +2468,7 @@ public class UTF8StreamJsonParser
         }
         int outPtr = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
 
         final int max = Math.min(_inputEnd, (ptr + outBuf.length));
         final byte[] inputBuffer = _inputBuffer;
@@ -2538,7 +2500,7 @@ public class UTF8StreamJsonParser
         }
         int outPtr = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
 
         final int max = Math.min(_inputEnd, (ptr + outBuf.length));
         final byte[] inputBuffer = _inputBuffer;
@@ -2565,7 +2527,7 @@ public class UTF8StreamJsonParser
         int c;
 
         // Here we do want to do full decoding, hence:
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
         final byte[] inputBuffer = _inputBuffer;
 
         main_loop:
@@ -2656,7 +2618,7 @@ public class UTF8StreamJsonParser
         _tokenIncomplete = false;
 
         // Need to be fully UTF-8 aware here:
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
         final byte[] inputBuffer = _inputBuffer;
 
         main_loop:
@@ -2797,7 +2759,7 @@ public class UTF8StreamJsonParser
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
 
         // Here we do want to do full decoding, hence:
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
         final byte[] inputBuffer = _inputBuffer;
 
         main_loop:

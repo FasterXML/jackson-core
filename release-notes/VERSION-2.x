@@ -14,7 +14,7 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.17.0 (not yet released)
+2.17.0-rc1 (26-Feb-2024)
 
 #507: Add `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` to allow escaping of '/' for
   String values

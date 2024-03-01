@@ -546,7 +546,7 @@ public class TextBuffer
                     if (_inputStart >= 0) {
                         if (_inputLen < 1) {
                             _resultString = "";
-                            return 0.0d;
+                            throw new NumberFormatException("empty content");
                         }
                         validateFPLength(_inputLen);
                         return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
@@ -558,7 +558,7 @@ public class TextBuffer
                         if (segLen == 0) { // yup
                             if (currLen == 0) {
                                 _resultString = "";
-                                return 0.0d;
+                                throw new NumberFormatException("empty content");
                             } else {
                                 validateFPLength(currLen);
                                 return NumberInput.parseDouble(_currentSegment, 0, currLen, useFastParser);
@@ -625,7 +625,7 @@ public class TextBuffer
                     if (_inputStart >= 0) {
                         if (_inputLen < 1) {
                             _resultString = "";
-                            return 0.0f;
+                            throw new NumberFormatException("empty content");
                         }
                         validateFPLength(_inputLen);
                         return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
@@ -637,7 +637,7 @@ public class TextBuffer
                         if (segLen == 0) { // yup
                             if (currLen == 0) {
                                 _resultString = "";
-                                return 0.0f;
+                                throw new NumberFormatException("empty content");
                             } else {
                                 validateFPLength(currLen);
                                 return NumberInput.parseFloat(_currentSegment, 0, currLen, useFastParser);

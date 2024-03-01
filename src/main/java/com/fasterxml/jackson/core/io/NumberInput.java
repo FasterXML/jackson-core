@@ -401,6 +401,32 @@ public final class NumberInput
     }
 
     /**
+     * @param array a char array containing a number to parse
+     * @param useFastParser whether to use {@code FastDoubleParser}
+     * @return closest matching double
+     * @throws NumberFormatException if string cannot be represented by a double
+     * @since v2.18
+     */
+    public static double parseDouble(final char[] array, final boolean useFastParser) throws NumberFormatException {
+        return parseDouble(array, 0, array.length, useFastParser);
+    }
+
+    /**
+     * @param array a char array containing a number to parse
+     * @param offset the offset to apply when parsing the number in the char array
+     * @param len the length of the number in the char array
+     * @param useFastParser whether to use {@code FastDoubleParser}
+     * @return closest matching double
+     * @throws NumberFormatException if string cannot be represented by a double
+     * @since v2.18
+     */
+    public static double parseDouble(final char[] array, final int offset,
+                                     final int len, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ? JavaDoubleParser.parseDouble(array, offset, len) :
+                Double.parseDouble(new String(array, offset, len));
+    }
+
+    /**
      * @param s a string representing a number to parse
      * @return closest matching float
      * @throws NumberFormatException if string cannot be represented by a float where useFastParser=false
@@ -426,6 +452,32 @@ public final class NumberInput
             return JavaFloatParser.parseFloat(s);
         }
         return Float.parseFloat(s);
+    }
+
+    /**
+     * @param array a char array containing a number to parse
+     * @param useFastParser whether to use {@code FastDoubleParser}
+     * @return closest matching float
+     * @throws NumberFormatException if string cannot be represented by a float
+     * @since v2.18
+     */
+    public static float parseFloat(final char[] array, final boolean useFastParser) throws NumberFormatException {
+        return parseFloat(array, 0, array.length, useFastParser);
+    }
+
+    /**
+     * @param array a char array containing a number to parse
+     * @param offset the offset to apply when parsing the number in the char array
+     * @param len the length of the number in the char array
+     * @param useFastParser whether to use {@code FastDoubleParser}
+     * @return closest matching float
+     * @throws NumberFormatException if string cannot be represented by a float
+     * @since v2.18
+     */
+    public static float parseFloat(final char[] array, final int offset,
+                                   final int len, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ? JavaFloatParser.parseFloat(array, offset, len) :
+                Float.parseFloat(new String(array, offset, len));
     }
 
     /**

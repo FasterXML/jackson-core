@@ -536,6 +536,37 @@ public class TextBuffer
      */
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
         try {
+            if (_resultString == null) {
+                // Has array been requested? Can make a shortcut, if so:
+                if (_resultArray != null) {
+                    validateFPLength(_resultArray.length);
+                    return NumberInput.parseDouble(_resultArray, useFastParser);
+                } else {
+                    // Do we use shared array?
+                    if (_inputStart >= 0) {
+                        if (_inputLen < 1) {
+                            _resultString = "";
+                            return 0.0d;
+                        }
+                        validateFPLength(_inputLen);
+                        return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
+                    } else { // nope... need to copy
+                        // But first, let's see if we have just one buffer
+                        int segLen = _segmentSize;
+                        int currLen = _currentSize;
+
+                        if (segLen == 0) { // yup
+                            if (currLen == 0) {
+                                _resultString = "";
+                                return 0.0d;
+                            } else {
+                                validateFPLength(currLen);
+                                return NumberInput.parseDouble(_currentSegment, 0, currLen, useFastParser);
+                            }
+                        }
+                    }
+                }
+            }
             return NumberInput.parseDouble(contentsAsString(), useFastParser);
         } catch (IOException e) {
             // JsonParseException is used to denote a string that is too long
@@ -584,6 +615,37 @@ public class TextBuffer
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
         try {
+            if (_resultString == null) {
+                // Has array been requested? Can make a shortcut, if so:
+                if (_resultArray != null) {
+                    validateFPLength(_resultArray.length);
+                    return NumberInput.parseFloat(_resultArray, useFastParser);
+                } else {
+                    // Do we use shared array?
+                    if (_inputStart >= 0) {
+                        if (_inputLen < 1) {
+                            _resultString = "";
+                            return 0.0f;
+                        }
+                        validateFPLength(_inputLen);
+                        return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
+                    } else { // nope... need to copy
+                        // But first, let's see if we have just one buffer
+                        int segLen = _segmentSize;
+                        int currLen = _currentSize;
+
+                        if (segLen == 0) { // yup
+                            if (currLen == 0) {
+                                _resultString = "";
+                                return 0.0f;
+                            } else {
+                                validateFPLength(currLen);
+                                return NumberInput.parseFloat(_currentSegment, 0, currLen, useFastParser);
+                            }
+                        }
+                    }
+                }
+            }
             return NumberInput.parseFloat(contentsAsString(), useFastParser);
         } catch (IOException e) {
             // JsonParseException is used to denote a string that is too long
@@ -1188,6 +1250,23 @@ public class TextBuffer
      * @since 2.15
      */
     protected void validateStringLength(int length) throws IOException
+    {
+        // no-op
+    }
+
+    /**
+     * Convenience method that can be used to verify that a number
+     * of specified length does not exceed maximum specific by this
+     * constraints object: if it does, a
+     * {@link JsonParseException}
+     * is thrown.
+     *
+     * @param length Length of number in input units
+     *
+     * @throws IOException If length exceeds maximum
+     * @since 2.15
+     */
+    protected void validateFPLength(int length) throws IOException
     {
         // no-op
     }

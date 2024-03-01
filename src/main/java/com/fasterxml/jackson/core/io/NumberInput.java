@@ -404,7 +404,7 @@ public final class NumberInput
      * @param array a char array containing a number to parse
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching double
-     * @throws NumberFormatException if string cannot be represented by a double
+     * @throws NumberFormatException if value cannot be represented by a double
      * @since v2.18
      */
     public static double parseDouble(final char[] array, final boolean useFastParser) throws NumberFormatException {
@@ -417,7 +417,7 @@ public final class NumberInput
      * @param len the length of the number in the char array
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching double
-     * @throws NumberFormatException if string cannot be represented by a double
+     * @throws NumberFormatException if value cannot be represented by a double
      * @since v2.18
      */
     public static double parseDouble(final char[] array, final int offset,
@@ -458,7 +458,7 @@ public final class NumberInput
      * @param array a char array containing a number to parse
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching float
-     * @throws NumberFormatException if string cannot be represented by a float
+     * @throws NumberFormatException if value cannot be represented by a float
      * @since v2.18
      */
     public static float parseFloat(final char[] array, final boolean useFastParser) throws NumberFormatException {
@@ -471,7 +471,7 @@ public final class NumberInput
      * @param len the length of the number in the char array
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching float
-     * @throws NumberFormatException if string cannot be represented by a float
+     * @throws NumberFormatException if value cannot be represented by a float
      * @since v2.18
      */
     public static float parseFloat(final char[] array, final int offset,

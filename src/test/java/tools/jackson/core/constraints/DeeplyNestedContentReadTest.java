@@ -17,11 +17,10 @@ public class DeeplyNestedContentReadTest
 
     private final int MAX_NESTING = StreamReadConstraints.DEFAULT_MAX_DEPTH;
 
-    private final int TESTED_NESTING = MAX_NESTING + 50;
-    
     public void testDeepNestingStreaming() throws Exception
     {
-        final String DOC = createDeepNestedDoc(TESTED_NESTING);
+        // only needs to be one more
+        final String DOC = createDeepNestedDoc(MAX_NESTING + 1);
         for (int mode : ALL_STREAMING_MODES) {
             try (JsonParser p = createParser(JSON_F, mode, DOC)) {
                 _testDeepNesting(p);
@@ -36,7 +35,9 @@ public class DeeplyNestedContentReadTest
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
             assertThat(e.getMessage())
-                .startsWith("Document nesting depth (1001) exceeds the maximum allowed (1000, from `StreamReadConstraints.getMaxNestingDepth()`)");
+                .startsWith("Document nesting depth ("+
+                        (MAX_NESTING+1)+") exceeds the maximum allowed ("+
+                        MAX_NESTING+", from `StreamReadConstraints.getMaxNestingDepth()`)");
         }
     }
 

@@ -12,11 +12,9 @@ import tools.jackson.core.exc.StreamConstraintsException;
  *<p>
  * Currently constrained aspects, with default settings, are:
  * <ul>
- *  <li>Maximum Nesting depth: default 1000 (see {@link #DEFAULT_MAX_DEPTH})
+ *  <li>Maximum Nesting depth: default 500 (see {@link #DEFAULT_MAX_DEPTH})
  *   </li>
  * </ul>
- *
- * @since 2.16
  */
 public class StreamWriteConstraints
     implements java.io.Serializable
@@ -26,7 +24,7 @@ public class StreamWriteConstraints
     /**
      * Default setting for maximum depth: see {@link Builder#maxNestingDepth(int)} for details.
      */
-    public static final int DEFAULT_MAX_DEPTH = 1000;
+    public static final int DEFAULT_MAX_DEPTH = 500;
 
     protected final int _maxNestingDepth;
 

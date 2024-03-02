@@ -94,22 +94,24 @@ public enum StreamReadFeature
     INCLUDE_SOURCE_IN_LOCATION(false),
 
     /**
-     * Feature that determines whether we use the built-in {@link Double#parseDouble(String)} code to parse
-     * doubles or if we use {@code FastDoubleParser}
-     * instead.
+     * Feature that determines whether to use the built-in JDK {@link Double#parseDouble(String)}
+     * code to parse {@code double}s (if {@code disabled})
+     * or {@code FastDoubleParser} implementation (if {@code enabled}).
      *<p>
-     * This setting is disabled by default.
+     * This setting is enabled by default (since 3.0) so that {@code FastDoubleParser}
+     * implementation is used.
      */
-    USE_FAST_DOUBLE_PARSER(false),
+    USE_FAST_DOUBLE_PARSER(true),
 
     /**
-     * Feature that determines whether to use the built-in Java code for parsing
-     * <code>BigDecimal</code>s and <code>BigIntegers</code>s or to use
-     * {@code FastDoubleParser} instead.
+     * Feature that determines whether to use the built-in JDK code for parsing
+     * <code>BigDecimal</code> and <code>BigIntegers</code> values (if {@code disabled})
+     * or {@code FastDoubleParser} implementation (if {@code enabled}).
      *<p>
-     * This setting is disabled by default.
+     * This setting is enabled by default (since 3.0) so that {@code FastDoubleParser}
+     * implementation is used.
      */
-    USE_FAST_BIG_NUMBER_PARSER(false)
+    USE_FAST_BIG_NUMBER_PARSER(true)
 
     ;
 

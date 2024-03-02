@@ -42,6 +42,8 @@ JSON library.
 #1125: Remove `TokenStreamFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING`
 #1200: Change `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` default to `true` for 3.0
 #1231: Enable Fast Floating-Point reading/writing by default in 3.0
+#1233: Lower default `maxNestingDepth` of `StreamReadConstraints` /
+  `StreamWriteConstraints` to 500 in 3.0
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

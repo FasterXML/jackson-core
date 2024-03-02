@@ -19,7 +19,7 @@ import tools.jackson.core.exc.StreamReadException;
  *   </li>
  *  <li>Maximum Property name length: default 50_000 (see {@link #DEFAULT_MAX_NAME_LEN})
  *   </li>
- *  <li>Maximum Nesting depth: default 1000 (see {@link #DEFAULT_MAX_DEPTH})
+ *  <li>Maximum Nesting depth: default 500 (see {@link #DEFAULT_MAX_DEPTH})
  *   </li>
  *  <li>Maximum Document length: default {@code unlimited} (coded as {@code -1},
  *      (see {@link #DEFAULT_MAX_DOC_LEN})
@@ -35,7 +35,7 @@ public class StreamReadConstraints
     /**
      * Default setting for maximum depth: see {@link Builder#maxNestingDepth(int)} for details.
      */
-    public static final int DEFAULT_MAX_DEPTH = 1000;
+    public static final int DEFAULT_MAX_DEPTH = 500;
 
     /**
      * Default setting for maximum document length:
@@ -44,15 +44,14 @@ public class StreamReadConstraints
     public static final long DEFAULT_MAX_DOC_LEN = -1L;
 
     /**
-     * @since 2.16
+     * Default setting for maximum number length: see {@link Builder#maxNumberLength(int)}
+     * for details.
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
 
     /**
      * Default setting for maximum string length: see {@link Builder#maxStringLength(int)}
      * for details.
-     *<p>
-     * NOTE: Jackson 2.15.0 initially used a lower setting (5_000_000).
      */
     public static final int DEFAULT_MAX_STRING_LEN = 20_000_000;
 
@@ -103,8 +102,9 @@ public class StreamReadConstraints
      */
     public static void overrideDefaultStreamReadConstraints(final StreamReadConstraints streamReadConstraints) {
         if (streamReadConstraints == null) {
-            DEFAULT = new StreamReadConstraints(DEFAULT_MAX_DEPTH, DEFAULT_MAX_DOC_LEN,
-                    DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN);
+            DEFAULT = new StreamReadConstraints(DEFAULT_MAX_DEPTH,
+                    DEFAULT_MAX_DOC_LEN,
+                    DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
         } else {
             DEFAULT = streamReadConstraints;
         }
@@ -144,8 +144,6 @@ public class StreamReadConstraints
          *   ({@code 0} or negative number) means "unlimited".
          *
          * @return this builder
-         *
-         * @since 2.16
          */
         public Builder maxDocumentLength(long maxDocLen) {
             // Negative values and 0 mean "unlimited", mark with -1L
@@ -253,21 +251,12 @@ public class StreamReadConstraints
     /**********************************************************************
      */
 
-    @Deprecated // since 2.16
-    protected StreamReadConstraints(final int maxNestingDepth, final long maxDocLen,
-            final int maxNumLen, final int maxStringLen) {
-        this(maxNestingDepth, DEFAULT_MAX_DOC_LEN,
-                maxNumLen, maxStringLen, DEFAULT_MAX_NAME_LEN);
-    }
-
     /**
      * @param maxNestingDepth Maximum input document nesting to allow
      * @param maxDocLen Maximum input document length to allow
      * @param maxNumLen Maximum number representation length to allow
      * @param maxStringLen Maximum String value length to allow
      * @param maxNameLen Maximum Object property name length to allow
-     *
-     * @since 2.16
      */
     protected StreamReadConstraints(final int maxNestingDepth, final long maxDocLen,
             final int maxNumLen, final int maxStringLen, final int maxNameLen) {

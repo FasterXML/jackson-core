@@ -9,8 +9,6 @@ import tools.jackson.core.util.JacksonFeature;
  * coercions and validation by format-agnostic functionality.
  * Specific or expected usage documented by individual capability entry
  * Javadocs.
- *
- * @since 2.12
  */
 public enum StreamReadCapability
     implements JacksonFeature

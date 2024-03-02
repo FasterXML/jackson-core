@@ -405,7 +405,7 @@ public final class NumberInput
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching double
      * @throws NumberFormatException if value cannot be represented by a double
-     * @since v2.18
+     * @since 2.18
      */
     public static double parseDouble(final char[] array, final boolean useFastParser) throws NumberFormatException {
         return parseDouble(array, 0, array.length, useFastParser);
@@ -418,7 +418,7 @@ public final class NumberInput
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching double
      * @throws NumberFormatException if value cannot be represented by a double
-     * @since v2.18
+     * @since 2.18
      */
     public static double parseDouble(final char[] array, final int offset,
                                      final int len, final boolean useFastParser) throws NumberFormatException {
@@ -459,7 +459,7 @@ public final class NumberInput
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching float
      * @throws NumberFormatException if value cannot be represented by a float
-     * @since v2.18
+     * @since 2.18
      */
     public static float parseFloat(final char[] array, final boolean useFastParser) throws NumberFormatException {
         return parseFloat(array, 0, array.length, useFastParser);
@@ -472,7 +472,7 @@ public final class NumberInput
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return closest matching float
      * @throws NumberFormatException if value cannot be represented by a float
-     * @since v2.18
+     * @since 2.18
      */
     public static float parseFloat(final char[] array, final int offset,
                                    final int len, final boolean useFastParser) throws NumberFormatException {

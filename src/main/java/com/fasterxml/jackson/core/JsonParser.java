@@ -1769,8 +1769,13 @@ public abstract class JsonParser
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
      * one of {@link NumberTypeFP} constants; otherwise returns
      * {@link NumberTypeFP#UNKNOWN}.
+     *<p>
+     * Default implementation as of Jackson 2.x will call {@link #getNumberType()}
+     * and translate types -- this needs to be overriden actual implementations
+     * if this is not sufficient (which it usually is not for textual formats).
      *
-     * @return Type of current number, if parser points to numeric token; {@code null} otherwise
+     * @return Type of current floating-point number, if parser points to numeric token;
+     *   {@link NumberTypeFP#UNKNOWN} otherwise.
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1778,6 +1783,16 @@ public abstract class JsonParser
      * @since 2.17
      */
     public NumberTypeFP getNumberTypeFP() throws IOException {
+        NumberType nt = getNumberType();
+        if (nt == NumberType.BIG_DECIMAL) {
+            return NumberTypeFP.BIG_DECIMAL;
+        }
+        if (nt == NumberType.DOUBLE) {
+            return NumberTypeFP.DOUBLE64;
+        }
+        if (nt == NumberType.FLOAT) {
+            return NumberTypeFP.FLOAT32;
+        }
         return NumberTypeFP.UNKNOWN;
     }
 

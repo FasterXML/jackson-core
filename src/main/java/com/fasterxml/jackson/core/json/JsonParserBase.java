@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.core.json;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.NumberTypeFP;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -78,6 +81,25 @@ public abstract class JsonParserBase
     @Override
     public final JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
         return JSON_READ_CAPABILITIES;
+    }
+
+    /*
+    /**********************************************************************
+    /* Overrides
+    /**********************************************************************
+     */
+
+    /**
+     * JSON format does not have native information on "correct" floating-point
+     * type to use, unlike some formats (most binary formats), so it needs to
+     * indicate this as {@link NumberTypeFP#UNKNOWN}.
+     *
+     * @return Natural floating-point type if known; {@link NumberTypeFP#UNKNOWN} for
+     *    all JSON-backed parsers.
+     */
+    @Override // added in 2.17
+    public NumberTypeFP getNumberTypeFP() throws IOException {
+        return NumberTypeFP.UNKNOWN;
     }
 
     /*

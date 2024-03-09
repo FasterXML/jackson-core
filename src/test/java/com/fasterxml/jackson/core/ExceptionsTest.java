@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ExceptionsTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

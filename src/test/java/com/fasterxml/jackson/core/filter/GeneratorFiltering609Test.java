@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#609]
 public class GeneratorFiltering609Test
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     static class NullExcludingTokenFilter extends TokenFilter {
         static final NullExcludingTokenFilter INSTANCE =

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.Version;
@@ -8,7 +9,7 @@ import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestVersionUtil extends com.fasterxml.jackson.core.JUnit5TestBase
+public class TestVersionUtil extends TestBase
 {
     @Test
     public void testVersionPartParsing()

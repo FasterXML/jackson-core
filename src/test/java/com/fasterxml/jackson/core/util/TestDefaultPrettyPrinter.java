@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.util.Separators.Spacing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestDefaultPrettyPrinter extends JUnit5TestBase
+public class TestDefaultPrettyPrinter extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

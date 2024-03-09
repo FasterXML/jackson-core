@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Base64GenerationTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     /* The usual sample input string, from Thomas Hobbes's "Leviathan"
      * (via Wikipedia)

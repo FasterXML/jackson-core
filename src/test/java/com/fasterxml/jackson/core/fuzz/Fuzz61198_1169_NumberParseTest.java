@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 //
 // * [core#1169],
 // * https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=61198
-public class Fuzz61198_1169_NumberParseTest extends JUnit5TestBase
+public class Fuzz61198_1169_NumberParseTest extends TestBase
 {
     // NOTE! Not enough to enable just first, but both it seem
     private final JsonFactory JSON_F = JsonFactory.builder()

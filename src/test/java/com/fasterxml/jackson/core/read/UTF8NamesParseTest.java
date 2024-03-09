@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  * functionality works as expected.
  */
 public class UTF8NamesParseTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     final static String[] UTF8_2BYTE_STRINGS = new String[] {
         // This may look funny, but UTF8 scanner has fairly elaborate decoding

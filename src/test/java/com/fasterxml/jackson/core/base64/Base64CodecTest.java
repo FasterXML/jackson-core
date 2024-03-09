@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class Base64CodecTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testVariantAccess()

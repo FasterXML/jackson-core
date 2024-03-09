@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ParserFeatureDefaultsTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     static class TestParser extends ParserMinimalBase
     {

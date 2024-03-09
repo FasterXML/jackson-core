@@ -2,12 +2,13 @@ package com.fasterxml.jackson.core.io;
 
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class NumberInputTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testNastySmallDouble()

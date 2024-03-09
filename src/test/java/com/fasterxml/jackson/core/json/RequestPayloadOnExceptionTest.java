@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RequestPayloadOnExceptionTest extends JUnit5TestBase
+public class RequestPayloadOnExceptionTest extends TestBase
 {
     /**
      * Tests for Request payload data (bytes) on parsing error

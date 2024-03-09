@@ -5,13 +5,14 @@ import java.io.StringReader;
 
 import com.fasterxml.jackson.core.JsonFactory;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestParserOverrides extends com.fasterxml.jackson.core.JUnit5TestBase
+public class TestParserOverrides extends TestBase
 {
     /*
     /**********************************************************

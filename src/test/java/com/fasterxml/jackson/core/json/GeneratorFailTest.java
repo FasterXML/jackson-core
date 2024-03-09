@@ -3,17 +3,14 @@ package com.fasterxml.jackson.core.json;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 
-import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.*;
 
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class GeneratorFailTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     private final JsonFactory F = new JsonFactory();
 

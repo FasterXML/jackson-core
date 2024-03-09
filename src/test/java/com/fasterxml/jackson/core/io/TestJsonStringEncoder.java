@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import com.fasterxml.jackson.core.*;
 
 public class TestJsonStringEncoder
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testQuoteAsString() throws Exception

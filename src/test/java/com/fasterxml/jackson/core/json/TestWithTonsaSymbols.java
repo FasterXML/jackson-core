@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * deals with symbol (table) management.
  */
 public class TestWithTonsaSymbols
-    extends JUnit5TestBase
+    extends TestBase
 {
     /**
      * How many fields to generate? Since maximum symbol table

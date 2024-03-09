@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
  */
 public class JDKSerializabilityTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     /*
     /**********************************************************************

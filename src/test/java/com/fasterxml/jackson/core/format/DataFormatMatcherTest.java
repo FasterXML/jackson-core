@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import com.fasterxml.jackson.core.JsonFactory;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for class {@link DataFormatMatcher}.
  */
-public class DataFormatMatcherTest extends com.fasterxml.jackson.core.JUnit5TestBase
+public class DataFormatMatcherTest extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

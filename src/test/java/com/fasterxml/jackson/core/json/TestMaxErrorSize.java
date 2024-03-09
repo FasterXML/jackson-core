@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test size of parser error messages
  */
 public class TestMaxErrorSize
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     private final static int EXPECTED_MAX_TOKEN_LEN = 256; // ParserBase.MAX_ERROR_TOKEN_LENGTH
 

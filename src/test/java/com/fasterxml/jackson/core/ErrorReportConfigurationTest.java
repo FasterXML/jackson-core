@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @since 2.16
  */
 public class ErrorReportConfigurationTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     /*
     /**********************************************************

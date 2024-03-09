@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-public class RawStringWriteTest extends com.fasterxml.jackson.core.JUnit5TestBase
+public class RawStringWriteTest extends TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 

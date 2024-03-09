@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * are properly matched.
  */
 @SuppressWarnings("resource")
-public class ParserScopeMatchingTest extends JUnit5TestBase
+public class ParserScopeMatchingTest extends TestBase
 {
     @Test
     public void testUnclosedArray() throws Exception

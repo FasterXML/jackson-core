@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class WriterBasedJsonGeneratorTest extends JUnit5TestBase
+public class WriterBasedJsonGeneratorTest extends TestBase
 {
     private final JsonFactory JSON_MAX_NESTING_1 = JsonFactory.builder()
             .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())

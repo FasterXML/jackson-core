@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
  * of {@link JsonGenerator} work as expected.
  */
 public class ArrayWriteTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testEmptyArrayWrite()

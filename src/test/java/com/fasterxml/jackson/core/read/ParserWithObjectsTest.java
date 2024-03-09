@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * be accessed using JsonParser.
  */
 public class ParserWithObjectsTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     /*
     /**********************************************************

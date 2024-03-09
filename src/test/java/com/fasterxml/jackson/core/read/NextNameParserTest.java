@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -9,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class NextNameParserTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testBasicNextNameWithReader() throws Exception

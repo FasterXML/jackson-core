@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
+public class TestDelegates extends TestBase
 {
     static class BogusSchema implements FormatSchema
     {

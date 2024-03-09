@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class Base64Padding912Test
-    extends JUnit5TestBase
+    extends TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

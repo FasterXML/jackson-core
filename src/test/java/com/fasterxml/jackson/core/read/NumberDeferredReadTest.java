@@ -5,6 +5,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonFactory;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class NumberDeferredReadTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     protected JsonFactory jsonFactory() {
         return sharedStreamFactory();

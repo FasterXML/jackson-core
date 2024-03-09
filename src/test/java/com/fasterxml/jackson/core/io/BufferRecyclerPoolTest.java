@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.JUnit5TestBase;
+import com.fasterxml.jackson.core.TestBase;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.base.GeneratorBase;
@@ -15,7 +15,7 @@ import java.io.OutputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [core#1064] wrt custom `BufferRecycler`
-public class BufferRecyclerPoolTest extends JUnit5TestBase
+public class BufferRecyclerPoolTest extends TestBase
 {
     @Test
     public void testNoOp() throws Exception {

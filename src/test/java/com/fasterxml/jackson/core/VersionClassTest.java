@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit tests for class {@link Version}.
  */
 public class VersionClassTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testEqualsAndHashCode() {

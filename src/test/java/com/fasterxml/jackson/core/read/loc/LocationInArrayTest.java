@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests mostly for [core#229]
-public class LocationInArrayTest extends com.fasterxml.jackson.core.JUnit5TestBase
+public class LocationInArrayTest extends TestBase
 {
     final JsonFactory JSON_F = new JsonFactory();
 

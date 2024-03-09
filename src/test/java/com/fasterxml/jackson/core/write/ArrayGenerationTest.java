@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Basic testing for scalar-array write methods added in 2.8.
  */
-public class ArrayGenerationTest extends JUnit5TestBase
+public class ArrayGenerationTest extends TestBase
 {
     private final JsonFactory FACTORY = new JsonFactory();
 

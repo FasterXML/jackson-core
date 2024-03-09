@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("resource")
-public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.core.JUnit5TestBase
+public class JsonPointerGeneratorFilteringTest extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

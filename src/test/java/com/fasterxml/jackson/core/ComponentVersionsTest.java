@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests to verify functioning of {@link Version} class.
  */
 public class ComponentVersionsTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testCoreVersions() throws Exception

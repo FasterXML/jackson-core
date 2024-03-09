@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.core.sym;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // Simple tests to verify "placeholder" variant added in 2.13
-public class PlaceholderSymbolTableTest extends com.fasterxml.jackson.core.JUnit5TestBase
+public class PlaceholderSymbolTableTest extends TestBase
 {
     // Test to verify it is ok to try to find names, and that none
     // are ever found

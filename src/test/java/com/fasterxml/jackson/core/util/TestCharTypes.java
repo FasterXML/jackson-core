@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.io.CharTypes;
@@ -7,7 +8,7 @@ import com.fasterxml.jackson.core.io.CharTypes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestCharTypes
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testQuoting()

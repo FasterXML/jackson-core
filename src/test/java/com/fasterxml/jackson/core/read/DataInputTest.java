@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * challenges for parsing.
  */
 public class DataInputTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

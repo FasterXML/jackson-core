@@ -2,11 +2,12 @@ package com.fasterxml.jackson.core.io;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BigDecimalParserTest extends com.fasterxml.jackson.core.JUnit5TestBase
+public class BigDecimalParserTest extends TestBase
 {
     @Test
     public void testLongInvalidStringParse() {

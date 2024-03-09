@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Basic testing for [core#1064] wrt usage by `JsonParser` / `JsonGenerator`
 // (wrt simple reads/writes working without issues)
-public class JsonBufferRecyclersTest extends JUnit5TestBase
+public class JsonBufferRecyclersTest extends TestBase
 {
     // // Parsers with RecyclerPools:
 

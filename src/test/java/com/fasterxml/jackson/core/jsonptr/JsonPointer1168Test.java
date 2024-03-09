@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.core.jsonptr;
 
-import com.fasterxml.jackson.core.JUnit5TestBase;
+import com.fasterxml.jackson.core.TestBase;
 import com.fasterxml.jackson.core.JsonPointer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonPointer1168Test extends JUnit5TestBase
+public class JsonPointer1168Test extends TestBase
 {
     // [core#1168]
     @Test

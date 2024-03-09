@@ -3,13 +3,14 @@ package com.fasterxml.jackson.core.json;
 import java.io.ByteArrayOutputStream;
 import com.fasterxml.jackson.core.JsonFactory;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class RawValueWithSurrogatesTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     final String SURROGATES_307;
     {

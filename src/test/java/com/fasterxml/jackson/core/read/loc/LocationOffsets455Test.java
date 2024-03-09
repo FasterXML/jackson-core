@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.read.loc;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonLocation;
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class LocationOffsets455Test extends com.fasterxml.jackson.core.JUnit5TestBase
+public class LocationOffsets455Test extends TestBase
 {
     // for [jackson-core#455]
     @Test

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.exc.StreamWriteException;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BoundsChecksWithGeneratorTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     final static JsonFactory JSON_F = new JsonFactory();
 

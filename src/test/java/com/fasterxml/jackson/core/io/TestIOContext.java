@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
@@ -10,7 +11,7 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestIOContext
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testAllocations() throws Exception

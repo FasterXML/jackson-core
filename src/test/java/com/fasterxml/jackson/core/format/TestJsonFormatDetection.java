@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestJsonFormatDetection extends com.fasterxml.jackson.core.JUnit5TestBase
+public class TestJsonFormatDetection extends TestBase
 {
     @Test
     public void testSimpleValidArray() throws Exception

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * functionality works as expected.
  */
 public class ParserLinefeedsTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testCR() throws Exception

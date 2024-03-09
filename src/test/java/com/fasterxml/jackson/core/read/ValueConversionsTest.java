@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -8,7 +9,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ValueConversionsTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testAsInt() throws Exception

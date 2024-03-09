@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.core.read.loc;
 
-import com.fasterxml.jackson.core.JUnit5TestBase;
+import com.fasterxml.jackson.core.TestBase;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Set of tests that checks getCurrentLocation() and getTokenLocation() are as expected during
  * parsing.
  */
-public class LocationDuringStreamParsingTest extends JUnit5TestBase
+public class LocationDuringStreamParsingTest extends TestBase
 {
     @Test
     public void testLocationAtEndOfParse() throws Exception

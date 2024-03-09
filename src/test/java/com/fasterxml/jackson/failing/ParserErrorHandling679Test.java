@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.failing;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ParserErrorHandling679Test
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     // [core#679]
     @Test

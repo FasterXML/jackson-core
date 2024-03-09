@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.core.SerializableString;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.SerializedString;
 
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * {@link SerializableString} implementation works as expected.
  */
 public class TestSerializedString
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testAppending() throws IOException

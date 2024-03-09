@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.core.util;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestTextBuffer
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     /**
      * Trivially simple basic test to ensure all basic append

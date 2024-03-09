@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * as opposed to accuracy of reported location information by parsers.
  */
 public class JsonLocationTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     static class Foobar { }
 

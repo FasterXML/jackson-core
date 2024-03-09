@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * sources, however.
  */
 public class TestHashCollisionChars
-    extends JUnit5TestBase
+    extends TestBase
 {
     // // // And then a nastier variant; collisions generated using
     // // // CollisionGenerator

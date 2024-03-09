@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  **/
 public class JsonpCharacterEscapesTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testGetEscapeSequenceOne() {

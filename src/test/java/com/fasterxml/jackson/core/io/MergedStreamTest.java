@@ -4,12 +4,13 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MergedStreamTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testSimple() throws Exception

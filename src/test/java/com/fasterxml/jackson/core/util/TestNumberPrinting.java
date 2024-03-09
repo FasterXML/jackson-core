@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import java.util.Random;
 
+import com.fasterxml.jackson.core.TestBase;
 import com.fasterxml.jackson.core.io.NumberOutput;
 
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * printing methods work as expected.
  */
 public class TestNumberPrinting
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     @Test
     public void testIntPrinting() throws Exception

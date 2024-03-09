@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  * generation, including character escaping, works as expected.
  */
 public class StringGenerationTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     final static String[] SAMPLES = new String[] {
         "\"test\"",

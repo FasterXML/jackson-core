@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * of {@link JsonGenerator} work as expected.
  */
 public class GeneratorCopyTest
-    extends JUnit5TestBase
+    extends TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 

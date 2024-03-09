@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * is working.
  */
 public class TestByteBasedSymbols
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     final static String[] FIELD_NAMES = new String[] {
         "a", "b", "c", "x", "y", "b13", "abcdefg", "a123",

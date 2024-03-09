@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 //[core#764] (and [databind#3508]
 public class OutputStreamInitTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     static class FailingOutputStream extends OutputStream {
         public int written = 0;

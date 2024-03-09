@@ -14,10 +14,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-/**
- * Intended replacement for {@link BaseTest}
- */
-public class JUnit5TestBase
+public class TestBase
 {
     protected final static String FIELD_BASENAME = "f";
 
@@ -426,7 +423,7 @@ public class JUnit5TestBase
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
        final byte[] buf = new byte[4000];
 
-       InputStream in = JUnit5TestBase.class.getResourceAsStream(ref);
+       InputStream in = TestBase.class.getResourceAsStream(ref);
        if (in != null) {
            try {
                int len;

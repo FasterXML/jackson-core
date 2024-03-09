@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * functionality works as expected.
  */
 public class GeneratorFeaturesTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

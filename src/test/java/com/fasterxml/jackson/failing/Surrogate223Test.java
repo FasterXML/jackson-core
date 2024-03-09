@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Surrogate223Test extends JUnit5TestBase
+public class Surrogate223Test extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

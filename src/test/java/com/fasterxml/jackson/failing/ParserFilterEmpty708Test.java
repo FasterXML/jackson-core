@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // for [core#708]
-public class ParserFilterEmpty708Test extends JUnit5TestBase
+public class ParserFilterEmpty708Test extends TestBase
 {
     // Could actually just return basic TokenFilter but...
     static class IncludeAllFilter extends TokenFilter {

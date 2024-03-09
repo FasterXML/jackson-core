@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#755]
-public class FloatParsingTest extends JUnit5TestBase
+public class FloatParsingTest extends TestBase
 {
     private final byte[] FLOATS_DOC = readResource("/data/floats-755.json");
 

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import java.nio.charset.StandardCharsets;
 
+import com.fasterxml.jackson.core.TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -11,7 +12,7 @@ import com.fasterxml.jackson.core.io.IOContext;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.JUnit5TestBase
+public class ByteArrayBuilderTest extends TestBase
 {
     @Test
     public void testSimple() throws Exception

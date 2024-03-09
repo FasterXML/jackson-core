@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  *
  * @since 2.15
  */
-public class LargeNumberWriteTest extends JUnit5TestBase
+public class LargeNumberWriteTest extends TestBase
 {
     private final JsonFactory VANILLA_JSON_F = new JsonFactory();
 

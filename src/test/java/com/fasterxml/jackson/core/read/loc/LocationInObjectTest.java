@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // tests for [core#37]
-public class LocationInObjectTest extends JUnit5TestBase
+public class LocationInObjectTest extends TestBase
 {
     @Test
     public void testOffsetWithObjectFieldsUsingUTF8() throws Exception

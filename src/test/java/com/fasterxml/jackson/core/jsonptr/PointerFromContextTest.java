@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PointerFromContextTest extends JUnit5TestBase
+public class PointerFromContextTest extends TestBase
 {
     /*
     /**********************************************************

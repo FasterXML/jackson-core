@@ -179,7 +179,7 @@ public class JUnit5TestBase
     }
 
     protected JsonParser createParserUsingStream(String input, String encoding)
-            throws IOException
+        throws IOException
     {
         return createParserUsingStream(new JsonFactory(), input, encoding);
     }
@@ -203,7 +203,7 @@ public class JUnit5TestBase
         InputStream is = new ByteArrayInputStream(data);
         return f.createParser(is);
     }
-    
+
     protected JsonParser createParserForDataInput(TokenStreamFactory f,
             DataInput input)
         throws IOException
@@ -232,8 +232,6 @@ public class JUnit5TestBase
     public static JsonGenerator createGenerator(TokenStreamFactory f, Writer w) throws IOException {
         return f.createGenerator(w);
     }
-
-
 
     /*
     /**********************************************************************
@@ -348,14 +346,6 @@ public class JUnit5TestBase
         return json.replace('\'', '"');
     }
 
-    protected static byte[] utf8Bytes(String str) {
-        return str.getBytes(StandardCharsets.UTF_8);
-    }
-
-    protected String utf8String(ByteArrayOutputStream bytes) {
-        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
-    }
-
     public static byte[] encodeInUTF32BE(String input)
     {
         int len = input.length();
@@ -368,6 +358,14 @@ public class JUnit5TestBase
             result[ptr+3] = (byte) c;
         }
         return result;
+    }
+
+    protected static byte[] utf8Bytes(String str) {
+        return str.getBytes(StandardCharsets.UTF_8);
+    }
+
+    protected String utf8String(ByteArrayOutputStream bytes) {
+        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
     public static String fieldNameFor(int index)

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
  * by documentation.
  */
 public class ParserClosingTest
-    extends BaseTest
+    extends JUnit5TestBase
 {
     /**
      * This unit test checks the default behaviour; with no auto-close, no

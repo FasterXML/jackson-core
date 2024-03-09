@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
  * functionality works as expected.
  */
 @SuppressWarnings("resource")
-public class SimpleParserTest extends BaseTest
+public class SimpleParserTest extends JUnit5TestBase
 {
     @Test
     public void testConfig() throws Exception

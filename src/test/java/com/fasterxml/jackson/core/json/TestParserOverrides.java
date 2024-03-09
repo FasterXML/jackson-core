@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
+public class TestParserOverrides extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     /*
     /**********************************************************

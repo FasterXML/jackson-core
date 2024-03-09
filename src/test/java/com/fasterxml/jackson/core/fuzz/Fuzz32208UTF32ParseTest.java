@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // Trying to repro: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32216
 // but so far without success (fails on seemingly legit validation problem)
-public class Fuzz32208UTF32ParseTest extends BaseTest
+public class Fuzz32208UTF32ParseTest extends JUnit5TestBase
 {
     private final byte[] DOC = readResource("/data/fuzz-json-utf32-32208.json");
 

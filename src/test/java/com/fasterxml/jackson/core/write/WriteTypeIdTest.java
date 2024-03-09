@@ -2,19 +2,15 @@ package com.fasterxml.jackson.core.write;
 
 import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.*;
 
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class WriteTypeIdTest
-    extends BaseTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 

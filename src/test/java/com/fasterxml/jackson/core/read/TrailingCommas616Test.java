@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TrailingCommas616Test extends BaseTest
+public class TrailingCommas616Test extends JUnit5TestBase
 {
     private final JsonFactory JSON_F_ALLOW_MISSING = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_MISSING_VALUES)

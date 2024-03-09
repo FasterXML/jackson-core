@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class GeneratorFailTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory F = new JsonFactory();
 

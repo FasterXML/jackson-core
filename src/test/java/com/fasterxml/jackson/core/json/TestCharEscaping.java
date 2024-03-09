@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * functionality works as expected.
  */
 public class TestCharEscaping
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @SuppressWarnings("serial")
     private final static CharacterEscapes ESC_627 = new CharacterEscapes() {

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.jsonptr;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.BaseTest;
@@ -7,7 +8,7 @@ import com.fasterxml.jackson.core.JsonPointer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JsonPointerTest extends BaseTest
+public class JsonPointerTest extends JUnit5TestBase
 {
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
 

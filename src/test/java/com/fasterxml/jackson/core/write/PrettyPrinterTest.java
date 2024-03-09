@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
  */
 @SuppressWarnings("serial")
 public class PrettyPrinterTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class CountPrinter extends MinimalPrettyPrinter
     {

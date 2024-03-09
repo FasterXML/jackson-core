@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-public class BasicParserFilteringTest extends BaseTest
+public class BasicParserFilteringTest extends JUnit5TestBase
 {
     static class NameMatchFilter extends TokenFilter
     {

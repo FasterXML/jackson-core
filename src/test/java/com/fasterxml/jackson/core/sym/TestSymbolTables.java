@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests that directly modify/access underlying low-level symbol tables
  * (instead of indirectly using them via JsonParser).
  */
-public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
+public class TestSymbolTables extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final static JsonFactory JSON_F = new JsonFactory();
 

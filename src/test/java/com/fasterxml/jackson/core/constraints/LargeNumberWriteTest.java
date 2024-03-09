@@ -10,14 +10,9 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.*;
 
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.StreamReadConstraints;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -29,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  *
  * @since 2.15
  */
-public class LargeNumberWriteTest extends BaseTest
+public class LargeNumberWriteTest extends JUnit5TestBase
 {
     private final JsonFactory VANILLA_JSON_F = new JsonFactory();
 

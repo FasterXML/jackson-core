@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for class {@link DataFormatMatcher}.
  */
-public class DataFormatMatcherTest extends com.fasterxml.jackson.core.BaseTest
+public class DataFormatMatcherTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

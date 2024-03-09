@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.json;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.BaseTest;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for class {@link JsonReadContext}.
  */
-public class JsonReadContextTest extends BaseTest
+public class JsonReadContextTest extends JUnit5TestBase
 {
     @Test
     public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception

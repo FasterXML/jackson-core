@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * settings work as expected.
  */
 public class ParserFeaturesTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 

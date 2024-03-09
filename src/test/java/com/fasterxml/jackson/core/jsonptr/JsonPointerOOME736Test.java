@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonPointerOOME736Test extends BaseTest
+public class JsonPointerOOME736Test extends JUnit5TestBase
 {
     // such as https://github.com/nst/JSONTestSuite/blob/master/test_parsing/n_structure_100000_opening_arrays.json
     @Test

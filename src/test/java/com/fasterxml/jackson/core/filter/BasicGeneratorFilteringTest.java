@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * filtering.
  */
 @SuppressWarnings("resource")
-public class BasicGeneratorFilteringTest extends BaseTest
+public class BasicGeneratorFilteringTest extends JUnit5TestBase
 {
     static final TokenFilter INCLUDE_ALL_SCALARS = new TokenFilter();
 

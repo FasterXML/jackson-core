@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class NonStandardUnquotedNamesTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory UNQUOTED_FIELDS_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)

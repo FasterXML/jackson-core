@@ -51,9 +51,9 @@ a pure JSON library.
 #1218: Simplify Unicode surrogate pair conversion for generation
  (contributed by @xtonik)
 
-2.16.2 (not yet released)
+2.16.2 (09-Mar-2024)
 
--
+No changes since 2.16.1
 
 2.16.1 (24-Dec-2023)
 

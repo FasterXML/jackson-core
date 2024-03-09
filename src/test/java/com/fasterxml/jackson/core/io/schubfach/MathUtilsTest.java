@@ -171,7 +171,7 @@ class MathUtilsTest {
         2^(b-1) <= n < 2^b
      */
     @Test
-    void flog10threeQuartersPow2() {
+    void testFlog10threeQuartersPow2() {
         // First check the case e = 1
         assertEquals(0, flog10threeQuartersPow2(1),
                 "flog10threeQuartersPow2");
@@ -285,7 +285,7 @@ class MathUtilsTest {
         2^(b-1) <= n < 2^b
      */
     @Test
-    void flog10pow2() {
+    void testFlog10pow2() {
         // First check the case e = 0
         assertEquals(0, flog10pow2(0), "flog10pow2");
 
@@ -389,7 +389,7 @@ class MathUtilsTest {
         2^(b-1) <= n < 2^b
     */
     @Test
-    void flog2pow10() {
+    void testFlog2pow10() {
         // First check the case e = 0
         assertEquals(0, flog2pow10(0), "flog2pow10");
 
@@ -459,7 +459,7 @@ class MathUtilsTest {
     }
 
     @Test
-    void pow10() {
+    void testPow10() {
         int e = 0;
         long pow = 1;
         for (; e <= H; e += 1, pow *= 10) {

@@ -22,7 +22,7 @@ class LocationDuringReaderParsingTest extends
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testLocationAtEndOfParse(test);
+            locationAtEndOfParse(test);
         }
     }
 
@@ -31,7 +31,7 @@ class LocationDuringReaderParsingTest extends
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testInitialLocation(test);
+            initialLocation(test);
         }
     }
 
@@ -40,11 +40,10 @@ class LocationDuringReaderParsingTest extends
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testTokenLocations(test);
+            tokenLocations(test);
         }
     }
 
-    @Test
     private void locationAtEndOfParse(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingReader(test.json);
@@ -55,7 +54,6 @@ class LocationDuringReaderParsingTest extends
         p.close();
     }
 
-    @Test
     private void initialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingReader(test.json);
@@ -65,7 +63,6 @@ class LocationDuringReaderParsingTest extends
         assertLocation(loc, at(1, 1, 0));
     }
 
-    @Test
     private void tokenLocations(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingReader(test.json);

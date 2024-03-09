@@ -13,8 +13,8 @@ class RequestPayloadOnExceptionTest extends TestBase
      */
     @Test
     void requestPayloadAsBytesOnParseException() throws Exception {
-        testRequestPayloadAsBytesOnParseExceptionInternal(true, "nul");
-        testRequestPayloadAsBytesOnParseExceptionInternal(false, "nul");
+        requestPayloadAsBytesOnParseExceptionInternal(true, "nul");
+        requestPayloadAsBytesOnParseExceptionInternal(false, "nul");
     }
 
     /**
@@ -22,8 +22,8 @@ class RequestPayloadOnExceptionTest extends TestBase
      */
     @Test
     void requestPayloadAsStringOnParseException() throws Exception {
-        testRequestPayloadAsStringOnParseExceptionInternal(true, "nul");
-        testRequestPayloadAsStringOnParseExceptionInternal(false, "nul");
+        requestPayloadAsStringOnParseExceptionInternal(true, "nul");
+        requestPayloadAsStringOnParseExceptionInternal(false, "nul");
     }
 
     /**
@@ -31,8 +31,8 @@ class RequestPayloadOnExceptionTest extends TestBase
      */
     @Test
     void rawRequestPayloadOnParseException() throws Exception {
-        testRawRequestPayloadOnParseExceptionInternal(true, "nul");
-        testRawRequestPayloadOnParseExceptionInternal(false, "nul");
+        rawRequestPayloadOnParseExceptionInternal(true, "nul");
+        rawRequestPayloadOnParseExceptionInternal(false, "nul");
     }
 
     /**
@@ -40,8 +40,8 @@ class RequestPayloadOnExceptionTest extends TestBase
      */
     @Test
     void noRequestPayloadOnParseException() throws Exception {
-        testNoRequestPayloadOnParseExceptionInternal(true, "nul");
-        testNoRequestPayloadOnParseExceptionInternal(false, "nul");
+        noRequestPayloadOnParseExceptionInternal(true, "nul");
+        noRequestPayloadOnParseExceptionInternal(false, "nul");
     }
 
     /**
@@ -49,8 +49,8 @@ class RequestPayloadOnExceptionTest extends TestBase
      */
     @Test
     void nullRequestPayloadOnParseException() throws Exception {
-        testNullRequestPayloadOnParseExceptionInternal(true, "nul");
-        testNullRequestPayloadOnParseExceptionInternal(false, "nul");
+        nullRequestPayloadOnParseExceptionInternal(true, "nul");
+        nullRequestPayloadOnParseExceptionInternal(false, "nul");
     }
 
     /**
@@ -58,14 +58,13 @@ class RequestPayloadOnExceptionTest extends TestBase
      */
     @Test
     void nullCharsetOnParseException() throws Exception {
-        testNullCharsetOnParseExceptionInternal(true, "nul");
-        testNullCharsetOnParseExceptionInternal(false, "nul");
+        nullCharsetOnParseExceptionInternal(true, "nul");
+        nullCharsetOnParseExceptionInternal(false, "nul");
     }
 
     /*
      * *******************Private Methods*************************
      */
-    @Test
     private void requestPayloadAsBytesOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
@@ -81,7 +80,6 @@ class RequestPayloadOnExceptionTest extends TestBase
         jp.close();
     }
 
-    @Test
     private void requestPayloadAsStringOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
@@ -97,7 +95,6 @@ class RequestPayloadOnExceptionTest extends TestBase
         jp.close();
     }
 
-    @Test
     private void rawRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
@@ -113,7 +110,6 @@ class RequestPayloadOnExceptionTest extends TestBase
         jp.close();
     }
 
-    @Test
     private void noRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
@@ -127,7 +123,6 @@ class RequestPayloadOnExceptionTest extends TestBase
         jp.close();
     }
 
-    @Test
     private void nullRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
@@ -142,7 +137,6 @@ class RequestPayloadOnExceptionTest extends TestBase
         jp.close();
     }
 
-    @Test
     private void nullCharsetOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);

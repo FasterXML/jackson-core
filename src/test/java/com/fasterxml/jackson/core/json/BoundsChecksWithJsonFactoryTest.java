@@ -72,7 +72,7 @@ class BoundsChecksWithJsonFactoryTest
     void boundsWithCharArrayInput() throws Exception {
         final TokenStreamFactory PARSER_F = newStreamFactory();
 
-        testBoundsWithCharArrayInput(
+        boundsWithCharArrayInput(
                 (data,offset,len)->PARSER_F.createParser(data, offset, len));
     }
 
@@ -80,15 +80,15 @@ class BoundsChecksWithJsonFactoryTest
     private void boundsWithCharArrayInput(CharBackedCreation creator) throws Exception
     {
         final char[] DATA = new char[10];
-        testBoundsWithCharArrayInput(creator, DATA, -1, 1);
-        testBoundsWithCharArrayInput(creator, DATA, 4, -1);
-        testBoundsWithCharArrayInput(creator, DATA, 4, -6);
-        testBoundsWithCharArrayInput(creator, DATA, 9, 5);
+        boundsWithCharArrayInput(creator, DATA, -1, 1);
+        boundsWithCharArrayInput(creator, DATA, 4, -1);
+        boundsWithCharArrayInput(creator, DATA, 4, -6);
+        boundsWithCharArrayInput(creator, DATA, 9, 5);
         // and the integer overflow, too
-        testBoundsWithCharArrayInput(creator, DATA, Integer.MAX_VALUE, 4);
-        testBoundsWithCharArrayInput(creator, DATA, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        boundsWithCharArrayInput(creator, DATA, Integer.MAX_VALUE, 4);
+        boundsWithCharArrayInput(creator, DATA, Integer.MAX_VALUE, Integer.MAX_VALUE);
         // and null checks too
-        testBoundsWithCharArrayInput(creator, null, 0, 3);
+        boundsWithCharArrayInput(creator, null, 0, 3);
     }
 
     @Test

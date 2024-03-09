@@ -4,9 +4,12 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
+import com.fasterxml.jackson.core.testsupport.TestSupport;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 import com.fasterxml.jackson.core.testsupport.ThrottledReader;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -16,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class JUnit5TestBase
 {
+    protected final static String FIELD_BASENAME = "f";
+
     protected final static int MODE_INPUT_STREAM = 0;
     protected final static int MODE_INPUT_STREAM_THROTTLED = 1;
     protected final static int MODE_READER = 2;
@@ -230,6 +235,16 @@ public class JUnit5TestBase
 
     /*
     /**********************************************************************
+    /* Helper type construction
+    /**********************************************************************
+     */
+
+    public static IOContext testIOContext() {
+        return TestSupport.testIOContext();
+    }
+
+    /*
+    /**********************************************************************
     /* Assertions
     /**********************************************************************
      */
@@ -295,16 +310,8 @@ public class JUnit5TestBase
         return '"'+str+'"';
     }
 
-    protected static String a2q(String json) {
+    public static String a2q(String json) {
         return json.replace('\'', '"');
-    }
-
-    protected static byte[] utf8Bytes(String str) {
-        return str.getBytes(StandardCharsets.UTF_8);
-    }
-
-    protected String utf8String(ByteArrayOutputStream bytes) {
-        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
     public static byte[] encodeInUTF32BE(String input)
@@ -319,6 +326,42 @@ public class JUnit5TestBase
             result[ptr+3] = (byte) c;
         }
         return result;
+    }
+
+    protected static byte[] utf8Bytes(String str) {
+        return str.getBytes(StandardCharsets.UTF_8);
+    }
+
+    protected String utf8String(ByteArrayOutputStream bytes) {
+        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    public static String fieldNameFor(int index)
+    {
+        StringBuilder sb = new StringBuilder(16);
+        fieldNameFor(sb, index);
+        return sb.toString();
+    }
+
+    private static void fieldNameFor(StringBuilder sb, int index)
+    {
+        /* let's do something like "f1.1" to exercise different
+         * field names (important for byte-based codec)
+         * Other name shuffling done mostly just for fun... :)
+         */
+        sb.append(FIELD_BASENAME);
+        sb.append(index);
+        if (index > 50) {
+            sb.append('.');
+            if (index > 200) {
+                sb.append(index);
+                if (index > 4000) { // and some even longer symbols...
+                    sb.append(".").append(index);
+                }
+            } else {
+                sb.append(index >> 3); // divide by 8
+            }
+        }
     }
 
     public static byte[] readResource(String ref)

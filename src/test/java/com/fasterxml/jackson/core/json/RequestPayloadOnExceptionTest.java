@@ -118,7 +118,7 @@ class RequestPayloadOnExceptionTest extends TestBase
             jp.nextToken();
             fail("Expecting parsing exception");
         } catch (JsonParseException ex) {
-            assertEquals(null, ex.getRequestPayload(), "Request payload data should be null");
+            assertNull(ex.getRequestPayload(), "Request payload data should be null");
         }
         jp.close();
     }
@@ -132,7 +132,7 @@ class RequestPayloadOnExceptionTest extends TestBase
             jp.nextToken();
             fail("Expecting parsing exception");
         } catch (JsonParseException ex) {
-            assertEquals(null, ex.getRequestPayload(), "Request payload data should be null");
+            assertNull(ex.getRequestPayload(), "Request payload data should be null");
         }
         jp.close();
     }

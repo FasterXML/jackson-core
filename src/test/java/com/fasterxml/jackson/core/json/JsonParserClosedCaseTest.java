@@ -10,9 +10,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests asserts that using closed `JsonParser` doesn't cause ArrayIndexOutOfBoundsException
@@ -47,28 +49,28 @@ public class JsonParserClosedCaseTest {
     @ParameterizedTest(name = "{0}")
     void nullReturnedOnClosedParserOnNextFieldName(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
-        Assertions.assertNull(parser.nextFieldName());
+        assertNull(parser.nextFieldName());
     }
 
     @MethodSource("parsers")
     @ParameterizedTest(name = "{0}")
     void falseReturnedOnClosedParserOnNextFieldNameSerializedString(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
-        Assertions.assertFalse(parser.nextFieldName(new SerializedString("")));
+        assertFalse(parser.nextFieldName(new SerializedString("")));
     }
 
     @MethodSource("parsers")
     @ParameterizedTest(name = "{0}")
     void nullReturnedOnClosedParserOnNextToken(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
-        Assertions.assertNull(parser.nextToken());
+        assertNull(parser.nextToken());
     }
 
     @MethodSource("parsers")
     @ParameterizedTest(name = "{0}")
     void nullReturnedOnClosedParserOnNextValue(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
-        Assertions.assertNull(parser.nextValue());
+        assertNull(parser.nextValue());
     }
 
     private static Collection<Object[]> closeParsers(JsonParser... parsersToClose) throws IOException {

@@ -8,7 +8,6 @@ import static com.fasterxml.jackson.core.io.schubfach.DoubleToDecimalChecker.*;
 import static java.lang.Double.longBitsToDouble;
 import static java.lang.StrictMath.scalb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DoubleToDecimalTest {
     @Test
@@ -105,8 +104,8 @@ class DoubleToDecimalTest {
     @Test
     void constants() {
         assertEquals(DoubleToDecimal.P, P, "P");
-        assertTrue((long) (double) C_MIN == C_MIN, "C_MIN");
-        assertTrue((long) (double) C_MAX == C_MAX, "C_MAX");
+        assertEquals(C_MIN, (long) (double) C_MIN, "C_MIN");
+        assertEquals(C_MAX, (long) (double) C_MAX, "C_MAX");
         assertEquals(Double.MIN_VALUE, MIN_VALUE, "MIN_VALUE");
         assertEquals(Double.MIN_NORMAL, MIN_NORMAL, "MIN_NORMAL");
         assertEquals(Double.MAX_VALUE, MAX_VALUE, "MAX_VALUE");

@@ -267,10 +267,10 @@ public class UTF8NamesParseTest
     {
         SerializedString id = new SerializedString("id");
         JsonParser parser = createParser(mode, doc);
-        assertEquals(parser.nextToken(), JsonToken.START_OBJECT);
+        assertEquals(JsonToken.START_OBJECT, parser.nextToken());
         assertTrue(parser.nextFieldName(id));
-        assertEquals(parser.nextToken(), JsonToken.VALUE_NUMBER_INT);
-        assertEquals(parser.nextToken(), JsonToken.END_OBJECT);
+        assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
+        assertEquals(JsonToken.END_OBJECT, parser.nextToken());
         parser.close();
     }
 }

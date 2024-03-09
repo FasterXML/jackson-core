@@ -2,11 +2,13 @@ package com.fasterxml.jackson.core.dos;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 // For [core#968]]
@@ -24,9 +26,9 @@ class PerfBigDecimalToInteger968Test
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             try {
                 p.getBigIntegerValue();
-                Assertions.fail("Should not pass");
+                fail("Should not pass");
             } catch (StreamConstraintsException e) {
-                Assertions.assertEquals("BigDecimal scale (-25000000) magnitude exceeds the maximum allowed (100000)", e.getMessage());
+                assertEquals("BigDecimal scale (-25000000) magnitude exceeds the maximum allowed (100000)", e.getMessage());
             }
         }
     }
@@ -40,9 +42,9 @@ class PerfBigDecimalToInteger968Test
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             try {
                 p.getBigIntegerValue();
-                Assertions.fail("Should not pass");
+                fail("Should not pass");
             } catch (StreamConstraintsException e) {
-                Assertions.assertEquals("BigDecimal scale (25000000) magnitude exceeds the maximum allowed (100000)", e.getMessage());
+                assertEquals("BigDecimal scale (25000000) magnitude exceeds the maximum allowed (100000)", e.getMessage());
             }
         }
     }
@@ -50,7 +52,7 @@ class PerfBigDecimalToInteger968Test
     protected void assertToken(JsonToken expToken, JsonToken actToken)
     {
         if (actToken != expToken) {
-            Assertions.fail("Expected token "+expToken+", current token "+actToken);
+            fail("Expected token "+expToken+", current token "+actToken);
         }
     }
 }

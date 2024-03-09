@@ -63,7 +63,7 @@ class ObjectWriteTest
         JsonParser jp = createParserUsingReader(docStr);
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 
@@ -114,7 +114,7 @@ class ObjectWriteTest
         assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("yee-haw", jp.getText());
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 
@@ -223,7 +223,7 @@ class ObjectWriteTest
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
 
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 

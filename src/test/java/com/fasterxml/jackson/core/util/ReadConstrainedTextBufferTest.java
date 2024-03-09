@@ -5,10 +5,11 @@ import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.IOContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Arrays;
 
 class ReadConstrainedTextBufferTest {
@@ -21,7 +22,7 @@ class ReadConstrainedTextBufferTest {
             char[] chars = new char[SEGMENT_SIZE];
             Arrays.fill(chars, 'A');
             constrained.append(chars, 0, SEGMENT_SIZE);
-            Assertions.assertThrows(IOException.class, () -> {
+            assertThrows(IOException.class, () -> {
                 constrained.append(chars, 0, SEGMENT_SIZE);
                 constrained.contentsAsString();
             });
@@ -35,7 +36,7 @@ class ReadConstrainedTextBufferTest {
             char[] chars = new char[SEGMENT_SIZE];
             Arrays.fill(chars, 'A');
             constrained.append(new String(chars), 0, SEGMENT_SIZE);
-            Assertions.assertThrows(IOException.class, () -> {
+            assertThrows(IOException.class, () -> {
                 constrained.append(new String(chars), 0, SEGMENT_SIZE);
                 constrained.contentsAsString();
             });
@@ -49,7 +50,7 @@ class ReadConstrainedTextBufferTest {
             char[] chars = new char[SEGMENT_SIZE];
             Arrays.fill(chars, 'A');
             constrained.append(chars, 0, SEGMENT_SIZE);
-            Assertions.assertThrows(IOException.class, () -> {
+            assertThrows(IOException.class, () -> {
                 constrained.append('x');
                 constrained.contentsAsString();
             });

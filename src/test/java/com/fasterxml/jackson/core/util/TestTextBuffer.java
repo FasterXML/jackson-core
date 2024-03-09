@@ -96,9 +96,9 @@ class TestTextBuffer
         TextBuffer tb = new TextBuffer(new BufferRecycler());
         tb.resetWithEmpty();
 
-        assertTrue(tb.getTextBuffer().length == 0);
+        assertEquals(0, tb.getTextBuffer().length);
         tb.contentsAsString();
-        assertTrue(tb.getTextBuffer().length == 0);
+        assertEquals(0, tb.getTextBuffer().length);
     }
 
     @Test

@@ -65,8 +65,8 @@ class JDKSerializabilityTest
             Base64Variant mod = orig.withWritePadding(true);
             assertTrue(mod.usesPadding());
             assertNotSame(orig, mod);
-            assertFalse(orig.equals(mod));
-            assertFalse(mod.equals(orig));
+            assertNotEquals(orig, mod);
+            assertNotEquals(mod, orig);
 
             final String exp = _encodeBase64(mod);
             byte[] stuff = jdkSerialize(mod);

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.testsupport.TestSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests to verify functioning of {@link Version} class.
@@ -34,7 +33,7 @@ class ComponentVersionsTest
         Version unk = Version.unknownVersion();
         assertEquals("0.0.0", unk.toString());
         assertEquals("//0.0.0", unk.toFullString());
-        assertTrue(unk.equals(unk));
+        assertEquals(unk, unk);
 
         Version other = new Version(2, 8, 4, "",
                 "groupId", "artifactId");

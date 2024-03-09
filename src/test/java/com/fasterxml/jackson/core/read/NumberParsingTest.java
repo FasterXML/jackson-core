@@ -48,7 +48,7 @@ class NumberParsingTest
         JsonParser p = createParser(jsonFactory(), mode, "[ true ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertEquals(true, p.getBooleanValue());
+        assertTrue(p.getBooleanValue());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }

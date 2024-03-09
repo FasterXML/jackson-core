@@ -2,11 +2,13 @@ package com.fasterxml.jackson.core.dos;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // For [core#967]
 class PerfBigDecimalParser967Test
@@ -28,14 +30,14 @@ class PerfBigDecimalParser967Test
 
         try (JsonParser p = JSON_F.createParser(DOC)) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            Assertions.assertNotNull(p.getDecimalValue());
+            assertNotNull(p.getDecimalValue());
         }
     }
 
     protected void assertToken(JsonToken expToken, JsonToken actToken)
     {
         if (actToken != expToken) {
-            Assertions.fail("Expected token "+expToken+", current token "+actToken);
+            fail("Expected token "+expToken+", current token "+actToken);
         }
     }
 }

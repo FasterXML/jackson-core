@@ -54,7 +54,7 @@ public class GeneratorBasicTest
                     assertNotNull(t, "Document \""+utf8String(bout)+"\" yielded no tokens");
                     assertEquals(JsonToken.VALUE_STRING, t);
                     assertEquals(input, jp.getText());
-                    assertEquals(null, jp.nextToken());
+                    assertNull(jp.nextToken());
                     jp.close();
                 }
             }
@@ -104,7 +104,7 @@ public class GeneratorBasicTest
                 fail("Expected '"+exp+"', got '"+jp.getText());
             }
             assertEquals(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE, t);
-            assertEquals(null, jp.nextToken());
+            assertNull(jp.nextToken());
             jp.close();
         }
     }
@@ -130,7 +130,7 @@ public class GeneratorBasicTest
                 fail("Expected '"+exp+"', got '"+jp.getText());
             }
             assertEquals(JsonToken.VALUE_NULL, t);
-            assertEquals(null, jp.nextToken());
+            assertNull(jp.nextToken());
             jp.close();
         }
     }
@@ -384,7 +384,7 @@ public class GeneratorBasicTest
             }
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
             assertEquals(VALUE, p.getIntValue());
-            assertEquals(null, p.nextToken());
+            assertNull(p.nextToken());
             p.close();
         }
     }
@@ -439,7 +439,7 @@ public class GeneratorBasicTest
             }
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
             assertEquals(VALUE, p.getLongValue());
-            assertEquals(null, p.nextToken());
+            assertNull(p.nextToken());
             p.close();
         }
     }

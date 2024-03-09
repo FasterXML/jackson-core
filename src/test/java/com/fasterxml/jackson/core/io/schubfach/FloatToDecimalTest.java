@@ -8,7 +8,6 @@ import static com.fasterxml.jackson.core.io.schubfach.FloatToDecimalChecker.*;
 import static java.lang.Float.intBitsToFloat;
 import static java.lang.StrictMath.scalb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FloatToDecimalTest {
     /*
@@ -72,8 +71,8 @@ class FloatToDecimalTest {
     @Test
     void constants() {
         assertEquals(FloatToDecimal.P, P, "P");
-        assertTrue((long) (float) C_MIN == C_MIN, "C_MIN");
-        assertTrue((long) (float) C_MAX == C_MAX, "C_MAX");
+        assertEquals(C_MIN, (long) (float) C_MIN, "C_MIN");
+        assertEquals(C_MAX, (long) (float) C_MAX, "C_MAX");
         assertEquals(Float.MIN_VALUE, MIN_VALUE, "MIN_VALUE");
         assertEquals(Float.MIN_NORMAL, MIN_NORMAL, "MIN_NORMAL");
         assertEquals(Float.MAX_VALUE, MAX_VALUE, "MAX_VALUE");

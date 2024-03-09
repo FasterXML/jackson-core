@@ -444,8 +444,8 @@ class MathUtilsTest {
 
     @Test
     void binaryConstants() {
-        assertTrue((long) (double) C_MIN == C_MIN, "C_MIN");
-        assertTrue((long) (double) C_MAX == C_MAX, "C_MAX");
+        assertEquals(C_MIN, (long) (double) C_MIN, "C_MIN");
+        assertEquals(C_MAX, (long) (double) C_MAX, "C_MAX");
         assertEquals(MIN_VALUE, scalb(1.0, Q_MIN), "MIN_VALUE");
         assertEquals(MIN_NORMAL, scalb((double) C_MIN, Q_MIN), "MIN_NORMAL");
         assertEquals(MAX_VALUE, scalb((double) C_MAX, Q_MAX), "MAX_VALUE");

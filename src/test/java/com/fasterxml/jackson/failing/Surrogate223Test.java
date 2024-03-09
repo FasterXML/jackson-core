@@ -5,16 +5,21 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import com.fasterxml.jackson.core.BaseTest;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Surrogate223Test extends BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     // for [core#223]
+    @Test
     public void testSurrogatesByteBacked() throws Exception
     {
         ByteArrayOutputStream out;
@@ -52,6 +57,7 @@ public class Surrogate223Test extends BaseTest
     }
 
     // for [core#223]
+    @Test
     public void testSurrogatesCharBacked() throws Exception
     {
         Writer out;

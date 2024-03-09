@@ -6,6 +6,11 @@ import com.fasterxml.jackson.core.*;
 
 import java.util.Random;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Set of basic unit tests for verifying that the string
  * generation, including character escaping, works as expected.
@@ -23,6 +28,7 @@ public class StringGenerationTest
 
     private final JsonFactory FACTORY = new JsonFactory();
 
+    @Test
     public void testBasicEscaping() throws Exception
     {
         doTestBasicEscaping(false);
@@ -30,6 +36,7 @@ public class StringGenerationTest
     }
 
     // for [core#194]
+    @Test
     public void testMediumStringsBytes() throws Exception
     {
         for (int mode : ALL_BINARY_MODES) {
@@ -40,6 +47,7 @@ public class StringGenerationTest
     }
 
     // for [core#194]
+    @Test
     public void testMediumStringsChars() throws Exception
     {
         for (int mode : ALL_TEXT_MODES) {
@@ -49,6 +57,7 @@ public class StringGenerationTest
         }
     }
 
+    @Test
     public void testLongerRandomSingleChunk() throws Exception
     {
         /* Let's first generate 100k of pseudo-random characters, favoring
@@ -63,6 +72,7 @@ public class StringGenerationTest
         }
     }
 
+    @Test
     public void testLongerRandomMultiChunk() throws Exception
     {
         /* Let's first generate 100k of pseudo-random characters, favoring

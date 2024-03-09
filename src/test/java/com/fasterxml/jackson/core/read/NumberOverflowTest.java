@@ -3,7 +3,12 @@ package com.fasterxml.jackson.core.read;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NumberOverflowTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -27,6 +32,7 @@ public class NumberOverflowTest
     private final static String BIG_POS_DOC = "["+BIG_POS_INTEGER+"]";
     private final static String BIG_NEG_DOC = "[ -"+BIG_POS_INTEGER+"]";
 
+    @Test
     public void testSimpleLongOverflow() throws Exception
     {
         BigInteger below = BigInteger.valueOf(Long.MIN_VALUE);
@@ -64,6 +70,7 @@ public class NumberOverflowTest
     // Note: due to [jackson-core#493], we'll skip DataInput-backed parser
 
     // [jackson-core#488]
+    @Test
     public void testMaliciousLongOverflow() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -84,6 +91,7 @@ public class NumberOverflowTest
     }
 
     // [jackson-core#488]
+    @Test
     public void testMaliciousIntOverflow() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -104,6 +112,7 @@ public class NumberOverflowTest
     }
 
     // [jackson-core#488]
+    @Test
     public void testMaliciousBigIntToDouble() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -119,6 +128,7 @@ public class NumberOverflowTest
     }
 
     // [jackson-core#488]
+    @Test
     public void testMaliciousBigIntToFloat() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {

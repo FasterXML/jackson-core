@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.core.constraints;
 
-import com.fasterxml.jackson.core.StreamWriteConstraints;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.core.StreamWriteConstraints;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StreamWriteConstraintsDefaultsTest {
     @Test

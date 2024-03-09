@@ -3,7 +3,11 @@ package com.fasterxml.jackson.core.filter;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.BaseTest
 {
@@ -13,6 +17,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
 
     final String SIMPLE_INPUT = a2q("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
 
+    @Test
     public void testSimplestWithPath() throws Exception
     {
         _assert(SIMPLEST_INPUT, "/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'a':1}");
@@ -22,6 +27,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
         _assert(SIMPLEST_INPUT, "/d", Inclusion.INCLUDE_ALL_AND_PATH, "");
     }
 
+    @Test
     public void testSimplestNoPath() throws Exception
     {
         _assert(SIMPLEST_INPUT, "/a", Inclusion.ONLY_INCLUDE_ALL, "1");
@@ -31,6 +37,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
         _assert(SIMPLEST_INPUT, "/d", Inclusion.ONLY_INCLUDE_ALL, "");
     }
 
+    @Test
     public void testSimpleWithPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
@@ -43,6 +50,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
         _assert(SIMPLE_INPUT, "/b/3", Inclusion.INCLUDE_ALL_AND_PATH, "");
     }
 
+    @Test
     public void testSimpleNoPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.ONLY_INCLUDE_ALL, "{'d':{'a':true}}");

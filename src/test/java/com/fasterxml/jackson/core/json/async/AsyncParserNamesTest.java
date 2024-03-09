@@ -4,9 +4,13 @@ import java.io.*;
 import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests to verify symbol table handling works as expected, wrt symbol reuse.
@@ -15,11 +19,13 @@ public class AsyncParserNamesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
+    @Test
     public void testLongNames() throws IOException
     {
         _testWithName(generateName(5000));
     }
 
+    @Test
     public void testEvenLongerName() throws Exception
     {
         StringBuilder nameBuf = new StringBuilder("longString");
@@ -49,6 +55,7 @@ public class AsyncParserNamesTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testSymbolTable() throws IOException
     {
         final String STR1 = "a";

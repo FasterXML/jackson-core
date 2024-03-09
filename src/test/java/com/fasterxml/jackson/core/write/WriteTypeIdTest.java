@@ -3,17 +3,22 @@ package com.fasterxml.jackson.core.write;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.BaseTest;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class WriteTypeIdTest
     extends BaseTest
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
+    @Test
     public void testNoNativeTypeIdForJson() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -28,6 +33,7 @@ public class WriteTypeIdTest
         gen.close();
     }
 
+    @Test
     public void testBasicTypeIdWriteForObject() throws Exception
     {
         final Object data = new Object();
@@ -86,6 +92,7 @@ public class WriteTypeIdTest
         assertEquals("{\"value\":{\"number\":42},\"extId\":\"typeId\"}", sw.toString());
     }
 
+    @Test
     public void testBasicTypeIdWriteForArray() throws Exception
     {
         final Object data = new Object();

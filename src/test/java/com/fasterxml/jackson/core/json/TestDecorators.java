@@ -3,11 +3,15 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
 import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests to verify that input and output decorators work as
@@ -83,13 +87,14 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests: input/output decoration
     /**********************************************************
      */
 
+    @Test
     public void testInputDecoration() throws IOException
     {
         JsonFactory f = JsonFactory.builder()
@@ -132,6 +137,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         p.close();
     }
 
+    @Test
     public void testOutputDecoration() throws IOException
     {
         JsonFactory f = JsonFactory.builder()
@@ -151,6 +157,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testDeprecatedMethods() throws IOException
     {
         JsonFactory f = new JsonFactory();
@@ -170,6 +177,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     /**********************************************************
      */
 
+    @Test
     public void testGeneratorDecoration() throws Exception
     {
         JsonFactory f = JsonFactory.builder()

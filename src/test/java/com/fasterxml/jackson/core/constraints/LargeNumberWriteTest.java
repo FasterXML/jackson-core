@@ -11,11 +11,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.BaseTest;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.StreamReadConstraints;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests verifying that there are no limits for writing very long numbers
@@ -50,6 +55,7 @@ public class LargeNumberWriteTest extends BaseTest
         BIG_INT = new BigInteger(sb.toString());
     }
 
+    @Test
     public void testWriteLargeIntegerByteArray() throws Exception
     {
         try(
@@ -63,6 +69,7 @@ public class LargeNumberWriteTest extends BaseTest
         }
     }
 
+    @Test
     public void testWriteLargeIntegerStringWriter() throws Exception
     {
         try(
@@ -76,6 +83,7 @@ public class LargeNumberWriteTest extends BaseTest
         }
     }
 
+    @Test
     public void testWriteLargeIntegerDataOutput() throws Exception
     {
         try(
@@ -95,6 +103,7 @@ public class LargeNumberWriteTest extends BaseTest
         }
     }
 
+    @Test
     public void testWriteLargeDecimalByteArray() throws Exception
     {
         try(
@@ -108,6 +117,7 @@ public class LargeNumberWriteTest extends BaseTest
         }
     }
 
+    @Test
     public void testWriteLargeDecimalStringWriter() throws Exception
     {
         try(
@@ -121,6 +131,7 @@ public class LargeNumberWriteTest extends BaseTest
         }
     }
 
+    @Test
     public void testWriteLargeDecimalDataOutput() throws Exception
     {
         try(

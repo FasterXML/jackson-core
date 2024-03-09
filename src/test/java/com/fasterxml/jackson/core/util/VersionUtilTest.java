@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.core.util;
 
-import com.fasterxml.jackson.core.Version;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import com.fasterxml.jackson.core.Version;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for class {@link VersionUtil}.

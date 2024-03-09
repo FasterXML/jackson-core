@@ -1,12 +1,18 @@
 package com.fasterxml.jackson.core.read.loc;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 public class LocationOffsets455Test extends com.fasterxml.jackson.core.BaseTest
 {
     // for [jackson-core#455]
+    @Test
     public void testEOFLocationViaReader() throws Exception
     {
         JsonParser p = createParserUsingReader("42");
@@ -29,6 +35,7 @@ public class LocationOffsets455Test extends com.fasterxml.jackson.core.BaseTest
     }
 
     // for [jackson-core#455]
+    @Test
     public void testEOFLocationViaStream() throws Exception
     {
         JsonParser p = createParserUsingStream("42", "UTF-8");

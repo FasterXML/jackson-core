@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TrailingCommas616Test extends BaseTest
 {
@@ -10,17 +14,20 @@ public class TrailingCommas616Test extends BaseTest
             .build();
 
     // [core#616]
+    @Test
     public void testRootLevelComma616() throws Exception
     {
         _testRootLevel616(MODE_READER);
     }
 
+    @Test
     public void testRootLevelComma616Bytes() throws Exception
     {
         _testRootLevel616(MODE_INPUT_STREAM);
         _testRootLevel616(MODE_INPUT_STREAM_THROTTLED);
     }
 
+    @Test
     public void testRootLevelComma616DataInput() throws Exception
     {
         _testRootLevel616(MODE_DATA_INPUT);

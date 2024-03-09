@@ -1,7 +1,13 @@
 package com.fasterxml.jackson.core.io;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class BigIntegerParserTest extends com.fasterxml.jackson.core.BaseTest {
 
+    @Test
     public void testFastParseBigIntegerFailsWithENotation() {
         String num = "2e308";
         try {
@@ -12,26 +18,28 @@ public class BigIntegerParserTest extends com.fasterxml.jackson.core.BaseTest {
         }
     }
 
+    @Test
     public void testLongStringFastParseBigInteger() {
         try {
             BigIntegerParser.parseWithFastParser(genLongString());
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
-            assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
-            assertTrue("exception message value contains: truncated", nfe.getMessage().contains("truncated"));
-            assertTrue("exception message value contains: BigInteger", nfe.getMessage().contains("BigInteger"));
+            assertTrue(nfe.getMessage().startsWith("Value \"AAAAA"), "exception message starts as expected?");
+            assertTrue(nfe.getMessage().contains("truncated"), "exception message value contains: truncated");
+            assertTrue(nfe.getMessage().contains("BigInteger"), "exception message value contains: BigInteger");
         }
     }
 
+    @Test
     public void testLongStringFastParseBigIntegerRadix() {
         try {
             BigIntegerParser.parseWithFastParser(genLongString(), 8);
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
-            assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
-            assertTrue("exception message value contains: truncated", nfe.getMessage().contains("truncated"));
-            assertTrue("exception message value contains: radix 8", nfe.getMessage().contains("radix 8"));
-            assertTrue("exception message value contains: BigInteger", nfe.getMessage().contains("BigInteger"));
+            assertTrue(nfe.getMessage().startsWith("Value \"AAAAA"), "exception message starts as expected?");
+            assertTrue(nfe.getMessage().contains("truncated"), "exception message value contains: truncated");
+            assertTrue(nfe.getMessage().contains("radix 8"), "exception message value contains: radix 8");
+            assertTrue(nfe.getMessage().contains("BigInteger"), "exception message value contains: BigInteger");
         }
     }
 

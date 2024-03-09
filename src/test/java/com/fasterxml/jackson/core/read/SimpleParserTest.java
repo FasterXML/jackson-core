@@ -5,8 +5,13 @@ import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.net.URL;
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
@@ -15,6 +20,7 @@ import java.util.*;
 @SuppressWarnings("resource")
 public class SimpleParserTest extends BaseTest
 {
+    @Test
     public void testConfig() throws Exception
     {
         JsonParser p = createParser(MODE_READER, "[ ]");
@@ -45,12 +51,14 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testInterningWithStreams() throws Exception
     {
         _testIntern(true, true, "a");
         _testIntern(true, false, "b");
     }
 
+    @Test
     public void testInterningWithReaders() throws Exception
     {
         _testIntern(false, true, "c");
@@ -85,6 +93,7 @@ public class SimpleParserTest extends BaseTest
      * specification (RFC-4627 or later) is properly parsed at
      * high-level, without verifying values.
      */
+    @Test
     public void testSpecExampleSkipping() throws Exception
     {
         _doTestSpec(false);
@@ -95,6 +104,7 @@ public class SimpleParserTest extends BaseTest
      * parsed, and proper values are given for contents of all
      * events/tokens.
      */
+    @Test
     public void testSpecExampleFully() throws Exception
     {
         _doTestSpec(true);
@@ -104,6 +114,7 @@ public class SimpleParserTest extends BaseTest
      * Unit test that verifies that 3 basic keywords (null, true, false)
      * are properly parsed in various contexts.
      */
+    @Test
     public void testKeywords() throws Exception
     {
         final String DOC = "{\n"
@@ -222,6 +233,7 @@ public class SimpleParserTest extends BaseTest
         assertNull(ctxt.getCurrentName());
     }
 
+    @Test
     public void testSkipping() throws Exception {
         _testSkipping(MODE_INPUT_STREAM);
         _testSkipping(MODE_INPUT_STREAM_THROTTLED);
@@ -284,6 +296,7 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testNameEscaping() throws IOException
     {
         _testNameEscaping(MODE_INPUT_STREAM);
@@ -323,7 +336,7 @@ public class SimpleParserTest extends BaseTest
                 if (expResult.length() != act.length()) {
                     fail(msg+": exp length "+expResult.length()+", actual "+act.length());
                 }
-                assertEquals(msg, expResult, act);
+                assertEquals(expResult, act, msg);
             }
             assertToken(JsonToken.VALUE_NULL, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -336,6 +349,7 @@ public class SimpleParserTest extends BaseTest
      * correctly; mostly to stress-test underlying segment-based
      * text buffer(s).
      */
+    @Test
     public void testLongText() throws Exception {
         // lengths chosen to tease out problems with buffer allocation...
         _testLongText(310);
@@ -422,6 +436,7 @@ public class SimpleParserTest extends BaseTest
      * Simple unit test that verifies that passing in a byte array
      * as source works as expected.
      */
+    @Test
     public void testBytesAsSource() throws Exception
     {
         String JSON = "[ 1, 2, 3, 4 ]";
@@ -449,6 +464,7 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testUtf8BOMHandling() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -481,6 +497,7 @@ public class SimpleParserTest extends BaseTest
     }
 
     // [core#48]
+    @Test
     public void testSpacesInURL() throws Exception
     {
         File f = File.createTempFile("pre fix&stuff", ".txt");
@@ -495,18 +512,21 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testGetValueAsTextBytes() throws Exception
     {
         _testGetValueAsText(MODE_INPUT_STREAM, false);
         _testGetValueAsText(MODE_INPUT_STREAM, true);
     }
 
+    @Test
     public void testGetValueAsTextDataInput() throws Exception
     {
         _testGetValueAsText(MODE_DATA_INPUT, false);
         _testGetValueAsText(MODE_DATA_INPUT, true);
     }
 
+    @Test
     public void testGetValueAsTextChars() throws Exception
     {
         _testGetValueAsText(MODE_READER, false);
@@ -560,6 +580,7 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testGetTextViaWriter() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -603,6 +624,7 @@ public class SimpleParserTest extends BaseTest
         assertEquals(exp, resultString);
     }
 
+    @Test
     public void testLongerReadText() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -639,18 +661,21 @@ public class SimpleParserTest extends BaseTest
      */
 
     // [core#142]
+    @Test
     public void testHandlingOfInvalidSpaceByteStream() throws Exception {
         _testHandlingOfInvalidSpace(MODE_INPUT_STREAM);
         _testHandlingOfInvalidSpaceFromResource(true);
     }
 
     // [core#142]
+    @Test
     public void testHandlingOfInvalidSpaceChars() throws Exception {
         _testHandlingOfInvalidSpace(MODE_READER);
         _testHandlingOfInvalidSpaceFromResource(false);
     }
 
     // [core#142]
+    @Test
     public void testHandlingOfInvalidSpaceDataInput() throws Exception {
         _testHandlingOfInvalidSpace(MODE_DATA_INPUT);
     }
@@ -703,6 +728,7 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testInvalidUtf8ValidUtf16() throws IOException {
         JsonFactory factory = new JsonFactoryBuilder()
                 .disable(JsonFactory.Feature.CHARSET_DETECTION)

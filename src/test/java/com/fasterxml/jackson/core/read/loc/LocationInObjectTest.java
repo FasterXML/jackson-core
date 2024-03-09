@@ -1,10 +1,15 @@
 package com.fasterxml.jackson.core.read.loc;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // tests for [core#37]
 public class LocationInObjectTest extends BaseTest
 {
+    @Test
     public void testOffsetWithObjectFieldsUsingUTF8() throws Exception
     {
         final JsonFactory f = new JsonFactory();
@@ -51,6 +56,7 @@ public class LocationInObjectTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testOffsetWithObjectFieldsUsingReader() throws Exception
     {
         final JsonFactory f = new JsonFactory();

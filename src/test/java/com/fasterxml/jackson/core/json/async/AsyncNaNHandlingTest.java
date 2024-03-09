@@ -3,19 +3,25 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncNaNHandlingTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testDefaultsForAsync() throws Exception {
         assertFalse(DEFAULT_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
+    @Test
     public void testDisallowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
@@ -33,6 +39,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testAllowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
@@ -77,6 +84,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testDisallowInf() throws Exception
     {
         // these are serializations of JDK itself:
@@ -113,6 +121,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testAllowInf() throws Exception
     {
         JsonFactory f = JsonFactory.builder()

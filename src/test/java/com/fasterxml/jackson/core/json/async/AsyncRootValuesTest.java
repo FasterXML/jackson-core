@@ -4,8 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncRootValuesTest extends AsyncTestBase
 {
@@ -17,6 +21,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testTokenRootTokens() throws Exception {
         _testTokenRootTokens(JsonToken.VALUE_TRUE, "true");
         _testTokenRootTokens(JsonToken.VALUE_FALSE, "false");
@@ -58,6 +63,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testTokenRootSequence() throws Exception
     {
         byte[] input = _jsonDoc("\n[ true, false,\nnull  ,null\n,true,false]");
@@ -91,6 +97,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
         assertTrue(r.isClosed());
     }
 
+    @Test
     public void testMixedRootSequence() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);

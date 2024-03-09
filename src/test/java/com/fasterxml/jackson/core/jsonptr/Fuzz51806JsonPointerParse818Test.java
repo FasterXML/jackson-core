@@ -1,7 +1,12 @@
 package com.fasterxml.jackson.core.jsonptr;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonPointer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // For https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=51806
 // (reported as [core#818]
@@ -15,11 +20,13 @@ public class Fuzz51806JsonPointerParse818Test extends BaseTest
 
     // Verify that a very deep/long (by number of segments) JsonPointer
     // may still be parsed ok, for "simple" case (no quoted chars)
+    @Test
     public void testJsonPointerParseTailSimple()
     {
         _testJsonPointer(_generatePath(TOO_DEEP_PATH, false));
     }
 
+    @Test
     public void testJsonPointerParseTailWithQuoted()
     {
         _testJsonPointer(_generatePath(TOO_DEEP_PATH, true));

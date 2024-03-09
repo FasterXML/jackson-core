@@ -5,6 +5,10 @@ import com.fasterxml.jackson.core.*;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
@@ -12,18 +16,21 @@ import java.io.IOException;
 public class ParserLinefeedsTest
     extends BaseTest
 {
+    @Test
     public void testCR() throws Exception
     {
         _testLinefeeds("\r", true);
         _testLinefeeds("\r", false);
     }
 
+    @Test
     public void testLF() throws Exception
     {
         _testLinefeeds("\n", true);
         _testLinefeeds("\n", false);
     }
 
+    @Test
     public void testCRLF() throws Exception
     {
         _testLinefeeds("\r\n", true);

@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.core.jsonptr;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonPointer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonPointer1168Test extends BaseTest
 {
     // [core#1168]
+    @Test
     public void testAppendWithTail()
     {
         JsonPointer original = JsonPointer.compile("/a1/b/c");

@@ -3,7 +3,10 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -15,6 +18,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
     /**
      * Unit test for "JsonGenerator.writeRawUTF8String()"
      */
+    @Test
     public void testUtf8RawStrings() throws Exception
     {
         // Let's create set of Strings to output; no ctrl chars as we do raw
@@ -47,6 +51,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
      * Unit test for "JsonGenerator.writeUTF8String()", which needs
      * to handle escaping properly
      */
+    @Test
     public void testUtf8StringsWithEscaping() throws Exception
     {
         // Let's create set of Strings to output; do include control chars too:
@@ -78,6 +83,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
         jp.close();
     }
 
+    @Test
     public void testWriteRawWithSerializable() throws Exception
     {
         _testWriteRawWithSerializable(JSON_F, true);

@@ -5,7 +5,12 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.Random;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
@@ -37,6 +42,7 @@ public class UTF8NamesParseTest
         "But \uC023 this takes the cake",
     };
 
+    @Test
     public void testEmptyName() throws Exception
     {
         _testEmptyName(MODE_INPUT_STREAM);
@@ -57,6 +63,7 @@ public class UTF8NamesParseTest
         p.close();
     }
 
+    @Test
     public void testUtf8Name2Bytes() throws Exception
     {
         _testUtf8Name2Bytes(MODE_INPUT_STREAM);
@@ -92,6 +99,7 @@ public class UTF8NamesParseTest
         }
     }
 
+    @Test
     public void testUtf8Name3Bytes() throws Exception
     {
         _testUtf8Name3Bytes(MODE_INPUT_STREAM);
@@ -123,6 +131,7 @@ public class UTF8NamesParseTest
 
     // How about tests for Surrogate-Pairs?
 
+    @Test
     public void testUtf8StringTrivial() throws Exception
     {
         _testUtf8StringTrivial(MODE_INPUT_STREAM);
@@ -161,6 +170,7 @@ public class UTF8NamesParseTest
         }
     }
 
+    @Test
     public void testUtf8StringValue() throws Exception
     {
         _testUtf8StringValue(MODE_INPUT_STREAM, 2900);
@@ -236,6 +246,7 @@ public class UTF8NamesParseTest
         p.close();
     }
 
+    @Test
     public void testNextFieldName() throws IOException
     {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();

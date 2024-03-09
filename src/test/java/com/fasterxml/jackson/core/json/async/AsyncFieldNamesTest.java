@@ -3,9 +3,14 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AsyncFieldNamesTest extends AsyncTestBase
 {
@@ -16,6 +21,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
             .build();
 
     // Mainly to test "fast" parse for shortish names
+    @Test
     public void testSimpleFieldNames() throws IOException
     {
         for (String name : new String[] { "", "a", "ab", "abc", "abcd",
@@ -45,6 +51,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         assertEquals(1, loc.getColumnNr());
     }
 
+    @Test
     public void testEscapedFieldNames() throws IOException
     {
         _testEscapedFieldNames("\\'foo\\'", "'foo'");

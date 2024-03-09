@@ -3,8 +3,12 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncStringObjectTest extends AsyncTestBase
 {
@@ -17,6 +21,7 @@ public class AsyncStringObjectTest extends AsyncTestBase
 
     private final JsonFactory JSON_F = new JsonFactory();
 
+    @Test
     public void testBasicFieldsNames() throws IOException
     {
         final String json = a2q(String.format("{'%s':'%s','%s':'%s','%s':'%s'}",

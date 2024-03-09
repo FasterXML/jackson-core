@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.core.dos;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.fasterxml.jackson.core.*;
 
@@ -11,7 +14,8 @@ public class PerfBigDecimalParser967Test
     private final JsonFactory JSON_F = new JsonFactory();
 
     // For [core#967]: shouldn't take multiple seconds
-    @Test(timeout = 3000)
+    @Test
+    @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
     public void bigDecimalFromString() throws Exception {
         // Jackson's BigDecimalParser seems to be slower than JDK's;
         // won't fail if using latter.
@@ -24,14 +28,14 @@ public class PerfBigDecimalParser967Test
 
         try (JsonParser p = JSON_F.createParser(DOC)) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            Assert.assertNotNull(p.getDecimalValue());
+            Assertions.assertNotNull(p.getDecimalValue());
         }
     }
 
     protected void assertToken(JsonToken expToken, JsonToken actToken)
     {
         if (actToken != expToken) {
-            Assert.fail("Expected token "+expToken+", current token "+actToken);
+            Assertions.fail("Expected token "+expToken+", current token "+actToken);
         }
     }
 }

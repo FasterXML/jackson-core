@@ -2,28 +2,35 @@ package com.fasterxml.jackson.core.io;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testLongInvalidStringParse() {
         try {
             BigDecimalParser.parse(genLongInvalidString());
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
-            assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
-            assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));
+            assertTrue(nfe.getMessage().startsWith("Value \"AAAAA"), "exception message starts as expected?");
+            assertTrue(nfe.getMessage().contains("truncated"), "exception message value contains truncated");
         }
     }
 
+    @Test
     public void testLongInvalidStringFastParse() {
         try {
             BigDecimalParser.parseWithFastParser(genLongInvalidString());
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
-            assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
-            assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));
+            assertTrue(nfe.getMessage().startsWith("Value \"AAAAA"), "exception message starts as expected?");
+            assertTrue(nfe.getMessage().contains("truncated"), "exception message value contains truncated");
         }
     }
 
+    @Test
     public void testLongValidStringParse() {
         String num = genLongValidString(500);
         final BigDecimal EXP = new BigDecimal(num);
@@ -34,6 +41,7 @@ public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest
         assertEquals(EXP, BigDecimalParser.parse(num.toCharArray(), 0, num.length()));
     }
 
+    @Test
     public void testLongValidStringFastParse() {
         String num = genLongValidString(500);
         final BigDecimal EXP = new BigDecimal(num);

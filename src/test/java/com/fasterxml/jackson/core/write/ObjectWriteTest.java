@@ -3,8 +3,13 @@ package com.fasterxml.jackson.core.write;
 import com.fasterxml.jackson.core.*;
 
 import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests for verifying that the Object write methods
@@ -19,8 +24,9 @@ public class ObjectWriteTest
         return FACTORY;
     }
 
+    @Test
     public void testEmptyObjectWrite()
-        throws Exception
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);
@@ -61,8 +67,9 @@ public class ObjectWriteTest
         jp.close();
     }
 
+    @Test
     public void testInvalidObjectWrite()
-        throws Exception
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);
@@ -77,8 +84,9 @@ public class ObjectWriteTest
         gen.close();
     }
 
+    @Test
     public void testSimpleObjectWrite()
-        throws Exception
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);
@@ -113,8 +121,9 @@ public class ObjectWriteTest
     /**
      * Methods to test functionality added for [JACKSON-26]
      */
+    @Test
     public void testConvenienceMethods()
-        throws Exception
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);
@@ -221,8 +230,9 @@ public class ObjectWriteTest
     /**
      * Tests to cover [JACKSON-164]
      */
+    @Test
     public void testConvenienceMethodsWithNulls()
-        throws Exception
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);

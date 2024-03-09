@@ -4,6 +4,10 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTest
 {
     private final String JSON = a2q(
@@ -32,6 +36,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
             +"    } ]\n"
             +"}\n");
 
+    @Test
     public void testSmallSymbolSetWithBytes() throws IOException
     {
         final int SEED = 33333;
@@ -63,6 +68,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
         assertEquals(0, symbols.spilloverCount()); // and couple of leftovers
     }
 
+    @Test
     public void testSmallSymbolSetWithChars() throws IOException
     {
         final int SEED = 33333;

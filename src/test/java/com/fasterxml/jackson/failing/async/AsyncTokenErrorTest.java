@@ -3,13 +3,18 @@ package com.fasterxml.jackson.failing.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AsyncTokenErrorTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
+    @Test
     public void testInvalidKeywordsStartOk() throws Exception
     {
         _doTestInvalidKeyword("nul");
@@ -23,6 +28,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         _doTestInvalidKeyword("trueenough");
     }
 
+    @Test
     public void testInvalidKeywordsStartFail() throws Exception
     {
         _doTestInvalidKeyword("Null");
@@ -56,6 +62,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testMangledRootInts() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("123true")) {
@@ -66,6 +73,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testMangledRootFloats() throws Exception
     {
         // Also test with floats
@@ -77,6 +85,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testMangledNonRootInts() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("[ 123true ]")) {
@@ -88,6 +97,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testMangledNonRootFloats() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("[ 1.5false ]")) {

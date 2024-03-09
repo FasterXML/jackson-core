@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,8 +15,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import static com.fasterxml.jackson.core.BaseTest.a2q;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests that the {@link JsonLocation} attached to a thrown {@link StreamReadException}
@@ -130,7 +128,7 @@ public class LocationOfError1180Test
     {
         try (JsonParser parser = variant.createParser(invalidJson.input))
         {
-            StreamReadException e = Assertions.assertThrows(
+            StreamReadException e = assertThrows(
                     StreamReadException.class,
                 () -> {
                     // Blindly advance the parser through the end of input
@@ -144,18 +142,15 @@ public class LocationOfError1180Test
 
             if (variant.supportsByteOffset)
             {
-                assertEquals("Incorrect byte offset (for '"+msg+"')",
-                        invalidJson.byteOffset, location.getByteOffset());
+                assertEquals(invalidJson.byteOffset, location.getByteOffset(), "Incorrect byte offset (for '"+msg+"')");
             }
             if (variant.supportsCharOffset)
             {
-                assertEquals("Incorrect char offset (for '"+msg+"')",
-                        invalidJson.charOffset, location.getCharOffset());
+                assertEquals(invalidJson.charOffset, location.getCharOffset(), "Incorrect char offset (for '"+msg+"')");
             }
             if (variant.supportsColumnNr)
             {
-                assertEquals("Incorrect column (for '"+msg+"')",
-                        invalidJson.columnNr, location.getColumnNr());
+                assertEquals(invalidJson.columnNr, location.getColumnNr(), "Incorrect column (for '"+msg+"')");
             }
         }
     }

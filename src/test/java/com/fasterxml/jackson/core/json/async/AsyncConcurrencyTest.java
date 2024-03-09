@@ -7,8 +7,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AsyncConcurrencyTest extends AsyncTestBase
 {
@@ -103,6 +107,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
     }
 
     // [jackson-core#476]
+    @Test
     public void testConcurrentAsync() throws Exception
     {
         final int MAX_ROUNDS = 30;

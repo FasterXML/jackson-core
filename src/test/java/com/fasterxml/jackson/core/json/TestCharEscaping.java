@@ -3,7 +3,12 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
@@ -39,6 +44,7 @@ public class TestCharEscaping
 
     private final static JsonFactory JSON_F = new JsonFactory();
 
+    @Test
     public void testMissingEscaping() throws Exception {
         for (int mode : ALL_MODES) {
             _testMissingEscaping(mode);
@@ -67,6 +73,7 @@ public class TestCharEscaping
         jp.close();
     }
 
+    @Test
     public void testSimpleEscaping() throws Exception {
         for (int mode : ALL_MODES) {
             _testSimpleEscaping(mode);
@@ -108,6 +115,7 @@ public class TestCharEscaping
         jp.close();
     }
 
+    @Test
     public void testSimpleNameEscaping() throws Exception {
         for (int mode : ALL_MODES) {
             _testSimpleNameEscaping(mode);
@@ -134,6 +142,7 @@ public class TestCharEscaping
         }
     }
 
+    @Test
     public void testInvalid() throws Exception {
         for (int mode : ALL_MODES) {
             _testInvalid(mode);
@@ -160,6 +169,7 @@ public class TestCharEscaping
      * Test to verify that decoder does not allow 8-digit escapes
      * (non-BMP characters must be escaped using two 4-digit sequences)
      */
+    @Test
     public void test8DigitSequence() throws Exception {
         for (int mode : ALL_MODES) {
             _test8DigitSequence(mode);
@@ -177,6 +187,7 @@ public class TestCharEscaping
     }
 
     // [jackson-core#116]
+    @Test
     public void testEscapesForCharArrays() throws Exception {
         StringWriter writer = new StringWriter();
         JsonGenerator jgen = JSON_F.createGenerator(writer);
@@ -187,6 +198,7 @@ public class TestCharEscaping
     }
 
     // [jackson-core#540]
+    @Test
     public void testInvalidEscape() throws Exception {
         for (int mode : ALL_MODES) {
             _testInvalidEscape(mode);
@@ -210,11 +222,13 @@ public class TestCharEscaping
     }
 
     // [jackson-core#116]
+    @Test
     public void testEscapeNonLatin1Chars() throws Exception {
         _testEscapeNonLatin1ViaChars(false);
     }
 
     // [jackson-core#116]
+    @Test
     public void testEscapeNonLatin1Bytes() throws Exception {
         _testEscapeNonLatin1ViaChars(true);
     }
@@ -259,6 +273,7 @@ public class TestCharEscaping
     /**********************************************************
       */
 
+    @Test
     public void testWriteLongCustomEscapes() throws Exception
     {
         JsonFactory jf = ((JsonFactoryBuilder)JsonFactory.builder())

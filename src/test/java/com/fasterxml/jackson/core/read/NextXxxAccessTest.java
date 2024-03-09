@@ -3,7 +3,11 @@ package com.fasterxml.jackson.core.read;
 import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.SerializedString;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NextXxxAccessTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -14,6 +18,7 @@ public class NextXxxAccessTest
     /********************************************************
      */
 
+    @Test
     public void testIsNextTokenName() throws Exception
     {
         _testIsNextTokenName1(MODE_INPUT_STREAM);
@@ -22,6 +27,7 @@ public class NextXxxAccessTest
         _testIsNextTokenName1(MODE_READER);
     }
 
+    @Test
     public void testIsNextTokenName2() throws Exception {
         _testIsNextTokenName2(MODE_INPUT_STREAM);
         _testIsNextTokenName2(MODE_INPUT_STREAM_THROTTLED);
@@ -29,6 +35,7 @@ public class NextXxxAccessTest
         _testIsNextTokenName2(MODE_READER);
     }
 
+    @Test
     public void testIsNextTokenName3() throws Exception {
         _testIsNextTokenName3(MODE_INPUT_STREAM);
         _testIsNextTokenName3(MODE_INPUT_STREAM_THROTTLED);
@@ -36,6 +43,7 @@ public class NextXxxAccessTest
         _testIsNextTokenName3(MODE_READER);
     }
 
+    @Test
     public void testIsNextTokenName4() throws Exception {
         _testIsNextTokenName4(MODE_INPUT_STREAM);
         _testIsNextTokenName4(MODE_INPUT_STREAM_THROTTLED);
@@ -43,6 +51,7 @@ public class NextXxxAccessTest
         _testIsNextTokenName4(MODE_READER);
     }
 
+    @Test
     public void testIsNextTokenName5() throws Exception {
         _testIsNextTokenName5(MODE_INPUT_STREAM);
         _testIsNextTokenName5(MODE_INPUT_STREAM_THROTTLED);
@@ -51,6 +60,7 @@ public class NextXxxAccessTest
     }
 
     // [jackson-core#34]
+    @Test
     public void testIssue34() throws Exception
     {
         _testIssue34(MODE_INPUT_STREAM);
@@ -60,6 +70,7 @@ public class NextXxxAccessTest
     }
 
     // [jackson-core#38] with nextFieldName
+    @Test
     public void testIssue38() throws Exception
     {
         _testIssue38(MODE_INPUT_STREAM);
@@ -68,6 +79,7 @@ public class NextXxxAccessTest
         _testIssue38(MODE_READER);
     }
 
+    @Test
     public void testNextNameWithLongContent() throws Exception
     {
         _testNextNameWithLong(MODE_INPUT_STREAM);
@@ -77,6 +89,7 @@ public class NextXxxAccessTest
     }
 
     // for [core#220]: problem with `nextFieldName(str)`, indented content
+    @Test
     public void testNextNameWithIndentation() throws Exception
     {
         _testNextFieldNameIndent(MODE_INPUT_STREAM);
@@ -85,6 +98,7 @@ public class NextXxxAccessTest
         _testNextFieldNameIndent(MODE_READER);
     }
 
+    @Test
     public void testNextTextValue() throws Exception
     {
         _textNextText(MODE_INPUT_STREAM);
@@ -93,6 +107,7 @@ public class NextXxxAccessTest
         _textNextText(MODE_READER);
     }
 
+    @Test
     public void testNextIntValue() throws Exception
     {
         _textNextInt(MODE_INPUT_STREAM);
@@ -101,6 +116,7 @@ public class NextXxxAccessTest
         _textNextInt(MODE_READER);
     }
 
+    @Test
     public void testNextLongValue() throws Exception
     {
         _textNextLong(MODE_INPUT_STREAM);
@@ -109,6 +125,7 @@ public class NextXxxAccessTest
         _textNextLong(MODE_READER);
     }
 
+    @Test
     public void testNextBooleanValue() throws Exception
     {
         _textNextBoolean(MODE_INPUT_STREAM);

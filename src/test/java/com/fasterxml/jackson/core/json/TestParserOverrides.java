@@ -4,8 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 
 import com.fasterxml.jackson.core.JsonFactory;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
 {
@@ -15,6 +19,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
     /**********************************************************
      */
 
+    @Test
     public void testTokenAccess() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -22,6 +27,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
         _testTokenAccess(jf, true);
     }
 
+    @Test
     public void testCurrentName() throws Exception
     {
         JsonFactory jf = new JsonFactory();

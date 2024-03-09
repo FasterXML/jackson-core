@@ -4,6 +4,10 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestRootValues
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -76,6 +80,7 @@ public class TestRootValues
 
     private final JsonFactory JSON_F = sharedStreamFactory();
 
+    @Test
     public void testSimpleNumbers() throws Exception {
         // DataInput can not detect EOF so:
         _testSimpleNumbers(MODE_INPUT_STREAM);
@@ -95,6 +100,7 @@ public class TestRootValues
         p.close();
     }
 
+    @Test
     public void testBrokenNumber() throws Exception
     {
         _testBrokenNumber(MODE_INPUT_STREAM);
@@ -118,6 +124,7 @@ public class TestRootValues
         p.close();
     }
 
+    @Test
     public void testSimpleBooleans() throws Exception {
         // can't do DataInput so
         _testSimpleBooleans(MODE_INPUT_STREAM);
@@ -138,6 +145,7 @@ public class TestRootValues
         p.close();
     }
 
+    @Test
     public void testInvalidToken() throws Exception
     {
         _testInvalidToken(MODE_INPUT_STREAM, '\u00c4');
@@ -171,6 +179,7 @@ public class TestRootValues
     /**********************************************************
      */
 
+    @Test
     public void testSimpleWrites() throws Exception
     {
         _testSimpleWrites(false);
@@ -208,6 +217,7 @@ public class TestRootValues
      */
 
     // [core#516]: Off-by-one read problem
+    @Test
     public void testRootOffsetIssue516Bytes() throws Exception
     {
         // InputStream that forces _parseNumber2 to be invoked.
@@ -227,6 +237,7 @@ public class TestRootValues
     }
 
     // [core#516]: Off-by-one read problem
+    @Test
     public void testRootOffsetIssue516Chars() throws Exception
     {
         // InputStream that forces _parseNumber2 to be invoked.

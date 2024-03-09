@@ -10,7 +10,10 @@ import com.fasterxml.jackson.core.testsupport.TestSupport;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 import com.fasterxml.jackson.core.testsupport.ThrottledReader;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Base class for JUnit 4 based tests. To be deprecated from
@@ -18,7 +21,6 @@ import junit.framework.TestCase;
  */
 @SuppressWarnings("resource")
 public abstract class BaseTest
-    extends TestCase
 {
     protected final static String FIELD_BASENAME = "f";
 
@@ -295,7 +297,8 @@ public abstract class BaseTest
     /**********************************************************************
      */
 
-    protected static IOContext testIOContext() {
+    @Test
+    public static IOContext testIOContext() {
         return TestSupport.testIOContext();
     }
 
@@ -405,7 +408,7 @@ public abstract class BaseTest
         if (str.length() !=  actLen) {
             fail("Internal problem (p.token == "+p.currentToken()+"): p.getText().length() ['"+str+"'] == "+str.length()+"; p.getTextLength() == "+actLen);
         }
-        assertEquals("String access via getText(), getTextXxx() must be the same", str, str2);
+        assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
 
         return str;
     }

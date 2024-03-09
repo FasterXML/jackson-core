@@ -8,9 +8,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
@@ -30,6 +34,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
+    @Test
     public void testSimpleBoolean() throws Exception
     {
         _testSimpleBoolean(MODE_INPUT_STREAM);
@@ -54,6 +59,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
+    @Test
     public void testSimpleInt() throws Exception
     {
         for (int EXP_I : new int[] { 1234, -999, 0, 1, -2, 123456789 }) {
@@ -137,6 +143,7 @@ public class NumberParsingTest
         p.close();
     }
 
+    @Test
     public void testIntRange() throws Exception
     {
         // let's test with readers and streams, separate code paths:
@@ -155,6 +162,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testIntParsing() throws Exception
     {
         char[] testChars = "123456789".toCharArray();
@@ -177,6 +185,7 @@ public class NumberParsingTest
         assertEquals(0, NumberInput.parseInt(testChars, 1, 1));
     }
 
+    @Test
     public void testIntParsingWithStrings() throws Exception
     {
         assertEquals(3, NumberInput.parseInt("3"));
@@ -193,6 +202,7 @@ public class NumberParsingTest
         assertEquals(Integer.MAX_VALUE, NumberInput.parseInt(""+Integer.MAX_VALUE));
     }
 
+    @Test
     public void testLongParsingWithStrings() throws Exception
     {
         assertEquals(3, NumberInput.parseLong("3"));
@@ -213,6 +223,7 @@ public class NumberParsingTest
         assertEquals(Integer.MAX_VALUE+1, NumberInput.parseLong(""+(Integer.MAX_VALUE+1)));
     }
 
+    @Test
     public void testIntOverflow() {
         try {
             // Integer.MAX_VALUE + 1
@@ -230,6 +241,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testLongOverflow() {
         try {
             // Long.MAX_VALUE + 1
@@ -248,6 +260,7 @@ public class NumberParsingTest
     }
 
     // Found by oss-fuzzer
+    @Test
     public void testVeryLongIntRootValue() throws Exception
     {
         // For some reason running multiple will tend to hide the issue;
@@ -277,6 +290,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
+    @Test
     public void testSimpleLong() throws Exception
     {
         _testSimpleLong(MODE_INPUT_STREAM);
@@ -310,6 +324,7 @@ public class NumberParsingTest
         p.close();
     }
 
+    @Test
     public void testLongRange() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -350,6 +365,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testLongParsing() throws Exception
     {
         char[] testChars = "123456789012345678".toCharArray();
@@ -357,6 +373,7 @@ public class NumberParsingTest
         assertEquals(123456789012345678L, NumberInput.parseLong(testChars, 0, testChars.length));
     }
 
+    @Test
     public void testLongBoundsChecks() throws Exception
     {
         String minLong = String.valueOf(Long.MIN_VALUE).substring(1);
@@ -399,6 +416,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
+    @Test
     public void testBigDecimalRange() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -422,6 +440,7 @@ public class NumberParsingTest
     }
 
     // for [core#78]
+    @Test
     public void testBigNumbers() throws Exception
     {
         StringBuilder sb = new StringBuilder();
@@ -443,6 +462,7 @@ public class NumberParsingTest
 
     // Related to [core#1135]: JsonParser.isNaN() should not be fooled
     // by possible Double overflow
+    @Test
     public void testBiggerThanFloatHandling() throws Exception
     {
         BigDecimal tooBig = BigDecimal.valueOf(Double.MAX_VALUE);
@@ -474,6 +494,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
     
+    @Test
     public void testBigIntegerWithENotation() throws Exception {
         final String DOC = "1e5 ";
         for (int mode : ALL_MODES) {
@@ -484,6 +505,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testLongWithENotation() throws Exception {
         final String DOC = "1e5 ";
         for (int mode : ALL_MODES) {
@@ -494,6 +516,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testIntWithENotation() throws Exception {
         final String DOC = "1e5 ";
         for (int mode : ALL_MODES) {
@@ -504,6 +527,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testLargeBigIntegerWithENotation() throws Exception {
         // slightly bigger than Double.MAX_VALUE (we need to avoid parsing as double in this case)
         final String DOC = "2e308 ";
@@ -522,6 +546,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
+    @Test
     public void testSimpleDouble() throws Exception
     {
         final String[] INPUTS = new String[] {
@@ -570,6 +595,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testFloatBoundary146Chars() throws Exception
     {
         final char[] arr = new char[50005];
@@ -587,6 +613,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testFloatBoundary146Bytes() throws Exception
     {
         final byte[] arr = new byte[50005];
@@ -610,6 +637,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
+    @Test
     public void testNumbers() throws Exception
     {
         _testNumbers(MODE_INPUT_STREAM);
@@ -672,6 +700,7 @@ public class NumberParsingTest
      * Method that tries to test that number parsing works in cases where
      * input is split between buffer boundaries.
      */
+    @Test
     public void testParsingOfLongerSequences() throws Exception
     {
         double[] values = new double[] { 0.01, -10.5, 2.1e9, 4.0e-8 };
@@ -729,6 +758,7 @@ public class NumberParsingTest
 
     // [jackson-core#157]
     // 19-Dec-2022, tatu: Reduce length so as not to hit too-long-number limit
+    @Test
     public void testLongNumbers() throws Exception
     {
         StringBuilder sb = new StringBuilder(900);
@@ -756,6 +786,7 @@ public class NumberParsingTest
     }
 
     // and alternate take on for #157 (with negative num)
+    @Test
     public void testLongNumbers2() throws Exception
     {
         StringBuilder input = new StringBuilder();
@@ -788,6 +819,7 @@ public class NumberParsingTest
      * Method that tries to test that number parsing works in cases where
      * input is split between buffer boundaries.
      */
+    @Test
     public void testParsingOfLongerSequencesWithNonNumeric() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -844,6 +876,7 @@ public class NumberParsingTest
     /**********************************************************
      */
 
+    @Test
     public void testInvalidBooleanAccess() throws Exception {
         _testInvalidBooleanAccess(MODE_INPUT_STREAM);
         _testInvalidBooleanAccess(MODE_INPUT_STREAM_THROTTLED);
@@ -865,6 +898,7 @@ public class NumberParsingTest
         p.close();
     }
 
+    @Test
     public void testInvalidIntAccess() throws Exception {
         _testInvalidIntAccess(MODE_INPUT_STREAM);
         _testInvalidIntAccess(MODE_INPUT_STREAM_THROTTLED);
@@ -886,6 +920,7 @@ public class NumberParsingTest
         p.close();
     }
 
+    @Test
     public void testInvalidLongAccess() throws Exception {
         _testInvalidLongAccess(MODE_INPUT_STREAM);
         _testInvalidLongAccess(MODE_INPUT_STREAM_THROTTLED);
@@ -908,6 +943,7 @@ public class NumberParsingTest
     }
 
     // [core#317]
+    @Test
     public void testLongerFloatingPoint() throws Exception
     {
         StringBuilder input = new StringBuilder();
@@ -936,6 +972,7 @@ public class NumberParsingTest
         assertNull(p.nextToken());
     }
 
+    @Test
     public void testInvalidNumber() throws Exception {
         for (int mode : ALL_MODES) {
             JsonParser p = createParser(jsonFactory(), mode, " -foo ");
@@ -949,6 +986,7 @@ public class NumberParsingTest
         }
     }
 
+    @Test
     public void testNegativeMaxNumberLength() {
         try {
             StreamReadConstraints src = StreamReadConstraints.builder().maxNumberLength(-1).build();

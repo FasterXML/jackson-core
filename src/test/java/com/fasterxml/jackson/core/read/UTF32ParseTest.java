@@ -4,11 +4,16 @@ import java.io.CharConversionException;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
 // Tests from [jackson-core#382]
 public class UTF32ParseTest extends BaseTest
 {
     private final JsonFactory FACTORY = new JsonFactory();
 
+    @Test
     public void testSimpleEOFs() throws Exception
     {
         // 2 spaces
@@ -29,6 +34,7 @@ public class UTF32ParseTest extends BaseTest
         }
     }
 
+    @Test
     public void testSimpleInvalidUTF32() throws Exception
     {
         // 2 characters, space, then something beyond valid Unicode set
@@ -54,6 +60,7 @@ public class UTF32ParseTest extends BaseTest
         parser.close();
     }
 
+    @Test
     public void testSimpleSevenNullBytes() throws Exception {
         byte[] data = new byte[7];
         JsonParser parser = FACTORY.createParser(/*ObjectReadContext.empty(), */data);

@@ -4,6 +4,10 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Some unit tests to try to exercise part of parser code that
  * deals with symbol (table) management.
@@ -19,10 +23,12 @@ public class TestWithTonsaSymbols
      */
     final static int FIELD_COUNT = 5000;
 
+    @Test
     public void testStreamReaderParser() throws Exception {
         _testWith(true);
     }
 
+    @Test
     public void testReaderParser() throws Exception {
         _testWith(false);
     }

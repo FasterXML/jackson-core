@@ -3,9 +3,13 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that support for (non-standard) comments
@@ -27,12 +31,14 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     /**********************************************************
      */
 
+    @Test
     public void testCommentsDisabled() throws Exception
     {
         _testDisabled(DOC_WITH_SLASHSTAR_COMMENT);
         _testDisabled(DOC_WITH_SLASHSLASH_COMMENT);
     }
 
+    @Test
     public void testCommentsEnabled() throws Exception
     {
         _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, 99);
@@ -44,6 +50,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, 1);
     }
 
+    @Test
     public void testCCommentsWithUTF8() throws Exception
     {
         final String JSON = "/* \u00a9 2099 Yoyodyne Inc. */\n [ \"bar? \u00a9\" ]\n";
@@ -55,6 +62,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         _testWithUTF8Chars(JSON, 1);
     }
 
+    @Test
     public void testYAMLCommentsEnabled() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
@@ -73,6 +81,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         _testCommentsBetweenArrayValues(f, "# foo\n", 1);
     }
 
+    @Test
     public void testCCommentsEnabled() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
@@ -83,6 +92,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         _testCommentsBeforePropValue(f, COMMENT, 1);
     }
 
+    @Test
     public void testCppCommentsEnabled() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)

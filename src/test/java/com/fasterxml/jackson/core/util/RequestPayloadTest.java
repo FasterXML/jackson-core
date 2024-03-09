@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.core.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for class {@link RequestPayload}.
@@ -10,14 +10,18 @@ import static org.junit.Assert.*;
  * @see RequestPayload
  **/
 public class RequestPayloadTest {
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {
-      new RequestPayload(null);
+      assertThrows(IllegalArgumentException.class, () -> {
+          new RequestPayload(null);
+      });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionTwo() {
-      new RequestPayload(null, "UTF-8");
+      assertThrows(IllegalArgumentException.class, () -> {
+          new RequestPayload(null, "UTF-8");
+      });
   }
 
   @Test

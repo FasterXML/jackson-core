@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.core.constraints;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.StreamReadConstraints;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StreamReadConstraintsDefaultsTest
 {

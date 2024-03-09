@@ -4,8 +4,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NumberCoercionTest extends BaseTest
 {
@@ -15,6 +19,7 @@ public class NumberCoercionTest extends BaseTest
     /**********************************************************
      */
 
+    @Test
     public void testToIntCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -51,6 +56,7 @@ public class NumberCoercionTest extends BaseTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testToIntFailing() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -140,6 +146,7 @@ public class NumberCoercionTest extends BaseTest
         }
     }
 
+    @Test
     public void testToLongCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -177,6 +184,7 @@ public class NumberCoercionTest extends BaseTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testToLongFailing() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -213,6 +221,7 @@ public class NumberCoercionTest extends BaseTest
         }
     }
 
+    @Test
     public void testToBigIntegerCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -254,6 +263,7 @@ public class NumberCoercionTest extends BaseTest
     /**********************************************************
      */
 
+    @Test
     public void testToDoubleCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
@@ -274,6 +284,7 @@ public class NumberCoercionTest extends BaseTest
         }
     }
 
+    @Test
     public void testToBigDecimalCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {

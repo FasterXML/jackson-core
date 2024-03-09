@@ -2,9 +2,14 @@ package com.fasterxml.jackson.core.io;
 
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class NumberInputTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testNastySmallDouble()
     {
         //relates to https://github.com/FasterXML/jackson-core/issues/750
@@ -14,6 +19,7 @@ public class NumberInputTest
         assertEquals(Double.parseDouble(nastySmallDouble), NumberInput.parseDouble(nastySmallDouble, true));
     }
 
+    @Test
     public void testParseFloat()
     {
         final String exampleFloat = "1.199999988079071";
@@ -27,6 +33,7 @@ public class NumberInputTest
         assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2, true)));
     }
 
+    @Test
     public void testParseLongBigInteger()
     {
         StringBuilder stringBuilder = new StringBuilder();
@@ -44,6 +51,7 @@ public class NumberInputTest
         assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, true));
     }
 
+    @Test
     public void testBigIntegerWithRadix()
     {
         final String val = "1ABCDEF";
@@ -53,6 +61,7 @@ public class NumberInputTest
         assertEquals(expected, NumberInput.parseBigIntegerWithRadix(val, radix, false));
     }
 
+    @Test
     public void testParseBigIntegerFailsWithENotation()
     {
         try {
@@ -63,6 +72,7 @@ public class NumberInputTest
         }
     }
 
+    @Test
     public void testLooksLikeValidNumber()
     {
         assertTrue(NumberInput.looksLikeValidNumber("0"));

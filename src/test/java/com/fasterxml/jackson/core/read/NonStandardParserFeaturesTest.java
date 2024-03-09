@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NonStandardParserFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -13,11 +17,13 @@ public class NonStandardParserFeaturesTest
             .build();
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testDefaults() {
         assertFalse(STD_F.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
         assertFalse(STD_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
+    @Test
     public void testNonStandardAnyCharQuoting() throws Exception
     {
         _testNonStandardBackslashQuoting(MODE_INPUT_STREAM);
@@ -27,6 +33,7 @@ public class NonStandardParserFeaturesTest
         _testNonStandardBackslashQuoting(MODE_READER_THROTTLED);
     }
 
+    @Test
     public void testLeadingZeroesUTF8() throws Exception {
         _testLeadingZeroes(MODE_INPUT_STREAM, false);
         _testLeadingZeroes(MODE_INPUT_STREAM, true);
@@ -38,6 +45,7 @@ public class NonStandardParserFeaturesTest
         _testLeadingZeroes(MODE_DATA_INPUT, true);
     }
 
+    @Test
     public void testLeadingZeroesReader() throws Exception {
         _testLeadingZeroes(MODE_READER, false);
         _testLeadingZeroes(MODE_READER, true);
@@ -46,6 +54,7 @@ public class NonStandardParserFeaturesTest
     }
 
     // allow NaN
+    @Test
     public void testAllowNaN() throws Exception {
         _testAllowNaN(MODE_INPUT_STREAM);
         _testAllowNaN(MODE_INPUT_STREAM_THROTTLED);
@@ -55,6 +64,7 @@ public class NonStandardParserFeaturesTest
     }
 
     // allow +Inf/-Inf
+    @Test
     public void testAllowInfinity() throws Exception {
         _testAllowInf(MODE_INPUT_STREAM);
         _testAllowInf(MODE_INPUT_STREAM_THROTTLED);

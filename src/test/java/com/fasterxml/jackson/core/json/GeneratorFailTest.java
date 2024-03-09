@@ -4,9 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 
 import com.fasterxml.jackson.core.JsonEncoding;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GeneratorFailTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -14,6 +18,7 @@ public class GeneratorFailTest
     private final JsonFactory F = new JsonFactory();
 
     // [core#167]: no error for writing field name twice
+    @Test
     public void testDupFieldNameWrites() throws Exception
     {
         _testDupFieldNameWrites(F, false);
@@ -23,16 +28,19 @@ public class GeneratorFailTest
     // [core#177]
     // Also: should not try writing JSON String if field name expected
     // (in future maybe take one as alias... but not yet)
+    @Test
     public void testFailOnWritingStringNotFieldNameBytes() throws Exception {
         _testFailOnWritingStringNotFieldName(F, false);
     }
 
     // [core#177]
+    @Test
     public void testFailOnWritingStringNotFieldNameChars() throws Exception {
         _testFailOnWritingStringNotFieldName(F, true);
     }
 
     // for [core#282]
+    @Test
     public void testFailOnWritingFieldNameInRoot() throws Exception {
         _testFailOnWritingFieldNameInRoot(F, false);
         _testFailOnWritingFieldNameInRoot(F, true);

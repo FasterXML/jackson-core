@@ -10,6 +10,11 @@ import com.fasterxml.jackson.core.util.Separators.Spacing;
 
 import java.io.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Set of basic unit tests for verifying that indenting
  * option of generator works correctly
@@ -43,6 +48,7 @@ public class PrettyPrinterTest
 
     private final JsonFactory JSON_F = sharedStreamFactory();
 
+    @Test
     public void testObjectCount() throws Exception
     {
         final String EXP = "{\"x\":{\"a\":1,\"b\":2(2)}(1)}";
@@ -68,6 +74,7 @@ public class PrettyPrinterTest
         }
     }
 
+    @Test
     public void testArrayCount() throws Exception
     {
         final String EXP = "[6,[1,2,9(3)](2)]";
@@ -94,6 +101,7 @@ public class PrettyPrinterTest
         }
     }
 
+    @Test
     public void testSimpleDocWithDefault() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -104,6 +112,7 @@ public class PrettyPrinterTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testSimpleDocWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -132,27 +141,31 @@ public class PrettyPrinterTest
     }
 
     // [core#26]
+    @Test
     public void testRootSeparatorWithoutPP() throws Exception
     {
         // no pretty-printing (will still separate root values with a space!)
         assertEquals("{} {} []", _generateRoot(JSON_F, null));
     }
-    
+
     // [core#26]
+    @Test
     public void testDefaultRootSeparatorWithPP() throws Exception
     {
         assertEquals("{ } { } [ ]", _generateRoot(JSON_F, new DefaultPrettyPrinter()));
     }
-    
+
     // [core#26]
+    @Test
     public void testCustomRootSeparatorWithPPOld() throws Exception
     {
         @SuppressWarnings("deprecation")
         DefaultPrettyPrinter pp = new DefaultPrettyPrinter("|");
         assertEquals("{ }|{ }|[ ]", _generateRoot(JSON_F, pp));
     }
-    
+
     // [core#26]
+    @Test
     public void testCustomRootSeparatorWithPPNew() throws Exception
     {
         Separators separators = Separators.createDefaultInstance()
@@ -162,6 +175,7 @@ public class PrettyPrinterTest
     }
 
     // Alternative solution for [jackson-core#26]
+    @Test
     public void testCustomRootSeparatorWithFactory() throws Exception
     {
         JsonFactory f = ((JsonFactoryBuilder)JsonFactory.builder())
@@ -176,6 +190,7 @@ public class PrettyPrinterTest
         assertEquals("13##false##null", sw.toString());
     }
 
+    @Test
     public void testCustomSeparatorsWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -204,6 +219,7 @@ public class PrettyPrinterTest
         assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", bytes.toString("UTF-8"));
     }
 
+    @Test
     public void testCustomSeparatorsWithPP() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -227,7 +243,8 @@ public class PrettyPrinterTest
             "  \"f\"=null;" + DefaultIndenter.SYS_LF +
             "  \"f2\"=null" + DefaultIndenter.SYS_LF +
             "} ]";
-    
+
+    @Test
     public void testCustomSeparatorsWithPPWithoutSpacesOld() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -248,6 +265,7 @@ public class PrettyPrinterTest
         assertEquals(EXPECTED_CUSTOM_SEPARATORS_WITH_PP_WITHOUT_SPACES, sw.toString());
     }
 
+    @Test
     public void testCustomSeparatorsWithPPWithoutSpacesNew() throws Exception
     {
         StringWriter sw = new StringWriter();

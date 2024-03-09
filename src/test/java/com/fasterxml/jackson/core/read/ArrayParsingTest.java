@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of additional unit for verifying array parsing, specifically
@@ -10,6 +14,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class ArrayParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testValidEmpty() throws Exception
     {
         final String DOC = "[   \n  ]";
@@ -21,6 +26,7 @@ public class ArrayParsingTest
         jp.close();
     }
 
+    @Test
     public void testInvalidEmptyMissingClose() throws Exception
     {
         final String DOC = "[ ";
@@ -37,6 +43,7 @@ public class ArrayParsingTest
         jp.close();
     }
 
+    @Test
     public void testInvalidMissingFieldName() throws Exception
     {
         final String DOC = "[  : 3 ] ";
@@ -53,6 +60,7 @@ public class ArrayParsingTest
         jp.close();
     }
 
+    @Test
     public void testInvalidExtraComma() throws Exception
     {
         final String DOC = "[ 24, ] ";
@@ -77,6 +85,7 @@ public class ArrayParsingTest
      * This tests both Stream based parsing and the Reader based parsing
      * @throws Exception
      */
+    @Test
     public void testMissingValueAsNullByEnablingFeature() throws Exception
     {
     	_testMissingValueByEnablingFeature(true);
@@ -88,6 +97,7 @@ public class ArrayParsingTest
      * the Feature.ALLOW_MISSING_VALUES
      * @throws Exception
      */
+    @Test
     public void testMissingValueAsNullByNotEnablingFeature() throws Exception
     {
     	_testMissingValueNotEnablingFeature(true);
@@ -100,6 +110,7 @@ public class ArrayParsingTest
      * This tests both Stream based parsing and the Reader based parsing for not missing any value
      * @throws Exception
      */
+    @Test
     public void testNotMissingValueByEnablingFeature() throws Exception
     {
         _testNotMissingValueByEnablingFeature(true);

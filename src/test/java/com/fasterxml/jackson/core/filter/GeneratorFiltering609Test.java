@@ -3,8 +3,12 @@ package com.fasterxml.jackson.core.filter;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#609]
 public class GeneratorFiltering609Test
@@ -58,6 +62,7 @@ public class GeneratorFiltering609Test
     }
 
     // for [core#609]: will pass in 2.10 for some cases
+    @Test
     public void testIssue609() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

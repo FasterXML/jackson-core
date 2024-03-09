@@ -5,7 +5,11 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.SerializableString;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.SerializedString;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Simple unit tests to try to verify that the default
@@ -14,6 +18,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 public class TestSerializedString
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testAppending() throws IOException
     {
         final String INPUT = "\"quo\\ted\"";
@@ -39,6 +44,7 @@ public class TestSerializedString
         assertEquals(INPUT, new String(buffer, 5, INPUT.length()));
     }
 
+    @Test
     public void testFailedAccess() throws IOException
     {
         final String INPUT = "Bit longer text";

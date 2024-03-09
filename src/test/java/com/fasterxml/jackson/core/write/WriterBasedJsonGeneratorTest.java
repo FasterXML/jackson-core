@@ -3,10 +3,15 @@ package com.fasterxml.jackson.core.write;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.BaseTest;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class WriterBasedJsonGeneratorTest extends BaseTest
 {
@@ -14,6 +19,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
             .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())
             .build();
 
+    @Test
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -28,6 +34,7 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         }
     }
 
+    @Test
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         StringWriter sw = new StringWriter();

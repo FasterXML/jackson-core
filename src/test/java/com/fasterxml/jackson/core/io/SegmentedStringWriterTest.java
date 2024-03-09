@@ -1,13 +1,18 @@
 package com.fasterxml.jackson.core.io;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class SegmentedStringWriterTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testSimple() throws Exception
     {
         BufferRecycler br = new BufferRecycler();
@@ -49,6 +54,7 @@ public class SegmentedStringWriterTest
     }
 
     // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
+    @Test
     public void testBufferRecyclerReuse() throws Exception
     {
         JsonFactory f = new JsonFactory();

@@ -3,13 +3,19 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AsyncUnicodeHandlingTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
+    @Test
     public void testShortUnicodeWithSurrogates() throws IOException
     {
         JsonFactory f = JSON_F;
@@ -27,6 +33,7 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
         _testUnicodeWithSurrogates(f, 53, 1);
     }
 
+    @Test
     public void testLongUnicodeWithSurrogates() throws IOException
     {
         JsonFactory f = JSON_F;

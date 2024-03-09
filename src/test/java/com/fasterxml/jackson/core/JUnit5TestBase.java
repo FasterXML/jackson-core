@@ -342,7 +342,7 @@ public class JUnit5TestBase
         return '"'+str+'"';
     }
 
-    protected static String a2q(String json) {
+    public static String a2q(String json) {
         return json.replace('\'', '"');
     }
 
@@ -426,7 +426,7 @@ public class JUnit5TestBase
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
        final byte[] buf = new byte[4000];
 
-       InputStream in = BaseTest.class.getResourceAsStream(ref);
+       InputStream in = JUnit5TestBase.class.getResourceAsStream(ref);
        if (in != null) {
            try {
                int len;

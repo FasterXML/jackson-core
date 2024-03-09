@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.core.jsonptr;
 
 import com.fasterxml.jackson.core.JUnit5TestBase;
-import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonPointer;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

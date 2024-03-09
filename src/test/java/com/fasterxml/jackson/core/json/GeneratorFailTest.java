@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class GeneratorFailTest
-    extends TestBase
+class GeneratorFailTest
+        extends TestBase
 {
     private final JsonFactory F = new JsonFactory();
 
     // [core#167]: no error for writing field name twice
     @Test
-    public void testDupFieldNameWrites() throws Exception
+    void dupFieldNameWrites() throws Exception
     {
         _testDupFieldNameWrites(F, false);
         _testDupFieldNameWrites(F, true);
@@ -26,19 +26,19 @@ public class GeneratorFailTest
     // Also: should not try writing JSON String if field name expected
     // (in future maybe take one as alias... but not yet)
     @Test
-    public void testFailOnWritingStringNotFieldNameBytes() throws Exception {
+    void failOnWritingStringNotFieldNameBytes() throws Exception {
         _testFailOnWritingStringNotFieldName(F, false);
     }
 
     // [core#177]
     @Test
-    public void testFailOnWritingStringNotFieldNameChars() throws Exception {
+    void failOnWritingStringNotFieldNameChars() throws Exception {
         _testFailOnWritingStringNotFieldName(F, true);
     }
 
     // for [core#282]
     @Test
-    public void testFailOnWritingFieldNameInRoot() throws Exception {
+    void failOnWritingFieldNameInRoot() throws Exception {
         _testFailOnWritingFieldNameInRoot(F, false);
         _testFailOnWritingFieldNameInRoot(F, true);
     }

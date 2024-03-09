@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 1.8
  */
 @SuppressWarnings("serial")
-public class TestDecorators extends TestBase
+class TestDecorators extends TestBase
 {
     /*
     /**********************************************************
@@ -95,7 +95,7 @@ public class TestDecorators extends TestBase
      */
 
     @Test
-    public void testInputDecoration() throws IOException
+    void inputDecoration() throws IOException
     {
         JsonFactory f = JsonFactory.builder()
                 .inputDecorator(new SimpleInputDecorator())
@@ -138,7 +138,7 @@ public class TestDecorators extends TestBase
     }
 
     @Test
-    public void testOutputDecoration() throws IOException
+    void outputDecoration() throws IOException
     {
         JsonFactory f = JsonFactory.builder()
                 .outputDecorator(new SimpleOutputDecorator())
@@ -158,7 +158,7 @@ public class TestDecorators extends TestBase
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testDeprecatedMethods() throws IOException
+    void deprecatedMethods() throws IOException
     {
         JsonFactory f = new JsonFactory();
         assertNull(f.getInputDecorator());
@@ -178,7 +178,7 @@ public class TestDecorators extends TestBase
      */
 
     @Test
-    public void testGeneratorDecoration() throws Exception
+    void generatorDecoration() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .addDecorator(new SimpleGeneratorDecorator())

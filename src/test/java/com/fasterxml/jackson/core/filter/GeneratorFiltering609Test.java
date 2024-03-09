@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#609]
-public class GeneratorFiltering609Test
-    extends TestBase
+class GeneratorFiltering609Test
+        extends TestBase
 {
     static class NullExcludingTokenFilter extends TokenFilter {
         static final NullExcludingTokenFilter INSTANCE =
@@ -63,7 +63,7 @@ public class GeneratorFiltering609Test
 
     // for [core#609]: will pass in 2.10 for some cases
     @Test
-    public void testIssue609() throws Exception
+    void issue609() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonGenerator g = createGenerator(outputStream);

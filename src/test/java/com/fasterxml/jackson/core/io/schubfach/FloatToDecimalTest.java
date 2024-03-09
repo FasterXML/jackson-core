@@ -10,12 +10,12 @@ import static java.lang.StrictMath.scalb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FloatToDecimalTest {
+class FloatToDecimalTest {
     /*
     MIN_NORMAL is incorrectly rendered by the JDK.
     */
     @Test
-    void testExtremeValues() {
+    void extremeValues() {
         toDec(Float.NEGATIVE_INFINITY);
         toDec(-Float.MAX_VALUE);
         toDec(-Float.MIN_NORMAL);
@@ -52,7 +52,7 @@ public class FloatToDecimalTest {
     The rendering is either too long or it is not the closest decimal.
      */
     @Test
-    void testPowersOf10() {
+    void powersOf10() {
         for (int e = E_MIN; e <= E_MAX; ++e) {
             toDec(Float.parseFloat("1e" + e));
         }
@@ -63,14 +63,14 @@ public class FloatToDecimalTest {
     The rendering is either too long or it is not the closest decimal.
      */
     @Test
-    void testPowersOf2() {
+    void powersOf2() {
         for (float v = Float.MIN_VALUE; v <= Float.MAX_VALUE; v *= 2) {
             toDec(v);
         }
     }
 
     @Test
-    void testConstants() {
+    void constants() {
         assertEquals(FloatToDecimal.P, P, "P");
         assertTrue((long) (float) C_MIN == C_MIN, "C_MIN");
         assertTrue((long) (float) C_MAX == C_MAX, "C_MAX");
@@ -91,14 +91,14 @@ public class FloatToDecimalTest {
     }
 
     @Test
-    void testSomeAnomalies() {
+    void someAnomalies() {
         for (String dec : Anomalies) {
             toDec(Float.parseFloat(dec));
         }
     }
 
     @Test
-    void testPaxson() {
+    void paxson() {
         for (int i = 0; i < PaxsonSignificands.length; ++i) {
             toDec(scalb(PaxsonSignificands[i], PaxsonExponents[i]));
         }
@@ -109,7 +109,7 @@ public class FloatToDecimalTest {
     These are all exact floats and exercise the fast path.
      */
     @Test
-    void testInts() {
+    void ints() {
         // 29-Nov-2022, tatu: Reduce from original due to slowness
         // for (int i = 1; i < 1 << P - 1; ++i) {
         for (int i = 1; i < 1 << P - 1; i += 3) {

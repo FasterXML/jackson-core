@@ -8,11 +8,11 @@ import com.fasterxml.jackson.core.util.JsonParserSequence;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-public class ParserSequenceTest
-    extends TestBase
+class ParserSequenceTest
+        extends TestBase
 {
     @Test
-    public void testSimple() throws Exception
+    void simple() throws Exception
     {
         JsonParser p1 = JSON_FACTORY.createParser("[ 1 ]");
         JsonParser p2 = JSON_FACTORY.createParser("[ 2 ]");
@@ -52,7 +52,7 @@ public class ParserSequenceTest
     }
 
     @Test
-    public void testMultiLevel() throws Exception
+    void multiLevel() throws Exception
     {
         JsonParser p1 = JSON_FACTORY.createParser("[ 1 ] ");
         JsonParser p2 = JSON_FACTORY.createParser(" 5");
@@ -79,7 +79,7 @@ public class ParserSequenceTest
 
     // for [jackson-core#296]
     @Test
-    public void testInitializationDisabled() throws Exception
+    void initializationDisabled() throws Exception
     {
         // // First, with old legacy settings
 
@@ -102,7 +102,7 @@ public class ParserSequenceTest
 
     // for [jackson-core#296]
     @Test
-    public void testInitializationEnabled() throws Exception
+    void initializationEnabled() throws Exception
     {
         // // and then with new "check for current":
         JsonParser p1 = JSON_FACTORY.createParser("1 2");

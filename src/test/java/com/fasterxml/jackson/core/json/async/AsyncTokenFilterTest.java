@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#462], [core#463]
-public class AsyncTokenFilterTest extends AsyncTestBase
+class AsyncTokenFilterTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -37,7 +37,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
 
     // Passes if (but only if) all content is actually available
     @Test
-    public void testFilteredNonBlockingParserAllContent() throws IOException
+    void filteredNonBlockingParserAllContent() throws IOException
     {
         NonBlockingJsonParser nonBlockingParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         assertNotNull(nonBlockingParser.getNonBlockingInputFeeder());
@@ -60,7 +60,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     }
 
     @Test
-    public void testFilteredNonBlockingByteBufferParserAllContent() throws IOException
+    void filteredNonBlockingByteBufferParserAllContent() throws IOException
     {
         NonBlockingByteBufferJsonParser nonBlockingParser =
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
@@ -84,7 +84,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     }
 
     @Test
-    public void testSkipChildrenFailOnSplit() throws IOException
+    void skipChildrenFailOnSplit() throws IOException
     {
         NonBlockingJsonParser nbParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         @SuppressWarnings("resource")
@@ -105,7 +105,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     }
 
     @Test
-    public void testSkipChildrenFailOnSplitByteBuffer() throws IOException
+    void skipChildrenFailOnSplitByteBuffer() throws IOException
     {
         NonBlockingByteBufferJsonParser nbParser =
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();

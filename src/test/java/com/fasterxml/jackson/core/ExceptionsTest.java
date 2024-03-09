@@ -9,14 +9,14 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExceptionsTest
-    extends TestBase
+class ExceptionsTest
+        extends TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
     // For [core#10]
     @Test
-    public void testOriginalMesssage()
+    void originalMesssage()
     {
         JsonProcessingException exc = new JsonParseException(null, "Foobar", JsonLocation.NA);
         String msg = exc.getMessage();
@@ -41,7 +41,7 @@ public class ExceptionsTest
 
     // [core#198]
     @Test
-    public void testAccessToParser() throws Exception
+    void accessToParser() throws Exception
     {
         JsonParser p = JSON_F.createParser("{}");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -57,7 +57,7 @@ public class ExceptionsTest
 
     // [core#198]
     @Test
-    public void testAccessToGenerator() throws Exception
+    void accessToGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(w);
@@ -70,13 +70,13 @@ public class ExceptionsTest
 
     // [core#281]: new eof exception
     @Test
-    public void testEofExceptionsBytes() throws Exception {
+    void eofExceptionsBytes() throws Exception {
         _testEofExceptions(MODE_INPUT_STREAM);
     }
 
     // [core#281]: new eof exception
     @Test
-    public void testEofExceptionsChars() throws Exception {
+    void eofExceptionsChars() throws Exception {
         _testEofExceptions(MODE_READER);
     }
 
@@ -132,7 +132,7 @@ public class ExceptionsTest
     }
 
     @Test
-    public void testContentSnippetWithOffset() throws Exception
+    void contentSnippetWithOffset() throws Exception
     {
         final JsonFactory jsonF = streamFactoryBuilder()
                 .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)

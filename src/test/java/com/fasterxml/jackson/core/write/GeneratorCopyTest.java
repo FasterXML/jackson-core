@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test;
  * Set of basic unit tests for verifying that copy-through methods
  * of {@link JsonGenerator} work as expected.
  */
-public class GeneratorCopyTest
-    extends TestBase
+class GeneratorCopyTest
+        extends TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
     @Test
-    public void testCopyRootTokens()
+    void copyRootTokens()
             throws IOException
     {
         JsonFactory jf = JSON_F;
@@ -42,7 +42,7 @@ public class GeneratorCopyTest
     }
 
     @Test
-    public void testCopyArrayTokens()
+    void copyArrayTokens()
             throws IOException
     {
         JsonFactory jf = JSON_F;
@@ -69,7 +69,7 @@ public class GeneratorCopyTest
     }
 
     @Test
-    public void testCopyObjectTokens()
+    void copyObjectTokens()
             throws IOException
     {
         JsonFactory jf = JSON_F;

@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * 
  * @since 2.16
  */
-public class ErrorReportConfigurationTest
-    extends TestBase
+class ErrorReportConfigurationTest
+        extends TestBase
 {
     /*
     /**********************************************************
@@ -30,7 +30,7 @@ public class ErrorReportConfigurationTest
     private final ErrorReportConfiguration DEFAULTS = ErrorReportConfiguration.defaults();
 
     @Test
-    public void testNormalBuild()
+    void normalBuild()
     {
         ErrorReportConfiguration config = ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(1004)
@@ -42,7 +42,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testZeroLengths()
+    void zeroLengths()
     {
         // boundary tests, because we throw error on negative values
         ErrorReportConfiguration config = ErrorReportConfiguration.builder()
@@ -55,7 +55,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testInvalidMaxErrorTokenLength()
+    void invalidMaxErrorTokenLength()
     {
         ErrorReportConfiguration.Builder builder = ErrorReportConfiguration.builder();
         try {
@@ -75,7 +75,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testDefaults()
+    void defaults()
     {
         // default value
         assertEquals(DEFAULT_ERROR_LENGTH, DEFAULTS.getMaxErrorTokenLength());
@@ -86,7 +86,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testOverrideDefaultErrorReportConfiguration()
+    void overrideDefaultErrorReportConfiguration()
     {
         // (1) override with null, will be no change
         ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(null);
@@ -117,7 +117,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testRebuild()
+    void rebuild()
     {
         ErrorReportConfiguration config = ErrorReportConfiguration.builder().build();
         ErrorReportConfiguration rebuiltConfig = config.rebuild().build();
@@ -127,7 +127,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testBuilderConstructorWithErrorReportConfiguration()
+    void builderConstructorWithErrorReportConfiguration()
     {
         ErrorReportConfiguration configA = ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(1234)
@@ -141,7 +141,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testWithJsonLocation() throws Exception
+    void withJsonLocation() throws Exception
     {
         // Truncated result
         _verifyJsonLocationToString("abc", 2, "\"ab\"[truncated 1 chars]");
@@ -152,7 +152,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testWithJsonFactory() throws Exception
+    void withJsonFactory() throws Exception
     {
         // default
         _verifyJsonProcessingExceptionSourceLength(500,
@@ -175,7 +175,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testExpectedTokenLengthWithConfigurations()
+    void expectedTokenLengthWithConfigurations()
             throws Exception
     {
         // default
@@ -217,7 +217,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testNonPositiveErrorTokenConfig()
+    void nonPositiveErrorTokenConfig()
     {
         // Zero should be ok
         ErrorReportConfiguration.builder().maxErrorTokenLength(0).build();
@@ -234,7 +234,7 @@ public class ErrorReportConfigurationTest
     }
 
     @Test
-    public void testNullSetterThrowsException() {
+    void nullSetterThrowsException() {
         try {
             newStreamFactory().setErrorReportConfiguration(null);
             fail();

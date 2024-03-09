@@ -23,7 +23,7 @@ public class GeneratorBasicTest
     // // // First, tests for primitive (non-structured) values
 
     @Test
-    public void testStringWrite() throws Exception
+    void stringWrite() throws Exception
     {
         String[] inputStrings = new String[] { "", "X", "1234567890" };
         for (int useReader = 0; useReader < 2; ++useReader) {
@@ -62,7 +62,7 @@ public class GeneratorBasicTest
     }
 
     @Test
-    public void testIntValueWrite() throws Exception
+    void intValueWrite() throws Exception
     {
         // char[]
         doTestIntValueWrite(false, false);
@@ -73,7 +73,7 @@ public class GeneratorBasicTest
     }
 
     @Test
-    public void testLongValueWrite() throws Exception
+    void longValueWrite() throws Exception
     {
         // char[]
         doTestLongValueWrite(false, false);
@@ -84,7 +84,7 @@ public class GeneratorBasicTest
     }
 
     @Test
-    public void testBooleanWrite() throws Exception
+    void booleanWrite() throws Exception
     {
         for (int i = 0; i < 4; ++i) {
             boolean state = (i & 1) == 0;
@@ -110,7 +110,7 @@ public class GeneratorBasicTest
     }
 
     @Test
-    public void testNullWrite()
+    void nullWrite()
             throws Exception
     {
         for (int i = 0; i < 2; ++i) {
@@ -138,7 +138,7 @@ public class GeneratorBasicTest
     // // Then root-level output testing
 
     @Test
-    public void testRootIntsWrite() throws Exception {
+    void rootIntsWrite() throws Exception {
         _testRootIntsWrite(false);
         _testRootIntsWrite(true);
     }
@@ -179,7 +179,7 @@ public class GeneratorBasicTest
     // Convenience methods
 
     @Test
-    public void testFieldValueWrites() throws Exception {
+    void fieldValueWrites() throws Exception {
         _testFieldValueWrites(false);
         _testFieldValueWrites(true);
     }
@@ -217,7 +217,7 @@ public class GeneratorBasicTest
      * Test to verify that output context actually contains useful information
      */
     @Test
-    public void testOutputContext() throws Exception
+    void outputContext() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
@@ -286,7 +286,7 @@ public class GeneratorBasicTest
     }
 
     @Test
-    public void testGetOutputTarget() throws Exception
+    void getOutputTarget() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
         JsonGenerator gen = JSON_F.createGenerator(out);
@@ -301,7 +301,7 @@ public class GeneratorBasicTest
 
     // for [core#195]
     @Test
-    public void testGetOutputBufferd() throws Exception
+    void getOutputBufferd() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
         JsonGenerator gen = JSON_F.createGenerator(out);

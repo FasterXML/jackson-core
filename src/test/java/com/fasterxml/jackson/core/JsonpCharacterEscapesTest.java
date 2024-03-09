@@ -12,18 +12,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @see JsonpCharacterEscapes
  *
  **/
-public class JsonpCharacterEscapesTest
-    extends TestBase
+class JsonpCharacterEscapesTest
+        extends TestBase
 {
     @Test
-    public void testGetEscapeSequenceOne() {
+    void getEscapeSequenceOne() {
         JsonpCharacterEscapes jsonpCharacterEscapes = JsonpCharacterEscapes.instance();
 
         assertEquals(new SerializedString("\\u2028"),jsonpCharacterEscapes.getEscapeSequence(0x2028));
     }
 
     @Test
-    public void testGetEscapeSequenceTwo() {
+    void getEscapeSequenceTwo() {
         JsonpCharacterEscapes jsonpCharacterEscapes = JsonpCharacterEscapes.instance();
 
         assertEquals(new SerializedString("\\u2029"),jsonpCharacterEscapes.getEscapeSequence(0x2029));

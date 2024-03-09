@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that object mapping functionality can
  * be accessed using JsonParser.
  */
-public class ParserWithObjectsTest
-    extends TestBase
+class ParserWithObjectsTest
+        extends TestBase
 {
     /*
     /**********************************************************
@@ -22,7 +22,7 @@ public class ParserWithObjectsTest
      */
 
     @Test
-    public void testNextValue() throws IOException
+    void nextValue() throws IOException
     {
         // Let's test both byte-backed and Reader-based one
         _testNextValueBasic(false);
@@ -31,7 +31,7 @@ public class ParserWithObjectsTest
 
     // [JACKSON-395]
     @Test
-    public void testNextValueNested() throws IOException
+    void nextValueNested() throws IOException
     {
         // Let's test both byte-backed and Reader-based one
         _testNextValueNested(false);
@@ -40,7 +40,7 @@ public class ParserWithObjectsTest
 
     @SuppressWarnings("resource")
     @Test
-    public void testIsClosed() throws IOException
+    void isClosed() throws IOException
     {
         for (int i = 0; i < 4; ++i) {
             String JSON = "[ 1, 2, 3 ]";

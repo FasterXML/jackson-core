@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Unit test(s) for verifying handling of new (in 2.15) StreamReadConstraints
  * wrt maximum nesting depth.
  */
-public class DeeplyNestedContentReadTest
-    extends TestBase
+class DeeplyNestedContentReadTest
+        extends TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -22,7 +22,7 @@ public class DeeplyNestedContentReadTest
     private final int TESTED_NESTING = MAX_NESTING + 50;
 
     @Test
-    public void testDeepNestingStreaming() throws Exception
+    void deepNestingStreaming() throws Exception
     {
         final String DOC = createDeepNestedDoc(TESTED_NESTING);
         for (int mode : ALL_STREAMING_MODES) {
@@ -44,7 +44,7 @@ public class DeeplyNestedContentReadTest
     }
 
     @Test
-    public void testLegacyConstraintSettingTest() throws Exception
+    void legacyConstraintSettingTest() throws Exception
     {
         final int LOWER_MAX = 40;
         

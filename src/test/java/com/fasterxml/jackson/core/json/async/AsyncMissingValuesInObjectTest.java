@@ -40,7 +40,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testObjectBasic(Collection<JsonReadFeature> features) throws Exception {
+    void objectBasic(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInObjectTest(features);
         String json = "{\"a\": true, \"b\": false}";
 
@@ -63,7 +63,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testObjectInnerComma(Collection<JsonReadFeature> features) throws Exception {
+    void objectInnerComma(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInObjectTest(features);
     String json = "{\"a\": true,, \"b\": false}";
 
@@ -81,7 +81,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testObjectLeadingComma(Collection<JsonReadFeature> features) throws Exception {
+    void objectLeadingComma(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInObjectTest(features);
     String json = "{,\"a\": true, \"b\": false}";
 
@@ -95,7 +95,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testObjectTrailingComma(Collection<JsonReadFeature> features) throws Exception {
+    void objectTrailingComma(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInObjectTest(features);
     String json = "{\"a\": true, \"b\": false,}";
 
@@ -122,7 +122,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testObjectTrailingCommas(Collection<JsonReadFeature> features) throws Exception {
+    void objectTrailingCommas(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInObjectTest(features);
     String json = "{\"a\": true, \"b\": false,,}";
 

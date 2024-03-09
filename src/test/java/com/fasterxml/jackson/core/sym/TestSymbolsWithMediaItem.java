@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestSymbolsWithMediaItem extends TestBase
+class TestSymbolsWithMediaItem extends TestBase
 {
     private final String JSON = a2q(
             "{'media' : {\n"
@@ -37,7 +37,7 @@ public class TestSymbolsWithMediaItem extends TestBase
             +"}\n");
 
     @Test
-    public void testSmallSymbolSetWithBytes() throws IOException
+    void smallSymbolSetWithBytes() throws IOException
     {
         final int SEED = 33333;
 
@@ -69,7 +69,7 @@ public class TestSymbolsWithMediaItem extends TestBase
     }
 
     @Test
-    public void testSmallSymbolSetWithChars() throws IOException
+    void smallSymbolSetWithChars() throws IOException
     {
         final int SEED = 33333;
 

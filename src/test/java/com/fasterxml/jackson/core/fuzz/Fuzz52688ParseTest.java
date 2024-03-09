@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // Reproducing: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=52688
 // (reported as [core#834]
-public class Fuzz52688ParseTest extends TestBase
+class Fuzz52688ParseTest extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -25,7 +25,7 @@ public class Fuzz52688ParseTest extends TestBase
             +"222");
 
     @Test
-    public void testBigNumberUTF16Parse() throws Exception
+    void bigNumberUTF16Parse() throws Exception
     {
         // 41 bytes as UTF16-LE; becomes 21 characters (last broken)
         final byte[] DOC = {
@@ -56,7 +56,7 @@ public class Fuzz52688ParseTest extends TestBase
     }
 
     @Test
-    public void testBigNumberUTF8Parse() throws Exception
+    void bigNumberUTF8Parse() throws Exception
     {
         // Similar to UTF-16 case
         final byte[] DOC = {

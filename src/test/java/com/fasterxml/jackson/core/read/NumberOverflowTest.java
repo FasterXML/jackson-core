@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.exc.InputCoercionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class NumberOverflowTest
-    extends TestBase
+class NumberOverflowTest
+        extends TestBase
 {
     private final JsonFactory FACTORY = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(1000000).build())
@@ -33,7 +33,7 @@ public class NumberOverflowTest
     private final static String BIG_NEG_DOC = "[ -"+BIG_POS_INTEGER+"]";
 
     @Test
-    public void testSimpleLongOverflow() throws Exception
+    void simpleLongOverflow() throws Exception
     {
         BigInteger below = BigInteger.valueOf(Long.MIN_VALUE);
         below = below.subtract(BigInteger.ONE);
@@ -71,7 +71,7 @@ public class NumberOverflowTest
 
     // [jackson-core#488]
     @Test
-    public void testMaliciousLongOverflow() throws Exception
+    void maliciousLongOverflow() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
@@ -92,7 +92,7 @@ public class NumberOverflowTest
 
     // [jackson-core#488]
     @Test
-    public void testMaliciousIntOverflow() throws Exception
+    void maliciousIntOverflow() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
@@ -113,7 +113,7 @@ public class NumberOverflowTest
 
     // [jackson-core#488]
     @Test
-    public void testMaliciousBigIntToDouble() throws Exception
+    void maliciousBigIntToDouble() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;
@@ -129,7 +129,7 @@ public class NumberOverflowTest
 
     // [jackson-core#488]
     @Test
-    public void testMaliciousBigIntToFloat() throws Exception
+    void maliciousBigIntToFloat() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;

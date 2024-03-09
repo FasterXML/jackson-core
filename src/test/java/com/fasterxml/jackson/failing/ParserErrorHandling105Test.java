@@ -7,19 +7,19 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Failing tests for non-root-token problem
-public class ParserErrorHandling105Test
-    extends TestBase
+class ParserErrorHandling105Test
+        extends TestBase
 {
     // Tests for [core#105] ("eager number parsing misses errors")
     @Test
-    public void testMangledIntsBytes() throws Exception {
+    void mangledIntsBytes() throws Exception {
         // 02-Jun-2017, tatu: Fails to fail; should check whether this is expected
         //   (since DataInput can't do look-ahead)
         _testMangledNonRootInts(MODE_DATA_INPUT);
     }
 
     @Test
-    public void testMangledFloatsBytes() throws Exception {
+    void mangledFloatsBytes() throws Exception {
 //        _testMangledNonRootFloats(MODE_INPUT_STREAM);
 //        _testMangledNonRootFloats(MODE_INPUT_STREAM_THROTTLED);
 
@@ -28,12 +28,12 @@ public class ParserErrorHandling105Test
     }
 
     @Test
-    public void testMangledIntsChars() throws Exception {
+    void mangledIntsChars() throws Exception {
         _testMangledNonRootInts(MODE_READER);
     }
 
     @Test
-    public void testMangledFloatsChars() throws Exception {
+    void mangledFloatsChars() throws Exception {
         _testMangledNonRootFloats(MODE_READER);
     }
 

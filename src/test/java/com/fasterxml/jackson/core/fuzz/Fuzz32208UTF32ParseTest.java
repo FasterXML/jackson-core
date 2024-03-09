@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // Trying to repro: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32216
 // but so far without success (fails on seemingly legit validation problem)
-public class Fuzz32208UTF32ParseTest extends TestBase
+class Fuzz32208UTF32ParseTest extends TestBase
 {
     private final byte[] DOC = readResource("/data/fuzz-json-utf32-32208.json");
 
     @Test
-    public void testFuzz32208ViaParser() throws Exception
+    void fuzz32208ViaParser() throws Exception
     {
         final JsonFactory f = new JsonFactory();
 
@@ -36,7 +36,7 @@ public class Fuzz32208UTF32ParseTest extends TestBase
 
     // How about through UTF32Reader itself?
     @Test
-    public void testFuzz32208Direct() throws Exception
+    void fuzz32208Direct() throws Exception
     {
         _testFuzz32208Direct(1);
         _testFuzz32208Direct(2);
@@ -50,7 +50,7 @@ public class Fuzz32208UTF32ParseTest extends TestBase
     }
 
     @Test
-    public void testFuzz32208DirectSingleByte() throws Exception
+    void fuzz32208DirectSingleByte() throws Exception
     {
         UTF32Reader r = new UTF32Reader(null, new ByteArrayInputStream(DOC),
                 new byte[500], 0, 0, false);

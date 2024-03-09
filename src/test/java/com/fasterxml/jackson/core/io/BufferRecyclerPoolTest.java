@@ -15,36 +15,36 @@ import java.io.OutputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [core#1064] wrt custom `BufferRecycler`
-public class BufferRecyclerPoolTest extends TestBase
+class BufferRecyclerPoolTest extends TestBase
 {
     @Test
-    public void testNoOp() throws Exception {
+    void noOp() throws Exception {
         // no-op pool doesn't actually pool anything, so avoid checking it
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.nonRecyclingPool(), false, true);
     }
 
     @Test
-    public void testThreadLocal() throws Exception {
+    void threadLocal() throws Exception {
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.threadLocalPool(), true, false);
     }
 
     @Test
-    public void testLockFree() throws Exception {
+    void lockFree() throws Exception {
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.newLockFreePool(), true, true);
     }
 
     @Test
-    public void testConcurrentDequeue() throws Exception {
+    void concurrentDequeue() throws Exception {
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.newConcurrentDequePool(), true, true);
     }
 
     @Test
-    public void testBounded() throws Exception {
+    void bounded() throws Exception {
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.newBoundedPool(1), true, true);
     }
 
     @Test
-    public void testPluggingPool() throws Exception {
+    void pluggingPool() throws Exception {
         checkBufferRecyclerPoolImpl(new TestPool(), true, true);
     }
 

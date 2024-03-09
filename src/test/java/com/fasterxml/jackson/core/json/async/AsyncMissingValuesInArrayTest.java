@@ -61,7 +61,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testArrayInnerComma(Collection<JsonReadFeature> features) throws Exception {
+    void arrayInnerComma(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInArrayTest(features);
     String json = "[\"a\",, \"b\"]";
 
@@ -90,7 +90,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testArrayLeadingComma(Collection<JsonReadFeature> features) throws Exception {
+    void arrayLeadingComma(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInArrayTest(features);
     String json = "[,\"a\", \"b\"]";
 
@@ -119,7 +119,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testArrayTrailingComma(Collection<JsonReadFeature> features) throws Exception {
+    void arrayTrailingComma(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInArrayTest(features);
     String json = "[\"a\", \"b\",]";
 
@@ -149,7 +149,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testArrayTrailingCommas(Collection<JsonReadFeature> features) throws Exception {
+    void arrayTrailingCommas(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInArrayTest(features);
     String json = "[\"a\", \"b\",,]";
 
@@ -182,7 +182,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Features {0}")
-    public void testArrayTrailingCommasTriple(Collection<JsonReadFeature> features) throws Exception {
+    void arrayTrailingCommasTriple(Collection<JsonReadFeature> features) throws Exception {
         initAsyncMissingValuesInArrayTest(features);
     String json = "[\"a\", \"b\",,,]";
 

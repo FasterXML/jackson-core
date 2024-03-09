@@ -7,11 +7,11 @@ import com.fasterxml.jackson.core.io.CharTypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestCharTypes
-    extends TestBase
+class TestCharTypes
+        extends TestBase
 {
     @Test
-    public void testQuoting()
+    void quoting()
     {
         StringBuilder sb = new StringBuilder();
         CharTypes.appendQuoted(sb, "\n");

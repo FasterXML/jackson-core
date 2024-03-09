@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // for [core#708]
-public class ParserFilterEmpty708Test extends TestBase
+class ParserFilterEmpty708Test extends TestBase
 {
     // Could actually just return basic TokenFilter but...
     static class IncludeAllFilter extends TokenFilter {
@@ -30,7 +30,7 @@ public class ParserFilterEmpty708Test extends TestBase
 
     // [core#708]
     @Test
-    public void testEmptyArray() throws Exception
+    void emptyArray() throws Exception
     {
         final String json = "[ ]";
         // should become: {"value":12}
@@ -49,7 +49,7 @@ public class ParserFilterEmpty708Test extends TestBase
 
     // [core#708]
     @Test
-    public void testEmptyObject() throws Exception
+    void emptyObject() throws Exception
     {
         final String json = "{ }";
         // should become: {"value":12}

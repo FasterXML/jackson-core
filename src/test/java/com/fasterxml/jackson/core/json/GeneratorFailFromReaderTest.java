@@ -10,8 +10,8 @@ import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
 
-public class GeneratorFailFromReaderTest
-    extends TestBase
+class GeneratorFailFromReaderTest
+        extends TestBase
 {
     private final JsonFactory F = new JsonFactory();
 
@@ -19,24 +19,24 @@ public class GeneratorFailFromReaderTest
     // Also: should not try writing JSON String if field name expected
     // (in future maybe take one as alias... but not yet)
     @Test
-    public void testFailOnWritingStringNotFieldNameBytes() throws Exception {
+    void failOnWritingStringNotFieldNameBytes() throws Exception {
         _testFailOnWritingStringNotFieldName(F, false);
     }
 
     // [core#177]
     @Test
-    public void testFailOnWritingStringNotFieldNameChars() throws Exception {
+    void failOnWritingStringNotFieldNameChars() throws Exception {
         _testFailOnWritingStringNotFieldName(F, true);
     }
 
     @Test
-    public void testFailOnWritingStringFromReaderWithTooFewCharacters() throws Exception {
+    void failOnWritingStringFromReaderWithTooFewCharacters() throws Exception {
         _testFailOnWritingStringFromReaderWithTooFewCharacters(F, true);
         _testFailOnWritingStringFromReaderWithTooFewCharacters(F, false);
     }
 
     @Test
-    public void testFailOnWritingStringFromNullReader() throws Exception {
+    void failOnWritingStringFromNullReader() throws Exception {
         _testFailOnWritingStringFromNullReader(F, true);
         _testFailOnWritingStringFromNullReader(F, false);
     }

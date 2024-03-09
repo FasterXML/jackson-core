@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MergedStreamTest
-    extends TestBase
+class MergedStreamTest
+        extends TestBase
 {
     @Test
-    public void testSimple() throws Exception
+    void simple() throws Exception
     {
         IOContext ctxt = testIOContext();
         // bit complicated; must use recyclable buffer...

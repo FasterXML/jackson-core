@@ -8,24 +8,24 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // Test(s) to see that limited amount of recovery is possible over
 // content: specifically, most single-character problems.
-public class ParserErrorRecovery1173Test
-    extends TestBase
+class ParserErrorRecovery1173Test
+        extends TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
     @Test
-    public void testRecoverNumberBytes() throws Exception {
+    void recoverNumberBytes() throws Exception {
         _testRecoverNumber(MODE_INPUT_STREAM);
         _testRecoverNumber(MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testRecoverNumberDataInput() throws Exception {
+    void recoverNumberDataInput() throws Exception {
         _testRecoverNumber(MODE_DATA_INPUT);
     }
 
     @Test
-    public void testRecoverNumberChars() throws Exception {
+    void recoverNumberChars() throws Exception {
         _testRecoverNumber(MODE_READER);
         _testRecoverNumber(MODE_READER_THROTTLED);
     }

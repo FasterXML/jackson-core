@@ -9,24 +9,24 @@ import com.fasterxml.jackson.core.JsonToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class NextNameParserTest
-    extends TestBase
+class NextNameParserTest
+        extends TestBase
 {
     @Test
-    public void testBasicNextNameWithReader() throws Exception
+    void basicNextNameWithReader() throws Exception
     {
         _testBasicNextName(MODE_READER);
     }
 
     @Test
-    public void testBasicNextNameWithStream() throws Exception
+    void basicNextNameWithStream() throws Exception
     {
         _testBasicNextName(MODE_INPUT_STREAM);
         _testBasicNextName(MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testBasicNextNameWithDataInput() throws Exception
+    void basicNextNameWithDataInput() throws Exception
     {
         _testBasicNextName(MODE_DATA_INPUT);
     }

@@ -15,7 +15,7 @@ class ReadConstrainedTextBufferTest {
     private static final int SEGMENT_SIZE = TextBuffer.MIN_SEGMENT_LEN;
 
     @Test
-    public void appendCharArray() throws Exception {
+    void appendCharArray() throws Exception {
         try (IOContext ioContext = makeConstrainedContext(SEGMENT_SIZE)) {
             TextBuffer constrained = ioContext.constructReadConstrainedTextBuffer();
             char[] chars = new char[SEGMENT_SIZE];
@@ -29,7 +29,7 @@ class ReadConstrainedTextBufferTest {
     }
 
     @Test
-    public void appendString() throws Exception {
+    void appendString() throws Exception {
         try (IOContext ioContext = makeConstrainedContext(SEGMENT_SIZE)) {
             TextBuffer constrained = ioContext.constructReadConstrainedTextBuffer();
             char[] chars = new char[SEGMENT_SIZE];
@@ -43,7 +43,7 @@ class ReadConstrainedTextBufferTest {
     }
 
     @Test
-    public void appendSingle() throws Exception {
+    void appendSingle() throws Exception {
         try (IOContext ioContext = makeConstrainedContext(SEGMENT_SIZE)) {
             TextBuffer constrained = ioContext.constructReadConstrainedTextBuffer();
             char[] chars = new char[SEGMENT_SIZE];

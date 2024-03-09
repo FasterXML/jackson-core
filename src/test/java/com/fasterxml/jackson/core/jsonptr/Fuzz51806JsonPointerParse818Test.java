@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // For https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=51806
 // (reported as [core#818]
-public class Fuzz51806JsonPointerParse818Test extends TestBase
+class Fuzz51806JsonPointerParse818Test extends TestBase
 {
     // Before fix, StackOverflowError with 6_000 or so,
     // and OOME with 20_000.
@@ -20,13 +20,13 @@ public class Fuzz51806JsonPointerParse818Test extends TestBase
     // Verify that a very deep/long (by number of segments) JsonPointer
     // may still be parsed ok, for "simple" case (no quoted chars)
     @Test
-    public void testJsonPointerParseTailSimple()
+    void jsonPointerParseTailSimple()
     {
         _testJsonPointer(_generatePath(TOO_DEEP_PATH, false));
     }
 
     @Test
-    public void testJsonPointerParseTailWithQuoted()
+    void jsonPointerParseTailWithQuoted()
     {
         _testJsonPointer(_generatePath(TOO_DEEP_PATH, true));
     }

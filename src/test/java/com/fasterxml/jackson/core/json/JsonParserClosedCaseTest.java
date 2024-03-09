@@ -45,28 +45,28 @@ public class JsonParserClosedCaseTest {
 
     @MethodSource("parsers")
     @ParameterizedTest(name = "{0}")
-    public void testNullReturnedOnClosedParserOnNextFieldName(String parserName, JsonParser parser) throws Exception {
+    void nullReturnedOnClosedParserOnNextFieldName(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
         Assertions.assertNull(parser.nextFieldName());
     }
 
     @MethodSource("parsers")
     @ParameterizedTest(name = "{0}")
-    public void testFalseReturnedOnClosedParserOnNextFieldNameSerializedString(String parserName, JsonParser parser) throws Exception {
+    void falseReturnedOnClosedParserOnNextFieldNameSerializedString(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
         Assertions.assertFalse(parser.nextFieldName(new SerializedString("")));
     }
 
     @MethodSource("parsers")
     @ParameterizedTest(name = "{0}")
-    public void testNullReturnedOnClosedParserOnNextToken(String parserName, JsonParser parser) throws Exception {
+    void nullReturnedOnClosedParserOnNextToken(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
         Assertions.assertNull(parser.nextToken());
     }
 
     @MethodSource("parsers")
     @ParameterizedTest(name = "{0}")
-    public void testNullReturnedOnClosedParserOnNextValue(String parserName, JsonParser parser) throws Exception {
+    void nullReturnedOnClosedParserOnNextValue(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
         Assertions.assertNull(parser.nextValue());
     }

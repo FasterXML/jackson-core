@@ -7,11 +7,11 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonPointerOOME736Test extends TestBase
+class JsonPointerOOME736Test extends TestBase
 {
     // such as https://github.com/nst/JSONTestSuite/blob/master/test_parsing/n_structure_100000_opening_arrays.json
     @Test
-    public void testDeepJsonPointer() throws Exception {
+    void deepJsonPointer() throws Exception {
         int MAX_DEPTH = 120_000;
         // Create nesting of 120k arrays
         String INPUT = new String(new char[MAX_DEPTH]).replace("\0", "[");

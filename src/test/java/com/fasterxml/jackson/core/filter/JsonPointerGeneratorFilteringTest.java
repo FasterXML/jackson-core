@@ -10,14 +10,14 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("resource")
-public class JsonPointerGeneratorFilteringTest extends TestBase
+class JsonPointerGeneratorFilteringTest extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     final String SIMPLE_INPUT = a2q("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
 
     @Test
-    public void testSimplePropertyWithPath() throws Exception
+    void simplePropertyWithPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}", false);
         _assert(SIMPLE_INPUT, "/c/d", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}", false);
@@ -33,7 +33,7 @@ public class JsonPointerGeneratorFilteringTest extends TestBase
     }
 
     @Test
-    public void testSimplePropertyWithoutPath() throws Exception
+    void simplePropertyWithoutPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.ONLY_INCLUDE_ALL, "{'d':{'a':true}}", false);
         _assert(SIMPLE_INPUT, "/c/d", Inclusion.ONLY_INCLUDE_ALL, "{'a':true}", false);
@@ -47,7 +47,7 @@ public class JsonPointerGeneratorFilteringTest extends TestBase
     }
 
     @Test
-    public void testArrayElementWithPath() throws Exception
+    void arrayElementWithPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[1,2,3]}", false);
         _assert(SIMPLE_INPUT, "/b/1", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[2]}", false);
@@ -58,7 +58,7 @@ public class JsonPointerGeneratorFilteringTest extends TestBase
     }
 
     @Test
-    public void testArrayNestedWithPath() throws Exception
+    void arrayNestedWithPath() throws Exception
     {
         _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'a':[{'b':3}]}", false);
         _assert("[true,[1]]", "/0", Inclusion.INCLUDE_ALL_AND_PATH, "[true]", false);
@@ -72,7 +72,7 @@ public class JsonPointerGeneratorFilteringTest extends TestBase
     }
 
     @Test
-    public void testArrayNestedWithoutPath() throws Exception
+    void arrayNestedWithoutPath() throws Exception
     {
         _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", Inclusion.ONLY_INCLUDE_ALL, "3", false);
         _assert("[true,[1,2,[true],3],0]", "/0", Inclusion.ONLY_INCLUDE_ALL, "true", false);
@@ -87,7 +87,7 @@ public class JsonPointerGeneratorFilteringTest extends TestBase
 //    final String SIMPLE_INPUT = aposToQuotes("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
 
     @Test
-    public void testArrayElementWithoutPath() throws Exception
+    void arrayElementWithoutPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/b", Inclusion.ONLY_INCLUDE_ALL, "[1,2,3]", false);
         _assert(SIMPLE_INPUT, "/b/1", Inclusion.ONLY_INCLUDE_ALL, "2", false);
@@ -100,7 +100,7 @@ public class JsonPointerGeneratorFilteringTest extends TestBase
     }
 
     @Test
-    public void testAllowMultipleMatchesWithPath() throws Exception
+    void allowMultipleMatchesWithPath() throws Exception
     {
         _assert("[1,2,3]", "/0", Inclusion.INCLUDE_ALL_AND_PATH, "[1]", true);
         _assert("[1,2,3]", "/1", Inclusion.INCLUDE_ALL_AND_PATH, "[2]", true);
@@ -144,17 +144,17 @@ public class JsonPointerGeneratorFilteringTest extends TestBase
     // for [core#582]: regression wrt array filtering
 
     @Test
-    public void testArrayFiltering582WithoutObject() throws IOException {
+    void arrayFiltering582WithoutObject() throws IOException {
         _testArrayFiltering582(0);
     }
 
     @Test
-    public void testArrayFiltering582WithoutSize() throws IOException {
+    void arrayFiltering582WithoutSize() throws IOException {
         _testArrayFiltering582(1);
     }
 
     @Test
-    public void testArrayFiltering582WithSize() throws IOException {
+    void arrayFiltering582WithSize() throws IOException {
         _testArrayFiltering582(2);
     }
 

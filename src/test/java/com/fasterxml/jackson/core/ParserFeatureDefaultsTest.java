@@ -9,8 +9,8 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ParserFeatureDefaultsTest
-    extends TestBase
+class ParserFeatureDefaultsTest
+        extends TestBase
 {
     static class TestParser extends ParserMinimalBase
     {
@@ -145,7 +145,7 @@ public class ParserFeatureDefaultsTest
     }
 
     @Test
-    public void testParserFlagDefaults() throws Exception
+    void parserFlagDefaults() throws Exception
     {
         try (JsonParser p = new TestParser()) {
             for (JsonParser.Feature feat : JsonParser.Feature.values()) {

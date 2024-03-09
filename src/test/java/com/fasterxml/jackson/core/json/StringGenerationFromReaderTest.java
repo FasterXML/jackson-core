@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
  * Set of basic unit tests for verifying that the string
  * generation, including character escaping, works as expected.
  */
-public class StringGenerationFromReaderTest
-    extends TestBase
+class StringGenerationFromReaderTest
+        extends TestBase
 {
     final static String[] SAMPLES = new String[] {
         "\"test\"",
@@ -29,14 +29,14 @@ public class StringGenerationFromReaderTest
     private final JsonFactory FACTORY = new JsonFactory();
 
     @Test
-    public void testBasicEscaping() throws Exception
+    void basicEscaping() throws Exception
     {
         doTestBasicEscaping();
     }
 
     // for [core#194]
     @Test
-    public void testMediumStringsBytes() throws Exception
+    void mediumStringsBytes() throws Exception
     {
         final JsonFactory jsonF = new JsonFactory();
         for (int mode : ALL_BINARY_MODES) {
@@ -48,7 +48,7 @@ public class StringGenerationFromReaderTest
 
     // for [core#194]
     @Test
-    public void testMediumStringsChars() throws Exception
+    void mediumStringsChars() throws Exception
     {
         final JsonFactory jsonF = new JsonFactory();
         for (int mode : ALL_TEXT_MODES) {
@@ -59,7 +59,7 @@ public class StringGenerationFromReaderTest
     }
 
     @Test
-    public void testLongerRandomSingleChunk() throws Exception
+    void longerRandomSingleChunk() throws Exception
     {
         // Let's first generate 100k of pseudo-random characters, favoring
         // 7-bit ascii range
@@ -72,7 +72,7 @@ public class StringGenerationFromReaderTest
     }
 
     @Test
-    public void testLongerRandomMultiChunk() throws Exception
+    void longerRandomMultiChunk() throws Exception
     {
         // Let's first generate 100k of pseudo-random characters, favoring
         // 7-bit ascii range
@@ -287,7 +287,7 @@ public class StringGenerationFromReaderTest
 
     // [jackson-core#556]
     @Test
-    public void testIssue556() throws Exception
+    void issue556() throws Exception
     {
         StringBuilder sb = new StringBuilder(8000);
         sb.append('"');

@@ -7,12 +7,12 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ParserSymbolHandlingTest
-    extends TestBase
+class ParserSymbolHandlingTest
+        extends TestBase
 {
     // For [core#148]
     @Test
-    public void testSymbolsWithNullBytes() throws Exception {
+    void symbolsWithNullBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNull(f, true);
         // and repeat with same factory, just for fun, and to ensure symbol table is fine
@@ -21,7 +21,7 @@ public class ParserSymbolHandlingTest
 
     // For [core#148]
     @Test
-    public void testSymbolsWithNullChars() throws Exception {
+    void symbolsWithNullChars() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNull(f, false);
         _testSymbolsWithNull(f, false);
@@ -64,7 +64,7 @@ public class ParserSymbolHandlingTest
     // // affect JSON backend but wanted to ensure
 
     @Test
-    public void testSymbolsWithNullOnlyNameBytes() throws Exception {
+    void symbolsWithNullOnlyNameBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNullOnlyNameBytes(f, true);
         // and repeat with same factory, just for fun, and to ensure symbol table is fine
@@ -72,7 +72,7 @@ public class ParserSymbolHandlingTest
     }
 
     @Test
-    public void testSymbolsWithNullOnlyNameChars() throws Exception {
+    void symbolsWithNullOnlyNameChars() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNullOnlyNameBytes(f, false);
         _testSymbolsWithNullOnlyNameBytes(f, false);

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class AsyncConcurrencyTest extends AsyncTestBase
+class AsyncConcurrencyTest extends AsyncTestBase
 {
     final static JsonFactory JSON_F = new JsonFactory();
     static {
@@ -108,7 +108,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
 
     // [jackson-core#476]
     @Test
-    public void testConcurrentAsync() throws Exception
+    void concurrentAsync() throws Exception
     {
         final int MAX_ROUNDS = 30;
         for (int i = 0; i < MAX_ROUNDS; ++i) {

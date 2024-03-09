@@ -28,7 +28,7 @@ public class GeneratorMiscTest
      */
 
     @Test
-    public void testIsClosed() throws IOException
+    void isClosed() throws IOException
     {
         for (int i = 0; i < 2; ++i) {
             boolean stream = ((i & 1) == 0);
@@ -50,7 +50,7 @@ public class GeneratorMiscTest
 
     // Also, "very simple" objects are supported even without Codec:
     @Test
-    public void testSimpleWriteObject() throws IOException
+    void simpleWriteObject() throws IOException
     {
         // note: NOT mapping factory, for this test
         StringWriter sw = new StringWriter();
@@ -100,7 +100,7 @@ public class GeneratorMiscTest
      */
 
     @Test
-    public void testRaw() throws IOException
+    void raw() throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
@@ -123,7 +123,7 @@ public class GeneratorMiscTest
     }
 
     @Test
-    public void testRawValue() throws IOException
+    void rawValue() throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
@@ -158,7 +158,7 @@ public class GeneratorMiscTest
      * Unit test that tries to trigger buffer-boundary conditions
      */
     @Test
-    public void testLongerObjects() throws Exception
+    void longerObjects() throws Exception
     {
         _testLongerObjects(JSON_F, 0);
         _testLongerObjects(JSON_F, 1);
@@ -244,7 +244,7 @@ public class GeneratorMiscTest
 
     // NOTE: test for binary data under `base64/` tests
     @Test
-    public void testAsEmbedded() throws Exception
+    void asEmbedded() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator g = JSON_F.createGenerator(sw)) {

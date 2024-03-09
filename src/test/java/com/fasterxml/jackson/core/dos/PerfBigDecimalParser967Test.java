@@ -9,14 +9,14 @@ import org.junit.jupiter.api.Timeout;
 import com.fasterxml.jackson.core.*;
 
 // For [core#967]
-public class PerfBigDecimalParser967Test
+class PerfBigDecimalParser967Test
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     // For [core#967]: shouldn't take multiple seconds
     @Test
     @Timeout(value = 3000, unit = TimeUnit.MILLISECONDS)
-    public void bigDecimalFromString() throws Exception {
+    void bigDecimalFromString() throws Exception {
         // Jackson's BigDecimalParser seems to be slower than JDK's;
         // won't fail if using latter.
         StringBuilder sb = new StringBuilder(900);

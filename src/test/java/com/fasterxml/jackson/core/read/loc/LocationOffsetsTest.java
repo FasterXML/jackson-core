@@ -9,13 +9,13 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-public class LocationOffsetsTest extends TestBase
+class LocationOffsetsTest extends TestBase
 {
     final JsonFactory JSON_F = new JsonFactory();
 
     // Trivially simple unit test for basics wrt offsets
     @Test
-    public void testSimpleInitialOffsets() throws Exception
+    void simpleInitialOffsets() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -61,7 +61,7 @@ public class LocationOffsetsTest extends TestBase
 
     // for [core#111]
     @Test
-    public void testOffsetWithInputOffset() throws Exception
+    void offsetWithInputOffset() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -88,7 +88,7 @@ public class LocationOffsetsTest extends TestBase
     }
 
     @Test
-    public void testOffsetWithoutInputOffset() throws Exception
+    void offsetWithoutInputOffset() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -115,14 +115,14 @@ public class LocationOffsetsTest extends TestBase
     }
 
     @Test
-    public void testWithLazyStringReadStreaming() throws Exception
+    void withLazyStringReadStreaming() throws Exception
     {
         _testWithLazyStringRead(MODE_READER);
         _testWithLazyStringRead(MODE_INPUT_STREAM);
     }
 
     @Test
-    public void testWithLazyStringReadDataInput() throws Exception
+    void withLazyStringReadDataInput() throws Exception
     {
         // DataInput-backed reader does not track column, so can not
         // verify much; but force finishToken() regardless
@@ -157,7 +157,7 @@ public class LocationOffsetsTest extends TestBase
 
     // for [core#533]
     @Test
-    public void testUtf8Bom() throws Exception
+    void utf8Bom() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -184,7 +184,7 @@ public class LocationOffsetsTest extends TestBase
     }
 
     @Test
-    public void testUtf8BomWithPadding() throws Exception
+    void utf8BomWithPadding() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -211,7 +211,7 @@ public class LocationOffsetsTest extends TestBase
     }
 
     @Test
-    public void testUtf8BomWithInputOffset() throws Exception
+    void utf8BomWithInputOffset() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -249,7 +249,7 @@ public class LocationOffsetsTest extends TestBase
 
     // [core#603]
     @Test
-    public void testBigPayload() throws IOException {
+    void bigPayload() throws IOException {
         JsonLocation loc;
         JsonParser p;
 

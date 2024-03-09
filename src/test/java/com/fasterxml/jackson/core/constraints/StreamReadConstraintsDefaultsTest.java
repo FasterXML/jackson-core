@@ -6,10 +6,10 @@ import com.fasterxml.jackson.core.StreamReadConstraints;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StreamReadConstraintsDefaultsTest
+class StreamReadConstraintsDefaultsTest
 {
     @Test
-    public void testOverride() {
+    void override() {
         final long maxDocLen = 10_000_000L;
         final int numLen = 1234;
         final int strLen = 12345;

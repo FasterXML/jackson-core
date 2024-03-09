@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestJsonFormatDetection extends TestBase
+class TestJsonFormatDetection extends TestBase
 {
     @Test
-    public void testSimpleValidArray() throws Exception
+    void simpleValidArray() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
         DataFormatDetector detector = new DataFormatDetector(jsonF);
@@ -34,7 +34,7 @@ public class TestJsonFormatDetection extends TestBase
     }
 
     @Test
-    public void testSimpleValidObject() throws Exception
+    void simpleValidObject() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
         DataFormatDetector detector = new DataFormatDetector(jsonF);
@@ -62,7 +62,7 @@ public class TestJsonFormatDetection extends TestBase
      * be detected unless some better match is available
      */
     @Test
-    public void testSimpleValidString() throws Exception
+    void simpleValidString() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
         DataFormatDetector detector = new DataFormatDetector(jsonF);
@@ -88,7 +88,7 @@ public class TestJsonFormatDetection extends TestBase
     }
 
     @Test
-    public void testSimpleInvalid() throws Exception
+    void simpleInvalid() throws Exception
     {
         DataFormatDetector detector = new DataFormatDetector(new JsonFactory());
         final String NON_JSON = "<root />";

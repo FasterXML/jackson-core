@@ -17,14 +17,14 @@ public class TestMaxErrorSize
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testLongErrorMessage() throws Exception
+    void longErrorMessage() throws Exception
     {
         _testLongErrorMessage(MODE_INPUT_STREAM);
         _testLongErrorMessage(MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testLongErrorMessageReader() throws Exception
+    void longErrorMessageReader() throws Exception
     {
         _testLongErrorMessage(MODE_READER);
     }
@@ -54,7 +54,7 @@ public class TestMaxErrorSize
     }
 
     @Test
-    public void testShortErrorMessage() throws Exception
+    void shortErrorMessage() throws Exception
     {
         _testShortErrorMessage(MODE_INPUT_STREAM);
         _testShortErrorMessage(MODE_INPUT_STREAM_THROTTLED);

@@ -9,31 +9,31 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @see RequestPayload
  **/
-public class RequestPayloadTest {
-  @Test
-  public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {
+class RequestPayloadTest {
+    @Test
+    void failsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {
       assertThrows(IllegalArgumentException.class, () -> {
           new RequestPayload(null);
       });
   }
 
-  @Test
-  public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionTwo() {
+    @Test
+    void failsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionTwo() {
       assertThrows(IllegalArgumentException.class, () -> {
           new RequestPayload(null, "UTF-8");
       });
   }
 
-  @Test
-  public void testCreateTakingCharSequenceAndCallsGetRawPayload() {
+    @Test
+    void createTakingCharSequenceAndCallsGetRawPayload() {
     CharSequence charSequence = new String();
 
     RequestPayload requestPayload = new RequestPayload(charSequence);
     assertEquals("", requestPayload.getRawPayload());
   }
 
-  @Test
-  public void testCreateTaking2ArgumentsAndCallsGetRawPayload() {
+    @Test
+    void createTaking2ArgumentsAndCallsGetRawPayload() {
     byte[] byteArray = new byte[5];
     RequestPayload requestPayload = new RequestPayload(byteArray, "/ _ \" €");
 

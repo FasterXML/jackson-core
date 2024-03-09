@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * merge back symbols to the root symbol table
  */
 @SuppressWarnings("serial")
-public class SymbolTableMergingTest
-    extends TestBase
+class SymbolTableMergingTest
+        extends TestBase
 {
     /**
      * To peek into state of "root" symbol tables (parent of all symbol
@@ -32,13 +32,13 @@ public class SymbolTableMergingTest
     final static String JSON = "{ \"a\" : 3, \"aaa\" : 4, \"_a\" : 0 }";
 
     @Test
-    public void testByteSymbolsWithClose() throws Exception
+    void byteSymbolsWithClose() throws Exception
     {
         _testWithClose(true);
     }
 
     @Test
-    public void testByteSymbolsWithEOF() throws Exception
+    void byteSymbolsWithEOF() throws Exception
     {
         MyJsonFactory f = new MyJsonFactory();
         JsonParser jp = _getParser(f, JSON, true);
@@ -53,7 +53,7 @@ public class SymbolTableMergingTest
     }
 
     @Test
-    public void testHashCalc() throws Exception
+    void hashCalc() throws Exception
     {
         CharsToNameCanonicalizer sym = CharsToNameCanonicalizer.createRoot(new JsonFactory());
         char[] str1 = "foo".toCharArray();
@@ -63,13 +63,13 @@ public class SymbolTableMergingTest
     }
 
     @Test
-    public void testCharSymbolsWithClose() throws Exception
+    void charSymbolsWithClose() throws Exception
     {
         _testWithClose(false);
     }
 
     @Test
-    public void testCharSymbolsWithEOF() throws Exception
+    void charSymbolsWithEOF() throws Exception
     {
         MyJsonFactory f = new MyJsonFactory();
         JsonParser jp = _getParser(f, JSON, false);

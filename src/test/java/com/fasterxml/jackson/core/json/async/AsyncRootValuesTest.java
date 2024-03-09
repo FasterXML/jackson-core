@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsyncRootValuesTest extends AsyncTestBase
+class AsyncRootValuesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -22,7 +22,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
      */
 
     @Test
-    public void testTokenRootTokens() throws Exception {
+    void tokenRootTokens() throws Exception {
         _testTokenRootTokens(JsonToken.VALUE_TRUE, "true");
         _testTokenRootTokens(JsonToken.VALUE_FALSE, "false");
         _testTokenRootTokens(JsonToken.VALUE_NULL, "null");
@@ -64,7 +64,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
      */
 
     @Test
-    public void testTokenRootSequence() throws Exception
+    void tokenRootSequence() throws Exception
     {
         byte[] input = _jsonDoc("\n[ true, false,\nnull  ,null\n,true,false]");
 
@@ -98,7 +98,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
     }
 
     @Test
-    public void testMixedRootSequence() throws Exception
+    void mixedRootSequence() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
 

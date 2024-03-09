@@ -14,12 +14,12 @@ import com.fasterxml.jackson.core.util.Separators.Spacing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestDefaultPrettyPrinter extends TestBase
+class TestDefaultPrettyPrinter extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testSystemLinefeed() throws IOException
+    void systemLinefeed() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter();
         String LF = System.getProperty("line.separator");
@@ -32,7 +32,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testWithLineFeed() throws IOException
+    void withLineFeed() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter().withLinefeed("\n"));
@@ -45,7 +45,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testWithIndent() throws IOException
+    void withIndent() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter().withLinefeed("\n").withIndent(" "));
@@ -58,7 +58,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testUnixLinefeed() throws IOException
+    void unixLinefeed() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
                 .withObjectIndenter(new DefaultIndenter("  ", "\n"));
@@ -71,7 +71,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testWindowsLinefeed() throws IOException
+    void windowsLinefeed() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter("  ", "\r\n"));
@@ -84,7 +84,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testTabIndent() throws IOException
+    void tabIndent() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter("\t", "\n"));
@@ -97,7 +97,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testObjectFieldValueSpacingAfter() throws IOException
+    void objectFieldValueSpacingAfter() throws IOException
     {
         Separators separators = new Separators()
                 .withObjectFieldValueSpacing(Spacing.AFTER);
@@ -113,7 +113,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testObjectFieldValueSpacingNone() throws IOException
+    void objectFieldValueSpacingNone() throws IOException
     {
         Separators separators = new Separators()
                 .withObjectFieldValueSpacing(Spacing.NONE);
@@ -129,7 +129,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testCopyConfigOld() throws IOException
+    void copyConfigOld() throws IOException
     {
         Separators separators = new Separators()
                 .withObjectFieldValueSpacing(Spacing.AFTER)
@@ -148,7 +148,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testCopyConfigNew() throws IOException
+    void copyConfigNew() throws IOException
     {
         Separators separators = new Separators()
                 .withObjectFieldValueSpacing(Spacing.AFTER)
@@ -166,7 +166,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testRootSeparatorOld() throws IOException
+    void rootSeparatorOld() throws IOException
     {
         @SuppressWarnings("deprecation") // Testing the old API
         DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
@@ -184,7 +184,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testRootSeparator() throws IOException
+    void rootSeparator() throws IOException
     {
         Separators separators = new Separators()
                 .withRootSeparator("|");
@@ -203,7 +203,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testWithoutSeparatorsOld() throws IOException
+    void withoutSeparatorsOld() throws IOException
     {
         // Also: let's try removing separator altogether
         @SuppressWarnings("deprecation") // Testing the old API
@@ -228,7 +228,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testWithoutSeparatorsNew() throws IOException
+    void withoutSeparatorsNew() throws IOException
     {
         Separators separators = new Separators()
                 .withRootSeparator(null)
@@ -253,7 +253,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testObjectEmptySeparatorDefault() throws IOException
+    void objectEmptySeparatorDefault() throws IOException
     {
         Separators separators = new Separators()
             .withRootSeparator(null)
@@ -275,7 +275,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testObjectEmptySeparatorCustom() throws IOException
+    void objectEmptySeparatorCustom() throws IOException
     {
         Separators separators = new Separators()
             .withRootSeparator(null)
@@ -298,7 +298,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testArrayEmptySeparatorDefault() throws IOException
+    void arrayEmptySeparatorDefault() throws IOException
     {
         Separators separators = new Separators()
             .withRootSeparator(null)
@@ -320,7 +320,7 @@ public class TestDefaultPrettyPrinter extends TestBase
     }
 
     @Test
-    public void testArrayEmptySeparatorCustom() throws IOException
+    void arrayEmptySeparatorCustom() throws IOException
     {
         Separators separators = new Separators()
             .withRootSeparator(null)
@@ -381,7 +381,7 @@ public class TestDefaultPrettyPrinter extends TestBase
 
     // [core#502]: Force sub-classes to reimplement `createInstance`
     @Test
-    public void testInvalidSubClass() throws Exception
+    void invalidSubClass() throws Exception
     {
         DefaultPrettyPrinter pp = new MyPrettyPrinter();
         try {

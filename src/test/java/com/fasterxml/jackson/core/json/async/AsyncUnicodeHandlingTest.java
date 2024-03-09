@@ -11,12 +11,12 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class AsyncUnicodeHandlingTest extends AsyncTestBase
+class AsyncUnicodeHandlingTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testShortUnicodeWithSurrogates() throws IOException
+    void shortUnicodeWithSurrogates() throws IOException
     {
         JsonFactory f = JSON_F;
 
@@ -34,7 +34,7 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
     }
 
     @Test
-    public void testLongUnicodeWithSurrogates() throws IOException
+    void longUnicodeWithSurrogates() throws IOException
     {
         JsonFactory f = JSON_F;
 

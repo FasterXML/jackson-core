@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @date 2017-07-31
  * @see DefaultIndenter
  **/
-public class DefaultIndenterTest {
+class DefaultIndenterTest {
 
-  @Test
-  public void testWithLinefeed() {
+    @Test
+    void withLinefeed() {
     DefaultIndenter defaultIndenter = new DefaultIndenter();
     DefaultIndenter defaultIndenterTwo = defaultIndenter.withLinefeed("-XG'#x");
     DefaultIndenter defaultIndenterThree = defaultIndenterTwo.withLinefeed("-XG'#x");
@@ -23,8 +23,8 @@ public class DefaultIndenterTest {
     assertSame(defaultIndenterThree, defaultIndenterTwo);
   }
 
-  @Test
-  public void testWithIndent() {
+    @Test
+    void withIndent() {
     DefaultIndenter defaultIndenter = new DefaultIndenter();
     DefaultIndenter defaultIndenterTwo = defaultIndenter.withIndent("9Qh/6,~n");
     DefaultIndenter defaultIndenterThree = defaultIndenterTwo.withIndent("9Qh/6,~n");

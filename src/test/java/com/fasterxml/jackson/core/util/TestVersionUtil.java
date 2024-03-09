@@ -9,10 +9,10 @@ import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestVersionUtil extends TestBase
+class TestVersionUtil extends TestBase
 {
     @Test
-    public void testVersionPartParsing()
+    void versionPartParsing()
     {
         assertEquals(13, VersionUtil.parseVersionPart("13"));
         assertEquals(27, VersionUtil.parseVersionPart("27.8"));
@@ -20,7 +20,7 @@ public class TestVersionUtil extends TestBase
     }
 
     @Test
-    public void testVersionParsing()
+    void versionParsing()
     {
         assertEquals(new Version(1, 2, 15, "foo", "group", "artifact"),
                 VersionUtil.parseVersion("1.2.15-foo", "group", "artifact"));
@@ -28,19 +28,19 @@ public class TestVersionUtil extends TestBase
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testMavenVersionParsing() {
+    void mavenVersionParsing() {
         assertEquals(new Version(1, 2, 3, "SNAPSHOT", "foo.bar", "foo-bar"),
                 VersionUtil.mavenVersionFor(TestVersionUtil.class.getClassLoader(), "foo.bar", "foo-bar"));
     }
 
     @Test
-    public void testPackageVersionMatches() {
+    void packageVersionMatches() {
         assertEquals(PackageVersion.VERSION, VersionUtil.versionFor(UTF8JsonGenerator.class));
     }
 
     // [core#248]: make sure not to return `null` but `Version.unknownVersion()`
     @Test
-    public void testVersionForUnknownVersion() {
+    void versionForUnknownVersion() {
         // expecting return version.unknownVersion() instead of null
         assertEquals(Version.unknownVersion(), VersionUtil.versionFor(TestVersionUtil.class));
     }

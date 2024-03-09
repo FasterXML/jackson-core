@@ -8,11 +8,11 @@ import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Base64CodecTest
-    extends TestBase
+class Base64CodecTest
+        extends TestBase
 {
     @Test
-    public void testVariantAccess()
+    void variantAccess()
     {
         for (Base64Variant var : new Base64Variant[] {
                 Base64Variants.MIME,
@@ -32,7 +32,7 @@ public class Base64CodecTest
     }
 
     @Test
-    public void testProps()
+    void props()
     {
         Base64Variant std = Base64Variants.MIME;
         // let's verify basic props of std cocec
@@ -47,7 +47,7 @@ public class Base64CodecTest
     }
 
     @Test
-    public void testCharEncoding() throws Exception
+    void charEncoding() throws Exception
     {
         Base64Variant std = Base64Variants.MIME;
         assertEquals(Base64Variant.BASE64_VALUE_INVALID, std.decodeBase64Char('?'));
@@ -82,7 +82,7 @@ public class Base64CodecTest
     }
 
     @Test
-    public void testConvenienceMethods() throws Exception
+    void convenienceMethods() throws Exception
     {
         final Base64Variant std = Base64Variants.MIME;
 
@@ -105,7 +105,7 @@ public class Base64CodecTest
     }
 
     @Test
-    public void testConvenienceMethodWithLFs() throws Exception
+    void convenienceMethodWithLFs() throws Exception
     {
         final Base64Variant std = Base64Variants.MIME;
 
@@ -133,7 +133,7 @@ public class Base64CodecTest
 
     @SuppressWarnings("unused")
     @Test
-    public void testErrors() throws Exception
+    void errors() throws Exception
     {
         try {
             Base64Variant b = new Base64Variant("foobar", "xyz", false, '!', 24);
@@ -158,7 +158,7 @@ public class Base64CodecTest
     }
 
     @Test
-    public void testPaddingReadBehaviour() throws Exception {
+    void paddingReadBehaviour() throws Exception {
 
         for (Base64Variant variant: Arrays.asList(Base64Variants.MIME, Base64Variants.MIME_NO_LINEFEEDS, Base64Variants.PEM)) {
 

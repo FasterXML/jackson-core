@@ -8,13 +8,13 @@ import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Base64BinaryParsingTest
-    extends TestBase
+class Base64BinaryParsingTest
+        extends TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
     @Test
-    public void testBase64UsingInputStream() throws Exception
+    void base64UsingInputStream() throws Exception
     {
         _testBase64Text(MODE_INPUT_STREAM);
         _testBase64Text(MODE_INPUT_STREAM_THROTTLED);
@@ -22,13 +22,13 @@ public class Base64BinaryParsingTest
     }
 
     @Test
-    public void testBase64UsingReader() throws Exception
+    void base64UsingReader() throws Exception
     {
         _testBase64Text(MODE_READER);
     }
 
     @Test
-    public void testStreaming() throws IOException
+    void streaming() throws IOException
     {
         _testStreaming(MODE_INPUT_STREAM);
         _testStreaming(MODE_INPUT_STREAM_THROTTLED);
@@ -37,7 +37,7 @@ public class Base64BinaryParsingTest
     }
 
     @Test
-    public void testSimple() throws IOException
+    void simple() throws IOException
     {
         for (int mode : ALL_MODES) {
             // [core#414]: Allow leading/trailign white-space, ensure it is accepted
@@ -49,7 +49,7 @@ public class Base64BinaryParsingTest
     }
 
     @Test
-    public void testInArray() throws IOException
+    void inArray() throws IOException
     {
         for (int mode : ALL_MODES) {
             _testInArray(mode);
@@ -57,21 +57,21 @@ public class Base64BinaryParsingTest
     }
 
     @Test
-    public void testWithEscaped() throws IOException {
+    void withEscaped() throws IOException {
         for (int mode : ALL_MODES) {
             _testEscaped(mode);
         }
     }
 
     @Test
-    public void testWithEscapedPadding() throws IOException {
+    void withEscapedPadding() throws IOException {
         for (int mode : ALL_MODES) {
             _testEscapedPadding(mode);
         }
     }
 
     @Test
-    public void testInvalidTokenForBase64() throws IOException
+    void invalidTokenForBase64() throws IOException
     {
         for (int mode : ALL_MODES) {
 
@@ -90,7 +90,7 @@ public class Base64BinaryParsingTest
     }
 
     @Test
-    public void testInvalidChar() throws IOException
+    void invalidChar() throws IOException
     {
         for (int mode : ALL_MODES) {
 
@@ -130,7 +130,7 @@ public class Base64BinaryParsingTest
     }
 
     @Test
-    public void testOkMissingPadding() throws IOException {
+    void okMissingPadding() throws IOException {
         final byte[] DOC1 = new byte[] { (byte) 0xAD };
         _testOkMissingPadding(DOC1, MODE_INPUT_STREAM);
         _testOkMissingPadding(DOC1, MODE_INPUT_STREAM_THROTTLED);
@@ -158,7 +158,7 @@ public class Base64BinaryParsingTest
     }
 
     @Test
-    public void testFailDueToMissingPadding() throws IOException {
+    void failDueToMissingPadding() throws IOException {
         final String DOC1 = q("fQ"); // 1 bytes, no padding
         _testFailDueToMissingPadding(DOC1, MODE_INPUT_STREAM);
         _testFailDueToMissingPadding(DOC1, MODE_INPUT_STREAM_THROTTLED);

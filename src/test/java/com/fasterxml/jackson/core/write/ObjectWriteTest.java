@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
  * Set of basic unit tests for verifying that the Object write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class ObjectWriteTest
-    extends TestBase
+class ObjectWriteTest
+        extends TestBase
 {
     private final JsonFactory FACTORY = new JsonFactory();
 
@@ -25,7 +25,7 @@ public class ObjectWriteTest
     }
 
     @Test
-    public void testEmptyObjectWrite()
+    void emptyObjectWrite()
             throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -68,7 +68,7 @@ public class ObjectWriteTest
     }
 
     @Test
-    public void testInvalidObjectWrite()
+    void invalidObjectWrite()
             throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -85,7 +85,7 @@ public class ObjectWriteTest
     }
 
     @Test
-    public void testSimpleObjectWrite()
+    void simpleObjectWrite()
             throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -122,7 +122,7 @@ public class ObjectWriteTest
      * Methods to test functionality added for [JACKSON-26]
      */
     @Test
-    public void testConvenienceMethods()
+    void convenienceMethods()
             throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -231,7 +231,7 @@ public class ObjectWriteTest
      * Tests to cover [JACKSON-164]
      */
     @Test
-    public void testConvenienceMethodsWithNulls()
+    void convenienceMethodsWithNulls()
             throws Exception
     {
         StringWriter sw = new StringWriter();

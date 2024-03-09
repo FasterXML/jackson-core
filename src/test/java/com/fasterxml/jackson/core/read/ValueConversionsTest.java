@@ -12,7 +12,7 @@ public class ValueConversionsTest
     extends TestBase
 {
     @Test
-    public void testAsInt() throws Exception
+    void asInt() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testAsInt(mode);
@@ -58,7 +58,7 @@ public class ValueConversionsTest
     }
 
     @Test
-    public void testAsBoolean() throws Exception
+    void asBoolean() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testAsBoolean(mode);
@@ -102,7 +102,7 @@ public class ValueConversionsTest
     }
 
     @Test
-    public void testAsLong() throws Exception
+    void asLong() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testAsLong(mode);
@@ -148,7 +148,7 @@ public class ValueConversionsTest
     }
 
     @Test
-    public void testAsDouble() throws Exception
+    void asDouble() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testAsDouble(mode);

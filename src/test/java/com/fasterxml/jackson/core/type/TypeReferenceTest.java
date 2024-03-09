@@ -8,7 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Not much to test, but exercise to prevent code coverage tool from showing all red for package
-public class TypeReferenceTest extends TestBase
+class TypeReferenceTest extends TestBase
 {
     static class BogusResolvedType extends ResolvedType {
         private final boolean _refType;
@@ -127,7 +127,7 @@ public class TypeReferenceTest extends TestBase
     }
 
     @Test
-    public void testSimple()
+    void simple()
     {
         TypeReference<?> ref = new TypeReference<List<String>>() { };
         assertNotNull(ref);
@@ -136,7 +136,7 @@ public class TypeReferenceTest extends TestBase
 
     @SuppressWarnings("rawtypes")
     @Test
-    public void testInvalid()
+    void invalid()
     {
         try {
             Object ob = new TypeReference() { };
@@ -147,7 +147,7 @@ public class TypeReferenceTest extends TestBase
     }
 
     @Test
-    public void testResolvedType() {
+    void resolvedType() {
         ResolvedType type1 = new BogusResolvedType(false);
         assertFalse(type1.isReferenceType());
         ResolvedType type2 = new BogusResolvedType(true);

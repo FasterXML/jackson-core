@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncBinaryParseTest extends AsyncTestBase
+class AsyncBinaryParseTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -21,17 +21,17 @@ public class AsyncBinaryParseTest extends AsyncTestBase
     };
 
     @Test
-    public void testRawAsRootValue() throws IOException {
+    void rawAsRootValue() throws IOException {
         _testBinaryAsRoot(JSON_F);
     }
 
     @Test
-    public void testRawAsArray() throws IOException {
+    void rawAsArray() throws IOException {
         _testBinaryAsArray(JSON_F);
     }
 
     @Test
-    public void testRawAsObject() throws IOException {
+    void rawAsObject() throws IOException {
         _testBinaryAsObject(JSON_F);
     }
 

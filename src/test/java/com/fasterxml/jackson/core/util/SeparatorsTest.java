@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @date 2017-07-31
  * @see Separators
  **/
-public class SeparatorsTest {
+class SeparatorsTest {
 
-  @Test
-  public void testWithArrayValueSeparatorWithDigit() {
+    @Test
+    void withArrayValueSeparatorWithDigit() {
     Separators separators = new Separators('5', '5', '5');
     Separators separatorsTwo = separators.withArrayValueSeparator('5');
 
@@ -31,8 +31,8 @@ public class SeparatorsTest {
 
   }
 
-  @Test
-  public void testWithObjectEntrySeparator() {
+    @Test
+    void withObjectEntrySeparator() {
     Separators separators = new Separators('5', '5', '5');
     Separators separatorsTwo = separators.withObjectEntrySeparator('!');
     Separators separatorsThree = separatorsTwo.withObjectEntrySeparator('!');
@@ -47,8 +47,8 @@ public class SeparatorsTest {
     assertEquals('5', separators.getObjectFieldValueSeparator());
   }
 
-  @Test
-  public void testWithObjectFieldValueSeparatorWithDigit() {
+    @Test
+    void withObjectFieldValueSeparatorWithDigit() {
     Separators separators = new Separators('5', '5', '5');
     Separators separatorsTwo = separators.withObjectFieldValueSeparator('5');
 

@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class MathUtilsTest {
+class MathUtilsTest {
 
     private static final BigInteger THREE = valueOf(3);
 
@@ -146,7 +146,7 @@ public class MathUtilsTest {
     Verifies the soundness of the values returned by g1() and g0().
      */
     @Test
-    void testG() {
+    void g() {
         for (int k = MathUtils.K_MIN; k <= MathUtils.K_MAX; ++k) {
             testG(k, g1(k), g0(k));
         }
@@ -171,7 +171,7 @@ public class MathUtilsTest {
         2^(b-1) <= n < 2^b
      */
     @Test
-    void testFlog10threeQuartersPow2() {
+    void flog10threeQuartersPow2() {
         // First check the case e = 1
         assertEquals(0, flog10threeQuartersPow2(1),
                 "flog10threeQuartersPow2");
@@ -285,7 +285,7 @@ public class MathUtilsTest {
         2^(b-1) <= n < 2^b
      */
     @Test
-    void testFlog10pow2() {
+    void flog10pow2() {
         // First check the case e = 0
         assertEquals(0, flog10pow2(0), "flog10pow2");
 
@@ -389,7 +389,7 @@ public class MathUtilsTest {
         2^(b-1) <= n < 2^b
     */
     @Test
-    void testFlog2pow10() {
+    void flog2pow10() {
         // First check the case e = 0
         assertEquals(0, flog2pow10(0), "flog2pow10");
 
@@ -443,7 +443,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    void testBinaryConstants() {
+    void binaryConstants() {
         assertTrue((long) (double) C_MIN == C_MIN, "C_MIN");
         assertTrue((long) (double) C_MAX == C_MAX, "C_MAX");
         assertEquals(MIN_VALUE, scalb(1.0, Q_MIN), "MIN_VALUE");
@@ -452,14 +452,14 @@ public class MathUtilsTest {
     }
 
     @Test
-    void testDecimalConstants() {
+    void decimalConstants() {
         assertEquals(MathUtils.K_MIN, K_MIN, "K_MIN");
         assertEquals(MathUtils.K_MAX, K_MAX, "K_MAX");
         assertEquals(MathUtils.H, H, "H");
     }
 
     @Test
-    void testPow10() {
+    void pow10() {
         int e = 0;
         long pow = 1;
         for (; e <= H; e += 1, pow *= 10) {

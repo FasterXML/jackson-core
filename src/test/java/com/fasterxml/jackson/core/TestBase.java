@@ -237,7 +237,7 @@ public class TestBase
      */
 
     @Test
-    public static IOContext testIOContext() {
+    static IOContext iOContext() {
         return TestSupport.testIOContext();
     }
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException

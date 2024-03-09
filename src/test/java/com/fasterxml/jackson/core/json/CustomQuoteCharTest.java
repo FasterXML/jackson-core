@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // For [core#549], ability to use alternate quote characters
-public class CustomQuoteCharTest
-    extends TestBase
+class CustomQuoteCharTest
+        extends TestBase
 {
     final JsonFactory JSON_F = streamFactoryBuilder()
             .quoteChar('\'')
@@ -19,7 +19,7 @@ public class CustomQuoteCharTest
 
     // Only ASCII range supported as of 2.10
     @Test
-    public void testInvalidQuote() throws Exception
+    void invalidQuote() throws Exception
     {
         try {
             streamFactoryBuilder()
@@ -31,7 +31,7 @@ public class CustomQuoteCharTest
     }
 
     @Test
-    public void testBasicAposWithCharBased() throws Exception
+    void basicAposWithCharBased() throws Exception
     {
         StringWriter w;
         JsonGenerator g;
@@ -52,7 +52,7 @@ public class CustomQuoteCharTest
     }
 
     @Test
-    public void testBasicAposWithByteBased() throws Exception
+    void basicAposWithByteBased() throws Exception
     {
         ByteArrayOutputStream out;
         JsonGenerator g;
@@ -73,7 +73,7 @@ public class CustomQuoteCharTest
     }
 
     @Test
-    public void testAposQuotingWithCharBased() throws Exception
+    void aposQuotingWithCharBased() throws Exception
     {
         StringWriter w;
         JsonGenerator g;
@@ -95,7 +95,7 @@ public class CustomQuoteCharTest
     }
 
     @Test
-    public void testAposQuotingWithByteBased() throws Exception
+    void aposQuotingWithByteBased() throws Exception
     {
         ByteArrayOutputStream out;
         JsonGenerator g;

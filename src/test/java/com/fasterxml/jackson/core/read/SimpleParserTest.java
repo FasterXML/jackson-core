@@ -18,10 +18,10 @@ import org.junit.jupiter.api.Test;
  * functionality works as expected.
  */
 @SuppressWarnings("resource")
-public class SimpleParserTest extends TestBase
+class SimpleParserTest extends TestBase
 {
     @Test
-    public void testConfig() throws Exception
+    void config() throws Exception
     {
         JsonParser p = createParser(MODE_READER, "[ ]");
         Object src = p.getInputSource();
@@ -52,14 +52,14 @@ public class SimpleParserTest extends TestBase
     }
 
     @Test
-    public void testInterningWithStreams() throws Exception
+    void interningWithStreams() throws Exception
     {
         _testIntern(true, true, "a");
         _testIntern(true, false, "b");
     }
 
     @Test
-    public void testInterningWithReaders() throws Exception
+    void interningWithReaders() throws Exception
     {
         _testIntern(false, true, "c");
         _testIntern(false, false, "d");
@@ -94,7 +94,7 @@ public class SimpleParserTest extends TestBase
      * high-level, without verifying values.
      */
     @Test
-    public void testSpecExampleSkipping() throws Exception
+    void specExampleSkipping() throws Exception
     {
         _doTestSpec(false);
     }
@@ -105,7 +105,7 @@ public class SimpleParserTest extends TestBase
      * events/tokens.
      */
     @Test
-    public void testSpecExampleFully() throws Exception
+    void specExampleFully() throws Exception
     {
         _doTestSpec(true);
     }
@@ -115,7 +115,7 @@ public class SimpleParserTest extends TestBase
      * are properly parsed in various contexts.
      */
     @Test
-    public void testKeywords() throws Exception
+    void keywords() throws Exception
     {
         final String DOC = "{\n"
             +"\"key1\" : null,\n"
@@ -234,7 +234,7 @@ public class SimpleParserTest extends TestBase
     }
 
     @Test
-    public void testSkipping() throws Exception {
+    void skipping() throws Exception {
         _testSkipping(MODE_INPUT_STREAM);
         _testSkipping(MODE_INPUT_STREAM_THROTTLED);
         _testSkipping(MODE_READER);
@@ -297,7 +297,7 @@ public class SimpleParserTest extends TestBase
     }
 
     @Test
-    public void testNameEscaping() throws IOException
+    void nameEscaping() throws IOException
     {
         _testNameEscaping(MODE_INPUT_STREAM);
         _testNameEscaping(MODE_READER);
@@ -350,7 +350,7 @@ public class SimpleParserTest extends TestBase
      * text buffer(s).
      */
     @Test
-    public void testLongText() throws Exception {
+    void longText() throws Exception {
         // lengths chosen to tease out problems with buffer allocation...
         _testLongText(310);
         _testLongText(7700);
@@ -437,7 +437,7 @@ public class SimpleParserTest extends TestBase
      * as source works as expected.
      */
     @Test
-    public void testBytesAsSource() throws Exception
+    void bytesAsSource() throws Exception
     {
         String JSON = "[ 1, 2, 3, 4 ]";
         byte[] b = JSON.getBytes("UTF-8");
@@ -465,7 +465,7 @@ public class SimpleParserTest extends TestBase
     }
 
     @Test
-    public void testUtf8BOMHandling() throws Exception
+    void utf8BOMHandling() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         // first, write BOM:
@@ -498,7 +498,7 @@ public class SimpleParserTest extends TestBase
 
     // [core#48]
     @Test
-    public void testSpacesInURL() throws Exception
+    void spacesInURL() throws Exception
     {
         File f = File.createTempFile("pre fix&stuff", ".txt");
         BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
@@ -513,21 +513,21 @@ public class SimpleParserTest extends TestBase
     }
 
     @Test
-    public void testGetValueAsTextBytes() throws Exception
+    void getValueAsTextBytes() throws Exception
     {
         _testGetValueAsText(MODE_INPUT_STREAM, false);
         _testGetValueAsText(MODE_INPUT_STREAM, true);
     }
 
     @Test
-    public void testGetValueAsTextDataInput() throws Exception
+    void getValueAsTextDataInput() throws Exception
     {
         _testGetValueAsText(MODE_DATA_INPUT, false);
         _testGetValueAsText(MODE_DATA_INPUT, true);
     }
 
     @Test
-    public void testGetValueAsTextChars() throws Exception
+    void getValueAsTextChars() throws Exception
     {
         _testGetValueAsText(MODE_READER, false);
         _testGetValueAsText(MODE_READER, true);
@@ -581,7 +581,7 @@ public class SimpleParserTest extends TestBase
     }
 
     @Test
-    public void testGetTextViaWriter() throws Exception
+    void getTextViaWriter() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testGetTextViaWriter(mode);
@@ -625,7 +625,7 @@ public class SimpleParserTest extends TestBase
     }
 
     @Test
-    public void testLongerReadText() throws Exception
+    void longerReadText() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testLongerReadText(mode);
@@ -662,21 +662,21 @@ public class SimpleParserTest extends TestBase
 
     // [core#142]
     @Test
-    public void testHandlingOfInvalidSpaceByteStream() throws Exception {
+    void handlingOfInvalidSpaceByteStream() throws Exception {
         _testHandlingOfInvalidSpace(MODE_INPUT_STREAM);
         _testHandlingOfInvalidSpaceFromResource(true);
     }
 
     // [core#142]
     @Test
-    public void testHandlingOfInvalidSpaceChars() throws Exception {
+    void handlingOfInvalidSpaceChars() throws Exception {
         _testHandlingOfInvalidSpace(MODE_READER);
         _testHandlingOfInvalidSpaceFromResource(false);
     }
 
     // [core#142]
     @Test
-    public void testHandlingOfInvalidSpaceDataInput() throws Exception {
+    void handlingOfInvalidSpaceDataInput() throws Exception {
         _testHandlingOfInvalidSpace(MODE_DATA_INPUT);
     }
 
@@ -729,7 +729,7 @@ public class SimpleParserTest extends TestBase
     }
 
     @Test
-    public void testInvalidUtf8ValidUtf16() throws IOException {
+    void invalidUtf8ValidUtf16() throws IOException {
         JsonFactory factory = new JsonFactoryBuilder()
                 .disable(JsonFactory.Feature.CHARSET_DETECTION)
                 .build();

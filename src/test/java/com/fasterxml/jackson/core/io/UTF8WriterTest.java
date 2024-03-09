@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UTF8WriterTest
-    extends TestBase
+class UTF8WriterTest
+        extends TestBase
 {
     @Test
-    public void testSimple() throws Exception
+    void simple() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
@@ -41,7 +41,7 @@ public class UTF8WriterTest
     }
 
     @Test
-    public void testSimpleAscii() throws Exception
+    void simpleAscii() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
@@ -61,7 +61,7 @@ public class UTF8WriterTest
     }
 
     @Test
-    public void testFlushAfterClose() throws Exception
+    void flushAfterClose() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
@@ -81,7 +81,7 @@ public class UTF8WriterTest
     }
 
     @Test
-    public void testSurrogatesOk() throws Exception
+    void surrogatesOk() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
@@ -106,7 +106,7 @@ public class UTF8WriterTest
 
     @SuppressWarnings("resource")
     @Test
-    public void testSurrogatesFail() throws Exception
+    void surrogatesFail() throws Exception
     {
         ByteArrayOutputStream out;
 
@@ -147,7 +147,7 @@ public class UTF8WriterTest
     // For [core#1218]
     // @since 2.17
     @Test
-    public void testSurrogateConversion()
+    void surrogateConversion()
     {
         for (int first = UTF8Writer.SURR1_FIRST; first <= UTF8Writer.SURR1_LAST; first++) {
             for (int second = UTF8Writer.SURR2_FIRST; second <= UTF8Writer.SURR2_LAST; second++) {

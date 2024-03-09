@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class FilteringOnAsyncInfiniteLoop1144Test
+class FilteringOnAsyncInfiniteLoop1144Test
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -29,7 +29,7 @@ public class FilteringOnAsyncInfiniteLoop1144Test
 
     // Just to show expected filtering behavior with blocking alternative
     @Test
-    public void testFilteringBlockingParser() throws Exception
+    void filteringBlockingParser() throws Exception
     {
         try (JsonParser p = JSON_F.createParser(DOC)) {
             try (JsonParser fp = new FilteringParserDelegate(p,
@@ -45,7 +45,7 @@ public class FilteringOnAsyncInfiniteLoop1144Test
     // And here's reproduction of infinite loop
     @SuppressWarnings("resource")
     @Test
-    public void testFilteringNonBlockingParser() throws Exception
+    void filteringNonBlockingParser() throws Exception
     {
         JsonParser nonBlockingParser = JSON_F.createNonBlockingByteArrayParser();
         ByteArrayFeeder inputFeeder = (ByteArrayFeeder) nonBlockingParser.getNonBlockingInputFeeder();

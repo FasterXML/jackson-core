@@ -10,11 +10,11 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestIOContext
-    extends TestBase
+class TestIOContext
+        extends TestBase
 {
     @Test
-    public void testAllocations() throws Exception
+    void allocations() throws Exception
     {
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.defaults(),

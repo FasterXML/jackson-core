@@ -21,7 +21,7 @@ public class TestParserOverrides extends TestBase
      */
 
     @Test
-    public void testTokenAccess() throws Exception
+    void tokenAccess() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         _testTokenAccess(jf, false);
@@ -29,7 +29,7 @@ public class TestParserOverrides extends TestBase
     }
 
     @Test
-    public void testCurrentName() throws Exception
+    void currentName() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         _testCurrentName(jf, false);

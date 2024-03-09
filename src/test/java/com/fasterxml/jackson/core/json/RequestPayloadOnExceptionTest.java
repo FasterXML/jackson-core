@@ -6,13 +6,13 @@ import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RequestPayloadOnExceptionTest extends TestBase
+class RequestPayloadOnExceptionTest extends TestBase
 {
     /**
      * Tests for Request payload data (bytes) on parsing error
      */
     @Test
-    public void testRequestPayloadAsBytesOnParseException() throws Exception {
+    void requestPayloadAsBytesOnParseException() throws Exception {
         testRequestPayloadAsBytesOnParseExceptionInternal(true, "nul");
         testRequestPayloadAsBytesOnParseExceptionInternal(false, "nul");
     }
@@ -21,7 +21,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
      * Tests for Request payload data (String) on parsing error
      */
     @Test
-    public void testRequestPayloadAsStringOnParseException() throws Exception {
+    void requestPayloadAsStringOnParseException() throws Exception {
         testRequestPayloadAsStringOnParseExceptionInternal(true, "nul");
         testRequestPayloadAsStringOnParseExceptionInternal(false, "nul");
     }
@@ -30,7 +30,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
      * Tests for Raw Request payload data on parsing error
      */
     @Test
-    public void testRawRequestPayloadOnParseException() throws Exception {
+    void rawRequestPayloadOnParseException() throws Exception {
         testRawRequestPayloadOnParseExceptionInternal(true, "nul");
         testRawRequestPayloadOnParseExceptionInternal(false, "nul");
     }
@@ -39,7 +39,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
      * Tests for no Request payload data on parsing error
      */
     @Test
-    public void testNoRequestPayloadOnParseException() throws Exception {
+    void noRequestPayloadOnParseException() throws Exception {
         testNoRequestPayloadOnParseExceptionInternal(true, "nul");
         testNoRequestPayloadOnParseExceptionInternal(false, "nul");
     }
@@ -48,7 +48,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
      * Tests for Request payload data which is null
      */
     @Test
-    public void testNullRequestPayloadOnParseException() throws Exception {
+    void nullRequestPayloadOnParseException() throws Exception {
         testNullRequestPayloadOnParseExceptionInternal(true, "nul");
         testNullRequestPayloadOnParseExceptionInternal(false, "nul");
     }
@@ -57,7 +57,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
      * Tests for null Charset in Request payload data
      */
     @Test
-    public void testNullCharsetOnParseException() throws Exception {
+    void nullCharsetOnParseException() throws Exception {
         testNullCharsetOnParseExceptionInternal(true, "nul");
         testNullCharsetOnParseExceptionInternal(false, "nul");
     }
@@ -66,7 +66,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
      * *******************Private Methods*************************
      */
     @Test
-    private void testRequestPayloadAsBytesOnParseExceptionInternal(boolean isStream, String value) throws Exception {
+    private void requestPayloadAsBytesOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
         jp.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
@@ -82,7 +82,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
     }
 
     @Test
-    private void testRequestPayloadAsStringOnParseExceptionInternal(boolean isStream, String value) throws Exception {
+    private void requestPayloadAsStringOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
         jp.setRequestPayloadOnError(doc);
@@ -98,7 +98,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
     }
 
     @Test
-    private void testRawRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
+    private void rawRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
         jp.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
@@ -114,7 +114,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
     }
 
     @Test
-    private void testNoRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
+    private void noRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
@@ -128,7 +128,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
     }
 
     @Test
-    private void testNullRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
+    private void nullRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
         jp.setRequestPayloadOnError(null, "UTF-8");
@@ -143,7 +143,7 @@ public class RequestPayloadOnExceptionTest extends TestBase
     }
 
     @Test
-    private void testNullCharsetOnParseExceptionInternal(boolean isStream, String value) throws Exception {
+    private void nullCharsetOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
         jp.setRequestPayloadOnError(doc.getBytes(), "UTF-8");

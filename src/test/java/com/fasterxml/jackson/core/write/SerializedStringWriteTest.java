@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class SerializedStringWriteTest
-    extends TestBase
+class SerializedStringWriteTest
+        extends TestBase
 {
     final static String NAME_WITH_QUOTES = "\"name\"";
     final static String NAME_WITH_LATIN1 = "P\u00f6ll\u00f6";
@@ -26,7 +26,7 @@ public class SerializedStringWriteTest
     private final SerializedString latin1Name = new SerializedString(NAME_WITH_LATIN1);
 
     @Test
-    public void testSimpleFieldNames() throws Exception
+    void simpleFieldNames() throws Exception
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();
@@ -46,7 +46,7 @@ public class SerializedStringWriteTest
     }
 
     @Test
-    public void testSimpleValues() throws Exception
+    void simpleValues() throws Exception
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();

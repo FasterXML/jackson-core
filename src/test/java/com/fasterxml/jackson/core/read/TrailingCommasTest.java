@@ -47,7 +47,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testArrayBasic(int mode, List<JsonReadFeature> features) throws Exception {
+    void arrayBasic(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "[\"a\", \"b\"]";
 
@@ -68,7 +68,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testArrayInnerComma(int mode, List<JsonReadFeature> features) throws Exception {
+    void arrayInnerComma(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "[\"a\",, \"b\"]";
 
@@ -96,7 +96,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testArrayLeadingComma(int mode, List<JsonReadFeature> features) throws Exception {
+    void arrayLeadingComma(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "[,\"a\", \"b\"]";
 
@@ -124,7 +124,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testArrayTrailingComma(int mode, List<JsonReadFeature> features) throws Exception {
+    void arrayTrailingComma(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "[\"a\", \"b\",]";
 
@@ -154,7 +154,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testArrayTrailingCommas(int mode, List<JsonReadFeature> features) throws Exception {
+    void arrayTrailingCommas(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "[\"a\", \"b\",,]";
 
@@ -187,7 +187,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testArrayTrailingCommasTriple(int mode, List<JsonReadFeature> features) throws Exception {
+    void arrayTrailingCommasTriple(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "[\"a\", \"b\",,,]";
 
@@ -222,7 +222,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testObjectBasic(int mode, List<JsonReadFeature> features) throws Exception {
+    void objectBasic(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "{\"a\": true, \"b\": false}";
 
@@ -245,7 +245,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testObjectInnerComma(int mode, List<JsonReadFeature> features) throws Exception {
+    void objectInnerComma(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "{\"a\": true,, \"b\": false}";
 
@@ -263,7 +263,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testObjectLeadingComma(int mode, List<JsonReadFeature> features) throws Exception {
+    void objectLeadingComma(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "{,\"a\": true, \"b\": false}";
 
@@ -277,7 +277,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testObjectTrailingComma(int mode, List<JsonReadFeature> features) throws Exception {
+    void objectTrailingComma(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "{\"a\": true, \"b\": false,}";
 
@@ -304,7 +304,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testObjectTrailingCommaWithNextFieldName(int mode, List<JsonReadFeature> features) throws Exception {
+    void objectTrailingCommaWithNextFieldName(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "{\"a\": true, \"b\": false,}";
 
@@ -334,7 +334,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testObjectTrailingCommaWithNextFieldNameStr(int mode, List<JsonReadFeature> features) throws Exception {
+    void objectTrailingCommaWithNextFieldNameStr(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "{\"a\": true, \"b\": false,}";
 
@@ -365,7 +365,7 @@ public class TrailingCommasTest extends TestBase {
 
     @MethodSource("getTestCases")
     @ParameterizedTest(name = "Mode {0}, Features {1}")
-    public void testObjectTrailingCommas(int mode, List<JsonReadFeature> features) throws Exception {
+    void objectTrailingCommas(int mode, List<JsonReadFeature> features) throws Exception {
         initTrailingCommasTest(mode, features);
     String json = "{\"a\": true, \"b\": false,,}";
 

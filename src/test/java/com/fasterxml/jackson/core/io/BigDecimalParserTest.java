@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BigDecimalParserTest extends TestBase
+class BigDecimalParserTest extends TestBase
 {
     @Test
-    public void testLongInvalidStringParse() {
+    void longInvalidStringParse() {
         try {
             BigDecimalParser.parse(genLongInvalidString());
             fail("expected NumberFormatException");
@@ -21,7 +21,7 @@ public class BigDecimalParserTest extends TestBase
     }
 
     @Test
-    public void testLongInvalidStringFastParse() {
+    void longInvalidStringFastParse() {
         try {
             BigDecimalParser.parseWithFastParser(genLongInvalidString());
             fail("expected NumberFormatException");
@@ -32,7 +32,7 @@ public class BigDecimalParserTest extends TestBase
     }
 
     @Test
-    public void testLongValidStringParse() {
+    void longValidStringParse() {
         String num = genLongValidString(500);
         final BigDecimal EXP = new BigDecimal(num);
 
@@ -43,7 +43,7 @@ public class BigDecimalParserTest extends TestBase
     }
 
     @Test
-    public void testLongValidStringFastParse() {
+    void longValidStringFastParse() {
         String num = genLongValidString(500);
         final BigDecimal EXP = new BigDecimal(num);
 

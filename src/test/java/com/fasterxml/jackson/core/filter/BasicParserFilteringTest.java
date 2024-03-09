@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-public class BasicParserFilteringTest extends TestBase
+class BasicParserFilteringTest extends TestBase
 {
     static class NameMatchFilter extends TokenFilter
     {
@@ -212,7 +212,7 @@ public class BasicParserFilteringTest extends TestBase
             "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':0.25},'b':true}");
 
     @Test
-    public void testNonFiltering() throws Exception
+    void nonFiltering() throws Exception
     {
         JsonParser p = JSON_F.createParser(SIMPLE);
         String result = readAndWrite(JSON_F, p);
@@ -220,7 +220,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testSingleMatchFilteringWithoutPath() throws Exception
+    void singleMatchFilteringWithoutPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
@@ -234,7 +234,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testSingleMatchFilteringWithPath1() throws Exception
+    void singleMatchFilteringWithPath1() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -249,7 +249,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testSingleMatchFilteringWithPath2() throws Exception
+    void singleMatchFilteringWithPath2() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -264,7 +264,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testSingleMatchFilteringWithPath3() throws Exception
+    void singleMatchFilteringWithPath3() throws Exception
     {
         String jsonString = a2q("{'a':123,'ob':{'value0':2,'value':3,'value2':4},'array':[1,2],'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -279,7 +279,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNotAllowMultipleMatchesWithoutPath1() throws Exception
+    void notAllowMultipleMatchesWithoutPath1() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -294,7 +294,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNotAllowMultipleMatchesWithoutPath2() throws Exception
+    void notAllowMultipleMatchesWithoutPath2() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'array':[3,4],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -309,7 +309,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNotAllowMultipleMatchesWithPath1() throws Exception
+    void notAllowMultipleMatchesWithPath1() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'array':[3,4],'ob':{'value':3,'array':[5,6],'value':{'value0':2}},'value':\"val\",'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -325,7 +325,7 @@ public class BasicParserFilteringTest extends TestBase
 
 
     @Test
-    public void testNotAllowMultipleMatchesWithPath2() throws Exception
+    void notAllowMultipleMatchesWithPath2() throws Exception
     {
         String jsonString = a2q("{'a':123,'ob':{'value':3,'array':[1,2],'value':{'value0':2}},'array':[3,4]}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -340,7 +340,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNotAllowMultipleMatchesWithPath3() throws Exception
+    void notAllowMultipleMatchesWithPath3() throws Exception
     {
         String jsonString = a2q("{'ob':{'value':3,'ob':{'value':2}},'value':\"val\"}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -355,7 +355,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNotAllowMultipleMatchesWithPath4() throws Exception
+    void notAllowMultipleMatchesWithPath4() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value1':1},'ob2':{'ob':{'value2':2}},'value':\"val\",'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -370,7 +370,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testAllowMultipleMatchesWithoutPath() throws Exception
+    void allowMultipleMatchesWithoutPath() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -385,7 +385,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testAllowMultipleMatchesWithPath1() throws Exception
+    void allowMultipleMatchesWithPath1() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -400,7 +400,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testAllowMultipleMatchesWithPath2() throws Exception
+    void allowMultipleMatchesWithPath2() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'array':[3,4],'value':{'value0':2}},'value':\"val\",'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -415,7 +415,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testMultipleMatchFilteringWithPath1() throws Exception
+    void multipleMatchFilteringWithPath1() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
@@ -428,7 +428,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testMultipleMatchFilteringWithPath2() throws Exception
+    void multipleMatchFilteringWithPath2() throws Exception
     {
         String INPUT = a2q("{'a':123,'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         JsonParser p0 = JSON_F.createParser(INPUT);
@@ -442,7 +442,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testMultipleMatchFilteringWithPath3() throws Exception
+    void multipleMatchFilteringWithPath3() throws Exception
     {
         final String JSON = a2q("{'root':{'a0':true,'a':{'value':3},'b':{'value':\"foo\"}},'b0':false}");
         JsonParser p0 = JSON_F.createParser(JSON);
@@ -455,7 +455,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNoMatchFiltering1() throws Exception
+    void noMatchFiltering1() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -470,7 +470,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNoMatchFiltering2() throws Exception
+    void noMatchFiltering2() throws Exception
     {
         String object = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         String jsonString = String.format("[%s,%s,%s]", object, object, object);
@@ -486,7 +486,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNoMatchFiltering3() throws Exception
+    void noMatchFiltering3() throws Exception
     {
         String object = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         String jsonString = String.format("[[%s],[%s],[%s]]", object, object, object);
@@ -502,7 +502,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNoMatchFiltering4() throws Exception
+    void noMatchFiltering4() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -517,7 +517,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNoMatchFiltering5() throws Exception
+    void noMatchFiltering5() throws Exception
     {
         String object = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         String jsonString = String.format("[%s,%s,%s]", object, object, object);
@@ -533,7 +533,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testNoMatchFiltering6() throws Exception
+    void noMatchFiltering6() throws Exception
     {
         String object = a2q("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         String jsonString = String.format("[[%s],[%s],[%s]]", object, object, object);
@@ -549,7 +549,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testValueOmitsFieldName1() throws Exception
+    void valueOmitsFieldName1() throws Exception
     {
         String jsonString = a2q("{'a':123,'array':[1,2]}");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -564,7 +564,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testValueOmitsFieldName2() throws Exception
+    void valueOmitsFieldName2() throws Exception
     {
         String jsonString = a2q("['a',{'value0':3,'b':{'value':4}},123]");
         JsonParser p0 = JSON_F.createParser(jsonString);
@@ -579,7 +579,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIndexMatchWithPath1() throws Exception
+    void indexMatchWithPath1() throws Exception
     {
         FilteringParserDelegate p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
                 new IndexMatchFilter(1), Inclusion.INCLUDE_ALL_AND_PATH, true);
@@ -595,7 +595,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIndexMatchWithPath2() throws Exception
+    void indexMatchWithPath2() throws Exception
     {
         FilteringParserDelegate p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
                 new IndexMatchFilter(0, 1), Inclusion.INCLUDE_ALL_AND_PATH, true);
@@ -610,7 +610,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testBasicSingleMatchFilteringWithPath() throws Exception
+    void basicSingleMatchFilteringWithPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         JsonParser p = new FilteringParserDelegate(p0,
@@ -625,7 +625,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testTokensSingleMatchWithPath() throws Exception
+    void tokensSingleMatchWithPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         JsonParser p = new FilteringParserDelegate(p0,
@@ -703,7 +703,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testSkippingForSingleWithPath() throws Exception
+    void skippingForSingleWithPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         JsonParser p = new FilteringParserDelegate(p0,
@@ -719,7 +719,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyArrayIfNotFiltered() throws Exception {
+    void includeEmptyArrayIfNotFiltered() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'empty_array':[],'filtered_array':[5]}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -731,7 +731,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyArray() throws Exception {
+    void includeEmptyArray() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'empty_array':[],'filtered_array':[5]}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -743,7 +743,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyObjectIfNotFiltered() throws Exception {
+    void includeEmptyObjectIfNotFiltered() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'empty_object':{},'filtered_object':{'foo':5}}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -755,7 +755,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyObject() throws Exception {
+    void includeEmptyObject() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'empty_object':{},'filtered_object':{'foo':5}}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -767,7 +767,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyArrayInObjectIfNotFiltered() throws Exception {
+    void includeEmptyArrayInObjectIfNotFiltered() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'object_with_empty_array':{'foo':[]},'object_with_filtered_array':{'foo':[5]}}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -779,7 +779,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyArrayInObject() throws Exception {
+    void includeEmptyArrayInObject() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'object_with_empty_array':{'foo':[]},'object_with_filtered_array':{'foo':[5]}}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -793,7 +793,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyObjectInArrayIfNotFiltered() throws Exception {
+    void includeEmptyObjectInArrayIfNotFiltered() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'array_with_empty_object':[{}],'array_with_filtered_object':[{'foo':5}]}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -805,7 +805,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyObjectInArray() throws Exception {
+    void includeEmptyObjectInArray() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'array_with_empty_object':[{}],'array_with_filtered_object':[{'foo':5}]}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -819,7 +819,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testIncludeEmptyArrayIfNotFilteredAfterFiltered() throws Exception {
+    void includeEmptyArrayIfNotFilteredAfterFiltered() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "[5, {'empty_array':[],'filtered_array':[5]}]"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -831,7 +831,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testExcludeObjectAtTheBeginningOfArray() throws Exception {
+    void excludeObjectAtTheBeginningOfArray() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'parent':[{'exclude':false},{'include':true}]}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -843,7 +843,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testExcludeObjectAtTheEndOfArray() throws Exception {
+    void excludeObjectAtTheEndOfArray() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'parent':[{'include':true},{'exclude':false}]}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -855,7 +855,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testExcludeObjectInMiddleOfArray() throws Exception {
+    void excludeObjectInMiddleOfArray() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "{'parent':[{'include-1':1},{'skip':0},{'include-2':2}]}"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -867,7 +867,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testExcludeLastArrayInsideArray() throws Exception {
+    void excludeLastArrayInsideArray() throws Exception {
         JsonParser p0 = JSON_F.createParser(a2q(
                 "['skipped', [], ['skipped']]"));
         JsonParser p = new FilteringParserDelegate(p0,
@@ -879,7 +879,7 @@ public class BasicParserFilteringTest extends TestBase
     }
 
     @Test
-    public void testCallbacksFromFilteringParserDelegate1() throws Exception {
+    void callbacksFromFilteringParserDelegate1() throws Exception {
         LoggingFilter loggingFilter = new LoggingFilter(new JsonPointerBasedFilter("/parent"));
 
         JsonParser p0 = JSON_F.createParser(a2q(

@@ -6,8 +6,8 @@ import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ParserDupHandlingTest
-    extends TestBase
+class ParserDupHandlingTest
+        extends TestBase
 {
     private final String[] DUP_DOCS = new String[] {
             "{ 'a':1, 'a':2 }",
@@ -24,7 +24,7 @@ public class ParserDupHandlingTest
     }
 
     @Test
-    public void testSimpleDupCheckDisabled() throws Exception
+    void simpleDupCheckDisabled() throws Exception
     {
         // first: verify no problems if detection NOT enabled
         final JsonFactory f = new JsonFactory();
@@ -38,7 +38,7 @@ public class ParserDupHandlingTest
     }
 
     @Test
-    public void testSimpleDupsBytes() throws Exception
+    void simpleDupsBytes() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
@@ -56,7 +56,7 @@ public class ParserDupHandlingTest
     }
 
     @Test
-    public void testSimpleDupsDataInput() throws Exception
+    void simpleDupsDataInput() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
@@ -69,7 +69,7 @@ public class ParserDupHandlingTest
     }
 
     @Test
-    public void testSimpleDupsChars() throws Exception
+    void simpleDupsChars() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = new JsonFactory();

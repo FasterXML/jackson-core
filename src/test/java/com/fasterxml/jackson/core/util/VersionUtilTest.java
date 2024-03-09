@@ -11,21 +11,21 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @see VersionUtil
  */
-public class VersionUtilTest
+class VersionUtilTest
 {
-  @Test
-  public void testParseVersionSimple() {
+    @Test
+    void parseVersionSimple() {
     Version v = VersionUtil.parseVersion("1.2.3-SNAPSHOT", "group", "artifact");
     assertEquals("group/artifact/1.2.3-SNAPSHOT", v.toFullString());
   }
 
-  @Test
-  public void testParseVersionPartReturningPositive() {
+    @Test
+    void parseVersionPartReturningPositive() {
     assertEquals(66, VersionUtil.parseVersionPart("66R"));
   }
 
-  @Test
-  public void testParseVersionReturningVersionWhereGetMajorVersionIsZero() {
+    @Test
+    void parseVersionReturningVersionWhereGetMajorVersionIsZero() {
     Version version = VersionUtil.parseVersion("#M&+m@569P", "#M&+m@569P", "com.fasterxml.jackson.core.util.VersionUtil");
 
     assertEquals(0, version.getMinorVersion());
@@ -35,15 +35,15 @@ public class VersionUtilTest
     assertFalse(version.isUnknownVersion());
   }
 
-  @Test
-  public void testParseVersionWithEmptyStringAndEmptyString() {
+    @Test
+    void parseVersionWithEmptyStringAndEmptyString() {
     Version version = VersionUtil.parseVersion("", "", "\"g2AT");
 
     assertTrue(version.isUnknownVersion());
   }
 
-  @Test
-  public void testParseVersionWithNullAndEmptyString() {
+    @Test
+    void parseVersionWithNullAndEmptyString() {
     Version version = VersionUtil.parseVersion(null, "/nUmRN)3", "");
 
     assertFalse(version.isSnapshot());

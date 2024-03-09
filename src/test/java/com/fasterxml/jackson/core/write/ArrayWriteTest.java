@@ -12,11 +12,11 @@ import org.junit.jupiter.api.Test;
  * Set of basic unit tests for verifying that the Array write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class ArrayWriteTest
-    extends TestBase
+class ArrayWriteTest
+        extends TestBase
 {
     @Test
-    public void testEmptyArrayWrite()
+    void emptyArrayWrite()
             throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -74,7 +74,7 @@ public class ArrayWriteTest
     }
 
     @Test
-    public void testInvalidArrayWrite()
+    void invalidArrayWrite()
             throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -91,7 +91,7 @@ public class ArrayWriteTest
     }
 
     @Test
-    public void testSimpleArrayWrite()
+    void simpleArrayWrite()
             throws Exception
     {
         StringWriter sw = new StringWriter();

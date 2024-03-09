@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
  * Set of basic unit tests for verifying that the string
  * generation, including character escaping, works as expected.
  */
-public class StringGenerationTest
-    extends TestBase
+class StringGenerationTest
+        extends TestBase
 {
     final static String[] SAMPLES = new String[] {
         "\"test\"",
@@ -29,7 +29,7 @@ public class StringGenerationTest
     private final JsonFactory FACTORY = new JsonFactory();
 
     @Test
-    public void testBasicEscaping() throws Exception
+    void basicEscaping() throws Exception
     {
         doTestBasicEscaping(false);
         doTestBasicEscaping(true);
@@ -37,7 +37,7 @@ public class StringGenerationTest
 
     // for [core#194]
     @Test
-    public void testMediumStringsBytes() throws Exception
+    void mediumStringsBytes() throws Exception
     {
         for (int mode : ALL_BINARY_MODES) {
             for (int size : new int[] { 1100, 2300, 3800, 7500, 19000 }) {
@@ -48,7 +48,7 @@ public class StringGenerationTest
 
     // for [core#194]
     @Test
-    public void testMediumStringsChars() throws Exception
+    void mediumStringsChars() throws Exception
     {
         for (int mode : ALL_TEXT_MODES) {
             for (int size : new int[] { 1100, 2300, 3800, 7500, 19000 }) {
@@ -58,7 +58,7 @@ public class StringGenerationTest
     }
 
     @Test
-    public void testLongerRandomSingleChunk() throws Exception
+    void longerRandomSingleChunk() throws Exception
     {
         /* Let's first generate 100k of pseudo-random characters, favoring
          * 7-bit ascii range
@@ -73,7 +73,7 @@ public class StringGenerationTest
     }
 
     @Test
-    public void testLongerRandomMultiChunk() throws Exception
+    void longerRandomMultiChunk() throws Exception
     {
         /* Let's first generate 100k of pseudo-random characters, favoring
          * 7-bit ascii range

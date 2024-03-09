@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Set of tests that checks getCurrentLocation() and getTokenLocation() are as expected during
  * parsing.
  */
-public class LocationDuringStreamParsingTest extends TestBase
+class LocationDuringStreamParsingTest extends TestBase
 {
     @Test
-    public void testLocationAtEndOfParse() throws Exception
+    void locationAtEndOfParse() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
@@ -26,7 +26,7 @@ public class LocationDuringStreamParsingTest extends TestBase
     }
 
     @Test
-    public void testInitialLocation() throws Exception
+    void initialLocation() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
@@ -35,7 +35,7 @@ public class LocationDuringStreamParsingTest extends TestBase
     }
 
     @Test
-    public void testTokenLocations() throws Exception
+    void tokenLocations() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
@@ -44,7 +44,7 @@ public class LocationDuringStreamParsingTest extends TestBase
     }
 
     @Test
-    private void testLocationAtEndOfParse(LocationTestCase test) throws Exception
+    private void locationAtEndOfParse(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
         while (p.nextToken() != null) {
@@ -55,7 +55,7 @@ public class LocationDuringStreamParsingTest extends TestBase
     }
 
     @Test
-    private void testInitialLocation(LocationTestCase test) throws Exception
+    private void initialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
         JsonLocation loc = p.currentLocation();
@@ -65,7 +65,7 @@ public class LocationDuringStreamParsingTest extends TestBase
     }
 
     @Test
-    private void testTokenLocations(LocationTestCase test) throws Exception
+    private void tokenLocations(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
         int i = 0;

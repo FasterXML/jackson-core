@@ -7,10 +7,10 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // tests for [core#37]
-public class LocationInObjectTest extends TestBase
+class LocationInObjectTest extends TestBase
 {
     @Test
-    public void testOffsetWithObjectFieldsUsingUTF8() throws Exception
+    void offsetWithObjectFieldsUsingUTF8() throws Exception
     {
         final JsonFactory f = new JsonFactory();
         byte[] b = "{\"f1\":\"v1\",\"f2\":{\"f3\":\"v3\"},\"f4\":[true,false],\"f5\":5}".getBytes("UTF-8");
@@ -57,7 +57,7 @@ public class LocationInObjectTest extends TestBase
     }
 
     @Test
-    public void testOffsetWithObjectFieldsUsingReader() throws Exception
+    void offsetWithObjectFieldsUsingReader() throws Exception
     {
         final JsonFactory f = new JsonFactory();
         char[] c = "{\"f1\":\"v1\",\"f2\":{\"f3\":\"v3\"},\"f4\":[true,false],\"f5\":5}".toCharArray();

@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonPointer1168Test extends TestBase
+class JsonPointer1168Test extends TestBase
 {
     // [core#1168]
     @Test
-    public void testAppendWithTail()
+    void appendWithTail()
     {
         JsonPointer original = JsonPointer.compile("/a1/b/c");
         JsonPointer tailPointer = original.tail();

@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests from [jackson-core#382]
-public class UTF32ParseTest extends TestBase
+class UTF32ParseTest extends TestBase
 {
     private final JsonFactory FACTORY = new JsonFactory();
 
     @Test
-    public void testSimpleEOFs() throws Exception
+    void simpleEOFs() throws Exception
     {
         // 2 spaces
         byte[] data = { 0x00, 0x00, 0x00, 0x20,
@@ -35,7 +35,7 @@ public class UTF32ParseTest extends TestBase
     }
 
     @Test
-    public void testSimpleInvalidUTF32() throws Exception
+    void simpleInvalidUTF32() throws Exception
     {
         // 2 characters, space, then something beyond valid Unicode set
         byte[] data = {
@@ -61,7 +61,7 @@ public class UTF32ParseTest extends TestBase
     }
 
     @Test
-    public void testSimpleSevenNullBytes() throws Exception {
+    void simpleSevenNullBytes() throws Exception {
         byte[] data = new byte[7];
         JsonParser parser = FACTORY.createParser(/*ObjectReadContext.empty(), */data);
         try {

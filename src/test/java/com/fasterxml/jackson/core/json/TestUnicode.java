@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestUnicode extends TestBase
+class TestUnicode extends TestBase
 {
     @Test
-    public void testSurrogates() throws Exception
+    void surrogates() throws Exception
     {
         JsonFactory f = new JsonFactory();
         _testSurrogates(f, true);

@@ -16,13 +16,13 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Set of basic unit tests for verifying that Array/Object scopes
  * are properly matched.
  */
-public class AsyncScopeMatchingTest extends AsyncTestBase
+class AsyncScopeMatchingTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Disabled//this test was not executed with junit4. Now, with junit5 it is executed but fails -> disabled. TODO fix or remove
     @Test
-    public void testUnclosedArray(int mode) throws Exception
+    void unclosedArray(int mode) throws Exception
     {
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc("[ 1, 2 "), 0);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -40,7 +40,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
 
     @Disabled//this test was not executed with junit4. Now, with junit5 it is executed but fails -> disabled. TODO fix or remove
     @Test
-    public void testUnclosedObject(int mode) throws Exception
+    void unclosedObject(int mode) throws Exception
     {
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc("{ \"key\" : 3  "), 0);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -57,7 +57,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
 
     @Disabled//this test was not executed with junit4. Now, with junit5 it is executed but fails -> disabled. TODO fix or remove
     @Test
-    public void testEOFInName(int mode) throws Exception
+    void eofInName(int mode) throws Exception
     {
         final String JSON = "{ \"abcd";
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc(JSON), 0);
@@ -77,7 +77,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
     }
 
     @Test
-    public void testMismatchArrayToObject() throws Exception
+    void mismatchArrayToObject() throws Exception
     {
         final String JSON = "[ 1, 2 }";
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc(JSON), 0);
@@ -94,7 +94,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
     }
 
     @Test
-    public void testMismatchObjectToArray() throws Exception
+    void mismatchObjectToArray() throws Exception
     {
         final String JSON = "{ ]";
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc(JSON), 0);
@@ -112,7 +112,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
 
     @Disabled//this test was not executed with junit4. Now, with junit5 it is executed but fails -> disabled. TODO fix or remove
     @Test
-    public void testMisssingColon(int mode) throws Exception
+    void misssingColon(int mode) throws Exception
     {
         final String JSON = "{ \"a\" \"b\" }";
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc(JSON), 0);

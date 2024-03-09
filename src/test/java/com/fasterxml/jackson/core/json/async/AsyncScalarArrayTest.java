@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsyncScalarArrayTest extends AsyncTestBase
+class AsyncScalarArrayTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -24,7 +24,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
      */
 
     @Test
-    public void testTokens() throws IOException
+    void tokens() throws IOException
     {
         byte[] data = _jsonDoc("  [ true, false  ,true   , null,false , null]");
         JsonFactory f = JSON_F;
@@ -74,7 +74,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
      */
 
     @Test
-    public void testInts() throws IOException
+    void ints() throws IOException
     {
         final int[] input = new int[] { 1, -1, 16, -17, 0, 131, -0, -155, 1000, -3000, 0xFFFF, -99999,
                 Integer.MAX_VALUE, 0, Integer.MIN_VALUE };
@@ -121,7 +121,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     }
 
     @Test
-    public void testLong() throws IOException
+    void testLong() throws IOException
     {
         final long[] input = new long[] {
                 // JsonParser will determine minimum size needed, so can't do these
@@ -174,7 +174,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
      */
 
     @Test
-    public void testFloats() throws IOException
+    void floats() throws IOException
     {
         final float[] input = new float[] { 0.0f, 0.25f, -0.5f, 10000.125f, - 99999.075f };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
@@ -216,7 +216,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     }
 
     @Test
-    public void testDoubles() throws IOException
+    void doubles() throws IOException
     {
         final double[] input = new double[] { 0.0, 0.25, -0.5, 10000.125,
                 -99999.075 };
@@ -266,7 +266,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
      */
 
     @Test
-    public void testBigIntegers() throws IOException
+    void bigIntegers() throws IOException
     {
         BigInteger bigBase = BigInteger.valueOf(Long.MAX_VALUE);
         final BigInteger[] input = new BigInteger[] {
@@ -322,7 +322,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     }
 
     @Test
-    public void testBigDecimals() throws IOException
+    void bigDecimals() throws IOException
     {
         BigDecimal bigBase = new BigDecimal("1234567890344656736.125");
         final BigDecimal[] input = new BigDecimal[] {

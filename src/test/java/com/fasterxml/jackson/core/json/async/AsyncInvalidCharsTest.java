@@ -15,12 +15,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for verifying things such as handling of invalid control characters;
 // decoding of UTF-8 BOM.
-public class AsyncInvalidCharsTest extends AsyncTestBase
+class AsyncInvalidCharsTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testUtf8BOMHandling() throws Exception
+    void utf8BOMHandling() throws Exception
     {
         _testUtf8BOMHandling(0, 99);
         _testUtf8BOMHandling(0, 5);
@@ -97,7 +97,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
     }
 
     @Test
-    public void testHandlingOfInvalidSpace() throws Exception
+    void handlingOfInvalidSpace() throws Exception
     {
         _testHandlingOfInvalidSpace(0, 99);
         _testHandlingOfInvalidSpace(0, 3);

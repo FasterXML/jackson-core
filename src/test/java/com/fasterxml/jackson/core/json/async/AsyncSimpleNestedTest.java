@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsyncSimpleNestedTest extends AsyncTestBase
+class AsyncSimpleNestedTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -21,7 +21,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
      */
 
     @Test
-    public void testStuffInObject() throws Exception
+    void stuffInObject() throws Exception
     {
         byte[] data = _jsonDoc(a2q(
                 "{'foobar':[1,2,-999],'emptyObject':{},'emptyArray':[], 'other':{'':null} }"));
@@ -87,7 +87,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     @Test
-    public void testStuffInArray() throws Exception
+    void stuffInArray() throws Exception
     {
         byte[] data = _jsonDoc(a2q("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
         JsonFactory f = JSON_F;
@@ -135,7 +135,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     final static String LONG_NAME = String.format("Unicode-with-some-longer-name-%s", UNICODE_SEGMENT);
 
     @Test
-    public void testStuffInArray2() throws Exception
+    void stuffInArray2() throws Exception
     {
         byte[] data = _jsonDoc(a2q(String.format(
                 "[{'%s':true},{'%s':false},{'%s':true},{'%s':false}]",
@@ -192,7 +192,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
      */
 
     @Test
-    public void testMismatchedArray() throws Exception
+    void mismatchedArray() throws Exception
     {
         byte[] data = _jsonDoc(a2q("[  }"));
 
@@ -221,7 +221,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     @Test
-    public void testMismatchedObject() throws Exception
+    void mismatchedObject() throws Exception
     {
         byte[] data = _jsonDoc(a2q("{ ]"));
 

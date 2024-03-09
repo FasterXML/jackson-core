@@ -10,9 +10,9 @@ import static java.lang.StrictMath.scalb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DoubleToDecimalTest {
+class DoubleToDecimalTest {
     @Test
-    void testExtremeValues() {
+    void extremeValues() {
         toDec(Double.NEGATIVE_INFINITY);
         toDec(-Double.MAX_VALUE);
         toDec(-Double.MIN_NORMAL);
@@ -49,7 +49,7 @@ public class DoubleToDecimalTest {
     The rendering is either too long or it is not the closest decimal.
      */
     @Test
-    void testPowersOf10() {
+    void powersOf10() {
         for (int e = E_MIN; e <= E_MAX; ++e) {
             toDec(Double.parseDouble("1e" + e));
         }
@@ -60,21 +60,21 @@ public class DoubleToDecimalTest {
     The rendering is either too long or it is not the closest decimal.
     */
     @Test
-    void testPowersOf2() {
+    void powersOf2() {
         for (double v = Double.MIN_VALUE; v <= Double.MAX_VALUE; v *= 2) {
             toDec(v);
         }
     }
 
     @Test
-    void testSomeAnomalies() {
+    void someAnomalies() {
         for (String dec : Anomalies) {
             toDec(Double.parseDouble(dec));
         }
     }
 
     @Test
-    void testPaxson() {
+    void paxson() {
         for (int i = 0; i < PaxsonSignificands.length; ++i) {
             toDec(scalb(PaxsonSignificands[i], PaxsonExponents[i]));
         }
@@ -85,7 +85,7 @@ public class DoubleToDecimalTest {
     These are all exact doubles.
      */
     @Test
-    void testLongs() {
+    void longs() {
         for (int i = 10_000; i < 100_000; ++i) {
             toDec(i * 1e15);
         }
@@ -96,14 +96,14 @@ public class DoubleToDecimalTest {
     These are all exact doubles and exercise a fast path.
      */
     @Test
-    void testInts() {
+    void ints() {
         for (int i = 0; i <= 1_000_000; ++i) {
             toDec(i);
         }
     }
 
     @Test
-    void testConstants() {
+    void constants() {
         assertEquals(DoubleToDecimal.P, P, "P");
         assertTrue((long) (double) C_MIN == C_MIN, "C_MIN");
         assertTrue((long) (double) C_MAX == C_MAX, "C_MAX");
@@ -124,7 +124,7 @@ public class DoubleToDecimalTest {
     }
 
     @Test
-    void testHardValues() {
+    void hardValues() {
         for (double v : hard0()) {
             toDec(v);
         }

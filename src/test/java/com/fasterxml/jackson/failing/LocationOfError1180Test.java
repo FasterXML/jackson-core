@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests that the {@link JsonLocation} attached to a thrown {@link StreamReadException}
  * due to invalid JSON points to the correct character.
  */
-public class LocationOfError1180Test
+class LocationOfError1180Test
 {
     static final JsonFactory JSON_F = new JsonFactory();
 
@@ -123,8 +123,8 @@ public class LocationOfError1180Test
 
     @ParameterizedTest
     @MethodSource("_generateTestData")
-    public void testParserBackendWithInvalidJson(ParserVariant variant, InvalidJson invalidJson)
-        throws Exception
+    void parserBackendWithInvalidJson(ParserVariant variant, InvalidJson invalidJson)
+            throws Exception
     {
         try (JsonParser parser = variant.createParser(invalidJson.input))
         {

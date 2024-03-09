@@ -9,12 +9,12 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Trying to repro: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=34435
-public class Fuzz34435ParseTest extends TestBase
+class Fuzz34435ParseTest extends TestBase
 {
     private final byte[] DOC = readResource("/data/fuzz-json-34435.json");
 
     @Test
-    public void testFuzz34435ViaParser() throws Exception
+    void fuzz34435ViaParser() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
                 // NOTE: test set up enables a few non-standard features

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestCustomEscaping extends TestBase
+class TestCustomEscaping extends TestBase
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;
@@ -74,14 +74,14 @@ public class TestCustomEscaping extends TestBase
      * Related to [JACKSON-102]
      */
     @Test
-    public void testAboveAsciiEscapeWithReader() throws Exception
+    void aboveAsciiEscapeWithReader() throws Exception
     {
         _testEscapeAboveAscii(false, false); // reader
         _testEscapeAboveAscii(false, true);
     }
 
     @Test
-    public void testAboveAsciiEscapeWithUTF8Stream() throws Exception
+    void aboveAsciiEscapeWithUTF8Stream() throws Exception
     {
         _testEscapeAboveAscii(true, false); // stream (utf-8)
         _testEscapeAboveAscii(true, true);
@@ -90,7 +90,7 @@ public class TestCustomEscaping extends TestBase
     // // // Tests for [JACKSON-106]
 
     @Test
-    public void testEscapeCustomWithReader() throws Exception
+    void escapeCustomWithReader() throws Exception
     {
         _testEscapeCustom(false, false, "[x]"); // reader
         _testEscapeCustom(false, true, "[x]");
@@ -103,7 +103,7 @@ public class TestCustomEscaping extends TestBase
     }
 
     @Test
-    public void testEscapeCustomWithUTF8Stream() throws Exception
+    void escapeCustomWithUTF8Stream() throws Exception
     {
         _testEscapeCustom(true, false, "[x]"); // stream (utf-8)
         _testEscapeCustom(true, true, "[x]");
@@ -116,7 +116,7 @@ public class TestCustomEscaping extends TestBase
     }
 
     @Test
-    public void testJsonpEscapes() throws Exception {
+    void jsonpEscapes() throws Exception {
         _testJsonpEscapes(false, false);
         _testJsonpEscapes(false, true);
         _testJsonpEscapes(true, false);

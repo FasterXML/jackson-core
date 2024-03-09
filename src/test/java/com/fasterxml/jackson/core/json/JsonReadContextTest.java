@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for class {@link JsonReadContext}.
  */
-public class JsonReadContextTest extends TestBase
+class JsonReadContextTest extends TestBase
 {
     @Test
-    public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
+    void setCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
   {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, 0,
@@ -29,7 +29,7 @@ public class JsonReadContextTest extends TestBase
   }
 
     @Test
-    public void testSetCurrentName() throws Exception
+    void setCurrentName() throws Exception
   {
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(0, 0, (DupDetector) null);
       jsonReadContext.setCurrentName("abc");
@@ -39,7 +39,7 @@ public class JsonReadContextTest extends TestBase
   }
 
     @Test
-    public void testReset()
+    void reset()
   {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(dupDetector);

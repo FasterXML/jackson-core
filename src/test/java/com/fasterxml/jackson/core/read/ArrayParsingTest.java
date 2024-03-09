@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * Set of additional unit for verifying array parsing, specifically
  * edge cases.
  */
-public class ArrayParsingTest
-    extends TestBase
+class ArrayParsingTest
+        extends TestBase
 {
     @Test
-    public void testValidEmpty() throws Exception
+    void validEmpty() throws Exception
     {
         final String DOC = "[   \n  ]";
 
@@ -27,7 +27,7 @@ public class ArrayParsingTest
     }
 
     @Test
-    public void testInvalidEmptyMissingClose() throws Exception
+    void invalidEmptyMissingClose() throws Exception
     {
         final String DOC = "[ ";
 
@@ -44,7 +44,7 @@ public class ArrayParsingTest
     }
 
     @Test
-    public void testInvalidMissingFieldName() throws Exception
+    void invalidMissingFieldName() throws Exception
     {
         final String DOC = "[  : 3 ] ";
 
@@ -61,7 +61,7 @@ public class ArrayParsingTest
     }
 
     @Test
-    public void testInvalidExtraComma() throws Exception
+    void invalidExtraComma() throws Exception
     {
         final String DOC = "[ 24, ] ";
 
@@ -86,7 +86,7 @@ public class ArrayParsingTest
      * @throws Exception
      */
     @Test
-    public void testMissingValueAsNullByEnablingFeature() throws Exception
+    void missingValueAsNullByEnablingFeature() throws Exception
     {
     	_testMissingValueByEnablingFeature(true);
     	_testMissingValueByEnablingFeature(false);
@@ -98,7 +98,7 @@ public class ArrayParsingTest
      * @throws Exception
      */
     @Test
-    public void testMissingValueAsNullByNotEnablingFeature() throws Exception
+    void missingValueAsNullByNotEnablingFeature() throws Exception
     {
     	_testMissingValueNotEnablingFeature(true);
     	_testMissingValueNotEnablingFeature(false);
@@ -111,7 +111,7 @@ public class ArrayParsingTest
      * @throws Exception
      */
     @Test
-    public void testNotMissingValueByEnablingFeature() throws Exception
+    void notMissingValueByEnablingFeature() throws Exception
     {
         _testNotMissingValueByEnablingFeature(true);
         _testNotMissingValueByEnablingFeature(false);

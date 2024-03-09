@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Surrogate223Test extends TestBase
+class Surrogate223Test extends TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     // for [core#223]
     @Test
-    public void testSurrogatesByteBacked() throws Exception
+    void surrogatesByteBacked() throws Exception
     {
         ByteArrayOutputStream out;
         JsonGenerator g;
@@ -54,7 +54,7 @@ public class Surrogate223Test extends TestBase
 
     // for [core#223]
     @Test
-    public void testSurrogatesCharBacked() throws Exception
+    void surrogatesCharBacked() throws Exception
     {
         Writer out;
         JsonGenerator g;

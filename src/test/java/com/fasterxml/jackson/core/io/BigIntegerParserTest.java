@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BigIntegerParserTest extends TestBase {
+class BigIntegerParserTest extends TestBase {
 
     @Test
-    public void testFastParseBigIntegerFailsWithENotation() {
+    void fastParseBigIntegerFailsWithENotation() {
         String num = "2e308";
         try {
             BigIntegerParser.parseWithFastParser(num);
@@ -20,7 +20,7 @@ public class BigIntegerParserTest extends TestBase {
     }
 
     @Test
-    public void testLongStringFastParseBigInteger() {
+    void longStringFastParseBigInteger() {
         try {
             BigIntegerParser.parseWithFastParser(genLongString());
             fail("expected NumberFormatException");
@@ -32,7 +32,7 @@ public class BigIntegerParserTest extends TestBase {
     }
 
     @Test
-    public void testLongStringFastParseBigIntegerRadix() {
+    void longStringFastParseBigIntegerRadix() {
         try {
             BigIntegerParser.parseWithFastParser(genLongString(), 8);
             fail("expected NumberFormatException");

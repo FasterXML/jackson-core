@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that support for (non-standard) comments
  * works as expected.
  */
-public class AsyncCommentParsingTest extends AsyncTestBase
+class AsyncCommentParsingTest extends AsyncTestBase
 {
     final static String DOC_WITH_SLASHSTAR_COMMENT =
         "[ /* comment:\n ends here */ 1 /* one more ok to have \"unquoted\"  */ ]"
@@ -32,14 +32,14 @@ public class AsyncCommentParsingTest extends AsyncTestBase
      */
 
     @Test
-    public void testCommentsDisabled() throws Exception
+    void commentsDisabled() throws Exception
     {
         _testDisabled(DOC_WITH_SLASHSTAR_COMMENT);
         _testDisabled(DOC_WITH_SLASHSLASH_COMMENT);
     }
 
     @Test
-    public void testCommentsEnabled() throws Exception
+    void commentsEnabled() throws Exception
     {
         _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, 99);
         _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, 3);
@@ -51,7 +51,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     }
 
     @Test
-    public void testCCommentsWithUTF8() throws Exception
+    void cCommentsWithUTF8() throws Exception
     {
         final String JSON = "/* \u00a9 2099 Yoyodyne Inc. */\n [ \"bar? \u00a9\" ]\n";
 
@@ -63,7 +63,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     }
 
     @Test
-    public void testYAMLCommentsEnabled() throws Exception
+    void yamlCommentsEnabled() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
@@ -82,7 +82,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     }
 
     @Test
-    public void testCCommentsEnabled() throws Exception {
+    void cCommentsEnabled() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
@@ -93,7 +93,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     }
 
     @Test
-    public void testCppCommentsEnabled() throws Exception {
+    void cppCommentsEnabled() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();

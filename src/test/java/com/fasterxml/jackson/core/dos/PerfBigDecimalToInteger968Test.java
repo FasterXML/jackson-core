@@ -10,14 +10,14 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 // For [core#968]]
-public class PerfBigDecimalToInteger968Test
+class PerfBigDecimalToInteger968Test
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     // For [core#968]: shouldn't take multiple seconds
     @Test
     @Timeout(value = 2000, unit = TimeUnit.MILLISECONDS)
-    public void bigIntegerViaBigDecimal() throws Exception {
+    void bigIntegerViaBigDecimal() throws Exception {
         final String DOC = "1e25000000";
 
         try (JsonParser p = JSON_F.createParser(DOC)) {
@@ -33,7 +33,7 @@ public class PerfBigDecimalToInteger968Test
 
     @Test
     @Timeout(value = 2000, unit = TimeUnit.MILLISECONDS)
-    public void tinyIntegerViaBigDecimal() throws Exception {
+    void tinyIntegerViaBigDecimal() throws Exception {
         final String DOC = "1e-25000000";
 
         try (JsonParser p = JSON_F.createParser(DOC)) {

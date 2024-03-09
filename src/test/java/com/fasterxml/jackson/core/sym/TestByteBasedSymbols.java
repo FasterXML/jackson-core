@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit test(s) to verify that handling of (byte-based) symbol tables
  * is working.
  */
-public class TestByteBasedSymbols
-    extends TestBase
+class TestByteBasedSymbols
+        extends TestBase
 {
     final static String[] FIELD_NAMES = new String[] {
         "a", "b", "c", "x", "y", "b13", "abcdefg", "a123",
@@ -32,7 +32,7 @@ public class TestByteBasedSymbols
      * symbol table corruption should result in odd problems.
      */
     @Test
-    public void testSharedSymbols() throws Exception
+    void sharedSymbols() throws Exception
     {
         // MUST share a single json factory
         JsonFactory jf = new JsonFactory();
@@ -81,7 +81,7 @@ public class TestByteBasedSymbols
     }
 
     @Test
-    public void testAuxMethodsWithNewSymboTable() throws Exception
+    void auxMethodsWithNewSymboTable() throws Exception
     {
         final int A_BYTES = 0x41414141; // "AAAA"
         final int B_BYTES = 0x42424242; // "BBBB"
@@ -107,7 +107,7 @@ public class TestByteBasedSymbols
 
     // as per name, for [core#207]
     @Test
-    public void testIssue207() throws Exception
+    void issue207() throws Exception
     {
         ByteQuadsCanonicalizer nc = ByteQuadsCanonicalizer.createRoot(-523743345);
         Field byteSymbolCanonicalizerField = JsonFactory.class.getDeclaredField("_byteSymbolCanonicalizer");
@@ -130,7 +130,7 @@ public class TestByteBasedSymbols
 
     // [core#548]
     @Test
-    public void testQuadsIssue548() throws Exception
+    void quadsIssue548() throws Exception
     {
         Random r = new Random(42);
         ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot();

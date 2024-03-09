@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsyncSimpleObjectTest extends AsyncTestBase
+class AsyncSimpleObjectTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -28,7 +28,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     private final static String UNICODE_LONG_NAME = "Unicode-with-"+UNICODE_3BYTES+"-much-longer";
 
     @Test
-    public void testBooleans() throws IOException
+    void booleans() throws IOException
     {
         final JsonFactory f = JSON_F;
         byte[] data = _jsonDoc(a2q(
@@ -113,7 +113,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     private final BigDecimal NUMBER_EXP_BD = new BigDecimal("1243565768679065.1247305834");
 
     @Test
-    public void testNumbers() throws IOException
+    void numbers() throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;

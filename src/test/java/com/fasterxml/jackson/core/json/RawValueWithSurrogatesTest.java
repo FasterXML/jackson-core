@@ -9,8 +9,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class RawValueWithSurrogatesTest
-    extends TestBase
+class RawValueWithSurrogatesTest
+        extends TestBase
 {
     final String SURROGATES_307;
     {
@@ -56,13 +56,13 @@ public class RawValueWithSurrogatesTest
 
     // for [jackson-core#307]
     @Test
-    public void testRawWithSurrogatesString() throws Exception {
+    void rawWithSurrogatesString() throws Exception {
         _testRawWithSurrogatesString(false);
     }
 
     // for [jackson-core#307]
     @Test
-    public void testRawWithSurrogatesCharArray() throws Exception {
+    void rawWithSurrogatesCharArray() throws Exception {
         _testRawWithSurrogatesString(true);
     }
 

@@ -9,8 +9,8 @@ import com.fasterxml.jackson.core.exc.StreamWriteException;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BoundsChecksWithGeneratorTest
-    extends TestBase
+class BoundsChecksWithGeneratorTest
+        extends TestBase
 {
     final static JsonFactory JSON_F = new JsonFactory();
 
@@ -74,12 +74,12 @@ public class BoundsChecksWithGeneratorTest
     };
 
     @Test
-    public void testBoundsWithByteArrayInputFromBytes() throws Exception {
+    void boundsWithByteArrayInputFromBytes() throws Exception {
         _testBoundsWithByteArrayInput(BYTE_GENERATOR_CREATOR, true);
     }
 
     @Test
-    public void testBoundsWithByteArrayInputFromChars() throws Exception {
+    void boundsWithByteArrayInputFromChars() throws Exception {
         _testBoundsWithByteArrayInput(CHAR_GENERATOR_CREATOR, false);
     }
 
@@ -158,12 +158,12 @@ public class BoundsChecksWithGeneratorTest
     };
 
     @Test
-    public void testBoundsWithCharArrayInputFromBytes() throws Exception {
+    void boundsWithCharArrayInputFromBytes() throws Exception {
         _testBoundsWithCharArrayInput(BYTE_GENERATOR_CREATOR);
     }
 
     @Test
-    public void testBoundsWithCharArrayInputFromChars() throws Exception {
+    void boundsWithCharArrayInputFromChars() throws Exception {
         _testBoundsWithCharArrayInput(CHAR_GENERATOR_CREATOR);
     }
 
@@ -230,12 +230,12 @@ public class BoundsChecksWithGeneratorTest
     };
 
     @Test
-    public void testBoundsWithStringInputFromBytes() throws Exception {
+    void boundsWithStringInputFromBytes() throws Exception {
         _testBoundsWithStringInput(BYTE_GENERATOR_CREATOR);
     }
 
     @Test
-    public void testBoundsWithStringInputFromChar() throws Exception {
+    void boundsWithStringInputFromChar() throws Exception {
         _testBoundsWithStringInput(CHAR_GENERATOR_CREATOR);
     }
 

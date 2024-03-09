@@ -6,6 +6,10 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Set of basic unit tests for verifying that the basic generator
  * functionality works as expected.
@@ -16,6 +20,7 @@ public class GeneratorFeaturesTest
     private final JsonFactory JSON_F = new JsonFactory();
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testConfigDefaults() throws IOException
     {
         JsonGenerator g = JSON_F.createGenerator(new StringWriter());
@@ -34,6 +39,7 @@ public class GeneratorFeaturesTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testConfigOverrides() throws IOException
     {
         // but also allow overide
@@ -53,6 +59,7 @@ public class GeneratorFeaturesTest
         g.close();
     }
 
+    @Test
     public void testFieldNameQuoting() throws IOException
     {
         JsonFactory f = new JsonFactory();
@@ -70,6 +77,7 @@ public class GeneratorFeaturesTest
         _testFieldNameQuoting(f, true);
     }
 
+    @Test
     public void testNonNumericQuoting() throws IOException
     {
         JsonFactory f = new JsonFactory();
@@ -91,6 +99,7 @@ public class GeneratorFeaturesTest
      * Testing for [JACKSON-176], ability to force serializing numbers
      * as JSON Strings.
      */
+    @Test
     public void testNumbersAsJSONStrings() throws IOException
     {
         JsonFactory f = new JsonFactory();
@@ -110,6 +119,7 @@ public class GeneratorFeaturesTest
 
     }
 
+    @Test
     public void testBigDecimalAsPlain() throws IOException
     {
         JsonFactory f = new JsonFactory();
@@ -129,6 +139,7 @@ public class GeneratorFeaturesTest
         assertEquals("100", sw.toString());
     }
 
+    @Test
     public void testBigDecimalAsPlainString() throws Exception
     {
         BigDecimal ENG = new BigDecimal("1E+2");
@@ -153,6 +164,7 @@ public class GeneratorFeaturesTest
 
     // [core#315]
     @SuppressWarnings("deprecation")
+    @Test
     public void testTooBigBigDecimal() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -238,6 +250,7 @@ public class GeneratorFeaturesTest
     }
 
     // for [core#246]
+    @Test
     public void testFieldNameQuotingEnabled() throws IOException
     {
         // // First, test with default factory, with quoting enabled by default
@@ -288,6 +301,7 @@ public class GeneratorFeaturesTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testChangeOnGenerator() throws IOException
     {
         StringWriter w = new StringWriter();
@@ -356,6 +370,7 @@ public class GeneratorFeaturesTest
     }
 
     // [core#717]: configurable hex digits; lower-case
+    @Test
     public void testHexLowercase() throws Exception {
         JsonFactory f = JsonFactory.builder()
                 .disable(JsonWriteFeature.WRITE_HEX_UPPER_CASE)
@@ -365,6 +380,7 @@ public class GeneratorFeaturesTest
     }
 
     // [core#717]: configurable hex digits; upper-case (default)
+    @Test
     public void testHexUppercase() throws Exception
     {
         JsonFactory f = JsonFactory.builder()

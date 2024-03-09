@@ -4,6 +4,11 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 // For [core#549], ability to use alternate quote characters
 public class CustomQuoteCharTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -13,6 +18,7 @@ public class CustomQuoteCharTest
             .build();
 
     // Only ASCII range supported as of 2.10
+    @Test
     public void testInvalidQuote() throws Exception
     {
         try {
@@ -24,6 +30,7 @@ public class CustomQuoteCharTest
         }
     }
 
+    @Test
     public void testBasicAposWithCharBased() throws Exception
     {
         StringWriter w;
@@ -44,6 +51,7 @@ public class CustomQuoteCharTest
         assertEquals("['hello world']", w.toString());
     }
 
+    @Test
     public void testBasicAposWithByteBased() throws Exception
     {
         ByteArrayOutputStream out;
@@ -64,6 +72,7 @@ public class CustomQuoteCharTest
         assertEquals("['hello world']", out.toString("UTF-8"));
     }
 
+    @Test
     public void testAposQuotingWithCharBased() throws Exception
     {
         StringWriter w;
@@ -85,6 +94,7 @@ public class CustomQuoteCharTest
         assertEquals("['It\\u0027s a sin']", w.toString());
     }
 
+    @Test
     public void testAposQuotingWithByteBased() throws Exception
     {
         ByteArrayOutputStream out;

@@ -1,13 +1,18 @@
 package com.fasterxml.jackson.core.io;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class TestIOContext
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testAllocations() throws Exception
     {
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),

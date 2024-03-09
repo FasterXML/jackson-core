@@ -3,13 +3,17 @@ package com.fasterxml.jackson.core.io;
 import java.io.StringWriter;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.fasterxml.jackson.core.*;
 
 public class TestJsonStringEncoder
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testQuoteAsString() throws Exception
     {
         JsonStringEncoder encoder = new JsonStringEncoder();
@@ -25,6 +29,7 @@ public class TestJsonStringEncoder
         assertArrayEquals("\\\"x\\\"".toCharArray(), result);
     }
 
+    @Test
     public void testQuoteCharSequenceAsString() throws Exception
     {
         StringBuilder output = new StringBuilder();
@@ -40,6 +45,7 @@ public class TestJsonStringEncoder
     }
 
     // For [JACKSON-853]
+    @Test
     public void testQuoteLongAsString() throws Exception
     {
         JsonStringEncoder encoder = new JsonStringEncoder();
@@ -56,6 +62,7 @@ public class TestJsonStringEncoder
         assertEquals(exp, new String(result));
     }
 
+    @Test
     public void testQuoteLongCharSequenceAsString() throws Exception
     {
         StringBuilder output = new StringBuilder();
@@ -72,6 +79,7 @@ public class TestJsonStringEncoder
 
     }
 
+    @Test
     public void testQuoteAsUTF8() throws Exception
     {
         // In this case, let's actually use existing JsonGenerator to produce expected values
@@ -95,6 +103,7 @@ public class TestJsonStringEncoder
         }
     }
 
+    @Test
     public void testEncodeAsUTF8() throws Exception
     {
         JsonStringEncoder encoder = new JsonStringEncoder();
@@ -112,6 +121,7 @@ public class TestJsonStringEncoder
         }
     }
 
+    @Test
     public void testCtrlChars() throws Exception
     {
         char[] input = new char[] { 0, 1, 2, 3, 4 };
@@ -120,6 +130,7 @@ public class TestJsonStringEncoder
     }
 
     // [JACKSON-884]
+    @Test
     public void testCharSequenceWithCtrlChars() throws Exception
     {
         char[] input = new char[] { 0, 1, 2, 3, 4 };
@@ -131,6 +142,7 @@ public class TestJsonStringEncoder
     }
 
     // [core#712]: simple sanity checks for calculation logic
+    @Test
     public void testByteBufferDefaultSize()
     {
         // byte size is simple, x2 except below buffer size 24
@@ -152,6 +164,7 @@ public class TestJsonStringEncoder
     }
 
     // [core#712]: simple sanity checks for calculation logic
+    @Test
     public void testCharBufferDefaultSize()
     {
         // char[] bit more complex, starts with minimum size of 16

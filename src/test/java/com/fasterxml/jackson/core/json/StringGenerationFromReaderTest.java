@@ -3,7 +3,13 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.*;
 
 import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Random;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests for verifying that the string
@@ -22,12 +28,14 @@ public class StringGenerationFromReaderTest
 
     private final JsonFactory FACTORY = new JsonFactory();
 
+    @Test
     public void testBasicEscaping() throws Exception
     {
         doTestBasicEscaping();
     }
 
     // for [core#194]
+    @Test
     public void testMediumStringsBytes() throws Exception
     {
         final JsonFactory jsonF = new JsonFactory();
@@ -39,6 +47,7 @@ public class StringGenerationFromReaderTest
     }
 
     // for [core#194]
+    @Test
     public void testMediumStringsChars() throws Exception
     {
         final JsonFactory jsonF = new JsonFactory();
@@ -49,6 +58,7 @@ public class StringGenerationFromReaderTest
         }
     }
 
+    @Test
     public void testLongerRandomSingleChunk() throws Exception
     {
         // Let's first generate 100k of pseudo-random characters, favoring
@@ -61,6 +71,7 @@ public class StringGenerationFromReaderTest
         }
     }
 
+    @Test
     public void testLongerRandomMultiChunk() throws Exception
     {
         // Let's first generate 100k of pseudo-random characters, favoring
@@ -275,6 +286,7 @@ public class StringGenerationFromReaderTest
     }
 
     // [jackson-core#556]
+    @Test
     public void testIssue556() throws Exception
     {
         StringBuilder sb = new StringBuilder(8000);

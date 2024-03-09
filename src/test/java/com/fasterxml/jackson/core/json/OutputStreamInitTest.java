@@ -3,8 +3,12 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.JsonEncoding;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 //[core#764] (and [databind#3508]
 public class OutputStreamInitTest
@@ -44,6 +48,7 @@ public class OutputStreamInitTest
         }
     }
 
+    @Test
     public void testForFile() throws Exception
     {
         final FailingJsonFactory jsonF = new FailingJsonFactory();

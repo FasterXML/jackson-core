@@ -1,13 +1,19 @@
 package com.fasterxml.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ParserErrorHandling679Test
     extends com.fasterxml.jackson.core.BaseTest
 {
     // [core#679]
+    @Test
     public void testNonRootMangledFloats679Bytes() throws Exception {
         _testNonRootMangledFloats679(MODE_INPUT_STREAM);
         _testNonRootMangledFloats679(MODE_INPUT_STREAM_THROTTLED);
@@ -15,11 +21,13 @@ public class ParserErrorHandling679Test
     }
 
     // [core#679]
+    @Test
     public void testNonRootMangledFloats679Chars() throws Exception {
         _testNonRootMangledFloats679(MODE_READER);
     }
 
     // [core#679]
+    @Test
     public void testNonRootMangledInts679Bytes() throws Exception {
         _testNonRootMangledInts(MODE_INPUT_STREAM);
         _testNonRootMangledInts(MODE_INPUT_STREAM_THROTTLED);

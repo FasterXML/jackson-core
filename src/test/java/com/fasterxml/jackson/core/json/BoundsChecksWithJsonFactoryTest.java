@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.core.json;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.TokenStreamFactory;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BoundsChecksWithJsonFactoryTest
     extends BaseTest
@@ -20,6 +24,7 @@ public class BoundsChecksWithJsonFactoryTest
     /**********************************************************************
      */
 
+    @Test
     public void testBoundsWithByteArrayInput() throws Exception {
         final TokenStreamFactory PARSER_F = newStreamFactory();
 
@@ -64,6 +69,7 @@ public class BoundsChecksWithJsonFactoryTest
     /**********************************************************************
      */
 
+    @Test
     public void testBoundsWithCharArrayInput() throws Exception {
         final TokenStreamFactory PARSER_F = newStreamFactory();
 
@@ -71,6 +77,7 @@ public class BoundsChecksWithJsonFactoryTest
                 (data,offset,len)->PARSER_F.createParser(data, offset, len));
     }
 
+    @Test
     private void testBoundsWithCharArrayInput(CharBackedCreation creator) throws Exception
     {
         final char[] DATA = new char[10];
@@ -85,6 +92,7 @@ public class BoundsChecksWithJsonFactoryTest
         testBoundsWithCharArrayInput(creator, null, 0, 3);
     }
 
+    @Test
     private void testBoundsWithCharArrayInput(CharBackedCreation creator,
             char[] data, int offset, int len) throws Exception
     {

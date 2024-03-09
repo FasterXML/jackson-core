@@ -5,9 +5,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonFactoryTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -115,6 +119,7 @@ public class JsonFactoryTest
     final JsonFactory JSON_F = sharedStreamFactory();
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testGeneratorFeatures() throws Exception
     {
         assertNull(JSON_F.getCodec());
@@ -130,6 +135,7 @@ public class JsonFactoryTest
         assertFalse(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
     }
 
+    @Test
     public void testFactoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -144,6 +150,7 @@ public class JsonFactoryTest
         assertFalse(JSON_F.canHandleBinaryNatively());
     }
 
+    @Test
     public void testFactoryMisc() throws Exception
     {
         assertNull(JSON_F.getInputDecorator());
@@ -163,6 +170,7 @@ public class JsonFactoryTest
     // Basically simply exercises basic functionality, to ensure
     // there are no obvious problems; needed since testing never
     // disables this handling otherwise
+    @Test
     public void testDisablingBufferRecycling() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -205,6 +213,7 @@ public class JsonFactoryTest
         }
     }
 
+    @Test
     public void testJsonWithFiles() throws Exception
     {
         File file = File.createTempFile("jackson-test", null);
@@ -239,6 +248,7 @@ public class JsonFactoryTest
 
     // #72
     @SuppressWarnings("deprecation")
+    @Test
     public void testCopy() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -274,6 +284,7 @@ public class JsonFactoryTest
         assertSame(codec, jf3.getCodec());
     }
 
+    @Test
     public void testRootValues() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -291,10 +302,12 @@ public class JsonFactoryTest
         assertEquals("1/2/3", w.toString());
     }
 
+    @Test
     public void testCanonicalizationEnabled() throws Exception {
         doCanonicalizationTest(false);
     }
 
+    @Test
     public void testCanonicalizationDisabled() throws Exception {
         doCanonicalizationTest(false);
     }

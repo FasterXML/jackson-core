@@ -2,11 +2,14 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UTF8WriterTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testSimple() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -36,6 +39,7 @@ public class UTF8WriterTest
         assertEquals(str+str+str, act);
     }
 
+    @Test
     public void testSimpleAscii() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -55,6 +59,7 @@ public class UTF8WriterTest
         assertEquals(str, act);
     }
 
+    @Test
     public void testFlushAfterClose() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -74,6 +79,7 @@ public class UTF8WriterTest
         w.flush();
     }
 
+    @Test
     public void testSurrogatesOk() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -86,7 +92,7 @@ public class UTF8WriterTest
         assertEquals(4, out.size());
         final byte[] EXP_SURROGATES = new byte[] { (byte) 0xF0, (byte) 0x9F,
                (byte) 0x98, (byte) 0x83 };
-        Assert.assertArrayEquals(EXP_SURROGATES, out.toByteArray());
+        assertArrayEquals(EXP_SURROGATES, out.toByteArray());
 
         // and then as String
         out = new ByteArrayOutputStream();
@@ -94,10 +100,11 @@ public class UTF8WriterTest
         w.write("\uD83D\uDE03");
         w.close();
         assertEquals(4, out.size());
-        Assert.assertArrayEquals(EXP_SURROGATES, out.toByteArray());
+        assertArrayEquals(EXP_SURROGATES, out.toByteArray());
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testSurrogatesFail() throws Exception
     {
         ByteArrayOutputStream out;
@@ -138,6 +145,7 @@ public class UTF8WriterTest
 
     // For [core#1218]
     // @since 2.17
+    @Test
     public void testSurrogateConversion()
     {
         for (int first = UTF8Writer.SURR1_FIRST; first <= UTF8Writer.SURR1_LAST; first++) {

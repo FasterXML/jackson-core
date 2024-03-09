@@ -6,8 +6,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.ByteArrayOutputStream;
+
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+
+import org.junit.jupiter.api.Test;
 
 public class GeneratorFailFromReaderTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -17,20 +21,24 @@ public class GeneratorFailFromReaderTest
     // [core#177]
     // Also: should not try writing JSON String if field name expected
     // (in future maybe take one as alias... but not yet)
+    @Test
     public void testFailOnWritingStringNotFieldNameBytes() throws Exception {
         _testFailOnWritingStringNotFieldName(F, false);
     }
 
     // [core#177]
+    @Test
     public void testFailOnWritingStringNotFieldNameChars() throws Exception {
         _testFailOnWritingStringNotFieldName(F, true);
     }
 
+    @Test
     public void testFailOnWritingStringFromReaderWithTooFewCharacters() throws Exception {
         _testFailOnWritingStringFromReaderWithTooFewCharacters(F, true);
         _testFailOnWritingStringFromReaderWithTooFewCharacters(F, false);
     }
 
+    @Test
     public void testFailOnWritingStringFromNullReader() throws Exception {
         _testFailOnWritingStringFromNullReader(F, true);
         _testFailOnWritingStringFromNullReader(F, false);

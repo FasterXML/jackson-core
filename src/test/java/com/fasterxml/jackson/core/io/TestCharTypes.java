@@ -1,9 +1,14 @@
 package com.fasterxml.jackson.core.io;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class TestCharTypes
     extends com.fasterxml.jackson.core.BaseTest
 {
-    public void testAppendQuoted0_31 ()
+    @Test
+    public void testAppendQuoted0_31()
     {
         final String[] inputs =    { "\u0000",  "\u001F",  "abcd", "\u0001ABCD\u0002",   "WX\u000F\u0010YZ"   };
         final String[] expecteds = { "\\u0000", "\\u001F", "abcd", "\\u0001ABCD\\u0002", "WX\\u000F\\u0010YZ" };
@@ -21,6 +26,7 @@ public class TestCharTypes
         }
     }
 
+    @Test
     public void testHexOutOfRange()
     {
         final int[] inputs = {0, -1, 1, 129, -129};

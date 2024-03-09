@@ -3,8 +3,12 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 {
@@ -69,12 +73,14 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
      * of non-ASCII characters.
      * Related to [JACKSON-102]
      */
+    @Test
     public void testAboveAsciiEscapeWithReader() throws Exception
     {
         _testEscapeAboveAscii(false, false); // reader
         _testEscapeAboveAscii(false, true);
     }
 
+    @Test
     public void testAboveAsciiEscapeWithUTF8Stream() throws Exception
     {
         _testEscapeAboveAscii(true, false); // stream (utf-8)
@@ -83,6 +89,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 
     // // // Tests for [JACKSON-106]
 
+    @Test
     public void testEscapeCustomWithReader() throws Exception
     {
         _testEscapeCustom(false, false, "[x]"); // reader
@@ -95,6 +102,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         _testEscapeCustom(false, true, "[zzyyxx1234]");
     }
 
+    @Test
     public void testEscapeCustomWithUTF8Stream() throws Exception
     {
         _testEscapeCustom(true, false, "[x]"); // stream (utf-8)
@@ -107,6 +115,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         _testEscapeCustom(true, true, "[123456789ABCDEF]");
     }
 
+    @Test
     public void testJsonpEscapes() throws Exception {
         _testJsonpEscapes(false, false);
         _testJsonpEscapes(false, true);

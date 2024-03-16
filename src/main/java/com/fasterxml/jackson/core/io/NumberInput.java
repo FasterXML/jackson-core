@@ -39,7 +39,7 @@ public final class NumberInput
      * @since 2.17
      */
     private final static Pattern PATTERN_FLOAT = Pattern.compile(
-          "[+-]?[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?");
+          "[+-]?([0-9]+)?(\\.[0-9]+)?([eE][+-]?[0-9]+)?");
 
     /**
      * Fast method for parsing unsigned integers that are known to fit into
@@ -578,6 +578,6 @@ public final class NumberInput
      * @since 2.17
      */
     public static boolean looksLikeValidNumber(final String s) {
-        return (s != null) && PATTERN_FLOAT.matcher(s).matches();
+        return s != null && PATTERN_FLOAT.matcher(s).matches() && !s.trim().isEmpty();
     }
 }

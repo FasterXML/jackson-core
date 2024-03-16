@@ -70,6 +70,11 @@ public class NumberInputTest
         assertTrue(NumberInput.looksLikeValidNumber("-1"));
         assertTrue(NumberInput.looksLikeValidNumber("0001")); // non-JSON
 
+        // https://github.com/FasterXML/jackson-databind/issues/4435
+        assertTrue(NumberInput.looksLikeValidNumber(".01"));
+        assertTrue(NumberInput.looksLikeValidNumber("+.01"));
+        assertTrue(NumberInput.looksLikeValidNumber("-.01"));
+
         assertTrue(NumberInput.looksLikeValidNumber("0.01"));
         assertTrue(NumberInput.looksLikeValidNumber("-0.10"));
         assertTrue(NumberInput.looksLikeValidNumber("+0.25")); // non-JSON
@@ -84,6 +89,7 @@ public class NumberInputTest
 
         assertFalse(NumberInput.looksLikeValidNumber(""));
         assertFalse(NumberInput.looksLikeValidNumber("   "));
+        assertFalse(NumberInput.looksLikeValidNumber("."));
         assertFalse(NumberInput.looksLikeValidNumber("10_000"));
     }
 }

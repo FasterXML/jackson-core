@@ -578,6 +578,7 @@ public final class NumberInput
      * @since 2.17
      */
     public static boolean looksLikeValidNumber(final String s) {
-        return s != null && PATTERN_FLOAT.matcher(s).matches() && !s.trim().isEmpty();
+        // the PATTERN_FLOAT match returns true for empty strings, so we need to check for digits separately
+        return s != null && PATTERN_FLOAT.matcher(s).matches() && s.chars().anyMatch(Character::isDigit);
     }
 }

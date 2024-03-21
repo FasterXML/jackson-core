@@ -13,7 +13,7 @@ import tools.jackson.core.json.JsonWriteFeature;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class JsonWriteFeatureEscapeForwardSlashTest
+class JsonWriteFeatureEscapeForwardSlashTest
 {
     @Test
     public void testDefaultSettings() {
@@ -41,7 +41,7 @@ public class JsonWriteFeatureEscapeForwardSlashTest
     }
 
     @Test
-    public void testEscapeForwardSlash() throws Exception {
+    void escapeForwardSlash() throws Exception {
         final JsonFactory jsonF = JsonFactory.builder()
                 .enable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                 .build();

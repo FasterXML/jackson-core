@@ -1,18 +1,18 @@
 package tools.jackson.core.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for class {@link Separators}.
  *
  * @see Separators
  */
-public class SeparatorsTest {
+class SeparatorsTest {
 
-  @Test
-  public void testWithArrayValueSeparatorWithDigit() {
+    @Test
+    void withArrayValueSeparatorWithDigit() {
     Separators separators = new Separators('5', '5', '5');
     Separators separatorsTwo = separators.withArrayElementSeparator('5');
 
@@ -27,11 +27,10 @@ public class SeparatorsTest {
     assertEquals('5', separatorsTwo.getObjectNameValueSeparator());
     assertEquals('6', separatorsTwo.getArrayElementSeparator());
     assertNotSame(separatorsTwo, separators);
+    }
 
-  }
-
-  @Test
-  public void testWithObjectEntrySeparator() {
+    @Test
+    void withObjectEntrySeparator() {
     Separators separators = new Separators('5', '5', '5');
     Separators separatorsTwo = separators.withObjectEntrySeparator('!');
     Separators separatorsThree = separatorsTwo.withObjectEntrySeparator('!');
@@ -44,10 +43,10 @@ public class SeparatorsTest {
 
     assertEquals('5', separatorsThree.getArrayElementSeparator());
     assertEquals('5', separators.getObjectNameValueSeparator());
-  }
+    }
 
-  @Test
-  public void testWithObjectNameValueSeparatorWithDigit() {
+    @Test
+    void withObjectFieldValueSeparatorWithDigit() {
     Separators separators = new Separators('5', '5', '5');
     Separators separatorsTwo = separators.withObjectNameValueSeparator('5');
 
@@ -62,5 +61,5 @@ public class SeparatorsTest {
     assertNotSame(separatorsTwo, separators);
     assertEquals('5', separatorsTwo.getObjectEntrySeparator());
     assertEquals('6', separatorsTwo.getObjectNameValueSeparator());
-  }
+    }
 }

@@ -2,12 +2,12 @@ package tools.jackson.core.sym;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class ByteQuadsCanonicalizerTest
+class ByteQuadsCanonicalizerTest
 {
     @Test
-    public void testMultiplyByFourFifths()
+    void multiplyByFourFifths()
     {
         int i = 0;
         for (; i >= 0; i += 7) {

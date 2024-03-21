@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserDupHandlingTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final String[] DUP_DOCS = new String[] {
             "{ 'a':1, 'a':2 }",

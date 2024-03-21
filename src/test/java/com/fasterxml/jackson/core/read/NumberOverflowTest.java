@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class NumberOverflowTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory FACTORY = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(1000000).build())

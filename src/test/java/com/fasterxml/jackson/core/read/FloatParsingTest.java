@@ -1,16 +1,12 @@
 package com.fasterxml.jackson.core.read;
 
+import com.fasterxml.jackson.core.*;
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.TokenStreamFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#755]
-public class FloatParsingTest extends BaseTest
+public class FloatParsingTest extends JUnit5TestBase
 {
     private final byte[] FLOATS_DOC = readResource("/data/floats-755.json");
 

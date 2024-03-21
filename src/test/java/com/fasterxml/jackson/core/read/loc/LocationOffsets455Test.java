@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class LocationOffsets455Test extends com.fasterxml.jackson.core.BaseTest
+public class LocationOffsets455Test extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     // for [jackson-core#455]
     @Test

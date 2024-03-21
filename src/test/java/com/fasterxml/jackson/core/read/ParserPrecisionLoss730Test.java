@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.*;
 
 import java.io.StringWriter;
 
@@ -12,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 // [jackson-core#730]
-public class ParserPrecisionLoss730Test extends BaseTest
+public class ParserPrecisionLoss730Test extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

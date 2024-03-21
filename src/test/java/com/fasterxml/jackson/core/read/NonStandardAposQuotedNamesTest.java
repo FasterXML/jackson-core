@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class NonStandardAposQuotedNamesTest
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+        extends JUnit5TestBase
 {
     private final JsonFactory STD_F = sharedStreamFactory();
 

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("resource")
 class NumberParsingTest
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+        extends JUnit5TestBase
 {
     protected JsonFactory jsonFactory() {
         return sharedStreamFactory();

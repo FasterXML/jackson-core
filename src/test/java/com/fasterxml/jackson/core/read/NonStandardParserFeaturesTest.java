@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NonStandardParserFeaturesTest
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+        extends JUnit5TestBase
 {
     private final JsonFactory STD_F = sharedStreamFactory();
 

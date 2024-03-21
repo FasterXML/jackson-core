@@ -9,7 +9,7 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-class LocationOffsetsTest extends com.fasterxml.jackson.core.JUnit5TestBase
+class LocationOffsetsTest extends JUnit5TestBase
 {
     final JsonFactory JSON_F = new JsonFactory();
 

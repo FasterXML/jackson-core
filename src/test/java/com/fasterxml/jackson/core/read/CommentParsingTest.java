@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * works as expected.
  */
 class CommentParsingTest
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+        extends JUnit5TestBase
 {
     final static String DOC_WITH_SLASHSTAR_COMMENT =
         "[ /* comment:\n ends here */ 1 /* one more ok to have \"unquoted\" and non-ascii: \u3456 \u00A0  */ ]"

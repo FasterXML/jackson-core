@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * edge cases.
  */
 class ArrayParsingTest
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+        extends JUnit5TestBase
 {
     @Test
     void validEmpty() throws Exception

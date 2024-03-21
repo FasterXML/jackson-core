@@ -318,7 +318,7 @@ public class TrailingCommasTest extends JUnit5TestBase {
       assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
       if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
-        assertEquals(null, p.nextFieldName());
+          assertNull(p.nextFieldName());
         assertToken(JsonToken.END_OBJECT, p.currentToken());
         assertEnd(p);
       } else {

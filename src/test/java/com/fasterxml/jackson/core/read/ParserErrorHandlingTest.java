@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ParserErrorHandlingTest
         extends JUnit5TestBase

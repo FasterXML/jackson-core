@@ -182,11 +182,11 @@ public class JUnit5TestBase
         return '"'+str+'"';
     }
 
-    protected String a2q(String json) {
+    protected static String a2q(String json) {
         return json.replace('\'', '"');
     }
 
-    protected byte[] utf8Bytes(String str) {
+    protected static byte[] utf8Bytes(String str) {
         return str.getBytes(StandardCharsets.UTF_8);
     }
 

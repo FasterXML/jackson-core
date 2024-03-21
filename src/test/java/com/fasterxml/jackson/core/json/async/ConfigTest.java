@@ -3,18 +3,24 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ConfigTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
+    @Test
     public void testFactoryDefaults() throws IOException
     {
         assertTrue(DEFAULT_F.canParseAsync());
     }
 
+    @Test
     public void testAsyncParerDefaults() throws IOException
     {
         byte[] data = _jsonDoc("[true,false]");

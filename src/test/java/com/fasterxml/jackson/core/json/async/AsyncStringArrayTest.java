@@ -4,8 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncStringArrayTest extends AsyncTestBase
 {
@@ -23,6 +27,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
 
     private final JsonFactory JSON_F = new JsonFactory();
 
+    @Test
     public void testShortAsciiStrings() throws IOException
     {
 
@@ -49,6 +54,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
+    @Test
     public void testShortUnicodeStrings() throws IOException
     {
         final String repeat = "Test: "+UNICODE_2BYTES;
@@ -77,6 +83,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
+    @Test
     public void testLongAsciiStrings() throws IOException
     {
         final String[] input = new String[] {
@@ -100,6 +107,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
+    @Test
     public void testLongUnicodeStrings() throws IOException
     {
         // ~100 chars for long(er) content
@@ -128,6 +136,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
+    @Test
     public void testLongAsciiStringsSmallLimit() throws IOException
     {
         final String[] input = new String[] {
@@ -152,10 +161,10 @@ public class AsyncStringArrayTest extends AsyncTestBase
             }
             fail("expected IOException");
         } catch (IOException ie) {
-            assertTrue("unexpected exception message: " + ie.getMessage(),
-                    ie.getMessage().startsWith("String value length"));
-            assertTrue("unexpected exception message: " + ie.getMessage(),
-                    ie.getMessage().contains("exceeds the maximum allowed (100"));
+            assertTrue(ie.getMessage().startsWith("String value length"),
+                    "unexpected exception message: " + ie.getMessage());
+            assertTrue(ie.getMessage().contains("exceeds the maximum allowed (100"),
+                    "unexpected exception message: " + ie.getMessage());
         }
     }
 

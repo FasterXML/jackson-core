@@ -3,12 +3,18 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class AsyncNonStdParsingTest extends AsyncTestBase
 {
+    @Test
     public void testLargeUnquotedNames() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
@@ -58,6 +64,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testSimpleUnquotedNames() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
@@ -123,6 +130,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
      * accept single-quotes for String values (field names,
      * textual values)
      */
+    @Test
     public void testAposQuotingDisabled() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -169,6 +177,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
      * single quotes, to allow handling invalid (but, alas, common)
      * JSON.
      */
+    @Test
     public void testAposQuotingEnabled() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
@@ -267,6 +276,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     }
 
     // test to verify that we implicitly allow escaping of apostrophe
+    @Test
     public void testSingleQuotesEscaped() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
@@ -294,6 +304,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testNonStandardNameChars() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
@@ -345,6 +356,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testNonStandarBackslashQuotingForValues(int mode) throws Exception
     {
         _testNonStandarBackslashQuoting(0, 99);

@@ -3,18 +3,24 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
 {
     @SuppressWarnings("deprecation")
+    @Test
     public void testDefaultsForAsync() throws Exception {
         JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
     }
 
+    @Test
     public void testLeadingZeroesInt() throws Exception
     {
         _testLeadingZeroesInt("00003", 3);
@@ -66,6 +72,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testLeadingZeroesFloat() throws Exception
     {
         _testLeadingZeroesFloat("00.25", 0.25);
@@ -104,6 +111,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testLeadingPeriodFloat() throws Exception
     {
         _testLeadingPeriodFloat(".25", 0.25, 1);

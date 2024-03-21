@@ -5,9 +5,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AsyncScalarArrayTest extends AsyncTestBase
 {
@@ -19,6 +23,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testTokens() throws IOException
     {
         byte[] data = _jsonDoc("  [ true, false  ,true   , null,false , null]");
@@ -68,6 +73,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testInts() throws IOException
     {
         final int[] input = new int[] { 1, -1, 16, -17, 0, 131, -0, -155, 1000, -3000, 0xFFFF, -99999,
@@ -114,6 +120,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         assertTrue(r.isClosed());
     }
 
+    @Test
     public void testLong() throws IOException
     {
         final long[] input = new long[] {
@@ -166,6 +173,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testFloats() throws IOException
     {
         final float[] input = new float[] { 0.0f, 0.25f, -0.5f, 10000.125f, - 99999.075f };
@@ -207,6 +215,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         assertTrue(r.isClosed());
     }
 
+    @Test
     public void testDoubles() throws IOException
     {
         final double[] input = new double[] { 0.0, 0.25, -0.5, 10000.125,
@@ -239,9 +248,8 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         for (int i = 0; i < values.length; ++i) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
-            assertEquals(String.format("Entry #%d: %s (textual '%s')",
-                    i, values[i], r.currentText()),
-                    values[i], r.getDoubleValue());
+            assertEquals(values[i], r.getDoubleValue(), String.format("Entry #%d: %s (textual '%s')",
+                    i, values[i], r.currentText()));
             assertEquals(NumberType.DOUBLE, r.getNumberType());
         }
         assertToken(JsonToken.END_ARRAY, r.nextToken());
@@ -257,6 +265,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testBigIntegers() throws IOException
     {
         BigInteger bigBase = BigInteger.valueOf(Long.MAX_VALUE);
@@ -312,6 +321,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         assertTrue(r.isClosed());
     }
 
+    @Test
     public void testBigDecimals() throws IOException
     {
         BigDecimal bigBase = new BigDecimal("1234567890344656736.125");

@@ -3,8 +3,12 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncSimpleNestedTest extends AsyncTestBase
 {
@@ -16,6 +20,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testStuffInObject() throws Exception
     {
         byte[] data = _jsonDoc(a2q(
@@ -81,6 +86,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testStuffInArray() throws Exception
     {
         byte[] data = _jsonDoc(a2q("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
@@ -128,6 +134,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     final static String SHORT_NAME = String.format("u-%s", UNICODE_SEGMENT);
     final static String LONG_NAME = String.format("Unicode-with-some-longer-name-%s", UNICODE_SEGMENT);
 
+    @Test
     public void testStuffInArray2() throws Exception
     {
         byte[] data = _jsonDoc(a2q(String.format(
@@ -184,6 +191,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testMismatchedArray() throws Exception
     {
         byte[] data = _jsonDoc(a2q("[  }"));
@@ -212,6 +220,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testMismatchedObject() throws Exception
     {
         byte[] data = _jsonDoc(a2q("{ ]"));

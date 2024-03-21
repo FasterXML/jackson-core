@@ -5,11 +5,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonFactory;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import com.fasterxml.jackson.core.JsonToken;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AsyncNumberCoercionTest extends AsyncTestBase
 {
@@ -21,6 +26,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
     /**********************************************************
      */
 
+    @Test
     public void testToIntCoercion() throws Exception
     {
         AsyncReaderWrapper p;
@@ -60,6 +66,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testToIntFailing() throws Exception
     {
         // long -> error
@@ -147,6 +154,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testToLongCoercion() throws Exception
     {
         // int->long
@@ -179,6 +187,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testToLongFailing() throws Exception
     {
         // BigInteger -> error
@@ -213,6 +222,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testToBigIntegerCoercion() throws Exception
     {
         try (AsyncReaderWrapper p = createParser("1")) {
@@ -250,6 +260,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
     /**********************************************************
      */
 
+    @Test
     public void testToDoubleCoercion() throws Exception
     {
         // BigDecimal->double
@@ -266,6 +277,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testToBigDecimalCoercion() throws Exception
     {
         try (AsyncReaderWrapper p = createParser("1")) {

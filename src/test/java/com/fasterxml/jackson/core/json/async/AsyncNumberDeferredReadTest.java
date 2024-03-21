@@ -5,10 +5,15 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonFactory;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class AsyncNumberDeferredReadTest extends AsyncTestBase
 {
@@ -21,6 +26,7 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
      */
 
     // Int, long eagerly decoded, always
+    @Test
     public void testDeferredInt() throws Exception
     {
         // trailing space to avoid problems with DataInput
@@ -32,6 +38,7 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testDeferredLong() throws Exception
     {
         final long value = 100L + Integer.MAX_VALUE;
@@ -43,6 +50,7 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testDeferredBigInteger() throws Exception
     {
         BigInteger value = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.TEN);
@@ -65,6 +73,7 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testDeferredFloatingPoint() throws Exception
     {
         // Try with BigDecimal/Double/Float; work very similarly

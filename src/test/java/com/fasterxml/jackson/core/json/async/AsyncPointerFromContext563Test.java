@@ -1,14 +1,19 @@
 package com.fasterxml.jackson.core.json.async;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncPointerFromContext563Test extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     // [core#563]
+    @Test
     public void testPointerWithAsyncParser() throws Exception
     {
         final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"

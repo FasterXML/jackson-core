@@ -8,15 +8,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /* Additional testing for {@link java.io.DataInput} specific
- * challenges for parsing.
- */
-public class DataInputTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+* challenges for parsing.
+*/
+class DataInputTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testEOFAfterArray() throws Exception
+    void eofAfterArray() throws Exception
     {
         JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, "[ 1 ]  ");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -27,7 +27,7 @@ public class DataInputTest
     }
 
     @Test
-    public void testEOFAfterObject() throws Exception
+    void eofAfterObject() throws Exception
     {
         JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, "{ \"value\" : true }");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -39,7 +39,7 @@ public class DataInputTest
     }
 
     @Test
-    public void testEOFAfterScalar() throws Exception
+    void eofAfterScalar() throws Exception
     {
         JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, "\"foobar\" ");
         assertToken(JsonToken.VALUE_STRING, p.nextToken());

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.exc.InputCoercionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class NumberCoercionTest extends JUnit5TestBase
+class NumberCoercionTest extends JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -21,7 +21,7 @@ public class NumberCoercionTest extends JUnit5TestBase
      */
 
     @Test
-    public void testToIntCoercion() throws Exception
+    void toIntCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;
@@ -58,7 +58,7 @@ public class NumberCoercionTest extends JUnit5TestBase
 
     @SuppressWarnings("resource")
     @Test
-    public void testToIntFailing() throws Exception
+    void toIntFailing() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             // long -> error
@@ -148,7 +148,7 @@ public class NumberCoercionTest extends JUnit5TestBase
     }
 
     @Test
-    public void testToLongCoercion() throws Exception
+    void toLongCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;
@@ -186,7 +186,7 @@ public class NumberCoercionTest extends JUnit5TestBase
 
     @SuppressWarnings("resource")
     @Test
-    public void testToLongFailing() throws Exception
+    void toLongFailing() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             // BigInteger -> error
@@ -223,7 +223,7 @@ public class NumberCoercionTest extends JUnit5TestBase
     }
 
     @Test
-    public void testToBigIntegerCoercion() throws Exception
+    void toBigIntegerCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;
@@ -265,7 +265,7 @@ public class NumberCoercionTest extends JUnit5TestBase
      */
 
     @Test
-    public void testToDoubleCoercion() throws Exception
+    void toDoubleCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;
@@ -286,7 +286,7 @@ public class NumberCoercionTest extends JUnit5TestBase
     }
 
     @Test
-    public void testToBigDecimalCoercion() throws Exception
+    void toBigDecimalCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;

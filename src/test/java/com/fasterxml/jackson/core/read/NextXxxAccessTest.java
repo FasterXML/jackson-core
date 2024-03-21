@@ -9,8 +9,8 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NextXxxAccessTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class NextXxxAccessTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     /*
     /********************************************************
@@ -19,7 +19,7 @@ public class NextXxxAccessTest
      */
 
     @Test
-    public void testIsNextTokenName() throws Exception
+    void isNextTokenName() throws Exception
     {
         _testIsNextTokenName1(MODE_INPUT_STREAM);
         _testIsNextTokenName1(MODE_INPUT_STREAM_THROTTLED);
@@ -28,7 +28,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testIsNextTokenName2() throws Exception {
+    void isNextTokenName2() throws Exception {
         _testIsNextTokenName2(MODE_INPUT_STREAM);
         _testIsNextTokenName2(MODE_INPUT_STREAM_THROTTLED);
         _testIsNextTokenName2(MODE_DATA_INPUT);
@@ -36,7 +36,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testIsNextTokenName3() throws Exception {
+    void isNextTokenName3() throws Exception {
         _testIsNextTokenName3(MODE_INPUT_STREAM);
         _testIsNextTokenName3(MODE_INPUT_STREAM_THROTTLED);
         _testIsNextTokenName3(MODE_DATA_INPUT);
@@ -44,7 +44,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testIsNextTokenName4() throws Exception {
+    void isNextTokenName4() throws Exception {
         _testIsNextTokenName4(MODE_INPUT_STREAM);
         _testIsNextTokenName4(MODE_INPUT_STREAM_THROTTLED);
         _testIsNextTokenName4(MODE_DATA_INPUT);
@@ -52,7 +52,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testIsNextTokenName5() throws Exception {
+    void isNextTokenName5() throws Exception {
         _testIsNextTokenName5(MODE_INPUT_STREAM);
         _testIsNextTokenName5(MODE_INPUT_STREAM_THROTTLED);
         _testIsNextTokenName5(MODE_DATA_INPUT);
@@ -61,7 +61,7 @@ public class NextXxxAccessTest
 
     // [jackson-core#34]
     @Test
-    public void testIssue34() throws Exception
+    void issue34() throws Exception
     {
         _testIssue34(MODE_INPUT_STREAM);
         _testIssue34(MODE_INPUT_STREAM_THROTTLED);
@@ -71,7 +71,7 @@ public class NextXxxAccessTest
 
     // [jackson-core#38] with nextFieldName
     @Test
-    public void testIssue38() throws Exception
+    void issue38() throws Exception
     {
         _testIssue38(MODE_INPUT_STREAM);
         _testIssue38(MODE_INPUT_STREAM_THROTTLED);
@@ -80,7 +80,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testNextNameWithLongContent() throws Exception
+    void nextNameWithLongContent() throws Exception
     {
         _testNextNameWithLong(MODE_INPUT_STREAM);
         _testNextNameWithLong(MODE_INPUT_STREAM_THROTTLED);
@@ -90,7 +90,7 @@ public class NextXxxAccessTest
 
     // for [core#220]: problem with `nextFieldName(str)`, indented content
     @Test
-    public void testNextNameWithIndentation() throws Exception
+    void nextNameWithIndentation() throws Exception
     {
         _testNextFieldNameIndent(MODE_INPUT_STREAM);
         _testNextFieldNameIndent(MODE_INPUT_STREAM_THROTTLED);
@@ -99,7 +99,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testNextTextValue() throws Exception
+    void nextTextValue() throws Exception
     {
         _textNextText(MODE_INPUT_STREAM);
         _textNextText(MODE_INPUT_STREAM_THROTTLED);
@@ -108,7 +108,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testNextIntValue() throws Exception
+    void nextIntValue() throws Exception
     {
         _textNextInt(MODE_INPUT_STREAM);
         _textNextInt(MODE_INPUT_STREAM_THROTTLED);
@@ -117,7 +117,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testNextLongValue() throws Exception
+    void nextLongValue() throws Exception
     {
         _textNextLong(MODE_INPUT_STREAM);
         _textNextLong(MODE_INPUT_STREAM_THROTTLED);
@@ -126,7 +126,7 @@ public class NextXxxAccessTest
     }
 
     @Test
-    public void testNextBooleanValue() throws Exception
+    void nextBooleanValue() throws Exception
     {
         _textNextBoolean(MODE_INPUT_STREAM);
         _textNextBoolean(MODE_INPUT_STREAM_THROTTLED);

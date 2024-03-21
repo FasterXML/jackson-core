@@ -13,8 +13,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class NumberDeferredReadTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class NumberDeferredReadTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     protected JsonFactory jsonFactory() {
         return sharedStreamFactory();
@@ -28,7 +28,7 @@ public class NumberDeferredReadTest
 
     // Int, long eagerly decoded, always
     @Test
-    public void testDeferredInt() throws Exception
+    void deferredInt() throws Exception
     {
         _testDeferredInt(MODE_INPUT_STREAM);
         _testDeferredInt(MODE_INPUT_STREAM_THROTTLED);
@@ -48,7 +48,7 @@ public class NumberDeferredReadTest
     }
 
     @Test
-    public void testDeferredLong() throws Exception
+    void deferredLong() throws Exception
     {
         _testDeferredLong(MODE_INPUT_STREAM);
         _testDeferredLong(MODE_INPUT_STREAM_THROTTLED);
@@ -68,7 +68,7 @@ public class NumberDeferredReadTest
     }
 
     @Test
-    public void testDeferredBigInteger() throws Exception
+    void deferredBigInteger() throws Exception
     {
         _testDeferredBigInteger(MODE_INPUT_STREAM);
         _testDeferredBigInteger(MODE_INPUT_STREAM_THROTTLED);
@@ -99,7 +99,7 @@ public class NumberDeferredReadTest
      */
 
     @Test
-    public void testDeferredFloatingPoint() throws Exception
+    void deferredFloatingPoint() throws Exception
     {
         _testDeferredFloatingPoint(MODE_INPUT_STREAM);
         _testDeferredFloatingPoint(MODE_INPUT_STREAM_THROTTLED);

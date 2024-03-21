@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TrailingCommas616Test extends JUnit5TestBase
+class TrailingCommas616Test extends JUnit5TestBase
 {
     private final JsonFactory JSON_F_ALLOW_MISSING = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_MISSING_VALUES)
@@ -15,20 +15,20 @@ public class TrailingCommas616Test extends JUnit5TestBase
 
     // [core#616]
     @Test
-    public void testRootLevelComma616() throws Exception
+    void rootLevelComma616() throws Exception
     {
         _testRootLevel616(MODE_READER);
     }
 
     @Test
-    public void testRootLevelComma616Bytes() throws Exception
+    void rootLevelComma616Bytes() throws Exception
     {
         _testRootLevel616(MODE_INPUT_STREAM);
         _testRootLevel616(MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testRootLevelComma616DataInput() throws Exception
+    void rootLevelComma616DataInput() throws Exception
     {
         _testRootLevel616(MODE_DATA_INPUT);
     }

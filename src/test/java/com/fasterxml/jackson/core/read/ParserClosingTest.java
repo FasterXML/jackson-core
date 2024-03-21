@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
  * the underlying source occurs as expected and specified
  * by documentation.
  */
-public class ParserClosingTest
-    extends JUnit5TestBase
+class ParserClosingTest
+        extends JUnit5TestBase
 {
     /**
      * This unit test checks the default behaviour; with no auto-close, no
@@ -22,7 +22,7 @@ public class ParserClosingTest
      * forcing method is used.
      */
     @Test
-    public void testNoAutoCloseReader()
+    void noAutoCloseReader()
             throws Exception
     {
         final String DOC = "[ 1 ]";
@@ -56,7 +56,7 @@ public class ParserClosingTest
 
     @SuppressWarnings("resource")
     @Test
-    public void testAutoCloseReader() throws Exception
+    void autoCloseReader() throws Exception
     {
         final String DOC = "[ 1 ]";
 
@@ -84,7 +84,7 @@ public class ParserClosingTest
 
     @SuppressWarnings("resource")
     @Test
-    public void testNoAutoCloseInputStream() throws Exception
+    void noAutoCloseInputStream() throws Exception
     {
         final String DOC = "[ 1 ]";
         JsonFactory f = JsonFactory.builder()
@@ -108,7 +108,7 @@ public class ParserClosingTest
 
     // [JACKSON-287]
     @Test
-    public void testReleaseContentBytes() throws Exception
+    void releaseContentBytes() throws Exception
     {
         byte[] input = "[1]foobar".getBytes("UTF-8");
         JsonParser jp = sharedStreamFactory().createParser(input);
@@ -125,7 +125,7 @@ public class ParserClosingTest
     }
 
     @Test
-    public void testReleaseContentChars() throws Exception
+    void releaseContentChars() throws Exception
     {
         JsonParser jp = sharedStreamFactory().createParser("[true]xyz");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());

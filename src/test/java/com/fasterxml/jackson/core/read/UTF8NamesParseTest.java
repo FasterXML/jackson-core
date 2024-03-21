@@ -43,7 +43,7 @@ public class UTF8NamesParseTest
     };
 
     @Test
-    public void testEmptyName() throws Exception
+    void emptyName() throws Exception
     {
         _testEmptyName(MODE_INPUT_STREAM);
         _testEmptyName(MODE_INPUT_STREAM_THROTTLED);
@@ -64,7 +64,7 @@ public class UTF8NamesParseTest
     }
 
     @Test
-    public void testUtf8Name2Bytes() throws Exception
+    void utf8Name2Bytes() throws Exception
     {
         _testUtf8Name2Bytes(MODE_INPUT_STREAM);
         _testUtf8Name2Bytes(MODE_INPUT_STREAM_THROTTLED);
@@ -100,7 +100,7 @@ public class UTF8NamesParseTest
     }
 
     @Test
-    public void testUtf8Name3Bytes() throws Exception
+    void utf8Name3Bytes() throws Exception
     {
         _testUtf8Name3Bytes(MODE_INPUT_STREAM);
         _testUtf8Name3Bytes(MODE_DATA_INPUT);
@@ -132,7 +132,7 @@ public class UTF8NamesParseTest
     // How about tests for Surrogate-Pairs?
 
     @Test
-    public void testUtf8StringTrivial() throws Exception
+    void utf8StringTrivial() throws Exception
     {
         _testUtf8StringTrivial(MODE_INPUT_STREAM);
         _testUtf8StringTrivial(MODE_DATA_INPUT);
@@ -171,7 +171,7 @@ public class UTF8NamesParseTest
     }
 
     @Test
-    public void testUtf8StringValue() throws Exception
+    void utf8StringValue() throws Exception
     {
         _testUtf8StringValue(MODE_INPUT_STREAM, 2900);
         _testUtf8StringValue(MODE_DATA_INPUT, 2900);
@@ -247,7 +247,7 @@ public class UTF8NamesParseTest
     }
 
     @Test
-    public void testNextFieldName() throws IOException
+    void nextFieldName() throws IOException
     {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		os.write('{');

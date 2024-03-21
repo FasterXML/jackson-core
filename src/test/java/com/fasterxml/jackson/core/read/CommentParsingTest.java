@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for verifying that support for (non-standard) comments
  * works as expected.
  */
-public class CommentParsingTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class CommentParsingTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final static String DOC_WITH_SLASHSTAR_COMMENT =
         "[ /* comment:\n ends here */ 1 /* one more ok to have \"unquoted\" and non-ascii: \u3456 \u00A0  */ ]"
@@ -35,7 +35,7 @@ public class CommentParsingTest
      * recognized.
      */
     @Test
-    public void testDefaultSettings() throws Exception
+    void defaultSettings() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
@@ -45,7 +45,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testCommentsDisabled() throws Exception
+    void commentsDisabled() throws Exception
     {
         _testDisabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_INPUT_STREAM);
         _testDisabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_INPUT_STREAM);
@@ -58,7 +58,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testCommentsEnabled() throws Exception
+    void commentsEnabled() throws Exception
     {
         _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_INPUT_STREAM);
         _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_INPUT_STREAM);
@@ -71,7 +71,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testCommentsWithUTF8() throws Exception
+    void commentsWithUTF8() throws Exception
     {
         final String JSON = "/* \u00a9 2099 Yoyodyne Inc. */\n [ \"bar? \u00a9\" ]\n";
         _testWithUTF8Chars(JSON, MODE_INPUT_STREAM);
@@ -81,7 +81,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testYAMLCommentsBytes() throws Exception {
+    void yamlCommentsBytes() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
                 .build();
@@ -95,7 +95,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testYAMLCommentsChars() throws Exception {
+    void yamlCommentsChars() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
                 .build();
@@ -106,7 +106,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testCCommentsBytes() throws Exception {
+    void cCommentsBytes() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
@@ -117,7 +117,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testCCommentsChars() throws Exception {
+    void cCommentsChars() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
@@ -126,7 +126,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testCppCommentsBytes() throws Exception {
+    void cppCommentsBytes() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
@@ -137,7 +137,7 @@ public class CommentParsingTest
     }
 
     @Test
-    public void testCppCommentsChars() throws Exception {
+    void cppCommentsChars() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();

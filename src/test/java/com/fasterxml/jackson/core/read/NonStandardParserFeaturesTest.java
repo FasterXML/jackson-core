@@ -7,8 +7,8 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NonStandardParserFeaturesTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class NonStandardParserFeaturesTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory STD_F = sharedStreamFactory();
 
@@ -18,13 +18,13 @@ public class NonStandardParserFeaturesTest
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testDefaults() {
+    void defaults() {
         assertFalse(STD_F.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
         assertFalse(STD_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
     @Test
-    public void testNonStandardAnyCharQuoting() throws Exception
+    void nonStandardAnyCharQuoting() throws Exception
     {
         _testNonStandardBackslashQuoting(MODE_INPUT_STREAM);
         _testNonStandardBackslashQuoting(MODE_INPUT_STREAM_THROTTLED);
@@ -34,7 +34,7 @@ public class NonStandardParserFeaturesTest
     }
 
     @Test
-    public void testLeadingZeroesUTF8() throws Exception {
+    void leadingZeroesUTF8() throws Exception {
         _testLeadingZeroes(MODE_INPUT_STREAM, false);
         _testLeadingZeroes(MODE_INPUT_STREAM, true);
         _testLeadingZeroes(MODE_INPUT_STREAM_THROTTLED, false);
@@ -46,7 +46,7 @@ public class NonStandardParserFeaturesTest
     }
 
     @Test
-    public void testLeadingZeroesReader() throws Exception {
+    void leadingZeroesReader() throws Exception {
         _testLeadingZeroes(MODE_READER, false);
         _testLeadingZeroes(MODE_READER, true);
         _testLeadingZeroes(MODE_READER_THROTTLED, false);
@@ -55,7 +55,7 @@ public class NonStandardParserFeaturesTest
 
     // allow NaN
     @Test
-    public void testAllowNaN() throws Exception {
+    void allowNaN() throws Exception {
         _testAllowNaN(MODE_INPUT_STREAM);
         _testAllowNaN(MODE_INPUT_STREAM_THROTTLED);
         _testAllowNaN(MODE_DATA_INPUT);
@@ -65,7 +65,7 @@ public class NonStandardParserFeaturesTest
 
     // allow +Inf/-Inf
     @Test
-    public void testAllowInfinity() throws Exception {
+    void allowInfinity() throws Exception {
         _testAllowInf(MODE_INPUT_STREAM);
         _testAllowInf(MODE_INPUT_STREAM_THROTTLED);
         _testAllowInf(MODE_DATA_INPUT);

@@ -13,25 +13,25 @@ import org.junit.jupiter.api.Test;
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
-public class ParserLinefeedsTest
-    extends JUnit5TestBase
+class ParserLinefeedsTest
+        extends JUnit5TestBase
 {
     @Test
-    public void testCR() throws Exception
+    void cr() throws Exception
     {
         _testLinefeeds("\r", true);
         _testLinefeeds("\r", false);
     }
 
     @Test
-    public void testLF() throws Exception
+    void lf() throws Exception
     {
         _testLinefeeds("\n", true);
         _testLinefeeds("\n", false);
     }
 
     @Test
-    public void testCRLF() throws Exception
+    void crlf() throws Exception
     {
         _testLinefeeds("\r\n", true);
         _testLinefeeds("\r\n", false);

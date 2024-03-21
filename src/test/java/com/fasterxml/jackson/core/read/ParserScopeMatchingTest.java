@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class ParserScopeMatchingTest extends JUnit5TestBase
 {
     @Test
-    public void testUnclosedArray() throws Exception
+    void unclosedArray() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testUnclosedArray(mode);
@@ -43,7 +43,7 @@ public class ParserScopeMatchingTest extends JUnit5TestBase
     }
 
     @Test
-    public void testUnclosedObject() throws Exception
+    void unclosedObject() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testUnclosedObject(mode);
@@ -67,7 +67,7 @@ public class ParserScopeMatchingTest extends JUnit5TestBase
     }
 
     @Test
-    public void testEOFInName() throws Exception
+    void eofInName() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testEOFInName(mode);
@@ -95,7 +95,7 @@ public class ParserScopeMatchingTest extends JUnit5TestBase
     }
 
     @Test
-    public void testWeirdToken() throws Exception
+    void weirdToken() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testWeirdToken(mode);
@@ -117,7 +117,7 @@ public class ParserScopeMatchingTest extends JUnit5TestBase
     }
 
     @Test
-    public void testMismatchArrayToObject() throws Exception
+    void mismatchArrayToObject() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testMismatchArrayToObject(mode);
@@ -141,7 +141,7 @@ public class ParserScopeMatchingTest extends JUnit5TestBase
     }
 
     @Test
-    public void testMismatchObjectToArray() throws Exception
+    void mismatchObjectToArray() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testMismatchObjectToArray(mode);
@@ -165,7 +165,7 @@ public class ParserScopeMatchingTest extends JUnit5TestBase
     }
 
     @Test
-    public void testMisssingColon() throws Exception
+    void misssingColon() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testMisssingColon(mode);

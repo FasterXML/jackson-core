@@ -9,11 +9,11 @@ import com.fasterxml.jackson.core.JsonToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class LocationOffsets455Test extends com.fasterxml.jackson.core.JUnit5TestBase
+class LocationOffsets455Test extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     // for [jackson-core#455]
     @Test
-    public void testEOFLocationViaReader() throws Exception
+    void eofLocationViaReader() throws Exception
     {
         JsonParser p = createParserUsingReader("42");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -36,7 +36,7 @@ public class LocationOffsets455Test extends com.fasterxml.jackson.core.JUnit5Tes
 
     // for [jackson-core#455]
     @Test
-    public void testEOFLocationViaStream() throws Exception
+    void eofLocationViaStream() throws Exception
     {
         JsonParser p = createParserUsingStream("42", "UTF-8");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());

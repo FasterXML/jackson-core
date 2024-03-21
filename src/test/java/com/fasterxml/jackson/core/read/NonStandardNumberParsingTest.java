@@ -11,9 +11,10 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestMethodOrder(MethodName.class) // easier to read on IDE
-public class NonStandardNumberParsingTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+// easier to read on IDE
+@TestMethodOrder(MethodName.class)
+class NonStandardNumberParsingTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)
@@ -29,7 +30,7 @@ public class NonStandardNumberParsingTest
      * The format "0xc0ffee" is not valid JSON, so this should fail
      */
     @Test
-    public void testHexadecimal() throws Exception {
+    void hexadecimal() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " 0xc0ffee ")) {
                 p.nextToken();
@@ -41,7 +42,7 @@ public class NonStandardNumberParsingTest
     }
 
     @Test
-    public void testHexadecimalBigX() throws Exception {
+    void hexadecimalBigX() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " 0XC0FFEE ")) {
                 p.nextToken();
@@ -53,7 +54,7 @@ public class NonStandardNumberParsingTest
     }
 
     @Test
-    public void testNegativeHexadecimal() throws Exception {
+    void negativeHexadecimal() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " -0xc0ffee ")) {
                 p.nextToken();
@@ -69,7 +70,7 @@ public class NonStandardNumberParsingTest
      * to bogus NaN information.
      */
     @Test
-    public void testLargeDecimal() throws Exception {
+    void largeDecimal() throws Exception {
         final String biggerThanDouble = "7976931348623157e309";
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " " + biggerThanDouble + " ")) {
@@ -85,7 +86,7 @@ public class NonStandardNumberParsingTest
 
     // JSON does not allow numbers to have f or d suffixes
     @Test
-    public void testFloatMarker() throws Exception {
+    void floatMarker() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " -0.123f ")) {
                 p.nextToken();
@@ -98,7 +99,7 @@ public class NonStandardNumberParsingTest
 
     //JSON does not allow numbers to have f or d suffixes
     @Test
-    public void testDoubleMarker() throws Exception {
+    void doubleMarker() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " -0.123d ")) {
                 p.nextToken();
@@ -110,7 +111,7 @@ public class NonStandardNumberParsingTest
     }
 
     @Test
-    public void test2DecimalPoints() throws Exception {
+    void test2DecimalPoints() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " -0.123.456 ")) {
                 p.nextToken();
@@ -125,7 +126,7 @@ public class NonStandardNumberParsingTest
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */
     @Test
-    public void testLeadingDotInDecimal() throws Exception {
+    void leadingDotInDecimal() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " .123 ")) {
                 p.nextToken();
@@ -140,7 +141,7 @@ public class NonStandardNumberParsingTest
      * The format "+NNN" (as opposed to "NNN") is not valid JSON, so this should fail
      */
     @Test
-    public void testLeadingPlusSignInDecimalDefaultFail() throws Exception {
+    void leadingPlusSignInDecimalDefaultFail() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " +123 ")) {
                 p.nextToken();
@@ -161,7 +162,7 @@ public class NonStandardNumberParsingTest
      * The format "NNN." (as opposed to "NNN") is not valid JSON, so this should fail
      */
     @Test
-    public void testTrailingDotInDecimal() throws Exception {
+    void trailingDotInDecimal() throws Exception {
         for (int mode : ALL_MODES) {
             JsonParser p = createParser(mode, " 123. ");
             try {
@@ -175,69 +176,69 @@ public class NonStandardNumberParsingTest
     }
 
     @Test
-    public void testLeadingDotInDecimalAllowedDataInput() throws Exception {
+    void leadingDotInDecimalAllowedDataInput() throws Exception {
         _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
     @Test
-    public void testLeadingDotInDecimalAllowedBytes() throws Exception {
+    void leadingDotInDecimalAllowedBytes() throws Exception {
         _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM);
         _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testLeadingDotInDecimalAllowedReader() throws Exception {
+    void leadingDotInDecimalAllowedReader() throws Exception {
         _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_READER);
         _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     @Test
-    public void testTrailingDotInDecimalAllowedDataInput() throws Exception {
+    void trailingDotInDecimalAllowedDataInput() throws Exception {
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
     @Test
-    public void testTrailingDotInDecimalAllowedBytes() throws Exception {
+    void trailingDotInDecimalAllowedBytes() throws Exception {
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM);
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testTrailingDotInDecimalAllowedReader() throws Exception {
+    void trailingDotInDecimalAllowedReader() throws Exception {
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER);
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     @Test
-    public void testLeadingPlusSignInDecimalAllowedDataInput() throws Exception {
+    void leadingPlusSignInDecimalAllowedDataInput() throws Exception {
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
     @Test
-    public void testLeadingPlusSignInDecimalAllowedBytes() throws Exception {
+    void leadingPlusSignInDecimalAllowedBytes() throws Exception {
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM);
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testLeadingPlusSignInDecimalAllowedReader() throws Exception {
+    void leadingPlusSignInDecimalAllowedReader() throws Exception {
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_READER);
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     @Test
-    public void testLeadingDotInNegativeDecimalAllowedAsync() throws Exception {
+    void leadingDotInNegativeDecimalAllowedAsync() throws Exception {
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
     @Test
-    public void testLeadingDotInNegativeDecimalAllowedBytes() throws Exception {
+    void leadingDotInNegativeDecimalAllowedBytes() throws Exception {
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM);
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testLeadingDotInNegativeDecimalAllowedReader() throws Exception {
+    void leadingDotInNegativeDecimalAllowedReader() throws Exception {
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER);
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }

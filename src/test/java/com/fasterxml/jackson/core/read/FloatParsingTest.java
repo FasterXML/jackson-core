@@ -6,41 +6,41 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#755]
-public class FloatParsingTest extends JUnit5TestBase
+class FloatParsingTest extends JUnit5TestBase
 {
     private final byte[] FLOATS_DOC = readResource("/data/floats-755.json");
 
     @Test
-    public void testFloatArrayViaInputStream() throws Exception
+    void floatArrayViaInputStream() throws Exception
     {
         _testFloatArray(MODE_INPUT_STREAM, false);
         _testFloatArray(MODE_INPUT_STREAM_THROTTLED, false);
     }
 
     @Test
-    public void testFloatArrayViaInputStreamWithFastParser() throws Exception
+    void floatArrayViaInputStreamWithFastParser() throws Exception
     {
         _testFloatArray(MODE_INPUT_STREAM, true);
         _testFloatArray(MODE_INPUT_STREAM_THROTTLED, true);
     }
 
     @Test
-    public void testFloatArrayViaReader() throws Exception {
+    void floatArrayViaReader() throws Exception {
         _testFloatArray(MODE_READER, false);
     }
 
     @Test
-    public void testFloatArrayViaReaderWithFastParser() throws Exception {
+    void floatArrayViaReaderWithFastParser() throws Exception {
         _testFloatArray(MODE_READER, true);
     }
 
     @Test
-    public void testFloatArrayViaDataInput() throws Exception {
+    void floatArrayViaDataInput() throws Exception {
        _testFloatArray(MODE_DATA_INPUT, false);
     }
 
     @Test
-    public void testFloatArrayViaDataInputWithFasrtParser() throws Exception {
+    void floatArrayViaDataInputWithFasrtParser() throws Exception {
         _testFloatArray(MODE_DATA_INPUT, true);
     }
 

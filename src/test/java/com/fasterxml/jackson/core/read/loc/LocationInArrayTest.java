@@ -7,19 +7,19 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests mostly for [core#229]
-public class LocationInArrayTest extends com.fasterxml.jackson.core.JUnit5TestBase
+class LocationInArrayTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final JsonFactory JSON_F = new JsonFactory();
 
     // for [core#229]
     @Test
-    public void testOffsetInArraysBytes() throws Exception {
+    void offsetInArraysBytes() throws Exception {
         _testOffsetInArrays(true);
     }
 
     // for [core#229]
     @Test
-    public void testOffsetInArraysChars() throws Exception {
+    void offsetInArraysChars() throws Exception {
         _testOffsetInArrays(false);
     }
 

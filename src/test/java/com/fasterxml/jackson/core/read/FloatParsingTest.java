@@ -1,39 +1,49 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TokenStreamFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#755]
 public class FloatParsingTest extends BaseTest
 {
     private final byte[] FLOATS_DOC = readResource("/data/floats-755.json");
 
+    @Test
     public void testFloatArrayViaInputStream() throws Exception
     {
         _testFloatArray(MODE_INPUT_STREAM, false);
         _testFloatArray(MODE_INPUT_STREAM_THROTTLED, false);
     }
 
+    @Test
     public void testFloatArrayViaInputStreamWithFastParser() throws Exception
     {
         _testFloatArray(MODE_INPUT_STREAM, true);
         _testFloatArray(MODE_INPUT_STREAM_THROTTLED, true);
     }
 
+    @Test
     public void testFloatArrayViaReader() throws Exception {
         _testFloatArray(MODE_READER, false);
     }
 
+    @Test
     public void testFloatArrayViaReaderWithFastParser() throws Exception {
         _testFloatArray(MODE_READER, true);
     }
 
+    @Test
     public void testFloatArrayViaDataInput() throws Exception {
        _testFloatArray(MODE_DATA_INPUT, false);
     }
 
+    @Test
     public void testFloatArrayViaDataInputWithFasrtParser() throws Exception {
         _testFloatArray(MODE_DATA_INPUT, true);
     }

@@ -5,6 +5,11 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * Set of basic unit tests for verifying that Array/Object scopes
  * are properly matched.
@@ -12,6 +17,7 @@ import com.fasterxml.jackson.core.*;
 @SuppressWarnings("resource")
 public class ParserScopeMatchingTest extends BaseTest
 {
+    @Test
     public void testUnclosedArray() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -36,6 +42,7 @@ public class ParserScopeMatchingTest extends BaseTest
         }
     }
 
+    @Test
     public void testUnclosedObject() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -59,6 +66,7 @@ public class ParserScopeMatchingTest extends BaseTest
         }
     }
 
+    @Test
     public void testEOFInName() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -86,6 +94,7 @@ public class ParserScopeMatchingTest extends BaseTest
         }
     }
 
+    @Test
     public void testWeirdToken() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -107,6 +116,7 @@ public class ParserScopeMatchingTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testMismatchArrayToObject() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -130,6 +140,7 @@ public class ParserScopeMatchingTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testMismatchObjectToArray() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -153,6 +164,7 @@ public class ParserScopeMatchingTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testMisssingColon() throws Exception
     {
         for (int mode : ALL_MODES) {

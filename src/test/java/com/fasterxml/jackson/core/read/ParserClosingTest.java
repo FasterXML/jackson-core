@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.core.read;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.*;
 
 import java.io.*;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests that verify that the closing (or not) of
@@ -19,8 +21,9 @@ public class ParserClosingTest
      * automatic closing should occur, nor explicit one unless specific
      * forcing method is used.
      */
+    @Test
     public void testNoAutoCloseReader()
-        throws Exception
+            throws Exception
     {
         final String DOC = "[ 1 ]";
 
@@ -52,6 +55,7 @@ public class ParserClosingTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testAutoCloseReader() throws Exception
     {
         final String DOC = "[ 1 ]";
@@ -79,6 +83,7 @@ public class ParserClosingTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testNoAutoCloseInputStream() throws Exception
     {
         final String DOC = "[ 1 ]";
@@ -102,6 +107,7 @@ public class ParserClosingTest
     }
 
     // [JACKSON-287]
+    @Test
     public void testReleaseContentBytes() throws Exception
     {
         byte[] input = "[1]foobar".getBytes("UTF-8");
@@ -118,6 +124,7 @@ public class ParserClosingTest
         jp.close();
     }
 
+    @Test
     public void testReleaseContentChars() throws Exception
     {
         JsonParser jp = sharedStreamFactory().createParser("[true]xyz");

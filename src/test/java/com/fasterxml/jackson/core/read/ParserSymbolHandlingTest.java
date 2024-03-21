@@ -1,11 +1,17 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ParserSymbolHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     // For [core#148]
+    @Test
     public void testSymbolsWithNullBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNull(f, true);
@@ -14,6 +20,7 @@ public class ParserSymbolHandlingTest
     }
 
     // For [core#148]
+    @Test
     public void testSymbolsWithNullChars() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNull(f, false);
@@ -56,6 +63,7 @@ public class ParserSymbolHandlingTest
     // // Additional testing inspired by [dataformats-binary#312]; did not
     // // affect JSON backend but wanted to ensure
 
+    @Test
     public void testSymbolsWithNullOnlyNameBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNullOnlyNameBytes(f, true);
@@ -63,6 +71,7 @@ public class ParserSymbolHandlingTest
         _testSymbolsWithNullOnlyNameBytes(f, true);
     }
 
+    @Test
     public void testSymbolsWithNullOnlyNameChars() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNullOnlyNameBytes(f, false);

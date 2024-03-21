@@ -3,7 +3,11 @@ package com.fasterxml.jackson.core.read;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that support for (non-standard) comments
@@ -30,6 +34,7 @@ public class CommentParsingTest
      * Unit test for verifying that by default comments are not
      * recognized.
      */
+    @Test
     public void testDefaultSettings() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -39,6 +44,7 @@ public class CommentParsingTest
         p.close();
     }
 
+    @Test
     public void testCommentsDisabled() throws Exception
     {
         _testDisabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_INPUT_STREAM);
@@ -51,6 +57,7 @@ public class CommentParsingTest
         _testDisabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_DATA_INPUT);
     }
 
+    @Test
     public void testCommentsEnabled() throws Exception
     {
         _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_INPUT_STREAM);
@@ -63,6 +70,7 @@ public class CommentParsingTest
         _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_DATA_INPUT);
     }
 
+    @Test
     public void testCommentsWithUTF8() throws Exception
     {
         final String JSON = "/* \u00a9 2099 Yoyodyne Inc. */\n [ \"bar? \u00a9\" ]\n";
@@ -72,6 +80,7 @@ public class CommentParsingTest
         _testWithUTF8Chars(JSON, MODE_DATA_INPUT);
     }
 
+    @Test
     public void testYAMLCommentsBytes() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
@@ -85,6 +94,7 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_DATA_INPUT, "# foo\n");
     }
 
+    @Test
     public void testYAMLCommentsChars() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
@@ -95,6 +105,7 @@ public class CommentParsingTest
         _testCommentsBetweenArrayValues(f, MODE_READER, COMMENT);
     }
 
+    @Test
     public void testCCommentsBytes() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
@@ -105,6 +116,7 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_DATA_INPUT, COMMENT);
     }
 
+    @Test
     public void testCCommentsChars() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
@@ -113,6 +125,7 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_READER, COMMENT);
     }
 
+    @Test
     public void testCppCommentsBytes() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
@@ -123,6 +136,7 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_DATA_INPUT, COMMENT);
     }
 
+    @Test
     public void testCppCommentsChars() throws Exception {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)

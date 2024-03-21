@@ -1,10 +1,15 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NonStandardAposQuotedNamesTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -15,6 +20,7 @@ public class NonStandardAposQuotedNamesTest
             .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
             .build();
 
+    @Test
     public void testSingleQuotesDefault() throws Exception
     {
         _testSingleQuotesDefault(MODE_INPUT_STREAM);
@@ -23,6 +29,7 @@ public class NonStandardAposQuotedNamesTest
         _testSingleQuotesDefault(MODE_READER);
     }
 
+    @Test
     public void testSingleQuotesEnabled() throws Exception
     {
         _testSingleQuotesEnabled(MODE_INPUT_STREAM);
@@ -31,6 +38,7 @@ public class NonStandardAposQuotedNamesTest
         _testSingleQuotesEnabled(MODE_READER);
     }
 
+    @Test
     public void testSingleQuotesEscaped() throws Exception
     {
         _testSingleQuotesEscaped(MODE_INPUT_STREAM);
@@ -169,6 +177,7 @@ public class NonStandardAposQuotedNamesTest
     }
 
     // [core#721]: specific issue with enclosed unescaped double quotes
+    @Test
     public void testSingleQuotedKeys721() throws Exception
     {
         // empty
@@ -198,6 +207,7 @@ public class NonStandardAposQuotedNamesTest
     }
 
     // [core#721]: specific issue with enclosed unescaped double quotes
+    @Test
     public void testSingleQuotedValues721() throws Exception
     {
         // empty

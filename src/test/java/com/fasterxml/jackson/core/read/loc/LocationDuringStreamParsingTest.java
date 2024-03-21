@@ -4,8 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.core.BaseTest;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Set of tests that checks getCurrentLocation() and getTokenLocation() are as expected during
@@ -13,6 +17,7 @@ import com.fasterxml.jackson.core.JsonParser;
  */
 public class LocationDuringStreamParsingTest extends BaseTest
 {
+    @Test
     public void testLocationAtEndOfParse() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
@@ -21,6 +26,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
         }
     }
 
+    @Test
     public void testInitialLocation() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
@@ -29,6 +35,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
         }
     }
 
+    @Test
     public void testTokenLocations() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
@@ -37,6 +44,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
         }
     }
 
+    @Test
     private void testLocationAtEndOfParse(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
@@ -47,6 +55,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
         p.close();
     }
 
+    @Test
     private void testInitialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
@@ -56,6 +65,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
         assertLocation(loc, at(1, 1, 0));
     }
 
+    @Test
     private void testTokenLocations(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");

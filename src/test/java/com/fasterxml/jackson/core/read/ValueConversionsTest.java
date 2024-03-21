@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ValueConversionsTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testAsInt() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -51,6 +56,7 @@ public class ValueConversionsTest
         p.close();
     }
 
+    @Test
     public void testAsBoolean() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -94,6 +100,7 @@ public class ValueConversionsTest
         p.close();
     }
 
+    @Test
     public void testAsLong() throws Exception
     {
         for (int mode : ALL_MODES) {
@@ -139,6 +146,7 @@ public class ValueConversionsTest
         p.close();
     }
 
+    @Test
     public void testAsDouble() throws Exception
     {
         for (int mode : ALL_MODES) {

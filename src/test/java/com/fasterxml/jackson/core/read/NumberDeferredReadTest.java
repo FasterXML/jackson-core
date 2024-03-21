@@ -4,9 +4,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonFactory;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.JsonToken;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class NumberDeferredReadTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -22,6 +27,7 @@ public class NumberDeferredReadTest
      */
 
     // Int, long eagerly decoded, always
+    @Test
     public void testDeferredInt() throws Exception
     {
         _testDeferredInt(MODE_INPUT_STREAM);
@@ -41,6 +47,7 @@ public class NumberDeferredReadTest
         }
     }
 
+    @Test
     public void testDeferredLong() throws Exception
     {
         _testDeferredLong(MODE_INPUT_STREAM);
@@ -60,6 +67,7 @@ public class NumberDeferredReadTest
         }
     }
 
+    @Test
     public void testDeferredBigInteger() throws Exception
     {
         _testDeferredBigInteger(MODE_INPUT_STREAM);
@@ -90,6 +98,7 @@ public class NumberDeferredReadTest
     /**********************************************************************
      */
 
+    @Test
     public void testDeferredFloatingPoint() throws Exception
     {
         _testDeferredFloatingPoint(MODE_INPUT_STREAM);

@@ -1,6 +1,10 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ParserDupHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -19,6 +23,7 @@ public class ParserDupHandlingTest
         }
     }
 
+    @Test
     public void testSimpleDupCheckDisabled() throws Exception
     {
         // first: verify no problems if detection NOT enabled
@@ -32,6 +37,7 @@ public class ParserDupHandlingTest
         }
     }
 
+    @Test
     public void testSimpleDupsBytes() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
@@ -49,6 +55,7 @@ public class ParserDupHandlingTest
         }
     }
 
+    @Test
     public void testSimpleDupsDataInput() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
@@ -61,6 +68,7 @@ public class ParserDupHandlingTest
         }
     }
 
+    @Test
     public void testSimpleDupsChars() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();

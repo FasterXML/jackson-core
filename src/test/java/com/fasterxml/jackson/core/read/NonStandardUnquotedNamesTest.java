@@ -1,10 +1,15 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NonStandardUnquotedNamesTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -13,16 +18,19 @@ public class NonStandardUnquotedNamesTest
             .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
             .build();
 
+    @Test
     public void testSimpleUnquotedBytes() throws Exception {
         _testSimpleUnquoted(MODE_INPUT_STREAM);
         _testSimpleUnquoted(MODE_INPUT_STREAM_THROTTLED);
         _testSimpleUnquoted(MODE_DATA_INPUT);
     }
 
+    @Test
     public void testSimpleUnquotedChars() throws Exception {
         _testSimpleUnquoted(MODE_READER);
     }
 
+    @Test
     public void testLargeUnquoted() throws Exception
     {
         _testLargeUnquoted(MODE_INPUT_STREAM);
@@ -32,6 +40,7 @@ public class NonStandardUnquotedNamesTest
     }
 
     // [core#510]: ArrayIndexOutOfBounds
+    @Test
     public void testUnquotedIssue510() throws Exception
     {
         // NOTE! Requires longer input buffer to trigger longer codepath
@@ -60,6 +69,7 @@ public class NonStandardUnquotedNamesTest
     /****************************************************************
      */
 
+    @Test
     public void testNonStandardNameChars() throws Exception
     {
         _testNonStandardNameChars(MODE_INPUT_STREAM);

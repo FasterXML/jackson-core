@@ -13,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @since 2.17
  */
-public class JsonWriteFeatureEscapeForwardSlashTest
+class JsonWriteFeatureEscapeForwardSlashTest
 {
     @Test
-    public void testDontEscapeForwardSlash() throws Exception {
+    void dontEscapeForwardSlash() throws Exception {
         final JsonFactory jsonF = JsonFactory.builder()
                 .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                 .build();
@@ -27,7 +27,7 @@ public class JsonWriteFeatureEscapeForwardSlashTest
     }
 
     @Test
-    public void testEscapeForwardSlash() throws Exception {
+    void escapeForwardSlash() throws Exception {
         final JsonFactory jsonF = JsonFactory.builder()
                 .enable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                 .build();

@@ -1,13 +1,14 @@
 package com.fasterxml.jackson.core.constraints;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.StreamWriteConstraints;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StreamWriteConstraintsDefaultsTest {
+class StreamWriteConstraintsDefaultsTest {
     @Test
-    public void testOverride() {
+    void override() {
         final int depth = 123;
         StreamWriteConstraints constraints = StreamWriteConstraints.builder()
                 .maxNestingDepth(depth)

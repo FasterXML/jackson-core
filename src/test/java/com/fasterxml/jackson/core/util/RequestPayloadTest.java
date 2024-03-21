@@ -1,35 +1,39 @@
 package com.fasterxml.jackson.core.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for class {@link RequestPayload}.
  *
  * @see RequestPayload
  **/
-public class RequestPayloadTest {
-  @Test(expected = IllegalArgumentException.class)
-  public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {
-      new RequestPayload(null);
+class RequestPayloadTest {
+    @Test
+    void failsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {
+      assertThrows(IllegalArgumentException.class, () -> {
+          new RequestPayload(null);
+      });
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionTwo() {
-      new RequestPayload(null, "UTF-8");
+    @Test
+    void failsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionTwo() {
+      assertThrows(IllegalArgumentException.class, () -> {
+          new RequestPayload(null, "UTF-8");
+      });
   }
 
-  @Test
-  public void testCreateTakingCharSequenceAndCallsGetRawPayload() {
+    @Test
+    void createTakingCharSequenceAndCallsGetRawPayload() {
     CharSequence charSequence = new String();
 
     RequestPayload requestPayload = new RequestPayload(charSequence);
     assertEquals("", requestPayload.getRawPayload());
   }
 
-  @Test
-  public void testCreateTaking2ArgumentsAndCallsGetRawPayload() {
+    @Test
+    void createTaking2ArgumentsAndCallsGetRawPayload() {
     byte[] byteArray = new byte[5];
     RequestPayload requestPayload = new RequestPayload(byteArray, "/ _ \" €");
 

@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class NumberOutputTest
+class NumberOutputTest
 {
     @Test
-    public void testDivBy1000Small()
+    void divBy1000Small()
     {
         for (int number = 0; number <= 999_999; ++number) {
             int expected = number / 1000;
@@ -20,7 +20,7 @@ public class NumberOutputTest
     }
 
     @Test
-    public void testDivBy1000Sampled()
+    void divBy1000Sampled()
     {
         for (int number = 1_000_000; number > 0; number += 7) {
             int expected = number / 1000;
@@ -36,7 +36,7 @@ public class NumberOutputTest
     @Test
     // Comment out for manual testing:
     @Disabled
-    public void testDivBy1000FullRange() {
+    void divBy1000FullRange() {
         for (int number = 0; number <= Integer.MAX_VALUE; ++number) {
             int expected = number / 1000;
             int actual = NumberOutput.divBy1000(number);

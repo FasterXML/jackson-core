@@ -7,10 +7,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncConcurrencyTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.fail;
+
+class AsyncConcurrencyTest extends AsyncTestBase
 {
     final static JsonFactory JSON_F = new JsonFactory();
     static {
@@ -103,7 +107,8 @@ public class AsyncConcurrencyTest extends AsyncTestBase
     }
 
     // [jackson-core#476]
-    public void testConcurrentAsync() throws Exception
+    @Test
+    void concurrentAsync() throws Exception
     {
         final int MAX_ROUNDS = 30;
         for (int i = 0; i < MAX_ROUNDS; ++i) {

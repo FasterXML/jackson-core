@@ -5,12 +5,17 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonFactory;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncNumberDeferredReadTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class AsyncNumberDeferredReadTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -21,7 +26,8 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
      */
 
     // Int, long eagerly decoded, always
-    public void testDeferredInt() throws Exception
+    @Test
+    void deferredInt() throws Exception
     {
         // trailing space to avoid problems with DataInput
         try (AsyncReaderWrapper p = createParser(" 12345 ")) {
@@ -32,7 +38,8 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
         }
     }
 
-    public void testDeferredLong() throws Exception
+    @Test
+    void deferredLong() throws Exception
     {
         final long value = 100L + Integer.MAX_VALUE;
         try (AsyncReaderWrapper p = createParser(" "+value+" ")) {
@@ -43,7 +50,8 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
         }
     }
 
-    public void testDeferredBigInteger() throws Exception
+    @Test
+    void deferredBigInteger() throws Exception
     {
         BigInteger value = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.TEN);
         try (AsyncReaderWrapper p = createParser(" "+value+" ")) {
@@ -65,7 +73,8 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    public void testDeferredFloatingPoint() throws Exception
+    @Test
+    void deferredFloatingPoint() throws Exception
     {
         // Try with BigDecimal/Double/Float; work very similarly
         try (AsyncReaderWrapper p = createParser(" 0.25 ")) {

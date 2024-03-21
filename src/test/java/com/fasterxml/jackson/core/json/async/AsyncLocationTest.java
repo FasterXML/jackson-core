@@ -7,12 +7,17 @@ import com.fasterxml.jackson.core.async.ByteBufferFeeder;
 
 import java.nio.ByteBuffer;
 
-public class AsyncLocationTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+class AsyncLocationTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
     // for [core#531]
-    public void testLocationOffsets() throws Exception
+    @Test
+    void locationOffsets() throws Exception
     {
         JsonParser parser = DEFAULT_F.createNonBlockingByteArrayParser();
         ByteArrayFeeder feeder = (ByteArrayFeeder) parser.getNonBlockingInputFeeder();
@@ -39,7 +44,8 @@ public class AsyncLocationTest extends AsyncTestBase
         parser.close();
     }
 
-    public void testLocationOffsetsByteBuffer() throws Exception
+    @Test
+    void locationOffsetsByteBuffer() throws Exception
     {
         JsonParser parser = DEFAULT_F.createNonBlockingByteBufferParser();
         ByteBufferFeeder feeder = (ByteBufferFeeder) parser.getNonBlockingInputFeeder();

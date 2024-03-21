@@ -1,18 +1,24 @@
 package com.fasterxml.jackson.core.json.async;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
-public class AsyncCharEscapingTest extends AsyncTestBase
+class AsyncCharEscapingTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testMissingLinefeedEscaping() throws Exception
+    @Test
+    void missingLinefeedEscaping() throws Exception
     {
         byte[] doc = _jsonDoc(a2q("['Linefeed: \n.']"));
         _testMissingLinefeedEscaping(doc, 0, 99);
@@ -42,7 +48,8 @@ public class AsyncCharEscapingTest extends AsyncTestBase
         r.close();
     }
 
-    public void testSimpleEscaping() throws Exception
+    @Test
+    void simpleEscaping() throws Exception
     {
         _testSimpleEscaping(0, 99);
         _testSimpleEscaping(0, 5);
@@ -91,7 +98,8 @@ public class AsyncCharEscapingTest extends AsyncTestBase
         r.close();
     }
 
-    public void test8DigitSequence() throws Exception
+    @Test
+    void test8DigitSequence() throws Exception
     {
         String DOC = "[\"\\u00411234\"]";
         AsyncReaderWrapper r = asyncForBytes(JSON_F, 1, _jsonDoc(DOC), 1);

@@ -3,22 +3,23 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.*;
+
 public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 {
     private JsonFactory factory;
     private HashSet<JsonReadFeature> features;
 
-    public AsyncMissingValuesInObjectTest(Collection<JsonReadFeature> features) {
+    public void initAsyncMissingValuesInObjectTest(Collection<JsonReadFeature> features) {
         this.features = new HashSet<>(features);
         JsonFactoryBuilder b = (JsonFactoryBuilder) JsonFactory.builder();
         for (JsonReadFeature feature : features) {
@@ -27,7 +28,6 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
         factory = b.build();
     }
 
-    @Parameterized.Parameters(name = "Features {0}")
     public static Collection<EnumSet<JsonReadFeature>> getTestCases()
     {
         List<EnumSet<JsonReadFeature>> cases = new ArrayList<>();
@@ -38,8 +38,10 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
         return cases;
     }
 
-    @Test
-    public void testObjectBasic() throws Exception {
+    @MethodSource("getTestCases")
+    @ParameterizedTest(name = "Features {0}")
+    void objectBasic(Collection<JsonReadFeature> features) throws Exception {
+        initAsyncMissingValuesInObjectTest(features);
         String json = "{\"a\": true, \"b\": false}";
 
         try (AsyncReaderWrapper p = createParser(factory, json)) {
@@ -59,8 +61,10 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
         }
   }
 
-  @Test
-  public void testObjectInnerComma() throws Exception {
+    @MethodSource("getTestCases")
+    @ParameterizedTest(name = "Features {0}")
+    void objectInnerComma(Collection<JsonReadFeature> features) throws Exception {
+        initAsyncMissingValuesInObjectTest(features);
     String json = "{\"a\": true,, \"b\": false}";
 
     try (AsyncReaderWrapper p = createParser(factory, json)) {
@@ -75,8 +79,10 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
     }
   }
 
-  @Test
-  public void testObjectLeadingComma() throws Exception {
+    @MethodSource("getTestCases")
+    @ParameterizedTest(name = "Features {0}")
+    void objectLeadingComma(Collection<JsonReadFeature> features) throws Exception {
+        initAsyncMissingValuesInObjectTest(features);
     String json = "{,\"a\": true, \"b\": false}";
 
       try (AsyncReaderWrapper p = createParser(factory, json)) {
@@ -87,8 +93,10 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
       }
   }
 
-  @Test
-  public void testObjectTrailingComma() throws Exception {
+    @MethodSource("getTestCases")
+    @ParameterizedTest(name = "Features {0}")
+    void objectTrailingComma(Collection<JsonReadFeature> features) throws Exception {
+        initAsyncMissingValuesInObjectTest(features);
     String json = "{\"a\": true, \"b\": false,}";
 
       try (AsyncReaderWrapper p = createParser(factory, json)) {
@@ -112,8 +120,10 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
       }
   }
 
-  @Test
-  public void testObjectTrailingCommas() throws Exception {
+    @MethodSource("getTestCases")
+    @ParameterizedTest(name = "Features {0}")
+    void objectTrailingCommas(Collection<JsonReadFeature> features) throws Exception {
+        initAsyncMissingValuesInObjectTest(features);
     String json = "{\"a\": true, \"b\": false,,}";
 
       try (AsyncReaderWrapper p = createParser(factory, json)) {
@@ -134,7 +144,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
   private void assertEnd(AsyncReaderWrapper p) throws IOException {
       JsonToken next = p.nextToken();
-      assertNull("expected end of stream but found " + next, next);
+      assertNull(next, "expected end of stream but found " + next);
   }
 
   private void assertUnexpected(AsyncReaderWrapper p, char c) throws IOException {

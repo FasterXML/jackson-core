@@ -4,13 +4,18 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 // [core#462], [core#463]
-public class AsyncTokenFilterTest extends AsyncTestBase
+class AsyncTokenFilterTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -31,7 +36,8 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     };
 
     // Passes if (but only if) all content is actually available
-    public void testFilteredNonBlockingParserAllContent() throws IOException
+    @Test
+    void filteredNonBlockingParserAllContent() throws IOException
     {
         NonBlockingJsonParser nonBlockingParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         assertNotNull(nonBlockingParser.getNonBlockingInputFeeder());
@@ -53,7 +59,8 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         nonBlockingParser.close();
     }
 
-    public void testFilteredNonBlockingByteBufferParserAllContent() throws IOException
+    @Test
+    void filteredNonBlockingByteBufferParserAllContent() throws IOException
     {
         NonBlockingByteBufferJsonParser nonBlockingParser =
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
@@ -76,7 +83,8 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         nonBlockingParser.close();
     }
 
-    public void testSkipChildrenFailOnSplit() throws IOException
+    @Test
+    void skipChildrenFailOnSplit() throws IOException
     {
         NonBlockingJsonParser nbParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         @SuppressWarnings("resource")
@@ -96,7 +104,8 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         filteredParser.close();
     }
 
-    public void testSkipChildrenFailOnSplitByteBuffer() throws IOException
+    @Test
+    void skipChildrenFailOnSplitByteBuffer() throws IOException
     {
         NonBlockingByteBufferJsonParser nbParser =
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();

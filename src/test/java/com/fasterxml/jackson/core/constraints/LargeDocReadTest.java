@@ -3,9 +3,13 @@ package com.fasterxml.jackson.core.constraints;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#1047]: Add max-name-length constraints
 public class LargeDocReadTest extends AsyncTestBase
@@ -17,6 +21,7 @@ public class LargeDocReadTest extends AsyncTestBase
             .build();
 
     // Test name that is below default max name
+    @Test
     public void testLargeNameBytes() throws Exception {
         final String doc = generateJSON(StreamReadConstraints.defaults().getMaxNameLength() - 100);
         try (JsonParser p = createParserUsingStream(JSON_F_DEFAULT, doc, "UTF-8")) {
@@ -24,6 +29,7 @@ public class LargeDocReadTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testLargeNameChars() throws Exception {
         final String doc = generateJSON(StreamReadConstraints.defaults().getMaxNameLength() - 100);
         try (JsonParser p = createParserUsingReader(JSON_F_DEFAULT, doc)) {
@@ -31,6 +37,7 @@ public class LargeDocReadTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testLargeNameWithSmallLimitBytes() throws Exception
     {
         final String doc = generateJSON(12_000);
@@ -42,6 +49,7 @@ public class LargeDocReadTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testLargeNameWithSmallLimitChars() throws Exception
     {
         final String doc = generateJSON(12_000);
@@ -53,6 +61,7 @@ public class LargeDocReadTest extends AsyncTestBase
         }
     }
 
+    @Test
     public void testLargeNameWithSmallLimitAsync() throws Exception
     {
         final byte[] doc = utf8Bytes(generateJSON(12_000));

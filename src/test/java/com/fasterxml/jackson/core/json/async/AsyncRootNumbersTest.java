@@ -3,14 +3,19 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncRootNumbersTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class AsyncRootNumbersTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testRootInts() throws Exception {
+    @Test
+    void rootInts() throws Exception {
         _testRootInts("10", 10);
         _testRootInts(" 10", 10);
         _testRootInts("10   ", 10);
@@ -50,7 +55,8 @@ public class AsyncRootNumbersTest extends AsyncTestBase
         assertTrue(r.isClosed());
     }
 
-    public void testRootDoublesSimple() throws Exception {
+    @Test
+    void rootDoublesSimple() throws Exception {
         _testRootDoubles("10.0", 10.0);
         _testRootDoubles(" 10.0", 10.0);
         _testRootDoubles("10.0   ", 10.0);
@@ -64,7 +70,8 @@ public class AsyncRootNumbersTest extends AsyncTestBase
         _testRootDoubles("0.25   ", 0.25);
     }
 
-    public void testRootDoublesScientific() throws Exception
+    @Test
+    void rootDoublesScientific() throws Exception
     {
         _testRootDoubles("9e3", 9e3);
         _testRootDoubles("  9e3", 9e3);

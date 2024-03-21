@@ -15,18 +15,18 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests to verify symbol table handling works as expected, wrt symbol reuse.
  */
-public class AsyncParserNamesTest extends AsyncTestBase
+class AsyncParserNamesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testLongNames() throws IOException
+    void longNames() throws IOException
     {
         _testWithName(generateName(5000));
     }
 
     @Test
-    public void testEvenLongerName() throws Exception
+    void evenLongerName() throws Exception
     {
         StringBuilder nameBuf = new StringBuilder("longString");
         int minLength = 9000;
@@ -56,7 +56,7 @@ public class AsyncParserNamesTest extends AsyncTestBase
     }
 
     @Test
-    public void testSymbolTable() throws IOException
+    void symbolTable() throws IOException
     {
         final String STR1 = "a";
 

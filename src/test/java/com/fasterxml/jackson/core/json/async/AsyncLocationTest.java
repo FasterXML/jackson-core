@@ -11,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class AsyncLocationTest extends AsyncTestBase
+class AsyncLocationTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
     // for [core#531]
     @Test
-    public void testLocationOffsets() throws Exception
+    void locationOffsets() throws Exception
     {
         JsonParser parser = DEFAULT_F.createNonBlockingByteArrayParser();
         ByteArrayFeeder feeder = (ByteArrayFeeder) parser.getNonBlockingInputFeeder();
@@ -45,7 +45,7 @@ public class AsyncLocationTest extends AsyncTestBase
     }
 
     @Test
-    public void testLocationOffsetsByteBuffer() throws Exception
+    void locationOffsetsByteBuffer() throws Exception
     {
         JsonParser parser = DEFAULT_F.createNonBlockingByteBufferParser();
         ByteBufferFeeder feeder = (ByteBufferFeeder) parser.getNonBlockingInputFeeder();

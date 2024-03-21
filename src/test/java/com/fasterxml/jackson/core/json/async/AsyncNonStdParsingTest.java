@@ -13,10 +13,10 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class AsyncNonStdParsingTest extends AsyncTestBase
+class AsyncNonStdParsingTest extends AsyncTestBase
 {
     @Test
-    public void testLargeUnquotedNames() throws Exception
+    void largeUnquotedNames() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
@@ -66,7 +66,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     }
 
     @Test
-    public void testSimpleUnquotedNames() throws Exception
+    void simpleUnquotedNames() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
@@ -132,7 +132,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
      * textual values)
      */
     @Test
-    public void testAposQuotingDisabled() throws Exception
+    void aposQuotingDisabled() throws Exception
     {
         JsonFactory f = new JsonFactory();
         _testSingleQuotesDefault(f, 0, 99);
@@ -179,7 +179,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
      * JSON.
      */
     @Test
-    public void testAposQuotingEnabled() throws Exception
+    void aposQuotingEnabled() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
@@ -278,7 +278,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
 
     // test to verify that we implicitly allow escaping of apostrophe
     @Test
-    public void testSingleQuotesEscaped() throws Exception
+    void singleQuotesEscaped() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
@@ -306,7 +306,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     }
 
     @Test
-    public void testNonStandardNameChars() throws Exception
+    void nonStandardNameChars() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
@@ -359,7 +359,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
 
     @Disabled//this test was not executed with junit4. Now, with junit5 it is executed but fails -> disabled. TODO fix or remove
     @Test
-    public void testNonStandarBackslashQuotingForValues(int mode) throws Exception
+    void nonStandarBackslashQuotingForValues(int mode) throws Exception
     {
         _testNonStandarBackslashQuoting(0, 99);
         _testNonStandarBackslashQuoting(0, 6);

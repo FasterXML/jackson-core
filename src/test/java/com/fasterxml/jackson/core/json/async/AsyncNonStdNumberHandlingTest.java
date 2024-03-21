@@ -15,13 +15,13 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
 {
     @SuppressWarnings("deprecation")
     @Test
-    public void testDefaultsForAsync() throws Exception {
+    void defaultsForAsync() throws Exception {
         JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
     }
 
     @Test
-    public void testLeadingZeroesInt() throws Exception
+    void leadingZeroesInt() throws Exception
     {
         _testLeadingZeroesInt("00003", 3);
         _testLeadingZeroesInt("00003 ", 3);
@@ -73,7 +73,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
     }
 
     @Test
-    public void testLeadingZeroesFloat() throws Exception
+    void leadingZeroesFloat() throws Exception
     {
         _testLeadingZeroesFloat("00.25", 0.25);
         _testLeadingZeroesFloat("  00.25", 0.25);
@@ -112,7 +112,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
     }
 
     @Test
-    public void testLeadingPeriodFloat() throws Exception
+    void leadingPeriodFloat() throws Exception
     {
         _testLeadingPeriodFloat(".25", 0.25, 1);
         _testLeadingPeriodFloat(".25", 0.25, 100);

@@ -14,7 +14,7 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
 
     // [core#563]
     @Test
-    public void testPointerWithAsyncParser() throws Exception
+    void pointerWithAsyncParser() throws Exception
     {
         final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
                 +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");

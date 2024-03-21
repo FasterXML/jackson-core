@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class AsyncFieldNamesTest extends AsyncTestBase
+class AsyncFieldNamesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -22,7 +22,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
 
     // Mainly to test "fast" parse for shortish names
     @Test
-    public void testSimpleFieldNames() throws IOException
+    void simpleFieldNames() throws IOException
     {
         for (String name : new String[] { "", "a", "ab", "abc", "abcd",
                 "abcd1", "abcd12", "abcd123", "abcd1234",
@@ -52,7 +52,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
     }
 
     @Test
-    public void testEscapedFieldNames() throws IOException
+    void escapedFieldNames() throws IOException
     {
         _testEscapedFieldNames("\\'foo\\'", "'foo'");
         _testEscapedFieldNames("\\'foobar\\'", "'foobar'");

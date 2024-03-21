@@ -11,18 +11,18 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsyncNaNHandlingTest extends AsyncTestBase
+class AsyncNaNHandlingTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testDefaultsForAsync() throws Exception {
+    void defaultsForAsync() throws Exception {
         assertFalse(DEFAULT_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
     @Test
-    public void testDisallowNaN() throws Exception
+    void disallowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
 
@@ -40,7 +40,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
     }
 
     @Test
-    public void testAllowNaN() throws Exception
+    void allowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
         JsonFactory f = JsonFactory.builder()
@@ -85,7 +85,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
     }
 
     @Test
-    public void testDisallowInf() throws Exception
+    void disallowInf() throws Exception
     {
         // these are serializations of JDK itself:
         _testDisallowInf(DEFAULT_F, "Infinity", 99);
@@ -122,7 +122,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
     }
 
     @Test
-    public void testAllowInf() throws Exception
+    void allowInf() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)

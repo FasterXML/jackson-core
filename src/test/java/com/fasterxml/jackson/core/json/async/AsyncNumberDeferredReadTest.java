@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class AsyncNumberDeferredReadTest extends AsyncTestBase
+class AsyncNumberDeferredReadTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -27,7 +27,7 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
 
     // Int, long eagerly decoded, always
     @Test
-    public void testDeferredInt() throws Exception
+    void deferredInt() throws Exception
     {
         // trailing space to avoid problems with DataInput
         try (AsyncReaderWrapper p = createParser(" 12345 ")) {
@@ -39,7 +39,7 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
     }
 
     @Test
-    public void testDeferredLong() throws Exception
+    void deferredLong() throws Exception
     {
         final long value = 100L + Integer.MAX_VALUE;
         try (AsyncReaderWrapper p = createParser(" "+value+" ")) {
@@ -51,7 +51,7 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
     }
 
     @Test
-    public void testDeferredBigInteger() throws Exception
+    void deferredBigInteger() throws Exception
     {
         BigInteger value = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.TEN);
         try (AsyncReaderWrapper p = createParser(" "+value+" ")) {
@@ -74,7 +74,7 @@ public class AsyncNumberDeferredReadTest extends AsyncTestBase
      */
 
     @Test
-    public void testDeferredFloatingPoint() throws Exception
+    void deferredFloatingPoint() throws Exception
     {
         // Try with BigDecimal/Double/Float; work very similarly
         try (AsyncReaderWrapper p = createParser(" 0.25 ")) {

@@ -13,12 +13,12 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
-public class AsyncCharEscapingTest extends AsyncTestBase
+class AsyncCharEscapingTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testMissingLinefeedEscaping() throws Exception
+    void missingLinefeedEscaping() throws Exception
     {
         byte[] doc = _jsonDoc(a2q("['Linefeed: \n.']"));
         _testMissingLinefeedEscaping(doc, 0, 99);
@@ -49,7 +49,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
     }
 
     @Test
-    public void testSimpleEscaping() throws Exception
+    void simpleEscaping() throws Exception
     {
         _testSimpleEscaping(0, 99);
         _testSimpleEscaping(0, 5);
@@ -99,7 +99,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
     }
 
     @Test
-    public void test8DigitSequence() throws Exception
+    void test8DigitSequence() throws Exception
     {
         String DOC = "[\"\\u00411234\"]";
         AsyncReaderWrapper r = asyncForBytes(JSON_F, 1, _jsonDoc(DOC), 1);

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AsyncStringArrayTest extends AsyncTestBase
+class AsyncStringArrayTest extends AsyncTestBase
 {
     private final static String str0to9 = "1234567890";
 
@@ -28,7 +28,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testShortAsciiStrings() throws IOException
+    void shortAsciiStrings() throws IOException
     {
 
         final String[] input = new String[] {
@@ -55,7 +55,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
     }
 
     @Test
-    public void testShortUnicodeStrings() throws IOException
+    void shortUnicodeStrings() throws IOException
     {
         final String repeat = "Test: "+UNICODE_2BYTES;
         final String[] input = new String[] {
@@ -84,7 +84,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
     }
 
     @Test
-    public void testLongAsciiStrings() throws IOException
+    void longAsciiStrings() throws IOException
     {
         final String[] input = new String[] {
                 // ~100 chars for long(er) content
@@ -108,7 +108,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
     }
 
     @Test
-    public void testLongUnicodeStrings() throws IOException
+    void longUnicodeStrings() throws IOException
     {
         // ~100 chars for long(er) content
         final String LONG = String.format("%s %s %s %s %s%s %s %s %s %s %s %s%c %s",
@@ -137,7 +137,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
     }
 
     @Test
-    public void testLongAsciiStringsSmallLimit() throws IOException
+    void longAsciiStringsSmallLimit() throws IOException
     {
         final String[] input = new String[] {
                 LONG_ASCII,

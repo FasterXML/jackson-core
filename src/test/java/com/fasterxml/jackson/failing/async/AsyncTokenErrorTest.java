@@ -10,12 +10,12 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class AsyncTokenErrorTest extends AsyncTestBase
+class AsyncTokenErrorTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testInvalidKeywordsStartOk() throws Exception
+    void invalidKeywordsStartOk() throws Exception
     {
         _doTestInvalidKeyword("nul");
         _doTestInvalidKeyword("nulla");
@@ -29,7 +29,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
     }
 
     @Test
-    public void testInvalidKeywordsStartFail() throws Exception
+    void invalidKeywordsStartFail() throws Exception
     {
         _doTestInvalidKeyword("Null");
         _doTestInvalidKeyword("False");
@@ -63,7 +63,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
     }
 
     @Test
-    public void testMangledRootInts() throws Exception
+    void mangledRootInts() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("123true")) {
             JsonToken t = p.nextToken();
@@ -74,7 +74,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
     }
 
     @Test
-    public void testMangledRootFloats() throws Exception
+    void mangledRootFloats() throws Exception
     {
         // Also test with floats
         try (AsyncReaderWrapper p = _createParser("1.5false")) {
@@ -86,7 +86,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
     }
 
     @Test
-    public void testMangledNonRootInts() throws Exception
+    void mangledNonRootInts() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("[ 123true ]")) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -98,7 +98,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
     }
 
     @Test
-    public void testMangledNonRootFloats() throws Exception
+    void mangledNonRootFloats() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("[ 1.5false ]")) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());

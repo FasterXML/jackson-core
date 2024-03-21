@@ -10,18 +10,18 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ConfigTest extends AsyncTestBase
+class ConfigTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
     @Test
-    public void testFactoryDefaults() throws IOException
+    void factoryDefaults() throws IOException
     {
         assertTrue(DEFAULT_F.canParseAsync());
     }
 
     @Test
-    public void testAsyncParerDefaults() throws IOException
+    void asyncParerDefaults() throws IOException
     {
         byte[] data = _jsonDoc("[true,false]");
         AsyncReaderWrapper r = asyncForBytes(DEFAULT_F, 100, data, 0);

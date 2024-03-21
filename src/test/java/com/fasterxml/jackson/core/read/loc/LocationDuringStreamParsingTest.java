@@ -21,7 +21,7 @@ class LocationDuringStreamParsingTest extends JUnit5TestBase
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testLocationAtEndOfParse(test);
+            locationAtEndOfParse(test);
         }
     }
 
@@ -30,7 +30,7 @@ class LocationDuringStreamParsingTest extends JUnit5TestBase
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testInitialLocation(test);
+            initialLocation(test);
         }
     }
 
@@ -39,7 +39,7 @@ class LocationDuringStreamParsingTest extends JUnit5TestBase
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testTokenLocations(test);
+            tokenLocations(test);
         }
     }
 

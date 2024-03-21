@@ -157,19 +157,19 @@ class AsyncNaNHandlingTest extends AsyncTestBase
         d = p.getDoubleValue();
         assertEquals("Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("+Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("-Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.NEGATIVE_INFINITY);
+        assertEquals(Double.NEGATIVE_INFINITY, d);
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();

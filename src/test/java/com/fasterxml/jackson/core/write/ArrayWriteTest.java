@@ -69,7 +69,7 @@ class ArrayWriteTest
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 
@@ -111,7 +111,7 @@ class ArrayWriteTest
         assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("foobar", jp.getText());
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 }

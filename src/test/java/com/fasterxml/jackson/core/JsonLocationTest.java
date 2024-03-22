@@ -28,9 +28,9 @@ class JsonLocationTest
                 10L, 10L, 1, 2);
         JsonLocation loc2 = new JsonLocation(null, 10L, 10L, 3, 2);
         assertEquals(loc1, loc1);
-        assertFalse(loc1.equals(null));
-        assertFalse(loc1.equals(loc2));
-        assertFalse(loc2.equals(loc1));
+        assertNotEquals(null, loc1);
+        assertNotEquals(loc1, loc2);
+        assertNotEquals(loc2, loc1);
 
         // don't care about what it is; should not compute to 0 with data above
         assertTrue(loc1.hashCode() != 0);
@@ -166,8 +166,8 @@ class JsonLocationTest
                 5L, 0L, 1, 2);
         loc2 = new JsonLocation(_sourceRef(bogus, 1, 4),
                 5L, 0L, 1, 2);
-        assertFalse(loc1.equals(loc2));
-        assertFalse(loc2.equals(loc1));
+        assertNotEquals(loc1, loc2);
+        assertNotEquals(loc2, loc1);
     }
 
     private ContentReference _sourceRef(String rawSrc) {

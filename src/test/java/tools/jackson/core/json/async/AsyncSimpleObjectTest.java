@@ -3,6 +3,8 @@ package tools.jackson.core.json.async;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.async.AsyncTestBase;
@@ -11,7 +13,9 @@ import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncSimpleObjectTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class AsyncSimpleObjectTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -25,7 +29,8 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
 
     private final static String UNICODE_LONG_NAME = "Unicode-with-"+UNICODE_3BYTES+"-much-longer";
 
-    public void testBooleans()
+    @Test
+    void booleans()
     {
         final JsonFactory f = JSON_F;
         byte[] data = _jsonDoc(a2q(
@@ -109,7 +114,8 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     private final double NUMBER_EXP_D = 1024798.125;
     private final BigDecimal NUMBER_EXP_BD = new BigDecimal("1243565768679065.1247305834");
 
-    public void testNumbers()
+    @Test
+    void numbers()
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;

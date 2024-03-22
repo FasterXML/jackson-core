@@ -2,13 +2,18 @@ package tools.jackson.core.json.async;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncPropertyNamesTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class AsyncPropertyNamesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -17,7 +22,8 @@ public class AsyncPropertyNamesTest extends AsyncTestBase
             .build();
 
     // Mainly to test "fast" parse for shortish names
-    public void testSimpleNames() throws IOException
+    @Test
+    void simpleFieldNames() throws IOException
     {
         for (String name : new String[] { "", "a", "ab", "abc", "abcd",
                 "abcd1", "abcd12", "abcd123", "abcd1234",
@@ -46,7 +52,8 @@ public class AsyncPropertyNamesTest extends AsyncTestBase
         assertEquals(1, loc.getColumnNr());
     }
 
-    public void testEscapedNames() throws IOException
+    @Test
+    void escapedFieldNames() throws IOException
     {
         _testEscapedNames("\\'foo\\'", "'foo'");
         _testEscapedNames("\\'foobar\\'", "'foobar'");

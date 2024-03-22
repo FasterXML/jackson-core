@@ -2,16 +2,22 @@ package tools.jackson.core.json.async;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncUnicodeHandlingTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class AsyncUnicodeHandlingTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testShortUnicodeWithSurrogates() throws IOException
+    @Test
+    void shortUnicodeWithSurrogates() throws IOException
     {
         JsonFactory f = JSON_F;
 
@@ -28,7 +34,8 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
         _testUnicodeWithSurrogates(f, 53, 1);
     }
 
-    public void testLongUnicodeWithSurrogates() throws IOException
+    @Test
+    void longUnicodeWithSurrogates() throws IOException
     {
         JsonFactory f = JSON_F;
 

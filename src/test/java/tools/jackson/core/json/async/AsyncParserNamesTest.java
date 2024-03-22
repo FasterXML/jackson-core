@@ -3,25 +3,31 @@ package tools.jackson.core.json.async;
 import java.io.*;
 import java.util.Random;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Tests to verify symbol table handling works as expected, wrt symbol reuse.
  */
-public class AsyncParserNamesTest extends AsyncTestBase
+class AsyncParserNamesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testLongNames() throws IOException
+    @Test
+    void longNames() throws IOException
     {
         _testWithName(generateName(5000));
     }
 
-    public void testEvenLongerName() throws Exception
+    @Test
+    void evenLongerName() throws Exception
     {
         StringBuilder nameBuf = new StringBuilder("longString");
         int minLength = 9000;
@@ -50,7 +56,8 @@ public class AsyncParserNamesTest extends AsyncTestBase
         p.close();
     }
 
-    public void testSymbolTable() throws IOException
+    @Test
+    void symbolTable() throws IOException
     {
         final String STR1 = "a";
 

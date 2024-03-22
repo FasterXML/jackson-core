@@ -2,19 +2,25 @@ package tools.jackson.core.json.async;
 
 import java.io.ByteArrayOutputStream;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 // Tests for verifying things such as handling of invalid control characters;
 // decoding of UTF-8 BOM.
-public class AsyncInvalidCharsTest extends AsyncTestBase
+class AsyncInvalidCharsTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testUtf8BOMHandling() throws Exception
+    @Test
+    void utf8BOMHandling() throws Exception
     {
         _testUtf8BOMHandling(0, 99);
         _testUtf8BOMHandling(0, 5);
@@ -90,7 +96,8 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
         }
     }
 
-    public void testHandlingOfInvalidSpace() throws Exception
+    @Test
+    void handlingOfInvalidSpace() throws Exception
     {
         _testHandlingOfInvalidSpace(0, 99);
         _testHandlingOfInvalidSpace(0, 3);

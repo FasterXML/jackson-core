@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.async.AsyncTestBase;
@@ -11,7 +13,10 @@ import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncNumberCoercionTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class AsyncNumberCoercionTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -21,7 +26,8 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
     /**********************************************************
      */
 
-    public void testToIntCoercion() throws Exception
+    @Test
+    void toIntCoercion() throws Exception
     {
         AsyncReaderWrapper p;
 
@@ -60,7 +66,8 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         p.close();
     }
 
-    public void testToIntFailing() throws Exception
+    @Test
+    void toIntFailing() throws Exception
     {
         // long -> error
         long big = 1L + Integer.MAX_VALUE;
@@ -147,7 +154,8 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         }
     }
 
-    public void testToLongCoercion() throws Exception
+    @Test
+    void toLongCoercion() throws Exception
     {
         // int->long
         try (AsyncReaderWrapper p = createParser("1")) {
@@ -179,7 +187,8 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         }
     }
 
-    public void testToLongFailing() throws Exception
+    @Test
+    void toLongFailing() throws Exception
     {
         // BigInteger -> error
         BigInteger big = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.TEN);
@@ -213,7 +222,8 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         }
     }
 
-    public void testToBigIntegerCoercion() throws Exception
+    @Test
+    void toBigIntegerCoercion() throws Exception
     {
         try (AsyncReaderWrapper p = createParser("1")) {
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -250,7 +260,8 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
     /**********************************************************
      */
 
-    public void testToDoubleCoercion() throws Exception
+    @Test
+    void toDoubleCoercion() throws Exception
     {
         // BigDecimal->double
         try (AsyncReaderWrapper p = createParser("100.5")) {
@@ -266,7 +277,8 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         }
     }
 
-    public void testToBigDecimalCoercion() throws Exception
+    @Test
+    void toBigDecimalCoercion() throws Exception
     {
         try (AsyncReaderWrapper p = createParser("1")) {
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());

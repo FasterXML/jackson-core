@@ -1,5 +1,7 @@
 package tools.jackson.core.json.async;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.exc.StreamReadException;
@@ -7,6 +9,8 @@ import tools.jackson.core.filter.FilteringParserDelegate;
 import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.json.JsonFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [core#462], [core#463]
 public class AsyncTokenFilterTest extends AsyncTestBase
@@ -23,6 +27,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     };
 
     // Passes if (but only if) all content is actually available
+    @Test
     public void testFilteredNonBlockingParserAllContent()
     {
         NonBlockingByteArrayJsonParser nbParser = _nonBlockingParser();
@@ -41,6 +46,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         nbParser.close();
     }
 
+    @Test
     public void testSkipChildrenFailOnSplit()
     {
         NonBlockingByteArrayJsonParser nbParser = _nonBlockingParser();

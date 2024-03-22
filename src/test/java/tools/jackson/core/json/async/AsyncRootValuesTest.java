@@ -3,12 +3,16 @@ package tools.jackson.core.json.async;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncRootValuesTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class AsyncRootValuesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -18,7 +22,8 @@ public class AsyncRootValuesTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    public void testTokenRootTokens() throws Exception {
+    @Test
+    void tokenRootTokens() throws Exception {
         _testTokenRootTokens(JsonToken.VALUE_TRUE, "true");
         _testTokenRootTokens(JsonToken.VALUE_FALSE, "false");
         _testTokenRootTokens(JsonToken.VALUE_NULL, "null");
@@ -59,7 +64,8 @@ public class AsyncRootValuesTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    public void testTokenRootSequence() throws Exception
+    @Test
+    void tokenRootSequence() throws Exception
     {
         byte[] input = _jsonDoc("\n[ true, false,\nnull  ,null\n,true,false]");
 
@@ -92,7 +98,8 @@ public class AsyncRootValuesTest extends AsyncTestBase
         assertTrue(r.isClosed());
     }
 
-    public void testMixedRootSequence() throws Exception
+    @Test
+    void mixedRootSequence() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
 

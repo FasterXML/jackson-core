@@ -6,7 +6,7 @@ import tools.jackson.core.testsupport.AsyncReaderWrapper;
 import tools.jackson.core.testsupport.AsyncReaderWrapperForByteArray;
 import tools.jackson.core.testsupport.AsyncReaderWrapperForByteBuffer;
 
-public abstract class AsyncTestBase extends BaseTest
+public abstract class AsyncTestBase extends JUnit5TestBase
 {
     final static String SPACES = "                ";
 

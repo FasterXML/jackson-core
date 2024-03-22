@@ -3,12 +3,16 @@ package tools.jackson.core.json.async;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncStringArrayTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class AsyncStringArrayTest extends AsyncTestBase
 {
     private final static String str0to9 = "1234567890";
 
@@ -24,7 +28,8 @@ public class AsyncStringArrayTest extends AsyncTestBase
 
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testShortAsciiStrings() throws IOException
+    @Test
+    void shortAsciiStrings() throws IOException
     {
 
         final String[] input = new String[] {
@@ -50,7 +55,8 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
-    public void testShortUnicodeStrings() throws IOException
+    @Test
+    void shortUnicodeStrings() throws IOException
     {
         final String repeat = "Test: "+UNICODE_2BYTES;
         final String[] input = new String[] {
@@ -78,7 +84,8 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
-    public void testLongAsciiStrings() throws IOException
+    @Test
+    void longAsciiStrings() throws IOException
     {
         final String[] input = new String[] {
                 // ~100 chars for long(er) content
@@ -101,7 +108,8 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
-    public void testLongUnicodeStrings() throws IOException
+    @Test
+    void longUnicodeStrings() throws IOException
     {
         // ~100 chars for long(er) content
         final String LONG = String.format("%s %s %s %s %s%s %s %s %s %s %s %s%c %s",
@@ -129,7 +137,8 @@ public class AsyncStringArrayTest extends AsyncTestBase
         _testStrings(f, input, data, 1, 1);
     }
 
-    public void testLongAsciiStringsSmallLimit() throws IOException
+    @Test
+    void longAsciiStringsSmallLimit() throws IOException
     {
         final String[] input = new String[] {
                 LONG_ASCII,
@@ -153,10 +162,10 @@ public class AsyncStringArrayTest extends AsyncTestBase
             }
             fail("expected IOException");
         } catch (JacksonException ie) {
-            assertTrue("unexpected exception message: " + ie.getMessage(),
-                    ie.getMessage().startsWith("String value length"));
-            assertTrue("unexpected exception message: " + ie.getMessage(),
-                    ie.getMessage().contains("exceeds the maximum allowed (100"));
+            assertTrue(ie.getMessage().startsWith("String value length"),
+                    "unexpected exception message: " + ie.getMessage());
+            assertTrue(ie.getMessage().contains("exceeds the maximum allowed (100"),
+                    "unexpected exception message: " + ie.getMessage());
         }
     }
 

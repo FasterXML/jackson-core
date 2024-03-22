@@ -2,21 +2,27 @@ package tools.jackson.core.json.async;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncNaNHandlingTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class AsyncNaNHandlingTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
-    public void testDefaultsForAsync() throws Exception {
+    @Test
+    void defaultsForAsync() throws Exception {
         assertFalse(DEFAULT_F.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
-    public void testDisallowNaN() throws Exception
+    @Test
+    void disallowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
 
@@ -33,7 +39,8 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         }
     }
 
-    public void testAllowNaN() throws Exception
+    @Test
+    void allowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
         JsonFactory f = JsonFactory.builder()
@@ -76,7 +83,8 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         p.close();
     }
 
-    public void testDisallowInf() throws Exception
+    @Test
+    void disallowInf() throws Exception
     {
         // these are serializations of JDK itself:
         _testDisallowInf(DEFAULT_F, "Infinity", 99);
@@ -112,7 +120,8 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         }
     }
 
-    public void testAllowInf() throws Exception
+    @Test
+    void allowInf() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
@@ -147,19 +156,19 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         d = p.getDoubleValue();
         assertEquals("Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("+Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("-Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.NEGATIVE_INFINITY);
+        assertEquals(Double.NEGATIVE_INFINITY, d);
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();

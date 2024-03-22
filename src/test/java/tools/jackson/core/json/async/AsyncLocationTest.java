@@ -1,15 +1,20 @@
 package tools.jackson.core.json.async;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.json.JsonFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AsyncLocationTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
     // for [core#531]
+    @Test
     public void testLocationOffsets() throws Exception
     {
         JsonParser parser = DEFAULT_F.createNonBlockingByteArrayParser(ObjectReadContext.empty());

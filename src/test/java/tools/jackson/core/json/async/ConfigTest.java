@@ -2,21 +2,27 @@ package tools.jackson.core.json.async;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class ConfigTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class ConfigTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
-    public void testFactoryDefaults() throws IOException
+    @Test
+    void factoryDefaults() throws IOException
     {
         assertTrue(DEFAULT_F.canParseAsync());
     }
 
-    public void testAsyncParerDefaults() throws IOException
+    @Test
+    void asyncParerDefaults() throws IOException
     {
         byte[] data = _jsonDoc("[true,false]");
         AsyncReaderWrapper r = asyncForBytes(DEFAULT_F, 100, data, 0);

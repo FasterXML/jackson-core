@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.core.sym;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 // Simple tests to verify "placeholder" variant added in 2.13
-public class PlaceholderSymbolTableTest extends com.fasterxml.jackson.core.BaseTest
+class PlaceholderSymbolTableTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     // Test to verify it is ok to try to find names, and that none
     // are ever found
-    public void testBasicPlaceholderLookups() throws Exception
+    @Test
+    void basicPlaceholderLookups() throws Exception
     {
         final ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot(137);
         assertEquals(0, root.size());
@@ -26,7 +31,8 @@ public class PlaceholderSymbolTableTest extends com.fasterxml.jackson.core.BaseT
     }
 
     // Also: should not allow additions
-    public void testBasicPlaceholderAddFails() throws Exception
+    @Test
+    void basicPlaceholderAddFails() throws Exception
     {
         final ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot(137);
         ByteQuadsCanonicalizer placeholder = root.makeChildOrPlaceholder(0);

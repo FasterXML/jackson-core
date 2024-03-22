@@ -1,13 +1,17 @@
 package com.fasterxml.jackson.core.fuzz;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 // For
 //
 // * [core#1169],
 // * https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=61198
-public class Fuzz61198_1169_NumberParseTest extends BaseTest
+class Fuzz61198_1169_NumberParseTest extends JUnit5TestBase
 {
     // NOTE! Not enough to enable just first, but both it seem
     private final JsonFactory JSON_F = JsonFactory.builder()
@@ -15,17 +19,20 @@ public class Fuzz61198_1169_NumberParseTest extends BaseTest
             .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
             .build();
 
-    public void testLeadingPlusSignMalformedBytes() throws Exception {
+    @Test
+    void leadingPlusSignMalformedBytes() throws Exception {
         _testLeadingPlusMalformed(JSON_F, MODE_INPUT_STREAM);
         _testLeadingPlusMalformed(JSON_F, MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testLeadingPlusSignMalformedReader() throws Exception {
+    @Test
+    void leadingPlusSignMalformedReader() throws Exception {
         _testLeadingPlusMalformed(JSON_F, MODE_READER);
         _testLeadingPlusMalformed(JSON_F, MODE_READER_THROTTLED);
     }
 
-    public void testLeadingPlusSignMalformedOther() throws Exception {
+    @Test
+    void leadingPlusSignMalformedOther() throws Exception {
         _testLeadingPlusMalformed(JSON_F, MODE_DATA_INPUT);
     }
 

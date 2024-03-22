@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#1047]: Add max-name-length constraints
-public class LargeDocReadTest extends AsyncTestBase
+class LargeDocReadTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F_DEFAULT = newStreamFactory();
 
@@ -22,7 +22,7 @@ public class LargeDocReadTest extends AsyncTestBase
 
     // Test name that is below default max name
     @Test
-    public void testLargeNameBytes() throws Exception {
+    void largeNameBytes() throws Exception {
         final String doc = generateJSON(StreamReadConstraints.defaults().getMaxNameLength() - 100);
         try (JsonParser p = createParserUsingStream(JSON_F_DEFAULT, doc, "UTF-8")) {
             consumeTokens(p);
@@ -30,7 +30,7 @@ public class LargeDocReadTest extends AsyncTestBase
     }
 
     @Test
-    public void testLargeNameChars() throws Exception {
+    void largeNameChars() throws Exception {
         final String doc = generateJSON(StreamReadConstraints.defaults().getMaxNameLength() - 100);
         try (JsonParser p = createParserUsingReader(JSON_F_DEFAULT, doc)) {
             consumeTokens(p);
@@ -38,7 +38,7 @@ public class LargeDocReadTest extends AsyncTestBase
     }
 
     @Test
-    public void testLargeNameWithSmallLimitBytes() throws Exception
+    void largeNameWithSmallLimitBytes() throws Exception
     {
         final String doc = generateJSON(12_000);
         try (JsonParser p = createParserUsingStream(JSON_F_DOC_10K, doc, "UTF-8")) {
@@ -50,7 +50,7 @@ public class LargeDocReadTest extends AsyncTestBase
     }
 
     @Test
-    public void testLargeNameWithSmallLimitChars() throws Exception
+    void largeNameWithSmallLimitChars() throws Exception
     {
         final String doc = generateJSON(12_000);
         try (JsonParser p = createParserUsingReader(JSON_F_DOC_10K, doc)) {
@@ -62,7 +62,7 @@ public class LargeDocReadTest extends AsyncTestBase
     }
 
     @Test
-    public void testLargeNameWithSmallLimitAsync() throws Exception
+    void largeNameWithSmallLimitAsync() throws Exception
     {
         final byte[] doc = utf8Bytes(generateJSON(12_000));
 

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTest
+public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final String JSON = a2q(
             "{'media' : {\n"

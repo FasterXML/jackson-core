@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.filter;
 
 import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 // for [core#890]
 public class GeneratorFiltering890Test
-    extends BaseTest
+    extends JUnit5TestBase
 {
     private static final class OrTokenFilter extends TokenFilter {
 

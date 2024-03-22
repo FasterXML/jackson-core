@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Trying to repro: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=34435
-public class Fuzz34435ParseTest extends BaseTest
+public class Fuzz34435ParseTest extends JUnit5TestBase
 {
     private final byte[] DOC = readResource("/data/fuzz-json-34435.json");
 

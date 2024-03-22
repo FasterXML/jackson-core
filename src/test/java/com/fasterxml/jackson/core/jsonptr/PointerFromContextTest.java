@@ -2,18 +2,13 @@ package com.fasterxml.jackson.core.jsonptr;
 
 import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.*;
 
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.JsonToken;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PointerFromContextTest extends BaseTest
+public class PointerFromContextTest extends JUnit5TestBase
 {
     /*
     /**********************************************************

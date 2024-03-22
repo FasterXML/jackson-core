@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // Reproducing: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=52688
 // (reported as [core#834]
-public class Fuzz52688ParseTest extends BaseTest
+public class Fuzz52688ParseTest extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.jsonptr;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.BaseTest;
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // For https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=51806
 // (reported as [core#818]
-public class Fuzz51806JsonPointerParse818Test extends BaseTest
+public class Fuzz51806JsonPointerParse818Test extends JUnit5TestBase
 {
     // Before fix, StackOverflowError with 6_000 or so,
     // and OOME with 20_000.

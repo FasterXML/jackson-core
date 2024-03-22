@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-public class ParserFiltering700Test extends BaseTest
+public class ParserFiltering700Test extends JUnit5TestBase
 {
     static class NoTypeFilter extends TokenFilter {
         @Override

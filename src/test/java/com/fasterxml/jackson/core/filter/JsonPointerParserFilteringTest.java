@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.BaseTest
+public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

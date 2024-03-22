@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#1047]: Add max-name-length constraints
-public class LargeNameReadTest extends BaseTest
+public class LargeNameReadTest extends JUnit5TestBase
 {
     private final JsonFactory JSON_F_DEFAULT = newStreamFactory();
 

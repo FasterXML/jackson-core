@@ -243,6 +243,38 @@ public class JUnit5TestBase
         return TestSupport.testIOContext();
     }
 
+    protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
+    {
+        JsonParser p = f.createParser(a2q(doc));
+
+        while (p.nextToken() != null) {
+            g.copyCurrentStructure(p);
+        }
+        p.close();
+        g.close();
+    }
+
+    protected String readAndWrite(JsonFactory f, JsonParser p) throws IOException
+    {
+        StringWriter sw = new StringWriter(100);
+        JsonGenerator g = f.createGenerator(sw);
+        g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+        try {
+            while (p.nextToken() != null) {
+                g.copyCurrentEvent(p);
+            }
+        } catch (IOException e) {
+            g.flush();
+            throw new AssertionError(
+                    "Unexpected problem during `readAndWrite`. Output so far: '" +
+                            sw + "'; problem: " + e.getMessage(),
+                    e);
+        }
+        p.close();
+        g.close();
+        return sw.toString();
+    }
+
     /*
     /**********************************************************************
     /* Assertions
@@ -362,6 +394,30 @@ public class JUnit5TestBase
                 sb.append(index >> 3); // divide by 8
             }
         }
+    }
+
+    protected int[] calcQuads(String word) {
+        return calcQuads(utf8Bytes(word));
+    }
+
+    protected int[] calcQuads(byte[] wordBytes) {
+        int blen = wordBytes.length;
+        int[] result = new int[(blen + 3) / 4];
+        for (int i = 0; i < blen; ++i) {
+            int x = wordBytes[i] & 0xFF;
+
+            if (++i < blen) {
+                x = (x << 8) | (wordBytes[i] & 0xFF);
+                if (++i < blen) {
+                    x = (x << 8) | (wordBytes[i] & 0xFF);
+                    if (++i < blen) {
+                        x = (x << 8) | (wordBytes[i] & 0xFF);
+                    }
+                }
+            }
+            result[i >> 2] = x;
+        }
+        return result;
     }
 
     public static byte[] readResource(String ref)

@@ -1,6 +1,5 @@
 package tools.jackson.core.json.async;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
@@ -357,9 +356,8 @@ class AsyncNonStdParsingTest extends AsyncTestBase
         p.close();
     }
 
-    @Disabled//this test was not executed with junit4. Now, with junit5 it is executed but fails -> disabled. TODO fix or remove
     @Test
-    void nonStandarBackslashQuotingForValues(int mode) throws Exception
+    void nonStandarBackslashQuotingForValues() throws Exception
     {
         _testNonStandarBackslashQuoting(0, 99);
         _testNonStandarBackslashQuoting(0, 6);

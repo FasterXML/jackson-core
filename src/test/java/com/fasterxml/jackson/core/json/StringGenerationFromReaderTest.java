@@ -4,8 +4,7 @@ import com.fasterxml.jackson.core.*;
 
 import java.io.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Random;
 
@@ -184,7 +183,7 @@ class StringGenerationFromReaderTest
             assertEquals(JsonToken.VALUE_STRING, t);
             assertEquals(VALUE, p.getText());
             assertEquals(JsonToken.END_ARRAY, p.nextToken());
-            assertEquals(null, p.nextToken());
+            assertNull(p.nextToken());
             p.close();
         }
     }

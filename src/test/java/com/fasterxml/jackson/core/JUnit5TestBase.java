@@ -295,8 +295,16 @@ public class JUnit5TestBase
         return '"'+str+'"';
     }
 
-    public static String a2q(String json) {
+    protected static String a2q(String json) {
         return json.replace('\'', '"');
+    }
+
+    protected static byte[] utf8Bytes(String str) {
+        return str.getBytes(StandardCharsets.UTF_8);
+    }
+
+    protected String utf8String(ByteArrayOutputStream bytes) {
+        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
     public static byte[] encodeInUTF32BE(String input)
@@ -311,14 +319,6 @@ public class JUnit5TestBase
             result[ptr+3] = (byte) c;
         }
         return result;
-    }
-
-    protected static byte[] utf8Bytes(String str) {
-        return str.getBytes(StandardCharsets.UTF_8);
-    }
-
-    protected String utf8String(ByteArrayOutputStream bytes) {
-        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
     public static byte[] readResource(String ref)

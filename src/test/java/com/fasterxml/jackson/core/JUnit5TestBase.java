@@ -369,7 +369,7 @@ public class JUnit5TestBase
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
        final byte[] buf = new byte[4000];
 
-       InputStream in = BaseTest.class.getResourceAsStream(ref);
+       InputStream in = JUnit5TestBase.class.getResourceAsStream(ref);
        if (in != null) {
            try {
                int len;

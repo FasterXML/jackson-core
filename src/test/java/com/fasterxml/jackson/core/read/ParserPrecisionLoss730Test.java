@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.*;
 
 import java.io.StringWriter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 // [jackson-core#730]
-public class ParserPrecisionLoss730Test extends BaseTest
+class ParserPrecisionLoss730Test extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -17,7 +18,8 @@ public class ParserPrecisionLoss730Test extends BaseTest
      * Attempt to pass a BigDecimal value through without losing precision,
      * e.g. for pretty printing a file.
      */
-    public void testCopyCurrentEventBigDecimal() throws Exception {
+    @Test
+    void copyCurrentEventBigDecimal() throws Exception {
         String input = "1E+999";
         StringWriter stringWriter = new StringWriter();
 

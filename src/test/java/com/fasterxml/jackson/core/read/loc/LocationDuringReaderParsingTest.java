@@ -1,43 +1,50 @@
 package com.fasterxml.jackson.core.read.loc;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParser;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.List;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParser;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Set of tests that checks getCurrentLocation() and getTokenLocation() are as expected during
  * parsing.
  */
-public class LocationDuringReaderParsingTest extends BaseTest
+class LocationDuringReaderParsingTest extends
+        JUnit5TestBase
 {
-    public void testLocationAtEndOfParse() throws Exception
+    @Test
+    void locationAtEndOfParse() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testLocationAtEndOfParse(test);
+            locationAtEndOfParse(test);
         }
     }
 
-    public void testInitialLocation() throws Exception
+    @Test
+    void initialLocation() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testInitialLocation(test);
+            initialLocation(test);
         }
     }
 
-    public void testTokenLocations() throws Exception
+    @Test
+    void tokenLocations() throws Exception
     {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
-            testTokenLocations(test);
+            tokenLocations(test);
         }
     }
 
-    private void testLocationAtEndOfParse(LocationTestCase test) throws Exception
+    private void locationAtEndOfParse(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingReader(test.json);
         while (p.nextToken() != null) {
@@ -47,7 +54,7 @@ public class LocationDuringReaderParsingTest extends BaseTest
         p.close();
     }
 
-    private void testInitialLocation(LocationTestCase test) throws Exception
+    private void initialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingReader(test.json);
         JsonLocation loc = p.currentLocation();
@@ -56,7 +63,7 @@ public class LocationDuringReaderParsingTest extends BaseTest
         assertLocation(loc, at(1, 1, 0));
     }
 
-    private void testTokenLocations(LocationTestCase test) throws Exception
+    private void tokenLocations(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingReader(test.json);
         int i = 0;

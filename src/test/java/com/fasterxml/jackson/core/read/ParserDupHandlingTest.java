@@ -1,9 +1,13 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 
-public class ParserDupHandlingTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class ParserDupHandlingTest
+        extends JUnit5TestBase
 {
     private final String[] DUP_DOCS = new String[] {
             "{ 'a':1, 'a':2 }",
@@ -19,7 +23,8 @@ public class ParserDupHandlingTest
         }
     }
 
-    public void testSimpleDupCheckDisabled() throws Exception
+    @Test
+    void simpleDupCheckDisabled() throws Exception
     {
         // first: verify no problems if detection NOT enabled
         final JsonFactory f = new JsonFactory();
@@ -32,7 +37,8 @@ public class ParserDupHandlingTest
         }
     }
 
-    public void testSimpleDupsBytes() throws Exception
+    @Test
+    void simpleDupsBytes() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
@@ -49,7 +55,8 @@ public class ParserDupHandlingTest
         }
     }
 
-    public void testSimpleDupsDataInput() throws Exception
+    @Test
+    void simpleDupsDataInput() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
@@ -61,7 +68,8 @@ public class ParserDupHandlingTest
         }
     }
 
-    public void testSimpleDupsChars() throws Exception
+    @Test
+    void simpleDupsChars() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = new JsonFactory();

@@ -1,27 +1,34 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
-public class TrailingCommas616Test extends BaseTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+class TrailingCommas616Test extends JUnit5TestBase
 {
     private final JsonFactory JSON_F_ALLOW_MISSING = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_MISSING_VALUES)
             .build();
 
     // [core#616]
-    public void testRootLevelComma616() throws Exception
+    @Test
+    void rootLevelComma616() throws Exception
     {
         _testRootLevel616(MODE_READER);
     }
 
-    public void testRootLevelComma616Bytes() throws Exception
+    @Test
+    void rootLevelComma616Bytes() throws Exception
     {
         _testRootLevel616(MODE_INPUT_STREAM);
         _testRootLevel616(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testRootLevelComma616DataInput() throws Exception
+    @Test
+    void rootLevelComma616DataInput() throws Exception
     {
         _testRootLevel616(MODE_DATA_INPUT);
     }

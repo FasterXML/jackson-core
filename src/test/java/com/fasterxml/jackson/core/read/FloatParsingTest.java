@@ -1,40 +1,46 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.TokenStreamFactory;
+import com.fasterxml.jackson.core.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#755]
-public class FloatParsingTest extends BaseTest
+class FloatParsingTest extends JUnit5TestBase
 {
     private final byte[] FLOATS_DOC = readResource("/data/floats-755.json");
 
-    public void testFloatArrayViaInputStream() throws Exception
+    @Test
+    void floatArrayViaInputStream() throws Exception
     {
         _testFloatArray(MODE_INPUT_STREAM, false);
         _testFloatArray(MODE_INPUT_STREAM_THROTTLED, false);
     }
 
-    public void testFloatArrayViaInputStreamWithFastParser() throws Exception
+    @Test
+    void floatArrayViaInputStreamWithFastParser() throws Exception
     {
         _testFloatArray(MODE_INPUT_STREAM, true);
         _testFloatArray(MODE_INPUT_STREAM_THROTTLED, true);
     }
 
-    public void testFloatArrayViaReader() throws Exception {
+    @Test
+    void floatArrayViaReader() throws Exception {
         _testFloatArray(MODE_READER, false);
     }
 
-    public void testFloatArrayViaReaderWithFastParser() throws Exception {
+    @Test
+    void floatArrayViaReaderWithFastParser() throws Exception {
         _testFloatArray(MODE_READER, true);
     }
 
-    public void testFloatArrayViaDataInput() throws Exception {
+    @Test
+    void floatArrayViaDataInput() throws Exception {
        _testFloatArray(MODE_DATA_INPUT, false);
     }
 
-    public void testFloatArrayViaDataInputWithFasrtParser() throws Exception {
+    @Test
+    void floatArrayViaDataInputWithFasrtParser() throws Exception {
         _testFloatArray(MODE_DATA_INPUT, true);
     }
 

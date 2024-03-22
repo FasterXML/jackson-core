@@ -1,23 +1,32 @@
 package com.fasterxml.jackson.core.read;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-public class NextNameParserTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class NextNameParserTest
+        extends JUnit5TestBase
 {
-    public void testBasicNextNameWithReader() throws Exception
+    @Test
+    void basicNextNameWithReader() throws Exception
     {
         _testBasicNextName(MODE_READER);
     }
 
-    public void testBasicNextNameWithStream() throws Exception
+    @Test
+    void basicNextNameWithStream() throws Exception
     {
         _testBasicNextName(MODE_INPUT_STREAM);
         _testBasicNextName(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testBasicNextNameWithDataInput() throws Exception
+    @Test
+    void basicNextNameWithDataInput() throws Exception
     {
         _testBasicNextName(MODE_DATA_INPUT);
     }

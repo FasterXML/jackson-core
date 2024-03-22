@@ -5,14 +5,19 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.Random;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
 public class UTF8NamesParseTest
-    extends BaseTest
+    extends JUnit5TestBase
 {
     final static String[] UTF8_2BYTE_STRINGS = new String[] {
         // This may look funny, but UTF8 scanner has fairly elaborate decoding
@@ -37,7 +42,8 @@ public class UTF8NamesParseTest
         "But \uC023 this takes the cake",
     };
 
-    public void testEmptyName() throws Exception
+    @Test
+    void emptyName() throws Exception
     {
         _testEmptyName(MODE_INPUT_STREAM);
         _testEmptyName(MODE_INPUT_STREAM_THROTTLED);
@@ -57,7 +63,8 @@ public class UTF8NamesParseTest
         p.close();
     }
 
-    public void testUtf8Name2Bytes() throws Exception
+    @Test
+    void utf8Name2Bytes() throws Exception
     {
         _testUtf8Name2Bytes(MODE_INPUT_STREAM);
         _testUtf8Name2Bytes(MODE_INPUT_STREAM_THROTTLED);
@@ -92,7 +99,8 @@ public class UTF8NamesParseTest
         }
     }
 
-    public void testUtf8Name3Bytes() throws Exception
+    @Test
+    void utf8Name3Bytes() throws Exception
     {
         _testUtf8Name3Bytes(MODE_INPUT_STREAM);
         _testUtf8Name3Bytes(MODE_DATA_INPUT);
@@ -123,7 +131,8 @@ public class UTF8NamesParseTest
 
     // How about tests for Surrogate-Pairs?
 
-    public void testUtf8StringTrivial() throws Exception
+    @Test
+    void utf8StringTrivial() throws Exception
     {
         _testUtf8StringTrivial(MODE_INPUT_STREAM);
         _testUtf8StringTrivial(MODE_DATA_INPUT);
@@ -161,7 +170,8 @@ public class UTF8NamesParseTest
         }
     }
 
-    public void testUtf8StringValue() throws Exception
+    @Test
+    void utf8StringValue() throws Exception
     {
         _testUtf8StringValue(MODE_INPUT_STREAM, 2900);
         _testUtf8StringValue(MODE_DATA_INPUT, 2900);
@@ -236,7 +246,8 @@ public class UTF8NamesParseTest
         p.close();
     }
 
-    public void testNextFieldName() throws IOException
+    @Test
+    void nextFieldName() throws IOException
     {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		os.write('{');
@@ -256,10 +267,10 @@ public class UTF8NamesParseTest
     {
         SerializedString id = new SerializedString("id");
         JsonParser parser = createParser(mode, doc);
-        assertEquals(parser.nextToken(), JsonToken.START_OBJECT);
+        assertEquals(JsonToken.START_OBJECT, parser.nextToken());
         assertTrue(parser.nextFieldName(id));
-        assertEquals(parser.nextToken(), JsonToken.VALUE_NUMBER_INT);
-        assertEquals(parser.nextToken(), JsonToken.END_OBJECT);
+        assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
+        assertEquals(JsonToken.END_OBJECT, parser.nextToken());
         parser.close();
     }
 }

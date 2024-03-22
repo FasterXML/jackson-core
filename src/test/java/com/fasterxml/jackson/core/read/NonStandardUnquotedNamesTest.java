@@ -1,29 +1,38 @@
 package com.fasterxml.jackson.core.read;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
-public class NonStandardUnquotedNamesTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class NonStandardUnquotedNamesTest
+        extends JUnit5TestBase
 {
     private final JsonFactory UNQUOTED_FIELDS_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
             .build();
 
-    public void testSimpleUnquotedBytes() throws Exception {
+    @Test
+    void simpleUnquotedBytes() throws Exception {
         _testSimpleUnquoted(MODE_INPUT_STREAM);
         _testSimpleUnquoted(MODE_INPUT_STREAM_THROTTLED);
         _testSimpleUnquoted(MODE_DATA_INPUT);
     }
 
-    public void testSimpleUnquotedChars() throws Exception {
+    @Test
+    void simpleUnquotedChars() throws Exception {
         _testSimpleUnquoted(MODE_READER);
     }
 
-    public void testLargeUnquoted() throws Exception
+    @Test
+    void largeUnquoted() throws Exception
     {
         _testLargeUnquoted(MODE_INPUT_STREAM);
         _testLargeUnquoted(MODE_INPUT_STREAM_THROTTLED);
@@ -32,7 +41,8 @@ public class NonStandardUnquotedNamesTest
     }
 
     // [core#510]: ArrayIndexOutOfBounds
-    public void testUnquotedIssue510() throws Exception
+    @Test
+    void unquotedIssue510() throws Exception
     {
         // NOTE! Requires longer input buffer to trigger longer codepath
         char[] fullChars = new char[4001];
@@ -60,7 +70,8 @@ public class NonStandardUnquotedNamesTest
     /****************************************************************
      */
 
-    public void testNonStandardNameChars() throws Exception
+    @Test
+    void nonStandardNameChars() throws Exception
     {
         _testNonStandardNameChars(MODE_INPUT_STREAM);
         _testNonStandardNameChars(MODE_INPUT_STREAM_THROTTLED);

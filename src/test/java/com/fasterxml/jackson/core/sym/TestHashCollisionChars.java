@@ -39,7 +39,7 @@ public class TestHashCollisionChars
     */
 
     @Test
-    public void testReaderCollisions() throws Exception
+    void readerCollisions() throws Exception
     {
         StringBuilder sb = new StringBuilder();
         List<String> coll = collisions();

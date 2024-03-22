@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PointerFromContextTest extends JUnit5TestBase
+class PointerFromContextTest extends JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -21,7 +21,7 @@ public class PointerFromContextTest extends JUnit5TestBase
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
 
     @Test
-    public void testViaParser() throws Exception
+    void viaParser() throws Exception
     {
         final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
                 +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
@@ -107,7 +107,7 @@ public class PointerFromContextTest extends JUnit5TestBase
     }
 
     @Test
-    public void testViaGenerator() throws Exception
+    void viaGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(w);
@@ -152,7 +152,7 @@ public class PointerFromContextTest extends JUnit5TestBase
      */
 
     @Test
-    public void testParserWithRoot() throws Exception
+    void parserWithRoot() throws Exception
     {
         final String JSON = a2q("{'a':1,'b':3}\n"
                 +"{'a':5,'c':[1,2]}\n[1,2]\n");
@@ -216,7 +216,7 @@ public class PointerFromContextTest extends JUnit5TestBase
     }
 
     @Test
-    public void testGeneratorWithRoot() throws Exception
+    void generatorWithRoot() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(w);

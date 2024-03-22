@@ -17,25 +17,25 @@ public class SymbolsViaParserTest
 {
     // for [jackson-core#213]
     @Test
-    public void test17CharSymbols() throws Exception {
+    void test17CharSymbols() throws Exception {
         _test17Chars(false);
     }
 
     // for [jackson-core#213]
     @Test
-    public void test17ByteSymbols() throws Exception {
+    void test17ByteSymbols() throws Exception {
         _test17Chars(true);
     }
 
     // for [jackson-core#216]
     @Test
-    public void testSymbolTableExpansionChars() throws Exception {
+    void symbolTableExpansionChars() throws Exception {
         _testSymbolTableExpansion(false);
     }
 
     // for [jackson-core#216]
     @Test
-    public void testSymbolTableExpansionBytes() throws Exception {
+    void symbolTableExpansionBytes() throws Exception {
         _testSymbolTableExpansion(true);
     }
 

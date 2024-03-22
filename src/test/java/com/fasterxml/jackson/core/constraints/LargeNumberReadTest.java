@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 
 @SuppressWarnings("resource")
-public class LargeNumberReadTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class LargeNumberReadTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -28,14 +28,14 @@ public class LargeNumberReadTest
      */
 
     @Test
-    public void testBigBigDecimalsBytesFailByDefault() throws Exception
+    void bigBigDecimalsBytesFailByDefault() throws Exception
     {
         _testBigBigDecimals(MODE_INPUT_STREAM, true);
         _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, true);
     }
 
     @Test
-    public void testBigBigDecimalsBytes() throws Exception
+    void bigBigDecimalsBytes() throws Exception
     {
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM, false);
@@ -52,7 +52,7 @@ public class LargeNumberReadTest
     }
 
     @Test
-    public void testBigBigDecimalsCharsFailByDefault() throws Exception
+    void bigBigDecimalsCharsFailByDefault() throws Exception
     {
         try {
             _testBigBigDecimals(MODE_READER, false);
@@ -63,13 +63,13 @@ public class LargeNumberReadTest
     }
 
     @Test
-    public void testBigBigDecimalsChars() throws Exception
+    void bigBigDecimalsChars() throws Exception
     {
         _testBigBigDecimals(MODE_READER, true);
     }
 
     @Test
-    public void testBigBigDecimalsDataInputFailByDefault() throws Exception
+    void bigBigDecimalsDataInputFailByDefault() throws Exception
     {
         try {
             _testBigBigDecimals(MODE_DATA_INPUT, false);
@@ -80,7 +80,7 @@ public class LargeNumberReadTest
     }
 
     @Test
-    public void testBigBigDecimalsDataInput() throws Exception
+    void bigBigDecimalsDataInput() throws Exception
     {
         _testBigBigDecimals(MODE_DATA_INPUT, true);
     }

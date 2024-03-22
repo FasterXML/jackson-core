@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  *
  * @since 2.15
  */
-public class LargeNumberWriteTest extends JUnit5TestBase
+class LargeNumberWriteTest extends JUnit5TestBase
 {
     private final JsonFactory VANILLA_JSON_F = new JsonFactory();
 
@@ -51,7 +51,7 @@ public class LargeNumberWriteTest extends JUnit5TestBase
     }
 
     @Test
-    public void testWriteLargeIntegerByteArray() throws Exception
+    void writeLargeIntegerByteArray() throws Exception
     {
         try(
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -65,7 +65,7 @@ public class LargeNumberWriteTest extends JUnit5TestBase
     }
 
     @Test
-    public void testWriteLargeIntegerStringWriter() throws Exception
+    void writeLargeIntegerStringWriter() throws Exception
     {
         try(
                 StringWriter out = new StringWriter();
@@ -79,7 +79,7 @@ public class LargeNumberWriteTest extends JUnit5TestBase
     }
 
     @Test
-    public void testWriteLargeIntegerDataOutput() throws Exception
+    void writeLargeIntegerDataOutput() throws Exception
     {
         try(
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -99,7 +99,7 @@ public class LargeNumberWriteTest extends JUnit5TestBase
     }
 
     @Test
-    public void testWriteLargeDecimalByteArray() throws Exception
+    void writeLargeDecimalByteArray() throws Exception
     {
         try(
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -113,7 +113,7 @@ public class LargeNumberWriteTest extends JUnit5TestBase
     }
 
     @Test
-    public void testWriteLargeDecimalStringWriter() throws Exception
+    void writeLargeDecimalStringWriter() throws Exception
     {
         try(
                 StringWriter out = new StringWriter();
@@ -127,7 +127,7 @@ public class LargeNumberWriteTest extends JUnit5TestBase
     }
 
     @Test
-    public void testWriteLargeDecimalDataOutput() throws Exception
+    void writeLargeDecimalDataOutput() throws Exception
     {
         try(
                 ByteArrayOutputStream out = new ByteArrayOutputStream();

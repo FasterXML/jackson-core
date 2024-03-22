@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.JUnit5TestBase
+class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -18,7 +18,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.J
     final String SIMPLE_INPUT = a2q("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
 
     @Test
-    public void testSimplestWithPath() throws Exception
+    void simplestWithPath() throws Exception
     {
         _assert(SIMPLEST_INPUT, "/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'a':1}");
         _assert(SIMPLEST_INPUT, "/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':2}");
@@ -28,7 +28,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.J
     }
 
     @Test
-    public void testSimplestNoPath() throws Exception
+    void simplestNoPath() throws Exception
     {
         _assert(SIMPLEST_INPUT, "/a", Inclusion.ONLY_INCLUDE_ALL, "1");
         _assert(SIMPLEST_INPUT, "/b", Inclusion.ONLY_INCLUDE_ALL, "2");
@@ -38,7 +38,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.J
     }
 
     @Test
-    public void testSimpleWithPath() throws Exception
+    void simpleWithPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
         _assert(SIMPLE_INPUT, "/c/d", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
@@ -51,7 +51,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.J
     }
 
     @Test
-    public void testSimpleNoPath() throws Exception
+    void simpleNoPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.ONLY_INCLUDE_ALL, "{'d':{'a':true}}");
 

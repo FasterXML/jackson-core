@@ -12,12 +12,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for class {@link DataFormatMatcher}.
  */
-public class DataFormatMatcherTest extends com.fasterxml.jackson.core.JUnit5TestBase
+class DataFormatMatcherTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testGetDataStream() throws IOException {
+    void getDataStream() throws IOException {
     byte[] byteArray = new byte[2];
     MatchStrength matchStrength = MatchStrength.WEAK_MATCH;
     DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
@@ -32,7 +32,7 @@ public class DataFormatMatcherTest extends com.fasterxml.jackson.core.JUnit5Test
   }
 
     @Test
-    public void testCreatesDataFormatMatcherTwo() throws IOException {
+    void createsDataFormatMatcherTwo() throws IOException {
     try {
         @SuppressWarnings("unused")
         DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
@@ -44,7 +44,7 @@ public class DataFormatMatcherTest extends com.fasterxml.jackson.core.JUnit5Test
   }
 
     @Test
-    public void testGetMatchedFormatNameReturnsNameWhenMatches() {
+    void getMatchedFormatNameReturnsNameWhenMatches() {
       DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
               new byte[2],
               1,
@@ -55,7 +55,7 @@ public class DataFormatMatcherTest extends com.fasterxml.jackson.core.JUnit5Test
   }
 
     @Test
-    public void testDetectorConfiguration() {
+    void detectorConfiguration() {
       DataFormatDetector df0 = new DataFormatDetector(JSON_F);
 
       // Defaults are: SOLID for optimal, WEAK for minimum, so:

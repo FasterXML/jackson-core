@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.JUnit5TestBase
+class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final String JSON = a2q(
             "{'media' : {\n"
@@ -37,7 +37,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.JUnit5T
             +"}\n");
 
     @Test
-    public void testSmallSymbolSetWithBytes() throws IOException
+    void smallSymbolSetWithBytes() throws IOException
     {
         final int SEED = 33333;
 
@@ -69,7 +69,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.JUnit5T
     }
 
     @Test
-    public void testSmallSymbolSetWithChars() throws IOException
+    void smallSymbolSetWithChars() throws IOException
     {
         final int SEED = 33333;
 

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * filtering.
  */
 @SuppressWarnings("resource")
-public class BasicGeneratorFilteringTest extends JUnit5TestBase
+class BasicGeneratorFilteringTest extends JUnit5TestBase
 {
     static final TokenFilter INCLUDE_ALL_SCALARS = new TokenFilter();
 
@@ -176,7 +176,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     private final JsonFactory JSON_F = new JsonFactory();
 
     @Test
-    public void testNonFiltering() throws Exception
+    void nonFiltering() throws Exception
     {
         // First, verify non-filtering
         StringWriter w = new StringWriter();
@@ -189,7 +189,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testSingleMatchFilteringWithoutPath() throws Exception
+    void singleMatchFilteringWithoutPath() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(_createGenerator(w),
@@ -209,7 +209,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testSingleMatchFilteringWithPath() throws Exception
+    void singleMatchFilteringWithPath() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator origGen = _createGenerator(w);
@@ -232,7 +232,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testSingleMatchFilteringWithPathSkippedArray() throws Exception
+    void singleMatchFilteringWithPathSkippedArray() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator origGen = _createGenerator(w);
@@ -256,7 +256,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
 
     // Alternative take, using slightly different calls for FIELD_NAME, START_ARRAY
     @Test
-    public void testSingleMatchFilteringWithPathAlternate1() throws Exception {
+    void singleMatchFilteringWithPathAlternate1() throws Exception {
         _testSingleMatchFilteringWithPathAlternate1(false);
         _testSingleMatchFilteringWithPathAlternate1(true);
     }
@@ -312,7 +312,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testSingleMatchFilteringWithPathRawBinary() throws Exception
+    void singleMatchFilteringWithPathRawBinary() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
@@ -364,7 +364,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testMultipleMatchFilteringWithPath1() throws Exception
+    void multipleMatchFilteringWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
@@ -392,7 +392,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testMultipleMatchFilteringWithPath2() throws Exception
+    void multipleMatchFilteringWithPath2() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -406,7 +406,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testMultipleMatchFilteringWithPath3() throws Exception
+    void multipleMatchFilteringWithPath3() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -420,7 +420,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNoMatchFiltering1() throws Exception
+    void noMatchFiltering1() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -434,7 +434,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNoMatchFiltering2() throws Exception
+    void noMatchFiltering2() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -449,7 +449,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNoMatchFiltering3() throws Exception
+    void noMatchFiltering3() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -464,7 +464,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNoMatchFiltering4() throws Exception
+    void noMatchFiltering4() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -478,7 +478,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNoMatchFiltering5() throws Exception
+    void noMatchFiltering5() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -493,7 +493,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNoMatchFiltering6() throws Exception
+    void noMatchFiltering6() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -508,7 +508,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testValueOmitsFieldName1() throws Exception
+    void valueOmitsFieldName1() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -522,7 +522,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testMultipleMatchFilteringWithPath4() throws Exception
+    void multipleMatchFilteringWithPath4() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
@@ -535,7 +535,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testValueOmitsFieldName2() throws Exception
+    void valueOmitsFieldName2() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -549,7 +549,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIndexMatchWithPath1() throws Exception
+    void indexMatchWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
@@ -569,7 +569,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIndexMatchWithPath2() throws Exception
+    void indexMatchWithPath2() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
@@ -610,7 +610,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testWriteStartObjectWithObject() throws Exception
+    void writeStartObjectWithObject() throws Exception
     {
         StringWriter w = new StringWriter();
 
@@ -637,7 +637,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
 
     // [core#580]
     @Test
-    public void testRawValueDelegationWithArray() throws Exception
+    void rawValueDelegationWithArray() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
@@ -658,7 +658,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
 
     // [core#588]
     @Test
-    public void testRawValueDelegationWithObject() throws Exception
+    void rawValueDelegationWithObject() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
@@ -676,7 +676,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIncludeEmptyArrayIfNotFiltered() throws Exception
+    void includeEmptyArrayIfNotFiltered() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -698,7 +698,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIncludeEmptyArray() throws Exception
+    void includeEmptyArray() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -720,7 +720,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIncludeEmptyObjectIfNotFiltered() throws Exception
+    void includeEmptyObjectIfNotFiltered() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -744,7 +744,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIncludeEmptyObject() throws Exception
+    void includeEmptyObject() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -766,7 +766,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIncludeEmptyArrayInObjectIfNotFiltered() throws Exception
+    void includeEmptyArrayInObjectIfNotFiltered() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -792,7 +792,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIncludeEmptyArrayInObject() throws Exception
+    void includeEmptyArrayInObject() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -819,7 +819,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
 
 
     @Test
-    public void testIncludeEmptyObjectInArrayIfNotFiltered() throws Exception
+    void includeEmptyObjectInArrayIfNotFiltered() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -845,7 +845,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIncludeEmptyObjectInArray() throws Exception
+    void includeEmptyObjectInArray() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -874,7 +874,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
 
 
     @Test
-    public void testIncludeEmptyTopLevelObject() throws Exception
+    void includeEmptyTopLevelObject() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
@@ -891,7 +891,7 @@ public class BasicGeneratorFilteringTest extends JUnit5TestBase
     }
 
     @Test
-    public void testIncludeEmptyTopLevelArray() throws Exception
+    void includeEmptyTopLevelArray() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(

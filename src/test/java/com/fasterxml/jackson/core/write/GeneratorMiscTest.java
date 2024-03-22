@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("resource")
 public class GeneratorMiscTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

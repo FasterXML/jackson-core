@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.io.IOContext;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
+public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
     public void testSimple() throws Exception

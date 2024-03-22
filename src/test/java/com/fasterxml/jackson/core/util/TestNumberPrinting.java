@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * printing methods work as expected.
  */
 public class TestNumberPrinting
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
     public void testIntPrinting() throws Exception

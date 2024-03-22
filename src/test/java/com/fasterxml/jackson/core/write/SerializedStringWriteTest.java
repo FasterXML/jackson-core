@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class SerializedStringWriteTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final static String NAME_WITH_QUOTES = "\"name\"";
     final static String NAME_WITH_LATIN1 = "P\u00f6ll\u00f6";

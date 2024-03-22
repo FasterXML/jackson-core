@@ -4,12 +4,13 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.BaseTest;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // Not much to test, but exercise to prevent code coverage tool from showing all red for package
-public class TypeReferenceTest extends BaseTest
+public class TypeReferenceTest extends JUnit5TestBase
 {
     static class BogusResolvedType extends ResolvedType {
         private final boolean _refType;

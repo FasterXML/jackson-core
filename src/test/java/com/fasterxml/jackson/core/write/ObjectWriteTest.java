@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  * of {@link JsonGenerator} work as expected.
  */
 public class ObjectWriteTest
-    extends BaseTest
+    extends JUnit5TestBase
 {
     private final JsonFactory FACTORY = new JsonFactory();
 

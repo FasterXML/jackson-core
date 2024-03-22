@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * {@link SerializableString} implementation works as expected.
  */
 public class TestSerializedString
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
     public void testAppending() throws IOException

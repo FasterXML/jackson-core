@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UTF8GeneratorTest extends BaseTest
+public class UTF8GeneratorTest extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

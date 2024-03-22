@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
  * <code>JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT</code>
  * are tested.
  */
-public class GeneratorCloseTest extends BaseTest
+public class GeneratorCloseTest extends JUnit5TestBase
 {
     /*
     /**********************************************************

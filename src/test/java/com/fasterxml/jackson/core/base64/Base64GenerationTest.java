@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Base64GenerationTest
         extends JUnit5TestBase

@@ -148,11 +148,11 @@ class JsonPointerTest extends JUnit5TestBase
     // mostly for test coverage, really...
     @Test
     void equality() {
-        assertFalse(JsonPointer.empty().equals(JsonPointer.compile("/")));
+        assertNotEquals(JsonPointer.empty(), JsonPointer.compile("/"));
 
         assertEquals(JsonPointer.compile("/foo/3"), JsonPointer.compile("/foo/3"));
-        assertFalse(JsonPointer.empty().equals(JsonPointer.compile("/12")));
-        assertFalse(JsonPointer.compile("/12").equals(JsonPointer.empty()));
+        assertNotEquals(JsonPointer.empty(), JsonPointer.compile("/12"));
+        assertNotEquals(JsonPointer.compile("/12"), JsonPointer.empty());
 
         assertEquals(JsonPointer.compile("/a/b/c").tail(),
                 JsonPointer.compile("/foo/b/c").tail());
@@ -163,7 +163,7 @@ class JsonPointerTest extends JUnit5TestBase
         assertEquals(def, abcDef.tail());
 
         // expr != String
-        assertFalse(JsonPointer.empty().equals("/"));
+        assertNotEquals("/", JsonPointer.empty());
     }
 
     @Test

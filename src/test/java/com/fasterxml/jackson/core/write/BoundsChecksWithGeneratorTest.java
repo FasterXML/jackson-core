@@ -3,7 +3,11 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class BoundsChecksWithGeneratorTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -69,10 +73,12 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
+    @Test
     public void testBoundsWithByteArrayInputFromBytes() throws Exception {
         _testBoundsWithByteArrayInput(BYTE_GENERATOR_CREATOR, true);
     }
 
+    @Test
     public void testBoundsWithByteArrayInputFromChars() throws Exception {
         _testBoundsWithByteArrayInput(CHAR_GENERATOR_CREATOR, false);
     }
@@ -151,10 +157,12 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
+    @Test
     public void testBoundsWithCharArrayInputFromBytes() throws Exception {
         _testBoundsWithCharArrayInput(BYTE_GENERATOR_CREATOR);
     }
 
+    @Test
     public void testBoundsWithCharArrayInputFromChars() throws Exception {
         _testBoundsWithCharArrayInput(CHAR_GENERATOR_CREATOR);
     }
@@ -221,10 +229,12 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
+    @Test
     public void testBoundsWithStringInputFromBytes() throws Exception {
         _testBoundsWithStringInput(BYTE_GENERATOR_CREATOR);
     }
 
+    @Test
     public void testBoundsWithStringInputFromChar() throws Exception {
         _testBoundsWithStringInput(CHAR_GENERATOR_CREATOR);
     }

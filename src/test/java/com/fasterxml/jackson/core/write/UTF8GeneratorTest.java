@@ -3,12 +3,16 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UTF8GeneratorTest extends BaseTest
 {
@@ -17,7 +21,8 @@ public class UTF8GeneratorTest extends BaseTest
     private final JsonFactory JSON_MAX_NESTING_1 = JsonFactory.builder()
             .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())
             .build();
-    
+
+    @Test
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -45,6 +50,7 @@ public class UTF8GeneratorTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testNestingDepthWithSmallLimit() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -59,6 +65,7 @@ public class UTF8GeneratorTest extends BaseTest
         }
     }
 
+    @Test
     public void testNestingDepthWithSmallLimitNestedObject() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -74,6 +81,7 @@ public class UTF8GeneratorTest extends BaseTest
     }
 
     // for [core#115]
+    @Test
     public void testSurrogatesWithRaw() throws Exception
     {
         final String VALUE = q("\ud83d\ude0c");
@@ -97,6 +105,7 @@ public class UTF8GeneratorTest extends BaseTest
         jp.close();
     }
 
+    @Test
     public void testFilteringWithEscapedChars() throws Exception
     {
         final String SAMPLE_WITH_QUOTES = "\b\t\f\n\r\"foo\"\u0000";

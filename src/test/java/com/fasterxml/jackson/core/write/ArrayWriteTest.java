@@ -4,6 +4,10 @@ import com.fasterxml.jackson.core.*;
 
 import java.io.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Set of basic unit tests for verifying that the Array write methods
  * of {@link JsonGenerator} work as expected.
@@ -11,8 +15,9 @@ import java.io.*;
 public class ArrayWriteTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testEmptyArrayWrite()
-        throws Exception
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
@@ -36,7 +41,7 @@ public class ArrayWriteTest
         gen.writeEndArray();
 
         ctxt = gen.getOutputContext();
-        assertTrue("Should be in root, was "+ctxt.typeDesc(), ctxt.inRoot());
+        assertTrue(ctxt.inRoot(), "Should be in root, was "+ctxt.typeDesc());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());
         assertEquals(1, ctxt.getEntryCount());
@@ -68,8 +73,9 @@ public class ArrayWriteTest
         jp.close();
     }
 
+    @Test
     public void testInvalidArrayWrite()
-        throws Exception
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
@@ -84,8 +90,9 @@ public class ArrayWriteTest
         gen.close();
     }
 
+    @Test
     public void testSimpleArrayWrite()
-        throws Exception
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);

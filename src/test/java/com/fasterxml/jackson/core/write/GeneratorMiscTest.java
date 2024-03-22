@@ -7,6 +7,10 @@ import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Set of basic unit tests for verifying basic generator
  * features.
@@ -23,6 +27,7 @@ public class GeneratorMiscTest
     /**********************************************************
      */
 
+    @Test
     public void testIsClosed() throws IOException
     {
         for (int i = 0; i < 2; ++i) {
@@ -44,6 +49,7 @@ public class GeneratorMiscTest
     }
 
     // Also, "very simple" objects are supported even without Codec:
+    @Test
     public void testSimpleWriteObject() throws IOException
     {
         // note: NOT mapping factory, for this test
@@ -93,6 +99,7 @@ public class GeneratorMiscTest
     /**********************************************************
      */
 
+    @Test
     public void testRaw() throws IOException
     {
         StringWriter sw = new StringWriter();
@@ -115,6 +122,7 @@ public class GeneratorMiscTest
         jp.close();
     }
 
+    @Test
     public void testRawValue() throws IOException
     {
         StringWriter sw = new StringWriter();
@@ -149,6 +157,7 @@ public class GeneratorMiscTest
     /**
      * Unit test that tries to trigger buffer-boundary conditions
      */
+    @Test
     public void testLongerObjects() throws Exception
     {
         _testLongerObjects(JSON_F, 0);
@@ -234,6 +243,7 @@ public class GeneratorMiscTest
      */
 
     // NOTE: test for binary data under `base64/` tests
+    @Test
     public void testAsEmbedded() throws Exception
     {
         StringWriter sw = new StringWriter();

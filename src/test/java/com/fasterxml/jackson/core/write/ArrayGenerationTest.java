@@ -7,6 +7,11 @@ import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * Basic testing for scalar-array write methods added in 2.8.
  */
@@ -18,24 +23,28 @@ public class ArrayGenerationTest extends BaseTest
         return FACTORY;
     }
 
+    @Test
     public void testIntArray() throws Exception
     {
         _testIntArray(false);
         _testIntArray(true);
     }
 
+    @Test
     public void testLongArray() throws Exception
     {
         _testLongArray(false);
         _testLongArray(true);
     }
 
+    @Test
     public void testDoubleArray() throws Exception
     {
         _testDoubleArray(false);
         _testDoubleArray(true);
     }
 
+    @Test
     public void testStringArray() throws Exception
     {
         _testStringArray(false);

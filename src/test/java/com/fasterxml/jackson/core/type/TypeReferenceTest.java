@@ -4,6 +4,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.BaseTest;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 // Not much to test, but exercise to prevent code coverage tool from showing all red for package
 public class TypeReferenceTest extends BaseTest
 {
@@ -123,6 +127,7 @@ public class TypeReferenceTest extends BaseTest
         }
     }
 
+    @Test
     public void testSimple()
     {
         TypeReference<?> ref = new TypeReference<List<String>>() { };
@@ -131,6 +136,7 @@ public class TypeReferenceTest extends BaseTest
     }
 
     @SuppressWarnings("rawtypes")
+    @Test
     public void testInvalid()
     {
         try {
@@ -141,6 +147,7 @@ public class TypeReferenceTest extends BaseTest
         }
     }
 
+    @Test
     public void testResolvedType() {
         ResolvedType type1 = new BogusResolvedType(false);
         assertFalse(type1.isReferenceType());

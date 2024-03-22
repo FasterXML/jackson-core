@@ -3,8 +3,13 @@ package com.fasterxml.jackson.core.write;
 import com.fasterxml.jackson.core.*;
 
 import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests for verifying that the basic generator
@@ -17,6 +22,7 @@ public class GeneratorBasicTest
 
     // // // First, tests for primitive (non-structured) values
 
+    @Test
     public void testStringWrite() throws Exception
     {
         String[] inputStrings = new String[] { "", "X", "1234567890" };
@@ -45,7 +51,7 @@ public class GeneratorBasicTest
                     JsonParser jp = JSON_F.createParser(new ByteArrayInputStream(bout.toByteArray()));
 
                     JsonToken t = jp.nextToken();
-                    assertNotNull("Document \""+utf8String(bout)+"\" yielded no tokens", t);
+                    assertNotNull(t, "Document \""+utf8String(bout)+"\" yielded no tokens");
                     assertEquals(JsonToken.VALUE_STRING, t);
                     assertEquals(input, jp.getText());
                     assertEquals(null, jp.nextToken());
@@ -55,6 +61,7 @@ public class GeneratorBasicTest
         }
     }
 
+    @Test
     public void testIntValueWrite() throws Exception
     {
         // char[]
@@ -65,6 +72,7 @@ public class GeneratorBasicTest
         doTestIntValueWrite(true, true);
     }
 
+    @Test
     public void testLongValueWrite() throws Exception
     {
         // char[]
@@ -75,6 +83,7 @@ public class GeneratorBasicTest
         doTestLongValueWrite(true, true);
     }
 
+    @Test
     public void testBooleanWrite() throws Exception
     {
         for (int i = 0; i < 4; ++i) {
@@ -100,8 +109,9 @@ public class GeneratorBasicTest
         }
     }
 
+    @Test
     public void testNullWrite()
-        throws Exception
+            throws Exception
     {
         for (int i = 0; i < 2; ++i) {
             boolean pad = (i & 1) == 0;
@@ -127,6 +137,7 @@ public class GeneratorBasicTest
 
     // // Then root-level output testing
 
+    @Test
     public void testRootIntsWrite() throws Exception {
         _testRootIntsWrite(false);
         _testRootIntsWrite(true);
@@ -167,6 +178,7 @@ public class GeneratorBasicTest
 
     // Convenience methods
 
+    @Test
     public void testFieldValueWrites() throws Exception {
         _testFieldValueWrites(false);
         _testFieldValueWrites(true);
@@ -204,6 +216,7 @@ public class GeneratorBasicTest
     /**
      * Test to verify that output context actually contains useful information
      */
+    @Test
     public void testOutputContext() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -272,6 +285,7 @@ public class GeneratorBasicTest
         gen.close();
     }
 
+    @Test
     public void testGetOutputTarget() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
@@ -286,6 +300,7 @@ public class GeneratorBasicTest
     }
 
     // for [core#195]
+    @Test
     public void testGetOutputBufferd() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
@@ -361,7 +376,7 @@ public class GeneratorBasicTest
             } catch (IOException e) {
                 fail("Problem with value "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
-            assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
+            assertNotNull(t, "Document \""+docStr+"\" yielded no tokens");
             // Number are always available as lexical representation too
             String exp = ""+VALUE;
             if (!exp.equals(p.getText())) {
@@ -417,7 +432,7 @@ public class GeneratorBasicTest
             } catch (IOException e) {
                 fail("Problem with number "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
-            assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
+            assertNotNull(t, "Document \""+docStr+"\" yielded no tokens");
             String exp = ""+VALUE;
             if (!exp.equals(p.getText())) {
                 fail("Expected '"+exp+"', got '"+p.getText());

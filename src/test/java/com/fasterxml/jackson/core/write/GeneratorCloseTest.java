@@ -6,6 +6,10 @@ import com.fasterxml.jackson.core.testsupport.StringWriterForTesting;
 
 import java.io.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Set of basic unit tests that verify aspect of closing a
  * {@link JsonGenerator} instance. This includes both closing
@@ -31,6 +35,7 @@ public class GeneratorCloseTest extends BaseTest
      * automatic closing should occur, nor explicit one unless specific
      * forcing method is used.
      */
+    @Test
     public void testNoAutoCloseGenerator() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -52,6 +57,7 @@ public class GeneratorCloseTest extends BaseTest
         assertFalse(output.isClosed());
     }
 
+    @Test
     public void testCloseGenerator() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -68,6 +74,7 @@ public class GeneratorCloseTest extends BaseTest
         assertTrue(output.isClosed());
     }
 
+    @Test
     public void testNoAutoCloseOutputStream() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -82,8 +89,9 @@ public class GeneratorCloseTest extends BaseTest
         assertFalse(output.isClosed());
     }
 
+    @Test
     public void testAutoCloseArraysAndObjects()
-        throws Exception
+            throws Exception
     {
         JsonFactory f = new JsonFactory();
         // let's verify default setting, first:
@@ -104,8 +112,9 @@ public class GeneratorCloseTest extends BaseTest
         assertEquals("{}", sw.toString());
     }
 
+    @Test
     public void testNoAutoCloseArraysAndObjects()
-        throws Exception
+            throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .disable(StreamWriteFeature.AUTO_CLOSE_CONTENT)
@@ -126,6 +135,7 @@ public class GeneratorCloseTest extends BaseTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testAutoFlushOrNot() throws Exception
     {
         JsonFactory f = new JsonFactory();

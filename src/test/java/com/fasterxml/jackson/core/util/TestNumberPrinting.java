@@ -4,6 +4,10 @@ import java.util.Random;
 
 import com.fasterxml.jackson.core.io.NumberOutput;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Set of basic unit tests for verifying that the low-level number
  * printing methods work as expected.
@@ -11,6 +15,7 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 public class TestNumberPrinting
     extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testIntPrinting() throws Exception
     {
         assertIntPrint(0);
@@ -38,6 +43,7 @@ public class TestNumberPrinting
         }
     }
 
+    @Test
     public void testLongPrinting() throws Exception
     {
         // First, let's just cover couple of edge cases
@@ -69,11 +75,11 @@ public class TestNumberPrinting
         String act = printToString(value);
 
         if (!exp.equals(act)) {
-            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")", exp, act);
+            assertEquals(exp, act, "Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")");
         }
         String alt = NumberOutput.toString(value);
         if (!exp.equals(alt)) {
-            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")", exp, act);
+            assertEquals(exp, act, "Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")");
         }
     }
 
@@ -83,11 +89,11 @@ public class TestNumberPrinting
         String act = printToString(value);
 
         if (!exp.equals(act)) {
-            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")", exp, act);
+            assertEquals(exp, act, "Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")");
         }
         String alt = NumberOutput.toString(value);
         if (!exp.equals(alt)) {
-            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")", exp, act);
+            assertEquals(exp, act, "Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")");
         }
     }
 

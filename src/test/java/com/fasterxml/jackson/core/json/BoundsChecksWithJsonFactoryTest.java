@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.json;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.BaseTest;
@@ -8,7 +9,7 @@ import com.fasterxml.jackson.core.TokenStreamFactory;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BoundsChecksWithJsonFactoryTest
-    extends BaseTest
+    extends JUnit5TestBase
 {
     interface ByteBackedCreation {
         void call(byte[] data, int offset, int len) throws Exception;

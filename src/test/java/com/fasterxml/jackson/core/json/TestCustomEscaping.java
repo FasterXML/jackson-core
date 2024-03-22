@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
+public class TestCustomEscaping extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;

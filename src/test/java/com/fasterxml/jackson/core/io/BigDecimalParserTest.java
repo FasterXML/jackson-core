@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest
+public class BigDecimalParserTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
     public void testLongInvalidStringParse() {

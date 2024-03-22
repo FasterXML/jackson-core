@@ -4,17 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.*;
 
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class Surrogate223Test extends BaseTest
+public class Surrogate223Test extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

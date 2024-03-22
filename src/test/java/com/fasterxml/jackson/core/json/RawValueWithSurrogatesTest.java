@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class RawValueWithSurrogatesTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final String SURROGATES_307;
     {

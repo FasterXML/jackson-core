@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BigIntegerParserTest extends com.fasterxml.jackson.core.BaseTest {
+public class BigIntegerParserTest extends com.fasterxml.jackson.core.JUnit5TestBase {
 
     @Test
     public void testFastParseBigIntegerFailsWithENotation() {

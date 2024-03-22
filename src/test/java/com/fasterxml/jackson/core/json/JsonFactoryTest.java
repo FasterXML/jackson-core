@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonFactoryTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class BogusCodec extends ObjectCodec {
         @Override

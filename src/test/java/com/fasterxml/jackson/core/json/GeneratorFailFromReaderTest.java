@@ -14,7 +14,7 @@ import java.io.StringReader;
 import org.junit.jupiter.api.Test;
 
 public class GeneratorFailFromReaderTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory F = new JsonFactory();
 

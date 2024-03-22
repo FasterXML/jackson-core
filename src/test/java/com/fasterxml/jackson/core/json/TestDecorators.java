@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 1.8
  */
 @SuppressWarnings("serial")
-public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
+public class TestDecorators extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     /*
     /**********************************************************

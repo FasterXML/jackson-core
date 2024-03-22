@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SegmentedStringWriterTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
     public void testSimple() throws Exception

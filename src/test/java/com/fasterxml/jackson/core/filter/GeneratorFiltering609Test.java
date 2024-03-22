@@ -3,12 +3,16 @@ package com.fasterxml.jackson.core.filter;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // for [core#609]
-public class GeneratorFiltering609Test
-    extends com.fasterxml.jackson.core.BaseTest
+class GeneratorFiltering609Test
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class NullExcludingTokenFilter extends TokenFilter {
         static final NullExcludingTokenFilter INSTANCE =
@@ -58,7 +62,8 @@ public class GeneratorFiltering609Test
     }
 
     // for [core#609]: will pass in 2.10 for some cases
-    public void testIssue609() throws Exception
+    @Test
+    void issue609() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonGenerator g = createGenerator(outputStream);

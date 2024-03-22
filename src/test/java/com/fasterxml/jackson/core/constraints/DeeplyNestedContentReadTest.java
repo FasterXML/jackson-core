@@ -1,22 +1,28 @@
 package com.fasterxml.jackson.core.constraints;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test(s) for verifying handling of new (in 2.15) StreamReadConstraints
  * wrt maximum nesting depth.
  */
-public class DeeplyNestedContentReadTest
-    extends com.fasterxml.jackson.core.BaseTest
+class DeeplyNestedContentReadTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
     private final int MAX_NESTING = StreamReadConstraints.DEFAULT_MAX_DEPTH;
 
     private final int TESTED_NESTING = MAX_NESTING + 50;
-    
-    public void testDeepNestingStreaming() throws Exception
+
+    @Test
+    void deepNestingStreaming() throws Exception
     {
         final String DOC = createDeepNestedDoc(TESTED_NESTING);
         for (int mode : ALL_STREAMING_MODES) {
@@ -37,7 +43,8 @@ public class DeeplyNestedContentReadTest
         }
     }
 
-    public void testLegacyConstraintSettingTest() throws Exception
+    @Test
+    void legacyConstraintSettingTest() throws Exception
     {
         final int LOWER_MAX = 40;
         

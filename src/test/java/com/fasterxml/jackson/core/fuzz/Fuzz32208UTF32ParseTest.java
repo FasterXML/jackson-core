@@ -5,16 +5,21 @@ import java.io.CharConversionException;
 import java.io.InputStream;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.UTF32Reader;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 // Trying to repro: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=32216
 // but so far without success (fails on seemingly legit validation problem)
-public class Fuzz32208UTF32ParseTest extends BaseTest
+class Fuzz32208UTF32ParseTest extends JUnit5TestBase
 {
     private final byte[] DOC = readResource("/data/fuzz-json-utf32-32208.json");
 
-    public void testFuzz32208ViaParser() throws Exception
+    @Test
+    void fuzz32208ViaParser() throws Exception
     {
         final JsonFactory f = new JsonFactory();
 
@@ -30,7 +35,8 @@ public class Fuzz32208UTF32ParseTest extends BaseTest
     }
 
     // How about through UTF32Reader itself?
-    public void testFuzz32208Direct() throws Exception
+    @Test
+    void fuzz32208Direct() throws Exception
     {
         _testFuzz32208Direct(1);
         _testFuzz32208Direct(2);
@@ -43,7 +49,8 @@ public class Fuzz32208UTF32ParseTest extends BaseTest
         _testFuzz32208Direct(991);
     }
 
-    public void testFuzz32208DirectSingleByte() throws Exception
+    @Test
+    void fuzz32208DirectSingleByte() throws Exception
     {
         UTF32Reader r = new UTF32Reader(null, new ByteArrayInputStream(DOC),
                 new byte[500], 0, 0, false);

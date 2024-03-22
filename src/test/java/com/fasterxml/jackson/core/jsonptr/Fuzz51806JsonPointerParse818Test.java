@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.core.jsonptr;
 
-import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import com.fasterxml.jackson.core.JsonPointer;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // For https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=51806
 // (reported as [core#818]
-public class Fuzz51806JsonPointerParse818Test extends BaseTest
+class Fuzz51806JsonPointerParse818Test extends JUnit5TestBase
 {
     // Before fix, StackOverflowError with 6_000 or so,
     // and OOME with 20_000.
@@ -15,12 +19,14 @@ public class Fuzz51806JsonPointerParse818Test extends BaseTest
 
     // Verify that a very deep/long (by number of segments) JsonPointer
     // may still be parsed ok, for "simple" case (no quoted chars)
-    public void testJsonPointerParseTailSimple()
+    @Test
+    void jsonPointerParseTailSimple()
     {
         _testJsonPointer(_generatePath(TOO_DEEP_PATH, false));
     }
 
-    public void testJsonPointerParseTailWithQuoted()
+    @Test
+    void jsonPointerParseTailWithQuoted()
     {
         _testJsonPointer(_generatePath(TOO_DEEP_PATH, true));
     }

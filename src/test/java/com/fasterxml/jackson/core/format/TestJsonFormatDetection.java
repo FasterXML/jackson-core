@@ -4,9 +4,14 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class TestJsonFormatDetection extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testSimpleValidArray() throws Exception
+    @Test
+    void simpleValidArray() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
         DataFormatDetector detector = new DataFormatDetector(jsonF);
@@ -28,7 +33,8 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
         jp.close();
     }
 
-    public void testSimpleValidObject() throws Exception
+    @Test
+    void simpleValidObject() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
         DataFormatDetector detector = new DataFormatDetector(jsonF);
@@ -55,7 +61,8 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
      * While JSON String is not a strong match alone, it should
      * be detected unless some better match is available
      */
-    public void testSimpleValidString() throws Exception
+    @Test
+    void simpleValidString() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
         DataFormatDetector detector = new DataFormatDetector(jsonF);
@@ -80,7 +87,8 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
         jp.close();
     }
 
-    public void testSimpleInvalid() throws Exception
+    @Test
+    void simpleInvalid() throws Exception
     {
         DataFormatDetector detector = new DataFormatDetector(new JsonFactory());
         final String NON_JSON = "<root />";

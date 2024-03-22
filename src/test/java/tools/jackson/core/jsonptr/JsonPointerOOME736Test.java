@@ -1,13 +1,18 @@
 package tools.jackson.core.jsonptr;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 
-public class JsonPointerOOME736Test extends BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class JsonPointerOOME736Test extends JUnit5TestBase
 {
     // such as https://github.com/nst/JSONTestSuite/blob/master/test_parsing/n_structure_100000_opening_arrays.json
-    public void testDeepJsonPointer() throws Exception {
+    @Test
+    void deepJsonPointer() throws Exception {
         int MAX_DEPTH = 120_000;
         // Create nesting of 120k arrays
         String INPUT = new String(new char[MAX_DEPTH]).replace("\0", "[");

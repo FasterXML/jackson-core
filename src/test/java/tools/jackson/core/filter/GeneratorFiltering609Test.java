@@ -2,12 +2,16 @@ package tools.jackson.core.filter;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.util.JsonGeneratorDelegate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // for [core#609]
-public class GeneratorFiltering609Test
-    extends tools.jackson.core.BaseTest
+class GeneratorFiltering609Test
+    extends tools.jackson.core.JUnit5TestBase
 {
     static class NullExcludingTokenFilter extends TokenFilter {
         static final NullExcludingTokenFilter INSTANCE =
@@ -17,7 +21,6 @@ public class GeneratorFiltering609Test
         public boolean includeNull() {
             return false;
         }
-
     }
 
     static class StringTruncatingGeneratorDelegate
@@ -59,8 +62,8 @@ public class GeneratorFiltering609Test
     }
 
     // for [core#609]: will pass in 2.10 for some cases
-    @SuppressWarnings("resource")
-    public void testIssue609() throws Exception
+    @Test
+    void issue609() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonGenerator g = createGenerator(outputStream);

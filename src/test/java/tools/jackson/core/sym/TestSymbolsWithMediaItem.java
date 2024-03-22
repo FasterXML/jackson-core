@@ -2,10 +2,14 @@ package tools.jackson.core.sym;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
-public class TestSymbolsWithMediaItem extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestSymbolsWithMediaItem extends JUnit5TestBase
 {
     private final String JSON = a2q(
             "{'media' : {\n"
@@ -33,7 +37,8 @@ public class TestSymbolsWithMediaItem extends tools.jackson.core.BaseTest
             +"    } ]\n"
             +"}\n");
 
-    public void testSmallSymbolSetWithBytes() throws IOException
+    @Test
+    void smallSymbolSetWithBytes() throws IOException
     {
         final int SEED = 33333;
 
@@ -64,7 +69,8 @@ public class TestSymbolsWithMediaItem extends tools.jackson.core.BaseTest
         assertEquals(0, symbols.spilloverCount()); // and couple of leftovers
     }
 
-    public void testSmallSymbolSetWithChars() throws IOException
+    @Test
+    void smallSymbolSetWithChars() throws IOException
     {
         final int SEED = 33333;
 

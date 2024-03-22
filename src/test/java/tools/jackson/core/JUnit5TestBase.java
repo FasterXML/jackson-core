@@ -250,6 +250,16 @@ public class JUnit5TestBase
         return TestSupport.testIOContext();
     }
 
+    protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
+    {
+        try (JsonParser p = f.createParser(ObjectReadContext.empty(), a2q(doc))) {
+            while (p.nextToken() != null) {
+                g.copyCurrentStructure(p);
+            }
+            g.close();
+        }
+    }
+
     /*
     /**********************************************************************
     /* Assertions
@@ -379,6 +389,30 @@ public class JUnit5TestBase
                 sb.append(index >> 3); // divide by 8
             }
         }
+    }
+
+    protected int[] calcQuads(String word) {
+        return calcQuads(utf8Bytes(word));
+    }
+
+    protected int[] calcQuads(byte[] wordBytes) {
+        int blen = wordBytes.length;
+        int[] result = new int[(blen + 3) / 4];
+        for (int i = 0; i < blen; ++i) {
+            int x = wordBytes[i] & 0xFF;
+
+            if (++i < blen) {
+                x = (x << 8) | (wordBytes[i] & 0xFF);
+                if (++i < blen) {
+                    x = (x << 8) | (wordBytes[i] & 0xFF);
+                    if (++i < blen) {
+                        x = (x << 8) | (wordBytes[i] & 0xFF);
+                    }
+                }
+            }
+            result[i >> 2] = x;
+        }
+        return result;
     }
 
     public static byte[] readResource(String ref)

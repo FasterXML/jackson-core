@@ -2,9 +2,14 @@ package tools.jackson.core.constraints;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Set of basic unit tests for verifying that "too big" number constraints
@@ -12,8 +17,8 @@ import tools.jackson.core.json.JsonFactory;
  */
 
 @SuppressWarnings("resource")
-public class LargeNumberReadTest
-    extends BaseTest
+class LargeNumberReadTest
+    extends tools.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -23,13 +28,15 @@ public class LargeNumberReadTest
     /**********************************************************************
      */
 
-    public void testBigBigDecimalsBytesFailByDefault() throws Exception
+    @Test
+    void bigBigDecimalsBytesFailByDefault() throws Exception
     {
         _testBigBigDecimals(MODE_INPUT_STREAM, true);
         _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, true);
     }
 
-    public void testBigBigDecimalsBytes() throws Exception
+    @Test
+    void bigBigDecimalsBytes() throws Exception
     {
         try {
             _testBigBigDecimals(MODE_INPUT_STREAM, false);
@@ -45,7 +52,8 @@ public class LargeNumberReadTest
         }
     }
 
-    public void testBigBigDecimalsCharsFailByDefault() throws Exception
+    @Test
+    void bigBigDecimalsCharsFailByDefault() throws Exception
     {
         try {
             _testBigBigDecimals(MODE_READER, false);
@@ -55,12 +63,14 @@ public class LargeNumberReadTest
         }
     }
 
-    public void testBigBigDecimalsChars() throws Exception
+    @Test
+    void bigBigDecimalsChars() throws Exception
     {
         _testBigBigDecimals(MODE_READER, true);
     }
 
-    public void testBigBigDecimalsDataInputFailByDefault() throws Exception
+    @Test
+    void bigBigDecimalsDataInputFailByDefault() throws Exception
     {
         try {
             _testBigBigDecimals(MODE_DATA_INPUT, false);
@@ -70,7 +80,8 @@ public class LargeNumberReadTest
         }
     }
 
-    public void testBigBigDecimalsDataInput() throws Exception
+    @Test
+    void bigBigDecimalsDataInput() throws Exception
     {
         _testBigBigDecimals(MODE_DATA_INPUT, true);
     }

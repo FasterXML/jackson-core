@@ -5,7 +5,9 @@ import java.io.StringWriter;
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
-public class PointerFromContextTest extends BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class PointerFromContextTest extends JUnit5TestBase
 {
     /*
     /**********************************************************

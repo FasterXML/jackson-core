@@ -7,12 +7,16 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // for [core#890]
-public class GeneratorFiltering890Test
-    extends BaseTest
+class GeneratorFiltering890Test
+    extends JUnit5TestBase
 {
     private static final class OrTokenFilter extends TokenFilter {
 
@@ -66,7 +70,8 @@ public class GeneratorFiltering890Test
         }
     }
 
-    public void testIssue890_singleProperty() throws Exception
+    @Test
+    void issue890SingleProperty() throws Exception
     {
         // GIVEN
         final Set<String> jsonPointers = Stream.of("/0/id").collect(Collectors.toSet());
@@ -88,7 +93,8 @@ public class GeneratorFiltering890Test
         assertEquals("[{\"id\":1}]", json);
     }
 
-    public void testIssue890_twoProperties() throws Exception
+    @Test
+    void issue890TwoProperties() throws Exception
     {
         // GIVEN
         final Set<String> jsonPointers = Stream.of("/0/id", "/0/stuff/0/name").collect(Collectors.toSet());
@@ -110,7 +116,8 @@ public class GeneratorFiltering890Test
         assertEquals("[{\"id\":1,\"stuff\":[{\"name\":\"first\"}]}]", json);
     }
 
-    public void testIssue890_fullArray() throws Exception
+    @Test
+    void issue890FullArray() throws Exception
     {
         // GIVEN
         final Set<String> jsonPointers = Stream.of("//id", "//stuff//name").collect(Collectors.toSet());

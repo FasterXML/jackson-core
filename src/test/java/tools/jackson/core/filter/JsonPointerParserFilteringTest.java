@@ -2,11 +2,15 @@ package tools.jackson.core.filter;
 
 import java.io.StringWriter;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.json.JsonFactory;
 
-public class JsonPointerParserFilteringTest extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class JsonPointerParserFilteringTest extends tools.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -14,7 +18,8 @@ public class JsonPointerParserFilteringTest extends tools.jackson.core.BaseTest
 
     final String SIMPLE_INPUT = a2q("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
 
-    public void testSimplestWithPath() throws Exception
+    @Test
+    void simplestWithPath() throws Exception
     {
         _assert(SIMPLEST_INPUT, "/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'a':1}");
         _assert(SIMPLEST_INPUT, "/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':2}");
@@ -23,7 +28,8 @@ public class JsonPointerParserFilteringTest extends tools.jackson.core.BaseTest
         _assert(SIMPLEST_INPUT, "/d", Inclusion.INCLUDE_ALL_AND_PATH, "");
     }
 
-    public void testSimplestNoPath() throws Exception
+    @Test
+    void simplestNoPath() throws Exception
     {
         _assert(SIMPLEST_INPUT, "/a", Inclusion.ONLY_INCLUDE_ALL, "1");
         _assert(SIMPLEST_INPUT, "/b", Inclusion.ONLY_INCLUDE_ALL, "2");
@@ -32,7 +38,8 @@ public class JsonPointerParserFilteringTest extends tools.jackson.core.BaseTest
         _assert(SIMPLEST_INPUT, "/d", Inclusion.ONLY_INCLUDE_ALL, "");
     }
 
-    public void testSimpleWithPath() throws Exception
+    @Test
+    void simpleWithPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
         _assert(SIMPLE_INPUT, "/c/d", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
@@ -44,7 +51,8 @@ public class JsonPointerParserFilteringTest extends tools.jackson.core.BaseTest
         _assert(SIMPLE_INPUT, "/b/3", Inclusion.INCLUDE_ALL_AND_PATH, "");
     }
 
-    public void testSimpleNoPath() throws Exception
+    @Test
+    void simpleNoPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.ONLY_INCLUDE_ALL, "{'d':{'a':true}}");
 

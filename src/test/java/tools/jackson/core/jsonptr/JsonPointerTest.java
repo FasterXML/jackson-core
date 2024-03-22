@@ -1,13 +1,18 @@
 package tools.jackson.core.jsonptr;
 
-import tools.jackson.core.BaseTest;
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.*;
 import tools.jackson.core.JsonPointer;
 
-public class JsonPointerTest extends BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class JsonPointerTest extends JUnit5TestBase
 {
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
 
-    public void testSimplePath() throws Exception
+    @Test
+    void simplePath() throws Exception
     {
         final String INPUT = "/Image/15/name";
 
@@ -47,7 +52,8 @@ public class JsonPointerTest extends BaseTest
         assertEquals(-1, ptr.getMatchingIndex());
     }
 
-    public void testSimplePathLonger() throws Exception
+    @Test
+    void simplePathLonger() throws Exception
     {
         final String INPUT = "/a/b/c/d/e/f/0";
         JsonPointer ptr = JsonPointer.compile(INPUT);
@@ -60,7 +66,8 @@ public class JsonPointerTest extends BaseTest
         assertEquals(INPUT, ptr.toString());
     }
 
-    public void testSimpleTail() throws Exception
+    @Test
+    void simpleTail() throws Exception
     {
         final String INPUT = "/root/leaf";
         JsonPointer ptr = JsonPointer.compile(INPUT);
@@ -69,14 +76,16 @@ public class JsonPointerTest extends BaseTest
         assertEquals("", ptr.tail().tail().toString());
     }
 
-    public void testWonkyNumber173() throws Exception
+    @Test
+    void wonkyNumber173() throws Exception
     {
         JsonPointer ptr = JsonPointer.compile("/1e0");
         assertFalse(ptr.matches());
     }
 
     // [core#176]: do not allow leading zeroes
-    public void testIZeroIndex() throws Exception
+    @Test
+    void iZeroIndex() throws Exception
     {
         JsonPointer ptr = JsonPointer.compile("/0");
         assertEquals(0, ptr.getMatchingIndex());
@@ -84,7 +93,8 @@ public class JsonPointerTest extends BaseTest
         assertEquals(-1, ptr.getMatchingIndex());
     }
 
-    public void testLast()
+    @Test
+    void last()
     {
         String INPUT = "/Image/name";
 
@@ -103,7 +113,8 @@ public class JsonPointerTest extends BaseTest
         assertEquals("name", leaf.getMatchingProperty());
     }
 
-    public void testEmptyPointer()
+    @Test
+    void emptyPointer()
     {
         assertSame(EMPTY_PTR, JsonPointer.compile(""));
         assertEquals("", EMPTY_PTR.toString());
@@ -115,7 +126,8 @@ public class JsonPointerTest extends BaseTest
         assertNull(EMPTY_PTR.getMatchingProperty());
     }
 
-    public void testPointerWithEmptyPropertyName()
+    @Test
+    void pointerWithEmptyPropertyName()
     {
         // note: this is acceptable, to match property in '{"":3}', for example
         // and NOT same as what empty point, "", is.
@@ -135,12 +147,13 @@ public class JsonPointerTest extends BaseTest
     }
 
     // mostly for test coverage, really...
-    public void testEquality() {
-        assertFalse(JsonPointer.empty().equals(JsonPointer.compile("/")));
+    @Test
+    void equality() {
+        assertNotEquals(JsonPointer.empty(), JsonPointer.compile("/"));
 
         assertEquals(JsonPointer.compile("/foo/3"), JsonPointer.compile("/foo/3"));
-        assertFalse(JsonPointer.empty().equals(JsonPointer.compile("/12")));
-        assertFalse(JsonPointer.compile("/12").equals(JsonPointer.empty()));
+        assertNotEquals(JsonPointer.empty(), JsonPointer.compile("/12"));
+        assertNotEquals(JsonPointer.compile("/12"), JsonPointer.empty());
 
         assertEquals(JsonPointer.compile("/a/b/c").tail(),
                 JsonPointer.compile("/foo/b/c").tail());
@@ -151,10 +164,11 @@ public class JsonPointerTest extends BaseTest
         assertEquals(def, abcDef.tail());
 
         // expr != String
-        assertFalse(JsonPointer.empty().equals("/"));
+        assertNotEquals("/", JsonPointer.empty());
     }
 
-    public void testProperties() {
+    @Test
+    void properties() {
         assertTrue(JsonPointer.compile("/foo").mayMatchProperty());
         assertFalse(JsonPointer.compile("/foo").mayMatchElement());
 
@@ -164,7 +178,8 @@ public class JsonPointerTest extends BaseTest
         assertTrue(JsonPointer.compile("/12").mayMatchProperty());
     }
 
-    public void testAppend()
+    @Test
+    void append()
     {
         final String INPUT = "/Image/15/name";
         final String APPEND = "/extension";
@@ -179,7 +194,8 @@ public class JsonPointerTest extends BaseTest
         assertEquals("/Image/15/name/extension", appended.toString());
     }
 
-    public void testAppendWithFinalSlash()
+    @Test
+    void appendWithFinalSlash()
     {
         final String INPUT = "/Image/15/name/";
         final String APPEND = "/extension";
@@ -196,7 +212,8 @@ public class JsonPointerTest extends BaseTest
         assertEquals("/Image/15/name//extension", appended.toString());
     }
 
-    public void testAppendProperty()
+    @Test
+    void appendProperty()
     {
         final String INPUT = "/Image/15/name";
         final String APPEND_NO_SLASH = "extension";
@@ -214,7 +231,8 @@ public class JsonPointerTest extends BaseTest
     }
 
     // [core#1145]: Escape property
-    public void testAppendPropertyEmpty()
+    @Test
+    void appendPropertyEmpty()
     {
         final String BASE = "/Image/72/src";
 
@@ -229,7 +247,8 @@ public class JsonPointerTest extends BaseTest
         assertEquals(BASE+"/", sub.toString());
     }
 
-    public void testAppendIndex()
+    @Test
+    void appendIndex()
     {
         final String INPUT = "/Image/15/name";
         final int INDEX = 12;
@@ -240,7 +259,8 @@ public class JsonPointerTest extends BaseTest
         assertEquals(12, appended.last().getMatchingIndex());
     }
 
-    public void testQuotedPath() throws Exception
+    @Test
+    void quotedPath() throws Exception
     {
         final String INPUT = "/w~1out/til~0de/~1ab";
 
@@ -274,7 +294,8 @@ public class JsonPointerTest extends BaseTest
     }
 
     // [core#133]
-    public void testLongNumbers() throws Exception
+    @Test
+    void longNumbers() throws Exception
     {
         final long LONG_ID = (Integer.MAX_VALUE) + 1L;
 

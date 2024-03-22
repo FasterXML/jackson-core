@@ -3,14 +3,19 @@ package tools.jackson.core.fuzz;
 import java.io.*;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.ThrottledInputStream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 // Reproducing: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=52688
 // (reported as [core#834]
-public class Fuzz52688ParseTest extends BaseTest
+class Fuzz52688ParseTest extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -20,7 +25,8 @@ public class Fuzz52688ParseTest extends BaseTest
             +"2222"
             +"222");
 
-    public void testBigNumberUTF16Parse() throws Exception
+    @Test
+    void bigNumberUTF16Parse() throws Exception
     {
         // 41 bytes as UTF16-LE; becomes 21 characters (last broken)
         final byte[] DOC = {
@@ -50,7 +56,8 @@ public class Fuzz52688ParseTest extends BaseTest
         }
     }
 
-    public void testBigNumberUTF8Parse() throws Exception
+    @Test
+    void bigNumberUTF8Parse() throws Exception
     {
         // Similar to UTF-16 case
         final byte[] DOC = {

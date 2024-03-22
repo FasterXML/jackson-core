@@ -2,18 +2,22 @@ package tools.jackson.core.sym;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.ReaderBasedJsonParser;
 import tools.jackson.core.json.UTF8StreamJsonParser;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for verifying that {@link JsonParser} instances properly
  * merge back symbols to the root symbol table
  */
 @SuppressWarnings("serial")
-public class SymbolTableMergingTest
-    extends tools.jackson.core.BaseTest
+class SymbolTableMergingTest
+    extends JUnit5TestBase
 {
     /**
      * To peek into state of "root" symbol tables (parent of all symbol
@@ -28,12 +32,14 @@ public class SymbolTableMergingTest
 
     final static String JSON = "{ \"a\" : 3, \"aaa\" : 4, \"_a\" : 0 }";
 
-    public void testByteSymbolsWithClose() throws Exception
+    @Test
+    void byteSymbolsWithClose() throws Exception
     {
         _testWithClose(true);
     }
 
-    public void testByteSymbolsWithEOF() throws Exception
+    @Test
+    void byteSymbolsWithEOF() throws Exception
     {
         MyJsonFactory f = new MyJsonFactory();
         JsonParser p = _getParser(f, JSON, true);
@@ -47,7 +53,8 @@ public class SymbolTableMergingTest
         assertEquals(3, f.byteSymbolCount());
     }
 
-    public void testHashCalc() throws Exception
+    @Test
+    void hashCalc() throws Exception
     {
         CharsToNameCanonicalizer sym = CharsToNameCanonicalizer.createRoot(new JsonFactory());
         char[] str1 = "foo".toCharArray();
@@ -56,12 +63,14 @@ public class SymbolTableMergingTest
         assertEquals(sym.calcHash(str1, 0, 3), sym.calcHash(str2, 1, 3));
     }
 
-    public void testCharSymbolsWithClose() throws Exception
+    @Test
+    void charSymbolsWithClose() throws Exception
     {
         _testWithClose(false);
     }
 
-    public void testCharSymbolsWithEOF() throws Exception
+    @Test
+    void charSymbolsWithEOF() throws Exception
     {
         MyJsonFactory f = new MyJsonFactory();
         JsonParser p = _getParser(f, JSON, false);

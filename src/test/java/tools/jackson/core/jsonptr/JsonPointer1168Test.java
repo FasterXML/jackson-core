@@ -1,12 +1,16 @@
 package tools.jackson.core.jsonptr;
 
-import tools.jackson.core.BaseTest;
-import tools.jackson.core.JsonPointer;
+import org.junit.jupiter.api.Test;
 
-public class JsonPointer1168Test extends BaseTest
+import tools.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class JsonPointer1168Test extends JUnit5TestBase
 {
     // [core#1168]
-    public void testAppendWithTail()
+    @Test
+    void appendWithTail()
     {
         JsonPointer original = JsonPointer.compile("/a1/b/c");
         JsonPointer tailPointer = original.tail();

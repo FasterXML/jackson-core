@@ -5,20 +5,25 @@ import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests that directly modify/access underlying low-level symbol tables
  * (instead of indirectly using them via JsonParser).
  */
-public class TestSymbolTables extends tools.jackson.core.BaseTest
+class TestSymbolTables extends JUnit5TestBase
 {
     private final static JsonFactory JSON_F = new JsonFactory();
 
     // Test for verifying stability of hashCode, wrt collisions, using
     // synthetic field name generation and character-based input
-    public void testSyntheticWithChars() throws IOException
+    @Test
+    void syntheticWithChars() throws IOException
     {
         // pass seed, to keep results consistent:
         CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F, -1).makeChild();
@@ -46,7 +51,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
         symbols.verifyInternalConsistency();
     }
 
-    public void testSyntheticWithBytesNew() throws IOException
+    @Test
+    void syntheticWithBytesNew() throws IOException
     {
         // pass seed, to keep results consistent:
         final int SEED = 33333;
@@ -75,7 +81,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // [Issue#145]
-    public void testThousandsOfSymbolsWithChars() throws IOException
+    @Test
+    void thousandsOfSymbolsWithChars() throws IOException
     {
         CharsToNameCanonicalizer symbolsCRoot = CharsToNameCanonicalizer.createRoot(JSON_F);
         int exp = 0;
@@ -105,7 +112,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // Since 2.6
-    public void testThousandsOfSymbolsWithNew() throws IOException
+    @Test
+    void thousandsOfSymbolsWithNew() throws IOException
     {
         final int SEED = 33333;
 
@@ -145,7 +153,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // And then one more test just for Bytes-based symbol table
-    public void testByteBasedSymbolTable() throws Exception
+    @Test
+    void byteBasedSymbolTable() throws Exception
     {
         // combination of short, medium1/2, long names...
         final String JSON = a2q("{'abc':1, 'abc\\u0000':2, '\\u0000abc':3, "
@@ -190,7 +199,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // [core#187]: unexpectedly high number of collisions for straight numbers
-    public void testCollisionsWithChars187() throws IOException
+    @Test
+    void collisionsWithChars187() throws IOException
     {
         CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F, -1).makeChild();
         final int COUNT = 30000;
@@ -209,7 +219,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // [core#187]: unexpectedly high number of collisions for straight numbers
-    public void testCollisionsWithBytesNew187a() throws IOException
+    @Test
+    void collisionsWithBytesNew187a() throws IOException
     {
         ByteQuadsCanonicalizer symbols =
                 ByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
@@ -236,7 +247,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // Another variant, but with 1-quad names
-    public void testCollisionsWithBytesNew187b() throws IOException
+    @Test
+    void collisionsWithBytesNew187b() throws IOException
     {
         ByteQuadsCanonicalizer symbols =
                 ByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
@@ -263,7 +275,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // [core#191]: similarly, but for "short" symbols:
-    public void testShortNameCollisionsViaParser() throws Exception
+    @Test
+    void shortNameCollisionsViaParser() throws Exception
     {
         JsonFactory f = new JsonFactory();
         String json = _shortDoc191();
@@ -301,7 +314,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // [core#191]
-    public void testShortQuotedDirectChars() throws IOException
+    @Test
+    void shortQuotedDirectChars() throws IOException
     {
         final int COUNT = 400;
 
@@ -318,7 +332,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
         assertEquals(2, symbols.maxCollisionLength());
     }
 
-    public void testShortQuotedDirectBytes() throws IOException
+    @Test
+    void shortQuotedDirectBytes() throws IOException
     {
         final int COUNT = 400;
         ByteQuadsCanonicalizer symbols =
@@ -338,7 +353,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
     }
 
     // [core#191]
-    public void testShortNameCollisionsDirect() throws IOException
+    @Test
+    void shortNameCollisionsDirect() throws IOException
     {
         final int COUNT = 600;
 
@@ -358,7 +374,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
         }
     }
 
-    public void testShortNameCollisionsDirectNew() throws IOException
+    @Test
+    void shortNameCollisionsDirectNew() throws IOException
     {
         final int COUNT = 700;
         {
@@ -386,7 +403,8 @@ public class TestSymbolTables extends tools.jackson.core.BaseTest
 
     // to verify [jackson-core#213] -- did not fail, but ruled out low-level bug
 
-    public void testLongSymbols17Bytes() throws Exception
+    @Test
+    void longSymbols17Bytes() throws Exception
     {
         ByteQuadsCanonicalizer symbolsB =
                 ByteQuadsCanonicalizer.createRoot(3).makeChild(JsonFactory.Feature.collectDefaults());

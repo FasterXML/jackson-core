@@ -1,24 +1,30 @@
 package com.fasterxml.jackson.core.json;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test size of parser error messages
  */
 public class TestMaxErrorSize
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final static int EXPECTED_MAX_TOKEN_LEN = 256; // ParserBase.MAX_ERROR_TOKEN_LENGTH
 
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testLongErrorMessage() throws Exception
+    @Test
+    void longErrorMessage() throws Exception
     {
         _testLongErrorMessage(MODE_INPUT_STREAM);
         _testLongErrorMessage(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testLongErrorMessageReader() throws Exception
+    @Test
+    void longErrorMessageReader() throws Exception
     {
         _testLongErrorMessage(MODE_READER);
     }
@@ -47,7 +53,8 @@ public class TestMaxErrorSize
         jp.close();
     }
 
-    public void testShortErrorMessage() throws Exception
+    @Test
+    void shortErrorMessage() throws Exception
     {
         _testShortErrorMessage(MODE_INPUT_STREAM);
         _testShortErrorMessage(MODE_INPUT_STREAM_THROTTLED);

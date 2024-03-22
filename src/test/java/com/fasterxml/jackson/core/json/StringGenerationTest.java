@@ -6,12 +6,16 @@ import com.fasterxml.jackson.core.*;
 
 import java.util.Random;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Set of basic unit tests for verifying that the string
  * generation, including character escaping, works as expected.
  */
-public class StringGenerationTest
-    extends BaseTest
+class StringGenerationTest
+        extends JUnit5TestBase
 {
     final static String[] SAMPLES = new String[] {
         "\"test\"",
@@ -23,14 +27,16 @@ public class StringGenerationTest
 
     private final JsonFactory FACTORY = new JsonFactory();
 
-    public void testBasicEscaping() throws Exception
+    @Test
+    void basicEscaping() throws Exception
     {
         doTestBasicEscaping(false);
         doTestBasicEscaping(true);
     }
 
     // for [core#194]
-    public void testMediumStringsBytes() throws Exception
+    @Test
+    void mediumStringsBytes() throws Exception
     {
         for (int mode : ALL_BINARY_MODES) {
             for (int size : new int[] { 1100, 2300, 3800, 7500, 19000 }) {
@@ -40,7 +46,8 @@ public class StringGenerationTest
     }
 
     // for [core#194]
-    public void testMediumStringsChars() throws Exception
+    @Test
+    void mediumStringsChars() throws Exception
     {
         for (int mode : ALL_TEXT_MODES) {
             for (int size : new int[] { 1100, 2300, 3800, 7500, 19000 }) {
@@ -49,7 +56,8 @@ public class StringGenerationTest
         }
     }
 
-    public void testLongerRandomSingleChunk() throws Exception
+    @Test
+    void longerRandomSingleChunk() throws Exception
     {
         /* Let's first generate 100k of pseudo-random characters, favoring
          * 7-bit ascii range
@@ -63,7 +71,8 @@ public class StringGenerationTest
         }
     }
 
-    public void testLongerRandomMultiChunk() throws Exception
+    @Test
+    void longerRandomMultiChunk() throws Exception
     {
         /* Let's first generate 100k of pseudo-random characters, favoring
          * 7-bit ascii range
@@ -179,7 +188,7 @@ public class StringGenerationTest
             assertEquals(JsonToken.VALUE_STRING, t);
             assertEquals(VALUE, p.getText());
             assertEquals(JsonToken.END_ARRAY, p.nextToken());
-            assertEquals(null, p.nextToken());
+            assertNull(p.nextToken());
             p.close();
         }
     }

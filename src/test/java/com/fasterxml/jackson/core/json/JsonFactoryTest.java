@@ -5,12 +5,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-public class JsonFactoryTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class JsonFactoryTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class BogusCodec extends ObjectCodec {
         @Override
@@ -115,7 +119,8 @@ public class JsonFactoryTest
     final JsonFactory JSON_F = sharedStreamFactory();
 
     @SuppressWarnings("deprecation")
-    public void testGeneratorFeatures() throws Exception
+    @Test
+    void generatorFeatures() throws Exception
     {
         assertNull(JSON_F.getCodec());
 
@@ -130,7 +135,8 @@ public class JsonFactoryTest
         assertFalse(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
     }
 
-    public void testFactoryFeatures() throws Exception
+    @Test
+    void factoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false)
@@ -144,7 +150,8 @@ public class JsonFactoryTest
         assertFalse(JSON_F.canHandleBinaryNatively());
     }
 
-    public void testFactoryMisc() throws Exception
+    @Test
+    void factoryMisc() throws Exception
     {
         assertNull(JSON_F.getInputDecorator());
         assertNull(JSON_F.getOutputDecorator());
@@ -163,7 +170,8 @@ public class JsonFactoryTest
     // Basically simply exercises basic functionality, to ensure
     // there are no obvious problems; needed since testing never
     // disables this handling otherwise
-    public void testDisablingBufferRecycling() throws Exception
+    @Test
+    void disablingBufferRecycling() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
@@ -205,7 +213,8 @@ public class JsonFactoryTest
         }
     }
 
-    public void testJsonWithFiles() throws Exception
+    @Test
+    void jsonWithFiles() throws Exception
     {
         File file = File.createTempFile("jackson-test", null);
         file.deleteOnExit();
@@ -239,7 +248,8 @@ public class JsonFactoryTest
 
     // #72
     @SuppressWarnings("deprecation")
-    public void testCopy() throws Exception
+    @Test
+    void copy() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         // first, verify defaults
@@ -274,7 +284,8 @@ public class JsonFactoryTest
         assertSame(codec, jf3.getCodec());
     }
 
-    public void testRootValues() throws Exception
+    @Test
+    void rootValues() throws Exception
     {
         JsonFactory f = new JsonFactory();
         assertEquals(" ", f.getRootValueSeparator());
@@ -291,11 +302,13 @@ public class JsonFactoryTest
         assertEquals("1/2/3", w.toString());
     }
 
-    public void testCanonicalizationEnabled() throws Exception {
+    @Test
+    void canonicalizationEnabled() throws Exception {
         doCanonicalizationTest(false);
     }
 
-    public void testCanonicalizationDisabled() throws Exception {
+    @Test
+    void canonicalizationDisabled() throws Exception {
         doCanonicalizationTest(false);
     }
 

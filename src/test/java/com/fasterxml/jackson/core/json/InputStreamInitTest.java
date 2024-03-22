@@ -7,9 +7,13 @@ import java.net.URL;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 // [core#763] (and [databind#3455]
-public class InputStreamInitTest
-    extends com.fasterxml.jackson.core.BaseTest
+class InputStreamInitTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class FailingInputStream extends InputStream {
         public boolean closed = false;
@@ -41,7 +45,8 @@ public class InputStreamInitTest
         }
     }
 
-    public void testForFile() throws Exception
+    @Test
+    void forFile() throws Exception
     {
         final FailingJsonFactory jsonF = new FailingJsonFactory();
         try {
@@ -54,7 +59,8 @@ public class InputStreamInitTest
         assertTrue(jsonF.lastStream.closed);
     }
 
-    public void testForURL() throws Exception
+    @Test
+    void forURL() throws Exception
     {
         final FailingJsonFactory jsonF = new FailingJsonFactory();
         try {

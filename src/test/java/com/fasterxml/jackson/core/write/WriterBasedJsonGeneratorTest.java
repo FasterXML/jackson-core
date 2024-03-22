@@ -10,14 +10,14 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class WriterBasedJsonGeneratorTest extends JUnit5TestBase
+class WriterBasedJsonGeneratorTest extends JUnit5TestBase
 {
     private final JsonFactory JSON_MAX_NESTING_1 = JsonFactory.builder()
             .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())
             .build();
 
     @Test
-    public void testNestingDepthWithSmallLimit() throws Exception
+    void nestingDepthWithSmallLimit() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(sw)) {
@@ -32,7 +32,7 @@ public class WriterBasedJsonGeneratorTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNestingDepthWithSmallLimitNestedObject() throws Exception
+    void nestingDepthWithSmallLimitNestedObject() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(sw)) {

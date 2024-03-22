@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Set of basic unit tests for verifying that the low-level number
  * printing methods work as expected.
  */
-public class TestNumberPrinting
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class TestNumberPrinting
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
-    public void testIntPrinting() throws Exception
+    void intPrinting() throws Exception
     {
         assertIntPrint(0);
         assertIntPrint(-3);
@@ -44,7 +44,7 @@ public class TestNumberPrinting
     }
 
     @Test
-    public void testLongPrinting() throws Exception
+    void longPrinting() throws Exception
     {
         // First, let's just cover couple of edge cases
         assertLongPrint(0L, 0);

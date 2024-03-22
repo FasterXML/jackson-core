@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
+class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class BogusSchema implements FormatSchema
     {
@@ -200,7 +200,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
      * Test default, non-overridden parser delegate.
      */
     @Test
-    public void testParserDelegate() throws IOException
+    void parserDelegate() throws IOException
     {
         final int MAX_NUMBER_LEN = 200;
         final String TOKEN ="foo";
@@ -311,7 +311,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
      */
     @SuppressWarnings("deprecation")
     @Test
-    public void testGeneratorDelegate() throws IOException
+    void generatorDelegate() throws IOException
     {
         final String TOKEN ="foo";
 
@@ -375,7 +375,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
     }
 
     @Test
-    public void testGeneratorDelegateArrays() throws IOException
+    void generatorDelegateArrays() throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator g0 = JSON_F.createGenerator(sw);
@@ -397,7 +397,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
     }
 
     @Test
-    public void testGeneratorDelegateComments() throws IOException
+    void generatorDelegateComments() throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator g0 = JSON_F.createGenerator(sw);
@@ -422,7 +422,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
     }
 
     @Test
-    public void testDelegateCopyMethods() throws IOException
+    void delegateCopyMethods() throws IOException
     {
         JsonParser p = JSON_F.createParser("[123,[true,false]]");
         StringWriter sw = new StringWriter();
@@ -446,7 +446,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
     }
 
     @Test
-    public void testNotDelegateCopyMethods() throws IOException
+    void notDelegateCopyMethods() throws IOException
     {
         JsonParser jp = JSON_F.createParser("[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");
         StringWriter sw = new StringWriter();
@@ -468,7 +468,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.JUnit5TestBase
 
     @SuppressWarnings("resource")
     @Test
-    public void testGeneratorWithCodec() throws IOException
+    void generatorWithCodec() throws IOException
     {
         BogusCodec codec = new BogusCodec();
         StringWriter sw = new StringWriter();

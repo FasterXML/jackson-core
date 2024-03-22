@@ -239,7 +239,7 @@ public class JUnit5TestBase
     /**********************************************************************
      */
 
-    public static IOContext testIOContext() {
+    static IOContext iOContext() {
         return TestSupport.testIOContext();
     }
 

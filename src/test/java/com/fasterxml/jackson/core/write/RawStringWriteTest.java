@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-public class RawStringWriteTest extends com.fasterxml.jackson.core.JUnit5TestBase
+class RawStringWriteTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
@@ -19,7 +19,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.JUnit5TestBas
      * Unit test for "JsonGenerator.writeRawUTF8String()"
      */
     @Test
-    public void testUtf8RawStrings() throws Exception
+    void utf8RawStrings() throws Exception
     {
         // Let's create set of Strings to output; no ctrl chars as we do raw
         List<byte[]> strings = generateStrings(new Random(28), 750000, false);
@@ -52,7 +52,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.JUnit5TestBas
      * to handle escaping properly
      */
     @Test
-    public void testUtf8StringsWithEscaping() throws Exception
+    void utf8StringsWithEscaping() throws Exception
     {
         // Let's create set of Strings to output; do include control chars too:
         List<byte[]> strings = generateStrings(new Random(28), 720000, true);
@@ -84,7 +84,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.JUnit5TestBas
     }
 
     @Test
-    public void testWriteRawWithSerializable() throws Exception
+    void writeRawWithSerializable() throws Exception
     {
         _testWriteRawWithSerializable(JSON_F, true);
         _testWriteRawWithSerializable(JSON_F, false);

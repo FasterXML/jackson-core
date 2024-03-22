@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests to verify functioning of {@link Version} class.
  */
-public class ComponentVersionsTest
-    extends JUnit5TestBase
+class ComponentVersionsTest
+        extends JUnit5TestBase
 {
     @Test
-    public void testCoreVersions() throws Exception
+    void coreVersions() throws Exception
     {
         final JsonFactory f = new JsonFactory();
         assertVersion(f.version());
@@ -30,7 +30,7 @@ public class ComponentVersionsTest
     }
 
     @Test
-    public void testEquality() {
+    void equality() {
         Version unk = Version.unknownVersion();
         assertEquals("0.0.0", unk.toString());
         assertEquals("//0.0.0", unk.toFullString());
@@ -47,7 +47,7 @@ public class ComponentVersionsTest
     }
 
     @Test
-    public void testMisc() {
+    void misc() {
         Version unk = Version.unknownVersion();
         int hash = unk.hashCode();
         // Happens to be 0 at this point (Jackson 2.16)

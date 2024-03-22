@@ -9,13 +9,13 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class WriteTypeIdTest
-    extends JUnit5TestBase
+class WriteTypeIdTest
+        extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
     @Test
-    public void testNoNativeTypeIdForJson() throws Exception
+    void noNativeTypeIdForJson() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
@@ -30,7 +30,7 @@ public class WriteTypeIdTest
     }
 
     @Test
-    public void testBasicTypeIdWriteForObject() throws Exception
+    void basicTypeIdWriteForObject() throws Exception
     {
         final Object data = new Object();
 
@@ -89,7 +89,7 @@ public class WriteTypeIdTest
     }
 
     @Test
-    public void testBasicTypeIdWriteForArray() throws Exception
+    void basicTypeIdWriteForArray() throws Exception
     {
         final Object data = new Object();
 

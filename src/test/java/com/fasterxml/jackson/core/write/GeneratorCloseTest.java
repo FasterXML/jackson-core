@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
  * <code>JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT</code>
  * are tested.
  */
-public class GeneratorCloseTest extends JUnit5TestBase
+class GeneratorCloseTest extends JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -36,7 +36,7 @@ public class GeneratorCloseTest extends JUnit5TestBase
      * forcing method is used.
      */
     @Test
-    public void testNoAutoCloseGenerator() throws Exception
+    void noAutoCloseGenerator() throws Exception
     {
         JsonFactory f = new JsonFactory();
 
@@ -58,7 +58,7 @@ public class GeneratorCloseTest extends JUnit5TestBase
     }
 
     @Test
-    public void testCloseGenerator() throws Exception
+    void closeGenerator() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.enable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
@@ -75,7 +75,7 @@ public class GeneratorCloseTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNoAutoCloseOutputStream() throws Exception
+    void noAutoCloseOutputStream() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
@@ -90,7 +90,7 @@ public class GeneratorCloseTest extends JUnit5TestBase
     }
 
     @Test
-    public void testAutoCloseArraysAndObjects()
+    void autoCloseArraysAndObjects()
             throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -113,7 +113,7 @@ public class GeneratorCloseTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNoAutoCloseArraysAndObjects()
+    void noAutoCloseArraysAndObjects()
             throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -136,7 +136,7 @@ public class GeneratorCloseTest extends JUnit5TestBase
 
     @SuppressWarnings("resource")
     @Test
-    public void testAutoFlushOrNot() throws Exception
+    void autoFlushOrNot() throws Exception
     {
         JsonFactory f = new JsonFactory();
         assertTrue(f.isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM));

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UTF8GeneratorTest extends JUnit5TestBase
+class UTF8GeneratorTest extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -23,7 +23,7 @@ public class UTF8GeneratorTest extends JUnit5TestBase
             .build();
 
     @Test
-    public void testUtf8Issue462() throws Exception
+    void utf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = testIOContext();
@@ -51,7 +51,7 @@ public class UTF8GeneratorTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNestingDepthWithSmallLimit() throws Exception
+    void nestingDepthWithSmallLimit() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(bytes)) {
@@ -66,7 +66,7 @@ public class UTF8GeneratorTest extends JUnit5TestBase
     }
 
     @Test
-    public void testNestingDepthWithSmallLimitNestedObject() throws Exception
+    void nestingDepthWithSmallLimitNestedObject() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(bytes)) {
@@ -82,7 +82,7 @@ public class UTF8GeneratorTest extends JUnit5TestBase
 
     // for [core#115]
     @Test
-    public void testSurrogatesWithRaw() throws Exception
+    void surrogatesWithRaw() throws Exception
     {
         final String VALUE = q("\ud83d\ude0c");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -106,7 +106,7 @@ public class UTF8GeneratorTest extends JUnit5TestBase
     }
 
     @Test
-    public void testFilteringWithEscapedChars() throws Exception
+    void filteringWithEscapedChars() throws Exception
     {
         final String SAMPLE_WITH_QUOTES = "\b\t\f\n\r\"foo\"\u0000";
 

@@ -15,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Simple unit tests to try to verify that the default
  * {@link SerializableString} implementation works as expected.
  */
-public class TestSerializedString
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class TestSerializedString
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
-    public void testAppending() throws IOException
+    void appending() throws IOException
     {
         final String INPUT = "\"quo\\ted\"";
         final String QUOTED = "\\\"quo\\\\ted\\\"";
@@ -45,7 +45,7 @@ public class TestSerializedString
     }
 
     @Test
-    public void testFailedAccess() throws IOException
+    void failedAccess() throws IOException
     {
         final String INPUT = "Bit longer text";
         SerializableString sstr = new SerializedString(INPUT);

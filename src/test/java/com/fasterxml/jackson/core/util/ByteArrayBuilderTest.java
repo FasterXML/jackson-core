@@ -11,10 +11,10 @@ import com.fasterxml.jackson.core.io.IOContext;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.JUnit5TestBase
+class ByteArrayBuilderTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
-    public void testSimple() throws Exception
+    void simple() throws Exception
     {
         ByteArrayBuilder b = new ByteArrayBuilder(null, 20);
         assertArrayEquals(new byte[0], b.toByteArray());
@@ -40,7 +40,7 @@ public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.JUnit5TestB
 
     // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
     @Test
-    public void testBufferRecyclerReuse() throws Exception
+    void bufferRecyclerReuse() throws Exception
     {
         JsonFactory f = new JsonFactory();
         BufferRecycler br = new BufferRecycler()

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 import java.io.ByteArrayOutputStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
 
 // for [core#890]
 public class GeneratorFiltering890Test
@@ -70,6 +74,7 @@ public class GeneratorFiltering890Test
         }
     }
 
+    @Test
     public void testIssue890_singleProperty() throws Exception
     {
         // GIVEN
@@ -92,6 +97,7 @@ public class GeneratorFiltering890Test
         assertEquals("[{\"id\":1}]", json);
     }
 
+    @Test
     public void testIssue890_twoProperties() throws Exception
     {
         // GIVEN
@@ -114,6 +120,7 @@ public class GeneratorFiltering890Test
         assertEquals("[{\"id\":1,\"stuff\":[{\"name\":\"first\"}]}]", json);
     }
 
+    @Test
     public void testIssue890_fullArray() throws Exception
     {
         // GIVEN

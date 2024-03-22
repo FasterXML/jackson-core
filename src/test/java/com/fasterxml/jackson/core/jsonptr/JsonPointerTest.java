@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.core.jsonptr;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonPointer;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonPointerTest extends BaseTest
 {
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
 
+    @Test
     public void testSimplePath() throws Exception
     {
         final String INPUT = "/Image/15/name";
@@ -47,6 +52,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals(-1, ptr.getMatchingIndex());
     }
 
+    @Test
     public void testSimplePathLonger() throws Exception
     {
         final String INPUT = "/a/b/c/d/e/f/0";
@@ -60,6 +66,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals(INPUT, ptr.toString());
     }
 
+    @Test
     public void testSimpleTail() throws Exception
     {
         final String INPUT = "/root/leaf";
@@ -69,6 +76,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals("", ptr.tail().tail().toString());
     }
 
+    @Test
     public void testWonkyNumber173() throws Exception
     {
         JsonPointer ptr = JsonPointer.compile("/1e0");
@@ -76,6 +84,7 @@ public class JsonPointerTest extends BaseTest
     }
 
     // [core#176]: do not allow leading zeroes
+    @Test
     public void testIZeroIndex() throws Exception
     {
         JsonPointer ptr = JsonPointer.compile("/0");
@@ -84,6 +93,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals(-1, ptr.getMatchingIndex());
     }
 
+    @Test
     public void testLast()
     {
         String INPUT = "/Image/name";
@@ -103,6 +113,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals("name", leaf.getMatchingProperty());
     }
 
+    @Test
     public void testEmptyPointer()
     {
         assertSame(EMPTY_PTR, JsonPointer.compile(""));
@@ -115,6 +126,7 @@ public class JsonPointerTest extends BaseTest
         assertNull(EMPTY_PTR.getMatchingProperty());
     }
 
+    @Test
     public void testPointerWithEmptyPropertyName()
     {
         // note: this is acceptable, to match property in '{"":3}', for example
@@ -135,6 +147,7 @@ public class JsonPointerTest extends BaseTest
     }
 
     // mostly for test coverage, really...
+    @Test
     public void testEquality() {
         assertFalse(JsonPointer.empty().equals(JsonPointer.compile("/")));
 
@@ -154,6 +167,7 @@ public class JsonPointerTest extends BaseTest
         assertFalse(JsonPointer.empty().equals("/"));
     }
 
+    @Test
     public void testProperties() {
         assertTrue(JsonPointer.compile("/foo").mayMatchProperty());
         assertFalse(JsonPointer.compile("/foo").mayMatchElement());
@@ -164,6 +178,7 @@ public class JsonPointerTest extends BaseTest
         assertTrue(JsonPointer.compile("/12").mayMatchProperty());
     }
 
+    @Test
     public void testAppend()
     {
         final String INPUT = "/Image/15/name";
@@ -179,6 +194,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals("/Image/15/name/extension", appended.toString());
     }
 
+    @Test
     public void testAppendWithFinalSlash()
     {
         final String INPUT = "/Image/15/name/";
@@ -196,6 +212,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals("/Image/15/name//extension", appended.toString());
     }
 
+    @Test
     public void testAppendProperty()
     {
         final String INPUT = "/Image/15/name";
@@ -214,6 +231,7 @@ public class JsonPointerTest extends BaseTest
     }
 
     // [core#1145]: Escape property
+    @Test
     public void testAppendPropertyEmpty()
     {
         final String BASE = "/Image/72/src";
@@ -229,6 +247,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals(BASE+"/", sub.toString());
     }
 
+    @Test
     public void testAppendIndex()
     {
         final String INPUT = "/Image/15/name";
@@ -240,6 +259,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals(12, appended.last().getMatchingIndex());
     }
 
+    @Test
     public void testQuotedPath() throws Exception
     {
         final String INPUT = "/w~1out/til~0de/~1ab";
@@ -274,6 +294,7 @@ public class JsonPointerTest extends BaseTest
     }
 
     // [core#133]
+    @Test
     public void testLongNumbers() throws Exception
     {
         final long LONG_ID = (Integer.MAX_VALUE) + 1L;

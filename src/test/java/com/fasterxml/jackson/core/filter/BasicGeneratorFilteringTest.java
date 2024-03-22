@@ -6,8 +6,12 @@ import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.io.SerializedString;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Low-level tests for explicit, hand-written tests for generator-side
@@ -171,6 +175,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
     private final JsonFactory JSON_F = new JsonFactory();
 
+    @Test
     public void testNonFiltering() throws Exception
     {
         // First, verify non-filtering
@@ -183,6 +188,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 w.toString());
     }
 
+    @Test
     public void testSingleMatchFilteringWithoutPath() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -202,6 +208,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals("3", w.toString());
     }
 
+    @Test
     public void testSingleMatchFilteringWithPath() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -224,6 +231,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(1, gen.getMatchCount());
     }
 
+    @Test
     public void testSingleMatchFilteringWithPathSkippedArray() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -247,6 +255,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     }
 
     // Alternative take, using slightly different calls for FIELD_NAME, START_ARRAY
+    @Test
     public void testSingleMatchFilteringWithPathAlternate1() throws Exception {
         _testSingleMatchFilteringWithPathAlternate1(false);
         _testSingleMatchFilteringWithPathAlternate1(true);
@@ -302,6 +311,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         }
     }
 
+    @Test
     public void testSingleMatchFilteringWithPathRawBinary() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -353,6 +363,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(1, gen.getMatchCount());
     }
 
+    @Test
     public void testMultipleMatchFilteringWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -380,6 +391,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{'a':123,'b':true}"), w.toString());
     }
 
+    @Test
     public void testMultipleMatchFilteringWithPath2() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -393,6 +405,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(3, gen.getMatchCount());
     }
 
+    @Test
     public void testMultipleMatchFilteringWithPath3() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -406,6 +419,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(2, gen.getMatchCount());
     }
 
+    @Test
     public void testNoMatchFiltering1() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -419,6 +433,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(0, gen.getMatchCount());
     }
 
+    @Test
     public void testNoMatchFiltering2() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -433,6 +448,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(0, gen.getMatchCount());
     }
 
+    @Test
     public void testNoMatchFiltering3() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -447,6 +463,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(0, gen.getMatchCount());
     }
 
+    @Test
     public void testNoMatchFiltering4() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -460,6 +477,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(0, gen.getMatchCount());
     }
 
+    @Test
     public void testNoMatchFiltering5() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -474,6 +492,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(0, gen.getMatchCount());
     }
 
+    @Test
     public void testNoMatchFiltering6() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -488,6 +507,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(0, gen.getMatchCount());
     }
 
+    @Test
     public void testValueOmitsFieldName1() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -501,6 +521,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
       assertEquals(1, gen.getMatchCount());
     }
 
+    @Test
     public void testMultipleMatchFilteringWithPath4() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -513,6 +534,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(1, gen.getMatchCount());
     }
 
+    @Test
     public void testValueOmitsFieldName2() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -526,6 +548,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(1, gen.getMatchCount());
     }
 
+    @Test
     public void testIndexMatchWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -545,6 +568,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(1, gen.getMatchCount());
     }
 
+    @Test
     public void testIndexMatchWithPath2() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -585,6 +609,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(1, gen.getMatchCount());
     }
 
+    @Test
     public void testWriteStartObjectWithObject() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -611,6 +636,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     }
 
     // [core#580]
+    @Test
     public void testRawValueDelegationWithArray() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -631,6 +657,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     }
 
     // [core#588]
+    @Test
     public void testRawValueDelegationWithObject() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -648,6 +675,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{'f1':1,'f2':12.3,'f3':3}"), w.toString());
     }
 
+    @Test
     public void testIncludeEmptyArrayIfNotFiltered() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -669,6 +697,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{'empty_array':[]}"), w.toString());
     }
 
+    @Test
     public void testIncludeEmptyArray() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -690,6 +719,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{'empty_array':[],'filtered_array':[]}"), w.toString());
     }
 
+    @Test
     public void testIncludeEmptyObjectIfNotFiltered() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -713,6 +743,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{'empty_object':{}}"), w.toString());
     }
 
+    @Test
     public void testIncludeEmptyObject() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -734,6 +765,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{'empty_object':{},'filtered_object':{}}"), w.toString());
     }
 
+    @Test
     public void testIncludeEmptyArrayInObjectIfNotFiltered() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -759,6 +791,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{'object_with_empty_array':{'foo':[]}}"), w.toString());
     }
 
+    @Test
     public void testIncludeEmptyArrayInObject() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -785,6 +818,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     }
 
 
+    @Test
     public void testIncludeEmptyObjectInArrayIfNotFiltered() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -810,6 +844,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{'array_with_empty_object':[{}]}"), w.toString());
     }
 
+    @Test
     public void testIncludeEmptyObjectInArray() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -838,6 +873,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     }
 
 
+    @Test
     public void testIncludeEmptyTopLevelObject() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -854,6 +890,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(a2q("{}"), w.toString());
     }
 
+    @Test
     public void testIncludeEmptyTopLevelArray() throws Exception
     {
         StringWriter w = new StringWriter();

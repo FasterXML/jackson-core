@@ -3,7 +3,12 @@ package com.fasterxml.jackson.core.constraints;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Set of basic unit tests for verifying that "too big" number constraints
@@ -22,12 +27,14 @@ public class LargeNumberReadTest
     /**********************************************************************
      */
 
+    @Test
     public void testBigBigDecimalsBytesFailByDefault() throws Exception
     {
         _testBigBigDecimals(MODE_INPUT_STREAM, true);
         _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED, true);
     }
 
+    @Test
     public void testBigBigDecimalsBytes() throws Exception
     {
         try {
@@ -44,6 +51,7 @@ public class LargeNumberReadTest
         }
     }
 
+    @Test
     public void testBigBigDecimalsCharsFailByDefault() throws Exception
     {
         try {
@@ -54,11 +62,13 @@ public class LargeNumberReadTest
         }
     }
 
+    @Test
     public void testBigBigDecimalsChars() throws Exception
     {
         _testBigBigDecimals(MODE_READER, true);
     }
 
+    @Test
     public void testBigBigDecimalsDataInputFailByDefault() throws Exception
     {
         try {
@@ -69,6 +79,7 @@ public class LargeNumberReadTest
         }
     }
 
+    @Test
     public void testBigBigDecimalsDataInput() throws Exception
     {
         _testBigBigDecimals(MODE_DATA_INPUT, true);

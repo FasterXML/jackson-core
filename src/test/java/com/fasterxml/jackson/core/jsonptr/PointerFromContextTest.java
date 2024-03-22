@@ -3,11 +3,15 @@ package com.fasterxml.jackson.core.jsonptr;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.BaseTest;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.JsonToken;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PointerFromContextTest extends BaseTest
 {
@@ -21,6 +25,7 @@ public class PointerFromContextTest extends BaseTest
 
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
 
+    @Test
     public void testViaParser() throws Exception
     {
         final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
@@ -106,6 +111,7 @@ public class PointerFromContextTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testViaGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -150,6 +156,7 @@ public class PointerFromContextTest extends BaseTest
     /**********************************************************
      */
 
+    @Test
     public void testParserWithRoot() throws Exception
     {
         final String JSON = a2q("{'a':1,'b':3}\n"
@@ -213,6 +220,7 @@ public class PointerFromContextTest extends BaseTest
         p.close();
     }
 
+    @Test
     public void testGeneratorWithRoot() throws Exception
     {
         StringWriter w = new StringWriter();

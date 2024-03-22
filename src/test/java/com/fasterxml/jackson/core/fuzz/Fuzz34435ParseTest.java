@@ -1,14 +1,19 @@
 package com.fasterxml.jackson.core.fuzz;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 // Trying to repro: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=34435
 public class Fuzz34435ParseTest extends BaseTest
 {
     private final byte[] DOC = readResource("/data/fuzz-json-34435.json");
 
+    @Test
     public void testFuzz34435ViaParser() throws Exception
     {
         final JsonFactory f = JsonFactory.builder()

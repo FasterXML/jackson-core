@@ -7,6 +7,10 @@ import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit test(s) to verify that handling of (byte-based) symbol tables
  * is working.
@@ -27,6 +31,7 @@ public class TestByteBasedSymbols
      * This unit test checks that [JACKSON-5] is fixed; if not, a
      * symbol table corruption should result in odd problems.
      */
+    @Test
     public void testSharedSymbols() throws Exception
     {
         // MUST share a single json factory
@@ -75,6 +80,7 @@ public class TestByteBasedSymbols
         jp0.close();
     }
 
+    @Test
     public void testAuxMethodsWithNewSymboTable() throws Exception
     {
         final int A_BYTES = 0x41414141; // "AAAA"
@@ -100,6 +106,7 @@ public class TestByteBasedSymbols
     }
 
     // as per name, for [core#207]
+    @Test
     public void testIssue207() throws Exception
     {
         ByteQuadsCanonicalizer nc = ByteQuadsCanonicalizer.createRoot(-523743345);
@@ -122,6 +129,7 @@ public class TestByteBasedSymbols
     }
 
     // [core#548]
+    @Test
     public void testQuadsIssue548() throws Exception
     {
         Random r = new Random(42);

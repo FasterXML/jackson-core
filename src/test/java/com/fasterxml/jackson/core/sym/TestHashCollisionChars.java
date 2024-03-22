@@ -5,6 +5,10 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * Some unit tests to try to exercise part of parser code that
  * deals with symbol (table) management.
@@ -34,6 +38,7 @@ public class TestHashCollisionChars
     };
     */
 
+    @Test
     public void testReaderCollisions() throws Exception
     {
         StringBuilder sb = new StringBuilder();

@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.core.fuzz;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 // For
 //
@@ -15,16 +19,19 @@ public class Fuzz61198_1169_NumberParseTest extends BaseTest
             .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
             .build();
 
+    @Test
     public void testLeadingPlusSignMalformedBytes() throws Exception {
         _testLeadingPlusMalformed(JSON_F, MODE_INPUT_STREAM);
         _testLeadingPlusMalformed(JSON_F, MODE_INPUT_STREAM_THROTTLED);
     }
 
+    @Test
     public void testLeadingPlusSignMalformedReader() throws Exception {
         _testLeadingPlusMalformed(JSON_F, MODE_READER);
         _testLeadingPlusMalformed(JSON_F, MODE_READER_THROTTLED);
     }
 
+    @Test
     public void testLeadingPlusSignMalformedOther() throws Exception {
         _testLeadingPlusMalformed(JSON_F, MODE_DATA_INPUT);
     }

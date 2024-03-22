@@ -4,8 +4,13 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
 {
+    @Test
     public void testSimpleValidArray() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
@@ -28,6 +33,7 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
         jp.close();
     }
 
+    @Test
     public void testSimpleValidObject() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
@@ -55,6 +61,7 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
      * While JSON String is not a strong match alone, it should
      * be detected unless some better match is available
      */
+    @Test
     public void testSimpleValidString() throws Exception
     {
         JsonFactory jsonF = new JsonFactory();
@@ -80,6 +87,7 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
         jp.close();
     }
 
+    @Test
     public void testSimpleInvalid() throws Exception
     {
         DataFormatDetector detector = new DataFormatDetector(new JsonFactory());

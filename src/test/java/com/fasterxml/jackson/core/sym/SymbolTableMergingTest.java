@@ -3,8 +3,12 @@ package com.fasterxml.jackson.core.sym;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
 import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for verifying that {@link JsonParser} instances properly
@@ -27,11 +31,13 @@ public class SymbolTableMergingTest
 
     final static String JSON = "{ \"a\" : 3, \"aaa\" : 4, \"_a\" : 0 }";
 
+    @Test
     public void testByteSymbolsWithClose() throws Exception
     {
         _testWithClose(true);
     }
 
+    @Test
     public void testByteSymbolsWithEOF() throws Exception
     {
         MyJsonFactory f = new MyJsonFactory();
@@ -46,6 +52,7 @@ public class SymbolTableMergingTest
         assertEquals(3, f.byteSymbolCount());
     }
 
+    @Test
     public void testHashCalc() throws Exception
     {
         CharsToNameCanonicalizer sym = CharsToNameCanonicalizer.createRoot(new JsonFactory());
@@ -55,11 +62,13 @@ public class SymbolTableMergingTest
         assertEquals(sym.calcHash(str1, 0, 3), sym.calcHash(str2, 1, 3));
     }
 
+    @Test
     public void testCharSymbolsWithClose() throws Exception
     {
         _testWithClose(false);
     }
 
+    @Test
     public void testCharSymbolsWithEOF() throws Exception
     {
         MyJsonFactory f = new MyJsonFactory();

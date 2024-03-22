@@ -7,6 +7,10 @@ import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Tests that directly modify/access underlying low-level symbol tables
  * (instead of indirectly using them via JsonParser).
@@ -17,6 +21,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 
     // Test for verifying stability of hashCode, wrt collisions, using
     // synthetic field name generation and character-based input
+    @Test
     public void testSyntheticWithChars() throws IOException
     {
         // pass seed, to keep results consistent:
@@ -45,6 +50,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         symbols.verifyInternalConsistency();
     }
 
+    @Test
     public void testSyntheticWithBytesNew() throws IOException
     {
         // pass seed, to keep results consistent:
@@ -74,6 +80,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [Issue#145]
+    @Test
     public void testThousandsOfSymbolsWithChars() throws IOException
     {
         CharsToNameCanonicalizer symbolsCRoot = CharsToNameCanonicalizer.createRoot(JSON_F);
@@ -104,6 +111,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // Since 2.6
+    @Test
     public void testThousandsOfSymbolsWithNew() throws IOException
     {
         final int SEED = 33333;
@@ -144,6 +152,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // And then one more test just for Bytes-based symbol table
+    @Test
     public void testByteBasedSymbolTable() throws Exception
     {
         // combination of short, medium1/2, long names...
@@ -189,6 +198,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#187]: unexpectedly high number of collisions for straight numbers
+    @Test
     public void testCollisionsWithChars187() throws IOException
     {
         CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(JSON_F, -1).makeChild();
@@ -208,6 +218,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#187]: unexpectedly high number of collisions for straight numbers
+    @Test
     public void testCollisionsWithBytesNew187a() throws IOException
     {
         ByteQuadsCanonicalizer symbols =
@@ -235,6 +246,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // Another variant, but with 1-quad names
+    @Test
     public void testCollisionsWithBytesNew187b() throws IOException
     {
         ByteQuadsCanonicalizer symbols =
@@ -262,6 +274,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#191]: similarly, but for "short" symbols:
+    @Test
     public void testShortNameCollisionsViaParser() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -300,6 +313,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#191]
+    @Test
     public void testShortQuotedDirectChars() throws IOException
     {
         final int COUNT = 400;
@@ -317,6 +331,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         assertEquals(2, symbols.maxCollisionLength());
     }
 
+    @Test
     public void testShortQuotedDirectBytes() throws IOException
     {
         final int COUNT = 400;
@@ -337,6 +352,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#191]
+    @Test
     public void testShortNameCollisionsDirect() throws IOException
     {
         final int COUNT = 600;
@@ -357,6 +373,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         }
     }
 
+    @Test
     public void testShortNameCollisionsDirectNew() throws IOException
     {
         final int COUNT = 700;
@@ -385,6 +402,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 
     // to verify [jackson-core#213] -- did not fail, but ruled out low-level bug
 
+    @Test
     public void testLongSymbols17Bytes() throws Exception
     {
         ByteQuadsCanonicalizer symbolsB =

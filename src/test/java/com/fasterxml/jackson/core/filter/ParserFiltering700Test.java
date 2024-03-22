@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.core.filter;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
 public class ParserFiltering700Test extends BaseTest
@@ -25,6 +29,7 @@ public class ParserFiltering700Test extends BaseTest
     private final JsonFactory JSON_F = newStreamFactory();
 
     // [core#700], simplified
+    @Test
     public void testSkippingRootLevel() throws Exception
     {
         final String json = a2q("{'@type':'yyy','value':12}");
@@ -54,6 +59,7 @@ public class ParserFiltering700Test extends BaseTest
     }
 
     // [core#700], medium test
+    @Test
     public void testSkippingOneNested() throws Exception
     {
         final String json = a2q("{'value':{'@type':'yyy','a':12}}");
@@ -87,6 +93,7 @@ public class ParserFiltering700Test extends BaseTest
     }
 
     // [core#700], full test
+    @Test
     public void testSkippingForSingleWithPath() throws Exception
     {
         _testSkippingForSingleWithPath(false);

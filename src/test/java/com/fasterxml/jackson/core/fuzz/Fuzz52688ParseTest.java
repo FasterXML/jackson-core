@@ -4,8 +4,13 @@ import java.io.*;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // Reproducing: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=52688
 // (reported as [core#834]
@@ -19,6 +24,7 @@ public class Fuzz52688ParseTest extends BaseTest
             +"2222"
             +"222");
 
+    @Test
     public void testBigNumberUTF16Parse() throws Exception
     {
         // 41 bytes as UTF16-LE; becomes 21 characters (last broken)
@@ -49,6 +55,7 @@ public class Fuzz52688ParseTest extends BaseTest
         }
     }
 
+    @Test
     public void testBigNumberUTF8Parse() throws Exception
     {
         // Similar to UTF-16 case

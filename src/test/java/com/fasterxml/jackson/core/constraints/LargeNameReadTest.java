@@ -3,9 +3,13 @@ package com.fasterxml.jackson.core.constraints;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#1047]: Add max-name-length constraints
 public class LargeNameReadTest extends BaseTest
@@ -23,6 +27,7 @@ public class LargeNameReadTest extends BaseTest
     }
 
     // Test name that is below default max name
+    @Test
     public void testLargeNameBytes() throws Exception {
         final String doc = generateJSON(StreamReadConstraints.defaults().getMaxNameLength() - 100);
         try (JsonParser p = createParserUsingStream(JSON_F_DEFAULT, doc, "UTF-8")) {
@@ -30,6 +35,7 @@ public class LargeNameReadTest extends BaseTest
         }
     }
 
+    @Test
     public void testLargeNameChars() throws Exception {
         final String doc = generateJSON(StreamReadConstraints.defaults().getMaxNameLength() - 100);
         try (JsonParser p = createParserUsingReader(JSON_F_DEFAULT, doc)) {
@@ -37,6 +43,7 @@ public class LargeNameReadTest extends BaseTest
         }
     }
 
+    @Test
     public void testLargeNameWithSmallLimitBytes() throws Exception {
         _testLargeNameWithSmallLimitBytes(JSON_F_NAME_100);
         _testLargeNameWithSmallLimitBytes(JSON_F_NAME_100_B);
@@ -53,6 +60,7 @@ public class LargeNameReadTest extends BaseTest
         }
     }
 
+    @Test
     public void testLargeNameWithSmallLimitChars() throws Exception {
         _testLargeNameWithSmallLimitChars(JSON_F_NAME_100);
         _testLargeNameWithSmallLimitChars(JSON_F_NAME_100_B);
@@ -69,6 +77,7 @@ public class LargeNameReadTest extends BaseTest
         }
     }
 
+    @Test
     public void testLargeNameWithSmallLimitAsync() throws Exception
     {
         final byte[] doc = utf8Bytes(generateJSON(1000));

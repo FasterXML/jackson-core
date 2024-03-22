@@ -3,7 +3,11 @@ package com.fasterxml.jackson.core.filter;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("resource")
 public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.core.BaseTest
@@ -12,6 +16,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
 
     final String SIMPLE_INPUT = a2q("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
 
+    @Test
     public void testSimplePropertyWithPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}", false);
@@ -27,6 +32,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         _assert(SIMPLE_INPUT, "/x", Inclusion.INCLUDE_ALL_AND_PATH, "", false);
     }
 
+    @Test
     public void testSimplePropertyWithoutPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/c", Inclusion.ONLY_INCLUDE_ALL, "{'d':{'a':true}}", false);
@@ -40,6 +46,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         _assert(SIMPLE_INPUT, "/x", Inclusion.ONLY_INCLUDE_ALL, "", false);
     }
 
+    @Test
     public void testArrayElementWithPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[1,2,3]}", false);
@@ -50,6 +57,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         _assert(SIMPLE_INPUT, "/b/8", Inclusion.INCLUDE_ALL_AND_PATH, "", false);
     }
 
+    @Test
     public void testArrayNestedWithPath() throws Exception
     {
         _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'a':[{'b':3}]}", false);
@@ -63,6 +71,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         _assert("[true,[1,2,[true],3],0]", "/1/3/0", Inclusion.INCLUDE_ALL_AND_PATH, "", false);
     }
 
+    @Test
     public void testArrayNestedWithoutPath() throws Exception
     {
         _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", Inclusion.ONLY_INCLUDE_ALL, "3", false);
@@ -77,6 +86,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
 
 //    final String SIMPLE_INPUT = aposToQuotes("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
 
+    @Test
     public void testArrayElementWithoutPath() throws Exception
     {
         _assert(SIMPLE_INPUT, "/b", Inclusion.ONLY_INCLUDE_ALL, "[1,2,3]", false);
@@ -89,6 +99,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         _assert(SIMPLE_INPUT, "/x", Inclusion.ONLY_INCLUDE_ALL, "", false);
     }
 
+    @Test
     public void testAllowMultipleMatchesWithPath() throws Exception
     {
         _assert("[1,2,3]", "/0", Inclusion.INCLUDE_ALL_AND_PATH, "[1]", true);
@@ -132,14 +143,17 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
 
     // for [core#582]: regression wrt array filtering
 
+    @Test
     public void testArrayFiltering582WithoutObject() throws IOException {
         _testArrayFiltering582(0);
     }
 
+    @Test
     public void testArrayFiltering582WithoutSize() throws IOException {
         _testArrayFiltering582(1);
     }
 
+    @Test
     public void testArrayFiltering582WithSize() throws IOException {
         _testArrayFiltering582(2);
     }

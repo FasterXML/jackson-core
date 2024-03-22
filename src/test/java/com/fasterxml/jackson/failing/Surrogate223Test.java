@@ -4,18 +4,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 
-public class Surrogate223Test extends BaseTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class Surrogate223Test extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     // for [core#223]
-    public void testSurrogatesByteBacked() throws Exception
+    @Test
+    void surrogatesByteBacked() throws Exception
     {
         ByteArrayOutputStream out;
         JsonGenerator g;
@@ -52,7 +53,8 @@ public class Surrogate223Test extends BaseTest
     }
 
     // for [core#223]
-    public void testSurrogatesCharBacked() throws Exception
+    @Test
+    void surrogatesCharBacked() throws Exception
     {
         Writer out;
         JsonGenerator g;

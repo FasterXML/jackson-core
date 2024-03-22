@@ -2,10 +2,14 @@ package com.fasterxml.jackson.core.json;
 
 import java.io.ByteArrayOutputStream;
 import com.fasterxml.jackson.core.JsonFactory;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonGenerator;
 
-public class RawValueWithSurrogatesTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class RawValueWithSurrogatesTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final String SURROGATES_307;
     {
@@ -50,12 +54,14 @@ public class RawValueWithSurrogatesTest
     private final JsonFactory JSON_F = new JsonFactory();
 
     // for [jackson-core#307]
-    public void testRawWithSurrogatesString() throws Exception {
+    @Test
+    void rawWithSurrogatesString() throws Exception {
         _testRawWithSurrogatesString(false);
     }
 
     // for [jackson-core#307]
-    public void testRawWithSurrogatesCharArray() throws Exception {
+    @Test
+    void rawWithSurrogatesCharArray() throws Exception {
         _testRawWithSurrogatesString(true);
     }
 

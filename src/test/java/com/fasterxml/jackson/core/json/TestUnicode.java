@@ -4,9 +4,14 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestUnicode extends com.fasterxml.jackson.core.BaseTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestUnicode extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testSurrogates() throws Exception
+    @Test
+    void surrogates() throws Exception
     {
         JsonFactory f = new JsonFactory();
         _testSurrogates(f, true);

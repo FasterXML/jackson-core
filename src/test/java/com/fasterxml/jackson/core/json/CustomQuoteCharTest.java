@@ -4,16 +4,22 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 // For [core#549], ability to use alternate quote characters
-public class CustomQuoteCharTest
-    extends com.fasterxml.jackson.core.BaseTest
+class CustomQuoteCharTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final JsonFactory JSON_F = streamFactoryBuilder()
             .quoteChar('\'')
             .build();
 
     // Only ASCII range supported as of 2.10
-    public void testInvalidQuote() throws Exception
+    @Test
+    void invalidQuote() throws Exception
     {
         try {
             streamFactoryBuilder()
@@ -24,7 +30,8 @@ public class CustomQuoteCharTest
         }
     }
 
-    public void testBasicAposWithCharBased() throws Exception
+    @Test
+    void basicAposWithCharBased() throws Exception
     {
         StringWriter w;
         JsonGenerator g;
@@ -44,7 +51,8 @@ public class CustomQuoteCharTest
         assertEquals("['hello world']", w.toString());
     }
 
-    public void testBasicAposWithByteBased() throws Exception
+    @Test
+    void basicAposWithByteBased() throws Exception
     {
         ByteArrayOutputStream out;
         JsonGenerator g;
@@ -64,7 +72,8 @@ public class CustomQuoteCharTest
         assertEquals("['hello world']", out.toString("UTF-8"));
     }
 
-    public void testAposQuotingWithCharBased() throws Exception
+    @Test
+    void aposQuotingWithCharBased() throws Exception
     {
         StringWriter w;
         JsonGenerator g;
@@ -85,7 +94,8 @@ public class CustomQuoteCharTest
         assertEquals("['It\\u0027s a sin']", w.toString());
     }
 
-    public void testAposQuotingWithByteBased() throws Exception
+    @Test
+    void aposQuotingWithByteBased() throws Exception
     {
         ByteArrayOutputStream out;
         JsonGenerator g;

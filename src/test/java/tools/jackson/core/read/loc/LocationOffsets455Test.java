@@ -1,13 +1,17 @@
 package tools.jackson.core.read.loc;
 
-import tools.jackson.core.JsonLocation;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
+import org.junit.jupiter.api.Test;
 
-public class LocationOffsets455Test extends tools.jackson.core.BaseTest
+import tools.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class LocationOffsets455Test extends JUnit5TestBase
 {
     // for [jackson-core#455]
-    public void testEOFLocationViaReader() throws Exception
+    @Test
+    void eofLocationViaReader() throws Exception
     {
         JsonParser p = createParserUsingReader("42");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -29,7 +33,8 @@ public class LocationOffsets455Test extends tools.jackson.core.BaseTest
     }
 
     // for [jackson-core#455]
-    public void testEOFLocationViaStream() throws Exception
+    @Test
+    void eofLocationViaStream() throws Exception
     {
         JsonParser p = createParserUsingStream("42", "UTF-8");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());

@@ -1,26 +1,32 @@
 package tools.jackson.core.json;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that additional <code>JsonParser.Feature</code>
  * and {@link JsonReadFeature}
  * settings work as expected.
  */
-public class JsonReadFeaturesTest
-    extends tools.jackson.core.BaseTest
+class JsonReadFeaturesTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testStreamReadFeatureDefaults() throws Exception
+    @Test
+    void defaultSettings() throws Exception
     {
         _testDefaultSettings(createParser(JSON_F, MODE_INPUT_STREAM, "{}"));
         _testDefaultSettings(createParser(JSON_F, MODE_READER, "{}"));
         _testDefaultSettings(createParser(JSON_F, MODE_DATA_INPUT, "{}"));
     }
 
-    public void testJsonReadFeatureDefaultSettings() throws Exception
+    @Test
+    void deprecatedDefaultSettings() throws Exception
     {
         assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS));
@@ -28,22 +34,26 @@ public class JsonReadFeaturesTest
         assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES));
     }
 
-    public void testQuotesRequired() throws Exception
+    @Test
+    void quotesRequired() throws Exception
     {
         _testQuotesRequired(false);
         _testQuotesRequired(true);
     }
 
-    public void testTabsDefault() throws Exception
+    @Test
+    void tabsDefault() throws Exception
     {
         _testTabsDefault(false);
         _testTabsDefault(true);
     }
 
-    public void testTabsEnabledBytes() throws Exception {
+    @Test
+    public void tabsEnabledBytes() throws Exception {
         _testTabsEnabled(true);
     }
 
+    @Test
     public void testTabsEnabledChars() throws Exception {
         _testTabsEnabled(false);
     }

@@ -1,20 +1,26 @@
 package tools.jackson.core.read.loc;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // Tests mostly for [core#229]
-public class LocationInArrayTest extends tools.jackson.core.BaseTest
+class LocationInArrayTest extends JUnit5TestBase
 {
     final JsonFactory JSON_F = new JsonFactory();
 
     // for [core#229]
-    public void testOffsetInArraysBytes() throws Exception {
+    @Test
+    void offsetInArraysBytes() throws Exception {
         _testOffsetInArrays(true);
     }
 
     // for [core#229]
-    public void testOffsetInArraysChars() throws Exception {
+    @Test
+    void offsetInArraysChars() throws Exception {
         _testOffsetInArrays(false);
     }
 

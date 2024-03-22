@@ -3,13 +3,19 @@ package tools.jackson.core.read;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * Set of basic unit tests for verifying that Array/Object scopes
  * are properly matched.
  */
-public class ParserScopeMatchingTest extends BaseTest
+public class ParserScopeMatchingTest extends JUnit5TestBase
 {
-    public void testUnclosedArray()
+    @Test
+    void unclosedArray() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testUnclosedArray(mode);
@@ -33,7 +39,8 @@ public class ParserScopeMatchingTest extends BaseTest
         }
     }
 
-    public void testUnclosedObject()
+    @Test
+    void unclosedObject() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testUnclosedObject(mode);
@@ -56,7 +63,8 @@ public class ParserScopeMatchingTest extends BaseTest
         }
     }
 
-    public void testEOFInName()
+    @Test
+    void eofInName() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testEOFInName(mode);
@@ -84,7 +92,8 @@ public class ParserScopeMatchingTest extends BaseTest
         }
     }
 
-    public void testWeirdToken()
+    @Test
+    void weirdToken() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testWeirdToken(mode);
@@ -105,7 +114,8 @@ public class ParserScopeMatchingTest extends BaseTest
         p.close();
     }
 
-    public void testMismatchArrayToObject()
+    @Test
+    void mismatchArrayToObject() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testMismatchArrayToObject(mode);
@@ -128,7 +138,8 @@ public class ParserScopeMatchingTest extends BaseTest
         p.close();
     }
 
-    public void testMismatchObjectToArray()
+    @Test
+    void mismatchObjectToArray() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testMismatchObjectToArray(mode);
@@ -151,7 +162,8 @@ public class ParserScopeMatchingTest extends BaseTest
         p.close();
     }
 
-    public void testMisssingColon()
+    @Test
+    void misssingColon() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testMisssingColon(mode);

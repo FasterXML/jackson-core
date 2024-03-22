@@ -8,35 +8,35 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class ParserErrorHandlingTest
+class ParserErrorHandlingTest
     extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
     @Test
-    public void testInvalidKeywordsBytes() throws Exception {
+    void invalidKeywordsBytes() throws Exception {
         _testInvalidKeywords(MODE_INPUT_STREAM);
         _testInvalidKeywords(MODE_INPUT_STREAM_THROTTLED);
         _testInvalidKeywords(MODE_DATA_INPUT);
     }
 
     @Test
-    public void testInvalidKeywordsChars() throws Exception {
+    void invalidKeywordsChars() throws Exception {
         _testInvalidKeywords(MODE_READER);
     }
 
     // Tests for [core#105] ("eager number parsing misses errors")
     @Test
-    public void testMangledIntsBytes() throws Exception {
+    void mangledIntsBytes() throws Exception {
         _testMangledNumbersInt(MODE_INPUT_STREAM);
         _testMangledNumbersInt(MODE_INPUT_STREAM_THROTTLED);
         _testMangledNumbersInt(MODE_DATA_INPUT);
     }
 
     @Test
-    public void testMangledFloatsBytes() throws Exception {
+    void mangledFloatsBytes() throws Exception {
         _testMangledNumbersFloat(MODE_INPUT_STREAM);
         _testMangledNumbersFloat(MODE_INPUT_STREAM_THROTTLED);
 
@@ -45,7 +45,7 @@ public class ParserErrorHandlingTest
     }
 
     @Test
-    public void testMangledNumbersChars() throws Exception {
+    void mangledNumbersChars() throws Exception {
         _testMangledNumbersInt(MODE_READER);
         _testMangledNumbersFloat(MODE_READER);
     }

@@ -1,12 +1,16 @@
 package tools.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 
-public class NonStandardJsonReadFeaturesTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class NonStandardParserFeaturesTest
+    extends JUnit5TestBase
 {
     private final JsonFactory STD_F = sharedStreamFactory();
 
@@ -14,13 +18,14 @@ public class NonStandardJsonReadFeaturesTest
             .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
             .build();
 
-    public void testDefaults() {
-        JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS));
-        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
+    @Test
+    void defaults() {
+        assertFalse(STD_F.isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS));
+        assertFalse(STD_F.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
-    public void testNonStandardAnyCharQuoting()
+    @Test
+    void nonStandardAnyCharQuoting() throws Exception
     {
         _testNonStandardBackslashQuoting(MODE_INPUT_STREAM);
         _testNonStandardBackslashQuoting(MODE_INPUT_STREAM_THROTTLED);
@@ -29,7 +34,8 @@ public class NonStandardJsonReadFeaturesTest
         _testNonStandardBackslashQuoting(MODE_READER_THROTTLED);
     }
 
-    public void testLeadingZeroesUTF8() {
+    @Test
+    void leadingZeroesUTF8() throws Exception {
         _testLeadingZeroes(MODE_INPUT_STREAM, false);
         _testLeadingZeroes(MODE_INPUT_STREAM, true);
         _testLeadingZeroes(MODE_INPUT_STREAM_THROTTLED, false);
@@ -40,7 +46,8 @@ public class NonStandardJsonReadFeaturesTest
         _testLeadingZeroes(MODE_DATA_INPUT, true);
     }
 
-    public void testLeadingZeroesReader() {
+    @Test
+    void leadingZeroesReader() throws Exception {
         _testLeadingZeroes(MODE_READER, false);
         _testLeadingZeroes(MODE_READER, true);
         _testLeadingZeroes(MODE_READER_THROTTLED, false);
@@ -48,7 +55,8 @@ public class NonStandardJsonReadFeaturesTest
     }
 
     // allow NaN
-    public void testAllowNaN() {
+    @Test
+    void allowNaN() throws Exception {
         _testAllowNaN(MODE_INPUT_STREAM);
         _testAllowNaN(MODE_INPUT_STREAM_THROTTLED);
         _testAllowNaN(MODE_DATA_INPUT);
@@ -57,7 +65,8 @@ public class NonStandardJsonReadFeaturesTest
     }
 
     // allow +Inf/-Inf
-    public void testAllowInfinity() {
+    @Test
+    void allowInfinity() throws Exception {
         _testAllowInf(MODE_INPUT_STREAM);
         _testAllowInf(MODE_INPUT_STREAM_THROTTLED);
         _testAllowInf(MODE_DATA_INPUT);
@@ -227,31 +236,31 @@ public class NonStandardJsonReadFeaturesTest
         double d = p.getDoubleValue();
         assertEquals("-INF", p.getText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.NEGATIVE_INFINITY);
+        assertEquals(Double.NEGATIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("+INF", p.getText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("+Infinity", p.getText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("Infinity", p.getText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("-Infinity", p.getText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.NEGATIVE_INFINITY);
+        assertEquals(Double.NEGATIVE_INFINITY, d);
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();

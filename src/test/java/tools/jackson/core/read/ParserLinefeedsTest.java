@@ -1,30 +1,36 @@
 package tools.jackson.core.read;
 
-
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
-public class ParserLinefeedsTest
-    extends BaseTest
+class ParserLinefeedsTest
+    extends JUnit5TestBase
 {
-    public void testCR() throws Exception
+    @Test
+    void cr() throws Exception
     {
         _testLinefeeds("\r", true);
         _testLinefeeds("\r", false);
     }
 
-    public void testLF() throws Exception
+    @Test
+    void lf() throws Exception
     {
         _testLinefeeds("\n", true);
         _testLinefeeds("\n", false);
     }
 
-    public void testCRLF() throws Exception
+    @Test
+    void crlf() throws Exception
     {
         _testLinefeeds("\r\n", true);
         _testLinefeeds("\r\n", false);

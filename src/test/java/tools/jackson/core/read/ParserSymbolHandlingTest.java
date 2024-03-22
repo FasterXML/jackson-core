@@ -1,13 +1,19 @@
 package tools.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
-public class ParserSymbolHandlingTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class ParserSymbolHandlingTest
+    extends JUnit5TestBase
 {
     // For [core#148]
-    public void testSymbolsWithNullBytes() throws Exception {
+    @Test
+    void symbolsWithNullBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNull(f, true);
         // and repeat with same factory, just for fun, and to ensure symbol table is fine
@@ -15,7 +21,8 @@ public class ParserSymbolHandlingTest
     }
 
     // For [core#148]
-    public void testSymbolsWithNullChars() throws Exception {
+    @Test
+    void symbolsWithNullChars() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNull(f, false);
         _testSymbolsWithNull(f, false);
@@ -57,14 +64,16 @@ public class ParserSymbolHandlingTest
     // // Additional testing inspired by [dataformats-binary#312]; did not
     // // affect JSON backend but wanted to ensure
 
-    public void testSymbolsWithNullOnlyNameBytes() throws Exception {
+    @Test
+    void symbolsWithNullOnlyNameBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNullOnlyNameBytes(f, true);
         // and repeat with same factory, just for fun, and to ensure symbol table is fine
         _testSymbolsWithNullOnlyNameBytes(f, true);
     }
 
-    public void testSymbolsWithNullOnlyNameChars() throws Exception {
+    @Test
+    void symbolsWithNullOnlyNameChars() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNullOnlyNameBytes(f, false);
         _testSymbolsWithNullOnlyNameBytes(f, false);

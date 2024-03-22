@@ -1,13 +1,19 @@
 package tools.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.JUnit5TestBase;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 
-public class NonStandardAposQuotedNamesTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class NonStandardAposQuotedNamesTest
+    extends JUnit5TestBase
 {
     private final JsonFactory STD_F = sharedStreamFactory();
 
@@ -15,7 +21,8 @@ public class NonStandardAposQuotedNamesTest
             .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
             .build();
 
-    public void testSingleQuotesDefault() throws Exception
+    @Test
+    void singleQuotesDefault() throws Exception
     {
         _testSingleQuotesDefault(MODE_INPUT_STREAM);
         _testSingleQuotesDefault(MODE_INPUT_STREAM_THROTTLED);
@@ -23,7 +30,8 @@ public class NonStandardAposQuotedNamesTest
         _testSingleQuotesDefault(MODE_READER);
     }
 
-    public void testSingleQuotesEnabled() throws Exception
+    @Test
+    void singleQuotesEnabled() throws Exception
     {
         _testSingleQuotesEnabled(MODE_INPUT_STREAM);
         _testSingleQuotesEnabled(MODE_INPUT_STREAM_THROTTLED);
@@ -31,7 +39,8 @@ public class NonStandardAposQuotedNamesTest
         _testSingleQuotesEnabled(MODE_READER);
     }
 
-    public void testSingleQuotesEscaped() throws Exception
+    @Test
+    void singleQuotesEscaped() throws Exception
     {
         _testSingleQuotesEscaped(MODE_INPUT_STREAM);
         _testSingleQuotesEscaped(MODE_INPUT_STREAM_THROTTLED);
@@ -163,7 +172,8 @@ public class NonStandardAposQuotedNamesTest
     }
 
     // [core#721]: specific issue with enclosed unescaped double quotes
-    public void testSingleQuotedKeys721() throws Exception
+    @Test
+    void singleQuotedKeys721() throws Exception
     {
         // empty
         _testSingleQuotedKeys721("{ '\"\"': 'value'}", "\"\"");
@@ -192,7 +202,8 @@ public class NonStandardAposQuotedNamesTest
     }
 
     // [core#721]: specific issue with enclosed unescaped double quotes
-    public void testSingleQuotedValues721() throws Exception
+    @Test
+    void singleQuotedValues721() throws Exception
     {
         // empty
         _testSingleQuotedValues721("{ \"bar\": '\"\"'}", "\"\"");

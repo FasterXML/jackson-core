@@ -1,11 +1,15 @@
 package tools.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 
-public class ParserDupHandlingTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class ParserDupHandlingTest
+    extends JUnit5TestBase
 {
     private final String[] DUP_DOCS = new String[] {
             "{ 'a':1, 'a':2 }",
@@ -21,7 +25,8 @@ public class ParserDupHandlingTest
         }
     }
 
-    public void testSimpleDupCheckDisabled() throws Exception
+    @Test
+    void simpleDupCheckDisabled() throws Exception
     {
         // first: verify no problems if detection NOT enabled
         final JsonFactory f = new JsonFactory();
@@ -34,7 +39,8 @@ public class ParserDupHandlingTest
         }
     }
 
-    public void testSimpleDupsBytes() throws Exception
+    @Test
+    void simpleDupsBytes() throws Exception
     {
         JsonFactory dupF = JsonFactory.builder()
                 .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
@@ -45,7 +51,8 @@ public class ParserDupHandlingTest
         }
     }
 
-    public void testSimpleDupsDataInput() throws Exception
+    @Test
+    void simpleDupsDataInput() throws Exception
     {
         JsonFactory dupF = JsonFactory.builder()
                 .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
@@ -54,7 +61,8 @@ public class ParserDupHandlingTest
         }
     }
 
-    public void testSimpleDupsChars() throws Exception
+    @Test
+    void simpleDupsChars() throws Exception
     {
         JsonFactory dupF = JsonFactory.builder()
                 .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();

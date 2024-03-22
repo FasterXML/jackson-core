@@ -3,11 +3,16 @@ package tools.jackson.core.read;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.exc.InputCoercionException;
 
-public class NumberCoercionTest extends BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class NumberCoercionTest extends JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -15,7 +20,8 @@ public class NumberCoercionTest extends BaseTest
     /**********************************************************
      */
 
-    public void testToIntCoercion() throws Exception
+    @Test
+    void toIntCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;
@@ -51,7 +57,8 @@ public class NumberCoercionTest extends BaseTest
     }
 
     @SuppressWarnings("resource")
-    public void testToIntFailing() throws Exception
+    @Test
+    void toIntFailing() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             // long -> error
@@ -140,7 +147,8 @@ public class NumberCoercionTest extends BaseTest
         }
     }
 
-    public void testToLongCoercion() throws Exception
+    @Test
+    void toLongCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;
@@ -177,7 +185,8 @@ public class NumberCoercionTest extends BaseTest
     }
 
     @SuppressWarnings("resource")
-    public void testToLongFailing() throws Exception
+    @Test
+    void toLongFailing() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             // BigInteger -> error
@@ -213,7 +222,8 @@ public class NumberCoercionTest extends BaseTest
         }
     }
 
-    public void testToBigIntegerCoercion() throws Exception
+    @Test
+    void toBigIntegerCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;
@@ -254,7 +264,8 @@ public class NumberCoercionTest extends BaseTest
     /**********************************************************
      */
 
-    public void testToDoubleCoercion() throws Exception
+    @Test
+    void toDoubleCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;
@@ -274,7 +285,8 @@ public class NumberCoercionTest extends BaseTest
         }
     }
 
-    public void testToBigDecimalCoercion() throws Exception
+    @Test
+    void toBigDecimalCoercion() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             JsonParser p;

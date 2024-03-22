@@ -1,29 +1,36 @@
 package tools.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 
-public class TrailingCommas616Test extends BaseTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+class TrailingCommas616Test extends JUnit5TestBase
 {
     private final JsonFactory JSON_F_ALLOW_MISSING = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_MISSING_VALUES)
             .build();
 
     // [core#616]
-    public void testRootLevelComma616()
+    @Test
+    void rootLevelComma616() throws Exception
     {
         _testRootLevel616(MODE_READER);
     }
 
-    public void testRootLevelComma616Bytes()
+    @Test
+    void rootLevelComma616Bytes() throws Exception
     {
         _testRootLevel616(MODE_INPUT_STREAM);
         _testRootLevel616(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testRootLevelComma616DataInput()
+    @Test
+    void rootLevelComma616DataInput() throws Exception
     {
         _testRootLevel616(MODE_DATA_INPUT);
     }

@@ -2,12 +2,17 @@ package tools.jackson.core.read;
 
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.json.JsonFactory;
 
-public class NumberOverflowTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class NumberOverflowTest
+    extends JUnit5TestBase
 {
     private final JsonFactory FACTORY = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(1000000).build())
@@ -28,7 +33,8 @@ public class NumberOverflowTest
     private final static String BIG_POS_DOC = "["+BIG_POS_INTEGER+"]";
     private final static String BIG_NEG_DOC = "[ -"+BIG_POS_INTEGER+"]";
 
-    public void testSimpleLongOverflow() throws Exception
+    @Test
+    void simpleLongOverflow() throws Exception
     {
         BigInteger below = BigInteger.valueOf(Long.MIN_VALUE);
         below = below.subtract(BigInteger.ONE);
@@ -67,7 +73,8 @@ public class NumberOverflowTest
     // Note: due to [jackson-core#493], we'll skip DataInput-backed parser
 
     // [jackson-core#488]
-    public void testMaliciousLongOverflow() throws Exception
+    @Test
+    void maliciousLongOverflow() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
@@ -89,7 +96,8 @@ public class NumberOverflowTest
     }
 
     // [jackson-core#488]
-    public void testMaliciousIntOverflow() throws Exception
+    @Test
+    void maliciousIntOverflow() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
@@ -111,7 +119,8 @@ public class NumberOverflowTest
     }
 
     // [jackson-core#488]
-    public void testMaliciousBigIntToDouble() throws Exception
+    @Test
+    void maliciousBigIntToDouble() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;
@@ -126,7 +135,8 @@ public class NumberOverflowTest
     }
 
     // [jackson-core#488]
-    public void testMaliciousBigIntToFloat() throws Exception
+    @Test
+    void maliciousBigIntToFloat() throws Exception
     {
         for (int mode : ALL_STREAMING_MODES) {
             final String doc = BIG_POS_DOC;

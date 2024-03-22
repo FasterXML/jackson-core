@@ -10,6 +10,7 @@ import tools.jackson.core.testsupport.MockDataInput;
 import tools.jackson.core.testsupport.ThrottledInputStream;
 import tools.jackson.core.testsupport.ThrottledReader;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -51,17 +52,80 @@ public class JUnit5TestBase
     };
 
     /*
+    /**********************************************************
+    /* Some sample documents:
+    /**********************************************************
+     */
+
+    protected final static int SAMPLE_SPEC_VALUE_WIDTH = 800;
+    protected final static int SAMPLE_SPEC_VALUE_HEIGHT = 600;
+    protected final static String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
+    protected final static String SAMPLE_SPEC_VALUE_TN_URL = "http://www.example.com/image/481989943";
+    protected final static int SAMPLE_SPEC_VALUE_TN_HEIGHT = 125;
+    protected final static String SAMPLE_SPEC_VALUE_TN_WIDTH = "100";
+    protected final static int SAMPLE_SPEC_VALUE_TN_ID1 = 116;
+    protected final static int SAMPLE_SPEC_VALUE_TN_ID2 = 943;
+    protected final static int SAMPLE_SPEC_VALUE_TN_ID3 = 234;
+    protected final static int SAMPLE_SPEC_VALUE_TN_ID4 = 38793;
+
+    protected final static String SAMPLE_DOC_JSON_SPEC =
+        "{\n"
+        +"  \"Image\" : {\n"
+        +"    \"Width\" : "+SAMPLE_SPEC_VALUE_WIDTH+",\n"
+        +"    \"Height\" : "+SAMPLE_SPEC_VALUE_HEIGHT+","
+        +"\"Title\" : \""+SAMPLE_SPEC_VALUE_TITLE+"\",\n"
+        +"    \"Thumbnail\" : {\n"
+        +"      \"Url\" : \""+SAMPLE_SPEC_VALUE_TN_URL+"\",\n"
+        +"\"Height\" : "+SAMPLE_SPEC_VALUE_TN_HEIGHT+",\n"
+        +"      \"Width\" : \""+SAMPLE_SPEC_VALUE_TN_WIDTH+"\"\n"
+        +"    },\n"
+        +"    \"IDs\" : ["+SAMPLE_SPEC_VALUE_TN_ID1+","+SAMPLE_SPEC_VALUE_TN_ID2+","+SAMPLE_SPEC_VALUE_TN_ID3+","+SAMPLE_SPEC_VALUE_TN_ID4+"]\n"
+        +"  }"
+        +"}"
+        ;
+
+    /*
+    /**********************************************************
+    /* Helper classes (beans)
+    /**********************************************************
+     */
+
+    protected final static JsonFactory JSON_FACTORY = new JsonFactory();
+
+
+
+
+    /*
     /**********************************************************************
     /* Factory methods
     /**********************************************************************
      */
-    
+
+
+    public static JsonFactory sharedStreamFactory() {
+        return JSON_FACTORY;
+    }
+
     protected JsonFactory newStreamFactory() {
         return new JsonFactory();
     }
 
     protected JsonFactoryBuilder streamFactoryBuilder() {
         return (JsonFactoryBuilder) JsonFactory.builder();
+    }
+
+    /*
+    /**********************************************************
+    /* Parser construction
+    /**********************************************************
+     */
+
+    protected JsonParser createParser(int mode, String doc) {
+        return createParser(JSON_FACTORY, mode, doc);
+    }
+
+    protected JsonParser createParser(int mode, byte[] doc) {
+        return createParser(JSON_FACTORY, mode, doc);
     }
 
     protected JsonParser createParser(TokenStreamFactory f, int mode, String doc)
@@ -86,33 +150,39 @@ public class JUnit5TestBase
 
     protected JsonParser createParser(TokenStreamFactory f, int mode, byte[] doc)
     {
-        try {
-            switch (mode) {
-            case MODE_INPUT_STREAM:
-                return f.createParser(testObjectReadContext(),
-                        new ByteArrayInputStream(doc));
-            case MODE_INPUT_STREAM_THROTTLED:
-                return f.createParser(testObjectReadContext(),
-                        new ThrottledInputStream(doc, 1));
-            case MODE_READER:
-                return f.createParser(testObjectReadContext(),
-                        new StringReader(new String(doc, "UTF-8")));
-            case MODE_READER_THROTTLED:
-                return f.createParser(testObjectReadContext(),
-                        new ThrottledReader(new String(doc, "UTF-8"), 1));
-            case MODE_DATA_INPUT:
-                return createParserForDataInput(f, new MockDataInput(doc));
-            default:
-            }
-            throw new RuntimeException("internal error");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        switch (mode) {
+        case MODE_INPUT_STREAM:
+            return f.createParser(testObjectReadContext(),
+                    new ByteArrayInputStream(doc));
+        case MODE_INPUT_STREAM_THROTTLED:
+            return f.createParser(testObjectReadContext(),
+                    new ThrottledInputStream(doc, 1));
+        case MODE_READER:
+            return f.createParser(testObjectReadContext(),
+                    new StringReader(new String(doc, StandardCharsets.UTF_8)));
+        case MODE_READER_THROTTLED:
+            return f.createParser(testObjectReadContext(),
+                    new ThrottledReader(new String(doc, StandardCharsets.UTF_8), 1));
+        case MODE_DATA_INPUT:
+            return createParserForDataInput(f, new MockDataInput(doc));
+        default:
         }
+        throw new RuntimeException("internal error");
+    }
+
+    protected JsonParser createParserUsingReader(String input)
+    {
+        return createParserUsingReader(new JsonFactory(), input);
     }
 
     protected JsonParser createParserUsingReader(TokenStreamFactory f, String input)
     {
         return f.createParser(testObjectReadContext(), new StringReader(input));
+    }
+
+    protected JsonParser createParserUsingStream(String input, String encoding)
+    {
+        return createParserUsingStream(new JsonFactory(), input, encoding);
     }
 
     protected JsonParser createParserUsingStream(TokenStreamFactory f,
@@ -137,11 +207,33 @@ public class JUnit5TestBase
         InputStream is = new ByteArrayInputStream(data);
         return f.createParser(testObjectReadContext(), is);
     }
-    
+
     protected JsonParser createParserForDataInput(TokenStreamFactory f,
             DataInput input)
     {
         return f.createParser(testObjectReadContext(), input);
+    }
+
+    /*
+    /**********************************************************
+    /* Generator construction
+    /**********************************************************
+     */
+
+    public static JsonGenerator createGenerator(OutputStream out) throws IOException {
+        return createGenerator(JSON_FACTORY, out);
+    }
+
+    public static JsonGenerator createGenerator(TokenStreamFactory f, OutputStream out) throws IOException {
+        return f.createGenerator(ObjectWriteContext.empty(), out);
+    }
+
+    public static JsonGenerator createGenerator(Writer w) throws IOException {
+        return createGenerator(JSON_FACTORY, w);
+    }
+
+    public static JsonGenerator createGenerator(TokenStreamFactory f, Writer w) throws IOException {
+        return f.createGenerator(ObjectWriteContext.empty(), w);
     }
 
     /*
@@ -178,6 +270,27 @@ public class JUnit5TestBase
             }
         }
         fail("Expected an exception with one of substrings ("+Arrays.asList(anyMatches)+"): got one with message \""+msg+"\"");
+    }
+
+    /**
+     * Method that gets textual contents of the current token using
+     * available methods, and ensures results are consistent, before
+     * returning them
+     */
+    public static String getAndVerifyText(JsonParser p)
+    {
+        // Ok, let's verify other accessors
+        int actLen = p.getTextLength();
+        char[] ch = p.getTextCharacters();
+        String str2 = new String(ch, p.getTextOffset(), actLen);
+        String str = p.getText();
+
+        if (str.length() !=  actLen) {
+            fail("Internal problem (p.token == "+p.currentToken()+"): p.getText().length() ['"+str+"'] == "+str.length()+"; p.getTextLength() == "+actLen);
+        }
+        assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
+
+        return str;
     }
 
     /*
@@ -224,5 +337,28 @@ public class JUnit5TestBase
 
     protected ObjectReadContext testObjectReadContext() {
         return ObjectReadContext.empty();
+    }
+
+    public static byte[] readResource(String ref)
+    {
+       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+       final byte[] buf = new byte[4000];
+
+       InputStream in = BaseTest.class.getResourceAsStream(ref);
+       if (in != null) {
+           try {
+               int len;
+               while ((len = in.read(buf)) > 0) {
+                   bytes.write(buf, 0, len);
+               }
+               in.close();
+           } catch (IOException e) {
+               throw new RuntimeException("Failed to read resource '"+ref+"': "+e);
+           }
+       }
+       if (bytes.size() == 0) {
+           throw new IllegalArgumentException("Failed to read resource '"+ref+"': empty resource?");
+       }
+       return bytes.toByteArray();
     }
 }

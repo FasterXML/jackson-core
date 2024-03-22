@@ -1,27 +1,30 @@
 package tools.jackson.core.read;
 
-import static org.junit.Assert.*;
-
 import java.io.*;
+
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests that verify that the closing (or not) of
  * the underlying source occurs as expected and specified
  * by documentation.
  */
-public class ParserClosingTest
-    extends BaseTest
+class ParserClosingTest
+        extends JUnit5TestBase
 {
     /**
      * This unit test checks the default behaviour; with no auto-close, no
      * automatic closing should occur, nor explicit one unless specific
      * forcing method is used.
      */
-    public void testNoAutoCloseReader()
-        throws Exception
+    @Test
+    void noAutoCloseReader()
+            throws Exception
     {
         final String DOC = "[ 1 ]";
 
@@ -50,7 +53,8 @@ public class ParserClosingTest
     }
 
     @SuppressWarnings("resource")
-    public void testAutoCloseReader() throws Exception
+    @Test
+    void autoCloseReader() throws Exception
     {
         final String DOC = "[ 1 ]";
         JsonFactory f = JsonFactory.builder()
@@ -76,7 +80,8 @@ public class ParserClosingTest
     }
 
     @SuppressWarnings("resource")
-    public void testNoAutoCloseInputStream() throws Exception
+    @Test
+    void noAutoCloseInputStream() throws Exception
     {
         final String DOC = "[ 1 ]";
         JsonFactory f = JsonFactory.builder()
@@ -98,7 +103,8 @@ public class ParserClosingTest
     }
 
     // [JACKSON-287]
-    public void testReleaseContentBytes() throws Exception
+    @Test
+    void releaseContentBytes() throws Exception
     {
         byte[] input = "[1]foobar".getBytes("UTF-8");
         JsonParser jp = sharedStreamFactory().createParser(ObjectReadContext.empty(), input);
@@ -114,7 +120,8 @@ public class ParserClosingTest
         jp.close();
     }
 
-    public void testReleaseContentChars() throws Exception
+    @Test
+    void releaseContentChars() throws Exception
     {
         JsonParser jp = sharedStreamFactory().createParser(ObjectReadContext.empty(), "[true]xyz");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());

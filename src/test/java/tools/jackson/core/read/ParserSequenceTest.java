@@ -1,13 +1,18 @@
 package tools.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.util.JsonParserSequence;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @SuppressWarnings("resource")
-public class ParserSequenceTest
-    extends tools.jackson.core.BaseTest
+class ParserSequenceTest
+    extends JUnit5TestBase
 {
-    public void testSimple() throws Exception
+    @Test
+    void simple() throws Exception
     {
         JsonParser p1 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "[ 1 ]");
         JsonParser p2 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "[ 2 ]");
@@ -46,7 +51,8 @@ public class ParserSequenceTest
         seq.close();
     }
 
-    public void testMultiLevel() throws Exception
+    @Test
+    void multiLevel() throws Exception
     {
         JsonParser p1 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "[ 1 ] ");
         JsonParser p2 = JSON_FACTORY.createParser(ObjectReadContext.empty(), " 5");
@@ -72,7 +78,8 @@ public class ParserSequenceTest
     }
 
     // for [jackson-core#296]
-    public void testInitializationDisabled() throws Exception
+    @Test
+    void initializationDisabled() throws Exception
     {
         // // First, with old legacy settings
 
@@ -94,7 +101,8 @@ public class ParserSequenceTest
     }
 
     // for [jackson-core#296]
-    public void testInitializationEnabled() throws Exception
+    @Test
+    void initializationEnabled() throws Exception
     {
         // // and then with new "check for current":
         JsonParser p1 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "1 2");

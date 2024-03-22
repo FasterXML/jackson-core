@@ -20,7 +20,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.JUnit5TestBa
      */
 
     @Test
-    public void testTokenAccess() throws Exception
+    void tokenAccess() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         _testTokenAccess(jf, false);
@@ -28,7 +28,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.JUnit5TestBa
     }
 
     @Test
-    public void testCurrentName() throws Exception
+    void currentName() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         _testCurrentName(jf, false);

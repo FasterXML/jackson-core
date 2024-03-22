@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NumberInputTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class NumberInputTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
-    public void testNastySmallDouble()
+    void nastySmallDouble()
     {
         //relates to https://github.com/FasterXML/jackson-core/issues/750
         //prior to jackson v2.14, this value used to be returned as Double.MIN_VALUE
@@ -20,7 +20,7 @@ public class NumberInputTest
     }
 
     @Test
-    public void testParseFloat()
+    void parseFloat()
     {
         final String exampleFloat = "1.199999988079071";
         assertEquals(1.1999999f, NumberInput.parseFloat(exampleFloat, false));
@@ -34,7 +34,7 @@ public class NumberInputTest
     }
 
     @Test
-    public void testParseLongBigInteger()
+    void parseLongBigInteger()
     {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
@@ -52,7 +52,7 @@ public class NumberInputTest
     }
 
     @Test
-    public void testBigIntegerWithRadix()
+    void bigIntegerWithRadix()
     {
         final String val = "1ABCDEF";
         final int radix = 16;
@@ -62,7 +62,7 @@ public class NumberInputTest
     }
 
     @Test
-    public void testParseBigIntegerFailsWithENotation()
+    void parseBigIntegerFailsWithENotation()
     {
         try {
             NumberInput.parseBigInteger("1e10", false);
@@ -73,7 +73,7 @@ public class NumberInputTest
     }
 
     @Test
-    public void testLooksLikeValidNumber()
+    void looksLikeValidNumber()
     {
         assertTrue(NumberInput.looksLikeValidNumber("0"));
         assertTrue(NumberInput.looksLikeValidNumber("1"));

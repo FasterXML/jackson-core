@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 // [core#763] (and [databind#3455]
-public class InputStreamInitTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class InputStreamInitTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class FailingInputStream extends InputStream {
         public boolean closed = false;
@@ -46,7 +46,7 @@ public class InputStreamInitTest
     }
 
     @Test
-    public void testForFile() throws Exception
+    void forFile() throws Exception
     {
         final FailingJsonFactory jsonF = new FailingJsonFactory();
         try {
@@ -60,7 +60,7 @@ public class InputStreamInitTest
     }
 
     @Test
-    public void testForURL() throws Exception
+    void forURL() throws Exception
     {
         final FailingJsonFactory jsonF = new FailingJsonFactory();
         try {

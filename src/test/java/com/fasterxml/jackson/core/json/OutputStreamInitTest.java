@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import static org.junit.jupiter.api.Assertions.*;
 
 //[core#764] (and [databind#3508]
-public class OutputStreamInitTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class OutputStreamInitTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class FailingOutputStream extends OutputStream {
         public int written = 0;
@@ -49,7 +49,7 @@ public class OutputStreamInitTest
     }
 
     @Test
-    public void testForFile() throws Exception
+    void forFile() throws Exception
     {
         final FailingJsonFactory jsonF = new FailingJsonFactory();
         try {

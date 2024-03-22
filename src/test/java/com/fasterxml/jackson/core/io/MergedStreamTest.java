@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MergedStreamTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class MergedStreamTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
-    public void testSimple() throws Exception
+    void simple() throws Exception
     {
         IOContext ctxt = testIOContext();
         // bit complicated; must use recyclable buffer...

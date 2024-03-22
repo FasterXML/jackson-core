@@ -14,14 +14,14 @@ import static org.junit.jupiter.api.Assertions.*;
  * Set of basic unit tests for verifying that the basic generator
  * functionality works as expected.
  */
-public class GeneratorFeaturesTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class GeneratorFeaturesTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testConfigDefaults() throws IOException
+    void configDefaults() throws IOException
     {
         JsonGenerator g = JSON_F.createGenerator(new StringWriter());
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
@@ -40,7 +40,7 @@ public class GeneratorFeaturesTest
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testConfigOverrides() throws IOException
+    void configOverrides() throws IOException
     {
         // but also allow overide
         JsonGenerator g = JSON_F.createGenerator(new StringWriter());
@@ -60,7 +60,7 @@ public class GeneratorFeaturesTest
     }
 
     @Test
-    public void testFieldNameQuoting() throws IOException
+    void fieldNameQuoting() throws IOException
     {
         JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
@@ -78,7 +78,7 @@ public class GeneratorFeaturesTest
     }
 
     @Test
-    public void testNonNumericQuoting() throws IOException
+    void nonNumericQuoting() throws IOException
     {
         JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
@@ -100,7 +100,7 @@ public class GeneratorFeaturesTest
      * as JSON Strings.
      */
     @Test
-    public void testNumbersAsJSONStrings() throws IOException
+    void numbersAsJSONStrings() throws IOException
     {
         JsonFactory f = new JsonFactory();
         // by default should output numbers as-is:
@@ -120,7 +120,7 @@ public class GeneratorFeaturesTest
     }
 
     @Test
-    public void testBigDecimalAsPlain() throws IOException
+    void bigDecimalAsPlain() throws IOException
     {
         JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
@@ -140,7 +140,7 @@ public class GeneratorFeaturesTest
     }
 
     @Test
-    public void testBigDecimalAsPlainString() throws Exception
+    void bigDecimalAsPlainString() throws Exception
     {
         BigDecimal ENG = new BigDecimal("1E+2");
         JsonFactory f = JsonFactory.builder()
@@ -165,7 +165,7 @@ public class GeneratorFeaturesTest
     // [core#315]
     @SuppressWarnings("deprecation")
     @Test
-    public void testTooBigBigDecimal() throws Exception
+    void tooBigBigDecimal() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
@@ -251,7 +251,7 @@ public class GeneratorFeaturesTest
 
     // for [core#246]
     @Test
-    public void testFieldNameQuotingEnabled() throws IOException
+    void fieldNameQuotingEnabled() throws IOException
     {
         // // First, test with default factory, with quoting enabled by default
 
@@ -302,7 +302,7 @@ public class GeneratorFeaturesTest
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testChangeOnGenerator() throws IOException
+    void changeOnGenerator() throws IOException
     {
         StringWriter w = new StringWriter();
 
@@ -371,7 +371,7 @@ public class GeneratorFeaturesTest
 
     // [core#717]: configurable hex digits; lower-case
     @Test
-    public void testHexLowercase() throws Exception {
+    void hexLowercase() throws Exception {
         JsonFactory f = JsonFactory.builder()
                 .disable(JsonWriteFeature.WRITE_HEX_UPPER_CASE)
                 .build();
@@ -381,7 +381,7 @@ public class GeneratorFeaturesTest
 
     // [core#717]: configurable hex digits; upper-case (default)
     @Test
-    public void testHexUppercase() throws Exception
+    void hexUppercase() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonWriteFeature.WRITE_HEX_UPPER_CASE)

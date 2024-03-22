@@ -9,12 +9,12 @@ import com.fasterxml.jackson.core.JsonToken;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class ParserErrorHandling679Test
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class ParserErrorHandling679Test
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     // [core#679]
     @Test
-    public void testNonRootMangledFloats679Bytes() throws Exception {
+    void nonRootMangledFloats679Bytes() throws Exception {
         _testNonRootMangledFloats679(MODE_INPUT_STREAM);
         _testNonRootMangledFloats679(MODE_INPUT_STREAM_THROTTLED);
         _testNonRootMangledFloats679(MODE_DATA_INPUT);
@@ -22,13 +22,13 @@ public class ParserErrorHandling679Test
 
     // [core#679]
     @Test
-    public void testNonRootMangledFloats679Chars() throws Exception {
+    void nonRootMangledFloats679Chars() throws Exception {
         _testNonRootMangledFloats679(MODE_READER);
     }
 
     // [core#679]
     @Test
-    public void testNonRootMangledInts679Bytes() throws Exception {
+    void nonRootMangledInts679Bytes() throws Exception {
         _testNonRootMangledInts(MODE_INPUT_STREAM);
         _testNonRootMangledInts(MODE_INPUT_STREAM_THROTTLED);
         _testNonRootMangledInts(MODE_DATA_INPUT);

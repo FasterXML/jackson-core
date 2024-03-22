@@ -13,8 +13,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JsonFactoryTest
-    extends com.fasterxml.jackson.core.JUnit5TestBase
+class JsonFactoryTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     static class BogusCodec extends ObjectCodec {
         @Override
@@ -120,7 +120,7 @@ public class JsonFactoryTest
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testGeneratorFeatures() throws Exception
+    void generatorFeatures() throws Exception
     {
         assertNull(JSON_F.getCodec());
 
@@ -136,7 +136,7 @@ public class JsonFactoryTest
     }
 
     @Test
-    public void testFactoryFeatures() throws Exception
+    void factoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false)
@@ -151,7 +151,7 @@ public class JsonFactoryTest
     }
 
     @Test
-    public void testFactoryMisc() throws Exception
+    void factoryMisc() throws Exception
     {
         assertNull(JSON_F.getInputDecorator());
         assertNull(JSON_F.getOutputDecorator());
@@ -171,7 +171,7 @@ public class JsonFactoryTest
     // there are no obvious problems; needed since testing never
     // disables this handling otherwise
     @Test
-    public void testDisablingBufferRecycling() throws Exception
+    void disablingBufferRecycling() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
@@ -214,7 +214,7 @@ public class JsonFactoryTest
     }
 
     @Test
-    public void testJsonWithFiles() throws Exception
+    void jsonWithFiles() throws Exception
     {
         File file = File.createTempFile("jackson-test", null);
         file.deleteOnExit();
@@ -249,7 +249,7 @@ public class JsonFactoryTest
     // #72
     @SuppressWarnings("deprecation")
     @Test
-    public void testCopy() throws Exception
+    void copy() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         // first, verify defaults
@@ -285,7 +285,7 @@ public class JsonFactoryTest
     }
 
     @Test
-    public void testRootValues() throws Exception
+    void rootValues() throws Exception
     {
         JsonFactory f = new JsonFactory();
         assertEquals(" ", f.getRootValueSeparator());
@@ -303,12 +303,12 @@ public class JsonFactoryTest
     }
 
     @Test
-    public void testCanonicalizationEnabled() throws Exception {
+    void canonicalizationEnabled() throws Exception {
         doCanonicalizationTest(false);
     }
 
     @Test
-    public void testCanonicalizationDisabled() throws Exception {
+    void canonicalizationDisabled() throws Exception {
         doCanonicalizationTest(false);
     }
 

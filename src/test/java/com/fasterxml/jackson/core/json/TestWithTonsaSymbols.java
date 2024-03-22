@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Some unit tests to try to exercise part of parser code that
  * deals with symbol (table) management.
  */
-public class TestWithTonsaSymbols
-    extends JUnit5TestBase
+class TestWithTonsaSymbols
+        extends JUnit5TestBase
 {
     /**
      * How many fields to generate? Since maximum symbol table
@@ -24,12 +24,12 @@ public class TestWithTonsaSymbols
     final static int FIELD_COUNT = 5000;
 
     @Test
-    public void testStreamReaderParser() throws Exception {
+    void streamReaderParser() throws Exception {
         _testWith(true);
     }
 
     @Test
-    public void testReaderParser() throws Exception {
+    void readerParser() throws Exception {
         _testWith(false);
     }
 

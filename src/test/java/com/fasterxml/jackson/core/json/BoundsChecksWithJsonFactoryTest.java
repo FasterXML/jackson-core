@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.TokenStreamFactory;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class BoundsChecksWithJsonFactoryTest
-    extends JUnit5TestBase
+class BoundsChecksWithJsonFactoryTest
+        extends JUnit5TestBase
 {
     interface ByteBackedCreation {
         void call(byte[] data, int offset, int len) throws Exception;
@@ -26,7 +26,7 @@ public class BoundsChecksWithJsonFactoryTest
      */
 
     @Test
-    public void testBoundsWithByteArrayInput() throws Exception {
+    void boundsWithByteArrayInput() throws Exception {
         final TokenStreamFactory PARSER_F = newStreamFactory();
 
         _testBoundsWithByteArrayInput(
@@ -71,7 +71,7 @@ public class BoundsChecksWithJsonFactoryTest
      */
 
     @Test
-    public void testBoundsWithCharArrayInput() throws Exception {
+    void boundsWithCharArrayInput() throws Exception {
         final TokenStreamFactory PARSER_F = newStreamFactory();
 
         testBoundsWithCharArrayInput(
@@ -79,7 +79,7 @@ public class BoundsChecksWithJsonFactoryTest
     }
 
     @Test
-    private void testBoundsWithCharArrayInput(CharBackedCreation creator) throws Exception
+    private void boundsWithCharArrayInput(CharBackedCreation creator) throws Exception
     {
         final char[] DATA = new char[10];
         testBoundsWithCharArrayInput(creator, DATA, -1, 1);
@@ -94,7 +94,7 @@ public class BoundsChecksWithJsonFactoryTest
     }
 
     @Test
-    private void testBoundsWithCharArrayInput(CharBackedCreation creator,
+    private void boundsWithCharArrayInput(CharBackedCreation creator,
             char[] data, int offset, int len) throws Exception
     {
         try {

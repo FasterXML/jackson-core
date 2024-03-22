@@ -14,15 +14,13 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 
-import static com.fasterxml.jackson.core.JUnit5TestBase.a2q;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests that the {@link JsonLocation} attached to a thrown {@link StreamReadException}
  * due to invalid JSON points to the correct character.
  */
-class LocationOfError1173Test
+class LocationOfError1173Test extends JUnit5TestBase
 {
     static final JsonFactory JSON_F = new JsonFactory();
 

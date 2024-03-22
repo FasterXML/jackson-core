@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 {
-    private JsonFactory factory;
-    private HashSet<JsonReadFeature> features;
+    JsonFactory factory;
+    HashSet<JsonReadFeature> features;
 
     public void initAsyncMissingValuesInArrayTest(Collection<JsonReadFeature> features) {
         this.features = new HashSet<>(features);

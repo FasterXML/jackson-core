@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class JsonParserClosedCaseTest {
     private static final JsonFactory JSON_F = new JsonFactory();
 
-    private JsonParser parser;
+    JsonParser parser;
 
     /**
      * Creates a list of parsers to tests.

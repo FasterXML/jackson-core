@@ -2,12 +2,16 @@ package tools.jackson.core.json;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.util.JsonpCharacterEscapes;
 
-public class TestCustomEscaping extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestCustomEscaping extends tools.jackson.core.JUnit5TestBase
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;
@@ -70,13 +74,15 @@ public class TestCustomEscaping extends tools.jackson.core.BaseTest
      * of non-ASCII characters.
      * Related to [JACKSON-102]
      */
-    public void testAboveAsciiEscapeWithReader() throws Exception
+    @Test
+    void aboveAsciiEscapeWithReader() throws Exception
     {
         _testEscapeAboveAscii(false, false); // reader
         _testEscapeAboveAscii(false, true);
     }
 
-    public void testAboveAsciiEscapeWithUTF8Stream() throws Exception
+    @Test
+    void aboveAsciiEscapeWithUTF8Stream() throws Exception
     {
         _testEscapeAboveAscii(true, false); // stream (utf-8)
         _testEscapeAboveAscii(true, true);
@@ -84,7 +90,8 @@ public class TestCustomEscaping extends tools.jackson.core.BaseTest
 
     // // // Tests for [JACKSON-106]
 
-    public void testEscapeCustomWithReader() throws Exception
+    @Test
+    void escapeCustomWithReader() throws Exception
     {
         _testEscapeCustom(false, false, "[x]"); // reader
         _testEscapeCustom(false, true, "[x]");
@@ -96,7 +103,8 @@ public class TestCustomEscaping extends tools.jackson.core.BaseTest
         _testEscapeCustom(false, true, "[zzyyxx1234]");
     }
 
-    public void testEscapeCustomWithUTF8Stream() throws Exception
+    @Test
+    void escapeCustomWithUTF8Stream() throws Exception
     {
         _testEscapeCustom(true, false, "[x]"); // stream (utf-8)
         _testEscapeCustom(true, true, "[x]");
@@ -108,7 +116,8 @@ public class TestCustomEscaping extends tools.jackson.core.BaseTest
         _testEscapeCustom(true, true, "[123456789ABCDEF]");
     }
 
-    public void testJsonpEscapes() throws Exception {
+    @Test
+    void jsonpEscapes() throws Exception {
         _testJsonpEscapes(false, false);
         _testJsonpEscapes(false, true);
         _testJsonpEscapes(true, false);

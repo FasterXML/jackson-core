@@ -2,10 +2,17 @@ package tools.jackson.core.io;
 
 import java.math.BigInteger;
 
-public class NumberInputTest
-    extends tools.jackson.core.BaseTest
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.JUnit5TestBase;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class NumberInputTest
+    extends JUnit5TestBase
 {
-    public void testNastySmallDouble()
+    @Test
+    void nastySmallDouble()
     {
         //relates to https://github.com/FasterXML/jackson-core/issues/750
         //prior to jackson v2.14, this value used to be returned as Double.MIN_VALUE
@@ -14,7 +21,8 @@ public class NumberInputTest
         assertEquals(Double.parseDouble(nastySmallDouble), NumberInput.parseDouble(nastySmallDouble, true));
     }
 
-    public void testParseFloat()
+    @Test
+    void parseFloat()
     {
         final String exampleFloat = "1.199999988079071";
         assertEquals(1.1999999f, NumberInput.parseFloat(exampleFloat, false));
@@ -27,7 +35,8 @@ public class NumberInputTest
         assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2, true)));
     }
 
-    public void testParseLongBigInteger()
+    @Test
+    void parseLongBigInteger()
     {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
@@ -44,7 +53,8 @@ public class NumberInputTest
         assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000, true));
     }
 
-    public void testBigIntegerWithRadix()
+    @Test
+    void bigIntegerWithRadix()
     {
         final String val = "1ABCDEF";
         final int radix = 16;
@@ -53,7 +63,8 @@ public class NumberInputTest
         assertEquals(expected, NumberInput.parseBigIntegerWithRadix(val, radix, false));
     }
 
-    public void testParseBigIntegerFailsWithENotation()
+    @Test
+    void parseBigIntegerFailsWithENotation()
     {
         try {
             NumberInput.parseBigInteger("1e10", false);
@@ -63,7 +74,8 @@ public class NumberInputTest
         }
     }
 
-    public void testLooksLikeValidNumber()
+    @Test
+    void looksLikeValidNumber()
     {
         assertTrue(NumberInput.looksLikeValidNumber("0"));
         assertTrue(NumberInput.looksLikeValidNumber("1"));

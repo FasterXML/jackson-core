@@ -3,11 +3,15 @@ package tools.jackson.core.json;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 
-public class TestRootValues
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class TestRootValues
+    extends tools.jackson.core.JUnit5TestBase
 {
     static class Issue516InputStream extends InputStream
     {
@@ -78,7 +82,8 @@ public class TestRootValues
 
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testSimpleNumbers() {
+    @Test
+    void simpleNumbers() throws Exception {
         // DataInput can not detect EOF so:
         _testSimpleNumbers(MODE_INPUT_STREAM);
         _testSimpleNumbers(MODE_INPUT_STREAM_THROTTLED);
@@ -97,7 +102,8 @@ public class TestRootValues
         p.close();
     }
 
-    public void testBrokenNumber()
+    @Test
+    void brokenNumber() throws Exception
     {
         _testBrokenNumber(MODE_INPUT_STREAM);
         _testBrokenNumber(MODE_INPUT_STREAM_THROTTLED);
@@ -120,7 +126,8 @@ public class TestRootValues
         p.close();
     }
 
-    public void testSimpleBooleans() {
+    @Test
+    void simpleBooleans() throws Exception {
         // can't do DataInput so
         _testSimpleBooleans(MODE_INPUT_STREAM);
         _testSimpleBooleans(MODE_INPUT_STREAM_THROTTLED);
@@ -140,7 +147,8 @@ public class TestRootValues
         p.close();
     }
 
-    public void testInvalidToken()
+    @Test
+    void invalidToken() throws Exception
     {
         _testInvalidToken(MODE_INPUT_STREAM, '\u00c4');
         _testInvalidToken(MODE_INPUT_STREAM_THROTTLED, '\u00c4');
@@ -173,7 +181,8 @@ public class TestRootValues
     /**********************************************************
      */
 
-    public void testSimpleWrites() throws IOException
+    @Test
+    void simpleWrites() throws Exception
     {
         _testSimpleWrites(false);
         _testSimpleWrites(true);
@@ -210,7 +219,8 @@ public class TestRootValues
      */
 
     // [core#516]: Off-by-one read problem
-    public void testRootOffsetIssue516Bytes() throws IOException
+    @Test
+    void rootOffsetIssue516Bytes() throws Exception
     {
         // InputStream that forces _parseNumber2 to be invoked.
         final InputStream in = new Issue516InputStream(new byte[][] {
@@ -229,7 +239,8 @@ public class TestRootValues
     }
 
     // [core#516]: Off-by-one read problem
-    public void testRootOffsetIssue516Chars() throws IOException
+    @Test
+    void rootOffsetIssue516Chars() throws Exception
     {
         // InputStream that forces _parseNumber2 to be invoked.
         final Reader in = new Issue516Reader(new char[][] {

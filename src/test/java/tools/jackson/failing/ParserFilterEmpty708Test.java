@@ -1,17 +1,17 @@
 package tools.jackson.failing;
 
-import tools.jackson.core.BaseTest;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectReadContext;
-import tools.jackson.core.TokenStreamFactory;
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.*;
 import tools.jackson.core.filter.FilteringParserDelegate;
 import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.json.JsonFactory;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 // for [core#708]
-public class ParserFilterEmpty708Test extends BaseTest
+class ParserFilterEmpty708Test extends JUnit5TestBase
 {
     // Could actually just return basic TokenFilter but...
     static class IncludeAllFilter extends TokenFilter {
@@ -30,7 +30,8 @@ public class ParserFilterEmpty708Test extends BaseTest
     private final JsonFactory JSON_F = newStreamFactory();
 
     // [core#708]
-    public void testEmptyArray() throws Exception
+    @Test
+    void emptyArray() throws Exception
     {
         final String json = "[ ]";
         // should become: {"value":12}
@@ -48,7 +49,8 @@ public class ParserFilterEmpty708Test extends BaseTest
     }
 
     // [core#708]
-    public void testEmptyObject() throws Exception
+    @Test
+    void emptyObject() throws Exception
     {
         final String json = "{ }";
         // should become: {"value":12}

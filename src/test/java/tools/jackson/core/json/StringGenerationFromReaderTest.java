@@ -3,14 +3,18 @@ package tools.jackson.core.json;
 import java.io.*;
 import java.util.Random;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying that the string
  * generation, including character escaping, works as expected.
  */
-public class StringGenerationFromReaderTest
-    extends BaseTest
+class StringGenerationFromReaderTest
+        extends JUnit5TestBase
 {
     final static String[] SAMPLES = new String[] {
         "\"test\"",
@@ -22,13 +26,15 @@ public class StringGenerationFromReaderTest
 
     private final JsonFactory FACTORY = newStreamFactory();
 
-    public void testBasicEscaping() throws Exception
+    @Test
+    void basicEscaping() throws Exception
     {
         doTestBasicEscaping();
     }
 
     // for [core#194]
-    public void testMediumStringsBytes() throws Exception
+    @Test
+    void mediumStringsBytes() throws Exception
     {
         final JsonFactory jsonF = new JsonFactory();
         for (int mode : ALL_BINARY_MODES) {
@@ -39,7 +45,8 @@ public class StringGenerationFromReaderTest
     }
 
     // for [core#194]
-    public void testMediumStringsChars() throws Exception
+    @Test
+    void mediumStringsChars() throws Exception
     {
         final JsonFactory jsonF = new JsonFactory();
         for (int mode : ALL_TEXT_MODES) {
@@ -49,7 +56,8 @@ public class StringGenerationFromReaderTest
         }
     }
 
-    public void testLongerRandomSingleChunk() throws Exception
+    @Test
+    void longerRandomSingleChunk() throws Exception
     {
         // Let's first generate 100k of pseudo-random characters, favoring
         // 7-bit ascii range
@@ -61,7 +69,8 @@ public class StringGenerationFromReaderTest
         }
     }
 
-    public void testLongerRandomMultiChunk() throws Exception
+    @Test
+    void longerRandomMultiChunk() throws Exception
     {
         // Let's first generate 100k of pseudo-random characters, favoring
         // 7-bit ascii range
@@ -173,7 +182,7 @@ public class StringGenerationFromReaderTest
             assertEquals(JsonToken.VALUE_STRING, t);
             assertEquals(VALUE, p.getText());
             assertEquals(JsonToken.END_ARRAY, p.nextToken());
-            assertEquals(null, p.nextToken());
+            assertNull(p.nextToken());
             p.close();
         }
     }
@@ -275,7 +284,8 @@ public class StringGenerationFromReaderTest
     }
 
     // [jackson-core#556]
-    public void testIssue556() throws Exception
+    @Test
+    void issue556() throws Exception
     {
         StringBuilder sb = new StringBuilder(8000);
         sb.append('"');

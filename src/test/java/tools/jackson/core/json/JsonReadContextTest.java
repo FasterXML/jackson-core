@@ -1,17 +1,22 @@
 package tools.jackson.core.json;
 
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.JUnit5TestBase;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.ContentReference;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for class {@link JsonReadContext}.
  */
-public class JsonReadContextTest
-    extends tools.jackson.core.BaseTest
+class JsonReadContextTest extends JUnit5TestBase
 {
-  public void testSetCurrentNameTwiceWithSameName()
-  {
+    @Test
+    void setCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
+    {
       final String PROP_NAME = "dupField";
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, 0, dupDetector, 2441, 2441, 2441);
@@ -22,19 +27,21 @@ public class JsonReadContextTest
           verifyException(e, "Duplicate Object property \""+PROP_NAME+"\"");
           verifyException(e, PROP_NAME);
       }
-  }
+    }
 
-  public void testSetCurrentName()
-  {
+    @Test
+    void setCurrentName() throws Exception
+    {
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(0, 0, (DupDetector) null);
       jsonReadContext.setCurrentName("abc");
       assertEquals("abc", jsonReadContext.currentName());
       jsonReadContext.setCurrentName(null);
       assertNull(jsonReadContext.currentName());
-  }
+    }
 
-  public void testReset()
-  {
+    @Test
+    void reset()
+    {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(dupDetector);
       final ContentReference bogusSrc = ContentReference.unknown();
@@ -50,5 +57,5 @@ public class JsonReadContextTest
       assertEquals("?", jsonReadContext.typeDesc());
       assertEquals(500, jsonReadContext.startLocation(bogusSrc).getLineNr());
       assertEquals(200, jsonReadContext.startLocation(bogusSrc).getColumnNr());
-  }
+    }
 }

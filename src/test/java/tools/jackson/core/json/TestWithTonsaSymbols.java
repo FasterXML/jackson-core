@@ -4,12 +4,16 @@ import java.io.*;
 
 import tools.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Some unit tests to try to exercise part of parser code that
  * deals with symbol (table) management.
  */
-public class TestWithTonsaSymbols
-    extends BaseTest
+class TestWithTonsaSymbols
+        extends JUnit5TestBase
 {
     /**
      * How many fields to generate? Since maximum symbol table
@@ -19,11 +23,13 @@ public class TestWithTonsaSymbols
      */
     final static int PROP_COUNT = 5000;
 
-    public void testStreamReaderParser() throws Exception {
+    @Test
+    void streamReaderParser() throws Exception {
         _testWith(true);
     }
 
-    public void testReaderParser() throws Exception {
+    @Test
+    void readerParser() throws Exception {
         _testWith(false);
     }
 

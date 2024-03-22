@@ -2,12 +2,17 @@ package tools.jackson.core.io;
 
 import java.io.*;
 
-import tools.jackson.core.JsonEncoding;
+import org.junit.jupiter.api.Test;
 
-public class MergedStreamTest
-    extends tools.jackson.core.BaseTest
+import tools.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class MergedStreamTest
+    extends JUnit5TestBase
 {
-    public void testSimple() throws Exception
+    @Test
+    void simple() throws Exception
     {
         IOContext ctxt = testIOContext();
         // bit complicated; must use recyclable buffer...

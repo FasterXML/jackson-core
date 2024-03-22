@@ -1,25 +1,31 @@
 package tools.jackson.core.json;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test size of parser error messages
  */
 public class TestMaxErrorSize
-    extends tools.jackson.core.BaseTest
+    extends tools.jackson.core.JUnit5TestBase
 {
     private final static int EXPECTED_MAX_TOKEN_LEN = 256; // ParserBase.MAX_ERROR_TOKEN_LENGTH
 
     private final JsonFactory JSON_F = newStreamFactory();
 
-    public void testLongErrorMessage()
+    @Test
+    void longErrorMessage() throws Exception
     {
         _testLongErrorMessage(MODE_INPUT_STREAM);
         _testLongErrorMessage(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testLongErrorMessageReader()
+    @Test
+    void longErrorMessageReader() throws Exception
     {
         _testLongErrorMessage(MODE_READER);
     }
@@ -48,7 +54,8 @@ public class TestMaxErrorSize
         jp.close();
     }
 
-    public void testShortErrorMessage()
+    @Test
+    void shortErrorMessage() throws Exception
     {
         _testShortErrorMessage(MODE_INPUT_STREAM);
         _testShortErrorMessage(MODE_INPUT_STREAM_THROTTLED);
@@ -60,9 +67,9 @@ public class TestMaxErrorSize
         final String DOC = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
         assertTrue(DOC.length() < 256);
-        JsonParser jp = createParser(JSON_F, mode, DOC);
+        JsonParser p = createParser(JSON_F, mode, DOC);
         try {
-            jp.nextToken();
+            p.nextToken();
             fail("Expected an exception for unrecognized token");
         } catch (StreamReadException jpe) {
             String msg = jpe.getMessage();
@@ -73,7 +80,7 @@ public class TestMaxErrorSize
             int tokenLen = msg.indexOf(expectedSuffix) - expectedPrefix.length();
             assertEquals(DOC.length(), tokenLen);
         }
-        jp.close();
+        p.close();
     }
 }
 

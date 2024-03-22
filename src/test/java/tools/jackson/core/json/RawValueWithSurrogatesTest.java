@@ -2,11 +2,15 @@ package tools.jackson.core.json;
 
 import java.io.ByteArrayOutputStream;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 
-public class RawValueWithSurrogatesTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class RawValueWithSurrogatesTest
+    extends tools.jackson.core.JUnit5TestBase
 {
     final String SURROGATES_307;
     {
@@ -51,12 +55,14 @@ public class RawValueWithSurrogatesTest
     private final JsonFactory JSON_F = new JsonFactory();
 
     // for [jackson-core#307]
-    public void testRawWithSurrogatesString() throws Exception {
+    @Test
+    void rawWithSurrogatesString() throws Exception {
         _testRawWithSurrogatesString(false);
     }
 
     // for [jackson-core#307]
-    public void testRawWithSurrogatesCharArray() throws Exception {
+    @Test
+    void rawWithSurrogatesCharArray() throws Exception {
         _testRawWithSurrogatesString(true);
     }
 

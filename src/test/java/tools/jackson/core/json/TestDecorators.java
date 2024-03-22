@@ -2,6 +2,8 @@ package tools.jackson.core.json;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.IOContext;
@@ -10,12 +12,14 @@ import tools.jackson.core.io.OutputDecorator;
 import tools.jackson.core.util.JsonGeneratorDecorator;
 import tools.jackson.core.util.JsonGeneratorDelegate;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests to verify that input and output decorators work as
  * expected
  */
 @SuppressWarnings("serial")
-public class TestDecorators extends tools.jackson.core.BaseTest
+class TestDecorators extends tools.jackson.core.JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -99,14 +103,15 @@ public class TestDecorators extends tools.jackson.core.BaseTest
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests: input/output decoration
     /**********************************************************
      */
 
-    public void testInputDecoration() throws IOException
+    @Test
+    void inputDecoration() throws IOException
     {
         JsonFactory f = JsonFactory.builder()
                 .inputDecorator(new SimpleInputDecorator())
@@ -148,7 +153,8 @@ public class TestDecorators extends tools.jackson.core.BaseTest
         p.close();
     }
 
-    public void testOutputDecoration() throws IOException
+    @Test
+    void outputDecoration() throws IOException
     {
         JsonFactory f = JsonFactory.builder()
                 .outputDecorator(new SimpleOutputDecorator())
@@ -172,7 +178,8 @@ public class TestDecorators extends tools.jackson.core.BaseTest
     /**********************************************************
      */
 
-    public void testGeneratorDecoration() throws Exception
+    @Test
+    void generatorDecoration() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .addDecorator(new SimpleGeneratorDecorator())

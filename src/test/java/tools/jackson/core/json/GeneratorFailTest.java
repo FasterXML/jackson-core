@@ -4,18 +4,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.exc.StreamWriteException;
 
-public class GeneratorFailTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+class GeneratorFailTest
+    extends tools.jackson.core.JUnit5TestBase
 {
     private final JsonFactory F = newStreamFactory();
 
     // [core#167]: no error for writing field name twice
-    public void testDupFieldNameWrites() throws IOException
+    @Test
+    void dupFieldNameWrites() throws Exception
     {
         _testDupFieldNameWrites(F, false);
         _testDupFieldNameWrites(F, true);
@@ -24,17 +29,20 @@ public class GeneratorFailTest
     // [core#177]
     // Also: should not try writing JSON String if field name expected
     // (in future maybe take one as alias... but not yet)
-    public void testFailOnWritingStringNotFieldNameBytes() throws IOException {
+    @Test
+    void failOnWritingStringNotFieldNameBytes() throws Exception {
         _testFailOnWritingStringNotFieldName(F, false);
     }
 
     // [core#177]
-    public void testFailOnWritingStringNotFieldNameChars() throws IOException {
+    @Test
+    void failOnWritingStringNotFieldNameChars() throws Exception {
         _testFailOnWritingStringNotFieldName(F, true);
     }
 
     // for [core#282]
-    public void testFailOnWritingFieldNameInRoot() throws IOException {
+    @Test
+    void failOnWritingFieldNameInRoot() throws Exception {
         _testFailOnWritingFieldNameInRoot(F, false);
         _testFailOnWritingFieldNameInRoot(F, true);
     }

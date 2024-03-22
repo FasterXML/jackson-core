@@ -1,15 +1,20 @@
 package tools.jackson.core.io;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.base.GeneratorBase;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.JsonRecyclerPools;
 
-public class SegmentedStringWriterTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class SegmentedStringWriterTest
+    extends JUnit5TestBase
 {
-    public void testSimple() throws Exception
+    @Test
+    void simple() throws Exception
     {
         BufferRecycler br = new BufferRecycler();
         SegmentedStringWriter w = new SegmentedStringWriter(br);
@@ -50,7 +55,8 @@ public class SegmentedStringWriterTest
     }
 
     // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
-    public void testBufferRecyclerReuse() throws Exception
+    @Test
+    void bufferRecyclerReuse() throws Exception
     {
         JsonFactory f = new JsonFactory();
         BufferRecycler br = new BufferRecycler()

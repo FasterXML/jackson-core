@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -15,16 +14,15 @@ import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 
-import static tools.jackson.core.BaseTest.a2q;
+import static tools.jackson.core.JUnit5TestBase.a2q;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests that the {@link JsonLocation} attached to a thrown {@link StreamReadException}
  * due to invalid JSON points to the correct character.
  */
-public class LocationOfError1180Test
+class LocationOfError1180Test
 {
     static final JsonFactory JSON_F = new JsonFactory();
 
@@ -126,12 +124,12 @@ public class LocationOfError1180Test
 
     @ParameterizedTest
     @MethodSource("_generateTestData")
-    public void testParserBackendWithInvalidJson(ParserVariant variant, InvalidJson invalidJson)
-        throws Exception
+    void parserBackendWithInvalidJson(ParserVariant variant, InvalidJson invalidJson)
+            throws Exception
     {
         try (JsonParser parser = variant.createParser(invalidJson.input))
         {
-            StreamReadException e = Assertions.assertThrows(
+            StreamReadException e = assertThrows(
                     StreamReadException.class,
                 () -> {
                     // Blindly advance the parser through the end of input
@@ -145,18 +143,15 @@ public class LocationOfError1180Test
 
             if (variant.supportsByteOffset)
             {
-                assertEquals("Incorrect byte offset (for '"+msg+"')",
-                        invalidJson.byteOffset, location.getByteOffset());
+                assertEquals(invalidJson.byteOffset, location.getByteOffset(), "Incorrect byte offset (for '"+msg+"')");
             }
             if (variant.supportsCharOffset)
             {
-                assertEquals("Incorrect char offset (for '"+msg+"')",
-                        invalidJson.charOffset, location.getCharOffset());
+                assertEquals(invalidJson.charOffset, location.getCharOffset(), "Incorrect char offset (for '"+msg+"')");
             }
             if (variant.supportsColumnNr)
             {
-                assertEquals("Incorrect column (for '"+msg+"')",
-                        invalidJson.columnNr, location.getColumnNr());
+                assertEquals(invalidJson.columnNr, location.getColumnNr(), "Incorrect column (for '"+msg+"')");
             }
         }
     }

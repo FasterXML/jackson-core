@@ -1,20 +1,26 @@
 package tools.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 // Failing tests for non-root-token problem
-public class ParserErrorHandling105Test
-    extends tools.jackson.core.BaseTest
+class ParserErrorHandling105Test
+    extends tools.jackson.core.JUnit5TestBase
 {
     // Tests for [core#105] ("eager number parsing misses errors")
-    public void testMangledIntsBytes() throws Exception {
+    @Test
+    void mangledIntsBytes() throws Exception {
         // 02-Jun-2017, tatu: Fails to fail; should check whether this is expected
         //   (since DataInput can't do look-ahead)
         _testMangledNonRootInts(MODE_DATA_INPUT);
     }
 
-    public void testMangledFloatsBytes() throws Exception {
+    @Test
+    void mangledFloatsBytes() throws Exception {
 //        _testMangledNonRootFloats(MODE_INPUT_STREAM);
 //        _testMangledNonRootFloats(MODE_INPUT_STREAM_THROTTLED);
 
@@ -22,11 +28,13 @@ public class ParserErrorHandling105Test
         _testMangledNonRootFloats(MODE_DATA_INPUT);
     }
 
-    public void testMangledIntsChars() {
+    @Test
+    void mangledIntsChars() throws Exception {
         _testMangledNonRootInts(MODE_READER);
     }
 
-    public void testMangledFloatsChars() {
+    @Test
+    void mangledFloatsChars() throws Exception {
         _testMangledNonRootFloats(MODE_READER);
     }
 

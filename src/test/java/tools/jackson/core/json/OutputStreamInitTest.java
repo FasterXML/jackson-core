@@ -2,13 +2,17 @@ package tools.jackson.core.json;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 
-//[core#764] (and [databind#3508])
-public class OutputStreamInitTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+//[core#764] (and [databind#3508]
+class OutputStreamInitTest
+    extends tools.jackson.core.JUnit5TestBase
 {
     static class FailingOutputStream extends OutputStream {
         public int written = 0;
@@ -44,7 +48,8 @@ public class OutputStreamInitTest
         }
     }
 
-    public void testForFile() throws Exception
+    @Test
+    void forFile() throws Exception
     {
         final FailingJsonFactory jsonF = new FailingJsonFactory();
         try {

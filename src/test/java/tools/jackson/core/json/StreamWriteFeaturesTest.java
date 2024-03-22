@@ -7,16 +7,21 @@ import java.math.BigInteger;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Set of basic unit tests for verifying that the basic generator
  * functionality works as expected.
  */
-public class StreamWriteFeaturesTest
-    extends tools.jackson.core.BaseTest
+class GeneratorFeaturesTest
+    extends tools.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testConfigDefaults()
+    @Test
+    void configDefaults() throws IOException
     {
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), new StringWriter());
         assertFalse(((JsonGeneratorBase) g).isEnabled(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS));
@@ -29,7 +34,8 @@ public class StreamWriteFeaturesTest
         g.close();
     }
 
-    public void testFieldNameQuoting()
+    @Test
+    void fieldNameQuoting() throws IOException
     {
         JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
@@ -45,7 +51,8 @@ public class StreamWriteFeaturesTest
         _testFieldNameQuoting(f, true);
     }
 
-    public void testNonNumericQuoting()
+    @Test
+    void nonNumericQuoting() throws IOException
     {
         JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
@@ -66,7 +73,8 @@ public class StreamWriteFeaturesTest
      * Testing for [JACKSON-176], ability to force serializing numbers
      * as JSON Strings.
      */
-    public void testNumbersAsJSONStrings()
+    @Test
+    void numbersAsJSONStrings() throws IOException
     {
         JsonFactory f = new JsonFactory();
         // by default should output numbers as-is:
@@ -82,7 +90,8 @@ public class StreamWriteFeaturesTest
                 _writeNumbers(f, true));
     }
 
-    public void testBigDecimalAsPlain()
+    @Test
+    void bigDecimalAsPlain() throws IOException
     {
         JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
@@ -102,7 +111,8 @@ public class StreamWriteFeaturesTest
         assertEquals("100", sw.toString());
     }
 
-    public void testBigDecimalAsPlainString()
+    @Test
+    void bigDecimalAsPlainString() throws Exception
     {
         JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
@@ -124,7 +134,8 @@ public class StreamWriteFeaturesTest
     }
 
     // [core#315]
-    public void testTooBigBigDecimal()
+    @Test
+    void tooBigBigDecimal() throws Exception
     {
         // 24-Aug-2016, tatu: Initial check limits scale to [-9999,+9999]
         BigDecimal BIG = new BigDecimal("1E+9999");
@@ -203,7 +214,8 @@ public class StreamWriteFeaturesTest
     }
 
     // for [core#246]
-    public void testFieldNameQuotingEnabled()
+    @Test
+    void fieldNameQuotingEnabled() throws IOException
     {
         // // First, test with default factory, with quoting enabled by default
 
@@ -303,7 +315,8 @@ public class StreamWriteFeaturesTest
     }
 
     // [core#717]: configurable hex digits; lower-case
-    public void testHexLowercase() throws Exception {
+    @Test
+    void hexLowercase() throws Exception {
         JsonFactory f = JsonFactory.builder()
                 .disable(JsonWriteFeature.WRITE_HEX_UPPER_CASE)
                 .build();
@@ -312,7 +325,8 @@ public class StreamWriteFeaturesTest
     }
 
     // [core#717]: configurable hex digits; upper-case (default)
-    public void testHexUppercase() throws Exception
+    @Test
+    void hexUppercase() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonWriteFeature.WRITE_HEX_UPPER_CASE)

@@ -1,15 +1,20 @@
 package tools.jackson.core.io;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.ErrorReportConfiguration;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
 import tools.jackson.core.util.BufferRecycler;
 
-public class TestIOContext
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class TestIOContext
+    extends tools.jackson.core.JUnit5TestBase
 {
-    public void testAllocations() throws Exception
+    @Test
+    void allocations() throws Exception
     {
         IOContext ctxt = new IOContext(StreamReadConstraints.defaults(),
                 StreamWriteConstraints.defaults(),

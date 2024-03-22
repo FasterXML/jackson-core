@@ -1,12 +1,15 @@
 package tools.jackson.core.json;
 
-import tools.jackson.core.BaseTest;
-import tools.jackson.core.ObjectReadContext;
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.*;
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.exc.StreamReadException;
 
-public class BoundsChecksWithJsonFactoryTest
-    extends BaseTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+class BoundsChecksWithJsonFactoryTest
+    extends JUnit5TestBase
 {
     interface ByteBackedCreation {
         void call(byte[] data, int offset, int len) throws Exception;
@@ -22,7 +25,8 @@ public class BoundsChecksWithJsonFactoryTest
     /**********************************************************************
      */
 
-    public void testBoundsWithByteArrayInput() throws Exception {
+    @Test
+    void boundsWithByteArrayInput() throws Exception {
         final TokenStreamFactory PARSER_F = newStreamFactory();
 
         _testBoundsWithByteArrayInput(
@@ -67,29 +71,30 @@ public class BoundsChecksWithJsonFactoryTest
     /**********************************************************************
      */
 
-    public void testBoundsWithCharArrayInput() throws Exception {
+    @Test
+    void boundsWithCharArrayInput() throws Exception {
         final TokenStreamFactory PARSER_F = newStreamFactory();
 
-        testBoundsWithCharArrayInput(
+        boundsWithCharArrayInput(
                 (data,offset,len)->PARSER_F.createParser(ObjectReadContext.empty(),
                         data, offset, len));
     }
 
-    private void testBoundsWithCharArrayInput(CharBackedCreation creator) throws Exception
+    private void boundsWithCharArrayInput(CharBackedCreation creator) throws Exception
     {
         final char[] DATA = new char[10];
-        testBoundsWithCharArrayInput(creator, DATA, -1, 1);
-        testBoundsWithCharArrayInput(creator, DATA, 4, -1);
-        testBoundsWithCharArrayInput(creator, DATA, 4, -6);
-        testBoundsWithCharArrayInput(creator, DATA, 9, 5);
+        boundsWithCharArrayInput(creator, DATA, -1, 1);
+        boundsWithCharArrayInput(creator, DATA, 4, -1);
+        boundsWithCharArrayInput(creator, DATA, 4, -6);
+        boundsWithCharArrayInput(creator, DATA, 9, 5);
         // and the integer overflow, too
-        testBoundsWithCharArrayInput(creator, DATA, Integer.MAX_VALUE, 4);
-        testBoundsWithCharArrayInput(creator, DATA, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        boundsWithCharArrayInput(creator, DATA, Integer.MAX_VALUE, 4);
+        boundsWithCharArrayInput(creator, DATA, Integer.MAX_VALUE, Integer.MAX_VALUE);
         // and null checks too
-        testBoundsWithCharArrayInput(creator, null, 0, 3);
+        boundsWithCharArrayInput(creator, null, 0, 3);
     }
 
-    private void testBoundsWithCharArrayInput(CharBackedCreation creator,
+    private void boundsWithCharArrayInput(CharBackedCreation creator,
             char[] data, int offset, int len) throws Exception
     {
         try {

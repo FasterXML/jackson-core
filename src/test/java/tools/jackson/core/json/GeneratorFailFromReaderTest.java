@@ -5,34 +5,42 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.exc.StreamWriteException;
 
-public class GeneratorFailFromReaderTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+class GeneratorFailFromReaderTest
+    extends tools.jackson.core.JUnit5TestBase
 {
     private final JsonFactory F = newStreamFactory();
 
     // [core#177]
     // Also: should not try writing JSON String if field name expected
     // (in future maybe take one as alias... but not yet)
-    public void testFailOnWritingStringNotFieldNameBytes() throws IOException {
+    @Test
+    void failOnWritingStringNotFieldNameBytes() throws Exception {
         _testFailOnWritingStringNotFieldName(F, false);
     }
 
     // [core#177]
-    public void testFailOnWritingStringNotFieldNameChars() throws IOException {
+    @Test
+    void failOnWritingStringNotFieldNameChars() throws Exception {
         _testFailOnWritingStringNotFieldName(F, true);
     }
 
-    public void testFailOnWritingStringFromReaderWithTooFewCharacters() throws IOException {
+    @Test
+    void failOnWritingStringFromReaderWithTooFewCharacters() throws Exception {
         _testFailOnWritingStringFromReaderWithTooFewCharacters(F, true);
         _testFailOnWritingStringFromReaderWithTooFewCharacters(F, false);
     }
 
-    public void testFailOnWritingStringFromNullReader() throws IOException {
+    @Test
+    void failOnWritingStringFromNullReader() throws Exception {
         _testFailOnWritingStringFromNullReader(F, true);
         _testFailOnWritingStringFromNullReader(F, false);
     }

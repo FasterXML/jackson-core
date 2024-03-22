@@ -2,11 +2,16 @@ package tools.jackson.core.json;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 
-public class TestUnicode extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestUnicode extends tools.jackson.core.JUnit5TestBase
 {
-    public void testSurrogates() throws Exception
+    @Test
+    void surrogates() throws Exception
     {
         JsonFactory f = new JsonFactory();
         _testSurrogates(f, true);

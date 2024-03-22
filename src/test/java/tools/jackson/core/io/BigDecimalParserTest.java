@@ -2,29 +2,38 @@ package tools.jackson.core.io;
 
 import java.math.BigDecimal;
 
-public class BigDecimalParserTest extends tools.jackson.core.BaseTest
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.JUnit5TestBase;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class BigDecimalParserTest extends JUnit5TestBase
 {
-    public void testLongInvalidStringParse() {
+    @Test
+    void longInvalidStringParse() {
         try {
             BigDecimalParser.parse(genLongInvalidString());
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
-            assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
-            assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));
+            assertTrue(nfe.getMessage().startsWith("Value \"AAAAA"), "exception message starts as expected?");
+            assertTrue(nfe.getMessage().contains("truncated"), "exception message value contains truncated");
         }
     }
 
-    public void testLongInvalidStringFastParse() {
+    @Test
+    void longInvalidStringFastParse() {
         try {
             BigDecimalParser.parseWithFastParser(genLongInvalidString());
             fail("expected NumberFormatException");
         } catch (NumberFormatException nfe) {
-            assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
-            assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));
+            assertTrue(nfe.getMessage().startsWith("Value \"AAAAA"), "exception message starts as expected?");
+            assertTrue(nfe.getMessage().contains("truncated"), "exception message value contains truncated");
         }
     }
 
-    public void testLongValidStringParse() {
+    @Test
+    void longValidStringParse() {
         String num = genLongValidString(500);
         final BigDecimal EXP = new BigDecimal(num);
 
@@ -34,7 +43,8 @@ public class BigDecimalParserTest extends tools.jackson.core.BaseTest
         assertEquals(EXP, BigDecimalParser.parse(num.toCharArray(), 0, num.length()));
     }
 
-    public void testLongValidStringFastParse() {
+    @Test
+    void longValidStringFastParse() {
         String num = genLongValidString(500);
         final BigDecimal EXP = new BigDecimal(num);
 

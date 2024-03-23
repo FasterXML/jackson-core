@@ -2,19 +2,22 @@ package com.fasterxml.jackson.core.write;
 
 import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.StreamWriteConstraints;
+import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
-public class WriterBasedJsonGeneratorTest extends BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class WriterBasedJsonGeneratorTest extends JUnit5TestBase
 {
     private final JsonFactory JSON_MAX_NESTING_1 = JsonFactory.builder()
             .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())
             .build();
 
-    public void testNestingDepthWithSmallLimit() throws Exception
+    @Test
+    void nestingDepthWithSmallLimit() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(sw)) {
@@ -28,7 +31,8 @@ public class WriterBasedJsonGeneratorTest extends BaseTest
         }
     }
 
-    public void testNestingDepthWithSmallLimitNestedObject() throws Exception
+    @Test
+    void nestingDepthWithSmallLimitNestedObject() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(sw)) {

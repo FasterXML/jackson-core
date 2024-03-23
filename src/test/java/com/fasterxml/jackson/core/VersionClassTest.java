@@ -8,11 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit tests for class {@link Version}.
  */
-public class VersionClassTest
-    extends JUnit5TestBase
+class VersionClassTest
+        extends JUnit5TestBase
 {
     @Test
-    public void testEqualsAndHashCode() {
+    void equalsAndHashCode() {
         Version version1 = new Version(1, 2, 3, "", "", "");
         Version version2 = new Version(1, 2, 3, "", "", "");
 
@@ -22,8 +22,8 @@ public class VersionClassTest
         assertEquals(version1.hashCode(), version2.hashCode());
     }
 
-  @Test
-  public void testCompareToOne() {
+    @Test
+    void compareToOne() {
       Version version = Version.unknownVersion();
       Version versionTwo = new Version(0, (-263), (-1820), "",
               "", "");
@@ -31,8 +31,8 @@ public class VersionClassTest
       assertEquals(263, version.compareTo(versionTwo));
   }
 
-  @Test
-  public void testCompareToReturningZero() {
+    @Test
+    void compareToReturningZero() {
       Version version = Version.unknownVersion();
       Version versionTwo = new Version(0, 0, 0, "",
               "", "");
@@ -40,16 +40,16 @@ public class VersionClassTest
       assertEquals(0, version.compareTo(versionTwo));
   }
 
-  @Test
-  public void testCreatesVersionTaking6ArgumentsAndCallsCompareTo() {
+    @Test
+    void createsVersionTaking6ArgumentsAndCallsCompareTo() {
       Version version = new Version(0, 0, 0, null, null, "");
       Version versionTwo = new Version(0, 0, 0, "", "", "//0.0.0");
 
       assertTrue(version.compareTo(versionTwo) < 0);
   }
 
-  @Test
-  public void testCompareToTwo() {
+    @Test
+    void compareToTwo() {
       Version version = Version.unknownVersion();
       Version versionTwo = new Version((-1), 0, 0, "0.0.0",
               "", "");
@@ -57,24 +57,24 @@ public class VersionClassTest
       assertTrue(version.compareTo(versionTwo) > 0);
   }
 
-  @Test
-  public void testCompareToAndCreatesVersionTaking6ArgumentsAndUnknownVersion() {
+    @Test
+    void compareToAndCreatesVersionTaking6ArgumentsAndUnknownVersion() {
       Version version = Version.unknownVersion();
       Version versionTwo = new Version(0, 0, 0, "//0.0.0", "//0.0.0", "");
 
       assertTrue(version.compareTo(versionTwo) < 0);
   }
 
-  @Test
-  public void testCompareToSnapshotSame() {
+    @Test
+    void compareToSnapshotSame() {
       Version version = new Version(0, 0, 0, "alpha", "com.fasterxml", "bogus");
       Version versionTwo = new Version(0, 0, 0, "alpha", "com.fasterxml", "bogus");
 
       assertEquals(0, version.compareTo(versionTwo));
   }
 
-  @Test
-  public void testCompareToSnapshotDifferent() {
+    @Test
+    void compareToSnapshotDifferent() {
       Version version = new Version(0, 0, 0, "alpha", "com.fasterxml", "bogus");
       Version versionTwo = new Version(0, 0, 0, "beta", "com.fasterxml", "bogus");
 
@@ -82,8 +82,8 @@ public class VersionClassTest
       assertTrue(versionTwo.compareTo(version) > 0);
   }
 
-  @Test
-  public void testCompareWhenOnlyFirstHasSnapshot() {
+    @Test
+    void compareWhenOnlyFirstHasSnapshot() {
       Version version = new Version(0, 0, 0, "beta", "com.fasterxml", "bogus");
       Version versionTwo = new Version(0, 0, 0, null, "com.fasterxml", "bogus");
 
@@ -91,8 +91,8 @@ public class VersionClassTest
       assertTrue(versionTwo.compareTo(version) > 0);
   }
 
-  @Test
-  public void testCompareWhenOnlySecondHasSnapshot() {
+    @Test
+    void compareWhenOnlySecondHasSnapshot() {
       Version version = new Version(0, 0, 0, "", "com.fasterxml", "bogus");
       Version versionTwo = new Version(0, 0, 0, "beta", "com.fasterxml", "bogus");
 

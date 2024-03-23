@@ -2,9 +2,13 @@ package tools.jackson.core.write;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.json.JsonFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying basic generator
@@ -12,7 +16,7 @@ import tools.jackson.core.json.JsonFactory;
  */
 @SuppressWarnings("resource")
 public class GeneratorMiscTest
-    extends tools.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -22,7 +26,8 @@ public class GeneratorMiscTest
     /**********************************************************
      */
 
-    public void testIsClosed()
+    @Test
+    void isClosed() throws Exception
     {
         for (int i = 0; i < 2; ++i) {
             boolean stream = ((i & 1) == 0);
@@ -49,7 +54,8 @@ public class GeneratorMiscTest
     /**********************************************************
      */
 
-    public void testRaw()
+    @Test
+    void raw() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -71,7 +77,8 @@ public class GeneratorMiscTest
         jp.close();
     }
 
-    public void testRawValue()
+    @Test
+    void rawValue() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -105,7 +112,8 @@ public class GeneratorMiscTest
     /**
      * Unit test that tries to trigger buffer-boundary conditions
      */
-    public void testLongerObjects()
+    @Test
+    void longerObjects() throws Exception
     {
         _testLongerObjects(JSON_F, 0);
         _testLongerObjects(JSON_F, 1);
@@ -195,7 +203,8 @@ public class GeneratorMiscTest
      */
 
     // NOTE: test for binary data under `base64/` tests
-    public void testAsEmbedded()
+    @Test
+    void asEmbedded() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), sw)) {

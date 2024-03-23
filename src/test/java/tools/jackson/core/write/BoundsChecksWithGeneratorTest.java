@@ -2,12 +2,16 @@ package tools.jackson.core.write;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.json.JsonFactory;
 
-public class BoundsChecksWithGeneratorTest
-    extends BaseTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+class BoundsChecksWithGeneratorTest
+    extends JUnit5TestBase
 {
     final static JsonFactory JSON_F = new JsonFactory();
 
@@ -72,11 +76,13 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
-    public void testBoundsWithByteArrayInputFromBytes() throws Exception {
+    @Test
+    void boundsWithByteArrayInputFromBytes() throws Exception {
         _testBoundsWithByteArrayInput(BYTE_GENERATOR_CREATOR, true);
     }
 
-    public void testBoundsWithByteArrayInputFromChars() throws Exception {
+    @Test
+    void boundsWithByteArrayInputFromChars() throws Exception {
         _testBoundsWithByteArrayInput(CHAR_GENERATOR_CREATOR, false);
     }
 
@@ -154,11 +160,13 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
-    public void testBoundsWithCharArrayInputFromBytes() throws Exception {
+    @Test
+    void boundsWithCharArrayInputFromBytes() throws Exception {
         _testBoundsWithCharArrayInput(BYTE_GENERATOR_CREATOR);
     }
 
-    public void testBoundsWithCharArrayInputFromChars() throws Exception {
+    @Test
+    void boundsWithCharArrayInputFromChars() throws Exception {
         _testBoundsWithCharArrayInput(CHAR_GENERATOR_CREATOR);
     }
 
@@ -224,11 +232,13 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
-    public void testBoundsWithStringInputFromBytes() throws Exception {
+    @Test
+    void boundsWithStringInputFromBytes() throws Exception {
         _testBoundsWithStringInput(BYTE_GENERATOR_CREATOR);
     }
 
-    public void testBoundsWithStringInputFromChar() throws Exception {
+    @Test
+    void boundsWithStringInputFromChar() throws Exception {
         _testBoundsWithStringInput(CHAR_GENERATOR_CREATOR);
     }
 

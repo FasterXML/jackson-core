@@ -3,13 +3,15 @@ package tools.jackson.core.sym;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import tools.jackson.core.BaseTest;
+import tools.jackson.core.JUnit5TestBase;
 import tools.jackson.core.util.Named;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for {@link PropertyNameMatcher} implementations
  */
-public class FieldMatchersTest extends BaseTest
+public class PropertyNameMatchersTest extends JUnit5TestBase
 {
     public void testSmallMatching()
     {

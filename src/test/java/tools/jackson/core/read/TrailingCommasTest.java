@@ -3,11 +3,8 @@ package tools.jackson.core.read;
 import java.io.IOException;
 import java.util.*;
 
-import org.junit.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
@@ -21,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("resource")
 public class TrailingCommasTest extends JUnit5TestBase
 {
-    private JsonFactory factory;
-    private Set<JsonReadFeature> features;
-    private int mode;
+    JsonFactory factory;
+    Set<JsonReadFeature> features;
+    int mode;
 
     public void initTrailingCommasTest(int mode, List<JsonReadFeature> features) {
       this.features = new HashSet<>(features);

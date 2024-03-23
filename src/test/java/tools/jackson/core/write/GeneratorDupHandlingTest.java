@@ -5,8 +5,10 @@ import java.io.*;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class GeneratorDupHandlingTest
-    extends tools.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
     public void testSimpleDupsEagerlyBytes() {
         _testSimpleDups(true, newStreamFactory());

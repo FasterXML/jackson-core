@@ -3,20 +3,24 @@ package tools.jackson.core.write;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class RawStringWriteTest extends tools.jackson.core.BaseTest
+class RawStringWriteTest extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
     /**
      * Unit test for "JsonGenerator.writeRawUTF8String()"
      */
-    public void testUtf8RawStrings() throws Exception
+    @Test
+    void utf8RawStrings() throws Exception
     {
         // Let's create set of Strings to output; no ctrl chars as we do raw
         List<byte[]> strings = generateStrings(new Random(28), 750000, false);
@@ -48,7 +52,8 @@ public class RawStringWriteTest extends tools.jackson.core.BaseTest
      * Unit test for "JsonGenerator.writeUTF8String()", which needs
      * to handle escaping properly
      */
-    public void testUtf8StringsWithEscaping() throws Exception
+    @Test
+    void utf8StringsWithEscaping() throws Exception
     {
         // Let's create set of Strings to output; do include control chars too:
         List<byte[]> strings = generateStrings(new Random(28), 720000, true);
@@ -79,7 +84,8 @@ public class RawStringWriteTest extends tools.jackson.core.BaseTest
         jp.close();
     }
 
-    public void testWriteRawWithSerializable() throws Exception
+    @Test
+    void writeRawWithSerializable() throws Exception
     {
         _testWriteRawWithSerializable(JSON_F, true);
         _testWriteRawWithSerializable(JSON_F, false);

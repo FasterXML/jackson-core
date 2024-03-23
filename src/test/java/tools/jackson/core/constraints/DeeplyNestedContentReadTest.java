@@ -6,12 +6,14 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * Unit test(s) for verifying handling of new (in 2.15) StreamReadConstraints
  * wrt maximum nesting depth.
  */
 public class DeeplyNestedContentReadTest
-    extends BaseTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

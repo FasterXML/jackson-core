@@ -5,31 +5,40 @@ import java.io.StringWriter;
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // Basic testing for [core#1064] wrt usage by `JsonParser` / `JsonGenerator`
 // (wrt simple reads/writes working without issues)
-public class JsonBufferRecyclersTest extends BaseTest
+class JsonBufferRecyclersTest extends JUnit5TestBase
 {
     // // Parsers with RecyclerPools:
 
-    public void testParserWithThreadLocalPool() throws Exception {
+    @Test
+    void parserWithThreadLocalPool() throws Exception {
         _testParser(JsonRecyclerPools.threadLocalPool());
     }
 
-    public void testParserWithNopLocalPool() throws Exception {
+    @Test
+    void parserWithNopLocalPool() throws Exception {
         _testParser(JsonRecyclerPools.nonRecyclingPool());
     }
 
-    public void testParserWithDequeuPool() throws Exception {
+    @Test
+    void parserWithDequeuPool() throws Exception {
         _testParser(JsonRecyclerPools.newConcurrentDequePool());
         _testParser(JsonRecyclerPools.sharedConcurrentDequePool());
     }
 
-    public void testParserWithLockFreePool() throws Exception {
+    @Test
+    void parserWithLockFreePool() throws Exception {
         _testParser(JsonRecyclerPools.newLockFreePool());
         _testParser(JsonRecyclerPools.sharedLockFreePool());
     }
 
-    public void testParserWithBoundedPool() throws Exception {
+    @Test
+    void parserWithBoundedPool() throws Exception {
         _testParser(JsonRecyclerPools.newBoundedPool(5));
         _testParser(JsonRecyclerPools.sharedBoundedPool());
     }
@@ -59,25 +68,30 @@ public class JsonBufferRecyclersTest extends BaseTest
 
     // // Generators with RecyclerPools:
 
-    public void testGeneratorWithThreadLocalPool() throws Exception {
+    @Test
+    void generatorWithThreadLocalPool() throws Exception {
         _testGenerator(JsonRecyclerPools.threadLocalPool());
     }
 
-    public void testGeneratorWithNopLocalPool() throws Exception {
+    @Test
+    void generatorWithNopLocalPool() throws Exception {
         _testGenerator(JsonRecyclerPools.nonRecyclingPool());
     }
 
-    public void testGeneratorWithDequeuPool() throws Exception {
+    @Test
+    void generatorWithDequeuPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newConcurrentDequePool());
         _testGenerator(JsonRecyclerPools.sharedConcurrentDequePool());
     }
 
-    public void testGeneratorWithLockFreePool() throws Exception {
+    @Test
+    void generatorWithLockFreePool() throws Exception {
         _testGenerator(JsonRecyclerPools.newLockFreePool());
         _testGenerator(JsonRecyclerPools.sharedLockFreePool());
     }
 
-    public void testGeneratorWithBoundedPool() throws Exception {
+    @Test
+    void generatorWithBoundedPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newBoundedPool(5));
         _testGenerator(JsonRecyclerPools.sharedBoundedPool());
     }
@@ -103,25 +117,30 @@ public class JsonBufferRecyclersTest extends BaseTest
 
     // // Read-and-Write: Parser and Generator, overlapping usage
 
-    public void testCopyWithThreadLocalPool() throws Exception {
+    @Test
+    void copyWithThreadLocalPool() throws Exception {
         _testCopy(JsonRecyclerPools.threadLocalPool());
     }
 
-    public void testCopyWithNopLocalPool() throws Exception {
+    @Test
+    void copyWithNopLocalPool() throws Exception {
         _testCopy(JsonRecyclerPools.nonRecyclingPool());
     }
 
-    public void testCopyWithDequeuPool() throws Exception {
+    @Test
+    void copyWithDequeuPool() throws Exception {
         _testCopy(JsonRecyclerPools.newConcurrentDequePool());
         _testCopy(JsonRecyclerPools.sharedConcurrentDequePool());
     }
 
-    public void testCopyWithLockFreePool() throws Exception {
+    @Test
+    void copyWithLockFreePool() throws Exception {
         _testCopy(JsonRecyclerPools.newLockFreePool());
         _testCopy(JsonRecyclerPools.sharedLockFreePool());
     }
 
-    public void testCopyWithBoundedPool() throws Exception {
+    @Test
+    void copyWithBoundedPool() throws Exception {
         _testCopy(JsonRecyclerPools.newBoundedPool(5));
         _testCopy(JsonRecyclerPools.sharedBoundedPool());
     }

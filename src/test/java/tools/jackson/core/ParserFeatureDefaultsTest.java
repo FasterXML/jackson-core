@@ -1,6 +1,6 @@
 package tools.jackson.core;
 
-public class ParserFeatureDefaultsTest extends BaseTest
+public class ParserFeatureDefaultsTest extends JUnit5TestBase
 {
     // 25-Jun-2022, tatu: Seems only relevant for 2.x, but leave the class here,
     //    just in case it might be needed in future.

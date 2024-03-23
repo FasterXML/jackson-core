@@ -2,20 +2,25 @@ package tools.jackson.core.write;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.json.JsonFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying that the Array write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class ArrayWriteTest
-    extends tools.jackson.core.BaseTest
+class ArrayWriteTest
+    extends tools.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
-    public void testEmptyArrayWrite()
+    @Test
+    void emptyArrayWrite() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -39,7 +44,7 @@ public class ArrayWriteTest
         gen.writeEndArray();
 
         ctxt = gen.streamWriteContext();
-        assertTrue("Should be in root, was "+ctxt.typeDesc(), ctxt.inRoot());
+        assertTrue(ctxt.inRoot(), "Should be in root, was "+ctxt.typeDesc());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());
         assertEquals(1, ctxt.getEntryCount());
@@ -67,11 +72,12 @@ public class ArrayWriteTest
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 
-    public void testInvalidArrayWrite()
+    @Test
+    void invalidArrayWrite() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -86,7 +92,8 @@ public class ArrayWriteTest
         gen.close();
     }
 
-    public void testSimpleArrayWrite()
+    @Test
+    void simpleArrayWrite() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);

@@ -7,12 +7,14 @@ import java.math.BigInteger;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Set of basic unit tests for verifying that the Object write methods
  * of {@link JsonGenerator} work as expected.
  */
 public class ObjectWriteTest
-    extends BaseTest
+    extends JUnit5TestBase
 {
     final TokenStreamFactory JSON_F = newStreamFactory();
 

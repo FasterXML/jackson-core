@@ -4,10 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-
-import tools.jackson.core.BaseTest;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.*;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.ReaderBasedJsonParser;
@@ -15,13 +12,15 @@ import tools.jackson.core.json.UTF8StreamJsonParser;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for class {@link JsonParserSequence}.
  *
  * @see JsonParserSequence
  */
 @SuppressWarnings("resource")
-public class JsonParserSequenceTest extends BaseTest
+public class JsonParserSequenceTest extends JUnit5TestBase
 {
     public void testClose() throws IOException {
         IOContext ioContext = testIOContext();

@@ -8,8 +8,10 @@ import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class JsonFactoryTest
-    extends tools.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
     static class BogusSchema implements FormatSchema
     {

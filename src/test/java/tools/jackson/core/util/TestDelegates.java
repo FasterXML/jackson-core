@@ -5,14 +5,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Iterator;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.JsonParser.NumberTypeFP;
 import tools.jackson.core.json.JsonFactory;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TestDelegates extends tools.jackson.core.BaseTest
+class TestDelegates extends JUnit5TestBase
 {
     static class POJO {
         public int x = 3;
@@ -115,7 +117,8 @@ public class TestDelegates extends tools.jackson.core.BaseTest
     /**
      * Test default, non-overridden parser delegate.
      */
-    public void testParserDelegate() throws IOException
+    @Test
+    void parserDelegate() throws IOException
     {
         final int MAX_NUMBER_LEN = 200;
         StreamReadConstraints CUSTOM_CONSTRAINTS = StreamReadConstraints.builder()
@@ -224,7 +227,8 @@ public class TestDelegates extends tools.jackson.core.BaseTest
     /**
      * Test default, non-overridden generator delegate.
      */
-    public void testGeneratorDelegate() throws IOException
+    @Test
+    void generatorDelegate() throws IOException
     {
         final String TOKEN ="foo";
 
@@ -280,7 +284,8 @@ public class TestDelegates extends tools.jackson.core.BaseTest
         g0.close();
     }
 
-    public void testGeneratorDelegateArrays() throws IOException
+    @Test
+    void generatorDelegateArrays() throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -301,7 +306,8 @@ public class TestDelegates extends tools.jackson.core.BaseTest
         g0.close();
     }
 
-    public void testGeneratorDelegateComments() throws IOException
+    @Test
+    void generatorDelegateComments() throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -325,7 +331,8 @@ public class TestDelegates extends tools.jackson.core.BaseTest
         g0.close();
     }
 
-    public void testDelegateCopyMethods() throws IOException
+    @Test
+    void delegateCopyMethods() throws IOException
     {
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "[123,[true,false]]");
         StringWriter sw = new StringWriter();
@@ -348,7 +355,8 @@ public class TestDelegates extends tools.jackson.core.BaseTest
         assertEquals("[123,false]", sw.toString());
     }
 
-    public void testNotDelegateCopyMethods() throws IOException
+    @Test
+    void notDelegateCopyMethods() throws IOException
     {
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");
         StringWriter sw = new StringWriter();

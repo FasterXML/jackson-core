@@ -7,16 +7,15 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.json.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests to verify functioning of {@link Version} class.
  */
-public class ComponentVersionsTest
+class ComponentVersionsTest
     extends JUnit5TestBase
 {
     @Test
-    public void testCoreVersions() throws Exception
+    void coreVersions() throws Exception
     {
         final JsonFactory f = new JsonFactory();
         assertVersion(f.version());
@@ -31,11 +30,11 @@ public class ComponentVersionsTest
     }
 
     @Test
-    public void testEquality() {
+    void equality() {
         Version unk = Version.unknownVersion();
         assertEquals("0.0.0", unk.toString());
         assertEquals("//0.0.0", unk.toFullString());
-        assertTrue(unk.equals(unk));
+        assertEquals(unk, unk);
 
         Version other = new Version(2, 8, 4, "",
                 "groupId", "artifactId");
@@ -48,7 +47,7 @@ public class ComponentVersionsTest
     }
 
     @Test
-    public void testMisc() {
+    void misc() {
         Version unk = Version.unknownVersion();
         int hash = unk.hashCode();
         // Happens to be 0 at this point (Jackson 2.16)

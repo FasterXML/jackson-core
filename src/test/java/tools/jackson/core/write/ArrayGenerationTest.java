@@ -7,10 +7,15 @@ import java.util.Random;
 
 import tools.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * Basic testing for scalar-array write methods added in 2.8.
  */
-public class ArrayGenerationTest extends BaseTest
+class ArrayGenerationTest extends JUnit5TestBase
 {
     private final TokenStreamFactory FACTORY = newStreamFactory();
 
@@ -18,25 +23,29 @@ public class ArrayGenerationTest extends BaseTest
         return FACTORY;
     }
 
-    public void testIntArray() throws Exception
+    @Test
+    void intArray() throws Exception
     {
         _testIntArray(false);
         _testIntArray(true);
     }
 
-    public void testLongArray() throws Exception
+    @Test
+    void longArray() throws Exception
     {
         _testLongArray(false);
         _testLongArray(true);
     }
 
-    public void testDoubleArray() throws Exception
+    @Test
+    void doubleArray() throws Exception
     {
         _testDoubleArray(false);
         _testDoubleArray(true);
     }
 
-    public void testStringArray() throws Exception
+    @Test
+    void stringArray() throws Exception
     {
         _testStringArray(false);
         _testStringArray(true);

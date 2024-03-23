@@ -4,17 +4,22 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.SerializableString;
 import tools.jackson.core.io.SerializedString;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Simple unit tests to try to verify that the default
  * {@link SerializableString} implementation works as expected.
  */
-public class TestSerializedString
-    extends tools.jackson.core.BaseTest
+class TestSerializedString
+    extends tools.jackson.core.JUnit5TestBase
 {
-    public void testAppending() throws IOException
+    @Test
+    void appending() throws IOException
     {
         final String INPUT = "\"quo\\ted\"";
         final String QUOTED = "\\\"quo\\\\ted\\\"";
@@ -39,7 +44,8 @@ public class TestSerializedString
         assertEquals(INPUT, new String(buffer, 5, INPUT.length()));
     }
 
-    public void testFailedAccess() throws IOException
+    @Test
+    void failedAccess() throws IOException
     {
         final String INPUT = "Bit longer text";
         SerializableString sstr = new SerializedString(INPUT);

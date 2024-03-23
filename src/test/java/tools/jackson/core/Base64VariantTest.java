@@ -5,16 +5,16 @@ import org.junit.Test;
 import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.ByteArrayBuilder;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for class {@link Base64Variant}.
  *
- * @date 2017-09-18
  * @see Base64Variant
  **/
 @SuppressWarnings("resource")
-public class Base64VariantTest extends BaseTest {
+public class Base64VariantTest extends JUnit5TestBase
+{
     @Test
     public void testDecodeTaking2ArgumentsThrowsIllegalArgumentException() {
         Base64Variant base64Variant = new Base64Variant("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",

@@ -11,14 +11,14 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExceptionsTest
+class ExceptionsTest
     extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
     // For [core#10]
     @Test
-    public void testOriginalMesssage()
+    void originalMesssage()
     {
         final JsonLocation loc = new JsonLocation(null, -1L, 1, 1);
         StreamReadException exc = new StreamReadException(null, "Foobar", loc);
@@ -43,7 +43,7 @@ public class ExceptionsTest
 
     // [core#198]
     @Test
-    public void testAccessToParser() throws Exception
+    void accessToParser() throws Exception
     {
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "{}");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -59,7 +59,7 @@ public class ExceptionsTest
 
     // [core#198]
     @Test
-    public void testAccessToGenerator() throws Exception
+    void accessToGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
@@ -72,13 +72,13 @@ public class ExceptionsTest
 
     // [core#281]: new eof exception
     @Test
-    public void testEofExceptionsBytes() throws Exception {
+    void eofExceptionsBytes() throws Exception {
         _testEofExceptions(MODE_INPUT_STREAM);
     }
 
     // [core#281]: new eof exception
     @Test
-    public void testEofExceptionsChars() throws Exception {
+    void eofExceptionsChars() throws Exception {
         _testEofExceptions(MODE_READER);
     }
 
@@ -134,7 +134,7 @@ public class ExceptionsTest
     }
 
     @Test
-    public void testContentSnippetWithOffset() throws Exception
+    void contentSnippetWithOffset() throws Exception
     {
         final JsonFactory jsonF = streamFactoryBuilder()
                 .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)

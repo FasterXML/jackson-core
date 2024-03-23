@@ -5,12 +5,14 @@ import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Set of additional unit for verifying array parsing, specifically
  * edge cases.
  */
 public class ArrayParsingTest
-    extends tools.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
     public void testValidEmpty() throws Exception
     {

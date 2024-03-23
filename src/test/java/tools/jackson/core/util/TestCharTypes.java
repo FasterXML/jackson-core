@@ -1,11 +1,16 @@
 package tools.jackson.core.util;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.io.CharTypes;
 
-public class TestCharTypes
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestCharTypes
+    extends tools.jackson.core.JUnit5TestBase
 {
-    public void testQuoting()
+    @Test
+    void quoting()
     {
         StringBuilder sb = new StringBuilder();
         CharTypes.appendQuoted(sb, "\n");

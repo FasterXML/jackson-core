@@ -2,10 +2,14 @@ package tools.jackson.core.type;
 
 import java.util.List;
 
-import tools.jackson.core.BaseTest;
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.JUnit5TestBase;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Not much to test, but exercise to prevent code coverage tool from showing all red for package
-public class TypeReferenceTest extends BaseTest
+class TypeReferenceTest extends JUnit5TestBase
 {
     static class BogusResolvedType extends ResolvedType {
         private final boolean _refType;
@@ -118,7 +122,8 @@ public class TypeReferenceTest extends BaseTest
         }
     }
 
-    public void testSimple()
+    @Test
+    void simple()
     {
         TypeReference<?> ref = new TypeReference<List<String>>() { };
         assertNotNull(ref);
@@ -126,7 +131,8 @@ public class TypeReferenceTest extends BaseTest
     }
 
     @SuppressWarnings("rawtypes")
-    public void testInvalid()
+    @Test
+    void invalid()
     {
         try {
             Object ob = new TypeReference() { };
@@ -136,7 +142,8 @@ public class TypeReferenceTest extends BaseTest
         }
     }
 
-    public void testResolvedType() {
+    @Test
+    void resolvedType() {
         ResolvedType type1 = new BogusResolvedType(false);
         assertFalse(type1.isReferenceType());
         ResolvedType type2 = new BogusResolvedType(true);

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.filter.FilteringGeneratorDelegate;
@@ -13,15 +15,18 @@ import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.UTF8JsonGenerator;
 
-public class UTF8GeneratorTest extends BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class UTF8GeneratorTest extends JUnit5TestBase
 {
     private final TokenStreamFactory JSON_F = newStreamFactory();
 
     private final JsonFactory JSON_MAX_NESTING_1 = JsonFactory.builder()
             .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())
             .build();
-    
-    public void testUtf8Issue462() throws Exception
+
+    @Test
+    void utf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = testIOContext();
@@ -50,7 +55,8 @@ public class UTF8GeneratorTest extends BaseTest
         p.close();
     }
 
-    public void testNestingDepthWithSmallLimit() throws Exception
+    @Test
+    void nestingDepthWithSmallLimit() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(ObjectWriteContext.empty(), bytes)) {
@@ -64,7 +70,8 @@ public class UTF8GeneratorTest extends BaseTest
         }
     }
 
-    public void testNestingDepthWithSmallLimitNestedObject() throws Exception
+    @Test
+    void nestingDepthWithSmallLimitNestedObject() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (JsonGenerator gen = JSON_MAX_NESTING_1.createGenerator(ObjectWriteContext.empty(), bytes)) {
@@ -79,7 +86,8 @@ public class UTF8GeneratorTest extends BaseTest
     }
 
     // for [core#115]
-    public void testSurrogatesWithRaw() throws Exception
+    @Test
+    void surrogatesWithRaw() throws Exception
     {
         final String VALUE = q("\ud83d\ude0c");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -102,7 +110,8 @@ public class UTF8GeneratorTest extends BaseTest
         jp.close();
     }
 
-    public void testFilteringWithEscapedChars() throws Exception
+    @Test
+    void filteringWithEscapedChars() throws Exception
     {
         final String SAMPLE_WITH_QUOTES = "\b\t\f\n\r\"foo\"\u0000";
 

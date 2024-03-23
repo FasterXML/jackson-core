@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import tools.jackson.core.BaseTest;
+import tools.jackson.core.JUnit5TestBase;
 
-public class TextualNameHashTest extends BaseTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class TextualNameHashTest extends JUnit5TestBase
 {
     public void testSuffix1() {
         // 14-Nov-2017, tatu: Slightly optimized hashing with shifting, to reduce

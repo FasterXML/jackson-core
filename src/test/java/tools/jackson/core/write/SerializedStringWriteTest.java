@@ -3,11 +3,16 @@ package tools.jackson.core.write;
 import java.io.*;
 import java.util.Random;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 
-public class SerializedStringWriteTest
-    extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class SerializedStringWriteTest
+    extends JUnit5TestBase
 {
     final static String NAME_WITH_QUOTES = "\"name\"";
     final static String NAME_WITH_LATIN1 = "P\u00f6ll\u00f6";
@@ -20,7 +25,8 @@ public class SerializedStringWriteTest
     private final SerializedString quotedName = new SerializedString(NAME_WITH_QUOTES);
     private final SerializedString latin1Name = new SerializedString(NAME_WITH_LATIN1);
 
-    public void testSimpleNames() throws Exception
+    @Test
+    void simpleNames() throws Exception
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();
@@ -39,7 +45,8 @@ public class SerializedStringWriteTest
         _verifySimple(JSON_F.createParser(ObjectReadContext.empty(), jsonB));
     }
 
-    public void testSimpleValues() throws Exception
+    @Test
+    void simpleValues() throws Exception
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();

@@ -1,17 +1,16 @@
 package tools.jackson.core.read;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
+import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.Named;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class NextNameWithMatcherTest
-    extends tools.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -103,5 +102,17 @@ public class NextNameWithMatcherTest
         assertToken(JsonToken.END_OBJECT, p.currentToken());
 
         p.close();
+    }
+
+    static List<Named> namedFromStrings(Collection<String> input) {
+        ArrayList<Named> result = new ArrayList<>(input.size());
+        for (String str : input) {
+            result.add(Named.fromString(str));
+        }
+        return result;
+    }
+
+    static List<Named> namedFromStrings(String... input) {
+        return namedFromStrings(Arrays.asList(input));
     }
 }

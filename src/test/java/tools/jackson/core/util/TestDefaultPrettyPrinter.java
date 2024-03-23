@@ -3,17 +3,22 @@ package tools.jackson.core.util;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
+import org.assertj.core.api.ThrowingConsumer;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.util.Separators.Spacing;
 
-import org.assertj.core.api.ThrowingConsumer;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestDefaultPrettyPrinter extends BaseTest
+class TestDefaultPrettyPrinter extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testSystemLinefeed() throws Exception
+    @Test
+    void systemLinefeed() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter();
         String LF = System.getProperty("line.separator");
@@ -25,7 +30,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testWithLineFeed() throws Exception
+    @Test
+    void withLineFeed() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter().withLinefeed("\n"));
@@ -37,7 +43,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testWithIndent() throws Exception
+    @Test
+    void withIndent() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter().withLinefeed("\n").withIndent(" "));
@@ -49,7 +56,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testUnixLinefeed() throws Exception
+    @Test
+    void unixLinefeed() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
                 .withObjectIndenter(new DefaultIndenter("  ", "\n"));
@@ -61,7 +69,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testWindowsLinefeed() throws Exception
+    @Test
+    void windowsLinefeed() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter("  ", "\r\n"));
@@ -73,7 +82,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testTabIndent() throws Exception
+    @Test
+    void tabIndent() throws Exception
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
         .withObjectIndenter(new DefaultIndenter("\t", "\n"));
@@ -84,8 +94,9 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, false));
         assertEquals(EXP, _printTestData(pp, true));
     }
-    
-    public void testObjectNameValueSpacingAfter() throws Exception
+
+    @Test
+    void objectNameValueSpacingAfter() throws Exception
     {
         Separators separators = new Separators()
                 .withObjectNameValueSpacing(Spacing.AFTER);
@@ -99,8 +110,9 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, false));
         assertEquals(EXP, _printTestData(pp, true));
     }
-    
-    public void testObjectNameValueSpacingNone() throws Exception
+
+    @Test
+    void objectNameValueSpacingNone() throws Exception
     {
         Separators separators = new Separators()
                 .withObjectNameValueSpacing(Spacing.NONE);
@@ -115,7 +127,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true));
     }
 
-    public void testCopyConfigNew() throws Exception
+    @Test
+    void copyConfigNew() throws Exception
     {
         Separators separators = new Separators()
                 .withObjectNameValueSpacing(Spacing.AFTER)
@@ -132,7 +145,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(expected, _printTestData(copy, true));
     }
 
-    public void testRootSeparator() throws Exception
+    @Test
+    void rootSeparator() throws Exception
     {
         Separators separators = new Separators()
                 .withRootSeparator("|");
@@ -150,7 +164,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, _printTestData(pp, true, writeTestData));
     }
 
-    public void testWithoutSeparatorsNew() throws Exception
+    @Test
+    void withoutSeparatorsNew() throws Exception
     {
         Separators separators = new Separators()
                 .withRootSeparator(null)
@@ -174,7 +189,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals("1[2]{\"a\":3}", _printTestData(pp, false, writeTestData));
     }
 
-    public void testObjectEmptySeparatorDefault() throws Exception
+    @Test
+    void objectEmptySeparatorDefault() throws Exception
     {
         Separators separators = new Separators()
             .withRootSeparator(null)
@@ -195,7 +211,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals("{\"objectEmptySeparatorDefault\":{ }}", _printTestData(pp, false, writeTestData));
     }
 
-    public void testObjectEmptySeparatorCustom() throws Exception
+    @Test
+    void objectEmptySeparatorCustom() throws Exception
     {
         Separators separators = new Separators()
             .withRootSeparator(null)
@@ -218,7 +235,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
                 _printTestData(pp, false, writeTestData));
     }
 
-    public void testArrayEmptySeparatorDefault() throws Exception
+    @Test
+    void arrayEmptySeparatorDefault() throws Exception
     {
         Separators separators = new Separators()
             .withRootSeparator(null)
@@ -239,7 +257,8 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals("{\"arrayEmptySeparatorDefault\":[ ]}", _printTestData(pp, false, writeTestData));
     }
 
-    public void testArrayEmptySeparatorCustom() throws Exception
+    @Test
+    void arrayEmptySeparatorCustom() throws Exception
     {
         Separators separators = new Separators()
             .withRootSeparator(null)
@@ -302,8 +321,9 @@ public class TestDefaultPrettyPrinter extends BaseTest
         return sw.toString();
     }
 
-    // [core#502]: Force sub-classes to re-implement `createInstance`
-    public void testInvalidSubClass() throws Exception
+    // [core#502]: Force sub-classes to reimplement `createInstance`
+    @Test
+    void invalidSubClass() throws Exception
     {
         DefaultPrettyPrinter pp = new MyPrettyPrinter();
         try {

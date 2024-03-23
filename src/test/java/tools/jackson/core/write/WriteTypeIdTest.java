@@ -2,20 +2,22 @@ package tools.jackson.core.write;
 
 import java.io.StringWriter;
 
-import tools.jackson.core.BaseTest;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectWriteContext;
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.type.WritableTypeId;
 
-public class WriteTypeIdTest
-    extends BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class WriteTypeIdTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testNoNativeTypeIdForJson()
+    @Test
+    void noNativeTypeIdForJson() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw)) {
@@ -29,7 +31,8 @@ public class WriteTypeIdTest
         }
     }
 
-    public void testBasicTypeIdWriteForObject()
+    @Test
+    void basicTypeIdWriteForObject() throws Exception
     {
         final Object data = new Object();
 
@@ -87,7 +90,8 @@ public class WriteTypeIdTest
         assertEquals("{\"value\":{\"number\":42},\"extId\":\"typeId\"}", sw.toString());
     }
 
-    public void testBasicTypeIdWriteForArray()
+    @Test
+    void basicTypeIdWriteForArray() throws Exception
     {
         final Object data = new Object();
 

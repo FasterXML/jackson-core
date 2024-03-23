@@ -2,10 +2,13 @@ package tools.jackson.core;
 
 import tools.jackson.core.io.ContentReference;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for class {@link ErrorReportConfiguration#getMaxRawContentLength()}.
  */
-public class ErrorReportConfigurationMaxRawContentLengthTest extends BaseTest
+public class ErrorReportConfigurationMaxRawContentLengthTest
+    extends JUnit5TestBase
 {
     /*
     /**********************************************************

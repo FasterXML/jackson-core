@@ -1,22 +1,26 @@
 package tools.jackson.core.write;
 
-
 import java.io.*;
+
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Set of basic unit tests for verifying that copy-through methods
  * of {@link JsonGenerator} work as expected.
  */
-public class GeneratorCopyTest
-    extends BaseTest
+class GeneratorCopyTest
+    extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testCopyRootTokens()
-        throws IOException
+    @Test
+    void copyRootTokens()
+            throws IOException
     {
         JsonFactory jf = JSON_F;
         final String DOC = "\"text\\non two lines\" true false 2.0 null 1234567890123 ";
@@ -37,8 +41,9 @@ public class GeneratorCopyTest
         assertEquals("\"text\\non two lines\" true false 2.0 null 1234567890123", sw.toString());
     }
 
-    public void testCopyArrayTokens()
-        throws IOException
+    @Test
+    void copyArrayTokens()
+            throws IOException
     {
         JsonFactory jf = JSON_F;
         final String DOC = "123 [ 1, null, [ false, 1234567890124 ] ]";
@@ -63,8 +68,9 @@ public class GeneratorCopyTest
         assertEquals("123 [1,null,[false,1234567890124]]", sw.toString());
     }
 
-    public void testCopyObjectTokens()
-        throws IOException
+    @Test
+    void copyObjectTokens()
+            throws IOException
     {
         JsonFactory jf = JSON_F;
         final String DOC = "{ \"a\":1, \"b\":[{ \"c\" : null, \"d\" : 0.25 }] }";

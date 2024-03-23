@@ -1,13 +1,11 @@
 package tools.jackson.core.base;
 
-import java.io.DataInput;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.IOContext;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // Bit different "test" class, used to check that intermediate base types
 // (textual, binary format bases) are complete enough. This is not done
@@ -15,7 +13,7 @@ import tools.jackson.core.io.IOContext;
 //
 // In future might add some actual tests too
 @SuppressWarnings("serial")
-public class FactoryBaseImplsTest extends BaseTest
+class FactoryBaseImplsTest extends JUnit5TestBase
 {
     static class ToyBinaryFormatFactory
         extends BinaryTSFactory

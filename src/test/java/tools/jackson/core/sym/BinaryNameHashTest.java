@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import tools.jackson.core.BaseTest;
+import tools.jackson.core.JUnit5TestBase;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Specific tests that try to verify proper hashing goodness
-public class BinaryNameHashTest extends BaseTest
+public class BinaryNameHashTest extends JUnit5TestBase
 {
     public void testSuffix1() {
         // 14-Nov-2017, tatu: Slightly optimized hashing with shifting, to reduce
@@ -70,10 +72,10 @@ public class BinaryNameHashTest extends BaseTest
         BinaryNameMatcher quads = _construct(names);
         assertEquals(names.size(), quads.totalCount());
 
-        assertEquals("Primary count not matching", prim, quads.primaryQuadCount());
-        assertEquals("Secondary count not matching", sec, quads.secondaryQuadCount());
-        assertEquals("Tertiary count not matching", ter, quads.tertiaryQuadCount());
-        assertEquals("Spill count not matching", expSpills, quads.spilloverQuadCount());
+        assertEquals(prim, quads.primaryQuadCount(), "Primary count not matching");
+        assertEquals(sec, quads.secondaryQuadCount(), "Secondary count not matching");
+        assertEquals(ter, quads.tertiaryQuadCount(), "Tertiary count not matching");
+        assertEquals(expSpills, quads.spilloverQuadCount(), "Spill count not matching");
     }
 
     private List<String> generate(String base, int count) {

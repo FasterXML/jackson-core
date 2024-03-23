@@ -3,11 +3,11 @@ package tools.jackson.core.json;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.*;
 
-public class TestParserOverrides extends tools.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ParserOverridesTest extends JUnit5TestBase
 {
     /*
     /**********************************************************

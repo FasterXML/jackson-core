@@ -5,12 +5,14 @@ import java.io.*;
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for verifying that object mapping functionality can
  * be accessed using JsonParser.
  */
 public class ParserWithObjectsTest
-    extends tools.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
     /*
     /**********************************************************

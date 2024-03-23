@@ -2,22 +2,24 @@ package tools.jackson.core.write;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.util.DefaultIndenter;
-import tools.jackson.core.util.DefaultPrettyPrinter;
-import tools.jackson.core.util.MinimalPrettyPrinter;
-import tools.jackson.core.util.Separators;
+import tools.jackson.core.util.*;
 import tools.jackson.core.util.Separators.Spacing;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Set of basic unit tests for verifying that indenting
  * option of generator works correctly
  */
 @SuppressWarnings("serial")
-public class PrettyPrinterTest
-    extends tools.jackson.core.BaseTest
+class PrettyPrinterTest
+    extends JUnit5TestBase
 {
     static class CountPrinter extends MinimalPrettyPrinter
     {
@@ -42,7 +44,8 @@ public class PrettyPrinterTest
 
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testObjectCount() throws Exception
+    @Test
+    void objectCount() throws Exception
     {
         final String EXP = "{\"x\":{\"a\":1,\"b\":2(2)}(1)}";
 
@@ -72,7 +75,8 @@ public class PrettyPrinterTest
         }
     }
 
-    public void testArrayCount() throws Exception
+    @Test
+    void arrayCount() throws Exception
     {
         final String EXP = "[6,[1,2,9(3)](2)]";
 
@@ -103,7 +107,8 @@ public class PrettyPrinterTest
     }
 
     @SuppressWarnings("resource")
-    public void testSimpleDocWithMinimal() throws Exception
+    @Test
+    void simpleDocWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
         // first with standard minimal
@@ -140,20 +145,23 @@ public class PrettyPrinterTest
     }
 
     // [core#26]
-    public void testRootSeparatorWithoutPP() throws Exception
+    @Test
+    void rootSeparatorWithoutPP() throws Exception
     {
         // no pretty-printing (will still separate root values with a space!)
         assertEquals("{} {} []", _generateRoot(JSON_F, null));
     }
-    
+
     // [core#26]
-    public void testDefaultRootSeparatorWithPP() throws Exception
+    @Test
+    void defaultRootSeparatorWithPP() throws Exception
     {
         assertEquals("{ } { } [ ]", _generateRoot(JSON_F, new DefaultPrettyPrinter()));
     }
 
     // [core#26]
-    public void testCustomRootSeparatorWithPPNew() throws Exception
+    @Test
+    void customRootSeparatorWithPPNew() throws Exception
     {
         Separators separators = Separators.createDefaultInstance()
                 .withRootSeparator("|");
@@ -162,7 +170,8 @@ public class PrettyPrinterTest
     }
 
     // Alternative solution for [jackson-core#26]
-    public void testCustomRootSeparatorWithFactory() throws Exception
+    @Test
+    void customRootSeparatorWithFactory() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .rootValueSeparator("##")
@@ -176,7 +185,8 @@ public class PrettyPrinterTest
         assertEquals("13##false##null", sw.toString());
     }
 
-    public void testCustomSeparatorsWithMinimal() throws Exception
+    @Test
+    void customSeparatorsWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
         ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
@@ -202,7 +212,8 @@ public class PrettyPrinterTest
         assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", bytes.toString("UTF-8"));
     }
 
-    public void testCustomSeparatorsWithPP() throws Exception
+    @Test
+    void customSeparatorsWithPP() throws Exception
     {
         StringWriter sw = new StringWriter();
         ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
@@ -229,8 +240,9 @@ public class PrettyPrinterTest
             "  \"f\"=null;" + DefaultIndenter.SYS_LF +
             "  \"f2\"=null" + DefaultIndenter.SYS_LF +
             "} ]";
-    
-    public void testCustomSeparatorsWithPPWithoutSpacesNew() throws Exception
+
+    @Test
+    void customSeparatorsWithPPWithoutSpacesNew() throws Exception
     {
         final Separators separators = Separators.createDefaultInstance()
                 .withObjectNameValueSeparator('=')

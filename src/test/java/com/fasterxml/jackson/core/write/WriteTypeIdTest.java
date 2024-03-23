@@ -2,19 +2,20 @@ package com.fasterxml.jackson.core.write;
 
 import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 
-public class WriteTypeIdTest
-    extends BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class WriteTypeIdTest
+        extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testNoNativeTypeIdForJson() throws Exception
+    @Test
+    void noNativeTypeIdForJson() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
@@ -28,7 +29,8 @@ public class WriteTypeIdTest
         gen.close();
     }
 
-    public void testBasicTypeIdWriteForObject() throws Exception
+    @Test
+    void basicTypeIdWriteForObject() throws Exception
     {
         final Object data = new Object();
 
@@ -86,7 +88,8 @@ public class WriteTypeIdTest
         assertEquals("{\"value\":{\"number\":42},\"extId\":\"typeId\"}", sw.toString());
     }
 
-    public void testBasicTypeIdWriteForArray() throws Exception
+    @Test
+    void basicTypeIdWriteForArray() throws Exception
     {
         final Object data = new Object();
 

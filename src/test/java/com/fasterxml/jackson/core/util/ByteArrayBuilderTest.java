@@ -2,19 +2,22 @@ package com.fasterxml.jackson.core.util;
 
 import java.nio.charset.StandardCharsets;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.IOContext;
 
-public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class ByteArrayBuilderTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testSimple() throws Exception
+    @Test
+    void simple() throws Exception
     {
         ByteArrayBuilder b = new ByteArrayBuilder(null, 20);
-        Assert.assertArrayEquals(new byte[0], b.toByteArray());
+        assertArrayEquals(new byte[0], b.toByteArray());
 
         b.write((byte) 0);
         b.append(1);
@@ -36,7 +39,8 @@ public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
-    public void testBufferRecyclerReuse() throws Exception
+    @Test
+    void bufferRecyclerReuse() throws Exception
     {
         JsonFactory f = new JsonFactory();
         BufferRecycler br = new BufferRecycler()

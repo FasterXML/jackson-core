@@ -3,10 +3,14 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 
-public class BoundsChecksWithGeneratorTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+class BoundsChecksWithGeneratorTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final static JsonFactory JSON_F = new JsonFactory();
 
@@ -69,11 +73,13 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
-    public void testBoundsWithByteArrayInputFromBytes() throws Exception {
+    @Test
+    void boundsWithByteArrayInputFromBytes() throws Exception {
         _testBoundsWithByteArrayInput(BYTE_GENERATOR_CREATOR, true);
     }
 
-    public void testBoundsWithByteArrayInputFromChars() throws Exception {
+    @Test
+    void boundsWithByteArrayInputFromChars() throws Exception {
         _testBoundsWithByteArrayInput(CHAR_GENERATOR_CREATOR, false);
     }
 
@@ -151,11 +157,13 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
-    public void testBoundsWithCharArrayInputFromBytes() throws Exception {
+    @Test
+    void boundsWithCharArrayInputFromBytes() throws Exception {
         _testBoundsWithCharArrayInput(BYTE_GENERATOR_CREATOR);
     }
 
-    public void testBoundsWithCharArrayInputFromChars() throws Exception {
+    @Test
+    void boundsWithCharArrayInputFromChars() throws Exception {
         _testBoundsWithCharArrayInput(CHAR_GENERATOR_CREATOR);
     }
 
@@ -221,11 +229,13 @@ public class BoundsChecksWithGeneratorTest
         }
     };
 
-    public void testBoundsWithStringInputFromBytes() throws Exception {
+    @Test
+    void boundsWithStringInputFromBytes() throws Exception {
         _testBoundsWithStringInput(BYTE_GENERATOR_CREATOR);
     }
 
-    public void testBoundsWithStringInputFromChar() throws Exception {
+    @Test
+    void boundsWithStringInputFromChar() throws Exception {
         _testBoundsWithStringInput(CHAR_GENERATOR_CREATOR);
     }
 

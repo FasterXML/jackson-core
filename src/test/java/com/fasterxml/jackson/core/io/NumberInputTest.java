@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NumberInputTest
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @Test
     void nastySmallDouble()

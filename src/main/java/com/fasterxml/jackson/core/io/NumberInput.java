@@ -581,7 +581,7 @@ public final class NumberInput
      * @since 2.17
      */
     public static boolean looksLikeValidNumber(final String s) {
-        // the PATTERN_FLOAT match returns true for empty strings, so we need to check for digits separately
+        // While PATTERN_FLOAT handles most cases we can optimize some simple ones:
         if (s == null || s.isEmpty()) {
             return false;
         }

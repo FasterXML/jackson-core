@@ -14,6 +14,11 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.17.1 (not yet released)
+
+#1241: Fix `NumberInput.looksLikeValidNumber()` implementation
+ (contributed by @pjfanning)
+
 2.17.0 (12-Mar-2024)
 
 #507: Add `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` to allow escaping of '/' for

@@ -39,7 +39,7 @@ public final class NumberInput
      * @since 2.17
      */
     private final static Pattern PATTERN_FLOAT = Pattern.compile(
-          "[+-]?([0-9]+)?(\\.[0-9]+)?([eE][+-]?[0-9]+)?");
+          "[+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?");
 
     /**
      * Fast method for parsing unsigned integers that are known to fit into
@@ -570,6 +570,9 @@ public final class NumberInput
      *<p>
      * Note: no trimming ({@code String.trim()}) nor null checks are performed
      * on String passed.
+     *<p>
+     * Note: this method returning {@code true} DOES NOT GUARANTEE String is valid
+     * number but just that it looks close enough.
      *
      * @param s String to validate
      *
@@ -579,6 +582,13 @@ public final class NumberInput
      */
     public static boolean looksLikeValidNumber(final String s) {
         // the PATTERN_FLOAT match returns true for empty strings, so we need to check for digits separately
-        return s != null && PATTERN_FLOAT.matcher(s).matches() && s.chars().anyMatch(Character::isDigit);
+        if (s == null || s.isEmpty()) {
+            return false;
+        }
+        if (s.length() == 1) {
+            char c = s.charAt(0);
+            return (c <= '9') && (c >= '0');
+        }
+        return PATTERN_FLOAT.matcher(s).matches();
     }
 }

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Intended replacement for {@link BaseTest}
+ * Replacement of JUnit4-based {@code BaseTest}
  */
 public class JUnit5TestBase
 {

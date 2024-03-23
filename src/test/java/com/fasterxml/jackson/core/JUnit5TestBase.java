@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.testsupport.TestSupport;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 import com.fasterxml.jackson.core.testsupport.ThrottledReader;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

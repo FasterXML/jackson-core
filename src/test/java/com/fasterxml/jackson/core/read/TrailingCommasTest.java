@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("resource")
 public class TrailingCommasTest extends JUnit5TestBase {
 
-    private JsonFactory factory;
-    private Set<JsonReadFeature> features;
-    private int mode;
+    JsonFactory factory;
+    Set<JsonReadFeature> features;
+    int mode;
 
     public void initTrailingCommasTest(int mode, List<JsonReadFeature> features) {
       this.features = new HashSet<>(features);

@@ -5,14 +5,19 @@ import java.io.InputStream;
 
 import com.fasterxml.jackson.core.JsonFactory;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for class {@link DataFormatMatcher}.
  */
-public class DataFormatMatcherTest extends com.fasterxml.jackson.core.BaseTest
+class DataFormatMatcherTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-  public void testGetDataStream() throws IOException {
+    @Test
+    void getDataStream() throws IOException {
     byte[] byteArray = new byte[2];
     MatchStrength matchStrength = MatchStrength.WEAK_MATCH;
     DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
@@ -26,7 +31,8 @@ public class DataFormatMatcherTest extends com.fasterxml.jackson.core.BaseTest
     inputStream.close();
   }
 
-  public void testCreatesDataFormatMatcherTwo() throws IOException {
+    @Test
+    void createsDataFormatMatcherTwo() throws IOException {
     try {
         @SuppressWarnings("unused")
         DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
@@ -37,7 +43,8 @@ public class DataFormatMatcherTest extends com.fasterxml.jackson.core.BaseTest
     }
   }
 
-  public void testGetMatchedFormatNameReturnsNameWhenMatches() {
+    @Test
+    void getMatchedFormatNameReturnsNameWhenMatches() {
       DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
               new byte[2],
               1,
@@ -47,7 +54,8 @@ public class DataFormatMatcherTest extends com.fasterxml.jackson.core.BaseTest
       assertEquals(JsonFactory.FORMAT_NAME_JSON, dataFormatMatcher.getMatchedFormatName());
   }
 
-  public void testDetectorConfiguration() {
+    @Test
+    void detectorConfiguration() {
       DataFormatDetector df0 = new DataFormatDetector(JSON_F);
 
       // Defaults are: SOLID for optimal, WEAK for minimum, so:

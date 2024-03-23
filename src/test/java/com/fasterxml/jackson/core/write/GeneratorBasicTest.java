@@ -3,21 +3,27 @@ package com.fasterxml.jackson.core.write;
 import com.fasterxml.jackson.core.*;
 
 import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests for verifying that the basic generator
  * functionality works as expected.
  */
 public class GeneratorBasicTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
     // // // First, tests for primitive (non-structured) values
 
-    public void testStringWrite() throws Exception
+    @Test
+    void stringWrite() throws Exception
     {
         String[] inputStrings = new String[] { "", "X", "1234567890" };
         for (int useReader = 0; useReader < 2; ++useReader) {
@@ -45,17 +51,18 @@ public class GeneratorBasicTest
                     JsonParser jp = JSON_F.createParser(new ByteArrayInputStream(bout.toByteArray()));
 
                     JsonToken t = jp.nextToken();
-                    assertNotNull("Document \""+utf8String(bout)+"\" yielded no tokens", t);
+                    assertNotNull(t, "Document \""+utf8String(bout)+"\" yielded no tokens");
                     assertEquals(JsonToken.VALUE_STRING, t);
                     assertEquals(input, jp.getText());
-                    assertEquals(null, jp.nextToken());
+                    assertNull(jp.nextToken());
                     jp.close();
                 }
             }
         }
     }
 
-    public void testIntValueWrite() throws Exception
+    @Test
+    void intValueWrite() throws Exception
     {
         // char[]
         doTestIntValueWrite(false, false);
@@ -65,7 +72,8 @@ public class GeneratorBasicTest
         doTestIntValueWrite(true, true);
     }
 
-    public void testLongValueWrite() throws Exception
+    @Test
+    void longValueWrite() throws Exception
     {
         // char[]
         doTestLongValueWrite(false, false);
@@ -75,7 +83,8 @@ public class GeneratorBasicTest
         doTestLongValueWrite(true, true);
     }
 
-    public void testBooleanWrite() throws Exception
+    @Test
+    void booleanWrite() throws Exception
     {
         for (int i = 0; i < 4; ++i) {
             boolean state = (i & 1) == 0;
@@ -95,13 +104,14 @@ public class GeneratorBasicTest
                 fail("Expected '"+exp+"', got '"+jp.getText());
             }
             assertEquals(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE, t);
-            assertEquals(null, jp.nextToken());
+            assertNull(jp.nextToken());
             jp.close();
         }
     }
 
-    public void testNullWrite()
-        throws Exception
+    @Test
+    void nullWrite()
+            throws Exception
     {
         for (int i = 0; i < 2; ++i) {
             boolean pad = (i & 1) == 0;
@@ -120,14 +130,15 @@ public class GeneratorBasicTest
                 fail("Expected '"+exp+"', got '"+jp.getText());
             }
             assertEquals(JsonToken.VALUE_NULL, t);
-            assertEquals(null, jp.nextToken());
+            assertNull(jp.nextToken());
             jp.close();
         }
     }
 
     // // Then root-level output testing
 
-    public void testRootIntsWrite() throws Exception {
+    @Test
+    void rootIntsWrite() throws Exception {
         _testRootIntsWrite(false);
         _testRootIntsWrite(true);
     }
@@ -167,7 +178,8 @@ public class GeneratorBasicTest
 
     // Convenience methods
 
-    public void testFieldValueWrites() throws Exception {
+    @Test
+    void fieldValueWrites() throws Exception {
         _testFieldValueWrites(false);
         _testFieldValueWrites(true);
     }
@@ -204,7 +216,8 @@ public class GeneratorBasicTest
     /**
      * Test to verify that output context actually contains useful information
      */
-    public void testOutputContext() throws Exception
+    @Test
+    void outputContext() throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
@@ -272,7 +285,8 @@ public class GeneratorBasicTest
         gen.close();
     }
 
-    public void testGetOutputTarget() throws Exception
+    @Test
+    void getOutputTarget() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
         JsonGenerator gen = JSON_F.createGenerator(out);
@@ -286,7 +300,8 @@ public class GeneratorBasicTest
     }
 
     // for [core#195]
-    public void testGetOutputBufferd() throws Exception
+    @Test
+    void getOutputBufferd() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
         JsonGenerator gen = JSON_F.createGenerator(out);
@@ -361,7 +376,7 @@ public class GeneratorBasicTest
             } catch (IOException e) {
                 fail("Problem with value "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
-            assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
+            assertNotNull(t, "Document \""+docStr+"\" yielded no tokens");
             // Number are always available as lexical representation too
             String exp = ""+VALUE;
             if (!exp.equals(p.getText())) {
@@ -369,7 +384,7 @@ public class GeneratorBasicTest
             }
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
             assertEquals(VALUE, p.getIntValue());
-            assertEquals(null, p.nextToken());
+            assertNull(p.nextToken());
             p.close();
         }
     }
@@ -417,14 +432,14 @@ public class GeneratorBasicTest
             } catch (IOException e) {
                 fail("Problem with number "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
-            assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
+            assertNotNull(t, "Document \""+docStr+"\" yielded no tokens");
             String exp = ""+VALUE;
             if (!exp.equals(p.getText())) {
                 fail("Expected '"+exp+"', got '"+p.getText());
             }
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
             assertEquals(VALUE, p.getLongValue());
-            assertEquals(null, p.nextToken());
+            assertNull(p.nextToken());
             p.close();
         }
     }

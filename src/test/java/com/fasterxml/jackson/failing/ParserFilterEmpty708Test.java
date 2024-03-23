@@ -1,16 +1,16 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.TokenStreamFactory;
+import com.fasterxml.jackson.core.*;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 // for [core#708]
-public class ParserFilterEmpty708Test extends BaseTest
+class ParserFilterEmpty708Test extends JUnit5TestBase
 {
     // Could actually just return basic TokenFilter but...
     static class IncludeAllFilter extends TokenFilter {
@@ -29,7 +29,8 @@ public class ParserFilterEmpty708Test extends BaseTest
     private final JsonFactory JSON_F = newStreamFactory();
 
     // [core#708]
-    public void testEmptyArray() throws Exception
+    @Test
+    void emptyArray() throws Exception
     {
         final String json = "[ ]";
         // should become: {"value":12}
@@ -47,7 +48,8 @@ public class ParserFilterEmpty708Test extends BaseTest
     }
 
     // [core#708]
-    public void testEmptyObject() throws Exception
+    @Test
+    void emptyObject() throws Exception
     {
         final String json = "{ }";
         // should become: {"value":12}

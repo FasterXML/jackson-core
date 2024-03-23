@@ -8,18 +8,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class FilteringOnAsyncInfiniteLoop1144Test
+class FilteringOnAsyncInfiniteLoop1144Test
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -28,7 +29,7 @@ public class FilteringOnAsyncInfiniteLoop1144Test
 
     // Just to show expected filtering behavior with blocking alternative
     @Test
-    public void testFilteringBlockingParser() throws Exception
+    void filteringBlockingParser() throws Exception
     {
         try (JsonParser p = JSON_F.createParser(DOC)) {
             try (JsonParser fp = new FilteringParserDelegate(p,
@@ -44,7 +45,7 @@ public class FilteringOnAsyncInfiniteLoop1144Test
     // And here's reproduction of infinite loop
     @SuppressWarnings("resource")
     @Test
-    public void testFilteringNonBlockingParser() throws Exception
+    void filteringNonBlockingParser() throws Exception
     {
         JsonParser nonBlockingParser = JSON_F.createNonBlockingByteArrayParser();
         ByteArrayFeeder inputFeeder = (ByteArrayFeeder) nonBlockingParser.getNonBlockingInputFeeder();

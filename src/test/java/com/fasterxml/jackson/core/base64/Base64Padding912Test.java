@@ -7,26 +7,26 @@ import com.fasterxml.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class Base64Padding912Test
-    extends JUnit5TestBase
+class Base64Padding912Test
+        extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
     @Test
-    public void testPaddingUsingInputStream() throws Exception
+    void paddingUsingInputStream() throws Exception
     {
         _testPadding(MODE_INPUT_STREAM);
         _testPadding(MODE_INPUT_STREAM_THROTTLED);
     }
 
     @Test
-    public void testPaddingUsingReader() throws Exception
+    void paddingUsingReader() throws Exception
     {
         _testPadding(MODE_READER);
     }
 
     @Test
-    public void testPaddingUsingDataInput() throws Exception
+    void paddingUsingDataInput() throws Exception
     {
         _testPadding(MODE_DATA_INPUT);
     }

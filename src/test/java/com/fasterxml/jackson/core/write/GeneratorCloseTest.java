@@ -6,6 +6,10 @@ import com.fasterxml.jackson.core.testsupport.StringWriterForTesting;
 
 import java.io.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Set of basic unit tests that verify aspect of closing a
  * {@link JsonGenerator} instance. This includes both closing
@@ -18,7 +22,7 @@ import java.io.*;
  * <code>JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT</code>
  * are tested.
  */
-public class GeneratorCloseTest extends BaseTest
+class GeneratorCloseTest extends JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -31,7 +35,8 @@ public class GeneratorCloseTest extends BaseTest
      * automatic closing should occur, nor explicit one unless specific
      * forcing method is used.
      */
-    public void testNoAutoCloseGenerator() throws Exception
+    @Test
+    void noAutoCloseGenerator() throws Exception
     {
         JsonFactory f = new JsonFactory();
 
@@ -52,7 +57,8 @@ public class GeneratorCloseTest extends BaseTest
         assertFalse(output.isClosed());
     }
 
-    public void testCloseGenerator() throws Exception
+    @Test
+    void closeGenerator() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.enable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
@@ -68,7 +74,8 @@ public class GeneratorCloseTest extends BaseTest
         assertTrue(output.isClosed());
     }
 
-    public void testNoAutoCloseOutputStream() throws Exception
+    @Test
+    void noAutoCloseOutputStream() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
@@ -82,8 +89,9 @@ public class GeneratorCloseTest extends BaseTest
         assertFalse(output.isClosed());
     }
 
-    public void testAutoCloseArraysAndObjects()
-        throws Exception
+    @Test
+    void autoCloseArraysAndObjects()
+            throws Exception
     {
         JsonFactory f = new JsonFactory();
         // let's verify default setting, first:
@@ -104,8 +112,9 @@ public class GeneratorCloseTest extends BaseTest
         assertEquals("{}", sw.toString());
     }
 
-    public void testNoAutoCloseArraysAndObjects()
-        throws Exception
+    @Test
+    void noAutoCloseArraysAndObjects()
+            throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .disable(StreamWriteFeature.AUTO_CLOSE_CONTENT)
@@ -126,7 +135,8 @@ public class GeneratorCloseTest extends BaseTest
     }
 
     @SuppressWarnings("resource")
-    public void testAutoFlushOrNot() throws Exception
+    @Test
+    void autoFlushOrNot() throws Exception
     {
         JsonFactory f = new JsonFactory();
         assertTrue(f.isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM));

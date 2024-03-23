@@ -1,18 +1,23 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that additional <code>JsonParser.Feature</code>
  * settings work as expected.
  */
-public class ParserFeaturesTest
-    extends com.fasterxml.jackson.core.BaseTest
+class ParserFeaturesTest
+        extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testDefaultSettings() throws Exception
+    @Test
+    void defaultSettings() throws Exception
     {
         assertTrue(JSON_F.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
 
@@ -22,7 +27,8 @@ public class ParserFeaturesTest
     }
 
     @SuppressWarnings("deprecation")
-    public void testDeprecatedDefaultSettings() throws Exception
+    @Test
+    void deprecatedDefaultSettings() throws Exception
     {
         assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS));
@@ -30,19 +36,22 @@ public class ParserFeaturesTest
         assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_SINGLE_QUOTES));
     }
 
-    public void testQuotesRequired() throws Exception
+    @Test
+    void quotesRequired() throws Exception
     {
         _testQuotesRequired(false);
         _testQuotesRequired(true);
     }
 
-    public void testTabsDefault() throws Exception
+    @Test
+    void tabsDefault() throws Exception
     {
         _testTabsDefault(false);
         _testTabsDefault(true);
     }
 
-    public void testTabsEnabled() throws Exception
+    @Test
+    void tabsEnabled() throws Exception
     {
         _testTabsEnabled(false);
         _testTabsEnabled(true);

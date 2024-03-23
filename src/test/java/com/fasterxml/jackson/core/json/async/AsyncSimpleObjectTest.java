@@ -5,11 +5,15 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncSimpleObjectTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class AsyncSimpleObjectTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -23,7 +27,8 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
 
     private final static String UNICODE_LONG_NAME = "Unicode-with-"+UNICODE_3BYTES+"-much-longer";
 
-    public void testBooleans() throws IOException
+    @Test
+    void booleans() throws IOException
     {
         final JsonFactory f = JSON_F;
         byte[] data = _jsonDoc(a2q(
@@ -107,7 +112,8 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     private final double NUMBER_EXP_D = 1024798.125;
     private final BigDecimal NUMBER_EXP_BD = new BigDecimal("1243565768679065.1247305834");
 
-    public void testNumbers() throws IOException
+    @Test
+    void numbers() throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;

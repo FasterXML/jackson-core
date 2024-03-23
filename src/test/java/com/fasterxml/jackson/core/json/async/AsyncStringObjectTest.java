@@ -3,10 +3,14 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncStringObjectTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class AsyncStringObjectTest extends AsyncTestBase
 {
     private final static String STR0_9 = "0123456789";
     private final static String ASCII_SHORT_NAME = "a"+STR0_9+"z";
@@ -17,7 +21,8 @@ public class AsyncStringObjectTest extends AsyncTestBase
 
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testBasicFieldsNames() throws IOException
+    @Test
+    void basicFieldsNames() throws IOException
     {
         final String json = a2q(String.format("{'%s':'%s','%s':'%s','%s':'%s'}",
             UNICODE_SHORT_NAME, UNICODE_LONG_NAME,

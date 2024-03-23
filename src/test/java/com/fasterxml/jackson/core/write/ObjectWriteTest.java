@@ -3,15 +3,20 @@ package com.fasterxml.jackson.core.write;
 import com.fasterxml.jackson.core.*;
 
 import java.io.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests for verifying that the Object write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class ObjectWriteTest
-    extends BaseTest
+class ObjectWriteTest
+        extends JUnit5TestBase
 {
     private final JsonFactory FACTORY = new JsonFactory();
 
@@ -19,8 +24,9 @@ public class ObjectWriteTest
         return FACTORY;
     }
 
-    public void testEmptyObjectWrite()
-        throws Exception
+    @Test
+    void emptyObjectWrite()
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);
@@ -57,12 +63,13 @@ public class ObjectWriteTest
         JsonParser jp = createParserUsingReader(docStr);
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 
-    public void testInvalidObjectWrite()
-        throws Exception
+    @Test
+    void invalidObjectWrite()
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);
@@ -77,8 +84,9 @@ public class ObjectWriteTest
         gen.close();
     }
 
-    public void testSimpleObjectWrite()
-        throws Exception
+    @Test
+    void simpleObjectWrite()
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);
@@ -106,15 +114,16 @@ public class ObjectWriteTest
         assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("yee-haw", jp.getText());
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 
     /**
      * Methods to test functionality added for [JACKSON-26]
      */
-    public void testConvenienceMethods()
-        throws Exception
+    @Test
+    void convenienceMethods()
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);
@@ -214,15 +223,16 @@ public class ObjectWriteTest
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
 
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 
     /**
      * Tests to cover [JACKSON-164]
      */
-    public void testConvenienceMethodsWithNulls()
-        throws Exception
+    @Test
+    void convenienceMethodsWithNulls()
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(sw);

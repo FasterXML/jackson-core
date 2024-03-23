@@ -3,11 +3,15 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
 import com.fasterxml.jackson.core.util.JsonGeneratorDecorator;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests to verify that input and output decorators work as
@@ -16,7 +20,7 @@ import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
  * @since 1.8
  */
 @SuppressWarnings("serial")
-public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
+class TestDecorators extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -83,14 +87,15 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests: input/output decoration
     /**********************************************************
      */
 
-    public void testInputDecoration() throws IOException
+    @Test
+    void inputDecoration() throws IOException
     {
         JsonFactory f = JsonFactory.builder()
                 .inputDecorator(new SimpleInputDecorator())
@@ -132,7 +137,8 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         p.close();
     }
 
-    public void testOutputDecoration() throws IOException
+    @Test
+    void outputDecoration() throws IOException
     {
         JsonFactory f = JsonFactory.builder()
                 .outputDecorator(new SimpleOutputDecorator())
@@ -151,7 +157,8 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     }
 
     @SuppressWarnings("deprecation")
-    public void testDeprecatedMethods() throws IOException
+    @Test
+    void deprecatedMethods() throws IOException
     {
         JsonFactory f = new JsonFactory();
         assertNull(f.getInputDecorator());
@@ -170,7 +177,8 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     /**********************************************************
      */
 
-    public void testGeneratorDecoration() throws Exception
+    @Test
+    void generatorDecoration() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .addDecorator(new SimpleGeneratorDecorator())

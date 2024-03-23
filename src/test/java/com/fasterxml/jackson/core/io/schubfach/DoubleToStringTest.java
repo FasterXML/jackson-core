@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.core.io.schubfach;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class DoubleToStringTest {
   abstract String f(double f);

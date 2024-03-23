@@ -2,13 +2,15 @@ package com.fasterxml.jackson.core.json.async;
 
 import java.io.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncBinaryParseTest extends AsyncTestBase
+class AsyncBinaryParseTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -18,15 +20,18 @@ public class AsyncBinaryParseTest extends AsyncTestBase
         139000
     };
 
-    public void testRawAsRootValue() throws IOException {
+    @Test
+    void rawAsRootValue() throws IOException {
         _testBinaryAsRoot(JSON_F);
     }
 
-    public void testRawAsArray() throws IOException {
+    @Test
+    void rawAsArray() throws IOException {
         _testBinaryAsArray(JSON_F);
     }
 
-    public void testRawAsObject() throws IOException {
+    @Test
+    void rawAsObject() throws IOException {
         _testBinaryAsObject(JSON_F);
     }
 

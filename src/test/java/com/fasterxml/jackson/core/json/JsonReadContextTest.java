@@ -1,16 +1,21 @@
 package com.fasterxml.jackson.core.json;
 
-import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JUnit5TestBase;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.io.ContentReference;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for class {@link JsonReadContext}.
  */
-public class JsonReadContextTest extends BaseTest
+class JsonReadContextTest extends JUnit5TestBase
 {
-  public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
+    @Test
+    void setCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
   {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, 0,
@@ -24,7 +29,8 @@ public class JsonReadContextTest extends BaseTest
       }
   }
 
-  public void testSetCurrentName() throws Exception
+    @Test
+    void setCurrentName() throws Exception
   {
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(0, 0, (DupDetector) null);
       jsonReadContext.setCurrentName("abc");
@@ -33,7 +39,8 @@ public class JsonReadContextTest extends BaseTest
       assertNull(jsonReadContext.getCurrentName());
   }
 
-  public void testReset()
+    @Test
+    void reset()
   {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(dupDetector);

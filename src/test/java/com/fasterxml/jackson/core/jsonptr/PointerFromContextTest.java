@@ -2,14 +2,13 @@ package com.fasterxml.jackson.core.jsonptr;
 
 import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 
-public class PointerFromContextTest extends BaseTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class PointerFromContextTest extends JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -21,7 +20,8 @@ public class PointerFromContextTest extends BaseTest
 
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
 
-    public void testViaParser() throws Exception
+    @Test
+    void viaParser() throws Exception
     {
         final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
                 +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
@@ -106,7 +106,8 @@ public class PointerFromContextTest extends BaseTest
         p.close();
     }
 
-    public void testViaGenerator() throws Exception
+    @Test
+    void viaGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(w);
@@ -150,7 +151,8 @@ public class PointerFromContextTest extends BaseTest
     /**********************************************************
      */
 
-    public void testParserWithRoot() throws Exception
+    @Test
+    void parserWithRoot() throws Exception
     {
         final String JSON = a2q("{'a':1,'b':3}\n"
                 +"{'a':5,'c':[1,2]}\n[1,2]\n");
@@ -213,7 +215,8 @@ public class PointerFromContextTest extends BaseTest
         p.close();
     }
 
-    public void testGeneratorWithRoot() throws Exception
+    @Test
+    void generatorWithRoot() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(w);

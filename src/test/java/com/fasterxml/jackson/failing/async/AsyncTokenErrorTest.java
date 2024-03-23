@@ -3,14 +3,19 @@ package com.fasterxml.jackson.failing.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncTokenErrorTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.fail;
+
+class AsyncTokenErrorTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testInvalidKeywordsStartOk() throws Exception
+    @Test
+    void invalidKeywordsStartOk() throws Exception
     {
         _doTestInvalidKeyword("nul");
         _doTestInvalidKeyword("nulla");
@@ -23,7 +28,8 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         _doTestInvalidKeyword("trueenough");
     }
 
-    public void testInvalidKeywordsStartFail() throws Exception
+    @Test
+    void invalidKeywordsStartFail() throws Exception
     {
         _doTestInvalidKeyword("Null");
         _doTestInvalidKeyword("False");
@@ -56,7 +62,8 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
-    public void testMangledRootInts() throws Exception
+    @Test
+    void mangledRootInts() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("123true")) {
             JsonToken t = p.nextToken();
@@ -66,7 +73,8 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
-    public void testMangledRootFloats() throws Exception
+    @Test
+    void mangledRootFloats() throws Exception
     {
         // Also test with floats
         try (AsyncReaderWrapper p = _createParser("1.5false")) {
@@ -77,7 +85,8 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
-    public void testMangledNonRootInts() throws Exception
+    @Test
+    void mangledNonRootInts() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("[ 123true ]")) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -88,7 +97,8 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
-    public void testMangledNonRootFloats() throws Exception
+    @Test
+    void mangledNonRootFloats() throws Exception
     {
         try (AsyncReaderWrapper p = _createParser("[ 1.5false ]")) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());

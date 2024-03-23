@@ -2,12 +2,15 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
-public class UTF8WriterTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class UTF8WriterTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testSimple() throws Exception
+    @Test
+    void simple() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
@@ -36,7 +39,8 @@ public class UTF8WriterTest
         assertEquals(str+str+str, act);
     }
 
-    public void testSimpleAscii() throws Exception
+    @Test
+    void simpleAscii() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
@@ -55,7 +59,8 @@ public class UTF8WriterTest
         assertEquals(str, act);
     }
 
-    public void testFlushAfterClose() throws Exception
+    @Test
+    void flushAfterClose() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
@@ -74,7 +79,8 @@ public class UTF8WriterTest
         w.flush();
     }
 
-    public void testSurrogatesOk() throws Exception
+    @Test
+    void surrogatesOk() throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         UTF8Writer w = new UTF8Writer(_ioContext(), out);
@@ -86,7 +92,7 @@ public class UTF8WriterTest
         assertEquals(4, out.size());
         final byte[] EXP_SURROGATES = new byte[] { (byte) 0xF0, (byte) 0x9F,
                (byte) 0x98, (byte) 0x83 };
-        Assert.assertArrayEquals(EXP_SURROGATES, out.toByteArray());
+        assertArrayEquals(EXP_SURROGATES, out.toByteArray());
 
         // and then as String
         out = new ByteArrayOutputStream();
@@ -94,11 +100,12 @@ public class UTF8WriterTest
         w.write("\uD83D\uDE03");
         w.close();
         assertEquals(4, out.size());
-        Assert.assertArrayEquals(EXP_SURROGATES, out.toByteArray());
+        assertArrayEquals(EXP_SURROGATES, out.toByteArray());
     }
 
     @SuppressWarnings("resource")
-    public void testSurrogatesFail() throws Exception
+    @Test
+    void surrogatesFail() throws Exception
     {
         ByteArrayOutputStream out;
 
@@ -138,7 +145,8 @@ public class UTF8WriterTest
 
     // For [core#1218]
     // @since 2.17
-    public void testSurrogateConversion()
+    @Test
+    void surrogateConversion()
     {
         for (int first = UTF8Writer.SURR1_FIRST; first <= UTF8Writer.SURR1_LAST; first++) {
             for (int second = UTF8Writer.SURR2_FIRST; second <= UTF8Writer.SURR2_LAST; second++) {

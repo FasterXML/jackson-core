@@ -9,11 +9,17 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import java.io.IOException;
 
-public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
+
+class AsyncNonStandardNumberParsingTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
-    public void testHexadecimal() throws Exception
+    @Test
+    void hexadecimal() throws Exception
     {
         final String JSON = "[ 0xc0ffee ]";
 
@@ -30,7 +36,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testHexadecimalBigX() throws Exception
+    @Test
+    void hexadecimalBigX() throws Exception
     {
         final String JSON = "[ 0XC0FFEE ]";
 
@@ -47,7 +54,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testNegativeHexadecimal() throws Exception
+    @Test
+    void negativeHexadecimal() throws Exception
     {
         final String JSON = "[ -0xc0ffee ]";
 
@@ -64,7 +72,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testFloatMarker() throws Exception
+    @Test
+    void floatMarker() throws Exception
     {
         final String JSON = "[ -0.123f ]";
 
@@ -81,7 +90,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testDoubleMarker() throws Exception
+    @Test
+    void doubleMarker() throws Exception
     {
         final String JSON = "[ -0.123d ]";
 
@@ -98,7 +108,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void test2DecimalPoints() throws Exception {
+    @Test
+    void test2DecimalPoints() throws Exception {
         final String JSON = "[ -0.123.456 ]";
 
         // without enabling, should get an exception
@@ -117,7 +128,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */
-    public void testLeadingDotInDecimal() throws Exception {
+    @Test
+    void leadingDotInDecimal() throws Exception {
         final String JSON = "[ .123 ]";
 
         // without enabling, should get an exception
@@ -133,7 +145,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testLeadingDotInDecimalEnabled() throws Exception {
+    @Test
+    void leadingDotInDecimalEnabled() throws Exception {
         final String JSON = "[ .123 ]";
         final JsonFactory factory = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
@@ -154,7 +167,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
     /*
      * The format "+NNN" (as opposed to "NNN") is not valid JSON, so this should fail
      */
-    public void testLeadingPlusSignInDecimalDefaultFail() throws Exception {
+    @Test
+    void leadingPlusSignInDecimalDefaultFail() throws Exception {
         final String JSON = "[ +123 ]";
 
         // without enabling, should get an exception
@@ -170,7 +184,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testLeadingPlusSignInDecimalDefaultFail2() throws Exception {
+    @Test
+    void leadingPlusSignInDecimalDefaultFail2() throws Exception {
         final String JSON = "[ +0.123 ]";
 
         // without enabling, should get an exception
@@ -186,7 +201,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testLeadingPlusSignInDecimalEnabled() throws Exception {
+    @Test
+    void leadingPlusSignInDecimalEnabled() throws Exception {
         final String JSON = "[ +123 ]";
 
         JsonFactory jsonFactory =
@@ -203,7 +219,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testLeadingPlusSignInDecimalEnabled2() throws Exception {
+    @Test
+    void leadingPlusSignInDecimalEnabled2() throws Exception {
         final String JSON = "[ +0.123 ]";
 
         JsonFactory jsonFactory =
@@ -220,7 +237,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testLeadingPlusSignInDecimalEnabled3() throws Exception {
+    @Test
+    void leadingPlusSignInDecimalEnabled3() throws Exception {
         final String JSON = "[ +123.123 ]";
 
         JsonFactory jsonFactory =
@@ -237,7 +255,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testLeadingPlusSignNoLeadingZeroDisabled() throws Exception {
+    @Test
+    void leadingPlusSignNoLeadingZeroDisabled() throws Exception {
         final String JSON = "[ +.123 ]";
 
         JsonFactory jsonFactory = JsonFactory.builder()
@@ -254,7 +273,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testLeadingPlusSignNoLeadingZeroEnabled() throws Exception {
+    @Test
+    void leadingPlusSignNoLeadingZeroEnabled() throws Exception {
         final String JSON = "[ +.123 ]";
 
         JsonFactory jsonFactory = JsonFactory.builder()
@@ -273,7 +293,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testLeadingDotInNegativeDecimalEnabled() throws Exception {
+    @Test
+    void leadingDotInNegativeDecimalEnabled() throws Exception {
         final String JSON = "[ -.123 ]";
         final JsonFactory factory = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
@@ -294,7 +315,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
     /**
      * The format "NNN." (as opposed to "NNN") is not valid JSON, so this should fail
      */
-    public void testTrailingDotInDecimal() throws Exception {
+    @Test
+    void trailingDotInDecimal() throws Exception {
         final String JSON = "[ 123. ]";
 
         // without enabling, should get an exception
@@ -311,7 +333,8 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    public void testTrailingDotInDecimalEnabled() throws Exception {
+    @Test
+    void trailingDotInDecimalEnabled() throws Exception {
         final String JSON = "[ 123. ]";
         final JsonFactory factory = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)

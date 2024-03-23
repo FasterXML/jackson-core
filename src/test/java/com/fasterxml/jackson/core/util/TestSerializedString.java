@@ -5,16 +5,21 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.SerializableString;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.SerializedString;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Simple unit tests to try to verify that the default
  * {@link SerializableString} implementation works as expected.
  */
-public class TestSerializedString
-    extends com.fasterxml.jackson.core.BaseTest
+class TestSerializedString
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testAppending() throws IOException
+    @Test
+    void appending() throws IOException
     {
         final String INPUT = "\"quo\\ted\"";
         final String QUOTED = "\\\"quo\\\\ted\\\"";
@@ -39,7 +44,8 @@ public class TestSerializedString
         assertEquals(INPUT, new String(buffer, 5, INPUT.length()));
     }
 
-    public void testFailedAccess() throws IOException
+    @Test
+    void failedAccess() throws IOException
     {
         final String INPUT = "Bit longer text";
         SerializableString sstr = new SerializedString(INPUT);

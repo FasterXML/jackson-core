@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Singleton class that adds a simple first-level cache in front of
@@ -29,7 +30,7 @@ public final class InternCache
      * cases where multiple threads might try to concurrently
      * flush the map.
      */
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
 
     public InternCache() { this(MAX_ENTRIES, 0.8f, 4); }
 
@@ -51,10 +52,13 @@ public final class InternCache
              * storage gives close enough answer to real one here; and we are
              * more concerned with flooding than starvation.
              */
-            synchronized (lock) {
+            lock.lock();
+            try {
                 if (size() >= MAX_ENTRIES) {
                     clear();
                 }
+            } finally {
+                lock.unlock();
             }
         }
         result = input.intern();

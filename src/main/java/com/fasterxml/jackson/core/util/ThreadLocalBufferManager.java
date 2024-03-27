@@ -95,8 +95,7 @@ class ThreadLocalBufferManager
 
     /**
      * Remove cleared (inactive) SoftRefs from our set. Gc may have cleared one or more,
-     * and made them inactive. We minimize contention by keeping synchronized sections short:
-     * the poll/remove methods
+     * and made them inactive.
      */
     private void removeSoftRefsClearedByGc() {
         SoftReference<?> clearedSoftRef;

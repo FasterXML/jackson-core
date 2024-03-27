@@ -536,6 +536,34 @@ public class TextBuffer
      */
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
         try {
+            if (_resultString == null) {
+                // Has array been requested? Can make a shortcut, if so:
+                if (_resultArray != null) {
+                    return NumberInput.parseDouble(_resultArray, useFastParser);
+                } else {
+                    // Do we use shared array?
+                    if (_inputStart >= 0) {
+                        if (_inputLen < 1) {
+                            _resultString = "";
+                            throw new NumberFormatException("empty content");
+                        }
+                        return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
+                    } else { // nope... need to copy
+                        // But first, let's see if we have just one buffer
+                        int segLen = _segmentSize;
+                        int currLen = _currentSize;
+
+                        if (segLen == 0) { // yup
+                            if (currLen == 0) {
+                                _resultString = "";
+                                throw new NumberFormatException("empty content");
+                            } else {
+                                return NumberInput.parseDouble(_currentSegment, 0, currLen, useFastParser);
+                            }
+                        }
+                    }
+                }
+            }
             return NumberInput.parseDouble(contentsAsString(), useFastParser);
         } catch (IOException e) {
             // JsonParseException is used to denote a string that is too long
@@ -584,6 +612,34 @@ public class TextBuffer
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
         try {
+            if (_resultString == null) {
+                // Has array been requested? Can make a shortcut, if so:
+                if (_resultArray != null) {
+                    return NumberInput.parseFloat(_resultArray, useFastParser);
+                } else {
+                    // Do we use shared array?
+                    if (_inputStart >= 0) {
+                        if (_inputLen < 1) {
+                            _resultString = "";
+                            throw new NumberFormatException("empty content");
+                        }
+                        return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
+                    } else { // nope... need to copy
+                        // But first, let's see if we have just one buffer
+                        int segLen = _segmentSize;
+                        int currLen = _currentSize;
+
+                        if (segLen == 0) { // yup
+                            if (currLen == 0) {
+                                _resultString = "";
+                                throw new NumberFormatException("empty content");
+                            } else {
+                                return NumberInput.parseFloat(_currentSegment, 0, currLen, useFastParser);
+                            }
+                        }
+                    }
+                }
+            }
             return NumberInput.parseFloat(contentsAsString(), useFastParser);
         } catch (IOException e) {
             // JsonParseException is used to denote a string that is too long

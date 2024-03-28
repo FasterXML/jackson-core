@@ -16,7 +16,8 @@ a pure JSON library.
 
 2.18.0 (not yet released)
 
--
+#1252: `ThreadLocalBufferManager` replace synchronized with `ReentrantLock`
+ (contributed by @pjfanning)
 
 2.17.1 (not yet released)
 

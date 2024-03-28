@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Singleton class that adds a simple first-level cache in front of
@@ -29,7 +30,7 @@ public final class InternCache
      * cases where multiple threads might try to concurrently
      * flush the map.
      */
-    private final Object lock = new Object();
+    private final ReentrantLock lock = new ReentrantLock();
 
     public InternCache() { this(MAX_ENTRIES, 0.8f, 4); }
 
@@ -47,13 +48,19 @@ public final class InternCache
          *   we are simply likely to keep on clearing same, commonly used entries.
          */
         if (size() >= MAX_ENTRIES) {
-            /* Not incorrect wrt well-known double-locking anti-pattern because underlying
-             * storage gives close enough answer to real one here; and we are
-             * more concerned with flooding than starvation.
+            /* As of 2.18, the limit is not strictly enforced, but we do try to
+             * clear entries if we have reached the limit. We do not expect to
+             * go too much over the limit, and if we do, it's not a huge problem.
+             * If some other thread has the lock, we will not clear but the lock should
+             * not be held for long, so another thread should be able to clear in the near future.
              */
-            synchronized (lock) {
-                if (size() >= MAX_ENTRIES) {
-                    clear();
+            if (lock.tryLock()) {
+                try {
+                    if (size() >= MAX_ENTRIES) {
+                        clear();
+                    }
+                } finally {
+                    lock.unlock();
                 }
             }
         }

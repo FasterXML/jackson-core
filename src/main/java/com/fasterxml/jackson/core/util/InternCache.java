@@ -48,17 +48,20 @@ public final class InternCache
          *   we are simply likely to keep on clearing same, commonly used entries.
          */
         if (size() >= MAX_ENTRIES) {
-            /* Not incorrect wrt well-known double-locking anti-pattern because underlying
-             * storage gives close enough answer to real one here; and we are
-             * more concerned with flooding than starvation.
+            /* As of 2.18, the limit is not strictly enforced, but we do try to
+             * clear entries if we have reached the limit. We do not expect to
+             * go too much over the limit, and if we do, it's not a huge problem.
+             * If some other thread has the lock, we will not clear but the lock should
+             * not be held for long, so another thread should be able to clear in the near future.
              */
-            lock.lock();
-            try {
-                if (size() >= MAX_ENTRIES) {
-                    clear();
+            if (lock.tryLock()) {
+                try {
+                    if (size() >= MAX_ENTRIES) {
+                        clear();
+                    }
+                } finally {
+                    lock.unlock();
                 }
-            } finally {
-                lock.unlock();
             }
         }
         result = input.intern();

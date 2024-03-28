@@ -16,6 +16,10 @@ a pure JSON library.
 
 2.18.0 (not yet released)
 
+#1251: `InternCache` replace synchronized with `ReentrantLock` - the cache
+  size limit is no longer strictly enforced for performance reasons but
+  we should never go far about the limit
+ (contributed by @pjfanning)
 #1252: `ThreadLocalBufferManager` replace synchronized with `ReentrantLock`
  (contributed by @pjfanning)
 

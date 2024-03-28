@@ -20,8 +20,10 @@ public final class InternCache
      *<p>
      * One consideration is possible attack via colliding {@link String#hashCode};
      * because of this, limit to reasonably low setting.
+     *<p>
+     * Increased to 200 (from 100) in 2.18
      */
-    private final static int MAX_ENTRIES = 180;
+    private final static int DEFAULT_MAX_ENTRIES = 280;
 
     public final static InternCache instance = new InternCache();
 
@@ -32,7 +34,7 @@ public final class InternCache
      */
     private final ReentrantLock lock = new ReentrantLock();
 
-    public InternCache() { this(MAX_ENTRIES, 0.8f, 4); }
+    public InternCache() { this(DEFAULT_MAX_ENTRIES, 0.8f, 4); }
 
     public InternCache(int maxSize, float loadFactor, int concurrency) {
         super(maxSize, loadFactor, concurrency);
@@ -47,7 +49,7 @@ public final class InternCache
          *   possible limitation: just clear all contents. This because otherwise
          *   we are simply likely to keep on clearing same, commonly used entries.
          */
-        if (size() >= MAX_ENTRIES) {
+        if (size() >= DEFAULT_MAX_ENTRIES) {
             /* As of 2.18, the limit is not strictly enforced, but we do try to
              * clear entries if we have reached the limit. We do not expect to
              * go too much over the limit, and if we do, it's not a huge problem.
@@ -56,7 +58,7 @@ public final class InternCache
              */
             if (lock.tryLock()) {
                 try {
-                    if (size() >= MAX_ENTRIES) {
+                    if (size() >= DEFAULT_MAX_ENTRIES) {
                         clear();
                     }
                 } finally {

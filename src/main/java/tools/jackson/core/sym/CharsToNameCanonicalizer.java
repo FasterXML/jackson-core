@@ -330,10 +330,9 @@ public final class CharsToNameCanonicalizer
      * read-only copy of parent's data, but when changes are needed, a
      * copy will be created.
      *<p>
-     * Note: while this method is synchronized, it is generally not
-     * safe to both use makeChild/mergeChild, AND to use instance
-     * actively. Instead, a separate 'root' instance should be used
-     * on which only makeChild/mergeChild are called, but instance itself
+     * Note: It is generally not safe to both use makeChild/mergeChild, AND to
+     * use instance actively. Instead, a separate 'root' instance should be
+     * used on which only makeChild/mergeChild are called, but instance itself
      * is not used as a symbol table.
      *
      * @return Actual canonicalizer instance that can be used by a parser

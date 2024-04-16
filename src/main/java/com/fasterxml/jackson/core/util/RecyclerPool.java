@@ -129,7 +129,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
     default int pooledCount() {
         return -1;
     }
-    
+
     /*
     /**********************************************************************
     /* Partial/base RecyclerPool implementations
@@ -365,7 +365,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             }
             return count;
         }
-        
+
         // Yes, we can clear it
         @Override
         public boolean clear() {

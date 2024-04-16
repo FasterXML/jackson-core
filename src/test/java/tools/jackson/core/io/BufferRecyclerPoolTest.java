@@ -130,6 +130,11 @@ class BufferRecyclerPoolTest extends JUnit5TestBase
         }
 
         @Override
+        public int pooledCount() {
+            return (bufferRecycler == null) ? 0 : 1;
+        }
+
+        @Override
         public boolean clear() {
             bufferRecycler = null;
             return true;

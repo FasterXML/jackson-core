@@ -2,6 +2,8 @@ package perf;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,17 +26,15 @@ public class RecyclerPoolTest
 {
     final static int THREAD_COUNT = 100;
 
-    final static int RUNTIME_SECS = 30;
+    final static int RUNTIME_SECS = 60;
 
     private final int _threadCount;
-    private final long _runtimeMsecs;
 
-    RecyclerPoolTest(int threadCount, int runtimeMinutes) {
+    RecyclerPoolTest(int threadCount) {
         _threadCount = threadCount;
-        _runtimeMsecs = TimeUnit.SECONDS.toMillis(runtimeMinutes);
     }
     
-    public void testPool(JsonFactory jsonF)
+    public String testPool(JsonFactory jsonF, int runtimeMinutes)
         throws InterruptedException
     {
         RecyclerPool<BufferRecycler> poolImpl = jsonF._getRecyclerPool();
@@ -43,12 +43,13 @@ public class RecyclerPoolTest
         final ExecutorService exec = Executors.newFixedThreadPool(_threadCount);
         final AtomicLong calls = new AtomicLong();
         final long startTime = System.currentTimeMillis();
-        final long endtimeMsecs = startTime + _runtimeMsecs;
+        final long runtimeMsecs = TimeUnit.SECONDS.toMillis(runtimeMinutes);
+        final long endtimeMsecs = startTime + runtimeMsecs;
         final AtomicInteger threadsRunning = new AtomicInteger();
 
         System.out.printf("Starting test of '%s' with %d threads, for %d seconds.\n",
                 poolImpl.getClass().getName(),
-                _threadCount, _runtimeMsecs / 1000L);
+                _threadCount, runtimeMsecs / 1000L);
         
         for (int i = 0; i < _threadCount; ++i) {
             final int id = i;
@@ -64,8 +65,9 @@ public class RecyclerPoolTest
 
         long currentTime;
         long nextPrint = 0L;
-        // Print if exceeds expected max whenever, otherwise every 2.5 seconds
-        final int thresholdToPrint = _threadCount + 5;
+        // Print if exceeds threshold (3 x threadcount), otherwise every 2.5 seconds
+        final int thresholdToPrint = _threadCount * 3;
+        int maxPooled = 0;
 
         while ((currentTime = System.currentTimeMillis()) < endtimeMsecs) {
             int poolSize;
@@ -73,21 +75,25 @@ public class RecyclerPoolTest
             if ((poolSize = poolImpl.pooledCount()) > thresholdToPrint
                     || (currentTime > nextPrint)) {
                 double secs = (currentTime - startTime) / 1000.0;
-                System.out.printf(" (%s) %.1fs, %d calls; %d threads; pool size: %d\n",
-                        poolName, secs, calls.get(), threadsRunning.get(), poolSize);
+                System.out.printf(" (%s) %.1fs, %dk calls; %d threads; pool size: %d (max seen: %d)\n",
+                        poolName, secs, calls.get()>>10, threadsRunning.get(), poolSize, maxPooled);
+                if (poolSize > maxPooled) {
+                    maxPooled = poolSize;
+                }
                 Thread.sleep(100L);
                 nextPrint = currentTime + 2500L;
             }
         }
 
-        System.out.printf("Completed test of '%s' with %d threads running... wait termination\n",
-                poolImpl.getClass().getSimpleName(),
-                threadsRunning.get());
+        String desc = String.format("Completed test of '%s': max size seen = %d",
+                poolName, maxPooled);
+        System.out.printf("%s. Wait termination of threads..\n", desc);
         if (!exec.awaitTermination(2000, TimeUnit.MILLISECONDS)) {
             System.out.printf("WARNING: ExecutorService.awaitTermination() failed: %d threads left; will shut down.\n",
                     threadsRunning.get());
             exec.shutdown();
         }
+        return desc;
     }
 
     void testUntil(JsonFactory jsonF,
@@ -145,15 +151,26 @@ public class RecyclerPoolTest
 
     public static void main(String[] args) throws Exception
     {
-        RecyclerPoolTest test = new RecyclerPoolTest(THREAD_COUNT, RUNTIME_SECS);
-        test.testPool(JsonFactory.builder()
-                .recyclerPool(JsonRecyclerPools.newLockFreePool())
-                .build());
-        test.testPool(JsonFactory.builder()
-                .recyclerPool(JsonRecyclerPools.newConcurrentDequePool())
-                .build());
-        test.testPool(JsonFactory.builder()
-                .recyclerPool(JsonRecyclerPools.newBoundedPool(THREAD_COUNT - 5))
-                .build());
+        RecyclerPoolTest test = new RecyclerPoolTest(THREAD_COUNT);
+        List<String> results = Arrays.asList(
+            test.testPool(JsonFactory.builder()
+                    .recyclerPool(JsonRecyclerPools.newLockFreePool())
+                    .build(),
+                // Let's run this one twice as long
+                RUNTIME_SECS * 2),
+            test.testPool(JsonFactory.builder()
+                    .recyclerPool(JsonRecyclerPools.newConcurrentDequePool())
+                    .build(),
+                RUNTIME_SECS),
+            test.testPool(JsonFactory.builder()
+                    .recyclerPool(JsonRecyclerPools.newBoundedPool(THREAD_COUNT - 5))
+                    .build(),
+                RUNTIME_SECS)
+        );
+
+        System.out.println("Tests complete! Results:\n");
+        for (String result : results) {
+            System.out.printf(" * %s\n", result);
+        }
     }
 }

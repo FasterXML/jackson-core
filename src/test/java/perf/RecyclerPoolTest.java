@@ -11,12 +11,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.util.BufferRecycler;
-import com.fasterxml.jackson.core.util.JsonRecyclerPools;
-import com.fasterxml.jackson.core.util.RecyclerPool;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.util.BufferRecycler;
+import tools.jackson.core.util.JsonRecyclerPools;
+import tools.jackson.core.util.RecyclerPool;
 
 /**
  * High-concurrency test that tries to see if unbounded {@link RecyclerPool}
@@ -132,7 +134,8 @@ public class RecyclerPoolTest
 
     private void _testRead(JsonFactory jsonF, byte[] input) throws Exception
     {
-        JsonParser p = jsonF.createParser(new ByteArrayInputStream(input));
+        JsonParser p = jsonF.createParser(ObjectReadContext.empty(),
+                new ByteArrayInputStream(input));
         while (p.nextToken() != null) {
             ;
         }
@@ -142,7 +145,7 @@ public class RecyclerPoolTest
     private void _testWrite(JsonFactory jsonF) throws Exception
     {
         StringWriter w = new StringWriter(16);
-        JsonGenerator g = jsonF.createGenerator(w);
+        JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w);
         g.writeStartArray();
         g.writeString("foobar");
         g.writeEndArray();

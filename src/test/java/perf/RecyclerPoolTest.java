@@ -154,16 +154,15 @@ public class RecyclerPoolTest
         RecyclerPoolTest test = new RecyclerPoolTest(THREAD_COUNT);
         List<String> results = Arrays.asList(
             test.testPool(JsonFactory.builder()
-                    .recyclerPool(JsonRecyclerPools.newLockFreePool())
-                    .build(),
-                // Let's run this one twice as long
-                RUNTIME_SECS * 2),
-            test.testPool(JsonFactory.builder()
                     .recyclerPool(JsonRecyclerPools.newConcurrentDequePool())
                     .build(),
                 RUNTIME_SECS),
             test.testPool(JsonFactory.builder()
                     .recyclerPool(JsonRecyclerPools.newBoundedPool(THREAD_COUNT - 5))
+                    .build(),
+                RUNTIME_SECS),
+            test.testPool(JsonFactory.builder()
+                    .recyclerPool(JsonRecyclerPools.newLockFreePool())
                     .build(),
                 RUNTIME_SECS)
         );

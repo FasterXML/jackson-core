@@ -543,20 +543,20 @@ public class TextBuffer
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException
     {
         // Order in which check is somewhat arbitrary... try likeliest ones
-        // that do not require allocation first, starting with likeliest
-        
-        if (_inputStart >= 0) { // shared?
-            return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
-        }
-        if (_resultArray != null) {
-            return NumberInput.parseDouble(_resultArray, useFastParser);
-        }
-        // note: must check "_resultString" before segmented
+        // that do not require allocation first
+
+        // except _resultString first since it works best with JDK (non-fast parser)
         if (_resultString != null) {
             return NumberInput.parseDouble(_resultString, useFastParser);
         }
+        if (_inputStart >= 0) { // shared?
+            return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
+        }
         if (_currentSize == 0) { // all content in current segment!
             return NumberInput.parseDouble(_currentSegment, 0, _currentSize, useFastParser);
+        }
+        if (_resultArray != null) {
+            return NumberInput.parseDouble(_resultArray, useFastParser);
         }
 
         // Otherwise, segmented so need to use slow path
@@ -618,20 +618,22 @@ public class TextBuffer
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException
     {
         // Order in which check is somewhat arbitrary... try likeliest ones
-        // that do not require allocation first, starting with likeliest
-        if (_inputStart >= 0) { // shared?
-            return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
-        }
-        if (_resultArray != null) {
-            return NumberInput.parseFloat(_resultArray, useFastParser);
-        }
-        // note: must check "_resultString" before segmented
+        // that do not require allocation first
+
+        // except _resultString first since it works best with JDK (non-fast parser)
         if (_resultString != null) {
             return NumberInput.parseFloat(_resultString, useFastParser);
+        }
+        if (_inputStart >= 0) { // shared?
+            return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
         if (_currentSize == 0) { // all content in current segment!
             return NumberInput.parseFloat(_currentSegment, 0, _currentSize, useFastParser);
         }
+        if (_resultArray != null) {
+            return NumberInput.parseFloat(_resultArray, useFastParser);
+        }
+
         // Otherwise, segmented so need to use slow path
         try {
             return NumberInput.parseFloat(contentsAsString(), useFastParser);

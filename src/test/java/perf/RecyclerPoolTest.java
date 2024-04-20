@@ -26,7 +26,7 @@ import tools.jackson.core.util.RecyclerPool;
  */
 public class RecyclerPoolTest
 {
-    final static int THREAD_COUNT = 100;
+    final static int THREAD_COUNT = 200;
 
     final static int RUNTIME_SECS = 60;
 
@@ -102,7 +102,8 @@ public class RecyclerPoolTest
              long endTimeMsecs, int threadId, AtomicLong calls)
     {
         final Random rnd = new Random(threadId);
-        final byte[] JSON_INPUT = "\"abc\"".getBytes(StandardCharsets.UTF_8);
+        final byte[] JSON_INPUT = "42 "
+                .getBytes(StandardCharsets.UTF_8);
 
         while (System.currentTimeMillis() < endTimeMsecs) {
             try {
@@ -147,7 +148,6 @@ public class RecyclerPoolTest
         StringWriter w = new StringWriter(16);
         JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w);
         g.writeStartArray();
-        g.writeString("foobar");
         g.writeEndArray();
         g.close();
     }
@@ -157,15 +157,15 @@ public class RecyclerPoolTest
         RecyclerPoolTest test = new RecyclerPoolTest(THREAD_COUNT);
         List<String> results = Arrays.asList(
             test.testPool(JsonFactory.builder()
+                    .recyclerPool(JsonRecyclerPools.newLockFreePool())
+                    .build(),
+                RUNTIME_SECS * 1000),
+            test.testPool(JsonFactory.builder()
                     .recyclerPool(JsonRecyclerPools.newConcurrentDequePool())
                     .build(),
                 RUNTIME_SECS),
             test.testPool(JsonFactory.builder()
                     .recyclerPool(JsonRecyclerPools.newBoundedPool(THREAD_COUNT - 5))
-                    .build(),
-                RUNTIME_SECS),
-            test.testPool(JsonFactory.builder()
-                    .recyclerPool(JsonRecyclerPools.newLockFreePool())
                     .build(),
                 RUNTIME_SECS)
         );

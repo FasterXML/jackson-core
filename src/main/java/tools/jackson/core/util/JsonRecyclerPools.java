@@ -18,14 +18,17 @@ public final class JsonRecyclerPools
 {
     /**
      * Method to call to get the default recycler pool instance:
-     * as of Jackson 2.17 this is same as calling
-     * {@link #newLockFreePool()}; earlier 
+     * as of Jackson 2.18.x and later (except for 2.17.0) this is same as calling
+     * {@link #newConcurrentDequePool()}: before this it was calling
+     * {@link #threadLocalPool()} (except for 2.17.1 that temporarily
+     * called {@link #newLockFreePool()}, changed back due to reported issues).
      *
      * @return the default {@link RecyclerPool} implementation to use
      *   if no specific implementation desired.
      */
     public static RecyclerPool<BufferRecycler> defaultPool() {
-        return newLockFreePool();
+        // since 2.18.0:
+        return newConcurrentDequePool();
     }
 
     /**

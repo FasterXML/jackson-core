@@ -18,6 +18,8 @@ a pure JSON library.
 
 #1241: Fix `NumberInput.looksLikeValidNumber()` implementation
  (contributed by @pjfanning)
+#1256: Revert #1117: change default recycler pool back to `threadLocalPool()`
+  for 2.17.1
 
 2.17.0 (12-Mar-2024)
 

@@ -355,12 +355,11 @@ public class TextBuffer
     private void clearSegments()
     {
         _hasSegments = false;
-        /* Let's start using _last_ segment from list; for one, it's
-         * the biggest one, and it's also most likely to be cached
-         */
-        /* 28-Aug-2009, tatu: Actually, the current segment should
-         *   be the biggest one, already
-         */
+        // Let's start using _last_ segment from list; for one, it's
+        // the biggest one, and it's also most likely to be cached
+
+        // 28-Aug-2009, tatu: Actually, the current segment should
+        //   be the biggest one, already
         //_currentSegment = _segments.get(_segments.size() - 1);
         _segments.clear();
         _currentSize = _segmentSize = 0;
@@ -526,44 +525,42 @@ public class TextBuffer
     /**
      * Convenience method for converting contents of the buffer
      * into a Double value.
+     *<p>
+     * NOTE! Caller <b>MUST</b> validate contents before calling this method,
+     * to ensure textual version is valid JSON floating-point token -- this
+     * method is not guaranteed to do any validation and behavior with invalid
+     * content is not defined (either throws an exception or returns arbitrary
+     * number).
      *
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
-     * @throws NumberFormatException if contents are not a valid Java number
+     * @throws NumberFormatException may (but is not guaranteed!) be thrown
+     *    if contents are not a valid JSON floating-point number representation
      *
      * @since 2.14
      */
-    public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
-        try {
-            if (_resultString == null) {
-                // Has array been requested? Can make a shortcut, if so:
-                if (_resultArray != null) {
-                    return NumberInput.parseDouble(_resultArray, useFastParser);
-                } else {
-                    // Do we use shared array?
-                    if (_inputStart >= 0) {
-                        if (_inputLen < 1) {
-                            _resultString = "";
-                            throw new NumberFormatException("empty content");
-                        }
-                        return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
-                    } else { // nope... need to copy
-                        // But first, let's see if we have just one buffer
-                        int segLen = _segmentSize;
-                        int currLen = _currentSize;
+    public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException
+    {
+        // Order in which check is somewhat arbitrary... try likeliest ones
+        // that do not require allocation first, starting with likeliest
+        
+        if (_inputStart >= 0) { // shared?
+            return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
+        }
+        if (_resultArray != null) {
+            return NumberInput.parseDouble(_resultArray, useFastParser);
+        }
+        // note: must check "_resultString" before segmented
+        if (_resultString != null) {
+            return NumberInput.parseDouble(_resultString, useFastParser);
+        }
+        if (_currentSize == 0) { // all content in current segment!
+            return NumberInput.parseDouble(_currentSegment, 0, _currentSize, useFastParser);
+        }
 
-                        if (segLen == 0) { // yup
-                            if (currLen == 0) {
-                                _resultString = "";
-                                throw new NumberFormatException("empty content");
-                            } else {
-                                return NumberInput.parseDouble(_currentSegment, 0, currLen, useFastParser);
-                            }
-                        }
-                    }
-                }
-            }
+        // Otherwise, segmented so need to use slow path
+        try {
             return NumberInput.parseDouble(contentsAsString(), useFastParser);
         } catch (IOException e) {
             // JsonParseException is used to denote a string that is too long
@@ -603,43 +600,40 @@ public class TextBuffer
     /**
      * Convenience method for converting contents of the buffer
      * into a Float value.
+     *<p>
+     * NOTE! Caller <b>MUST</b> validate contents before calling this method,
+     * to ensure textual version is valid JSON floating-point token -- this
+     * method is not guaranteed to do any validation and behavior with invalid
+     * content is not defined (either throws an exception or returns arbitrary
+     * number).
      *
      * @param useFastParser whether to use {@code FastDoubleParser}
      * @return Buffered text value parsed as a {@link Float}, if possible
      *
-     * @throws NumberFormatException if contents are not a valid Java number
+     * @throws NumberFormatException may (but is not guaranteed!) be thrown
+     *    if contents are not a valid JSON floating-point number representation
+     *
      * @since 2.14
      */
-    public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
+    public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException
+    {
+        // Order in which check is somewhat arbitrary... try likeliest ones
+        // that do not require allocation first, starting with likeliest
+        if (_inputStart >= 0) { // shared?
+            return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
+        }
+        if (_resultArray != null) {
+            return NumberInput.parseFloat(_resultArray, useFastParser);
+        }
+        // note: must check "_resultString" before segmented
+        if (_resultString != null) {
+            return NumberInput.parseFloat(_resultString, useFastParser);
+        }
+        if (_currentSize == 0) { // all content in current segment!
+            return NumberInput.parseFloat(_currentSegment, 0, _currentSize, useFastParser);
+        }
+        // Otherwise, segmented so need to use slow path
         try {
-            if (_resultString == null) {
-                // Has array been requested? Can make a shortcut, if so:
-                if (_resultArray != null) {
-                    return NumberInput.parseFloat(_resultArray, useFastParser);
-                } else {
-                    // Do we use shared array?
-                    if (_inputStart >= 0) {
-                        if (_inputLen < 1) {
-                            _resultString = "";
-                            throw new NumberFormatException("empty content");
-                        }
-                        return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
-                    } else { // nope... need to copy
-                        // But first, let's see if we have just one buffer
-                        int segLen = _segmentSize;
-                        int currLen = _currentSize;
-
-                        if (segLen == 0) { // yup
-                            if (currLen == 0) {
-                                _resultString = "";
-                                throw new NumberFormatException("empty content");
-                            } else {
-                                return NumberInput.parseFloat(_currentSegment, 0, currLen, useFastParser);
-                            }
-                        }
-                    }
-                }
-            }
             return NumberInput.parseFloat(contentsAsString(), useFastParser);
         } catch (IOException e) {
             // JsonParseException is used to denote a string that is too long

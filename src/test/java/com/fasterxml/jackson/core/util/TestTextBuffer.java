@@ -7,7 +7,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestTextBuffer
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     /**
      * Trivially simple basic test to ensure all basic append
@@ -213,20 +213,6 @@ class TestTextBuffer
         assertEquals(2, textBuffer.size());
     }
 
-    public void testEmptyContentsAsFloat() {
-        TextBuffer textBuffer = new TextBuffer(null);
-        assertThrows(NumberFormatException.class, () -> {
-            textBuffer.contentsAsFloat(false);
-        });
-    }
-
-    public void testEmptyContentsAsFloatFastParser() {
-        TextBuffer textBuffer = new TextBuffer(null);
-        assertThrows(NumberFormatException.class, () -> {
-            textBuffer.contentsAsFloat(true);
-        });
-    }
-
     public void testContentsAsFloat() throws IOException {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.2345678");
@@ -239,20 +225,6 @@ class TestTextBuffer
         assertEquals(1.2345678f,  textBuffer.contentsAsFloat(true));
     }
 
-    public void testEmptyContentsAsDouble() {
-        TextBuffer textBuffer = new TextBuffer(null);
-        assertThrows(NumberFormatException.class, () -> {
-            textBuffer.contentsAsDouble(false);
-        });
-    }
-
-    public void testEmptyContentsAsDoubleFastParser() {
-        TextBuffer textBuffer = new TextBuffer(null);
-        assertThrows(NumberFormatException.class, () -> {
-            textBuffer.contentsAsDouble(true);
-        });
-    }
-
     public void testContentsAsDouble() throws IOException {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.234567890123456789");
@@ -263,12 +235,5 @@ class TestTextBuffer
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.234567890123456789");
         assertEquals(1.234567890123456789d,  textBuffer.contentsAsDouble(true));
-    }
-
-    public void testEmptyContentsAsDecimal() {
-        TextBuffer textBuffer = new TextBuffer(null);
-        assertThrows(NumberFormatException.class, () -> {
-            textBuffer.contentsAsDecimal();
-        });
     }
 }

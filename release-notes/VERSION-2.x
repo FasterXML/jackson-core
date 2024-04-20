@@ -16,12 +16,22 @@ a pure JSON library.
 
 2.18.0 (not yet released)
 
--
+#1251: `InternCache` replace synchronized with `ReentrantLock` - the cache
+  size limit is no longer strictly enforced for performance reasons but
+  we should never go far about the limit
+ (contributed by @pjfanning)
+#1252: `ThreadLocalBufferManager` replace synchronized with `ReentrantLock`
+ (contributed by @pjfanning)
+#1257: Increase InternCache default max size from 100 to 200
+#1262: Add diagnostic method pooledCount() in RecyclerPool
+#1266: Change default recycler pool to `bewConcurrentDequePool()` in 2.18
 
 2.17.1 (not yet released)
 
 #1241: Fix `NumberInput.looksLikeValidNumber()` implementation
  (contributed by @pjfanning)
+#1256: Revert #1117: change default recycler pool back to `threadLocalPool()`
+  for 2.17.1
 
 2.17.0 (12-Mar-2024)
 

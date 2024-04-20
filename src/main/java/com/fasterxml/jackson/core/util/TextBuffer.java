@@ -121,7 +121,7 @@ public class TextBuffer
     /**********************************************************
      */
 
-    public TextBuffer( BufferRecycler allocator) {
+    public TextBuffer(BufferRecycler allocator) {
         _allocator = allocator;
     }
 
@@ -327,7 +327,6 @@ public class TextBuffer
             clearSegments();
         }
         _currentSize = 0;
-
     }
 
     /**

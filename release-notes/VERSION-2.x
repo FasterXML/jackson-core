@@ -24,6 +24,7 @@ a pure JSON library.
  (contributed by @pjfanning)
 #1257: Increase InternCache default max size from 100 to 200
 #1262: Add diagnostic method pooledCount() in RecyclerPool
+#1266: Change default recycler pool to `bewConcurrentDequePool()` in 2.18
 
 2.17.1 (not yet released)
 

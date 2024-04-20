@@ -41,7 +41,6 @@ public class JsonFactory
     /**********************************************************************
      */
 
-
     /**
      * Name used to identify JSON format
      * (and returned by {@link #getFormatName()}

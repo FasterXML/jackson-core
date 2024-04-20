@@ -44,6 +44,8 @@ JSON library.
 #1231: Enable Fast Floating-Point reading/writing by default in 3.0
 #1233: Lower default `maxNestingDepth` of `StreamReadConstraints` /
   `StreamWriteConstraints` to 500 in 3.0
+#1269: Change `JsonFactory.builder()` configuration of `RecyclerPool` to avoid
+  allocation default implementation (in 3.0)
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

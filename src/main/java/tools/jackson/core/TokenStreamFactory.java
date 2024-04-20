@@ -285,7 +285,14 @@ public abstract class TokenStreamFactory
         _streamReadConstraints = Objects.requireNonNull(baseBuilder._streamReadConstraints);
         _streamWriteConstraints = Objects.requireNonNull(baseBuilder._streamWriteConstraints);
         _errorReportConfiguration = Objects.requireNonNull(baseBuilder._errorReportConfiguration);
-        _recyclerPool = Objects.requireNonNull(baseBuilder._recyclerPool);
+
+        // 19-Apr-2024, tatu: [core#1269] allow `null` to indicate "just use
+        //    default to lazily instantiate
+        RecyclerPool<BufferRecycler> rp = baseBuilder._recyclerPool;
+        if (rp == null) {
+            rp = JsonRecyclerPools.defaultPool();
+        }
+        _recyclerPool = rp;
 
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
         _streamReadFeatures = baseBuilder.streamReadFeaturesMask();

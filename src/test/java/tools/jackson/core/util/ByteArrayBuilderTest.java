@@ -2,8 +2,6 @@ package tools.jackson.core.util;
 
 import java.nio.charset.StandardCharsets;
 
-import org.junit.Assert;
-
 import tools.jackson.core.*;
 import tools.jackson.core.base.GeneratorBase;
 import tools.jackson.core.io.IOContext;
@@ -16,7 +14,7 @@ public class ByteArrayBuilderTest extends JUnit5TestBase
     public void testSimple() throws Exception
     {
         ByteArrayBuilder b = new ByteArrayBuilder(null, 20);
-        Assert.assertArrayEquals(new byte[0], b.toByteArray());
+        assertArrayEquals(new byte[0], b.toByteArray());
 
         b.write((byte) 0);
         b.append(1);

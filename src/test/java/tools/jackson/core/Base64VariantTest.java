@@ -1,6 +1,6 @@
 package tools.jackson.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.ByteArrayBuilder;

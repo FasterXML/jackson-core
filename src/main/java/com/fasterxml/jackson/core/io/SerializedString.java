@@ -42,11 +42,11 @@ public class SerializedString
      *   and hopefully beyond.
      */
 
-    protected /*volatile*/ byte[] _quotedUTF8Ref;
+    protected volatile byte[] _quotedUTF8Ref;
 
-    protected /*volatile*/ byte[] _unquotedUTF8Ref;
+    protected volatile byte[] _unquotedUTF8Ref;
 
-    protected /*volatile*/ char[] _quotedChars;
+    protected volatile char[] _quotedChars;
 
     public SerializedString(String v) {
         if (v == null) {

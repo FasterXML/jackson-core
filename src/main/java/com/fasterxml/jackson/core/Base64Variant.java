@@ -669,7 +669,6 @@ public final class Base64Variant
      *
      * @throws IllegalArgumentException if input is not valid base64 encoded data
      */
-    @SuppressWarnings("resource")
     public byte[] decode(String input) throws IllegalArgumentException
     {
         ByteArrayBuilder b = new ByteArrayBuilder();

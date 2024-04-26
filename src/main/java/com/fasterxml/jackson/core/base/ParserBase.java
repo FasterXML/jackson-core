@@ -439,7 +439,6 @@ public abstract class ParserBase extends ParserMinimalBase
         return false;
     }
 
-    @SuppressWarnings("resource")
     @Override // since 2.7
     public byte[] getBinaryValue(Base64Variant variant) throws IOException
     {

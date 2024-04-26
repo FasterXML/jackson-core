@@ -252,11 +252,11 @@ final public class FloatToDecimal {
 
     /*
     Returns
-        PLUS_ZERO       iff v is 0.0
-        MINUS_ZERO      iff v is -0.0
-        PLUS_INF        iff v is POSITIVE_INFINITY
-        MINUS_INF       iff v is NEGATIVE_INFINITY
-        NAN             iff v is NaN
+        PLUS_ZERO       if v is 0.0
+        MINUS_ZERO      if v is -0.0
+        PLUS_INF        if v is POSITIVE_INFINITY
+        MINUS_INF       if v is NEGATIVE_INFINITY
+        NAN             if v is NaN
      */
     private int toDecimal(float v) {
         /*
@@ -358,8 +358,8 @@ final public class FloatToDecimal {
 
             sp10 = 10 s'
             tp10 = 10 t'
-            upin    iff    u' = sp10 10^k in Rv
-            wpin    iff    w' = tp10 10^k in Rv
+            upin    if    u' = sp10 10^k in Rv
+            wpin    if    w' = tp10 10^k in Rv
             See section 9.4 of [1].
              */
             int sp10 = 10 * (int) (s * 1_717_986_919L >>> 34);
@@ -373,8 +373,8 @@ final public class FloatToDecimal {
 
         /*
         10 <= s < 100    or    s >= 100  and  u', w' not in Rv
-        uin    iff    u = s 10^k in Rv
-        win    iff    w = t 10^k in Rv
+        uin    if    u = s 10^k in Rv
+        win    if    w = t 10^k in Rv
         See section 9.4 of [1].
          */
         int t = s + 1;

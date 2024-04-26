@@ -273,7 +273,7 @@ public class MathUtilsTest {
 
     The first equation above is equivalent to
         10^k <= 2^e < 10^(k+1)
-    Equality holds iff e = k = 0.
+    Equality holds if e = k = 0.
     Henceforth, the predicates to check are equivalent to
         k = 0,    if e = 0
         10^k < 2^e < 10^(k+1),    otherwise
@@ -338,7 +338,7 @@ public class MathUtilsTest {
         the right inequality shows that k >= 0.
         The left inequality means the same as
             len2(10^k) <= e
-        and the right inequality holds iff
+        and the right inequality holds if
             e < len2(10^(k+1))
         The original predicate is thus equivalent to
             len2(10^k) <= e < len2(10^(k+1))
@@ -377,7 +377,7 @@ public class MathUtilsTest {
 
     The first equation above is equivalent to
         2^k <= 10^e < 2^(k+1)
-    Equality holds iff e = 0, implying k = 0.
+    Equality holds if e = 0, implying k = 0.
     Henceforth, the equivalent predicates to check are
         k = 0,    if e = 0
         2^k < 10^e < 2^(k+1),    otherwise

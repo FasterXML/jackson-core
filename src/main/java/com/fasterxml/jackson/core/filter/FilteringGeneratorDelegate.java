@@ -945,7 +945,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
-    // Base class definitions for these seems correct to me, iff not directly delegating:
+    // Base class definitions for these seems correct to me, if not directly delegating:
 
     /*
     @Override
@@ -990,7 +990,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
-    // Base class definitions for these seems correct to me, iff not directly delegating:
+    // Base class definitions for these seems correct to me, if not directly delegating:
 
     /*
     @Override

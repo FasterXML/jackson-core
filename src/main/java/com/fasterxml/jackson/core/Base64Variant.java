@@ -725,7 +725,7 @@ public final class Base64Variant
             decodedData = (decodedData << 6) | bits;
             // third base64 char; can be padding, but not ws
             if (ptr >= len) {
-                // but as per [JACKSON-631] can be end-of-input, iff padding is not required
+                // but as per [JACKSON-631] can be end-of-input, if padding is not required
                 if (!requiresPaddingOnRead()) {
                     decodedData >>= 4;
                     builder.append(decodedData);
@@ -761,7 +761,7 @@ public final class Base64Variant
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
             if (ptr >= len) {
-                // but as per [JACKSON-631] can be end-of-input, iff padding on read is not required
+                // but as per [JACKSON-631] can be end-of-input, if padding on read is not required
                 if (!requiresPaddingOnRead()) {
                     decodedData >>= 2;
                     builder.appendTwoBytes(decodedData);

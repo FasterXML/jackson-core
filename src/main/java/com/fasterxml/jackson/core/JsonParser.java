@@ -1194,7 +1194,7 @@ public abstract class JsonParser
     /**
      * Method that will skip all child tokens of an array or
      * object token that the parser currently points to,
-     * iff stream points to
+     * if stream points to
      * {@link JsonToken#START_OBJECT} or {@link JsonToken#START_ARRAY}.
      * If not, it will do nothing.
      * After skipping, stream will point to <b>matching</b>

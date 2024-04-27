@@ -12,6 +12,8 @@ import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.JsonRecyclerPools;
 import tools.jackson.core.util.RecyclerPool;
 
+import static com.fasterxml.jackson.core.util.JdkSerializationTestUtils.jdkDeserialize;
+import static com.fasterxml.jackson.core.util.JdkSerializationTestUtils.jdkSerialize;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -262,29 +264,6 @@ class JDKSerializabilityTest
     /* Helper methods
     /**********************************************************************
      */
-
-    protected byte[] jdkSerialize(Object o) throws IOException
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(1000);
-        ObjectOutputStream obOut = new ObjectOutputStream(bytes);
-        obOut.writeObject(o);
-        obOut.close();
-        return bytes.toByteArray();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T> T jdkDeserialize(byte[] raw) throws IOException
-    {
-        ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
-        try {
-            return (T) objIn.readObject();
-        } catch (ClassNotFoundException e) {
-            fail("Missing class: "+e.getMessage());
-            return null;
-        } finally {
-            objIn.close();
-        }
-    }
 
     @SuppressWarnings("resource")
     protected String _copyJson(JsonFactory f, String json, boolean useBytes) throws IOException

@@ -12,8 +12,6 @@ import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.JsonRecyclerPools;
 import tools.jackson.core.util.RecyclerPool;
 
-import static com.fasterxml.jackson.core.util.JdkSerializationTestUtils.jdkDeserialize;
-import static com.fasterxml.jackson.core.util.JdkSerializationTestUtils.jdkSerialize;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

@@ -10,8 +10,6 @@ import tools.jackson.core.SerializableString;
 import tools.jackson.core.io.SerializedString;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static tools.jackson.core.util.JdkSerializationTestUtils.jdkDeserialize;
-import static tools.jackson.core.util.JdkSerializationTestUtils.jdkSerialize;
 
 /**
  * Simple unit tests to try to verify that the default

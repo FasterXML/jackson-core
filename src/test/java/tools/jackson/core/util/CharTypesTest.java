@@ -6,7 +6,7 @@ import tools.jackson.core.io.CharTypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TestCharTypes
+class CharTypesTest
     extends tools.jackson.core.JUnit5TestBase
 {
     @Test

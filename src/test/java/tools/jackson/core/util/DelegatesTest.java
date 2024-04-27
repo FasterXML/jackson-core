@@ -14,7 +14,7 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TestDelegates extends JUnit5TestBase
+class DelegatesTest extends JUnit5TestBase
 {
     static class POJO {
         public int x = 3;

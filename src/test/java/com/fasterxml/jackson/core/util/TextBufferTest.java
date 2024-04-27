@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TestTextBuffer
+class TextBufferTest
     extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     /**

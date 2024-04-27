@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.SerializableString;
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-import static com.fasterxml.jackson.core.util.JdkSerializationTestUtils.jdkDeserialize;
-import static com.fasterxml.jackson.core.util.JdkSerializationTestUtils.jdkSerialize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -18,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * {@link SerializableString} implementation works as expected.
  */
 class TestSerializedString
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private static final String QUOTED = "\\\"quo\\\\ted\\\"";
 

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Simple unit tests to try to verify that the default
  * {@link SerializableString} implementation works as expected.
  */
-class TestSerializedString
+class SerializedStringTest
     extends tools.jackson.core.JUnit5TestBase
 {
     private static final String QUOTED = "\\\"quo\\\\ted\\\"";

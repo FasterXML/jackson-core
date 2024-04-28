@@ -301,7 +301,6 @@ public final class Base64Variant
                 || (_paddingChar != base._paddingChar)
                 || (_paddingReadBehaviour != base._paddingReadBehaviour)
                 || (_maxLineLength != base._maxLineLength)
-                || (_writePadding != base._writePadding)
                 ) {
             return new Base64Variant(base,
                     _name, _writePadding, _paddingChar, _paddingReadBehaviour, _maxLineLength);

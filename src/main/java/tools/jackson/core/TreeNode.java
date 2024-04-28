@@ -218,7 +218,7 @@ public interface TreeNode
     TreeNode path(int index);
 
     /**
-     * Method for accessing names of all properties for this node, iff
+     * Method for accessing names of all properties for this node, if (and only if)
      * this node is an Object node. Number of property names accessible
      * will be {@link #size}.
      *

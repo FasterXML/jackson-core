@@ -79,7 +79,7 @@ public abstract class JsonParser
          * exact binary representation whereas {@code 0.25} has exact representation
          * in every binary type supported)
          */
-        UNKNOWN;
+        UNKNOWN
     }
 
     /**

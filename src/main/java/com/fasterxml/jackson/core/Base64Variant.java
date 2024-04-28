@@ -43,7 +43,6 @@ public final class Base64Variant
          * padding characters are used.
          */
         PADDING_ALLOWED
-        ;
     }
 
     private final static int INT_SPACE = 0x20;

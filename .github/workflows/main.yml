@@ -52,17 +52,17 @@ jobs:
       if: matrix.java_version == '8'
       run: ./mvnw -B -q -ff -ntp -DskipTests animal-sniffer:check
     - name: Deploy snapshot
-      if: github.event_name != 'pull_request' && matrix.java_version == '8' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
+      if: ${{ github.event_name != 'pull_request' && matrix.java_version == '8' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
         CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
         CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
     - name: Generate code coverage
-      if: github.event_name != 'pull_request' && matrix.java_version == '8'
+      if: ${{ github.event_name != 'pull_request' && matrix.java_version == '8' }}
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
-      if: github.event_name != 'pull_request' && matrix.java_version == '8'
+      if: ${{ github.event_name != 'pull_request' && matrix.java_version == '8' }}
       uses: codecov/codecov-action@84508663e988701840491b86de86b666e8a86bed # v4.3.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}

@@ -176,7 +176,10 @@ com.fasterxml.jackson.core.*;version=${project.version}
               <relocations>
                 <relocation>
                   <pattern>ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                  <!-- 04-May-2024, tatu: [core#1264] Shade with version-specific package
+                     to prevent reuse by downstream deps.
+                    -->
+                  <shadedPattern>com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/LICENSE</pattern>

@@ -26,6 +26,9 @@ a pure JSON library.
  (implemented by @pjfanning)
 #1257: Increase InternCache default max size from 100 to 200
 #1262: Add diagnostic method `pooledCount()` in `RecyclerPool`
+#1264: Rename shaded `ch.randelshofer:fastdoubleparser` classes
+  to prevent use by downstream consumers
+ (requested by @seadbrane)
 #1266: Change default recycler pool to `bewConcurrentDequePool()` in 2.18
 #1277: Add back Java 22 optimisation in FastDoubleParser
 

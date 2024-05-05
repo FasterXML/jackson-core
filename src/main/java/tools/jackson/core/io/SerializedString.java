@@ -2,6 +2,7 @@ package tools.jackson.core.io;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import tools.jackson.core.SerializableString;
 
@@ -49,10 +50,7 @@ public class SerializedString
     protected /*volatile*/ char[] _quotedChars;
 
     public SerializedString(String v) {
-        if (v == null) {
-            throw new IllegalStateException("Null String illegal for SerializedString");
-        }
-        _value = v;
+        _value = Objects.requireNonNull(v, "Null String illegal for SerializedString");
     }
 
     /*

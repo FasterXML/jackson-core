@@ -32,7 +32,7 @@ a pure JSON library.
 #1266: Change default recycler pool to `bewConcurrentDequePool()` in 2.18
 #1277: Add back Java 22 optimisation in FastDoubleParser
 
-2.17.1 (not yet released)
+2.17.1 (04-May-2024)
 
 #1241: Fix `NumberInput.looksLikeValidNumber()` implementation
  (contributed by @pjfanning)

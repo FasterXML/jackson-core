@@ -201,19 +201,19 @@ com.fasterxml.jackson.core.*;version=${project.version}
                 </relocation>
                 <relocation>
                   <pattern>META-INF/versions/11/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/11/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                  <shadedPattern>META-INF/versions/11/com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/versions/17/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/17/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                  <shadedPattern>META-INF/versions/17/com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/versions/21/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/21/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                  <shadedPattern>META-INF/versions/21/com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/versions/22/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/22/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                  <shadedPattern>META-INF/versions/22/com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

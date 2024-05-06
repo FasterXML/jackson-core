@@ -14,8 +14,7 @@ import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-import com.fasterxml.jackson.core.util.RequestPayload;
+import com.fasterxml.jackson.core.util.*;
 
 /**
  * Base class that defines public API for reading JSON content.
@@ -1575,6 +1574,12 @@ public abstract class JsonParser
      * but should typically be more efficient as longer content does need to
      * be combined into a single <code>String</code> to return, and write
      * can occur directly from intermediate buffers Jackson uses.
+     *<p>
+     * NOTE: textual content <b>will</b> still be buffered (usually
+     * using {@link TextBuffer}) and <b>will</b> be accessible with
+     * other {@code getText()} calls (that is, it will not be consumed).
+     * So this accessor only avoids construction of {@link java.lang.String}
+     * compared to plain {@link #getText()} method.
      *
      * @param writer Writer to write textual content to
      *

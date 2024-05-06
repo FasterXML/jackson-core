@@ -419,6 +419,12 @@ public class JUnit5TestBase
         return result;
     }
 
+    /*
+    /**********************************************************************
+    /* Content reading, serialization
+    /**********************************************************************
+     */
+
     public static byte[] readResource(String ref)
     {
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -441,4 +447,28 @@ public class JUnit5TestBase
        }
        return bytes.toByteArray();
     }
+
+    public static byte[] jdkSerialize(Object o) throws IOException
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(1000);
+        ObjectOutputStream obOut = new ObjectOutputStream(bytes);
+        obOut.writeObject(o);
+        obOut.close();
+        return bytes.toByteArray();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T jdkDeserialize(byte[] raw) throws IOException
+    {
+        ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
+        try {
+            return (T) objIn.readObject();
+        } catch (ClassNotFoundException e) {
+            fail("Missing class: "+e.getMessage());
+            return null;
+        } finally {
+            objIn.close();
+        }
+    }
+
 }

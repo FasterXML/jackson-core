@@ -5,6 +5,7 @@ import java.lang.ref.SoftReference;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * For issue [jackson-core#400] We keep a separate Set of all SoftReferences to BufferRecyclers
@@ -23,7 +24,7 @@ class ThreadLocalBufferManager
      * A lock to make sure releaseBuffers is only executed by one thread at a time
      * since it iterates over and modifies the allSoftBufRecyclers.
      */
-    private final Object RELEASE_LOCK = new Object();
+    private final ReentrantLock RELEASE_LOCK = new ReentrantLock();
 
     /**
      * A set of all SoftReferences to all BufferRecyclers to be able to release them on shutdown.
@@ -64,8 +65,9 @@ class ThreadLocalBufferManager
      * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
      */
     public int releaseBuffers() {
-        synchronized (RELEASE_LOCK) {
-            int count = 0;
+        int count = 0;
+        RELEASE_LOCK.lock();
+        try {
             // does this need to be in sync block too? Looping over Map definitely has to but...
             removeSoftRefsClearedByGc(); // make sure the refQueue is empty
             for (SoftReference<BufferRecycler> ref : _trackedRecyclers.keySet()) {
@@ -73,8 +75,10 @@ class ThreadLocalBufferManager
                 ++count;
             }
             _trackedRecyclers.clear(); //release cleared SoftRefs
-            return count;
+        } finally {
+            RELEASE_LOCK.unlock();
         }
+        return count;
     }
 
     public SoftReference<BufferRecycler> wrapAndTrack(BufferRecycler br) {
@@ -95,8 +99,7 @@ class ThreadLocalBufferManager
 
     /**
      * Remove cleared (inactive) SoftRefs from our set. Gc may have cleared one or more,
-     * and made them inactive. We minimize contention by keeping synchronized sections short:
-     * the poll/remove methods
+     * and made them inactive.
      */
     private void removeSoftRefsClearedByGc() {
         SoftReference<?> clearedSoftRef;

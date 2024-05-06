@@ -15,14 +15,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Simple unit tests to try to verify that the default
  * {@link SerializableString} implementation works as expected.
  */
-class TestSerializedString
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+class SerializedStringTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
+    private static final String QUOTED = "\\\"quo\\\\ted\\\"";
+
     @Test
     void appending() throws IOException
     {
         final String INPUT = "\"quo\\ted\"";
-        final String QUOTED = "\\\"quo\\\\ted\\\"";
 
         SerializableString sstr = new SerializedString(INPUT);
         // sanity checks first:
@@ -62,5 +63,24 @@ class TestSerializedString
         assertEquals(-1, sstr.appendUnquotedUTF8(buffer, 0));
         assertEquals(-1, sstr.appendUnquoted(ch, 0));
         assertEquals(-1, sstr.putUnquotedUTF8(bbuf));
+    }
+
+    @Test
+    void testAppendQuotedUTF8() throws IOException {
+        SerializedString sstr = new SerializedString(QUOTED);
+        assertEquals(QUOTED, sstr.getValue());
+        final byte[] buffer = new byte[100];
+        final int len = sstr.appendQuotedUTF8(buffer, 3);
+        assertEquals("\\\\\\\"quo\\\\\\\\ted\\\\\\\"", new String(buffer, 3, len));
+    }
+
+    @Test
+    void testJdkSerialize() throws IOException {
+        final byte[] bytes = jdkSerialize(new SerializedString(QUOTED));
+        SerializedString sstr = jdkDeserialize(bytes);
+        assertEquals(QUOTED, sstr.getValue());
+        final byte[] buffer = new byte[100];
+        final int len = sstr.appendQuotedUTF8(buffer, 3);
+        assertEquals("\\\\\\\"quo\\\\\\\\ted\\\\\\\"", new String(buffer, 3, len));
     }
 }

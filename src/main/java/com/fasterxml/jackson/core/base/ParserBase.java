@@ -525,7 +525,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * Method called when an EOF is encountered between tokens.
-     * If so, it may be a legitimate EOF, but only iff there
+     * If so, it may be a legitimate EOF, but <b>only</b> if there
      * is no open non-root context.
      */
     @Override

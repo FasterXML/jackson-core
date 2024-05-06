@@ -14,7 +14,7 @@
  *<li>{@link com.fasterxml.jackson.core.TreeNode} is included
  *within Streaming API to support integration of the Tree Model
  *(which is based on <code>JsonNode</code>) with the basic
- *parsers and generators (iff using mapping-supporting factory: which
+ *parsers and generators (if and only if using mapping-supporting factory: which
  *is part of Mapping API, not core)
  *  </li>
  *<li>{@link com.fasterxml.jackson.core.ObjectCodec} is included so that

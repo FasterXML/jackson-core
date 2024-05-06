@@ -5,28 +5,37 @@ import java.util.HashSet;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 // Tests to guarad against [core#213]: does not verify symbol tables
 // directly but only indirect issue(s).
 public class SymbolsViaParserTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     // for [jackson-core#213]
-    public void test17CharSymbols() throws Exception {
+    @Test
+    void test17CharSymbols() throws Exception {
         _test17Chars(false);
     }
 
     // for [jackson-core#213]
-    public void test17ByteSymbols() throws Exception {
+    @Test
+    void test17ByteSymbols() throws Exception {
         _test17Chars(true);
     }
 
     // for [jackson-core#216]
-    public void testSymbolTableExpansionChars() throws Exception {
+    @Test
+    void symbolTableExpansionChars() throws Exception {
         _testSymbolTableExpansion(false);
     }
 
     // for [jackson-core#216]
-    public void testSymbolTableExpansionBytes() throws Exception {
+    @Test
+    void symbolTableExpansionBytes() throws Exception {
         _testSymbolTableExpansion(true);
     }
 
@@ -44,7 +53,7 @@ public class SymbolsViaParserTest
         JsonParser p = useBytes
                 ? f.createParser(doc.getBytes("UTF-8"))
                 : f.createParser(doc);
-        HashSet<String> syms = new HashSet<String>();
+        HashSet<String> syms = new HashSet<>();
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         for (int i = 0; i < 50; ++i) {
             assertToken(JsonToken.FIELD_NAME, p.nextToken());

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -36,28 +35,8 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * @since 2.8
  */
 public class UTF8DataInputJsonParser
-    extends ParserBase
+    extends JsonParserBase
 {
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
-
-    // This is the main input-code lookup table, fetched eagerly
-    private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
-
-    // Latin1 encoding is not supported, but we do use 8-bit subset for
-    // pre-processing task, to simplify first pass, keep it fast.
-    protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
-
     /*
     /**********************************************************
     /* Configuration
@@ -65,16 +44,9 @@ public class UTF8DataInputJsonParser
      */
 
     /**
-     * Codec used for data binding when (if) requested; typically full
-     * <code>ObjectMapper</code>, but that abstract is not part of core
-     * package.
-     */
-    protected ObjectCodec _objectCodec;
-
-    /**
      * Symbol table that contains field names encountered so far
      */
-    final protected ByteQuadsCanonicalizer _symbols;
+    protected final ByteQuadsCanonicalizer _symbols;
 
     /*
     /**********************************************************
@@ -123,26 +95,10 @@ public class UTF8DataInputJsonParser
             ObjectCodec codec, ByteQuadsCanonicalizer sym,
             int firstByte)
     {
-        super(ctxt, features);
-        _objectCodec = codec;
+        super(ctxt, features, codec);
         _symbols = sym;
         _inputData = inputData;
         _nextByte = firstByte;
-    }
-
-    @Override
-    public ObjectCodec getCodec() {
-        return _objectCodec;
-    }
-
-    @Override
-    public void setCodec(ObjectCodec c) {
-        _objectCodec = c;
-    }
-
-    @Override // @since 2.12
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return JSON_READ_CAPABILITIES;
     }
 
     /*
@@ -611,7 +567,7 @@ public class UTF8DataInputJsonParser
         _tokenInputRow = _currInputRow;
 
         // Closing scope?
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
+        if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
             _closeScope(i);
             return _currToken;
         }
@@ -625,7 +581,7 @@ public class UTF8DataInputJsonParser
 
             // Was that a trailing comma?
             if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
-                if (i == INT_RBRACKET || i == INT_RCURLY) {
+                if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
                     _closeScope(i);
                     return _currToken;
                 }
@@ -801,7 +757,7 @@ public class UTF8DataInputJsonParser
         _binaryValue = null;
         _tokenInputRow = _currInputRow;
 
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
+        if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
             _closeScope(i);
             return null;
         }
@@ -815,7 +771,7 @@ public class UTF8DataInputJsonParser
 
             // Was that a trailing comma?
             if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
-                if (i == INT_RBRACKET || i == INT_RCURLY) {
+                if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
                     _closeScope(i);
                     return null;
                 }
@@ -1077,7 +1033,7 @@ public class UTF8DataInputJsonParser
             outBuf[outPtr++] = (char) c;
             c = _inputData.readUnsignedByte();
         }
-        if (c == '.' || c == 'e' || c == 'E') {
+        if (c == '.' || (c | 0x20) == INT_e) { // ~ '.eE'
             return _parseFloat(outBuf, outPtr, c, false, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);
@@ -1140,7 +1096,7 @@ public class UTF8DataInputJsonParser
             outBuf[outPtr++] = (char) c;
             c = _inputData.readUnsignedByte();
         }
-        if (c == '.' || c == 'e' || c == 'E') {
+        if (c == '.' || (c | 0x20) == INT_e) { // ~ '.eE'
             return _parseFloat(outBuf, outPtr, c, negative, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);
@@ -1217,7 +1173,7 @@ public class UTF8DataInputJsonParser
         }
 
         int expLen = 0;
-        if (c == INT_e || c == INT_E) { // exponent?
+        if ((c | 0x20) == INT_e) { // ~ 'eE' exponent?
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -1298,7 +1254,7 @@ public class UTF8DataInputJsonParser
          *   assume that part is ok (if not it will get caught
          *   later on), and just handle quotes and backslashes here.
          */
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         int q = _inputData.readUnsignedByte();
 
@@ -1345,7 +1301,7 @@ public class UTF8DataInputJsonParser
 
     private final String _parseMediumName(int q2) throws IOException
     {
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         // Ok, got 5 name bytes so far
         int i = _inputData.readUnsignedByte();
@@ -1384,7 +1340,7 @@ public class UTF8DataInputJsonParser
 
     private final String _parseMediumName2(int q3, final int q2) throws IOException
     {
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         // Got 9 name bytes so far
         int i = _inputData.readUnsignedByte();
@@ -1428,7 +1384,7 @@ public class UTF8DataInputJsonParser
         _quadBuffer[2] = q3;
 
         // As explained above, will ignore UTF-8 encoding at this point
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
         int qlen = 3;
 
         while (true) {
@@ -1504,7 +1460,7 @@ public class UTF8DataInputJsonParser
          *   UTF-8 decoding yet. Rather, we'll assume that part is ok (if not it will get
          *   caught later on), and just handle quotes and backslashes here.
          */
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         while (true) {
             if (codes[ch] != 0) {
@@ -1678,7 +1634,7 @@ public class UTF8DataInputJsonParser
 
         // Copied from parseEscapedFieldName, with minor mods:
 
-        final int[] codes = _icLatin1;
+        final int[] codes = INPUT_CODES_LATIN1;
 
         while (true) {
             if (ch == '\'') {
@@ -1953,7 +1909,7 @@ public class UTF8DataInputJsonParser
     {
         int outPtr = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
         final int outEnd = outBuf.length;
 
         do {
@@ -1975,7 +1931,7 @@ public class UTF8DataInputJsonParser
     {
         int outPtr = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
         final int outEnd = outBuf.length;
 
         do {
@@ -1997,7 +1953,7 @@ public class UTF8DataInputJsonParser
         throws IOException
     {
         // Here we do want to do full decoding, hence:
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
         int outEnd = outBuf.length;
 
         main_loop:
@@ -2071,7 +2027,7 @@ public class UTF8DataInputJsonParser
         _tokenIncomplete = false;
 
         // Need to be fully UTF-8 aware here:
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
 
         main_loop:
         while (true) {
@@ -2190,7 +2146,7 @@ public class UTF8DataInputJsonParser
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
 
         // Here we do want to do full decoding, hence:
-        final int[] codes = _icUTF8;
+        final int[] codes = INPUT_CODES_UTF8;
 
         main_loop:
         while (true) {
@@ -2975,6 +2931,12 @@ public class UTF8DataInputJsonParser
                 _currInputRow, col);
     }
 
+    // Since we only know row, may as well return currentLocation()
+    @Override // @since 2.17
+    protected JsonLocation _currentLocationMinusOne() {
+        return currentLocation();
+    }
+
     @Override
     public JsonLocation currentTokenLocation() {
         // 03-Jan-2020, tatu: Should probably track this, similar to how
@@ -2990,25 +2952,14 @@ public class UTF8DataInputJsonParser
         return new JsonLocation(_contentReference(), -1L, -1L, _tokenInputRow, -1);
     }
 
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getCurrentLocation() {
-        return currentLocation();
-    }
-
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getTokenLocation() {
-        return currentTokenLocation();
-    }
-    
     /*
     /**********************************************************
     /* Internal methods, other
     /**********************************************************
      */
 
-    private void _closeScope(int i) throws JsonParseException {
+    private void _closeScope(int i) throws JsonParseException
+    {
         if (i == INT_RBRACKET) {
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');

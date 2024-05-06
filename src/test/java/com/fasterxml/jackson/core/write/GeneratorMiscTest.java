@@ -7,13 +7,17 @@ import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Set of basic unit tests for verifying basic generator
  * features.
  */
 @SuppressWarnings("resource")
 public class GeneratorMiscTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -23,7 +27,8 @@ public class GeneratorMiscTest
     /**********************************************************
      */
 
-    public void testIsClosed() throws IOException
+    @Test
+    void isClosed() throws IOException
     {
         for (int i = 0; i < 2; ++i) {
             boolean stream = ((i & 1) == 0);
@@ -44,7 +49,8 @@ public class GeneratorMiscTest
     }
 
     // Also, "very simple" objects are supported even without Codec:
-    public void testSimpleWriteObject() throws IOException
+    @Test
+    void simpleWriteObject() throws IOException
     {
         // note: NOT mapping factory, for this test
         StringWriter sw = new StringWriter();
@@ -93,7 +99,8 @@ public class GeneratorMiscTest
     /**********************************************************
      */
 
-    public void testRaw() throws IOException
+    @Test
+    void raw() throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
@@ -115,7 +122,8 @@ public class GeneratorMiscTest
         jp.close();
     }
 
-    public void testRawValue() throws IOException
+    @Test
+    void rawValue() throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
@@ -149,7 +157,8 @@ public class GeneratorMiscTest
     /**
      * Unit test that tries to trigger buffer-boundary conditions
      */
-    public void testLongerObjects() throws Exception
+    @Test
+    void longerObjects() throws Exception
     {
         _testLongerObjects(JSON_F, 0);
         _testLongerObjects(JSON_F, 1);
@@ -234,7 +243,8 @@ public class GeneratorMiscTest
      */
 
     // NOTE: test for binary data under `base64/` tests
-    public void testAsEmbedded() throws Exception
+    @Test
+    void asEmbedded() throws Exception
     {
         StringWriter sw = new StringWriter();
         try (JsonGenerator g = JSON_F.createGenerator(sw)) {

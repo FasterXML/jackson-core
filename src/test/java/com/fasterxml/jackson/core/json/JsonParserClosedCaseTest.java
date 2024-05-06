@@ -10,21 +10,20 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Tests asserts that using closed `JsonParser` doesn't cause ArrayIndexOutOfBoundsException
  * with `nextXxx()` methods but returns `null` as expected.
  */
-@RunWith(Parameterized.class)
 public class JsonParserClosedCaseTest {
     private static final JsonFactory JSON_F = new JsonFactory();
 
-    private JsonParser parser;
+    JsonParser parser;
 
     /**
      * Creates a list of parsers to tests.
@@ -32,7 +31,6 @@ public class JsonParserClosedCaseTest {
      * @return List of Object[2]. Object[0] is is the name of the class, Object[1] is instance itself.
      * @throws IOException when closing stream fails.
      */
-    @Parameters(name = "{0}")
     public static Collection<Object[]> parsers() throws IOException {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] { '{', '}' });
 
@@ -43,32 +41,40 @@ public class JsonParserClosedCaseTest {
         );
     }
 
-    public JsonParserClosedCaseTest(String parserName, JsonParser parser) {
+    public void initJsonParserClosedCaseTest(String parserName, JsonParser parser) {
         this.parser = parser;
     }
 
-    @Test
-    public void testNullReturnedOnClosedParserOnNextFieldName() throws Exception {
-        Assert.assertNull(parser.nextFieldName());
+    @MethodSource("parsers")
+    @ParameterizedTest(name = "{0}")
+    void nullReturnedOnClosedParserOnNextFieldName(String parserName, JsonParser parser) throws Exception {
+        initJsonParserClosedCaseTest(parserName, parser);
+        assertNull(parser.nextFieldName());
     }
 
-    @Test
-    public void testFalseReturnedOnClosedParserOnNextFieldNameSerializedString() throws Exception {
-        Assert.assertFalse(parser.nextFieldName(new SerializedString("")));
+    @MethodSource("parsers")
+    @ParameterizedTest(name = "{0}")
+    void falseReturnedOnClosedParserOnNextFieldNameSerializedString(String parserName, JsonParser parser) throws Exception {
+        initJsonParserClosedCaseTest(parserName, parser);
+        assertFalse(parser.nextFieldName(new SerializedString("")));
     }
 
-    @Test
-    public void testNullReturnedOnClosedParserOnNextToken() throws Exception {
-        Assert.assertNull(parser.nextToken());
+    @MethodSource("parsers")
+    @ParameterizedTest(name = "{0}")
+    void nullReturnedOnClosedParserOnNextToken(String parserName, JsonParser parser) throws Exception {
+        initJsonParserClosedCaseTest(parserName, parser);
+        assertNull(parser.nextToken());
     }
 
-    @Test
-    public void testNullReturnedOnClosedParserOnNextValue() throws Exception {
-        Assert.assertNull(parser.nextValue());
+    @MethodSource("parsers")
+    @ParameterizedTest(name = "{0}")
+    void nullReturnedOnClosedParserOnNextValue(String parserName, JsonParser parser) throws Exception {
+        initJsonParserClosedCaseTest(parserName, parser);
+        assertNull(parser.nextValue());
     }
 
     private static Collection<Object[]> closeParsers(JsonParser... parsersToClose) throws IOException {
-        List<Object[]> list = new ArrayList<Object[]>();
+        List<Object[]> list = new ArrayList<>();
         for (JsonParser p : parsersToClose) {
             p.close();
             list.add(new Object[] { p.getClass().getSimpleName(), p });

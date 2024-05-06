@@ -2,11 +2,15 @@ package com.fasterxml.jackson.core.base64;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 
-public class Base64GenerationTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class Base64GenerationTest
+        extends JUnit5TestBase
 {
     /* The usual sample input string, from Thomas Hobbes's "Leviathan"
      * (via Wikipedia)
@@ -45,14 +49,16 @@ public class Base64GenerationTest
 
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testStreamingBinaryWrites() throws Exception
+    @Test
+    void streamingBinaryWrites() throws Exception
     {
         _testStreamingWrites(JSON_F, true);
         _testStreamingWrites(JSON_F, false);
     }
 
     // For [core#55]
-    public void testIssue55() throws Exception
+    @Test
+    void issue55() throws Exception
     {
         final JsonFactory f = new JsonFactory();
 
@@ -84,14 +90,16 @@ public class Base64GenerationTest
      * as some kind of sanity check. Reader-side should more thoroughly
      * test things, as it does need writers to construct the data first.
      */
-    public void testSimpleBinaryWrite() throws Exception
+    @Test
+    void simpleBinaryWrite() throws Exception
     {
         _testSimpleBinaryWrite(false);
         _testSimpleBinaryWrite(true);
     }
 
     // for [core#318]
-    public void testBinaryAsEmbeddedObject() throws Exception
+    @Test
+    void binaryAsEmbeddedObject() throws Exception
     {
         JsonGenerator g;
 

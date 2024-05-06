@@ -1,24 +1,32 @@
 package com.fasterxml.jackson.core.base64;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 
-public class Base64Padding912Test
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class Base64Padding912Test
+        extends JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
-    
-    public void testPaddingUsingInputStream() throws Exception
+
+    @Test
+    void paddingUsingInputStream() throws Exception
     {
         _testPadding(MODE_INPUT_STREAM);
         _testPadding(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testPaddingUsingReader() throws Exception
+    @Test
+    void paddingUsingReader() throws Exception
     {
         _testPadding(MODE_READER);
     }
 
-    public void testPaddingUsingDataInput() throws Exception
+    @Test
+    void paddingUsingDataInput() throws Exception
     {
         _testPadding(MODE_DATA_INPUT);
     }

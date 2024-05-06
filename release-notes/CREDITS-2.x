@@ -128,7 +128,6 @@ Arnaud Roger (arnaudroger@github)
    to `writeRaw()` instead of `writeRawValue()`
    (2.10.2)
 
-
 Emily Selwood (emilyselwood@github)
   * Reported #382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
    (2.8.9)
@@ -396,6 +395,9 @@ Armin Samii (@artoonie)
 Joo Hyuk Kim (@JooHyukKim)
  * Contributed #1067: Add `ErrorReportConfiguration`
   (2.16.0)
+ * Contributed #507: Add `JsonWriteFeature.ESCAPE_FORWARD_SLASHES`
+   to allow escaping of '/' for String values
+  (2.17.0)
 
 David Schlosnagle (@schlosna)
  * Contributed #1081: Make `ByteSourceJsonBootstrapper` use `StringReader` for < 8KiB
@@ -405,3 +407,30 @@ David Schlosnagle (@schlosna)
 Mario Fusco (@mariofusco)
  * Contributed #1064: Add full set of `BufferRecyclerPool` implementations
   (2.16.0)
+ * Contributed #1195: Use `BufferRecycler` provided by output (`OutputStream`,
+   `Writer`) object if available
+  (2.17.0)
+
+Robert Elliot (@Mahoney)
+ * Reported #1145: `JsonPointer.appendProperty(String)` does not escape the property name
+  (2.17.0)
+ * Reported #1168: `JsonPointer.append(JsonPointer.tail())` includes the original pointer
+  (2.16.1)
+
+Paul Bunyan (@hal7df)
+ * Reported #1173: `JsonLocation` consistently off by one character for many invalid
+   JSON parsing cases
+  (2.17.0)
+
+Guillaume Lecroc (@gulecroc)
+ * Contributed #1179: Allow configuring `DefaultPrettyPrinter` separators for empty
+   Arrays and Objects
+  (2.17.0)
+
+Antonin Janec (@xtonic)
+ * Contributed #1203: Faster division by 1000
+  (2.17.0)
+ * Contributed #1217: Optimize char comparison using bitwise OR
+  (2.17.0)
+ * Contributed #1218: Simplify Unicode surrogate pair conversion for generation
+ (2.17.0)

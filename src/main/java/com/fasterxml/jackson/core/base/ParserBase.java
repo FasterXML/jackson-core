@@ -1055,7 +1055,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_LONG) != 0) {
             // Let's verify its lossless conversion by simple roundtrip
             int result = (int) _numberLong;
-            if (((long) result) != _numberLong) {
+            if (result != _numberLong) {
                 reportOverflowInt(getText(), currentToken());
             }
             _numberInt = result;
@@ -1089,7 +1089,7 @@ public abstract class ParserBase extends ParserMinimalBase
     protected void convertNumberToLong() throws IOException
     {
         if ((_numTypesValid & NR_INT) != 0) {
-            _numberLong = (long) _numberInt;
+            _numberLong = _numberInt;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             final BigInteger bigInteger = _getBigInteger();
             if (BI_MIN_LONG.compareTo(bigInteger) > 0
@@ -1159,14 +1159,14 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberDouble = _getBigInteger().doubleValue();
             }
         } else if ((_numTypesValid & NR_LONG) != 0) {
-            _numberDouble = (double) _numberLong;
+            _numberDouble = _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
-            _numberDouble = (double) _numberInt;
+            _numberDouble = _numberInt;
         } else if ((_numTypesValid & NR_FLOAT) != 0) {
             if (_numberString != null) {
                 _numberDouble = _getNumberDouble();
             } else {
-                _numberDouble = (double) _getNumberFloat();
+                _numberDouble = _getNumberFloat();
             }
         } else {
             _throwInternal();
@@ -1195,9 +1195,9 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberFloat = _getBigInteger().floatValue();
             }
         } else if ((_numTypesValid & NR_LONG) != 0) {
-            _numberFloat = (float) _numberLong;
+            _numberFloat = _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
-            _numberFloat = (float) _numberInt;
+            _numberFloat = _numberInt;
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             if (_numberString != null) {
                 _numberFloat = _getNumberFloat();
@@ -1363,14 +1363,6 @@ public abstract class ParserBase extends ParserMinimalBase
     /**********************************************************
      */
 
-    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
-        JsonReadContext ctxt = getParsingContext();
-        _reportError(String.format(
-                "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
-                (char) actCh, expCh, ctxt.typeDesc(),
-                ctxt.startLocation(_contentReference())));
-    }
-
     @SuppressWarnings("deprecation")
     protected char _handleUnrecognizedCharacterEscape(char ch) throws JsonProcessingException {
         // as per [JACKSON-300]
@@ -1381,8 +1373,17 @@ public abstract class ParserBase extends ParserMinimalBase
         if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
             return ch;
         }
-        _reportError("Unrecognized character escape "+_getCharDesc(ch));
-        return ch;
+        throw _constructReadException("Unrecognized character escape "+_getCharDesc(ch),
+                _currentLocationMinusOne());
+    }
+
+    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
+        final JsonReadContext ctxt = getParsingContext();
+        final String msg = String.format(
+                "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
+                (char) actCh, expCh, ctxt.typeDesc(),
+                ctxt.startLocation(_contentReference()));
+        throw _constructReadException(msg, _currentLocationMinusOne());
     }
 
     /**
@@ -1402,7 +1403,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if (!isEnabled(Feature.ALLOW_UNQUOTED_CONTROL_CHARS) || i > INT_SPACE) {
             char c = (char) i;
             String msg = "Illegal unquoted character ("+_getCharDesc(c)+"): has to be escaped using backslash to be included in "+ctxtDesc;
-            _reportError(msg);
+            throw _constructReadException(msg, _currentLocationMinusOne());
         }
     }
 

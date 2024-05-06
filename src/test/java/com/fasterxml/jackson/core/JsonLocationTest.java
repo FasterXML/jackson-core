@@ -4,30 +4,41 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.io.ContentReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JsonLocationTest extends BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Tests for verifying internal working of {@link JsonLocation} class itself,
+ * as opposed to accuracy of reported location information by parsers.
+ */
+class JsonLocationTest
+        extends JUnit5TestBase
 {
     static class Foobar { }
 
-    public void testBasics()
+    @Test
+    void basics()
     {
         JsonLocation loc1 = new JsonLocation(_sourceRef("src"),
                 10L, 10L, 1, 2);
         JsonLocation loc2 = new JsonLocation(null, 10L, 10L, 3, 2);
         assertEquals(loc1, loc1);
-        assertFalse(loc1.equals(null));
-        assertFalse(loc1.equals(loc2));
-        assertFalse(loc2.equals(loc1));
+        assertNotEquals(null, loc1);
+        assertNotEquals(loc1, loc2);
+        assertNotEquals(loc2, loc1);
 
         // don't care about what it is; should not compute to 0 with data above
         assertTrue(loc1.hashCode() != 0);
         assertTrue(loc2.hashCode() != 0);
     }
 
-    public void testBasicToString() throws Exception
+    @Test
+    void basicToString() throws Exception
     {
         // no location; presumed to be Binary due to defaulting
         assertEquals("[Source: UNKNOWN; line: 3, column: 2]",
@@ -61,7 +72,8 @@ public class JsonLocationTest extends BaseTest
                 new JsonLocation(_rawSourceRef(true, srcRef), 10L, 10L, 1, 2).toString());
     }
 
-    public void testTruncatedSource() throws Exception
+    @Test
+    void truncatedSource() throws Exception
     {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < ErrorReportConfiguration.DEFAULT_MAX_RAW_CONTENT_LENGTH; ++i) {
@@ -80,7 +92,8 @@ public class JsonLocationTest extends BaseTest
     }
 
     // for [jackson-core#658]
-    public void testEscapeNonPrintable() throws Exception
+    @Test
+    void escapeNonPrintable() throws Exception
     {
         final String DOC = "[ \"tab:[\t]/null:[\0]\" ]";
         JsonLocation loc = new JsonLocation(_sourceRef(DOC), 0L, 0L, -1, -1);
@@ -90,7 +103,8 @@ public class JsonLocationTest extends BaseTest
     }
 
     // for [jackson-core#356]
-    public void testDisableSourceInclusion() throws Exception
+    @Test
+    void disableSourceInclusion() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .disable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
@@ -124,9 +138,10 @@ public class JsonLocationTest extends BaseTest
         assertNull(loc.contentReference().getRawContent());
         assertThat(loc.sourceDescription()).startsWith("REDACTED");
     }
-    
+
     // for [jackson-core#739]: try to support equality
-    public void testLocationEquality() throws Exception
+    @Test
+    void locationEquality() throws Exception
     {
         // important: create separate but equal instances
         File src1 = new File("/tmp/foo");
@@ -151,8 +166,8 @@ public class JsonLocationTest extends BaseTest
                 5L, 0L, 1, 2);
         loc2 = new JsonLocation(_sourceRef(bogus, 1, 4),
                 5L, 0L, 1, 2);
-        assertFalse(loc1.equals(loc2));
-        assertFalse(loc2.equals(loc1));
+        assertNotEquals(loc1, loc2);
+        assertNotEquals(loc2, loc1);
     }
 
     private ContentReference _sourceRef(String rawSrc) {

@@ -1,17 +1,22 @@
 package com.fasterxml.jackson.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.io.ContentReference;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for class {@link ErrorReportConfiguration}.
  * 
  * @since 2.16
  */
-public class ErrorReportConfigurationTest
-    extends BaseTest
+class ErrorReportConfigurationTest
+        extends JUnit5TestBase
 {
-        
     /*
     /**********************************************************
     /* Unit Tests
@@ -24,7 +29,8 @@ public class ErrorReportConfigurationTest
 
     private final ErrorReportConfiguration DEFAULTS = ErrorReportConfiguration.defaults();
 
-    public void testNormalBuild()
+    @Test
+    void normalBuild()
     {
         ErrorReportConfiguration config = ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(1004)
@@ -35,7 +41,8 @@ public class ErrorReportConfigurationTest
         assertEquals(2008, config.getMaxRawContentLength());
     }
 
-    public void testZeroLengths()
+    @Test
+    void zeroLengths()
     {
         // boundary tests, because we throw error on negative values
         ErrorReportConfiguration config = ErrorReportConfiguration.builder()
@@ -47,7 +54,8 @@ public class ErrorReportConfigurationTest
         assertEquals(0, config.getMaxRawContentLength());
     }
 
-    public void testInvalidMaxErrorTokenLength()
+    @Test
+    void invalidMaxErrorTokenLength()
     {
         ErrorReportConfiguration.Builder builder = ErrorReportConfiguration.builder();
         try {
@@ -66,7 +74,8 @@ public class ErrorReportConfigurationTest
         }
     }
 
-    public void testDefaults()
+    @Test
+    void defaults()
     {
         // default value
         assertEquals(DEFAULT_ERROR_LENGTH, DEFAULTS.getMaxErrorTokenLength());
@@ -76,7 +85,8 @@ public class ErrorReportConfigurationTest
         assertEquals(ErrorReportConfiguration.defaults(), ErrorReportConfiguration.defaults());
     }
 
-    public void testOverrideDefaultErrorReportConfiguration()
+    @Test
+    void overrideDefaultErrorReportConfiguration()
     {
         // (1) override with null, will be no change
         ErrorReportConfiguration.overrideDefaultErrorReportConfiguration(null);
@@ -106,7 +116,8 @@ public class ErrorReportConfigurationTest
         }
     }
 
-    public void testRebuild()
+    @Test
+    void rebuild()
     {
         ErrorReportConfiguration config = ErrorReportConfiguration.builder().build();
         ErrorReportConfiguration rebuiltConfig = config.rebuild().build();
@@ -115,7 +126,8 @@ public class ErrorReportConfigurationTest
         assertEquals(config.getMaxRawContentLength(), rebuiltConfig.getMaxRawContentLength());
     }
 
-    public void testBuilderConstructorWithErrorReportConfiguration()
+    @Test
+    void builderConstructorWithErrorReportConfiguration()
     {
         ErrorReportConfiguration configA = ErrorReportConfiguration.builder()
                 .maxErrorTokenLength(1234)
@@ -128,7 +140,8 @@ public class ErrorReportConfigurationTest
         assertEquals(configA.getMaxRawContentLength(), configB.getMaxRawContentLength());
     }
 
-    public void testWithJsonLocation() throws Exception
+    @Test
+    void withJsonLocation() throws Exception
     {
         // Truncated result
         _verifyJsonLocationToString("abc", 2, "\"ab\"[truncated 1 chars]");
@@ -138,7 +151,8 @@ public class ErrorReportConfigurationTest
         _verifyJsonLocationToString("abc", 4, "\"abc\"");
     }
 
-    public void testWithJsonFactory() throws Exception
+    @Test
+    void withJsonFactory() throws Exception
     {
         // default
         _verifyJsonProcessingExceptionSourceLength(500,
@@ -160,7 +174,8 @@ public class ErrorReportConfigurationTest
                         .maxRawContentLength(0).build());
     }
 
-    public void testExpectedTokenLengthWithConfigurations()
+    @Test
+    void expectedTokenLengthWithConfigurations()
             throws Exception
     {
         // default
@@ -201,7 +216,8 @@ public class ErrorReportConfigurationTest
         }
     }
 
-    public void testNonPositiveErrorTokenConfig()
+    @Test
+    void nonPositiveErrorTokenConfig()
     {
         // Zero should be ok
         ErrorReportConfiguration.builder().maxErrorTokenLength(0).build();
@@ -217,7 +233,8 @@ public class ErrorReportConfigurationTest
         }
     }
 
-    public void testNullSetterThrowsException() {
+    @Test
+    void nullSetterThrowsException() {
         try {
             newStreamFactory().setErrorReportConfiguration(null);
             fail();

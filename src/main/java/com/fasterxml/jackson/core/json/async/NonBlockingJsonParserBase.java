@@ -3,13 +3,12 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.JsonParserBase;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
 
@@ -19,7 +18,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * @since 2.9
  */
 public abstract class NonBlockingJsonParserBase
-    extends ParserBase
+    extends JsonParserBase
 {
     /*
     /**********************************************************************
@@ -255,7 +254,7 @@ public abstract class NonBlockingJsonParserBase
     public NonBlockingJsonParserBase(IOContext ctxt, int parserFeatures,
             ByteQuadsCanonicalizer sym)
     {
-        super(ctxt, parserFeatures);
+        super(ctxt, parserFeatures, null);
         _symbols = sym;
         _currToken = null;
         _majorState = MAJOR_INITIAL;
@@ -263,22 +262,18 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public ObjectCodec getCodec() {
-        return null;
-    }
-
-    @Override
     public void setCodec(ObjectCodec c) {
         throw new UnsupportedOperationException("Can not use ObjectMapper with non-blocking parser");
     }
 
+    /*
+    /**********************************************************
+    /* Capability introspection
+    /**********************************************************
+     */
+    
     @Override // since 2.9
     public boolean canParseAsync() { return true; }
-
-    @Override // @since 2.12
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return JSON_READ_CAPABILITIES;
-    }
 
     /*
     /**********************************************************
@@ -355,23 +350,21 @@ public abstract class NonBlockingJsonParserBase
                 row, col);
     }
 
+    @Override // @since 2.17
+    protected JsonLocation _currentLocationMinusOne() {
+        final int prevInputPtr = _inputPtr - 1;
+        int row = Math.max(_currInputRow, _currInputRowAlt);
+        final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_contentReference(),
+                _currInputProcessed + (prevInputPtr - _currBufferStart), -1L, // bytes, chars
+                row, col);
+    }
+
     @Override
     public JsonLocation currentTokenLocation()
     {
         return new JsonLocation(_contentReference(),
                 _tokenInputTotal, -1L, _tokenInputRow, _tokenInputCol);
-    }
-
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getCurrentLocation() {
-        return currentLocation();
-    }
-
-    @Deprecated // since 2.17
-    @Override
-    public JsonLocation getTokenLocation() {
-        return currentTokenLocation();
     }
 
     /*

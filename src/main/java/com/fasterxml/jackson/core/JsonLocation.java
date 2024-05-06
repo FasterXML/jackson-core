@@ -152,10 +152,16 @@ public class JsonLocation
     public int getLineNr() { return _lineNr; }
 
     /**
-     * Access for getting column position of this location, if available.
+     * Access for getting column offset of this location, if available.
      * Note that column position is typically not available for binary formats.
+     * Note: this returns an offset that is in units of input, so for {@code byte}-based
+     * input sources (like {@link java.io.InputStream}) this does not take into
+     * account multi-byte characters: one logical character can be 1, 2 or 3 bytes long.
+     * To calculate column position in characters either {@code char}-based input
+     * source (like {@link java.io.Reader}) needs to be used, or content needs to be
+     * explicitly decoded.
      *
-     * @return Column position of the location (1-based), if available; {@code -1} if not.
+     * @return Column offset of the location (1-based), if available; {@code -1} if not.
      */
     public int getColumnNr() { return _columnNr; }
 

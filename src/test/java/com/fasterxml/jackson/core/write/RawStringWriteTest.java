@@ -3,19 +3,23 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
+class RawStringWriteTest extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
     /**
      * Unit test for "JsonGenerator.writeRawUTF8String()"
      */
-    public void testUtf8RawStrings() throws Exception
+    @Test
+    void utf8RawStrings() throws Exception
     {
         // Let's create set of Strings to output; no ctrl chars as we do raw
         List<byte[]> strings = generateStrings(new Random(28), 750000, false);
@@ -47,7 +51,8 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
      * Unit test for "JsonGenerator.writeUTF8String()", which needs
      * to handle escaping properly
      */
-    public void testUtf8StringsWithEscaping() throws Exception
+    @Test
+    void utf8StringsWithEscaping() throws Exception
     {
         // Let's create set of Strings to output; do include control chars too:
         List<byte[]> strings = generateStrings(new Random(28), 720000, true);
@@ -78,7 +83,8 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
         jp.close();
     }
 
-    public void testWriteRawWithSerializable() throws Exception
+    @Test
+    void writeRawWithSerializable() throws Exception
     {
         _testWriteRawWithSerializable(JSON_F, true);
         _testWriteRawWithSerializable(JSON_F, false);
@@ -126,7 +132,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
     private List<byte[]> generateStrings(Random rnd, int totalLength, boolean includeCtrlChars)
         throws IOException
     {
-        ArrayList<byte[]> strings = new ArrayList<byte[]>();
+        ArrayList<byte[]> strings = new ArrayList<>();
         do {
             int len = 2;
             int bits = rnd.nextInt(13);

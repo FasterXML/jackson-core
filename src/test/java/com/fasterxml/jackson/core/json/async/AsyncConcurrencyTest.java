@@ -7,10 +7,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncConcurrencyTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.fail;
+
+class AsyncConcurrencyTest extends AsyncTestBase
 {
     final static JsonFactory JSON_F = new JsonFactory();
     static {
@@ -103,7 +107,8 @@ public class AsyncConcurrencyTest extends AsyncTestBase
     }
 
     // [jackson-core#476]
-    public void testConcurrentAsync() throws Exception
+    @Test
+    void concurrentAsync() throws Exception
     {
         final int MAX_ROUNDS = 30;
         for (int i = 0; i < MAX_ROUNDS; ++i) {
@@ -117,10 +122,10 @@ public class AsyncConcurrencyTest extends AsyncTestBase
         final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         final AtomicInteger errorCount = new AtomicInteger(0);
         final AtomicInteger completedCount = new AtomicInteger(0);
-        final AtomicReference<String> errorRef = new AtomicReference<String>();
+        final AtomicReference<String> errorRef = new AtomicReference<>();
 
         // First, add a few shared work units
-        final ArrayBlockingQueue<WorkUnit> q = new ArrayBlockingQueue<WorkUnit>(20);
+        final ArrayBlockingQueue<WorkUnit> q = new ArrayBlockingQueue<>(20);
         for (int i = 0; i < 7; ++i) {
             q.add(new WorkUnit());
         }
@@ -128,7 +133,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
         // then invoke swarm of workers on it...
 
         final int REP_COUNT = 99000;
-        ArrayList<Future<?>> futures = new ArrayList<Future<?>>();
+        ArrayList<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < REP_COUNT; i++) {
             Callable<Void> c = () -> {
                 WorkUnit w = q.take();

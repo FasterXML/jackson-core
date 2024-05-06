@@ -51,7 +51,7 @@ abstract class ManualPerfTestBase
             if (lf) {
                 ++roundsDone;
                 if ((roundsDone % 3) == 0 && roundsDone > WARMUP_ROUNDS) {
-                    double den = (double) (roundsDone - WARMUP_ROUNDS);
+                    double den = roundsDone - WARMUP_ROUNDS;
                     System.out.printf("Averages after %d rounds ("+desc1+" / "+desc2+"): %.1f / %.1f msecs\n",
                             (int) den,
                             times[0] / den, times[1] / den);
@@ -85,7 +85,7 @@ abstract class ManualPerfTestBase
     protected abstract void testRead2(int reps) throws Exception;
 
     protected static String a2q(String json) {
-        return json.replace("'", "\"");
+        return json.replace('\'', '"');
     }
 }
 

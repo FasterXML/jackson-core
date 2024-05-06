@@ -10,11 +10,13 @@ import com.fasterxml.jackson.core.testsupport.TestSupport;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 import com.fasterxml.jackson.core.testsupport.ThrottledReader;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@SuppressWarnings("resource")
-public abstract class BaseTest
-    extends TestCase
+/**
+ * Replacement of JUnit4-based {@code BaseTest}
+ */
+public class JUnit5TestBase
 {
     protected final static String FIELD_BASENAME = "f";
 
@@ -90,84 +92,29 @@ public abstract class BaseTest
     /**********************************************************
      */
 
-    /**
-     * Sample class from Jackson tutorial ("JacksonInFiveMinutes")
+    protected final static JsonFactory JSON_FACTORY = new JsonFactory();
+
+
+
+
+    /*
+    /**********************************************************************
+    /* Factory methods
+    /**********************************************************************
      */
-    protected static class FiveMinuteUser {
-        public enum Gender { MALE, FEMALE };
 
-        public static class Name
-        {
-          private String _first, _last;
 
-          public Name() { }
-          public Name(String f, String l) {
-              _first = f;
-              _last = l;
-          }
-
-          public String getFirst() { return _first; }
-          public String getLast() { return _last; }
-
-          public void setFirst(String s) { _first = s; }
-          public void setLast(String s) { _last = s; }
-
-          @Override
-          public boolean equals(Object o)
-          {
-              if (o == this) return true;
-              if (o == null || o.getClass() != getClass()) return false;
-              Name other = (Name) o;
-              return _first.equals(other._first) && _last.equals(other._last);
-          }
-        }
-
-        private Gender _gender;
-        private Name _name;
-        private boolean _isVerified;
-        private byte[] _userImage;
-
-        public FiveMinuteUser() { }
-
-        public FiveMinuteUser(String first, String last, boolean verified, Gender g, byte[] data)
-        {
-            _name = new Name(first, last);
-            _isVerified = verified;
-            _gender = g;
-            _userImage = data;
-        }
-
-        public Name getName() { return _name; }
-        public boolean isVerified() { return _isVerified; }
-        public Gender getGender() { return _gender; }
-        public byte[] getUserImage() { return _userImage; }
-
-        public void setName(Name n) { _name = n; }
-        public void setVerified(boolean b) { _isVerified = b; }
-        public void setGender(Gender g) { _gender = g; }
-        public void setUserImage(byte[] b) { _userImage = b; }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (o == this) return true;
-            if (o == null || o.getClass() != getClass()) return false;
-            FiveMinuteUser other = (FiveMinuteUser) o;
-            if (_isVerified != other._isVerified) return false;
-            if (_gender != other._gender) return false;
-            if (!_name.equals(other._name)) return false;
-            byte[] otherImage = other._userImage;
-            if (otherImage.length != _userImage.length) return false;
-            for (int i = 0, len = _userImage.length; i < len; ++i) {
-                if (_userImage[i] != otherImage[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
+    public static JsonFactory sharedStreamFactory() {
+        return JSON_FACTORY;
     }
 
-    protected final static JsonFactory JSON_FACTORY = new JsonFactory();
+    protected JsonFactory newStreamFactory() {
+        return new JsonFactory();
+    }
+
+    protected JsonFactoryBuilder streamFactoryBuilder() {
+        return (JsonFactoryBuilder) JsonFactory.builder();
+    }
 
     /*
     /**********************************************************
@@ -291,19 +238,8 @@ public abstract class BaseTest
     /**********************************************************************
      */
 
-    protected static IOContext testIOContext() {
+    public static IOContext testIOContext() {
         return TestSupport.testIOContext();
-    }
-
-    /*
-    /**********************************************************
-    /* Helper read/write methods
-    /**********************************************************
-     */
-
-    protected void writeJsonDoc(JsonFactory f, String doc, Writer w) throws IOException
-    {
-        writeJsonDoc(f, doc, f.createGenerator(w));
     }
 
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
@@ -339,32 +275,21 @@ public abstract class BaseTest
     }
 
     /*
-    /**********************************************************
-    /* Additional assertion methods
-    /**********************************************************
+    /**********************************************************************
+    /* Assertions
+    /**********************************************************************
      */
 
-    public static void assertToken(JsonToken expToken, JsonToken actToken)
+    protected void assertToken(JsonToken expToken, JsonToken actToken)
     {
         if (actToken != expToken) {
             fail("Expected token "+expToken+", current token "+actToken);
         }
     }
 
-    public static void assertToken(JsonToken expToken, JsonParser p)
+    protected void assertToken(JsonToken expToken, JsonParser p)
     {
         assertToken(expToken, p.currentToken());
-    }
-
-    public static void assertType(Object ob, Class<?> expType)
-    {
-        if (ob == null) {
-            fail("Expected an object of type "+expType.getName()+", got null");
-        }
-        Class<?> cls = ob.getClass();
-        if (!expType.isAssignableFrom(cls)) {
-            fail("Expected type "+expType.getName()+", got "+cls.getName());
-        }
     }
 
     /**
@@ -401,23 +326,23 @@ public abstract class BaseTest
         if (str.length() !=  actLen) {
             fail("Internal problem (p.token == "+p.currentToken()+"): p.getText().length() ['"+str+"'] == "+str.length()+"; p.getTextLength() == "+actLen);
         }
-        assertEquals("String access via getText(), getTextXxx() must be the same", str, str2);
+        assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
 
         return str;
     }
 
     /*
-    /**********************************************************
-    /* And other helpers
-    /**********************************************************
+    /**********************************************************************
+    /* Escaping/quoting
+    /**********************************************************************
      */
 
-    public static String q(String str) {
+    protected String q(String str) {
         return '"'+str+'"';
     }
 
     public static String a2q(String json) {
-        return json.replace("'", "\"");
+        return json.replace('\'', '"');
     }
 
     public static byte[] encodeInUTF32BE(String input)
@@ -434,12 +359,11 @@ public abstract class BaseTest
         return result;
     }
 
-    // @since 2.9.7
-    public static byte[] utf8Bytes(String str) {
+    protected static byte[] utf8Bytes(String str) {
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
-    public static String utf8String(ByteArrayOutputStream bytes) {
+    protected String utf8String(ByteArrayOutputStream bytes) {
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
@@ -449,7 +373,7 @@ public abstract class BaseTest
         fieldNameFor(sb, index);
         return sb.toString();
     }
-    
+
     private static void fieldNameFor(StringBuilder sb, int index)
     {
         /* let's do something like "f1.1" to exercise different
@@ -469,21 +393,6 @@ public abstract class BaseTest
                 sb.append(index >> 3); // divide by 8
             }
         }
-    }
-
-    // @since 2.9.7
-    public static JsonFactory sharedStreamFactory() {
-        return JSON_FACTORY;
-    }
-
-    // @since 2.9.7
-    public static JsonFactory newStreamFactory() {
-        return new JsonFactory();
-    }
-
-    // @since 2.9.8
-    public static JsonFactoryBuilder streamFactoryBuilder() {
-        return (JsonFactoryBuilder) JsonFactory.builder();
     }
 
     protected int[] calcQuads(String word) {
@@ -515,7 +424,7 @@ public abstract class BaseTest
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
        final byte[] buf = new byte[4000];
 
-       InputStream in = BaseTest.class.getResourceAsStream(ref);
+       InputStream in = JUnit5TestBase.class.getResourceAsStream(ref);
        if (in != null) {
            try {
                int len;

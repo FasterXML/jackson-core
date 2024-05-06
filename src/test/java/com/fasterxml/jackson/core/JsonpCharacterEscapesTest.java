@@ -1,28 +1,29 @@
 package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.io.SerializedString;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for class {@link JsonpCharacterEscapes}.
  *
- * @date 2017-07-20
  * @see JsonpCharacterEscapes
  *
  **/
-public class JsonpCharacterEscapesTest{
-
+class JsonpCharacterEscapesTest
+        extends JUnit5TestBase
+{
     @Test
-    public void testGetEscapeSequenceOne() {
+    void getEscapeSequenceOne() {
         JsonpCharacterEscapes jsonpCharacterEscapes = JsonpCharacterEscapes.instance();
 
         assertEquals(new SerializedString("\\u2028"),jsonpCharacterEscapes.getEscapeSequence(0x2028));
     }
 
     @Test
-    public void testGetEscapeSequenceTwo() {
+    void getEscapeSequenceTwo() {
         JsonpCharacterEscapes jsonpCharacterEscapes = JsonpCharacterEscapes.instance();
 
         assertEquals(new SerializedString("\\u2029"),jsonpCharacterEscapes.getEscapeSequence(0x2029));

@@ -46,8 +46,7 @@ import com.fasterxml.jackson.core.util.*;
 @SuppressWarnings("resource")
 public class JsonFactory
     extends TokenStreamFactory
-    implements Versioned,
-        java.io.Serializable // since 2.1 (for Android, mostly)
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 2;
 
@@ -221,8 +220,11 @@ public class JsonFactory
      * Each factory comes equipped with a shared root symbol table.
      * It should not be linked back to the original blueprint, to
      * avoid contents from leaking between factories.
+     *<p>
+     * NOTE: non-final since 2.17 due to need to re-create if
+     * {@link StreamReadConstraints} re-configured for factory.
      */
-    protected final transient CharsToNameCanonicalizer _rootCharSymbols;
+    protected transient CharsToNameCanonicalizer _rootCharSymbols;
 
     /**
      * Alternative to the basic symbol table, some stream-based
@@ -260,6 +262,9 @@ public class JsonFactory
      */
 
     /**
+     * {@link RecyclerPool} configured for use by this factory: used for
+     * recycling underlying read and/or write buffers via {@link BufferRecycler}.
+     *
      * @since 2.16
      */
     protected RecyclerPool<BufferRecycler> _recyclerPool;
@@ -539,7 +544,7 @@ public class JsonFactory
         if (src == null) {
             return src;
         }
-        return new ArrayList<T>(src);
+        return new ArrayList<>(src);
     }
 
     /*
@@ -867,7 +872,13 @@ public class JsonFactory
      * @since 2.15
      */
     public JsonFactory setStreamReadConstraints(StreamReadConstraints src) {
+        final int maxNameLen = _streamReadConstraints.getMaxNameLength();
         _streamReadConstraints = Objects.requireNonNull(src);
+        // 30-Jan-2024, tatu: [core#1207] Need to recreate if max-name-length
+        //    setting changes
+        if (_streamReadConstraints.getMaxNameLength() != maxNameLen) {
+            _rootCharSymbols = CharsToNameCanonicalizer.createRoot(this);
+        }
         return this;
     }
 
@@ -887,7 +898,7 @@ public class JsonFactory
      * @since 2.16
      */
     public JsonFactory setErrorReportConfiguration(ErrorReportConfiguration src) {
-        _errorReportConfiguration = Objects.requireNonNull(src, "Cannot pass null ErrorReportConfiguration");;
+        _errorReportConfiguration = Objects.requireNonNull(src, "Cannot pass null ErrorReportConfiguration");
         return this;
     }
 
@@ -2181,12 +2192,29 @@ public class JsonFactory
      * @return I/O context created
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
-        // 21-Mar-2021, tatu: Bit of defensive coding for backwards compatibility
+        BufferRecycler br = null;
+        boolean recyclerExternal = false;
+
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
+        } else {
+            Object content = contentRef.getRawContent();
+            // 18-Jan-2024, tatu: [core#1195] Let's see if we can reuse already allocated recycler
+            //   (is the case when SegmentedStringWriter / ByteArrayBuilder passed)
+            if (content instanceof BufferRecycler.Gettable) {
+                br = ((BufferRecycler.Gettable) content).bufferRecycler();
+                recyclerExternal = (br != null);
+            }
         }
-        return new IOContext(_streamReadConstraints, _streamWriteConstraints, _errorReportConfiguration,
-                _getBufferRecycler(), contentRef, resourceManaged);
+        if (br == null) {
+            br = _getBufferRecycler();
+        }
+        IOContext ctxt = new IOContext(_streamReadConstraints, _streamWriteConstraints, _errorReportConfiguration,
+                br, contentRef, resourceManaged);
+        if (recyclerExternal) {
+            ctxt.markBufferRecyclerReleased();
+        }
+        return ctxt;
     }
 
     /**

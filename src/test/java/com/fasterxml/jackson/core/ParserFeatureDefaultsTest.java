@@ -3,12 +3,17 @@ package com.fasterxml.jackson.core;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
 
-public class ParserFeatureDefaultsTest extends BaseTest
-{
-    static class TestParser extends ParserMinimalBase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+class ParserFeatureDefaultsTest
+        extends JUnit5TestBase
+{
+    static class TestParser extends ParserMinimalBase
+    {
         @Override
         public JsonToken nextToken() {
             return null;
@@ -139,11 +144,13 @@ public class ParserFeatureDefaultsTest extends BaseTest
         }
     }
 
-    public void testParserFlagDefaults() throws Exception
+    @Test
+    void parserFlagDefaults() throws Exception
     {
         try (JsonParser p = new TestParser()) {
             for (JsonParser.Feature feat : JsonParser.Feature.values()) {
-                assertEquals("Feature "+feat, feat.enabledByDefault(), p.isEnabled(feat));
+                assertEquals(feat.enabledByDefault(), p.isEnabled(feat),
+                        "Feature "+feat);
             }
         }
     }

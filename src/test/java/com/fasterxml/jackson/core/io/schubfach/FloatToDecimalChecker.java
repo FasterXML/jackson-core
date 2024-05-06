@@ -45,8 +45,8 @@ public class FloatToDecimalChecker extends ToDecimalChecker {
     static final int H = flog10pow2(P) + 2;
 
     static final float MIN_VALUE = scalb(1.0f, Q_MIN);
-    static final float MIN_NORMAL = scalb((float) C_MIN, Q_MIN);
-    static final float MAX_VALUE = scalb((float) C_MAX, Q_MAX);
+    static final float MIN_NORMAL = scalb(C_MIN, Q_MIN);
+    static final float MAX_VALUE = scalb(C_MAX, Q_MAX);
 
     static final int E_MIN = e(MIN_VALUE);
     static final int E_MAX = e(MAX_VALUE);

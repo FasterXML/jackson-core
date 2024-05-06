@@ -4,10 +4,15 @@ import java.io.*;
 import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-public class SerializedStringWriteTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class SerializedStringWriteTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     final static String NAME_WITH_QUOTES = "\"name\"";
     final static String NAME_WITH_LATIN1 = "P\u00f6ll\u00f6";
@@ -20,7 +25,8 @@ public class SerializedStringWriteTest
     private final SerializedString quotedName = new SerializedString(NAME_WITH_QUOTES);
     private final SerializedString latin1Name = new SerializedString(NAME_WITH_LATIN1);
 
-    public void testSimpleFieldNames() throws Exception
+    @Test
+    void simpleFieldNames() throws Exception
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();
@@ -39,7 +45,8 @@ public class SerializedStringWriteTest
         _verifySimple(JSON_F.createParser(jsonB));
     }
 
-    public void testSimpleValues() throws Exception
+    @Test
+    void simpleValues() throws Exception
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();

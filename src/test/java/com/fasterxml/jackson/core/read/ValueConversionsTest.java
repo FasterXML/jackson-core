@@ -1,12 +1,18 @@
 package com.fasterxml.jackson.core.read;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class ValueConversionsTest
-    extends com.fasterxml.jackson.core.BaseTest
+    extends JUnit5TestBase
 {
-    public void testAsInt() throws Exception
+    @Test
+    void asInt() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testAsInt(mode);
@@ -51,7 +57,8 @@ public class ValueConversionsTest
         p.close();
     }
 
-    public void testAsBoolean() throws Exception
+    @Test
+    void asBoolean() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testAsBoolean(mode);
@@ -64,37 +71,38 @@ public class ValueConversionsTest
         JsonParser p = createParser(mode, input);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals(false, p.getValueAsBoolean());
-        assertEquals(true, p.getValueAsBoolean(true));
+        assertFalse(p.getValueAsBoolean());
+        assertTrue(p.getValueAsBoolean(true));
 
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertEquals(true, p.getValueAsBoolean());
+        assertTrue(p.getValueAsBoolean());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
-        assertEquals(false, p.getValueAsBoolean());
+        assertFalse(p.getValueAsBoolean());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertEquals(false, p.getValueAsBoolean());
+        assertFalse(p.getValueAsBoolean());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(1, p.getIntValue());
-        assertEquals(true, p.getValueAsBoolean());
+        assertTrue(p.getValueAsBoolean());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(0, p.getIntValue());
-        assertEquals(false, p.getValueAsBoolean());
+        assertFalse(p.getValueAsBoolean());
 
         assertToken(JsonToken.VALUE_STRING, p.nextToken()); // "true"
-        assertEquals(true, p.getValueAsBoolean());
+        assertTrue(p.getValueAsBoolean());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(false, p.getValueAsBoolean());
+        assertFalse(p.getValueAsBoolean());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(false, p.getValueAsBoolean());
+        assertFalse(p.getValueAsBoolean());
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertEquals(false, p.getValueAsBoolean());
-        assertEquals(true, p.getValueAsBoolean(true));
+        assertFalse(p.getValueAsBoolean());
+        assertTrue(p.getValueAsBoolean(true));
 
         p.close();
     }
 
-    public void testAsLong() throws Exception
+    @Test
+    void asLong() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testAsLong(mode);
@@ -139,7 +147,8 @@ public class ValueConversionsTest
         p.close();
     }
 
-    public void testAsDouble() throws Exception
+    @Test
+    void asDouble() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testAsDouble(mode);

@@ -1,15 +1,16 @@
 package com.fasterxml.jackson.core.base;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.UTF8Writer;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.json.PackageVersion;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
 
 /**
  * This base class implements part of API that a JSON generator exposes
@@ -150,13 +151,15 @@ public abstract class GeneratorBase extends JsonGenerator
      */
     @Override public Version version() { return PackageVersion.VERSION; }
 
+    // Overridden from JsonGenerator for direct context access:
     @Override
-    public Object getCurrentValue() {
+    public Object currentValue() {
         return _writeContext.getCurrentValue();
     }
 
     @Override
-    public void setCurrentValue(Object v) {
+    // Overridden from JsonGenerator for direct context access:
+    public void assignCurrentValue(Object v) {
         if (_writeContext != null) {
             _writeContext.setCurrentValue(v);
         }
@@ -294,7 +297,19 @@ public abstract class GeneratorBase extends JsonGenerator
      * base type in 2.8 to allow for overriding by subtypes that use
      * custom context type.
      */
-    @Override public JsonStreamContext getOutputContext() { return _writeContext; }
+    @Override
+    public JsonStreamContext getOutputContext() { return _writeContext; }
+
+    /**
+     * Accessor for use by {@code jackson-core} itself (tests in particular).
+     *
+     * @return {@link IOContext} in use by this generator
+     *
+     * @since 2.17
+     */
+    public IOContext ioContext() {
+        return _ioContext;
+    }
 
     /*
     /**********************************************************
@@ -312,7 +327,7 @@ public abstract class GeneratorBase extends JsonGenerator
     {
         writeStartObject();
         if (forValue != null) {
-            setCurrentValue(forValue);
+            assignCurrentValue(forValue);
         }
     }
 
@@ -519,8 +534,7 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
 "Incomplete surrogate pair: first char 0x%04X, second 0x%04X", surr1, surr2);
             _reportError(msg);
         }
-        int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);
-        return c;
+        return (surr1 << 10) + surr2 + UTF8Writer.SURROGATE_BASE;
     }
 
     /*

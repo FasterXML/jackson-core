@@ -2,15 +2,20 @@ package com.fasterxml.jackson.core;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.util.RecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
  */
-public class TestJDKSerializability extends BaseTest
+class JDKSerializabilityTest
+        extends JUnit5TestBase
 {
     /*
     /**********************************************************************
@@ -18,7 +23,8 @@ public class TestJDKSerializability extends BaseTest
     /**********************************************************************
      */
 
-    public void testJsonFactorySerializable() throws Exception
+    @Test
+    void jsonFactorySerializable() throws Exception
     {
         JsonFactory f = new JsonFactory();
         String origJson = "{\"simple\":[1,true,{}]}";
@@ -40,7 +46,8 @@ public class TestJDKSerializability extends BaseTest
     /**********************************************************************
      */
 
-    public void testBase64Variant() throws Exception
+    @Test
+    void base64Variant() throws Exception
     {
         {
             Base64Variant orig = Base64Variants.PEM;
@@ -58,8 +65,8 @@ public class TestJDKSerializability extends BaseTest
             Base64Variant mod = orig.withWritePadding(true);
             assertTrue(mod.usesPadding());
             assertNotSame(orig, mod);
-            assertFalse(orig.equals(mod));
-            assertFalse(mod.equals(orig));
+            assertNotEquals(orig, mod);
+            assertNotEquals(mod, orig);
 
             final String exp = _encodeBase64(mod);
             byte[] stuff = jdkSerialize(mod);
@@ -71,7 +78,8 @@ public class TestJDKSerializability extends BaseTest
         }
     }
 
-    public void testPrettyPrinter() throws Exception
+    @Test
+    void prettyPrinter() throws Exception
     {
         PrettyPrinter p = new DefaultPrettyPrinter();
         byte[] stuff = jdkSerialize(p);
@@ -80,7 +88,8 @@ public class TestJDKSerializability extends BaseTest
         assertNotNull(back);
     }
 
-    public void testLocation() throws Exception
+    @Test
+    void location() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         JsonParser jp = jf.createParser("  { }");
@@ -96,7 +105,8 @@ public class TestJDKSerializability extends BaseTest
         jp.close();
     }
 
-    public void testSourceReference() throws Exception
+    @Test
+    void sourceReference() throws Exception
     {
         ContentReference ref = ContentReference.construct(true, "text",
                 ErrorReportConfiguration.defaults());
@@ -113,7 +123,8 @@ public class TestJDKSerializability extends BaseTest
     /**********************************************************************
      */
 
-    public void testRecyclerPools() throws Exception
+    @Test
+    void recyclerPools() throws Exception
     {
         // First: shared/global pools that will always remain/become globally
         // shared instances
@@ -149,14 +160,15 @@ public class TestJDKSerializability extends BaseTest
         assertNotSame(pool, result);
         return result;
     }
-    
+
     /*
     /**********************************************************************
     /* Exception types
     /**********************************************************************
      */
 
-    public void testParseException() throws Exception
+    @Test
+    void parseException() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         JsonParser p = jf.createParser("  { garbage! }");
@@ -174,7 +186,8 @@ public class TestJDKSerializability extends BaseTest
         assertNotNull(result);
     }
 
-    public void testGenerationException() throws Exception
+    @Test
+    void generationException() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         JsonGenerator g = jf.createGenerator(new ByteArrayOutputStream());
@@ -198,7 +211,8 @@ public class TestJDKSerializability extends BaseTest
     /**********************************************************************
      */
 
-    public void testPointerSerializationNonEmpty() throws Exception
+    @Test
+    void pointerSerializationNonEmpty() throws Exception
     {
         // First, see that we can write and read a general JsonPointer
         final String INPUT = "/Image/15/name";
@@ -228,14 +242,15 @@ public class TestJDKSerializability extends BaseTest
         assertEquals(leaf.hashCode(), copy.hashCode());
     }
 
-    public void testPointerSerializationEmpty() throws Exception
+    @Test
+    void pointerSerializationEmpty() throws Exception
     {
         // and then verify that "empty" instance gets canonicalized
         final JsonPointer emptyP = JsonPointer.empty();
         byte[] ser = jdkSerialize(emptyP);
         JsonPointer result = jdkDeserialize(ser);
-        assertSame("Should get same 'empty' instance when JDK serialize+deserialize",
-                emptyP, result);
+        assertSame(emptyP, result,
+                "Should get same 'empty' instance when JDK serialize+deserialize");
     }
 
     /*

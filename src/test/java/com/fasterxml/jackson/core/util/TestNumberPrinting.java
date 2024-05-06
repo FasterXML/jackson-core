@@ -4,14 +4,19 @@ import java.util.Random;
 
 import com.fasterxml.jackson.core.io.NumberOutput;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Set of basic unit tests for verifying that the low-level number
  * printing methods work as expected.
  */
-public class TestNumberPrinting
-    extends com.fasterxml.jackson.core.BaseTest
+class TestNumberPrinting
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testIntPrinting() throws Exception
+    @Test
+    void intPrinting() throws Exception
     {
         assertIntPrint(0);
         assertIntPrint(-3);
@@ -38,7 +43,8 @@ public class TestNumberPrinting
         }
     }
 
-    public void testLongPrinting() throws Exception
+    @Test
+    void longPrinting() throws Exception
     {
         // First, let's just cover couple of edge cases
         assertLongPrint(0L, 0);
@@ -52,7 +58,7 @@ public class TestNumberPrinting
         Random rnd = new Random(12345L);
         // Bigger value space, need more iterations for long
         for (int i = 0; i < 678000; ++i) {
-            long l = ((long) rnd.nextInt() << 32) | (long) rnd.nextInt();
+            long l = ((long) rnd.nextInt() << 32) | rnd.nextInt();
             assertLongPrint(l, i);
         }
     }
@@ -69,11 +75,11 @@ public class TestNumberPrinting
         String act = printToString(value);
 
         if (!exp.equals(act)) {
-            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")", exp, act);
+            assertEquals(exp, act, "Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")");
         }
         String alt = NumberOutput.toString(value);
         if (!exp.equals(alt)) {
-            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")", exp, act);
+            assertEquals(exp, act, "Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")");
         }
     }
 
@@ -83,11 +89,11 @@ public class TestNumberPrinting
         String act = printToString(value);
 
         if (!exp.equals(act)) {
-            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")", exp, act);
+            assertEquals(exp, act, "Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")");
         }
         String alt = NumberOutput.toString(value);
         if (!exp.equals(alt)) {
-            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")", exp, act);
+            assertEquals(exp, act, "Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")");
         }
     }
 

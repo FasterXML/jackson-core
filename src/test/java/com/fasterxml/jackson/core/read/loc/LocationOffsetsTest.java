@@ -1,16 +1,21 @@
-package com.fasterxml.jackson.core.read;
+package com.fasterxml.jackson.core.read.loc;
 
 import com.fasterxml.jackson.core.*;
 
 import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Random;
 
-public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
+import org.junit.jupiter.api.Test;
+
+class LocationOffsetsTest extends JUnit5TestBase
 {
     final JsonFactory JSON_F = new JsonFactory();
 
     // Trivially simple unit test for basics wrt offsets
-    public void testSimpleInitialOffsets() throws Exception
+    @Test
+    void simpleInitialOffsets() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -55,7 +60,8 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
     }
 
     // for [core#111]
-    public void testOffsetWithInputOffset() throws Exception
+    @Test
+    void offsetWithInputOffset() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -81,7 +87,8 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         p.close();
     }
 
-    public void testOffsetWithoutInputOffset() throws Exception
+    @Test
+    void offsetWithoutInputOffset() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -107,13 +114,15 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         p.close();
     }
 
-    public void testWithLazyStringReadStreaming() throws Exception
+    @Test
+    void withLazyStringReadStreaming() throws Exception
     {
         _testWithLazyStringRead(MODE_READER);
         _testWithLazyStringRead(MODE_INPUT_STREAM);
     }
 
-    public void testWithLazyStringReadDataInput() throws Exception
+    @Test
+    void withLazyStringReadDataInput() throws Exception
     {
         // DataInput-backed reader does not track column, so can not
         // verify much; but force finishToken() regardless
@@ -147,7 +156,8 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
     }
 
     // for [core#533]
-    public void testUtf8Bom() throws Exception
+    @Test
+    void utf8Bom() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -173,7 +183,8 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         p.close();
     }
 
-    public void testUtf8BomWithPadding() throws Exception
+    @Test
+    void utf8BomWithPadding() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -199,7 +210,8 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         p.close();
     }
 
-    public void testUtf8BomWithInputOffset() throws Exception
+    @Test
+    void utf8BomWithInputOffset() throws Exception
     {
         JsonLocation loc;
         JsonParser p;
@@ -236,7 +248,8 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#603]
-    public void testBigPayload() throws IOException {
+    @Test
+    void bigPayload() throws IOException {
         JsonLocation loc;
         JsonParser p;
 

@@ -26,7 +26,9 @@ import java.util.*;
  * theoretically this builder can aggregate more content it will not be usable
  * as things are. Behavior may be improved if we solve the access problem.
  */
-public final class ByteArrayBuilder extends OutputStream
+public final class ByteArrayBuilder
+    extends OutputStream
+    implements BufferRecycler.Gettable
 {
     public final static byte[] NO_BYTES = new byte[0];
 
@@ -41,7 +43,7 @@ public final class ByteArrayBuilder extends OutputStream
 
     // Optional buffer recycler instance that we can use for allocating the first block.
     private final BufferRecycler _bufferRecycler;
-    private final LinkedList<byte[]> _pastBlocks = new LinkedList<byte[]>();
+    private final LinkedList<byte[]> _pastBlocks = new LinkedList<>();
 
     // Number of bytes within byte arrays in {@link _pastBlocks}.
     private int _pastLen;
@@ -93,7 +95,7 @@ public final class ByteArrayBuilder extends OutputStream
     /**
      * Clean up method to call to release all buffers this object may be
      * using. After calling the method, no other accessors can be used (and
-     * attempt to do so may result in an exception)
+     * attempt to do so may result in an exception).
      */
     public void release() {
         reset();
@@ -180,6 +182,37 @@ public final class ByteArrayBuilder extends OutputStream
         return result;
     }
 
+    /**
+     * Method functionally same as calling:
+     *<pre>
+     *  byte[] bytes = toByteArray();
+     *  release();
+     *  return bytes;
+     *</pre>
+     * that is; aggregates output contained in the builder (if any),
+     * clear state; returns buffer(s) to {@link BufferRecycler} configured,
+     * if any, and returns output to caller.
+     *
+     * @since 2.17
+     */
+    public byte[] getClearAndRelease()
+    {
+        byte[] result = toByteArray();
+        release();
+        return result;
+    }
+
+    /*
+    /**********************************************************
+    /* BufferRecycler.Gettable implementation
+    /**********************************************************
+     */
+
+    @Override
+    public BufferRecycler bufferRecycler() {
+        return _bufferRecycler;
+    }
+
     /*
     /**********************************************************
     /* Non-stream API (similar to TextBuffer)
@@ -260,7 +293,12 @@ public final class ByteArrayBuilder extends OutputStream
         append(b);
     }
 
-    @Override public void close() { /* NOP */ }
+    @Override
+    public void close() {
+        // 18-Jan-2024, tatu: Ideally would call `release()` but currently
+        //   not possible due to existing usage
+    }
+
     @Override public void flush() { /* NOP */ }
 
     /*

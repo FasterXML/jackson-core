@@ -4,12 +4,16 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for verifying that object mapping functionality can
  * be accessed using JsonParser.
  */
-public class ParserWithObjectsTest
-    extends com.fasterxml.jackson.core.BaseTest
+class ParserWithObjectsTest
+        extends JUnit5TestBase
 {
     /*
     /**********************************************************
@@ -17,7 +21,8 @@ public class ParserWithObjectsTest
     /**********************************************************
      */
 
-    public void testNextValue() throws IOException
+    @Test
+    void nextValue() throws IOException
     {
         // Let's test both byte-backed and Reader-based one
         _testNextValueBasic(false);
@@ -25,7 +30,8 @@ public class ParserWithObjectsTest
     }
 
     // [JACKSON-395]
-    public void testNextValueNested() throws IOException
+    @Test
+    void nextValueNested() throws IOException
     {
         // Let's test both byte-backed and Reader-based one
         _testNextValueNested(false);
@@ -33,7 +39,8 @@ public class ParserWithObjectsTest
     }
 
     @SuppressWarnings("resource")
-    public void testIsClosed() throws IOException
+    @Test
+    void isClosed() throws IOException
     {
         for (int i = 0; i < 4; ++i) {
             String JSON = "[ 1, 2, 3 ]";

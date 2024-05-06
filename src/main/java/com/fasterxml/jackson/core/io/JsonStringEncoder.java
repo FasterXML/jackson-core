@@ -120,7 +120,7 @@ public final class JsonStringEncoder
             int length = (escCode < 0)
                     ? _appendNumeric(d, qbuf)
                     : _appendNamed(escCode, qbuf);
-                    ;
+                    
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
@@ -216,7 +216,7 @@ public final class JsonStringEncoder
             int length = (escCode < 0)
                     ? _appendNumeric(d, qbuf)
                     : _appendNamed(escCode, qbuf);
-                    ;
+                    
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
@@ -344,7 +344,7 @@ public final class JsonStringEncoder
                 outputPtr = 0;
             }
             // Ok, so what did we hit?
-            int ch = (int) text.charAt(inputPtr++);
+            int ch = text.charAt(inputPtr++);
             if (ch <= 0x7F) { // needs quoting
                 int escape = escCodes[ch];
                 // ctrl-char, 6-byte escape...
@@ -659,7 +659,7 @@ public final class JsonStringEncoder
         if (p2 < SURR2_FIRST || p2 > SURR2_LAST) {
             throw new IllegalArgumentException("Broken surrogate pair: first char 0x"+Integer.toHexString(p1)+", second 0x"+Integer.toHexString(p2)+"; illegal combination");
         }
-        return 0x10000 + ((p1 - SURR1_FIRST) << 10) + (p2 - SURR2_FIRST);
+        return (p1 << 10) + p2 + UTF8Writer.SURROGATE_BASE;
     }
 
     private static void _illegal(int c) {

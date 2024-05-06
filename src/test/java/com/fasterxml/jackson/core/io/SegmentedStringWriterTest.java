@@ -1,11 +1,19 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.util.BufferRecycler;
+import org.junit.jupiter.api.Test;
 
-public class SegmentedStringWriterTest
-    extends com.fasterxml.jackson.core.BaseTest
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.base.GeneratorBase;
+import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.JsonRecyclerPools;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class SegmentedStringWriterTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testSimple() throws Exception
+    @Test
+    void simple() throws Exception
     {
         BufferRecycler br = new BufferRecycler();
         SegmentedStringWriter w = new SegmentedStringWriter(br);
@@ -43,5 +51,38 @@ public class SegmentedStringWriterTest
 
         String act = w.getAndClear();
         assertEquals(exp.toString(), act);
+    }
+
+    // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
+    @Test
+    void bufferRecyclerReuse() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        BufferRecycler br = new BufferRecycler()
+                // need to link with some pool
+                .withPool(JsonRecyclerPools.newBoundedPool(3));
+
+        SegmentedStringWriter ssw = new SegmentedStringWriter(br);
+        assertSame(br, ssw.bufferRecycler());
+
+        JsonGenerator g = f.createGenerator(ssw);
+        IOContext ioCtxt = ((GeneratorBase) g).ioContext();
+        assertSame(br, ioCtxt.bufferRecycler());
+        assertTrue(ioCtxt.bufferRecycler().isLinkedWithPool());
+
+        g.writeStartArray();
+        g.writeEndArray();
+        g.close();
+
+        // Generator.close() should NOT release buffer recycler
+        assertTrue(br.isLinkedWithPool());
+
+        // Nor accessing contents
+        assertEquals("[]", ssw.getAndClear());
+        assertTrue(br.isLinkedWithPool());
+
+        // only explicit release does
+        br.releaseToPool();
+        assertFalse(br.isLinkedWithPool());
     }
 }

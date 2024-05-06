@@ -162,7 +162,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         if (src == null) {
             return src;
         }
-        return new ArrayList<T>(src);
+        return new ArrayList<>(src);
     }
 
     // // // Accessors

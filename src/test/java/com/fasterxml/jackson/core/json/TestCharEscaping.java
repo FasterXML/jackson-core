@@ -3,14 +3,19 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
-public class TestCharEscaping
-    extends com.fasterxml.jackson.core.BaseTest
+class TestCharEscaping
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     @SuppressWarnings("serial")
     private final static CharacterEscapes ESC_627 = new CharacterEscapes() {
@@ -39,7 +44,8 @@ public class TestCharEscaping
 
     private final static JsonFactory JSON_F = new JsonFactory();
 
-    public void testMissingEscaping() throws Exception {
+    @Test
+    void missingEscaping() throws Exception {
         for (int mode : ALL_MODES) {
             _testMissingEscaping(mode);
         }
@@ -67,7 +73,8 @@ public class TestCharEscaping
         jp.close();
     }
 
-    public void testSimpleEscaping() throws Exception {
+    @Test
+    void simpleEscaping() throws Exception {
         for (int mode : ALL_MODES) {
             _testSimpleEscaping(mode);
         }
@@ -108,7 +115,8 @@ public class TestCharEscaping
         jp.close();
     }
 
-    public void testSimpleNameEscaping() throws Exception {
+    @Test
+    void simpleNameEscaping() throws Exception {
         for (int mode : ALL_MODES) {
             _testSimpleNameEscaping(mode);
         }
@@ -134,7 +142,8 @@ public class TestCharEscaping
         }
     }
 
-    public void testInvalid() throws Exception {
+    @Test
+    void invalid() throws Exception {
         for (int mode : ALL_MODES) {
             _testInvalid(mode);
         }
@@ -160,7 +169,8 @@ public class TestCharEscaping
      * Test to verify that decoder does not allow 8-digit escapes
      * (non-BMP characters must be escaped using two 4-digit sequences)
      */
-    public void test8DigitSequence() throws Exception {
+    @Test
+    void test8DigitSequence() throws Exception {
         for (int mode : ALL_MODES) {
             _test8DigitSequence(mode);
         }
@@ -177,7 +187,8 @@ public class TestCharEscaping
     }
 
     // [jackson-core#116]
-    public void testEscapesForCharArrays() throws Exception {
+    @Test
+    void escapesForCharArrays() throws Exception {
         StringWriter writer = new StringWriter();
         JsonGenerator jgen = JSON_F.createGenerator(writer);
         // must call #writeString(char[],int,int) and not #writeString(String)
@@ -187,7 +198,8 @@ public class TestCharEscaping
     }
 
     // [jackson-core#540]
-    public void testInvalidEscape() throws Exception {
+    @Test
+    void invalidEscape() throws Exception {
         for (int mode : ALL_MODES) {
             _testInvalidEscape(mode);
         }
@@ -210,12 +222,14 @@ public class TestCharEscaping
     }
 
     // [jackson-core#116]
-    public void testEscapeNonLatin1Chars() throws Exception {
+    @Test
+    void escapeNonLatin1Chars() throws Exception {
         _testEscapeNonLatin1ViaChars(false);
     }
 
     // [jackson-core#116]
-    public void testEscapeNonLatin1Bytes() throws Exception {
+    @Test
+    void escapeNonLatin1Bytes() throws Exception {
         _testEscapeNonLatin1ViaChars(true);
     }
 
@@ -259,7 +273,8 @@ public class TestCharEscaping
     /**********************************************************
       */
 
-    public void testWriteLongCustomEscapes() throws Exception
+    @Test
+    void writeLongCustomEscapes() throws Exception
     {
         JsonFactory jf = ((JsonFactoryBuilder)JsonFactory.builder())
                 .characterEscapes(ESC_627)

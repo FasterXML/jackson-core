@@ -1,29 +1,34 @@
 package com.fasterxml.jackson.core.base64;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import java.io.*;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 
-public class Base64BinaryParsingTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.*;
+
+class Base64BinaryParsingTest
+        extends JUnit5TestBase
 {
-    public void testBase64UsingInputStream() throws Exception
+    private final JsonFactory JSON_F = newStreamFactory();
+
+    @Test
+    void base64UsingInputStream() throws Exception
     {
         _testBase64Text(MODE_INPUT_STREAM);
         _testBase64Text(MODE_INPUT_STREAM_THROTTLED);
         _testBase64Text(MODE_DATA_INPUT);
     }
 
-    public void testBase64UsingReader() throws Exception
+    @Test
+    void base64UsingReader() throws Exception
     {
         _testBase64Text(MODE_READER);
     }
 
-    public void testStreaming() throws IOException
+    @Test
+    void streaming() throws IOException
     {
         _testStreaming(MODE_INPUT_STREAM);
         _testStreaming(MODE_INPUT_STREAM_THROTTLED);
@@ -31,7 +36,8 @@ public class Base64BinaryParsingTest
         _testStreaming(MODE_READER);
     }
 
-    public void testSimple() throws IOException
+    @Test
+    void simple() throws IOException
     {
         for (int mode : ALL_MODES) {
             // [core#414]: Allow leading/trailign white-space, ensure it is accepted
@@ -42,31 +48,35 @@ public class Base64BinaryParsingTest
         }
     }
 
-    public void testInArray() throws IOException
+    @Test
+    void inArray() throws IOException
     {
         for (int mode : ALL_MODES) {
             _testInArray(mode);
         }
     }
 
-    public void testWithEscaped() throws IOException {
+    @Test
+    void withEscaped() throws IOException {
         for (int mode : ALL_MODES) {
             _testEscaped(mode);
         }
     }
 
-    public void testWithEscapedPadding() throws IOException {
+    @Test
+    void withEscapedPadding() throws IOException {
         for (int mode : ALL_MODES) {
             _testEscapedPadding(mode);
         }
     }
 
-    public void testInvalidTokenForBase64() throws IOException
+    @Test
+    void invalidTokenForBase64() throws IOException
     {
         for (int mode : ALL_MODES) {
 
             // First: illegal padding
-            JsonParser p = createParser(mode, "[ ]");
+            JsonParser p = createParser(JSON_F, mode, "[ ]");
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             try {
                 p.getBinaryValue();
@@ -79,12 +89,13 @@ public class Base64BinaryParsingTest
         }
     }
 
-    public void testInvalidChar() throws IOException
+    @Test
+    void invalidChar() throws IOException
     {
         for (int mode : ALL_MODES) {
 
             // First: illegal padding
-            JsonParser p = createParser(mode, q("a==="));
+            JsonParser p = createParser(JSON_F, mode, q("a==="));
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             try {
                 p.getBinaryValue(Base64Variants.MIME);
@@ -95,7 +106,7 @@ public class Base64BinaryParsingTest
             p.close();
 
             // second: invalid space within
-            p = createParser(mode, q("ab de"));
+            p = createParser(JSON_F, mode, q("ab de"));
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             try {
                 p.getBinaryValue(Base64Variants.MIME);
@@ -106,7 +117,7 @@ public class Base64BinaryParsingTest
             p.close();
 
             // third: something else
-            p = createParser(mode, q("ab#?"));
+            p = createParser(JSON_F, mode, q("ab#?"));
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             try {
                 p.getBinaryValue(Base64Variants.MIME);
@@ -118,7 +129,8 @@ public class Base64BinaryParsingTest
         }
     }
 
-    public void testOkMissingPadding() throws IOException {
+    @Test
+    void okMissingPadding() throws IOException {
         final byte[] DOC1 = new byte[] { (byte) 0xAD };
         _testOkMissingPadding(DOC1, MODE_INPUT_STREAM);
         _testOkMissingPadding(DOC1, MODE_INPUT_STREAM_THROTTLED);
@@ -136,16 +148,17 @@ public class Base64BinaryParsingTest
     {
         final Base64Variant b64 = Base64Variants.MODIFIED_FOR_URL;
         final String encoded = b64.encode(input, false);
-        JsonParser p = createParser(mode, q(encoded));
+        JsonParser p = createParser(JSON_F, mode, q(encoded));
         // 1 byte -> 2 encoded chars; 2 bytes -> 3 encoded chars
         assertEquals(input.length+1, encoded.length());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         byte[] actual = p.getBinaryValue(b64);
-        Assert.assertArrayEquals(input, actual);
+        assertArrayEquals(input, actual);
         p.close();
     }
 
-    public void testFailDueToMissingPadding() throws IOException {
+    @Test
+    void failDueToMissingPadding() throws IOException {
         final String DOC1 = q("fQ"); // 1 bytes, no padding
         _testFailDueToMissingPadding(DOC1, MODE_INPUT_STREAM);
         _testFailDueToMissingPadding(DOC1, MODE_INPUT_STREAM_THROTTLED);
@@ -163,7 +176,7 @@ public class Base64BinaryParsingTest
         final String EXP_EXCEPTION_MATCH = "Unexpected end of base64-encoded String: base64 variant 'MIME' expects padding";
 
         // First, without getting text value first:
-        JsonParser p = createParser(mode, doc);
+        JsonParser p = createParser(JSON_F, mode, doc);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {
             /*byte[] b =*/ p.getBinaryValue(Base64Variants.MIME);
@@ -174,7 +187,7 @@ public class Base64BinaryParsingTest
         p.close();
 
         // second, access String first
-        p = createParser(mode, doc);
+        p = createParser(JSON_F, mode, doc);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         /*String str =*/ p.getText();
         try {
@@ -193,7 +206,7 @@ public class Base64BinaryParsingTest
      */
 
     @SuppressWarnings("resource")
-    public void _testBase64Text(int mode) throws Exception
+    void _testBase64Text(int mode) throws Exception
     {
         // let's actually iterate over sets of encoding modes, lengths
 
@@ -205,7 +218,6 @@ public class Base64BinaryParsingTest
                 Base64Variants.PEM
         };
 
-        JsonFactory jsonFactory = sharedStreamFactory();
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter chars = null;
         for (int len : LENS) {
@@ -218,18 +230,18 @@ public class Base64BinaryParsingTest
 
                 if (mode == MODE_READER) {
                     chars = new StringWriter();
-                    g = jsonFactory.createGenerator(chars);
+                    g = JSON_F.createGenerator(chars);
                 } else {
                     bytes.reset();
-                    g = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
+                    g = JSON_F.createGenerator(bytes, JsonEncoding.UTF8);
                 }
                 g.writeBinary(variant, input, 0, input.length);
                 g.close();
                 JsonParser p;
                 if (mode == MODE_READER) {
-                    p = jsonFactory.createParser(chars.toString());
+                    p = JSON_F.createParser(chars.toString());
                 } else {
-                    p = createParser(jsonFactory, mode, bytes.toByteArray());
+                    p = createParser(JSON_F, mode, bytes.toByteArray());
                 }
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -274,7 +286,6 @@ public class Base64BinaryParsingTest
             139000
         };
 
-        JsonFactory jsonFactory = sharedStreamFactory();
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter chars = null;
 
@@ -283,10 +294,10 @@ public class Base64BinaryParsingTest
             JsonGenerator g;
             if (mode == MODE_READER) {
                 chars = new StringWriter();
-                g = jsonFactory.createGenerator(chars);
+                g = JSON_F.createGenerator(chars);
             } else {
                 bytes.reset();
-                g = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
+                g = JSON_F.createGenerator(bytes, JsonEncoding.UTF8);
             }
 
             g.writeStartObject();
@@ -298,9 +309,9 @@ public class Base64BinaryParsingTest
             // and verify
             JsonParser p;
             if (mode == MODE_READER) {
-                p = jsonFactory.createParser(chars.toString());
+                p = JSON_F.createParser(chars.toString());
             } else {
-                p = createParser(jsonFactory, mode, bytes.toByteArray());
+                p = createParser(JSON_F, mode, bytes.toByteArray());
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
@@ -342,7 +353,7 @@ public class Base64BinaryParsingTest
         }
 
         final String DOC = "\""+INPUT_STR+"\"";
-        JsonParser p = createParser(mode, DOC);
+        JsonParser p = createParser(JSON_F, mode, DOC);
 
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         byte[] data = p.getBinaryValue();
@@ -353,12 +364,10 @@ public class Base64BinaryParsingTest
 
     private void _testInArray(int mode) throws IOException
     {
-        JsonFactory f = sharedStreamFactory();
-
         final int entryCount = 7;
 
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = f.createGenerator(sw);
+        JsonGenerator jg = JSON_F.createGenerator(sw);
         jg.writeStartArray();
 
         byte[][] entries = new byte[entryCount][];
@@ -374,7 +383,7 @@ public class Base64BinaryParsingTest
         jg.writeEndArray();
         jg.close();
 
-        JsonParser p = createParser(f, mode, sw.toString());
+        JsonParser p = createParser(JSON_F, mode, sw.toString());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
@@ -394,7 +403,7 @@ public class Base64BinaryParsingTest
         // First, try with embedded linefeed half-way through:
 
         String DOC = q("VGVz\\ndCE="); // note: must double-quote to get linefeed
-        JsonParser p = createParser(mode, DOC);
+        JsonParser p = createParser(JSON_F, mode, DOC);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         byte[] b = p.getBinaryValue();
         assertEquals("Test!", new String(b, "US-ASCII"));
@@ -406,7 +415,7 @@ public class Base64BinaryParsingTest
         // and then with escaped chars
 //            DOC = quote("V\\u0047V\\u007AdCE="); // note: must escape backslash...
         DOC = q("V\\u0047V\\u007AdCE="); // note: must escape backslash...
-        p = createParser(mode, DOC);
+        p = createParser(JSON_F, mode, DOC);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         b = p.getBinaryValue();
         assertEquals("Test!", new String(b, "US-ASCII"));
@@ -422,7 +431,7 @@ public class Base64BinaryParsingTest
         final String DOC = q("VGVzdCE\\u003d");
 
         // 06-Sep-2018, tatu: actually one more, test escaping of padding
-        JsonParser p = createParser(mode, DOC);
+        JsonParser p = createParser(JSON_F, mode, DOC);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("Test!", new String(p.getBinaryValue(), "US-ASCII"));
         if (mode != MODE_DATA_INPUT) {
@@ -431,7 +440,7 @@ public class Base64BinaryParsingTest
         p.close();
 
         // also, try out alternate access method
-        p = createParser(mode, DOC);
+        p = createParser(JSON_F, mode, DOC);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("Test!", new String(_readBinary(p), "US-ASCII"));
         if (mode != MODE_DATA_INPUT) {
@@ -441,7 +450,7 @@ public class Base64BinaryParsingTest
 
         // and then different padding; "X" -> "WA=="
         final String DOC2 = q("WA\\u003D\\u003D");
-        p = createParser(mode, DOC2);
+        p = createParser(JSON_F, mode, DOC2);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("X", new String(p.getBinaryValue(), "US-ASCII"));
         if (mode != MODE_DATA_INPUT) {
@@ -449,7 +458,7 @@ public class Base64BinaryParsingTest
         }
         p.close();
 
-        p = createParser(mode, DOC2);
+        p = createParser(JSON_F, mode, DOC2);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("X", new String(_readBinary(p), "US-ASCII"));
         if (mode != MODE_DATA_INPUT) {

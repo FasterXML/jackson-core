@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.core.util;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.io.CharTypes;
 
-public class TestCharTypes
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestCharTypes
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testQuoting()
+    @Test
+    void quoting()
     {
         StringBuilder sb = new StringBuilder();
         CharTypes.appendQuoted(sb, "\n");

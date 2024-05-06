@@ -4,15 +4,20 @@ import com.fasterxml.jackson.core.*;
 
 import java.io.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
+
 /**
  * Set of basic unit tests for verifying that the Array write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class ArrayWriteTest
-    extends com.fasterxml.jackson.core.BaseTest
+class ArrayWriteTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testEmptyArrayWrite()
-        throws Exception
+    @Test
+    void emptyArrayWrite()
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
@@ -36,7 +41,7 @@ public class ArrayWriteTest
         gen.writeEndArray();
 
         ctxt = gen.getOutputContext();
-        assertTrue("Should be in root, was "+ctxt.typeDesc(), ctxt.inRoot());
+        assertTrue(ctxt.inRoot(), "Should be in root, was "+ctxt.typeDesc());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());
         assertEquals(1, ctxt.getEntryCount());
@@ -64,12 +69,13 @@ public class ArrayWriteTest
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 
-    public void testInvalidArrayWrite()
-        throws Exception
+    @Test
+    void invalidArrayWrite()
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
@@ -84,8 +90,9 @@ public class ArrayWriteTest
         gen.close();
     }
 
-    public void testSimpleArrayWrite()
-        throws Exception
+    @Test
+    void simpleArrayWrite()
+            throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
@@ -104,7 +111,7 @@ public class ArrayWriteTest
         assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("foobar", jp.getText());
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(null, jp.nextToken());
+        assertNull(jp.nextToken());
         jp.close();
     }
 }

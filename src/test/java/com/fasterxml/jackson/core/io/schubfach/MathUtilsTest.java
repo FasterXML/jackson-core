@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class MathUtilsTest {
+class MathUtilsTest {
 
     private static final BigInteger THREE = valueOf(3);
 
@@ -146,7 +146,7 @@ public class MathUtilsTest {
     Verifies the soundness of the values returned by g1() and g0().
      */
     @Test
-    void testG() {
+    void g() {
         for (int k = MathUtils.K_MIN; k <= MathUtils.K_MAX; ++k) {
             testG(k, g1(k), g0(k));
         }
@@ -443,16 +443,16 @@ public class MathUtilsTest {
     }
 
     @Test
-    void testBinaryConstants() {
-        assertTrue((long) (double) C_MIN == C_MIN, "C_MIN");
-        assertTrue((long) (double) C_MAX == C_MAX, "C_MAX");
+    void binaryConstants() {
+        assertEquals(C_MIN, (long) (double) C_MIN, "C_MIN");
+        assertEquals(C_MAX, (long) (double) C_MAX, "C_MAX");
         assertEquals(MIN_VALUE, scalb(1.0, Q_MIN), "MIN_VALUE");
         assertEquals(MIN_NORMAL, scalb((double) C_MIN, Q_MIN), "MIN_NORMAL");
         assertEquals(MAX_VALUE, scalb((double) C_MAX, Q_MAX), "MAX_VALUE");
     }
 
     @Test
-    void testDecimalConstants() {
+    void decimalConstants() {
         assertEquals(MathUtils.K_MIN, K_MIN, "K_MIN");
         assertEquals(MathUtils.K_MAX, K_MAX, "K_MAX");
         assertEquals(MathUtils.H, H, "H");

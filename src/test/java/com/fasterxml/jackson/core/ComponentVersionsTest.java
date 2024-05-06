@@ -1,31 +1,39 @@
 package com.fasterxml.jackson.core;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
+import com.fasterxml.jackson.core.testsupport.TestSupport;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests to verify functioning of {@link Version} class.
  */
-public class TestVersions extends com.fasterxml.jackson.core.BaseTest
+class ComponentVersionsTest
+        extends JUnit5TestBase
 {
-    public void testCoreVersions() throws Exception
+    @Test
+    void coreVersions() throws Exception
     {
         final JsonFactory f = new JsonFactory();
         assertVersion(f.version());
-        try (ReaderBasedJsonParser p = new ReaderBasedJsonParser(testIOContext(), 0, null, null,
+        try (ReaderBasedJsonParser p = new ReaderBasedJsonParser(TestSupport.testIOContext(), 0, null, null,
                 CharsToNameCanonicalizer.createRoot(f))) {
             assertVersion(p.version());
         }
-        try (JsonGenerator g = new WriterBasedJsonGenerator(testIOContext(), 0, null, null, '"')) {
+        try (JsonGenerator g = new WriterBasedJsonGenerator(TestSupport.testIOContext(), 0, null, null, '"')) {
             assertVersion(g.version());
         }
     }
 
-    public void testEquality() {
+    @Test
+    void equality() {
         Version unk = Version.unknownVersion();
         assertEquals("0.0.0", unk.toString());
         assertEquals("//0.0.0", unk.toFullString());
-        assertTrue(unk.equals(unk));
+        assertEquals(unk, unk);
 
         Version other = new Version(2, 8, 4, "",
                 "groupId", "artifactId");
@@ -37,7 +45,8 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
         assertEquals(unk, unk2);
     }
 
-    public void testMisc() {
+    @Test
+    void misc() {
         Version unk = Version.unknownVersion();
         int hash = unk.hashCode();
         // Happens to be 0 at this point (Jackson 2.16)

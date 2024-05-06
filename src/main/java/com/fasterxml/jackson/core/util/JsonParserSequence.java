@@ -93,7 +93,7 @@ public class JsonParserSequence extends JsonParserDelegate
             return new JsonParserSequence(checkForExistingToken,
                     new JsonParser[] { first, second });
         }
-        ArrayList<JsonParser> p = new ArrayList<JsonParser>();
+        ArrayList<JsonParser> p = new ArrayList<>();
         if (first instanceof JsonParserSequence) {
             ((JsonParserSequence) first).addFlattenedActiveParsers(p);
         } else {

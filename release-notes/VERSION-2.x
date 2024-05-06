@@ -14,14 +14,62 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.17.0 (not yet released)
+2.17.1 (04-May-2024)
 
--
+#1241: Fix `NumberInput.looksLikeValidNumber()` implementation
+ (contributed by @pjfanning)
+#1256: Revert #1117: change default recycler pool back to `threadLocalPool()`
+  for 2.17.1
 
-2.16.1 (not yet released)
+2.17.0 (12-Mar-2024)
+
+#507: Add `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` to allow escaping of '/' for
+  String values
+ (contributed by Joo-Hyuk K)
+#1117: Change default `RecylerPool` implementation to `newLockFreePool` (from
+  `threadLocalPool`)
+#1137: Improve detection of "is a NaN" to only consider explicit cases,
+  not `double` overflow/underflow
+#1145: `JsonPointer.appendProperty(String)` does not escape the property name
+ (reported by Robert E)
+#1149: Add `JsonParser.getNumberTypeFP()`
+#1157: Use fast parser (FDP) for large `BigDecimal`s (500+ chars)
+ (contributed by @pjfanning)
+#1169: `ArrayIndexOutOfBoundsException` for specific invalid content,
+  with Reader-based parser
+#1173: `JsonLocation` consistently off by one character for many
+  invalid JSON parsing cases
+ (reported by Paul B)
+#1179: Allow configuring `DefaultPrettyPrinter` separators for empty
+  Arrays and Objects
+ (contributed by Guillaume L)
+#1186: `BufferRecycler` should avoid setting replacement if one already returned, bigger
+ (suggested by @kkkkkhhhh)
+#1195: Use `BufferRecycler` provided by output (`OutputStream`, `Writer`) object if available
+ (contributed by Mario F)
+#1202: Add `RecyclerPool.clear()` method for dropping all pooled Objects
+#1203: Faster division by 1000
+ (contributed by @xtonik)
+#1205: JsonFactory.setStreamReadConstraints(StreamReadConstraints) fails to
+  update "maxNameLength" for symbol tables
+ (reported by @denizk)
+#1217: Optimize char comparison using bitwise OR
+ (contributed by @xtonik)
+#1218: Simplify Unicode surrogate pair conversion for generation
+ (contributed by @xtonik)
+
+2.16.2 (09-Mar-2024)
+
+No changes since 2.16.1
+
+2.16.1 (24-Dec-2023)
 
 #1141: NPE in `Version.equals()` if snapshot-info `null`
  (reported by @TimSchweers)
+#1161: NPE in "FastDoubleParser", method "JavaBigDecimalParser.parseBigDecimal()"
+ (contributed by @pjfanning)
+#1168: `JsonPointer.append(JsonPointer.tail())` includes the original pointer
+ (contributed by Robert E)
 
 2.16.0 (15-Nov-2023)
 
@@ -61,11 +109,13 @@ a pure JSON library.
 #1136: Change parsing error message to mention `-INF`
 - Make `JacksonFeatureSet` serializable
 
-2.15.4 (not yet released)
+2.15.4 (15-Feb-2024)
 
 #1146: `JsonParserDelegate` missing overrides for `canParseAsync()`,
   `getNonBlockingInputFeeder()`
   (reported by Simon B)
+#1161: NPE in "FastDoubleParser", method "JavaBigDecimalParser.parseBigDecimal()"
+  (contributed by @pjfanning)
 
 2.15.3 (12-Oct-2023)
 

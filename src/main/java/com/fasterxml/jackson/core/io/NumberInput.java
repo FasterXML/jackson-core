@@ -5,6 +5,7 @@ import ch.randelshofer.fastdoubleparser.JavaFloatParser;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.regex.Pattern;
 
 /**
  * Helper class for efficient parsing of various JSON numbers.
@@ -30,6 +31,15 @@ public final class NumberInput
 
     final static String MIN_LONG_STR_NO_SIGN = String.valueOf(Long.MIN_VALUE).substring(1);
     final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
+
+    /**
+     * Regexp used to pre-validate "Stringified Numbers": slightly looser than
+     * JSON Number definition (allows leading zeroes, positive sign).
+     * 
+     * @since 2.17
+     */
+    private final static Pattern PATTERN_FLOAT = Pattern.compile(
+          "[+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?");
 
     /**
      * Fast method for parsing unsigned integers that are known to fit into
@@ -146,7 +156,7 @@ public final class NumberInput
         // Note: caller must ensure length is [10, 18]
         int len1 = len-9;
         long val = parseInt(ch, off, len1) * L_BILLION;
-        return val + (long) parseInt(ch, off+len1, 9);
+        return val + parseInt(ch, off+len1, 9);
     }
 
     /**
@@ -190,7 +200,7 @@ public final class NumberInput
         // that is, if we know they must be ints, call int parsing
         int length = s.length();
         if (length <= 9) {
-            return (long) parseInt(s);
+            return parseInt(s);
         }
         // !!! TODO: implement efficient 2-int parsing...
         return Long.parseLong(s);
@@ -357,8 +367,7 @@ public final class NumberInput
     {
         if (s == null) { return def; }
         s = s.trim();
-        int len = s.length();
-        if (len == 0) {
+        if (s.isEmpty()) {
             return def;
         }
         try {
@@ -372,7 +381,10 @@ public final class NumberInput
      * @return closest matching double
      * @throws NumberFormatException if string cannot be represented by a double where useFastParser=false
      * @see #parseDouble(String, boolean)
+     *
+     * @deprecated Since 2.17 use {@link #parseDouble(String, boolean)} instead
      */
+    @Deprecated // since 2.17
     public static double parseDouble(final String s) throws NumberFormatException {
         return parseDouble(s, false);
     }
@@ -394,7 +406,10 @@ public final class NumberInput
      * @throws NumberFormatException if string cannot be represented by a float where useFastParser=false
      * @see #parseFloat(String, boolean)
      * @since v2.14
+     *
+     * @deprecated Since 2.17 use {@link #parseFloat(String, boolean)} instead
      */
+    @Deprecated // since 2.17
     public static float parseFloat(final String s) throws NumberFormatException {
         return parseFloat(s, false);
     }
@@ -407,16 +422,22 @@ public final class NumberInput
      * @since v2.14
      */
     public static float parseFloat(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ? JavaFloatParser.parseFloat(s) : Float.parseFloat(s);
+        if (useFastParser) {
+            return JavaFloatParser.parseFloat(s);
+        }
+        return Float.parseFloat(s);
     }
 
     /**
      * @param s a string representing a number to parse
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     *
+     * @deprecated Since 2.17 use {@link #parseBigDecimal(String, boolean)} instead
      */
+    @Deprecated // since 2.17
     public static BigDecimal parseBigDecimal(final String s) throws NumberFormatException {
-        return BigDecimalParser.parse(s);
+        return parseBigDecimal(s, false);
     }
 
     /**
@@ -427,9 +448,10 @@ public final class NumberInput
      * @since v2.15
      */
     public static BigDecimal parseBigDecimal(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ?
-                BigDecimalParser.parseWithFastParser(s) :
-                BigDecimalParser.parse(s);
+        if (useFastParser) {
+            return BigDecimalParser.parseWithFastParser(s);
+        }
+        return BigDecimalParser.parse(s);
     }
 
     /**
@@ -438,7 +460,10 @@ public final class NumberInput
      * @param len the length of the number in the char array
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     *
+     * @deprecated Since 2.17 use {@link #parseBigDecimal(char[], int, int, boolean)} instead
      */
+    @Deprecated // since 2.17
     public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len) throws NumberFormatException {
         return BigDecimalParser.parse(ch, off, len);
     }
@@ -454,17 +479,22 @@ public final class NumberInput
      */
     public static BigDecimal parseBigDecimal(final char[] ch, final int off, final int len,
                                              final boolean useFastParser)
-            throws NumberFormatException {
-        return useFastParser ?
-                BigDecimalParser.parseWithFastParser(ch, off, len) :
-                BigDecimalParser.parse(ch, off, len);
+            throws NumberFormatException
+    {
+        if (useFastParser) {
+            return BigDecimalParser.parseWithFastParser(ch, off, len);
+        }
+        return BigDecimalParser.parse(ch, off, len);
     }
 
     /**
      * @param ch a char array with text that makes up a number
      * @return a BigDecimal
      * @throws NumberFormatException if the char array cannot be represented by a BigDecimal
+     *
+     * @deprecated Since 2.17 use {@link #parseBigDecimal(char[], boolean)} instead
      */
+    @Deprecated // since 2.17
     public static BigDecimal parseBigDecimal(final char[] ch) throws NumberFormatException {
         return BigDecimalParser.parse(ch);
     }
@@ -487,9 +517,12 @@ public final class NumberInput
      * @return a BigInteger
      * @throws NumberFormatException if string cannot be represented by a BigInteger
      * @since v2.14
+     *
+     * @deprecated Since 2.17 use {@link #parseBigInteger(String, boolean)} instead
      */
+    @Deprecated // since 2.17
     public static BigInteger parseBigInteger(final String s) throws NumberFormatException {
-        return new BigInteger(s);
+        return parseBigInteger(s, false);
     }
 
     /**
@@ -502,9 +535,8 @@ public final class NumberInput
     public static BigInteger parseBigInteger(final String s, final boolean useFastParser) throws NumberFormatException {
         if (useFastParser) {
             return BigIntegerParser.parseWithFastParser(s);
-        } else {
-            return parseBigInteger(s);
         }
+        return new BigInteger(s);
     }
 
     /**
@@ -516,11 +548,47 @@ public final class NumberInput
      * @since v2.15
      */
     public static BigInteger parseBigIntegerWithRadix(final String s, final int radix,
-                                                      final boolean useFastParser) throws NumberFormatException {
+            final boolean useFastParser) throws NumberFormatException {
         if (useFastParser) {
             return BigIntegerParser.parseWithFastParser(s, radix);
-        } else {
-            return new BigInteger(s, radix);
         }
+        return new BigInteger(s, radix);
+    }
+
+    /**
+     * Method called to check whether given pattern looks like a valid Java
+     * Number (which is bit looser definition than valid JSON Number).
+     * Used as pre-parsing check when parsing "Stringified numbers".
+     *<p>
+     * The differences to stricter JSON Number are:
+     * <ul>
+     *   <li>Positive sign is allowed
+     *     </li>
+     *   <li>Leading zeroes are allowed
+     *     </li>
+     * </ul>
+     *<p>
+     * Note: no trimming ({@code String.trim()}) nor null checks are performed
+     * on String passed.
+     *<p>
+     * Note: this method returning {@code true} DOES NOT GUARANTEE String is valid
+     * number but just that it looks close enough.
+     *
+     * @param s String to validate
+     *
+     * @return True if String looks like valid Java number; false otherwise.
+     *
+     * @since 2.17
+     */
+    public static boolean looksLikeValidNumber(final String s) {
+        // While PATTERN_FLOAT handles most cases we can optimize some simple ones:
+        if (s == null || s.isEmpty()) {
+            return false;
+        }
+        if (s.length() == 1) {
+            char c = s.charAt(0);
+            return (c <= '9') && (c >= '0');
+        }
+        return PATTERN_FLOAT.matcher(s).matches();
     }
 }

@@ -4,25 +4,35 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
-public class GeneratorDupHandlingTest
-    extends com.fasterxml.jackson.core.BaseTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
+
+class GeneratorDupHandlingTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testSimpleDupsEagerlyBytes() throws Exception {
+    @Test
+    void simpleDupsEagerlyBytes() throws Exception {
         _testSimpleDups(true, false, new JsonFactory());
     }
-    public void testSimpleDupsEagerlyChars() throws Exception {
+
+    @Test
+    void simpleDupsEagerlyChars() throws Exception {
         _testSimpleDups(false, false, new JsonFactory());
     }
 
     // Testing ability to enable checking after construction of
     // generator, not just via JsonFactory
-    public void testSimpleDupsLazilyBytes() throws Exception {
+    @Test
+    void simpleDupsLazilyBytes() throws Exception {
         final JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
         _testSimpleDups(true, true, f);
     }
 
-    public void testSimpleDupsLazilyChars() throws Exception {
+    @Test
+    void simpleDupsLazilyChars() throws Exception {
         final JsonFactory f = new JsonFactory();
         _testSimpleDups(false, true, f);
     }

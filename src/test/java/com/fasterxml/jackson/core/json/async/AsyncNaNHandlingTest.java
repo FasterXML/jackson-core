@@ -3,20 +3,26 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncNaNHandlingTest extends AsyncTestBase
+import static org.junit.jupiter.api.Assertions.*;
+
+class AsyncNaNHandlingTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
     @SuppressWarnings("deprecation")
-    public void testDefaultsForAsync() throws Exception {
+    @Test
+    void defaultsForAsync() throws Exception {
         assertFalse(DEFAULT_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
-    public void testDisallowNaN() throws Exception
+    @Test
+    void disallowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
 
@@ -33,7 +39,8 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         }
     }
 
-    public void testAllowNaN() throws Exception
+    @Test
+    void allowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
         JsonFactory f = JsonFactory.builder()
@@ -60,7 +67,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
             /*BigDecimal dec =*/ p.getDecimalValue();
             fail("Should fail when trying to access NaN as BigDecimal");
         } catch (NumberFormatException e) {
-            verifyException(e, "can not be represented as `java.math.BigDecimal`");
+            verifyException(e, "can not be deserialized as `java.math.BigDecimal`");
         }
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
@@ -77,7 +84,8 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         p.close();
     }
 
-    public void testDisallowInf() throws Exception
+    @Test
+    void disallowInf() throws Exception
     {
         // these are serializations of JDK itself:
         _testDisallowInf(DEFAULT_F, "Infinity", 99);
@@ -113,7 +121,8 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         }
     }
 
-    public void testAllowInf() throws Exception
+    @Test
+    void allowInf() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
@@ -148,19 +157,19 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         d = p.getDoubleValue();
         assertEquals("Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("+Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.POSITIVE_INFINITY);
+        assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
         assertEquals("-Infinity", p.currentText());
         assertTrue(Double.isInfinite(d));
-        assertTrue(d == Double.NEGATIVE_INFINITY);
+        assertEquals(Double.NEGATIVE_INFINITY, d);
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();

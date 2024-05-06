@@ -25,10 +25,46 @@ import com.fasterxml.jackson.core.io.NumberInput;
  */
 public class JsonPointer implements Serializable
 {
+    /**
+     * Escape character {@value #ESC} per <a href="https://datatracker.ietf.org/doc/html/rfc6901">RFC6901</a>.
+     * <pre>
+     * escaped         = "~" ( "0" / "1" )
+     *  ; representing '~' and '/', respectively
+     * </pre>   
+     *
+     * @since 2.17
+     */
+    public static final char ESC = '~';
+
+    /**
+     * Escaped slash string {@value #ESC_TILDE} per <a href="https://datatracker.ietf.org/doc/html/rfc6901">RFC6901</a>.
+     * <pre>
+     * escaped         = "~" ( "0" / "1" )
+     *  ; representing '~' and '/', respectively
+     * </pre>   
+     *
+     * @since 2.17
+     */
+    public static final String ESC_SLASH = "~1";
+
+    /**
+     * Escaped tilde string {@value #ESC_TILDE} per <a href="https://datatracker.ietf.org/doc/html/rfc6901">RFC6901</a>.
+     * <pre>
+     * escaped         = "~" ( "0" / "1" )
+     *  ; representing '~' and '/', respectively
+     * </pre>   
+     *
+     * @since 2.17
+     */
+    public static final String ESC_TILDE = "~0";
+
     private static final long serialVersionUID = 1L;
 
     /**
      * Character used to separate segments.
+     * <pre>
+     * json-pointer    = *( "/" reference-token )
+     * </pre>
      *
      * @since 2.9
      */
@@ -158,7 +194,7 @@ public class JsonPointer implements Serializable
             return EMPTY;
         }
         // And then quick validity check:
-        if (expr.charAt(0) != '/') {
+        if (expr.charAt(0) != SEPARATOR) {
             throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "+"\""+expr+"\"");
         }
         return _parseTail(expr);
@@ -249,7 +285,7 @@ public class JsonPointer implements Serializable
             // Let's find the last segment as well, for reverse traversal
             last = next;
             next.pathOffset = pathBuilder.length();
-            pathBuilder.append('/');
+            pathBuilder.append(SEPARATOR);
             if (next.property != null) {
                 _appendEscaped(pathBuilder, next.property);
             } else {
@@ -281,15 +317,15 @@ public class JsonPointer implements Serializable
     {
         for (int i = 0, end = segment.length(); i < end; ++i) {
             char c = segment.charAt(i);
-           if (c == '/') {
-               sb.append("~1");
-               continue;
-           }
-           if (c == '~') {
-               sb.append("~0");
-               continue;
-           }
-           sb.append(c);
+            if (c == SEPARATOR) {
+                sb.append(ESC_SLASH);
+                continue;
+            }
+            if (c == ESC) {
+                sb.append(ESC_TILDE);
+                continue;
+            }
+            sb.append(c);
         }
     }
 
@@ -374,51 +410,59 @@ public class JsonPointer implements Serializable
         // 21-Mar-2017, tatu: Not superbly efficient; could probably improve by not concatenating,
         //    re-decoding -- by stitching together segments -- but for now should be fine.
 
-        String currentJsonPointer = _asString;
+        String currentJsonPointer = toString();
+
+        // 14-Dec-2023, tatu: Pre-2.17 had special handling which makes no sense:
+        /*
         if (currentJsonPointer.endsWith("/")) {
             //removes final slash
             currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
         }
-        return compile(currentJsonPointer + tail._asString);
+        */
+        return compile(currentJsonPointer + tail.toString());
     }
 
     /**
-     * ATTENTION! {@link JsonPointer} is head centric, tail appending is much costlier than head appending.
-     * It is not recommended to overuse the method.
+     * ATTENTION! {@link JsonPointer} is head-centric, tail appending is much costlier
+     * than head appending.
+     * It is recommended that this method is used sparingly due to possible
+     * sub-par performance.
      *
-     * Mutant factory method that will return
+     * Mutant factory method that will return:
      *<ul>
-     * <li>`this` instance if `property` is null or empty String, OR
+     * <li>`this` instance if `property` is null, OR
      *  </li>
      * <li>Newly constructed {@link JsonPointer} instance that starts with all segments
      *    of `this`, followed by new segment of 'property' name.
      *  </li>
      *</ul>
-     *
-     * 'property' format is starting separator (optional, added automatically if not provided) and new segment name.
+     * 'property' is name to match: value is escaped as necessary (for any contained
+     * slashes or tildes).
+     *<p>
+     * NOTE! Before Jackson 2.17, no escaping was performed, and leading slash was
+     * dropped if passed. This was incorrect implementation. Empty {@code property}
+     * was also ignored (similar to {@code null}).
      *
      * @param property new segment property name
      *
      * @return Either `this` instance, or a newly created combination, as per description above.
      */
     public JsonPointer appendProperty(String property) {
-        if (property == null || property.isEmpty()) {
+        if (property == null) {
             return this;
         }
-        if (property.charAt(0) != SEPARATOR) {
-            property = SEPARATOR + property;
-        }
-        String currentJsonPointer = _asString;
-        if (currentJsonPointer.endsWith("/")) {
-            //removes final slash
-            currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
-        }
-        return compile(currentJsonPointer + property);
+        // 14-Dec-2023, tatu: [core#1145] Must escape `property`; accept empty String
+        //    as valid segment to match as well
+        StringBuilder sb = toStringBuilder(property.length() + 2).append(SEPARATOR);
+        _appendEscaped(sb, property);
+        return compile(sb.toString());
     }
 
     /**
-     * ATTENTION! {@link JsonPointer} is head centric, tail appending is much costlier than head appending.
-     * It is not recommended to overuse the method.
+     * ATTENTION! {@link JsonPointer} is head-centric, tail appending is much costlier
+     * than head appending.
+     * It is recommended that this method is used sparingly due to possible
+     * sub-par performance.
      *
      * Mutant factory method that will return newly constructed {@link JsonPointer} instance that starts with all
      * segments of `this`, followed by new segment of element 'index'. Element 'index' should be non-negative.
@@ -432,12 +476,9 @@ public class JsonPointer implements Serializable
         if (index < 0) {
             throw new IllegalArgumentException("Negative index cannot be appended");
         }
-        String currentJsonPointer = _asString;
-        if (currentJsonPointer.endsWith("/")) {
-            //removes final slash
-            currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
-        }
-        return compile(currentJsonPointer + SEPARATOR + index);
+        // 14-Dec-2024, tatu: Used to have odd logic for removing "trailing" slash;
+        //    removed from 2.17
+        return compile(toStringBuilder(8).append(SEPARATOR).append(index).toString());
     }
 
     /**
@@ -556,14 +597,39 @@ public class JsonPointer implements Serializable
     /**********************************************************
      */
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         if (_asStringOffset <= 0) {
             return _asString;
         }
         return _asString.substring(_asStringOffset);
     }
 
-    @Override public int hashCode() {
+    /**
+     * Functionally equivalent to:
+     *<pre>
+     *   new StringBuilder(toString());
+     *</pre>
+     * but possibly more efficient
+     *
+     * @param slack Number of characters to reserve in StringBuilder beyond
+     *   minimum copied
+     * @return a new StringBuilder
+     *
+     * @since 2.17
+     */
+    protected StringBuilder toStringBuilder(int slack) {
+        if (_asStringOffset <= 0) {
+            return new StringBuilder(_asString);
+        }
+        final int len = _asString.length();
+        StringBuilder sb = new StringBuilder(len - _asStringOffset + slack);
+        sb.append(_asString, _asStringOffset, len);
+        return sb;
+    }
+
+    @Override
+    public int hashCode() {
         int h = _hashCode;
         if (h == 0) {
             // Alas, this is bit wasteful, creating temporary String, but
@@ -578,7 +644,8 @@ public class JsonPointer implements Serializable
         return h;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
         if (!(o instanceof JsonPointer)) return false;
@@ -636,10 +703,11 @@ public class JsonPointer implements Serializable
             }
         }
         if (len == 10) {
-            long l = NumberInput.parseLong(str);
+            long l = Long.parseLong(str);
             if (l > Integer.MAX_VALUE) {
                 return -1;
             }
+            return (int) l;
         }
         return NumberInput.parseInt(str);
     }
@@ -655,7 +723,7 @@ public class JsonPointer implements Serializable
 
         while (i < end) {
             char c = fullPath.charAt(i);
-            if (c == '/') { // common case, got a segment
+            if (c == SEPARATOR) { // common case, got a segment
                 parent = new PointerParent(parent, startOffset,
                         fullPath.substring(startOffset + 1, i));
                 startOffset = i;
@@ -664,7 +732,7 @@ public class JsonPointer implements Serializable
             }
             ++i;
             // quoting is different; offline this case
-            if (c == '~' && i < end) { // possibly, quote
+            if (c == ESC && i < end) { // possibly, quote
                 // 04-Oct-2022, tatu: Let's decode escaped segment
                 //   instead of recursive call
                 StringBuilder sb = new StringBuilder(32);
@@ -719,11 +787,11 @@ public class JsonPointer implements Serializable
         _appendEscape(sb, input.charAt(i++));
         while (i < end) {
             char c = input.charAt(i);
-            if (c == '/') { // end is nigh!
+            if (c == SEPARATOR) { // end is nigh!
                 return i;
             }
             ++i;
-            if (c == '~' && i < end) {
+            if (c == ESC && i < end) {
                 _appendEscape(sb, input.charAt(i++));
                 continue;
             }
@@ -735,11 +803,11 @@ public class JsonPointer implements Serializable
 
     private static void _appendEscape(StringBuilder sb, char c) {
         if (c == '0') {
-            c = '~';
+            c = ESC;
         } else if (c == '1') {
-            c = '/';
+            c = SEPARATOR;
         } else {
-            sb.append('~');
+            sb.append(ESC);
         }
         sb.append(c);
     }

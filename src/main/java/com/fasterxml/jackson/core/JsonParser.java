@@ -27,12 +27,12 @@ import com.fasterxml.jackson.core.util.RequestPayload;
 public abstract class JsonParser
     implements Closeable, Versioned
 {
-    private final static int MIN_BYTE_I = (int) Byte.MIN_VALUE;
+    private final static int MIN_BYTE_I = Byte.MIN_VALUE;
     // as per [JACKSON-804], allow range up to and including 255
-    private final static int MAX_BYTE_I = (int) 255;
+    private final static int MAX_BYTE_I = 255;
 
-    private final static int MIN_SHORT_I = (int) Short.MIN_VALUE;
-    private final static int MAX_SHORT_I = (int) Short.MAX_VALUE;
+    private final static int MIN_SHORT_I = Short.MIN_VALUE;
+    private final static int MAX_SHORT_I = Short.MAX_VALUE;
 
     /**
      * Enumeration of possible "native" (optimal) types that can be
@@ -40,7 +40,47 @@ public abstract class JsonParser
      */
     public enum NumberType {
         INT, LONG, BIG_INTEGER, FLOAT, DOUBLE, BIG_DECIMAL
-    };
+    }
+
+    /**
+     * Enumeration of possible physical Floating-Point types that
+     * underlying format uses. Used to indicate most accurate (and
+     * efficient) representation if known (if not known,
+     * {@link NumberTypeFP#UNKNOWN} is used).
+     *
+     * @since 2.17
+     */
+    public enum NumberTypeFP {
+        /**
+         * Special "mini-float" that some binary formats support.
+         */
+        FLOAT16,
+        
+        /**
+         * Standard IEEE-754 single-precision 32-bit binary value
+         */
+        FLOAT32,
+        
+        /**
+         * Standard IEEE-754 double-precision 64-bit binary value
+         */
+        DOUBLE64,
+        
+        /**
+         * Unlimited precision, decimal (10-based) values
+         */
+        BIG_DECIMAL,
+
+        /**
+         * Constant used when type is not known, or there is no specific
+         * type to match: most commonly used for textual formats like JSON
+         * where representation does not necessarily have single easily detectable
+         * optimal representation (for example, value {@code 0.1} has no
+         * exact binary representation whereas {@code 0.25} has exact representation
+         * in every binary type supported)
+         */
+        UNKNOWN;
+    }
 
     /**
      * Default set of {@link StreamReadCapability}ies that may be used as
@@ -1256,7 +1296,7 @@ public abstract class JsonParser
      * @since 2.8
      */
     public void finishToken() throws IOException {
-        ; // nothing
+        // nothing to do
     }
 
     /*
@@ -1496,7 +1536,7 @@ public abstract class JsonParser
      */
 
     /**
-     * Deprecated lias of {@link #currentName()}.
+     * Deprecated alias of {@link #currentName()}.
      *
      * @return Name of the current field in the parsing context
      *
@@ -1732,7 +1772,7 @@ public abstract class JsonParser
      * If current token is of type
      * {@link JsonToken#VALUE_NUMBER_INT} or
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
-     * one of {@link NumberType} constants; otherwise returns null.
+     * one of {@link NumberType} constants; otherwise returns {@code null}.
      *
      * @return Type of current number, if parser points to numeric token; {@code null} otherwise
      *
@@ -1740,6 +1780,38 @@ public abstract class JsonParser
      *   {@link JsonParseException} for decoding problems
      */
     public abstract NumberType getNumberType() throws IOException;
+
+    /**
+     * If current token is of type
+     * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
+     * one of {@link NumberTypeFP} constants; otherwise returns
+     * {@link NumberTypeFP#UNKNOWN}.
+     *<p>
+     * Default implementation as of Jackson 2.x will call {@link #getNumberType()}
+     * and translate types -- this needs to be overriden actual implementations
+     * if this is not sufficient (which it usually is not for textual formats).
+     *
+     * @return Type of current floating-point number, if parser points to numeric token;
+     *   {@link NumberTypeFP#UNKNOWN} otherwise.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
+     * @since 2.17
+     */
+    public NumberTypeFP getNumberTypeFP() throws IOException {
+        NumberType nt = getNumberType();
+        if (nt == NumberType.BIG_DECIMAL) {
+            return NumberTypeFP.BIG_DECIMAL;
+        }
+        if (nt == NumberType.DOUBLE) {
+            return NumberTypeFP.DOUBLE64;
+        }
+        if (nt == NumberType.FLOAT) {
+            return NumberTypeFP.FLOAT32;
+        }
+        return NumberTypeFP.UNKNOWN;
+    }
 
     /**
      * Numeric accessor that can be called when the current
@@ -2565,6 +2637,27 @@ public abstract class JsonParser
      */
     protected JsonParseException _constructReadException(String msg, Throwable t) {
         JsonParseException e = new JsonParseException(this, msg, t);
+        if (_requestPayload != null) {
+            e = e.withRequestPayload(_requestPayload);
+        }
+        return e;
+    }
+
+    /**
+     * Helper method for constructing {@link JsonParseException}
+     * based on current state of the parser, except for specified
+     * {@link JsonLocation} for problem location (which may not be
+     * the exact current location)
+     *
+     * @param msg Base exception message to construct exception with
+     * @param loc Error location to report
+     *
+     * @return Read exception (of type {@link JsonParseException}) constructed
+     *
+     * @since 2.13
+     */
+    protected JsonParseException _constructReadException(String msg, JsonLocation loc) {
+        JsonParseException e = new JsonParseException(this, msg, loc);
         if (_requestPayload != null) {
             e = e.withRequestPayload(_requestPayload);
         }

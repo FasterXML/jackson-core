@@ -4,10 +4,15 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 
-public class TestMergedStream
-    extends com.fasterxml.jackson.core.BaseTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class MergedStreamTest
+        extends com.fasterxml.jackson.core.JUnit5TestBase
 {
-    public void testSimple() throws Exception
+    @Test
+    void simple() throws Exception
     {
         IOContext ctxt = testIOContext();
         // bit complicated; must use recyclable buffer...

@@ -3,13 +3,19 @@ package com.fasterxml.jackson.core.read;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import com.fasterxml.jackson.core.JsonFactory;
+
+import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.JsonToken;
 
-public class NumberDeferredReadTest
-    extends com.fasterxml.jackson.core.BaseTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class NumberDeferredReadTest
+        extends JUnit5TestBase
 {
     protected JsonFactory jsonFactory() {
         return sharedStreamFactory();
@@ -22,7 +28,8 @@ public class NumberDeferredReadTest
      */
 
     // Int, long eagerly decoded, always
-    public void testDeferredInt() throws Exception
+    @Test
+    void deferredInt() throws Exception
     {
         _testDeferredInt(MODE_INPUT_STREAM);
         _testDeferredInt(MODE_INPUT_STREAM_THROTTLED);
@@ -41,7 +48,8 @@ public class NumberDeferredReadTest
         }
     }
 
-    public void testDeferredLong() throws Exception
+    @Test
+    void deferredLong() throws Exception
     {
         _testDeferredLong(MODE_INPUT_STREAM);
         _testDeferredLong(MODE_INPUT_STREAM_THROTTLED);
@@ -60,7 +68,8 @@ public class NumberDeferredReadTest
         }
     }
 
-    public void testDeferredBigInteger() throws Exception
+    @Test
+    void deferredBigInteger() throws Exception
     {
         _testDeferredBigInteger(MODE_INPUT_STREAM);
         _testDeferredBigInteger(MODE_INPUT_STREAM_THROTTLED);
@@ -90,7 +99,8 @@ public class NumberDeferredReadTest
     /**********************************************************************
      */
 
-    public void testDeferredFloatingPoint() throws Exception
+    @Test
+    void deferredFloatingPoint() throws Exception
     {
         _testDeferredFloatingPoint(MODE_INPUT_STREAM);
         _testDeferredFloatingPoint(MODE_INPUT_STREAM_THROTTLED);

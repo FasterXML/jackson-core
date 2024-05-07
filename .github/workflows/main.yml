@@ -97,5 +97,5 @@ jobs:
           token: ${{ secrets.REPO_DISPATCH }}
           repository: ${{ matrix.repo }}
           event-type: jackson-core-pushed
-	  # Could push information on what was built but not yet
+          # Could push information on what was built but not yet
           client-payload: '{"version": "N/A" }'

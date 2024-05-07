@@ -94,7 +94,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v3
         with:
           # Does regular token work within same org?
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_DISPATCH }}
           repository: ${{ matrix.repo }}
           event-type: jackson-core-pushed
           client-payload: '{"version": "${{ needs.resolve-tag.outputs.release-tag}}"}'

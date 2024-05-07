@@ -86,7 +86,8 @@ jobs:
 
     strategy:
       fail-fast: false
-      repo: [ 'FasterXML/jackson-databind' ]
+      matrix:
+        repo: [ 'FasterXML/jackson-databind' ]
 
     steps:
       - name: Repository dispatch

@@ -77,3 +77,24 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./target/site/jacoco/jacoco.xml
         flags: unittests
+
+  trigger-dep-build:
+    name: Trigger downstream builds
+    needs: [build]
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        repo: [ 'FasterXML/jackson-databind' ]
+
+    steps:
+      - name: Repository dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          # Does regular token work within same org?
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ matrix.repo }}
+          event-type: jackson-core-pushed
+          client-payload: '{"version": "${{ needs.resolve-tag.outputs.release-tag}}"}'

@@ -81,21 +81,8 @@ jobs:
   trigger-dep-build:
     name: Trigger downstream builds
     needs: [build]
-    if: ${{ github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        repo: [ 'FasterXML/jackson-databind' ]
-
-    steps:
-      - name: Repository dispatch
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          # Does regular token work within same org?
-          token: ${{ secrets.REPO_DISPATCH }}
-          repository: ${{ matrix.repo }}
-          event-type: jackson-core-pushed
-          # Could push information on what was built but not yet
-          client-payload: '{"version": "N/A" }'
+    # Only for pushes to default branch
+    if: ${{ github.event_name == 'push' && github.event.ref_name == github.event.repository.default_branch }}
+    uses: ./.github/workflows/trigger_dep_builds.yml
+    secrets:
+      token: ${{ secrets.REPO_DISPATCH }}

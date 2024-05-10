@@ -309,7 +309,17 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * a lock free linked list for recycling instances.
      * Pool is unbounded: see {@link RecyclerPool} for
      * details on what this means.
+     *<p>
+     * NOTE: serious issues found with 2.17.0 lead to deprecation
+     * of this implementation -- basically it is possible to have
+     * unbalanced acquire/release success rate lead to excessive
+     * growth of pooled instances.
+     * See <a href="https://github.com/FasterXML/jackson-core/issues/1260">
+     * jackson-core#1260</a> for details.
+     *
+     * @deprecated Since 2.18: use other implementations
      */
+    @Deprecated // since 2.18
     abstract class LockFreePoolBase<P extends WithPool<P>>
         extends StatefulImplBase<P>
     {

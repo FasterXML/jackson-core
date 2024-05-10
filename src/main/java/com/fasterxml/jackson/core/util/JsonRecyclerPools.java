@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.util.RecyclerPool.BoundedPoolBase;
 import com.fasterxml.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
-import com.fasterxml.jackson.core.util.RecyclerPool.LockFreePoolBase;
 
 /**
  * Set of {@link RecyclerPool} implementations to be used by the default
@@ -74,7 +73,11 @@ public final class JsonRecyclerPools
      * Accessor for getting the shared/global {@link LockFreePool} instance.
      *
      * @return Globally shared instance of {@link LockFreePool}.
+     *
+     * @deprecated Since 2.18: use one of other implementations instead;
+     *   see {@link LockFreePool} Javadocs for details
      */
+    @Deprecated // since 2.18
     public static RecyclerPool<BufferRecycler> sharedLockFreePool() {
         return LockFreePool.GLOBAL;
     }
@@ -83,7 +86,11 @@ public final class JsonRecyclerPools
      * Accessor for constructing a new, non-shared {@link LockFreePool} instance.
      *
      * @return Globally shared instance of {@link LockFreePool}.
+     *
+     * @deprecated Since 2.18: use one of other implementations instead;
+     *   see {@link LockFreePool} Javadocs for details
      */
+    @Deprecated // since 2.18
     public static RecyclerPool<BufferRecycler> newLockFreePool() {
         return LockFreePool.construct();
     }
@@ -204,8 +211,18 @@ public final class JsonRecyclerPools
      *<p>
      * Pool is unbounded: see {@link RecyclerPool} for
      * details on what this means.
+     *<p>
+     * NOTE: serious issues found with 2.17.0 lead to deprecation
+     * of this implementation -- basically it is possible to have
+     * unbalanced acquire/release success rate lead to excessive
+     * growth of pooled instances.
+     * See <a href="https://github.com/FasterXML/jackson-core/issues/1260">
+     * jackson-core#1260</a> for details.
+     *
+     * @deprecated Since 2.18: use other implementations instead
      */
-    public static class LockFreePool extends LockFreePoolBase<BufferRecycler>
+    @Deprecated
+    public static class LockFreePool extends RecyclerPool.LockFreePoolBase<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 

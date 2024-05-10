@@ -223,6 +223,10 @@ public enum JsonToken
     /**
      * Helper method for constructing description like "Object value" given
      * {@link JsonToken} encountered.
+     *
+     * @param t Token to get description for
+     *
+     * @return Description for token
      */
     public static String valueDescFor(JsonToken t) {
         if (t == null) {

@@ -910,6 +910,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Internal accessor that needs to be used for accessing number value of type
      * {@link BigInteger} which -- as of 2.14 -- is typically lazily parsed.
+     *
+     * @return BigInteger value decoded or converted for the current event
      */
     protected BigInteger _getBigInteger() {
         if (_numberBigInt != null) {
@@ -932,6 +934,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Internal accessor that needs to be used for accessing number value of type
      * {@link BigDecimal} which -- as of 2.14 -- is typically lazily parsed.
+     *
+     * @return BigDecimal value decoded or converted for the current event
      */
     protected BigDecimal _getBigDecimal() {
         if (_numberBigDecimal != null) {
@@ -954,6 +958,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Internal accessor that needs to be used for accessing number value of type
      * {@code double} which will be lazily parsed.
+     *
+     * @return {@code double} value decoded or converted for the current event
      */
     protected double _getNumberDouble() {
         if (_numberString != null) {
@@ -971,6 +977,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Internal accessor that needs to be used for accessing number value of type
      * {@code float} which will be lazily parsed.
+     *
+     * @return {@code float} value decoded or converted for the current event
      *
      * @since 2.15
      */

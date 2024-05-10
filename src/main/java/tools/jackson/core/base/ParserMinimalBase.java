@@ -320,6 +320,8 @@ public abstract class ParserMinimalBase extends JsonParser
     /**
      * Abstract method for sub-classes to implement; to be called by
      * {@link #close()} implementation here.
+     *
+     * @throws IOException from underlying input source if thrown
      */
     protected abstract void _closeInput() throws IOException;
 
@@ -860,7 +862,11 @@ public abstract class ParserMinimalBase extends JsonParser
      * In case of JSON this also includes invalid forms like positive sign and
      * leading zeroes.
      *
+     * @param <T> Nominal type parameter for bogus return value
      * @param msg Base exception message to use
+     *
+     * @return Nothing: never returns; declared so caller can use fake return
+     *   to keep compiler happy
      *
      * @throws StreamReadException Exception that describes problem with number validity
      */

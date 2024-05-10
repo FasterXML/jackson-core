@@ -25,10 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * <li>{@link BoundedPoolBase} is "bounded pool" and retains at most N objects (default value being
  *  {@link BoundedPoolBase#DEFAULT_CAPACITY}) at any given time.
  *  </li>
- * <li>Two implementations -- {@link ConcurrentDequePoolBase}, {@link LockFreePoolBase}
- *   -- are "unbounded" and retain any number of objects released: in practice
- *   it is at most the highest number of concurrently used {@link BufferRecycler}s.
- *  </li>
  *</ul>
  *
  *<p>

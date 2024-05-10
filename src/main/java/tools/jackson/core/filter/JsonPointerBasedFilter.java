@@ -54,7 +54,7 @@ public class JsonPointerBasedFilter extends TokenFilter
      * @param includeAllElements Whether to just include all array elements
      *   of matching Array-valued path automatically
      *
-     * @since 2.16
+     * @return Filter constructed
      */
     protected JsonPointerBasedFilter construct(JsonPointer pathToMatch, boolean includeAllElements) {
         return new JsonPointerBasedFilter(pathToMatch, includeAllElements);

@@ -58,6 +58,8 @@ public abstract class JsonGenerator
 
     /**
      * Get the constraints to apply when performing streaming writes.
+     *
+     * @return Constraints used for this generator
      */
     public StreamWriteConstraints streamWriteConstraints() {
         return StreamWriteConstraints.defaults();
@@ -330,6 +332,8 @@ public abstract class JsonGenerator
      * are allowed: meaning everywhere except for when
      * a property name is expected.
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -347,6 +351,8 @@ public abstract class JsonGenerator
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
+     *
+     * @return This generator, to allow call chaining
      */
     public abstract JsonGenerator writeStartArray(Object currentValue) throws JacksonException;
 
@@ -364,6 +370,8 @@ public abstract class JsonGenerator
      *   {@link #writeEndArray()} MUST match; generator MAY verify
      *   this is the case (and SHOULD if format itself encodes length)
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -375,6 +383,8 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled).
      *<p>
      * Marker can be written if the innermost structured type is Array.
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -389,6 +399,8 @@ public abstract class JsonGenerator
      * Object values can be written in any context where values
      * are allowed: meaning everywhere except for when
      * a property name is expected.
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -408,6 +420,8 @@ public abstract class JsonGenerator
      *
      * @param currentValue Java Object that Object being written represents, if any
      *    (or {@code null} if not known or not applicable)
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -435,6 +449,8 @@ public abstract class JsonGenerator
      *   {@link #writeEndObject()} MUST match; generator MAY verify
      *   this is the case (and SHOULD if format itself encodes length)
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -449,6 +465,8 @@ public abstract class JsonGenerator
      * is Object, and the last written event was either a
      * complete value, or START-OBJECT marker (see JSON specification
      * for more details).
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -465,6 +483,8 @@ public abstract class JsonGenerator
      * (property names alternate with values).
      *
      * @param name Name of the Object Property to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -484,6 +504,8 @@ public abstract class JsonGenerator
      *
      * @param name Pre-encoded name of the Object Property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -498,6 +520,8 @@ public abstract class JsonGenerator
      * and call {@link #writeName(String)}.
      *
      * @param id Property key id to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -518,6 +542,8 @@ public abstract class JsonGenerator
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -543,6 +569,8 @@ public abstract class JsonGenerator
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -567,6 +595,8 @@ public abstract class JsonGenerator
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -590,6 +620,8 @@ public abstract class JsonGenerator
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -621,6 +653,8 @@ public abstract class JsonGenerator
      *
      * @param value String value to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -643,6 +677,8 @@ public abstract class JsonGenerator
      * @param len Maximum Length of Text value to read (in {@code char}s, non-negative)
      *    if known; {@code -1} to indicate "read and write it all"
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      *    (including the case where {@code reader} does not provide enough content)
@@ -660,6 +696,8 @@ public abstract class JsonGenerator
      * @param offset Offset in {@code buffer} of the first character of String value to write
      * @param len Length of the String value (in characters) to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -676,6 +714,8 @@ public abstract class JsonGenerator
      * if possible.
      *
      * @param value Pre-encoded String value to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -699,6 +739,8 @@ public abstract class JsonGenerator
      * @param buffer Buffer that contains String value to write
      * @param offset Offset in {@code buffer} of the first byte of String value to write
      * @param len Length of the String value (in characters) to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -728,6 +770,8 @@ public abstract class JsonGenerator
      * @param offset Offset in {@code buffer} of the first byte of String value to write
      * @param len Length of the String value (in characters) to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -752,6 +796,8 @@ public abstract class JsonGenerator
      * such by-pass methods: those that do not will throw
      * {@link UnsupportedOperationException}.
      *
+     * @return This generator, to allow call chaining
+     *
      * @param text Textual contents to include as-is in output.
      *
      * @throws JacksonIOException if there is an underlying I/O problem
@@ -775,6 +821,8 @@ public abstract class JsonGenerator
      * @param offset Offset within {@code text} of the first character to output
      * @param len Length of content (from {@code text}, starting at offset {@code offset}) to output
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -796,6 +844,8 @@ public abstract class JsonGenerator
      * @param offset Offset within {@code text} of the first character to output
      * @param len Length of content (from {@code text}, starting at offset {@code offset}) to output
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -814,6 +864,8 @@ public abstract class JsonGenerator
      * {@link UnsupportedOperationException}.
      *
      * @param c Character to included in output
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -839,6 +891,8 @@ public abstract class JsonGenerator
      *
      * @param raw Pre-encoded textual contents to included in output
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -856,6 +910,8 @@ public abstract class JsonGenerator
      *
      * @param text Textual contents to included in output
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -871,6 +927,8 @@ public abstract class JsonGenerator
      * {@link #writeRaw(SerializableString)}.
      *
      * @param raw Pre-encoded textual contents to included in output
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -909,6 +967,8 @@ public abstract class JsonGenerator
      * @param offset Offset in {@code data} of the first byte of data to write
      * @param len Length of data to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -924,6 +984,8 @@ public abstract class JsonGenerator
      * @param offset Offset in {@code data} of the first byte of data to write
      * @param len Length of data to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -938,6 +1000,8 @@ public abstract class JsonGenerator
      * assumes that whole byte array is to be output.
      *
      * @param data Buffer that contains binary data to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1008,6 +1072,8 @@ public abstract class JsonGenerator
      *
      * @param v Number value to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1021,6 +1087,8 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1036,6 +1104,8 @@ public abstract class JsonGenerator
      *
      * @param v Number value to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1049,6 +1119,8 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1064,6 +1136,8 @@ public abstract class JsonGenerator
      *
      * @param v Number value to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1078,6 +1152,8 @@ public abstract class JsonGenerator
      *
      * @param v Number value to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1091,6 +1167,8 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1115,6 +1193,8 @@ public abstract class JsonGenerator
      *
      * @param encodedValue Textual (possibly format) number representation to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws UnsupportedOperationException If underlying data format does not
      *   support numbers serialized textually AND if generator is not allowed
      *   to just output a String instead (Schema-based formats may require actual
@@ -1131,6 +1211,8 @@ public abstract class JsonGenerator
      * @param encodedValueBuffer Buffer that contains the textual number representation to write
      * @param offset Offset of the first character of value to write
      * @param len Length of the value (in characters) to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1155,6 +1237,8 @@ public abstract class JsonGenerator
      *
      * @param state Boolean value to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1166,6 +1250,8 @@ public abstract class JsonGenerator
      * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1181,6 +1267,8 @@ public abstract class JsonGenerator
      * see {@link #writePOJO} instead.
      *
      * @param object Native format-specific value to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1214,6 +1302,8 @@ public abstract class JsonGenerator
      *
      * @param id Native Object Id to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream;
      *   typically if Object ID output is not allowed
@@ -1234,6 +1324,8 @@ public abstract class JsonGenerator
      *
      * @param referenced Referenced value, for which Object Id is expected to be written
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream;
      *   typically if Object ID output is not allowed
@@ -1253,6 +1345,8 @@ public abstract class JsonGenerator
      * a {@link StreamWriteException} will be thrown.
      *
      * @param id Native Type Id to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1392,6 +1486,8 @@ public abstract class JsonGenerator
      *
      * @param pojo Java Object (POJO) value to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1404,6 +1500,8 @@ public abstract class JsonGenerator
      * {@link ObjectWriteContext#writeTree}.
      *
      * @param rootNode {@link TreeNode} to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1432,6 +1530,8 @@ public abstract class JsonGenerator
      * @param propertyName Name of Object Property to write
      * @param data Binary value of the property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1451,6 +1551,8 @@ public abstract class JsonGenerator
      * @param propertyName Name of Object Property to write
      * @param value Boolean value of the property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1468,6 +1570,8 @@ public abstract class JsonGenerator
      *</pre>
      *
      * @param propertyName Name of the null-valued property to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1488,6 +1592,8 @@ public abstract class JsonGenerator
      * @param propertyName Name of the property to write
      * @param value String value of the property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1506,6 +1612,8 @@ public abstract class JsonGenerator
      *
      * @param propertyName Name of the property to write
      * @param value Numeric value of the property to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1526,6 +1634,8 @@ public abstract class JsonGenerator
      * @param propertyName Name of the property to write
      * @param value Numeric value of the property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1544,6 +1654,8 @@ public abstract class JsonGenerator
      *
      * @param propertyName Name of the property to write
      * @param value Numeric value of the property to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1564,6 +1676,8 @@ public abstract class JsonGenerator
      * @param propertyName Name of the property to write
      * @param value Numeric value of the property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1582,6 +1696,8 @@ public abstract class JsonGenerator
      *
      * @param propertyName Name of the property to write
      * @param value Numeric value of the property to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1602,6 +1718,8 @@ public abstract class JsonGenerator
      * @param propertyName Name of the property to write
      * @param value Numeric value of the property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1621,6 +1739,8 @@ public abstract class JsonGenerator
      *
      * @param propertyName Name of the property to write
      * @param value Numeric value of the property to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1645,6 +1765,8 @@ public abstract class JsonGenerator
      *
      * @param propertyName Name of the Array property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1667,6 +1789,8 @@ public abstract class JsonGenerator
      * entries of the value Object.
      *
      * @param propertyName Name of the Object property to write
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -1691,6 +1815,8 @@ public abstract class JsonGenerator
      * @param propertyName Name of the property to write
      * @param pojo POJO value of the property to write
      *
+     * @return This generator, to allow call chaining
+     *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
@@ -1710,6 +1836,8 @@ public abstract class JsonGenerator
      * backends.
      *
      * @param propertyName Name of the property that is being omitted
+     *
+     * @return This generator, to allow call chaining
      *
      * @throws JacksonIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream

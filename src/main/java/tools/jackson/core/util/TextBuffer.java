@@ -363,7 +363,8 @@ public class TextBuffer
      */
 
     /**
-     * @since 2.17
+     * @return BufferRecycler this buffer uses when it needs to release underlying
+     *    encoding buffer(s).
      */
     public BufferRecycler bufferRecycler() {
         return _allocator;
@@ -652,7 +653,8 @@ public class TextBuffer
      *
      * @return Number of characters written (same as {@link #size()})
      *
-     * @throws JacksonException If write using {@link Writer} parameter fails
+     * @throws IOException if the write using given {@code Writer} fails (exception
+     *   that {@code Writer} throws)
      */
     public int contentsToWriter(Writer w) throws IOException, JacksonException
     {

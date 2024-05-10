@@ -252,6 +252,8 @@ public abstract class TokenStreamFactory
      * factory instance.
      *
      * @param src StreamReadConstraints to use with parsers factory creates
+     * @param swc StreamWriteConstraints to use with generators factory creates
+     * @param erc ErrorReportConfiguration to use with parsers factory creates
      * @param formatReadFeatures Bitmask of format-specific read features enabled
      * @param formatWriteFeatures Bitmask of format-specific write features enabled
      */
@@ -1222,6 +1224,8 @@ public abstract class TokenStreamFactory
     /**
      * Accessor for getting access to {@link RecyclerPool} for getting
      * {@link BufferRecycler} instance to use.
+     *
+     * @return RecyclerPool configured for (and used by) this factory.
      */
     public RecyclerPool<BufferRecycler> _getRecyclerPool() {
         return _recyclerPool;

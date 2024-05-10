@@ -84,6 +84,10 @@ public class Separators implements Serializable
     /**
      * Constructor for creating an instance with default settings for all
      * separators.
+     *
+     * @param objectNameValueSeparator Separator between Object property name and value
+     * @param objectEntrySeparator Separator between name-value entries in Object
+     * @param arrayElementSeparator Separator between Array elements
      */
     public Separators(
             char objectNameValueSeparator,
@@ -96,9 +100,6 @@ public class Separators implements Serializable
                 arrayElementSeparator, Spacing.NONE, DEFAULT_ARRAY_EMPTY_SEPARATOR);
     }
 
-    /**
-     * Create an instance with the specified separator characters and spaces around those characters.
-     */
     public Separators(
             String rootSeparator,
             char objectNameValueSeparator,

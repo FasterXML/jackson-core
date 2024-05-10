@@ -5,8 +5,8 @@ import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
 import java.math.BigDecimal;
 
 /**
- * Internal Jackson Helper class used to implement more optimized parsing of {@link BigDecimal} for REALLY
- * big values (over 500 characters).
+ * Internal Jackson Helper class used to implement more optimized parsing of
+ * {@link BigDecimal} for REALLY big values (over 500 characters).
  *<p>
  * This class is not meant to be used directly. It is designed to be used by Jackson JSON parsers (and parsers
  * for other Jackson supported data formats). The parsers check for invalid characters and the length of the number.
@@ -32,9 +32,11 @@ public final class BigDecimalParser
      * of {@link BigDecimal} value: parsers in {@code jackson-core} do that; other
      * code must do the same.
      *
-     * @param valueStr
+     * @param valueStr Value to parse
+     *
      * @return BigDecimal value
-     * @throws NumberFormatException
+     *
+     * @throws NumberFormatException for decoding failures
      */
     public static BigDecimal parse(String valueStr) {
         return parse(valueStr.toCharArray());
@@ -47,8 +49,13 @@ public final class BigDecimalParser
      * of {@link BigDecimal} value: parsers in {@code jackson-core} do that; other
      * code must do the same.
      *
+     * @param chars Buffer that contains value to parse
+     * @param off Offset of the first character to decode
+     * @param len Length of value to parse in buffer
+     *
      * @return BigDecimal value
-     * @throws NumberFormatException
+     *
+     * @throws NumberFormatException for decoding failures
      */
     public static BigDecimal parse(final char[] chars, final int off, final int len) {
         try {
@@ -71,9 +78,9 @@ public final class BigDecimalParser
      * of {@link BigDecimal} value: parsers in {@code jackson-core} do that; other
      * code must do the same.
      *
-     * @param chars
+     * @param chars Value to parse
      * @return BigDecimal value
-     * @throws NumberFormatException
+     * @throws NumberFormatException for decoding failures
      */
     public static BigDecimal parse(char[] chars) {
         return parse(chars, 0, chars.length);
@@ -86,9 +93,11 @@ public final class BigDecimalParser
      * of {@link BigDecimal} value: parsers in {@code jackson-core} do that; other
      * code must do the same.
      *
-     * @param valueStr
+     * @param valueStr Value to parse
+     *
      * @return BigDecimal value
-     * @throws NumberFormatException
+     *
+     * @throws NumberFormatException for decoding failures
      */
     public static BigDecimal parseWithFastParser(final String valueStr) {
         try {
@@ -106,7 +115,8 @@ public final class BigDecimalParser
      * code must do the same.
      *
      * @return BigDecimal value
-     * @throws NumberFormatException
+     *
+     * @throws NumberFormatException for decoding failures
      */
     public static BigDecimal parseWithFastParser(final char[] ch, final int off, final int len) {
         try {

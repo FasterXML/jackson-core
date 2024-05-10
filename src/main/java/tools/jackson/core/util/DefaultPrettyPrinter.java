@@ -110,12 +110,18 @@ public class DefaultPrettyPrinter
     /**********************************************************************
      */
 
+    /**
+     * Default constructor for "vanilla" instance with default settings.
+     */
     public DefaultPrettyPrinter() {
         this(DEFAULT_SEPARATORS);
     }
 
     /**
-     * @since 2.16
+     * Default constructor for "vanilla" instance with default settings,
+     * except for {@link Separators} overrides.
+     *
+     * @param separators Custom separator definition over defaults.
      */
     public DefaultPrettyPrinter(Separators separators)
     {
@@ -131,9 +137,9 @@ public class DefaultPrettyPrinter
     }
     
     /**
-     * Copy constructor
-     * 
-     * @since 2.16
+     * Copy constructor.
+     *
+     * @param base DefaultPrettyPrinter being copied
      */
     public DefaultPrettyPrinter(DefaultPrettyPrinter base) {
         _arrayIndenter = base._arrayIndenter;
@@ -149,6 +155,12 @@ public class DefaultPrettyPrinter
         _arrayEmptySeparator = base._arrayEmptySeparator;
     }
 
+    /**
+     * Copy constructor with override
+     *
+     * @param base DefaultPrettyPrinter being copied
+     * @param separators Separators to use instead of ones {@code base} had
+     */
     public DefaultPrettyPrinter(DefaultPrettyPrinter base, Separators separators) {
         _arrayIndenter = base._arrayIndenter;
         _objectIndenter = base._objectIndenter;

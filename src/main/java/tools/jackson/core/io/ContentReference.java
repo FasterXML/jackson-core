@@ -68,9 +68,7 @@ public class ContentReference
     protected final boolean _isContentTextual;
 
     /**
-     * max raw content to return as configured 
-     *
-     * @since 2.16
+     * Max raw content to return as configured 
      */
     protected final int _maxRawContentLength;
 
@@ -80,17 +78,11 @@ public class ContentReference
     /**********************************************************************
      */
 
-    /**
-     * @since 2.16
-     */
     protected ContentReference(boolean isContentTextual, Object rawContent, ErrorReportConfiguration errorReportConfiguration)
     {
         this(isContentTextual, rawContent, -1, -1, errorReportConfiguration);
     }
 
-    /**
-     * @since 2.16
-     */
     protected ContentReference(boolean isContentTextual, Object rawContent,
             int offset, int length, ErrorReportConfiguration errorReportConfiguration)
     {
@@ -119,43 +111,17 @@ public class ContentReference
      *
      * @return Placeholder instance to use in cases where reference is explicitly
      *   blocked, usually for security reasons.
-     *
-     * @since 2.16
      */
     public static ContentReference redacted() {
         return REDACTED_CONTENT;
     }
 
-
-    /**
-     * @deprecated Since 2.16. Use {@link #construct(boolean, Object, ErrorReportConfiguration)} instead.
-     */
-    @Deprecated
-    public static ContentReference construct(boolean isContentTextual, Object rawContent) {
-        return new ContentReference(isContentTextual, rawContent, ErrorReportConfiguration.defaults());
-    }
-
-    /**
-     * @deprecated Since 2.16. Use {@link #construct(boolean, Object, int, int, ErrorReportConfiguration)} instead.
-     */
-    @Deprecated
-    public static ContentReference construct(boolean isContentTextual, Object rawContent,
-            int offset, int length) {
-        return new ContentReference(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
-    }
-
-    /**
-     * @since 2.16
-     */
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
             int offset, int length, ErrorReportConfiguration errorReportConfiguration)
     {
         return new ContentReference(isContentTextual, rawContent, offset, length, errorReportConfiguration);
     }
 
-    /**
-     * @since 2.16
-     */
     public static ContentReference construct(boolean isContentTextual, Object rawContent, 
             ErrorReportConfiguration errorReportConfiguration) 
     {

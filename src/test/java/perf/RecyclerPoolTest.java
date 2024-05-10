@@ -146,20 +146,22 @@ public class RecyclerPoolTest
     private void _testWrite(JsonFactory jsonF) throws Exception
     {
         StringWriter w = new StringWriter(16);
-        JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w);
-        g.writeStartArray();
-        g.writeEndArray();
-        g.close();
+        try (JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w)) {
+            g.writeStartArray();
+            g.writeEndArray();
+        }
     }
 
     public static void main(String[] args) throws Exception
     {
         RecyclerPoolTest test = new RecyclerPoolTest(THREAD_COUNT);
         List<String> results = Arrays.asList(
+                /*
             test.testPool(JsonFactory.builder()
                     .recyclerPool(JsonRecyclerPools.newLockFreePool())
                     .build(),
                 RUNTIME_SECS * 1000),
+                */
             test.testPool(JsonFactory.builder()
                     .recyclerPool(JsonRecyclerPools.newConcurrentDequePool())
                     .build(),

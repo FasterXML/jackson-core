@@ -32,12 +32,6 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
     }
 
     @Test
-    void parserWithLockFreePool() throws Exception {
-        _testParser(JsonRecyclerPools.newLockFreePool(), 0, 1);
-        _testParser(JsonRecyclerPools.sharedLockFreePool(), null, null);
-    }
-
-    @Test
     void parserWithBoundedPool() throws Exception {
         _testParser(JsonRecyclerPools.newBoundedPool(5), 0, 1);
         _testParser(JsonRecyclerPools.sharedBoundedPool(), null, null);
@@ -93,12 +87,6 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
     }
 
     @Test
-    void generatorWithLockFreePool() throws Exception {
-        _testGenerator(JsonRecyclerPools.newLockFreePool(), 0, 1);
-        _testGenerator(JsonRecyclerPools.sharedLockFreePool(), null, null);
-    }
-
-    @Test
     void generatorWithBoundedPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newBoundedPool(5), 0, 1);
         _testGenerator(JsonRecyclerPools.sharedBoundedPool(), null, null);
@@ -116,14 +104,12 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
         }
 
         StringWriter w = new StringWriter();
-        JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w);
-
-        g.writeStartObject();
-        g.writeNumberProperty("a", -42);
-        g.writeStringProperty("b", "barfoo");
-        g.writeEndObject();
-
-        g.close();
+        try (JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w)) {
+            g.writeStartObject();
+            g.writeNumberProperty("a", -42);
+            g.writeStringProperty("b", "barfoo");
+            g.writeEndObject();
+        }
 
         if (expSizeAfter != null) {
             assertEquals(expSizeAfter, pool.pooledCount());
@@ -148,12 +134,6 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
     void copyWithDequeuPool() throws Exception {
         _testCopy(JsonRecyclerPools.newConcurrentDequePool());
         _testCopy(JsonRecyclerPools.sharedConcurrentDequePool());
-    }
-
-    @Test
-    void copyWithLockFreePool() throws Exception {
-        _testCopy(JsonRecyclerPools.newLockFreePool());
-        _testCopy(JsonRecyclerPools.sharedLockFreePool());
     }
 
     @Test

@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.util.RecyclerPool.BoundedPoolBase;
 import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
-import tools.jackson.core.util.RecyclerPool.LockFreePoolBase;
 
 /**
  * Set of {@link RecyclerPool} implementations to be used by the default
@@ -18,10 +17,8 @@ public final class JsonRecyclerPools
 {
     /**
      * Method to call to get the default recycler pool instance:
-     * as of Jackson 2.18.x and later (except for 2.17.0) this is same as calling
-     * {@link #newConcurrentDequePool()}: before this it was calling
-     * {@link #threadLocalPool()} (except for 2.17.1 that temporarily
-     * called {@link #newLockFreePool()}, changed back due to reported issues).
+     * as of Jackson 2.18.x and later this is same as calling
+     * {@link #newConcurrentDequePool()}.
      *
      * @return the default {@link RecyclerPool} implementation to use
      *   if no specific implementation desired.
@@ -67,24 +64,6 @@ public final class JsonRecyclerPools
      */
     public static RecyclerPool<BufferRecycler> newConcurrentDequePool() {
         return ConcurrentDequePool.construct();
-    }
-
-    /**
-     * Accessor for getting the shared/global {@link LockFreePool} instance.
-     *
-     * @return Globally shared instance of {@link LockFreePool}.
-     */
-    public static RecyclerPool<BufferRecycler> sharedLockFreePool() {
-        return LockFreePool.GLOBAL;
-    }
-
-    /**
-     * Accessor for constructing a new, non-shared {@link LockFreePool} instance.
-     *
-     * @return Globally shared instance of {@link LockFreePool}.
-     */
-    public static RecyclerPool<BufferRecycler> newLockFreePool() {
-        return LockFreePool.construct();
     }
 
     /**
@@ -199,42 +178,6 @@ public final class JsonRecyclerPools
             return new ConcurrentDequePool(SERIALIZATION_NON_SHARED);
         }
 
-        @Override
-        public BufferRecycler createPooled() {
-            return new BufferRecycler();
-        }
-
-        // // // JDK serialization support
-
-        // Make sure to re-link to global/shared or non-shared.
-        protected Object readResolve() {
-            return _resolveToShared(GLOBAL).orElseGet(() -> construct());
-        }
-    }
-
-    /**
-     * {@link RecyclerPool} implementation that uses
-     * a lock free linked list for recycling instances.
-     *<p>
-     * Pool is unbounded: see {@link RecyclerPool} for
-     * details on what this means.
-     */
-    public static class LockFreePool extends LockFreePoolBase<BufferRecycler>
-    {
-        private static final long serialVersionUID = 1L;
-
-        protected static final LockFreePool GLOBAL = new LockFreePool(SERIALIZATION_SHARED);
-
-        // // // Life-cycle (constructors, factory methods)
-
-        protected LockFreePool(int serialization) {
-            super(serialization);
-        }
-
-        public static LockFreePool construct() {
-            return new LockFreePool(SERIALIZATION_NON_SHARED);
-        }
-        
         @Override
         public BufferRecycler createPooled() {
             return new BufferRecycler();

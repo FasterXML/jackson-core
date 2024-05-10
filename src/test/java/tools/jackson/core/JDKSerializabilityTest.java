@@ -136,13 +136,11 @@ class JDKSerializabilityTest
         _testRecyclerPoolGlobal(JsonRecyclerPools.threadLocalPool());
 
         _testRecyclerPoolGlobal(JsonRecyclerPools.sharedConcurrentDequePool());
-        _testRecyclerPoolGlobal(JsonRecyclerPools.sharedLockFreePool());
         JsonRecyclerPools.BoundedPool bounded = (JsonRecyclerPools.BoundedPool)
                 _testRecyclerPoolGlobal(JsonRecyclerPools.sharedBoundedPool());
         assertEquals(RecyclerPool.BoundedPoolBase.DEFAULT_CAPACITY, bounded.capacity());
 
         _testRecyclerPoolNonShared(JsonRecyclerPools.newConcurrentDequePool());
-        _testRecyclerPoolNonShared(JsonRecyclerPools.newLockFreePool());
         bounded = (JsonRecyclerPools.BoundedPool)
                 _testRecyclerPoolNonShared(JsonRecyclerPools.newBoundedPool(250));
         assertEquals(250, bounded.capacity());
@@ -193,17 +191,17 @@ class JDKSerializabilityTest
     @Test
     void generationException() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
-        JsonGenerator g = jf.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream());
         StreamWriteException exc = null;
-        g.writeStartObject();
-        try {
-            g.writeNumber(4);
-            fail("Should not get here");
-        } catch (StreamWriteException e) {
-            exc = e;
+        JsonFactory f = new JsonFactory();
+        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream())) {
+            g.writeStartObject();
+            try {
+                g.writeNumber(4);
+                fail("Should not get here");
+            } catch (StreamWriteException e) {
+                exc = e;
+            }
         }
-        g.close();
         byte[] stuff = jdkSerialize(exc);
         StreamWriteException result = jdkDeserialize(stuff);
         assertNotNull(result);

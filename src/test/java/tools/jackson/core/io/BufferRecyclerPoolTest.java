@@ -29,11 +29,6 @@ class BufferRecyclerPoolTest extends JUnit5TestBase
     }
 
     @Test
-    void lockFree() throws Exception {
-        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newLockFreePool(), true, true);
-    }
-
-    @Test
     void concurrentDequeue() throws Exception {
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.newConcurrentDequePool(), true, true);
     }

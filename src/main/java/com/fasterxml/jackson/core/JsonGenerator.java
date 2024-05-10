@@ -354,6 +354,8 @@ public abstract class JsonGenerator
     /**
      * Get the constraints to apply when performing streaming writes.
      *
+     * @return StreamWriteConstraints used by this generator
+     *
      * @since 2.16
      */
     public StreamWriteConstraints streamWriteConstraints() {
@@ -2717,10 +2719,12 @@ public abstract class JsonGenerator
      * {@link JsonParser#getNumberType()} for declared type and uses matching
      * accessors: this may cause inexact conversion for some textual formats
      * (depending on settings). If this is problematic, use
-     * {@lnik #_copyCurrentFloatValueExact} instead (note that doing so may add
+     * {@link #_copyCurrentFloatValueExact} instead (note that doing so may add
      * overhead).
      *
      * @param p Parser that points to the value to copy
+     *
+     * @throws IOException exception thrown by write method called to copy value, if any
      *
      * @since 2.15
      */
@@ -2748,6 +2752,8 @@ public abstract class JsonGenerator
      *
      * @param p Parser that points to the value to copy
      *
+     * @throws IOException exception thrown by write method called to copy value, if any
+     *
      * @since 2.15
      */
     protected void _copyCurrentFloatValueExact(JsonParser p) throws IOException
@@ -2768,6 +2774,8 @@ public abstract class JsonGenerator
      *
      * @param p Parser that points to the value to copy
      *
+     * @throws IOException exception thrown by write method called to copy value, if any
+     *
      * @since 2.15
      */
     protected void _copyCurrentIntValue(JsonParser p) throws IOException
@@ -2787,6 +2795,8 @@ public abstract class JsonGenerator
      * overridable by format backend implementations.
      *
      * @param p Parser that points to the value to copy
+     *
+     * @throws IOException exception thrown by write method called to copy value, if any
      *
      * @since 2.15
      */

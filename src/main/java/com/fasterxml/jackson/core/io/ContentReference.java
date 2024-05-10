@@ -96,6 +96,9 @@ public class ContentReference
      */
 
     /**
+     * @param isContentTextual Whether content is textual (not binary)
+     * @param rawContent Contents being referenced
+     *
      * @deprecated Since 2.16. Use {@link #ContentReference(boolean, Object, ErrorReportConfiguration)} instead.
      */
     @Deprecated
@@ -104,6 +107,11 @@ public class ContentReference
     }
 
     /**
+     * @param isContentTextual Whether content is textual (not binary)
+     * @param rawContent Contents being referenced
+     * @param offset Offset of content within {@code rawContent}
+     * @param length Length of content within {@code rawContent}
+     *
      * @deprecated Since 2.16. Use {@link #ContentReference(boolean, Object, int, int, ErrorReportConfiguration)} instead.
      */
     @Deprecated
@@ -113,17 +121,14 @@ public class ContentReference
         this(isContentTextual, rawContent, offset, length, ErrorReportConfiguration.defaults());
     }
 
-    /**
-     * @since 2.16
-     */
+
+    // @since 2.16
     protected ContentReference(boolean isContentTextual, Object rawContent, ErrorReportConfiguration errorReportConfiguration)
     {
         this(isContentTextual, rawContent, -1, -1, errorReportConfiguration);
     }
 
-    /**
-     * @since 2.16
-     */
+    // @since 2.16
     protected ContentReference(boolean isContentTextual, Object rawContent,
             int offset, int length, ErrorReportConfiguration errorReportConfiguration)
     {

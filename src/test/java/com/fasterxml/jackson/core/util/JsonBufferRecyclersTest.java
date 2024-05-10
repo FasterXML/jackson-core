@@ -31,6 +31,7 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
     }
 
     @Test
+    @Deprecated
     void parserWithLockFreePool() throws Exception {
         _testParser(JsonRecyclerPools.newLockFreePool(), 0, 1);
         _testParser(JsonRecyclerPools.sharedLockFreePool(), null, null);
@@ -91,6 +92,7 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
     }
 
     @Test
+    @Deprecated
     void generatorWithLockFreePool() throws Exception {
         _testGenerator(JsonRecyclerPools.newLockFreePool(), 0, 1);
         _testGenerator(JsonRecyclerPools.sharedLockFreePool(), null, null);
@@ -149,6 +151,7 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
     }
 
     @Test
+    @Deprecated
     void copyWithLockFreePool() throws Exception {
         _testCopy(JsonRecyclerPools.newLockFreePool());
         _testCopy(JsonRecyclerPools.sharedLockFreePool());

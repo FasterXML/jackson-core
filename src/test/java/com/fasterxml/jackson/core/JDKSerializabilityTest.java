@@ -124,6 +124,7 @@ class JDKSerializabilityTest
      */
 
     @Test
+    @Deprecated
     void recyclerPools() throws Exception
     {
         // First: shared/global pools that will always remain/become globally

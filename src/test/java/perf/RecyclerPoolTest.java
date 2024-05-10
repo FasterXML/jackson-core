@@ -149,6 +149,7 @@ public class RecyclerPoolTest
         g.close();
     }
 
+    @SuppressWarnings("deprecation")
     public static void main(String[] args) throws Exception
     {
         RecyclerPoolTest test = new RecyclerPoolTest(THREAD_COUNT);

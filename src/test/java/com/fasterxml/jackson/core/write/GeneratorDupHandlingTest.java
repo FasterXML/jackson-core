@@ -39,7 +39,7 @@ class GeneratorDupHandlingTest
 
     @SuppressWarnings("resource")
     protected void _testSimpleDups(boolean useStream, boolean lazySetting, JsonFactory f)
-            throws Exception
+        throws Exception
     {
         // First: fine, when not checking
         if (!lazySetting) {
@@ -79,14 +79,15 @@ class GeneratorDupHandlingTest
         }
     }
 
-    protected JsonGenerator _generator(JsonFactory f, boolean useStream) throws IOException
+    protected JsonGenerator _generator(JsonFactory f, boolean useStream) throws Exception
     {
-        return useStream ?
-                f.createGenerator(new ByteArrayOutputStream())
-                : f.createGenerator(new StringWriter());
+        if (useStream) {
+            return f.createGenerator(new ByteArrayOutputStream());
+        }
+        return f.createGenerator(new StringWriter());
     }
 
-    protected void _writeSimple0(JsonGenerator g, String name) throws IOException
+    protected void _writeSimple0(JsonGenerator g, String name) throws Exception
     {
         g.writeStartObject();
         g.writeNumberField(name, 1);
@@ -95,7 +96,7 @@ class GeneratorDupHandlingTest
         g.close();
     }
 
-    protected void _writeSimple1(JsonGenerator g, String name) throws IOException
+    protected void _writeSimple1(JsonGenerator g, String name) throws Exception
     {
         g.writeStartArray();
         g.writeNumber(3);

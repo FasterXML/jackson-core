@@ -123,56 +123,52 @@ class ArrayParsingTest
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_MISSING_VALUES)
                 .build();
-        JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
-   			          : createParserUsingReader(f, DOC);
+        try (JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+                : createParserUsingReader(f, DOC)) {
+            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+            assertEquals("a", jp.getValueAsString());
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("a", jp.getValueAsString());
-
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
-
-        jp.close();
+            assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+            assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+            assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+            assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+            assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+            assertToken(JsonToken.END_ARRAY, jp.nextToken());
+            assertNull(jp.nextToken());
+        }
 
         // And another take
         DOC = "[,] ";
-        jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
-                : createParserUsingReader(f, DOC);
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
-
-        jp.close();
+        try (JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+                : createParserUsingReader(f, DOC)) {
+            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+            assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+            assertToken(JsonToken.END_ARRAY, jp.nextToken());
+            assertNull(jp.nextToken());
+        }
     }
 
     private void _testMissingValueNotEnablingFeature(boolean useStream) throws Exception {
-    	final String DOC = "[ \"a\",,\"abc\"] ";
+        final String DOC = "[ \"a\",,\"abc\"] ";
 
-    	JsonFactory f = new JsonFactory();
+        JsonFactory f = new JsonFactory();
 
-        JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
-   			          : createParserUsingReader(f, DOC);
-
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("a", jp.getValueAsString());
-        try {
-	        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-	        fail("Expecting exception here");
+        try (JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+                : createParserUsingReader(f, DOC)) {
+            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+            assertEquals("a", jp.getValueAsString());
+            try {
+                assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+                fail("Expecting exception here");
+            }
+            catch(JsonParseException ex) {
+                verifyException(ex, "expected a valid value", "expected a value");
+            }
         }
-        catch(JsonParseException ex){
-        	verifyException(ex, "expected a valid value", "expected a value");
-        }
-        jp.close();
     }
 
     private void _testNotMissingValueByEnablingFeature(boolean useStream) throws Exception {
@@ -181,16 +177,14 @@ class ArrayParsingTest
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_MISSING_VALUES)
                 .build();
-        JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
-   			          : createParserUsingReader(f, DOC);
+        try (JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+                : createParserUsingReader(f, DOC)) {
+            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+            assertEquals("a", jp.getValueAsString());
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("a", jp.getValueAsString());
-
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-
-        jp.close();
+            assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+            assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        }
     }
 }

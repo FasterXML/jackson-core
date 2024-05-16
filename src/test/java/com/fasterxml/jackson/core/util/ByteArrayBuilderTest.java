@@ -47,23 +47,24 @@ class ByteArrayBuilderTest extends com.fasterxml.jackson.core.JUnit5TestBase
                 // need to link with some pool
                 .withPool(JsonRecyclerPools.newBoundedPool(3));
 
-        ByteArrayBuilder bab = new ByteArrayBuilder(br, 20);
-        assertSame(br, bab.bufferRecycler());
+        try (ByteArrayBuilder bab = new ByteArrayBuilder(br, 20)) {
+            assertSame(br, bab.bufferRecycler());
 
-        JsonGenerator g = f.createGenerator(bab);
-        IOContext ioCtxt = ((GeneratorBase) g).ioContext();
-        assertSame(br, ioCtxt.bufferRecycler());
-        assertTrue(ioCtxt.bufferRecycler().isLinkedWithPool());
+            try (JsonGenerator g = f.createGenerator(bab)) {
+                IOContext ioCtxt = ((GeneratorBase) g).ioContext();
+                assertSame(br, ioCtxt.bufferRecycler());
+                assertTrue(ioCtxt.bufferRecycler().isLinkedWithPool());
 
-        g.writeStartArray();
-        g.writeEndArray();
-        g.close();
+                g.writeStartArray();
+                g.writeEndArray();
+            }
 
-        // Generator.close() should NOT release buffer recycler
-        assertTrue(br.isLinkedWithPool());
+            // Generator.close() should NOT release buffer recycler
+            assertTrue(br.isLinkedWithPool());
 
-        byte[] result = bab.getClearAndRelease();
-        assertEquals("[]", new String(result, StandardCharsets.UTF_8));
+            byte[] result = bab.getClearAndRelease();
+            assertEquals("[]", new String(result, StandardCharsets.UTF_8));
+        }
         // Nor accessing contents
         assertTrue(br.isLinkedWithPool());
 

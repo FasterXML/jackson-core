@@ -29,6 +29,7 @@ class BufferRecyclerPoolTest extends JUnit5TestBase
     }
 
     @Test
+    @Deprecated
     void lockFree() throws Exception {
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.newLockFreePool(), true, true);
     }

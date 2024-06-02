@@ -23,6 +23,8 @@ public class StreamWriteConstraints
 
     /**
      * Default setting for maximum depth: see {@link Builder#maxNestingDepth(int)} for details.
+     *<p>
+     * Note: was {@code 1000} in Jackson 2.x; lowered in 3.0.
      */
     public static final int DEFAULT_MAX_DEPTH = 500;
 

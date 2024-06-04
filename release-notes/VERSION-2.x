@@ -29,7 +29,6 @@ a pure JSON library.
 #1264: Rename shaded `ch.randelshofer:fastdoubleparser` classes
   to prevent use by downstream consumers
  (requested by @seadbrane)
-#1266: Change default recycler pool to `newConcurrentDequePool()` in 2.18
 #1271: Deprecate `LockFreePool` implementation in 2.18 (remove from 3.0)
 #1277: Add back Java 22 optimisation in FastDoubleParser
 

@@ -17,14 +17,13 @@ public final class JsonRecyclerPools
 {
     /**
      * Method to call to get the default recycler pool instance:
-     * as of Jackson 2.18.x and later this is same as calling
+     * as of Jackson 3.0 and later this is same as calling
      * {@link #newConcurrentDequePool()}.
      *
      * @return the default {@link RecyclerPool} implementation to use
      *   if no specific implementation desired.
      */
     public static RecyclerPool<BufferRecycler> defaultPool() {
-        // since 2.18.0:
         return newConcurrentDequePool();
     }
 

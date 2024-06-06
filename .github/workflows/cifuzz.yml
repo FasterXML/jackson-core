@@ -1,13 +1,13 @@
 name: CIFuzz
-on: [pull_request]
-
+on:
+  pull_request:
+    branches: # Only works for 2.x, due package renaming in 3.0 (master)
+    - "2.18"
 permissions:
   contents: read
-
 concurrency:
   group: ${{ github.workflow }} @ ${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   Fuzzing:
     runs-on: ubuntu-latest

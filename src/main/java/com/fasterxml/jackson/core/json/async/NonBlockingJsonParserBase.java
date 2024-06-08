@@ -588,7 +588,7 @@ public abstract class NonBlockingJsonParserBase
         createChildArrayContext(-1, -1);
         _majorState = MAJOR_ARRAY_ELEMENT_FIRST;
         _majorStateAfterValue = MAJOR_ARRAY_ELEMENT_NEXT;
-        return (_currToken = JsonToken.START_ARRAY);
+        return _updateToken(JsonToken.START_ARRAY);
     }
 
     protected final JsonToken _startObjectScope() throws IOException
@@ -596,7 +596,7 @@ public abstract class NonBlockingJsonParserBase
         createChildObjectContext(-1, -1);
         _majorState = MAJOR_OBJECT_FIELD_FIRST;
         _majorStateAfterValue = MAJOR_OBJECT_FIELD_NEXT;
-        return (_currToken = JsonToken.START_OBJECT);
+        return _updateToken(JsonToken.START_OBJECT);
     }
 
     protected final JsonToken _closeArrayScope() throws IOException
@@ -616,7 +616,7 @@ public abstract class NonBlockingJsonParserBase
         }
         _majorState = st;
         _majorStateAfterValue = st;
-        return (_currToken = JsonToken.END_ARRAY);
+        return _updateToken(JsonToken.END_ARRAY);
     }
 
     protected final JsonToken _closeObjectScope() throws IOException
@@ -636,7 +636,7 @@ public abstract class NonBlockingJsonParserBase
         }
         _majorState = st;
         _majorStateAfterValue = st;
-        return (_currToken = JsonToken.END_OBJECT);
+        return _updateToken(JsonToken.END_OBJECT);
     }
 
     /*
@@ -826,21 +826,20 @@ public abstract class NonBlockingJsonParserBase
             _handleEOF();
         }
         close();
-        return (_currToken = null);
+        return _updateTokenToNull();
     }
 
     protected final JsonToken _fieldComplete(String name) throws IOException
     {
         _majorState = MAJOR_OBJECT_VALUE;
         _parsingContext.setCurrentName(name);
-        return (_currToken = JsonToken.FIELD_NAME);
+        return _updateToken(JsonToken.FIELD_NAME);
     }
 
     protected final JsonToken _valueComplete(JsonToken t) throws IOException
     {
         _majorState = _majorStateAfterValue;
-        _currToken = t;
-        return t;
+        return _updateToken(t);
     }
 
     protected final JsonToken _valueCompleteInt(int value, String asText) throws IOException
@@ -850,9 +849,7 @@ public abstract class NonBlockingJsonParserBase
         _numTypesValid = NR_INT; // to force parsing
         _numberInt = value;
         _majorState = _majorStateAfterValue;
-        JsonToken t = JsonToken.VALUE_NUMBER_INT;
-        _currToken = t;
-        return t;
+        return _updateToken(JsonToken.VALUE_NUMBER_INT);
     }
 
     @SuppressWarnings("deprecation")
@@ -868,7 +865,7 @@ public abstract class NonBlockingJsonParserBase
         _numTypesValid = NR_DOUBLE;
         _numberDouble = NON_STD_TOKEN_VALUES[type];
         _majorState = _majorStateAfterValue;
-        return (_currToken = JsonToken.VALUE_NUMBER_FLOAT);
+        return _updateToken(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
     protected final String _nonStdToken(int type) {

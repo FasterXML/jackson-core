@@ -44,6 +44,12 @@ public class StreamReadConstraints
     public static final long DEFAULT_MAX_DOC_LEN = -1L;
 
     /**
+     * Default setting for maximum token count:
+     * see {@link Builder#maxTokenCount} for details.
+     */
+    public static final long DEFAULT_MAX_TOKEN_COUNT = -1L;
+
+    /**
      * @since 2.16
      */
     public static final int DEFAULT_MAX_NUM_LEN = 1000;
@@ -74,6 +80,7 @@ public class StreamReadConstraints
 
     protected final int _maxNestingDepth;
     protected final long _maxDocLen;
+    protected final long _maxTokenCount;
 
     protected final int _maxNumLen;
     protected final int _maxStringLen;
@@ -112,6 +119,7 @@ public class StreamReadConstraints
 
     public static final class Builder {
         private long maxDocLen;
+        private long maxTokenCount;
         private int maxNestingDepth;
         private int maxNumLen;
         private int maxStringLen;
@@ -153,6 +161,31 @@ public class StreamReadConstraints
                 maxDocLen = -1L;
             }
             this.maxDocLen = maxDocLen;
+            return this;
+        }
+
+        /**
+         * Sets the maximum allowed token count (for positive values over 0) or
+         * indicate that any count is acceptable ({@code 0} or negative number).
+         *
+         * <p>
+         *   A token is a single unit of input, such as a number, a string, an object
+         *   start or end, or an array start or end.
+         * </p>
+         *
+         * @param maxTokenCount the maximum allowed token count if positive number above 0; otherwise
+         *   ({@code 0} or negative number) means "unlimited".
+         *
+         * @return this builder
+         *
+         * @since 2.18
+         */
+        public Builder maxTokenCount(long maxTokenCount) {
+            // Negative values and 0 mean "unlimited", mark with -1L
+            if (maxTokenCount <= 0L) {
+                maxTokenCount = -1L;
+            }
+            this.maxTokenCount = maxTokenCount;
             return this;
         }
 
@@ -220,14 +253,15 @@ public class StreamReadConstraints
         }
 
         Builder() {
-            this(DEFAULT_MAX_DEPTH, DEFAULT_MAX_DOC_LEN,
+            this(DEFAULT_MAX_DEPTH, DEFAULT_MAX_DOC_LEN, DEFAULT_MAX_TOKEN_COUNT,
                     DEFAULT_MAX_NUM_LEN, DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
         }
 
-        Builder(final int maxNestingDepth, final long maxDocLen,
+        Builder(final int maxNestingDepth, final long maxDocLen, final long maxTokenCount,
                 final int maxNumLen, final int maxStringLen, final int maxNameLen) {
             this.maxNestingDepth = maxNestingDepth;
             this.maxDocLen = maxDocLen;
+            this.maxTokenCount = maxTokenCount;
             this.maxNumLen = maxNumLen;
             this.maxStringLen = maxStringLen;
             this.maxNameLen = maxNameLen;
@@ -236,6 +270,7 @@ public class StreamReadConstraints
         Builder(StreamReadConstraints src) {
             maxNestingDepth = src._maxNestingDepth;
             maxDocLen = src._maxDocLen;
+            maxTokenCount = src._maxTokenCount;
             maxNumLen = src._maxNumLen;
             maxStringLen = src._maxStringLen;
             maxNameLen = src._maxNameLen;
@@ -243,7 +278,7 @@ public class StreamReadConstraints
 
         public StreamReadConstraints build() {
             return new StreamReadConstraints(maxNestingDepth, maxDocLen,
-                    maxNumLen, maxStringLen, maxNameLen);
+                    maxNumLen, maxStringLen, maxNameLen, maxTokenCount);
         }
     }
 
@@ -257,7 +292,7 @@ public class StreamReadConstraints
     protected StreamReadConstraints(final int maxNestingDepth, final long maxDocLen,
             final int maxNumLen, final int maxStringLen) {
         this(maxNestingDepth, maxDocLen,
-                maxNumLen, maxStringLen, DEFAULT_MAX_NAME_LEN);
+                maxNumLen, maxStringLen, DEFAULT_MAX_NAME_LEN, DEFAULT_MAX_TOKEN_COUNT);
     }
 
     /**
@@ -269,13 +304,30 @@ public class StreamReadConstraints
      *
      * @since 2.16
      */
+    @Deprecated // since 2.18
     protected StreamReadConstraints(final int maxNestingDepth, final long maxDocLen,
-            final int maxNumLen, final int maxStringLen, final int maxNameLen) {
+                                    final int maxNumLen, final int maxStringLen, final int maxNameLen) {
+        this(maxNestingDepth, maxDocLen, maxNumLen, maxStringLen, maxNameLen, DEFAULT_MAX_TOKEN_COUNT);
+    }
+
+    /**
+     * @param maxNestingDepth Maximum input document nesting to allow
+     * @param maxDocLen Maximum input document length to allow
+     * @param maxNumLen Maximum number representation length to allow
+     * @param maxStringLen Maximum String value length to allow
+     * @param maxNameLen Maximum Object property name length to allow
+     * @param maxTokenCount Maximum number of tokens to allow
+     *
+     * @since 2.18
+     */
+    protected StreamReadConstraints(final int maxNestingDepth, final long maxDocLen,
+            final int maxNumLen, final int maxStringLen, final int maxNameLen, final long maxTokenCount) {
         _maxNestingDepth = maxNestingDepth;
         _maxDocLen = maxDocLen;
         _maxNumLen = maxNumLen;
         _maxStringLen = maxStringLen;
         _maxNameLen = maxNameLen;
+        _maxTokenCount = maxTokenCount;
     }
 
     public static Builder builder() {
@@ -335,6 +387,31 @@ public class StreamReadConstraints
      */
     public boolean hasMaxDocumentLength() {
         return _maxDocLen > 0L;
+    }
+
+    /**
+     * Accessor for maximum token count.
+     * see {@link Builder#maxTokenCount(long)} for details.
+     *
+     * @return Maximum allowed token count
+     * @since 2.18
+     */
+    public long getMaxTokenCount() {
+        return _maxTokenCount;
+    }
+
+    /**
+     * Convenience method, basically same as:
+     *<pre>
+     *  getMaxTokenCount() &gt; 0L
+     *</pre>
+     *
+     * @return {@code True} if this constraints instance has a limit for maximum
+     *    token count to enforce; {@code false} otherwise.
+     * @since 2.18
+     */
+    public boolean hasMaxTokenCount() {
+        return _maxTokenCount > 0L;
     }
 
     /**
@@ -416,6 +493,31 @@ public class StreamReadConstraints
                     "Document length (%d) exceeds the maximum allowed (%d, from %s)",
                     len, _maxDocLen,
                     _constrainRef("getMaxDocumentLength"));
+        }
+    }
+
+    /**
+     * Convenience method that can be used to verify that the
+     * token count does not exceed the maximum specified by this
+     * constraints object (if any): if it does, a
+     * {@link StreamConstraintsException}
+     * is thrown.
+     *
+     * @param count Current token count for processed document content
+     *
+     * @throws StreamConstraintsException If length exceeds maximum
+     *
+     * @since 2.18
+     */
+    public void validateTokenCount(long count) throws StreamConstraintsException
+    {
+        // for performance reasons, it is assumed that users check hasMaxTokenCount()
+        // before calling this method - this method will not work properly if hasMaxTokenCount() is false
+        if (count > _maxTokenCount) {
+            throw _constructException(
+                "Token count (%d) exceeds the maximum allowed (%d, from %s)",
+                count, _maxTokenCount,
+                _constrainRef("getMaxTokenCount"));
         }
     }
 

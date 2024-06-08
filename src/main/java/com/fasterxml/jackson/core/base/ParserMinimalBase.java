@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -157,6 +158,13 @@ public abstract class ParserMinimalBase extends JsonParser
      * as well as if token has been explicitly cleared
      */
     protected JsonToken _currToken;
+
+    /**
+     * Current count of tokens
+     *
+     * @since 2.18
+     */
+    protected long _tokenCount;
 
     /**
      * Last cleared token, if any: that is, value that was in
@@ -538,6 +546,11 @@ public abstract class ParserMinimalBase extends JsonParser
         return getText();
     }
 
+    @Override
+    public long getTokenCount() {
+        return _tokenCount;
+    }
+
     /*
     /**********************************************************
     /* Base64 decoding
@@ -816,6 +829,22 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final void _wrapError(String msg, Throwable t) throws JsonParseException {
         throw _constructReadException(msg, t);
+    }
+
+    protected final JsonToken _updateToken(final JsonToken token) throws StreamConstraintsException {
+        _currToken = token;
+        if (streamReadConstraints().hasMaxTokenCount() && token != JsonToken.NOT_AVAILABLE) {
+            streamReadConstraints().validateTokenCount(++_tokenCount);
+        }
+        return token;
+    }
+
+    protected final JsonToken _updateTokenToNull() {
+        return (_currToken = null);
+    }
+
+    protected final JsonToken _updateTokenToNA() {
+        return (_currToken = JsonToken.NOT_AVAILABLE);
     }
 
     @Deprecated // since 2.11

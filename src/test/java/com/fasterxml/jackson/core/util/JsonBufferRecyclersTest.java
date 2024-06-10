@@ -16,37 +16,42 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
 
     @Test
     void parserWithThreadLocalPool() throws Exception {
-        _testParser(JsonRecyclerPools.threadLocalPool());
+        _testParser(JsonRecyclerPools.threadLocalPool(), -1, -1);
     }
 
     @Test
     void parserWithNopLocalPool() throws Exception {
-        _testParser(JsonRecyclerPools.nonRecyclingPool());
+        _testParser(JsonRecyclerPools.nonRecyclingPool(), 0, 0);
     }
 
     @Test
     void parserWithDequeuPool() throws Exception {
-        _testParser(JsonRecyclerPools.newConcurrentDequePool());
-        _testParser(JsonRecyclerPools.sharedConcurrentDequePool());
+        _testParser(JsonRecyclerPools.newConcurrentDequePool(), 0, 1);
+        _testParser(JsonRecyclerPools.sharedConcurrentDequePool(), null, null);
     }
 
     @Test
+    @Deprecated
     void parserWithLockFreePool() throws Exception {
-        _testParser(JsonRecyclerPools.newLockFreePool());
-        _testParser(JsonRecyclerPools.sharedLockFreePool());
+        _testParser(JsonRecyclerPools.newLockFreePool(), 0, 1);
+        _testParser(JsonRecyclerPools.sharedLockFreePool(), null, null);
     }
 
     @Test
     void parserWithBoundedPool() throws Exception {
-        _testParser(JsonRecyclerPools.newBoundedPool(5));
-        _testParser(JsonRecyclerPools.sharedBoundedPool());
+        _testParser(JsonRecyclerPools.newBoundedPool(5), 0, 1);
+        _testParser(JsonRecyclerPools.sharedBoundedPool(), null, null);
     }
 
-    private void _testParser(RecyclerPool<BufferRecycler> pool) throws Exception
+    private void _testParser(RecyclerPool<BufferRecycler> pool,
+            Integer expSizeBefore, Integer expSizeAfter) throws Exception
     {
         JsonFactory jsonF = JsonFactory.builder()
                 .recyclerPool(pool)
                 .build();
+        if (expSizeBefore != null) {
+            assertEquals(expSizeBefore, pool.pooledCount());
+        }
 
         JsonParser p = jsonF.createParser(a2q("{'a':123,'b':'foobar'}"));
 
@@ -62,43 +67,53 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         
         p.close();
+
+        if (expSizeAfter != null) {
+            assertEquals(expSizeAfter, pool.pooledCount());
+        }
     }
 
     // // Generators with RecyclerPools:
 
     @Test
     void generatorWithThreadLocalPool() throws Exception {
-        _testGenerator(JsonRecyclerPools.threadLocalPool());
+        _testGenerator(JsonRecyclerPools.threadLocalPool(), -1, -1);
     }
 
     @Test
     void generatorWithNopLocalPool() throws Exception {
-        _testGenerator(JsonRecyclerPools.nonRecyclingPool());
+        _testGenerator(JsonRecyclerPools.nonRecyclingPool(), 0, 0);
     }
 
     @Test
     void generatorWithDequeuPool() throws Exception {
-        _testGenerator(JsonRecyclerPools.newConcurrentDequePool());
-        _testGenerator(JsonRecyclerPools.sharedConcurrentDequePool());
+        _testGenerator(JsonRecyclerPools.newConcurrentDequePool(), 0, 1);
+        _testGenerator(JsonRecyclerPools.sharedConcurrentDequePool(), null, null);
     }
 
     @Test
+    @Deprecated
     void generatorWithLockFreePool() throws Exception {
-        _testGenerator(JsonRecyclerPools.newLockFreePool());
-        _testGenerator(JsonRecyclerPools.sharedLockFreePool());
+        _testGenerator(JsonRecyclerPools.newLockFreePool(), 0, 1);
+        _testGenerator(JsonRecyclerPools.sharedLockFreePool(), null, null);
     }
 
     @Test
     void generatorWithBoundedPool() throws Exception {
-        _testGenerator(JsonRecyclerPools.newBoundedPool(5));
-        _testGenerator(JsonRecyclerPools.sharedBoundedPool());
+        _testGenerator(JsonRecyclerPools.newBoundedPool(5), 0, 1);
+        _testGenerator(JsonRecyclerPools.sharedBoundedPool(), null, null);
     }
-    
-    private void _testGenerator(RecyclerPool<BufferRecycler> pool) throws Exception
+
+    private void _testGenerator(RecyclerPool<BufferRecycler> pool,
+            Integer expSizeBefore, Integer expSizeAfter) throws Exception
     {
         JsonFactory jsonF = JsonFactory.builder()
                 .recyclerPool(pool)
                 .build();
+
+        if (expSizeBefore != null) {
+            assertEquals(expSizeBefore, pool.pooledCount());
+        }
 
         StringWriter w = new StringWriter();
         JsonGenerator g = jsonF.createGenerator(w);
@@ -109,6 +124,10 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
         g.writeEndObject();
 
         g.close();
+
+        if (expSizeAfter != null) {
+            assertEquals(expSizeAfter, pool.pooledCount());
+        }
 
         assertEquals(a2q("{'a':-42,'b':'barfoo'}"), w.toString());
     }
@@ -132,6 +151,7 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
     }
 
     @Test
+    @Deprecated
     void copyWithLockFreePool() throws Exception {
         _testCopy(JsonRecyclerPools.newLockFreePool());
         _testCopy(JsonRecyclerPools.sharedLockFreePool());

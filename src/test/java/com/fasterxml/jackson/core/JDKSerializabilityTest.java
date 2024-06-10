@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
  */
 class JDKSerializabilityTest
-        extends JUnit5TestBase
+    extends JUnit5TestBase
 {
     /*
     /**********************************************************************
@@ -124,6 +124,7 @@ class JDKSerializabilityTest
      */
 
     @Test
+    @Deprecated
     void recyclerPools() throws Exception
     {
         // First: shared/global pools that will always remain/become globally
@@ -258,29 +259,6 @@ class JDKSerializabilityTest
     /* Helper methods
     /**********************************************************
      */
-
-    protected byte[] jdkSerialize(Object o) throws IOException
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(1000);
-        ObjectOutputStream obOut = new ObjectOutputStream(bytes);
-        obOut.writeObject(o);
-        obOut.close();
-        return bytes.toByteArray();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T> T jdkDeserialize(byte[] raw) throws IOException
-    {
-        ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
-        try {
-            return (T) objIn.readObject();
-        } catch (ClassNotFoundException e) {
-            fail("Missing class: "+e.getMessage());
-            return null;
-        } finally {
-            objIn.close();
-        }
-    }
 
     @SuppressWarnings("resource")
     protected String _copyJson(JsonFactory f, String json, boolean useBytes) throws IOException

@@ -193,6 +193,8 @@ public final class ByteArrayBuilder
      * clear state; returns buffer(s) to {@link BufferRecycler} configured,
      * if any, and returns output to caller.
      *
+     * @return Content in byte array
+     *
      * @since 2.17
      */
     public byte[] getClearAndRelease()

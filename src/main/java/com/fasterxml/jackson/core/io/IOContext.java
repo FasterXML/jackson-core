@@ -209,6 +209,8 @@ public class IOContext implements AutoCloseable
      * {@link #close()}: called when {@link #_bufferRecycler} life-cycle is
      * externally managed.
      *
+     * @return This context instance, for call chaining
+     *
      * @since 2.17
      */
     public IOContext markBufferRecyclerReleased() {
@@ -223,7 +225,7 @@ public class IOContext implements AutoCloseable
      */
 
     /**
-     * @return constraints for streaming reads
+     * @return Constraints to use for streaming reads
      * @since 2.15
      */
     public StreamReadConstraints streamReadConstraints() {

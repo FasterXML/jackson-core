@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.core.write;
 
-import java.io.ByteArrayOutputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -137,35 +137,26 @@ class ArrayGenerationTest extends JUnit5TestBase
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? jsonFactory().createGenerator(bytes)
-                : jsonFactory().createGenerator(sw);
-
-        gen.writeArray(values, pre, elements);
-        gen.close();
-
-        String json;
-        if (useBytes) {
-            json = bytes.toString("UTF-8");
-        } else {
-            json = sw.toString();
+        try (JsonGenerator gen = _generator(jsonFactory(), useBytes, bytes, sw)) {
+            gen.writeArray(values, pre, elements);
         }
+        String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
 
-        JsonParser p = useBytes ? jsonFactory().createParser(bytes.toByteArray())
-                : jsonFactory().createParser(json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        for (int i = 0; i < elements; ++i) {
-            if ((i & 1) == 0) { // alternate
-                JsonToken t = p.nextToken();
-                if (t != JsonToken.VALUE_NUMBER_INT) {
-                    fail("Expected number, got "+t+", element #"+i);
+        try (JsonParser p = _parser(jsonFactory(), useBytes, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            for (int i = 0; i < elements; ++i) {
+                if ((i & 1) == 0) { // alternate
+                    JsonToken t = p.nextToken();
+                    if (t != JsonToken.VALUE_NUMBER_INT) {
+                        fail("Expected number, got "+t+", element #"+i);
+                    }
+                    assertEquals(i, p.getIntValue());
+                } else {
+                    assertEquals(i, p.nextIntValue(-1));
                 }
-                assertEquals(i, p.getIntValue());
-            } else {
-                assertEquals(i, p.nextIntValue(-1));
             }
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
-        p.close();
     }
 
     private void _testLongArray(boolean useBytes, int elements, int pre, int post) throws Exception
@@ -178,35 +169,26 @@ class ArrayGenerationTest extends JUnit5TestBase
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? jsonFactory().createGenerator(bytes)
-                : jsonFactory().createGenerator(sw);
-
-        gen.writeArray(values, pre, elements);
-        gen.close();
-
-        String json;
-        if (useBytes) {
-            json = bytes.toString("UTF-8");
-        } else {
-            json = sw.toString();
+        try (JsonGenerator gen = _generator(jsonFactory(), useBytes, bytes, sw)) {
+            gen.writeArray(values, pre, elements);
         }
+        String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
 
-        JsonParser p = useBytes ? jsonFactory().createParser(bytes.toByteArray())
-                : jsonFactory().createParser(json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        for (int i = 0; i < elements; ++i) {
-            if ((i & 1) == 0) { // alternate
-                JsonToken t = p.nextToken();
-                if (t != JsonToken.VALUE_NUMBER_INT) {
-                    fail("Expected number, got "+t+", element #"+i);
+        try (JsonParser p = _parser(jsonFactory(), useBytes, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            for (int i = 0; i < elements; ++i) {
+                if ((i & 1) == 0) { // alternate
+                    JsonToken t = p.nextToken();
+                    if (t != JsonToken.VALUE_NUMBER_INT) {
+                        fail("Expected number, got "+t+", element #"+i);
+                    }
+                    assertEquals(i, p.getLongValue());
+                } else {
+                    assertEquals(i, p.nextLongValue(-1));
                 }
-                assertEquals(i, p.getLongValue());
-            } else {
-                assertEquals(i, p.nextLongValue(-1));
             }
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
-        p.close();
     }
 
     private void _testDoubleArray(boolean useBytes, int elements, int pre, int post) throws Exception
@@ -219,31 +201,22 @@ class ArrayGenerationTest extends JUnit5TestBase
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? jsonFactory().createGenerator(bytes)
-                : jsonFactory().createGenerator(sw);
-
-        gen.writeArray(values, pre, elements);
-        gen.close();
-
-        String json;
-        if (useBytes) {
-            json = bytes.toString("UTF-8");
-        } else {
-            json = sw.toString();
+        try (JsonGenerator gen = _generator(jsonFactory(), useBytes, bytes, sw)) {
+            gen.writeArray(values, pre, elements);
         }
+        String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
 
-        JsonParser p = useBytes ? jsonFactory().createParser(bytes.toByteArray())
-                : jsonFactory().createParser(json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        for (int i = 0; i < elements; ++i) {
-            JsonToken t = p.nextToken();
-            if (t != JsonToken.VALUE_NUMBER_FLOAT) {
-                fail("Expected floating-point number, got "+t+", element #"+i);
+        try (JsonParser p = _parser(jsonFactory(), useBytes, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            for (int i = 0; i < elements; ++i) {
+                JsonToken t = p.nextToken();
+                if (t != JsonToken.VALUE_NUMBER_FLOAT) {
+                    fail("Expected floating-point number, got "+t+", element #"+i);
+                }
+                assertEquals((double) i, p.getDoubleValue());
             }
-            assertEquals((double) i, p.getDoubleValue());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
-        p.close();
     }
 
     private void _testStringArray(boolean useBytes, int elements, int pre, int post) throws Exception
@@ -261,30 +234,40 @@ class ArrayGenerationTest extends JUnit5TestBase
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? jsonFactory().createGenerator(bytes)
-                : jsonFactory().createGenerator(sw);
-
-        gen.writeArray(values, pre, elements);
-        gen.close();
-
-        String json;
-        if (useBytes) {
-            json = bytes.toString("UTF-8");
-        } else {
-            json = sw.toString();
+        try (JsonGenerator gen = _generator(jsonFactory(), useBytes, bytes, sw)) {
+            gen.writeArray(values, pre, elements);
         }
+        String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
 
-        JsonParser p = useBytes ? jsonFactory().createParser(bytes.toByteArray())
-                : jsonFactory().createParser(json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        for (int i = 0; i < elements; ++i) {
-            JsonToken t = p.nextToken();
-            if (t != JsonToken.VALUE_STRING) {
-                fail("Expected string, got "+t+", element #"+i);
+        try (JsonParser p = _parser(jsonFactory(), useBytes, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            for (int i = 0; i < elements; ++i) {
+                JsonToken t = p.nextToken();
+                if (t != JsonToken.VALUE_STRING) {
+                    fail("Expected string, got "+t+", element #"+i);
+                }
+                assertEquals(values[pre+i], p.getValueAsString());
             }
-            assertEquals(values[pre+i], p.getValueAsString());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
-        p.close();
+    }
+
+    private JsonGenerator _generator(JsonFactory f, boolean useBytes,
+            ByteArrayOutputStream bytes, Writer w)
+        throws Exception
+    {
+        if (useBytes) {
+            return f.createGenerator(bytes);
+        }
+        return f.createGenerator(w);
+    }
+
+    private JsonParser _parser(JsonFactory f, boolean useBytes, String json)
+        throws Exception
+    {
+            if (useBytes) {
+                return f.createParser(json.getBytes(StandardCharsets.UTF_8));
+            }
+            return jsonFactory().createParser(json);
     }
 }

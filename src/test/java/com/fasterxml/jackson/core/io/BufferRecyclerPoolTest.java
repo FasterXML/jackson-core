@@ -29,6 +29,7 @@ class BufferRecyclerPoolTest extends JUnit5TestBase
     }
 
     @Test
+    @Deprecated
     void lockFree() throws Exception {
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.newLockFreePool(), true, true);
     }
@@ -128,6 +129,11 @@ class BufferRecyclerPoolTest extends JUnit5TestBase
                 throw new IllegalStateException("BufferRecyler released more than once");
             }
             bufferRecycler = r;
+        }
+
+        @Override
+        public int pooledCount() {
+            return (bufferRecycler == null) ? 0 : 1;
         }
 
         @Override

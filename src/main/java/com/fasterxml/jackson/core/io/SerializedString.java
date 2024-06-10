@@ -50,7 +50,7 @@ public class SerializedString
     protected volatile char[] _quotedChars;
 
     public SerializedString(String v) {
-        _value = Objects.requireNonNull("Null String illegal for SerializedString", v);
+        _value = Objects.requireNonNull(v, "Null String illegal for SerializedString");
     }
 
     /*

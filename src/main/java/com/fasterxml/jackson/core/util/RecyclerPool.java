@@ -111,6 +111,25 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         return false;
     }
 
+    /**
+     * Diagnostic method for obtaining an estimate of number of pooled items
+     * this pool contains, available for recycling.
+     * Note that in addition to this information possibly not being available
+     * (denoted by return value of {@code -1}) even when available this may be
+     * just an approximation.
+     *<p>
+     * Default method implementation simply returns {@code -1} and is meant to be
+     * overridden by concrete sub-classes.
+     *
+     * @return Number of pooled entries available from this pool, if available;
+     *    {@code -1} if not.
+     *
+     * @since 2.18
+     */
+    default int pooledCount() {
+        return -1;
+    }
+
     /*
     /**********************************************************************
     /* Partial/base RecyclerPool implementations
@@ -150,6 +169,12 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
              // nothing to do, relies on ThreadLocal
         }
 
+        // No way to actually even estimate...
+        @Override
+        public int pooledCount() {
+            return -1;
+        }
+
         // Due to use of ThreadLocal no tracking available; cannot clear
         @Override
         public boolean clear() {
@@ -179,6 +204,11 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         @Override
         public void releasePooled(P pooled) {
              // nothing to do, there is no underlying pool
+        }
+
+        @Override
+        public int pooledCount() {
+            return 0;
         }
 
         /**
@@ -263,6 +293,11 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         }
 
         @Override
+        public int pooledCount() {
+            return pool.size();
+        }
+
+        @Override
         public boolean clear() {
             pool.clear();
             return true;
@@ -274,7 +309,17 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * a lock free linked list for recycling instances.
      * Pool is unbounded: see {@link RecyclerPool} for
      * details on what this means.
+     *<p>
+     * NOTE: serious issues found with 2.17.0 lead to deprecation
+     * of this implementation -- basically it is possible to have
+     * unbalanced acquire/release success rate lead to excessive
+     * growth of pooled instances.
+     * See <a href="https://github.com/FasterXML/jackson-core/issues/1260">
+     * jackson-core#1260</a> for details.
+     *
+     * @deprecated Since 2.18: use other implementations
      */
+    @Deprecated // since 2.18
     abstract class LockFreePoolBase<P extends WithPool<P>>
         extends StatefulImplBase<P>
     {
@@ -322,13 +367,13 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             }
         }
 
-        protected static class Node<P> {
-            final P value;
-            Node<P> next;
-
-            Node(P value) {
-                this.value = value;
+        @Override
+        public int pooledCount() {
+            int count = 0;
+            for (Node<P> curr = head.get(); curr != null; curr = curr.next) {
+                ++count;
             }
+            return count;
         }
 
         // Yes, we can clear it
@@ -336,6 +381,15 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         public boolean clear() {
             head.set(null);
             return true;
+        }
+
+        protected static class Node<P> {
+            final P value;
+            Node<P> next;
+
+            Node(P value) {
+                this.value = value;
+            }
         }
     }
 
@@ -383,6 +437,11 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         @Override
         public void releasePooled(P pooled) {
             pool.offer(pooled);
+        }
+
+        @Override
+        public int pooledCount() {
+            return pool.size();
         }
 
         @Override

@@ -525,7 +525,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * Method called when an EOF is encountered between tokens.
-     * If so, it may be a legitimate EOF, but only iff there
+     * If so, it may be a legitimate EOF, but <b>only</b> if there
      * is no open non-root context.
      */
     @Override
@@ -1251,6 +1251,8 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @return {@link BigInteger} value of the current token
      *
+     * @throws JsonParseException If parsing fails
+     *
      * @since 2.14
      */
     protected BigInteger _getBigInteger() throws JsonParseException {
@@ -1276,6 +1278,8 @@ public abstract class ParserBase extends ParserMinimalBase
      * {@link BigDecimal} which -- as of 2.14 -- is typically lazily parsed.
      *
      * @return {@link BigDecimal} value of the current token
+     *
+     * @throws JsonParseException If parsing fails
      *
      * @since 2.14
      */
@@ -1303,6 +1307,8 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @return {@code double} value of the current token
      *
+     * @throws JsonParseException If parsing fails
+     *
      * @since 2.15
      */
     protected double _getNumberDouble() throws JsonParseException {
@@ -1323,6 +1329,8 @@ public abstract class ParserBase extends ParserMinimalBase
      * {@code float} which -- as of 2.15 -- will be lazily parsed.
      *
      * @return {@code float} value of the current token
+     *
+     * @throws JsonParseException If parsing fails
      *
      * @since 2.15
      */

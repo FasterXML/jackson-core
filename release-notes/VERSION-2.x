@@ -16,20 +16,30 @@ a pure JSON library.
 
 2.18.0 (not yet released)
 
+#1230: Improve performance of `float` and `double` parsing from `TextBuffer`
+ (implemented by @pjfanning)
 #1251: `InternCache` replace synchronized with `ReentrantLock` - the cache
   size limit is no longer strictly enforced for performance reasons but
   we should never go far about the limit
- (contributed by @pjfanning)
+ (implemented by @pjfanning)
 #1252: `ThreadLocalBufferManager` replace synchronized with `ReentrantLock`
- (contributed by @pjfanning)
+ (implemented by @pjfanning)
 #1257: Increase InternCache default max size from 100 to 200
+#1262: Add diagnostic method `pooledCount()` in `RecyclerPool`
+#1264: Rename shaded `ch.randelshofer:fastdoubleparser` classes
+  to prevent use by downstream consumers
+ (requested by @seadbrane)
+#1271: Deprecate `LockFreePool` implementation in 2.18 (remove from 3.0)
 #1274: `NUL`-corrupted keys, values on JSON serialization
  (reported, fix contributed by Jared S)
+#1277: Add back Java 22 optimisation in FastDoubleParser
 
-2.17.1 (not yet released)
+2.17.1 (04-May-2024)
 
 #1241: Fix `NumberInput.looksLikeValidNumber()` implementation
  (contributed by @pjfanning)
+#1256: Revert #1117: change default recycler pool back to `threadLocalPool()`
+  for 2.17.1
 
 2.17.0 (12-Mar-2024)
 

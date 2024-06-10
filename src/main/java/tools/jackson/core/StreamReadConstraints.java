@@ -142,7 +142,7 @@ public class StreamReadConstraints
          * The length is in input units of the input source, that is, in
          * {@code byte}s or {@code char}s.
          *
-         * @param maxDocLen the maximum allowed document if positive number above 0; otherwise
+         * @param maxDocLen the maximum allowed document length if positive number above 0; otherwise
          *   ({@code 0} or negative number) means "unlimited".
          *
          * @return this builder

@@ -23,6 +23,8 @@ a pure JSON library.
 #1252: `ThreadLocalBufferManager` replace synchronized with `ReentrantLock`
  (contributed by @pjfanning)
 #1257: Increase InternCache default max size from 100 to 200
+#1274: `NUL`-corrupted keys, values on JSON serialization
+ (reported, fix contributed by Jared S)
 
 2.17.1 (not yet released)
 

@@ -433,4 +433,8 @@ Antonin Janec (@xtonic)
  * Contributed #1217: Optimize char comparison using bitwise OR
   (2.17.0)
  * Contributed #1218: Simplify Unicode surrogate pair conversion for generation
- (2.17.0)
+  (2.17.0)
+
+Jared Stehler (@jaredstehler)
+ * Reported, contributed fix for #1274: `NUL`-corrupted keys, values on JSON serialization
+  (2.18.0)

@@ -30,6 +30,8 @@ a pure JSON library.
   to prevent use by downstream consumers
  (requested by @seadbrane)
 #1271: Deprecate `LockFreePool` implementation in 2.18 (remove from 3.0)
+#1274: `NUL`-corrupted keys, values on JSON serialization
+ (reported, fix contributed by Jared S)
 #1277: Add back Java 22 optimisation in FastDoubleParser
 
 2.17.1 (04-May-2024)

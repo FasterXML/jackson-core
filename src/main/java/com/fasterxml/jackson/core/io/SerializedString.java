@@ -37,17 +37,17 @@ public class SerializedString
      *   search framework; and they believed this is an important optimization for
      *   heaviest, multi-core deployed use cases.
      */
-    /*
-     * 22-Sep-2013, tatu: FWIW, there have been no reports of problems in this
-     *   area, or anything pointing to it. So I think we are safe up to JDK7
-     *   and hopefully beyond.
-     */
+    // 22-Sep-2013, tatu: FWIW, there have been no reports of problems in this
+    //   area, or anything pointing to it. So I think we are safe up to JDK7
+    //   and hopefully beyond.
+    // 09-Jun-2024, tatu: Until we are not. As per [core#1274] there are reasons to
+    //   believe `volatile` is actually needed, so will be added in 2.18.0
 
-    protected /*volatile*/ byte[] _quotedUTF8Ref;
+    protected volatile byte[] _quotedUTF8Ref;
 
-    protected /*volatile*/ byte[] _unquotedUTF8Ref;
+    protected volatile byte[] _unquotedUTF8Ref;
 
-    protected /*volatile*/ char[] _quotedChars;
+    protected volatile char[] _quotedChars;
 
     public SerializedString(String v) {
         _value = Objects.requireNonNull(v, "Null String illegal for SerializedString");

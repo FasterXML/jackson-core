@@ -187,14 +187,65 @@ public class JacksonException
     }
 
     protected JacksonException(String msg, Throwable rootCause) {
-        this(msg, null, rootCause);
+        this(null, msg, null, rootCause);
     }
 
     protected JacksonException(String msg, JsonLocation loc, Throwable rootCause) {
-        super(msg, rootCause);
-        _location = (loc == null) ? JsonLocation.NA : loc;
+        this(null, msg, loc, rootCause);
     }
 
+    protected JacksonException(Closeable processor, Throwable rootCause) {
+        super(rootCause);
+        _processor = processor;
+        _location = _nonNullLocation(null);
+    }
+
+    protected JacksonException(Closeable processor, String msg, JsonLocation loc,
+            Throwable rootCause) {
+        super(msg, rootCause);
+        _processor = processor;
+        _location = _nonNullLocation(loc);
+    }
+    
+    protected JacksonException(Closeable processor, String msg)
+    {
+        super(msg);
+        _processor = processor;
+        JsonLocation loc = null;
+        if (processor instanceof JsonParser) {
+            // 17-Aug-2015, tatu: Use of token location makes some sense from databinding,
+            //   since actual parsing (current) location is typically only needed for low-level
+            //   parsing exceptions.
+            // 10-Jun-2024, tatu: Used from streaming too, current location possibly better
+            loc = ((JsonParser) processor).currentLocation();
+        }
+        _location = _nonNullLocation(loc);
+    }
+
+    protected JacksonException(Closeable processor, String msg, Throwable problem)
+    {
+        super(msg, problem);
+        _processor = processor;
+        JsonLocation loc = null;
+        if (problem instanceof JacksonException) {
+            loc = ((JacksonException) problem).getLocation();
+        } else if (processor instanceof JsonParser) {
+            loc = ((JsonParser) processor).currentLocation();
+        }
+        _location = _nonNullLocation(loc);
+    }
+
+    protected JacksonException(Closeable processor, String msg, JsonLocation loc)
+    {
+        super(msg);
+        _processor = processor;
+        _location = _nonNullLocation(loc);
+    }
+
+    private static JsonLocation _nonNullLocation(JsonLocation loc) {
+        return (loc == null) ? JsonLocation.NA : loc;
+    }
+    
     // @since 3.0
     public JacksonException withCause(Throwable cause) {
         initCause(cause);

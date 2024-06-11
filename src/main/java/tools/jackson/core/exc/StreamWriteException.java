@@ -12,18 +12,15 @@ public class StreamWriteException
     private final static long serialVersionUID = 3L;
 
     public StreamWriteException(JsonGenerator g, Throwable rootCause) {
-        super(rootCause);
-        _processor = g;
+        super(g, rootCause);
     }
 
     public StreamWriteException(JsonGenerator g, String msg) {
-        super(msg);
-        _processor = g;
+        super(g, msg);
     }
 
     public StreamWriteException(JsonGenerator g, String msg, Throwable rootCause) {
-        super(msg, null, rootCause);
-        _processor = g;
+        super(g, msg, rootCause);
     }
 
     /**

@@ -16,11 +16,11 @@ public class StreamReadException
     }
 
     public StreamReadException(JsonParser p, String msg) {
-        super(p, msg);
+        this(p, msg, _loc(p));
     }
 
-    public StreamReadException(JsonParser p, String msg, Throwable root) {
-        super(p, msg, root);
+    public StreamReadException(JsonParser p, String msg, Throwable rootCause) {
+        this(p, msg, _loc(p), rootCause);
     }
 
     public StreamReadException(JsonParser p, String msg, JsonLocation loc) {
@@ -30,6 +30,10 @@ public class StreamReadException
     public StreamReadException(JsonParser p, String msg, JsonLocation loc,
             Throwable rootCause) {
         super(p, msg, loc, rootCause);
+    }
+
+    private static JsonLocation _loc(JsonParser p) {
+        return(p == null) ? null : p.currentLocation();    
     }
 
     /**

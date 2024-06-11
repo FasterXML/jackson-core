@@ -1,8 +1,9 @@
 package tools.jackson.core;
 
+import java.io.Closeable;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Objects;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * Base class for all Jackson-produced checked exceptions.
@@ -10,10 +11,16 @@ import java.util.Objects;
  * Note that in Jackson 2.x this exception extended {@link java.io.IOException}
  * but in 3.x {@link RuntimeException}
  */
-public abstract class JacksonException
+public class JacksonException
     extends RuntimeException
 {
     private final static long serialVersionUID = 3L; // eclipse complains otherwise
+
+    /**
+     * Let's limit length of reference chain, to limit damage in cases
+     * of infinite recursion.
+     */
+    private final static int MAX_REFS_TO_LIST = 1000;
 
     /**
      * Simple bean class used to contain references. References
@@ -151,6 +158,20 @@ public abstract class JacksonException
 
     protected JsonLocation _location;
 
+    /**
+     * Path through which problem that triggering throwing of
+     * this exception was reached.
+     */
+    protected LinkedList<Reference> _path;
+
+    /**
+     * Underlying processor ({@link JsonParser} or {@link JsonGenerator}),
+     * if known.
+     *<p>
+     * NOTE: typically not serializable hence <code>transient</code>
+     */
+    protected transient Closeable _processor;
+    
     /*
     /**********************************************************************
     /* Life-cycle
@@ -190,6 +211,149 @@ public abstract class JacksonException
     public JacksonException clearLocation() {
         _location = null;
         return this;
+    }
+
+    /*
+    /**********************************************************************
+    /* Life-cycle: more advanced factory-like methods
+    /**********************************************************************
+     */
+
+    /**
+     * Method that can be called to either create a new DatabindException
+     * (if underlying exception is not a DatabindException), or augment
+     * given exception with given path/reference information.
+     *
+     * This version of method is called when the reference is through a
+     * non-indexed object, such as a Map or POJO/bean.
+     */
+    public static JacksonException wrapWithPath(Throwable src, Object refFrom,
+            String refPropertyName) {
+        return wrapWithPath(src, new Reference(refFrom, refPropertyName));
+    }
+
+    /**
+     * Method that can be called to either create a new DatabindException
+     * (if underlying exception is not a DatabindException), or augment
+     * given exception with given path/reference information.
+     *
+     * This version of method is called when the reference is through an
+     * index, which happens with arrays and Collections.
+     */
+    public static JacksonException wrapWithPath(Throwable src, Object refFrom, int index) {
+        return wrapWithPath(src, new Reference(refFrom, index));
+    }
+
+    /**
+     * Method that can be called to either create a new DatabindException
+     * (if underlying exception is not a DatabindException), or augment
+     * given exception with given path/reference information.
+     */
+    @SuppressWarnings("resource")
+    public static JacksonException wrapWithPath(Throwable src, Reference ref)
+    {
+        JacksonException jme;
+        if (src instanceof JacksonException) {
+            jme = (JacksonException) src;
+        } else {
+            // [databind#2128]: try to avoid duplication
+            String msg = _exceptionMessage(src);
+            // Let's use a more meaningful placeholder if all we have is null
+            if (msg == null || msg.isEmpty()) {
+                msg = "(was "+src.getClass().getName()+")";
+            }
+            // 17-Aug-2015, tatu: Let's also pass the processor (parser/generator) along
+            Closeable proc = null;
+            if (src instanceof JacksonException) {
+                Object proc0 = ((JacksonException) src).processor();
+                if (proc0 instanceof Closeable) {
+                    proc = (Closeable) proc0;
+                }
+            }
+            jme = new JacksonException(msg, src);
+            jme._processor = proc;
+        }
+        jme.prependPath(ref);
+        return jme;
+    }
+
+    private static String _exceptionMessage(Throwable t) {
+        if (t instanceof JacksonException) {
+            return ((JacksonException) t).getOriginalMessage();
+        }
+        if (t instanceof InvocationTargetException && t.getCause() != null) {
+            return t.getCause().getMessage();
+        }
+        return t.getMessage();
+    }
+
+    /*
+    /**********************************************************************
+    /* Life-cycle: information augmentation (cannot use factory style, alas)
+    /**********************************************************************
+     */
+
+    /**
+     * Method called to prepend a reference information in front of
+     * current path
+     */
+    public JacksonException prependPath(Object referrer, String propertyName) {
+        return prependPath(new Reference(referrer, propertyName));
+    }
+
+    /**
+     * Method called to prepend a reference information in front of
+     * current path
+     */
+    public JacksonException prependPath(Object referrer, int index) {
+        return prependPath(new Reference(referrer, index));
+    }
+
+    public JacksonException prependPath(Reference r)
+    {
+        if (_path == null) {
+            _path = new LinkedList<Reference>();
+        }
+        // Also: let's not increase without bounds. Could choose either
+        // head or tail; tail is easier (no need to ever remove), as
+        // well as potentially more useful so let's use it:
+        if (_path.size() < MAX_REFS_TO_LIST) {
+            _path.addFirst(r);
+        }
+        return this;
+    }
+
+    /*
+    /**********************************************************************
+    /* Accessors
+    /**********************************************************************
+     */
+
+    /**
+     * Method for accessing full structural path within type hierarchy
+     * down to problematic property.
+     */
+    public List<Reference> getPath()
+    {
+        if (_path == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(_path);
+    }
+
+    /**
+     * Method for accessing description of path that lead to the
+     * problem that triggered this exception
+     */
+    public String getPathReference()
+    {
+        return getPathReference(new StringBuilder()).toString();
+    }
+
+    public StringBuilder getPathReference(StringBuilder sb)
+    {
+        _appendPathDesc(sb);
+        return sb;
     }
 
     /*
@@ -238,7 +402,9 @@ public abstract class JacksonException
      *
      * @return Originating processor, if available; {@code null} if not.
      */
-    public abstract Object processor();
+    public Object processor() {
+        return _processor;
+    }
 
     /*
     /**********************************************************************
@@ -297,4 +463,25 @@ public abstract class JacksonException
     }
 
     @Override public String toString() { return getClass().getName()+": "+getMessage(); }
+
+    /*
+    /**********************************************************************
+    /* Internal methods
+    /**********************************************************************
+     */
+
+    protected void _appendPathDesc(StringBuilder sb)
+    {
+        if (_path == null) {
+            return;
+        }
+        Iterator<Reference> it = _path.iterator();
+        while (it.hasNext()) {
+            sb.append(it.next().toString());
+            if (it.hasNext()) {
+                sb.append("->");
+            }
+        }
+    }
+
 }

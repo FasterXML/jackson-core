@@ -11,8 +11,6 @@ public class StreamReadException
 {
     private final static long serialVersionUID = 3L;
 
-    protected transient JsonParser _processor;
-
     public StreamReadException(String msg) {
         super(msg);
         _processor = null;
@@ -39,11 +37,6 @@ public class StreamReadException
         _processor = p;
     }
 
-    @Deprecated // @since 3.0 -- is this still in use?
-    protected StreamReadException(String msg, JsonLocation loc, Throwable rootCause) {
-        super(msg, loc, rootCause);
-    }
-
     /**
      * Fluent method that may be used to assign originating {@link JsonParser},
      * to be accessed using {@link #processor()}.
@@ -61,6 +54,6 @@ public class StreamReadException
 
     @Override
     public JsonParser processor() {
-        return _processor;
+        return (JsonParser) _processor;
     }
 }

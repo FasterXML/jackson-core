@@ -20,8 +20,4 @@ public class StreamConstraintsException
     public StreamConstraintsException(String msg, JsonLocation loc) {
         super(msg, loc, null);
     }
-
-    // !!! TODO? Allow setting parser/generator
-    @Override
-    public Object processor() { return null; }
 }

@@ -13,28 +13,27 @@ public class StreamReadException
 
     public StreamReadException(String msg) {
         super(msg);
-        _processor = null;
     }
 
     public StreamReadException(JsonParser p, String msg) {
-        super(msg, (p == null) ? null : p.currentLocation(), null);
-        _processor = p;
+        this(p, msg, _loc(p));
     }
 
-    public StreamReadException(JsonParser p, String msg, Throwable root) {
-        super(msg, (p == null) ? null : p.currentLocation(), root);
-        _processor = p;
+    public StreamReadException(JsonParser p, String msg, Throwable rootCause) {
+        this(p, msg, _loc(p), rootCause);
     }
 
     public StreamReadException(JsonParser p, String msg, JsonLocation loc) {
-        super(msg, loc, null);
-        _processor = p;
+        super(p, msg, loc);
     }
 
     public StreamReadException(JsonParser p, String msg, JsonLocation loc,
             Throwable rootCause) {
-        super(msg, loc, rootCause);
-        _processor = p;
+        super(p, msg, loc, rootCause);
+    }
+
+    private static JsonLocation _loc(JsonParser p) {
+        return(p == null) ? null : p.currentLocation();    
     }
 
     /**
@@ -52,6 +51,7 @@ public class StreamReadException
         return this;
     }
 
+    // Overridden for co-variance
     @Override
     public JsonParser processor() {
         return (JsonParser) _processor;

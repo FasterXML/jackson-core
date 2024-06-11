@@ -3,9 +3,7 @@ package tools.jackson.core;
 import java.io.Closeable;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Base class for all Jackson-produced checked exceptions.
@@ -327,6 +325,39 @@ public class JacksonException
 
     /*
     /**********************************************************************
+    /* Accessors
+    /**********************************************************************
+     */
+
+    /**
+     * Method for accessing full structural path within type hierarchy
+     * down to problematic property.
+     */
+    public List<Reference> getPath()
+    {
+        if (_path == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(_path);
+    }
+
+    /**
+     * Method for accessing description of path that lead to the
+     * problem that triggered this exception
+     */
+    public String getPathReference()
+    {
+        return getPathReference(new StringBuilder()).toString();
+    }
+
+    public StringBuilder getPathReference(StringBuilder sb)
+    {
+        _appendPathDesc(sb);
+        return sb;
+    }
+
+    /*
+    /**********************************************************************
     /* Extended API
     /**********************************************************************
      */
@@ -432,4 +463,25 @@ public class JacksonException
     }
 
     @Override public String toString() { return getClass().getName()+": "+getMessage(); }
+
+    /*
+    /**********************************************************************
+    /* Internal methods
+    /**********************************************************************
+     */
+
+    protected void _appendPathDesc(StringBuilder sb)
+    {
+        if (_path == null) {
+            return;
+        }
+        Iterator<Reference> it = _path.iterator();
+        while (it.hasNext()) {
+            sb.append(it.next().toString());
+            if (it.hasNext()) {
+                sb.append("->");
+            }
+        }
+    }
+
 }

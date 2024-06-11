@@ -1,5 +1,9 @@
 package tools.jackson.core;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Objects;
+
 /**
  * Base class for all Jackson-produced checked exceptions.
  *<p>
@@ -10,6 +14,140 @@ public abstract class JacksonException
     extends RuntimeException
 {
     private final static long serialVersionUID = 3L; // eclipse complains otherwise
+
+    /**
+     * Simple bean class used to contain references. References
+     * can be added to indicate execution/reference path that
+     * lead to the problem that caused this exception to be
+     * thrown.
+     *
+     * @since 3.0 (in 2.x was part of databind-level exceptions only)
+     */
+    public static class Reference implements Serializable
+    {
+        private static final long serialVersionUID = 3L;
+
+        protected transient Object _from;
+
+        /**
+         * Name of property (for POJO) or key (for Maps) that is part
+         * of the reference. May be null for Collection types (which
+         * generally have {@link #_index} defined), or when resolving
+         * Map classes without (yet) having an instance to operate on.
+         */
+        protected String _propertyName;
+
+        /**
+         * Index within a {@link Collection} instance that contained
+         * the reference; used if index is relevant and available.
+         * If either not applicable, or not available, -1 is used to
+         * denote "not known" (or not relevant).
+         */
+        protected int _index = -1;
+
+        /**
+         * Lazily-constructed description of this instance; needed mostly to
+         * allow JDK serialization to work in case where {@link #_from} is
+         * non-serializable (and has to be dropped) but we still want to pass
+         * actual description along.
+         */
+        protected String _desc;
+
+        /**
+         * Default constructor for deserialization purposes
+         */
+        protected Reference() { }
+
+        public Reference(Object from) { _from = from; }
+
+        public Reference(Object from, String propertyName) {
+            _from = from;
+            _propertyName = Objects.requireNonNull(propertyName, "Cannot pass null 'propertyName'");
+        }
+
+        public Reference(Object from, int index) {
+            _from = from;
+            _index = index;
+        }
+
+        // Setters to let Jackson deserialize instances, but not to be called from outside
+        void setPropertyName(String n) { _propertyName = n; }
+        void setIndex(int ix) { _index = ix; }
+        void setDescription(String d) { _desc = d; }
+
+        /**
+         * Object through which reference was resolved. Can be either
+         * actual instance (usually the case for serialization), or
+         * Class (usually the case for deserialization).
+         *<p>
+         * Note that this the accessor is not a getter on purpose as we cannot
+         * (in general) serialize/deserialize this reference
+         */
+        public Object from() { return _from; }
+
+        public String getPropertyName() { return _propertyName; }
+        public int getIndex() { return _index; }
+
+        public String getDescription()
+        {
+            if (_desc == null) {
+                StringBuilder sb = new StringBuilder();
+
+                if (_from == null) { // can this ever occur?
+                    sb.append("UNKNOWN");
+                } else {
+                    Class<?> cls = (_from instanceof Class<?>) ? (Class<?>)_from : _from.getClass();
+                    // Hmmh. Although Class.getName() is mostly ok, it does look
+                    // butt-ugly for arrays.
+                    // 06-Oct-2016, tatu: as per [databind#1403], `getSimpleName()` not so good
+                    //   as it drops enclosing class. So let's try bit different approach
+                    int arrays = 0;
+                    while (cls.isArray()) {
+                        cls = cls.getComponentType();
+                        ++arrays;
+                    }
+                    sb.append(cls.getName());
+                    while (--arrays >= 0) {
+                        sb.append("[]");
+                    }
+                }
+                sb.append('[');
+                if (_propertyName != null) {
+                    sb.append('"');
+                    sb.append(_propertyName);
+                    sb.append('"');
+                } else if (_index >= 0) {
+                    sb.append(_index);
+                } else {
+                    sb.append('?');
+                }
+                sb.append(']');
+                _desc = sb.toString();
+            }
+            return _desc;
+        }
+
+        @Override
+        public String toString() {
+            return getDescription();
+        }
+
+        /**
+         * May need some cleaning here, given that `from` may or may not be serializable.
+         */
+        Object writeReplace() {
+            // as per [databind#1195], need to ensure description is not null, since
+            // `_from` is transient
+            getDescription();
+            return this;
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* State/configuration
+    /**********************************************************************
+     */
 
     protected JsonLocation _location;
 

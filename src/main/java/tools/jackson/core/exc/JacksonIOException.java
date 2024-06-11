@@ -1,5 +1,6 @@
 package tools.jackson.core.exc;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 import tools.jackson.core.JacksonException;
@@ -25,13 +26,7 @@ public class JacksonIOException extends JacksonException
 {
     private final static long serialVersionUID = 1L;
 
-    /**
-     * Optional processor, often of parser, generator type
-     * (or equivalent read/write context from databinding).
-     */
-    protected transient Object _processor;
-
-    protected JacksonIOException(Object processor, IOException source) {
+    protected JacksonIOException(Closeable processor, IOException source) {
         super(source.getMessage(), source);
         _processor = processor;
     }
@@ -40,17 +35,14 @@ public class JacksonIOException extends JacksonException
         return construct(e, null);
     }
 
-    public static JacksonIOException construct(IOException e, Object processor) {
+    public static JacksonIOException construct(IOException e, Closeable processor) {
         return new JacksonIOException(processor, e);
     }
 
-    public JacksonIOException withProcessor(Object processor) {
+    public JacksonIOException withProcessor(Closeable processor) {
         _processor = processor;
         return this;
     }
-
-    @Override
-    public Object processor() { return _processor; }
 
     @Override // just for co-variant type
     public IOException getCause() {

@@ -1463,7 +1463,7 @@ offset, len, dataLen));
      */
 
     protected JacksonException _wrapIOFailure(IOException e) {
-        return JacksonIOException.construct(e, this);
+        return JacksonIOException.construct(e, null);
     }
 
     protected <T> T _unsupported() {

@@ -171,7 +171,7 @@ public class JacksonException
      * NOTE: typically not serializable hence <code>transient</code>
      */
     protected transient Closeable _processor;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -206,7 +206,7 @@ public class JacksonException
         _processor = processor;
         _location = _nonNullLocation(loc);
     }
-    
+
     protected JacksonException(Closeable processor, String msg)
     {
         super(msg);
@@ -216,8 +216,8 @@ public class JacksonException
             // 17-Aug-2015, tatu: Use of token location makes some sense from databinding,
             //   since actual parsing (current) location is typically only needed for low-level
             //   parsing exceptions.
-            // 10-Jun-2024, tatu: Used from streaming too, current location possibly better
-            loc = ((JsonParser) processor).currentLocation();
+            // 10-Jun-2024, tatu: Used from streaming too, so not 100% sure. But won't change yet
+            loc = ((JsonParser) processor).currentTokenLocation();
         }
         _location = _nonNullLocation(loc);
     }
@@ -230,7 +230,8 @@ public class JacksonException
         if (problem instanceof JacksonException) {
             loc = ((JacksonException) problem).getLocation();
         } else if (processor instanceof JsonParser) {
-            loc = ((JsonParser) processor).currentLocation();
+            // 10-Jun-2024, tatu: Current vs token location?
+            loc = ((JsonParser) processor).currentTokenLocation();
         }
         _location = _nonNullLocation(loc);
     }

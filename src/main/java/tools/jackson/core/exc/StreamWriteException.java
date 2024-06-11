@@ -36,6 +36,9 @@ public class StreamWriteException
         return this;
     }
 
+    // Overridden for co-variance
     @Override
-    public JsonGenerator processor() { return (JsonGenerator) _processor; }
+    public JsonGenerator processor() {
+        return (JsonGenerator) _processor;
+    }
 }

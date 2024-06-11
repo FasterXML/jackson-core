@@ -47,6 +47,7 @@ public class StreamReadException
         return this;
     }
 
+    // Overridden for co-variance
     @Override
     public JsonParser processor() {
         return (JsonParser) _processor;

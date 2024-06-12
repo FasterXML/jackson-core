@@ -19,8 +19,9 @@ public class JacksonException
     /**
      * Let's limit length of reference chain, to limit damage in cases
      * of infinite recursion.
+     * Use maximum nesting limit allowed for reads.
      */
-    private final static int MAX_REFS_TO_LIST = 1000;
+    private final static int MAX_REFS_TO_LIST = StreamReadConstraints.DEFAULT_MAX_DEPTH;
 
     /**
      * Simple bean class used to contain references. References
@@ -483,6 +484,20 @@ public class JacksonException
     /**********************************************************************
      */
 
+    @Override
+    public String getLocalizedMessage() {
+        return _buildMessage();
+    }
+
+    /**
+     * Method is overridden so that we can properly inject description
+     * of problem path, if such is defined.
+     */
+    @Override
+    public String getMessage() {
+        return _buildMessage();
+    }
+
     /**
      * Default method overridden so that we can add location information
      *
@@ -490,17 +505,18 @@ public class JacksonException
      *   {@code message} passed to constructor as well trailing location description
      *   (separate from message by linefeed)
      */
-    @Override public String getMessage() {
-        String msg = super.getMessage();
-        if (msg == null) {
-            msg = "N/A";
+    protected String _buildMessage()
+    {
+        String baseMessage = super.getMessage();
+        if (baseMessage == null) {
+            baseMessage = "N/A";
         }
         JsonLocation loc = getLocation();
         String suffix = messageSuffix();
         // mild optimization, if nothing extra is needed:
+        StringBuilder sb = new StringBuilder(200);
+        sb.append(baseMessage);
         if ((loc != null) || suffix != null) {
-            StringBuilder sb = new StringBuilder(100);
-            sb.append(msg);
             if (suffix != null) {
                 sb.append(suffix);
             }
@@ -509,12 +525,21 @@ public class JacksonException
                 sb.append(" at ");
                 sb = loc.toString(sb);
             }
-            msg = sb.toString();
         }
-        return msg;
+        if (_path != null) {
+            // 18-Feb-2009, tatu: originally there was a linefeed between
+            //    message and path reference; but unfortunately many systems
+            //   (loggers, junit) seem to assume linefeeds are only added to
+            //   separate stack trace.
+            sb.append(" (through reference chain: ");
+            sb = getPathReference(sb);
+            sb.append(')');
+        }
+        return sb.toString();
     }
 
-    @Override public String toString() { return getClass().getName()+": "+getMessage(); }
+    @Override
+    public String toString() { return getClass().getName()+": "+getMessage(); }
 
     /*
     /**********************************************************************

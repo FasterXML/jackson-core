@@ -23,3 +23,6 @@ syntax: glob
 *.iws
 /.idea/
 dependency-reduced-pom.xml
+
+# Other/local
+/gh-workflows

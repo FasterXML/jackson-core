@@ -1185,7 +1185,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             JsonToken result) throws IOException
     {
         if (matched == expToken.length()) {
-            return _updateToken(result);
+            return _updateTokenWithPossibleNA(result);
         }
         _textBuffer.resetWithCopy(expToken, 0, matched);
         return _finishErrorTokenWithEOF();

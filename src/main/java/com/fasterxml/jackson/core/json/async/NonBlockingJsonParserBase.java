@@ -839,7 +839,7 @@ public abstract class NonBlockingJsonParserBase
     protected final JsonToken _valueComplete(JsonToken t) throws IOException
     {
         _majorState = _majorStateAfterValue;
-        return _updateToken(t);
+        return _updateTokenWithPossibleNA(t);
     }
 
     protected final JsonToken _valueCompleteInt(int value, String asText) throws IOException

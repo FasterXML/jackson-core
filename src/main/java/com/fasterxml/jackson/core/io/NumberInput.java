@@ -35,7 +35,7 @@ public final class NumberInput
     /**
      * Regexp used to pre-validate "Stringified Numbers": slightly looser than
      * JSON Number definition (allows leading zeroes, positive sign).
-     * 
+     *
      * @since 2.17
      */
     private final static Pattern PATTERN_FLOAT = Pattern.compile(
@@ -45,6 +45,8 @@ public final class NumberInput
     /**
      * Secondary regexp used along with {@code PATTERN_FLOAT} to cover
      * case where number ends with dot, like {@code "+12."}
+     *
+     * @since 2.17.2
      */
     private final static Pattern PATTERN_FLOAT_TRAILING_DOT = Pattern.compile(
             "[+-]?[0-9]+[\\.]");

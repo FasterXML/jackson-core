@@ -230,7 +230,7 @@ public class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
     }
 
-    private final void _writeFieldNameTail(SerializableString name) throws IOException
+    protected void _writeFieldNameTail(SerializableString name) throws IOException
     {
         final char[] quoted = name.asQuotedChars();
         writeRaw(quoted, 0, quoted.length);
@@ -441,7 +441,7 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeString(Reader reader, final int len) throws IOException
+    public void writeString(Reader reader, int len) throws IOException
     {
         _verifyValueWrite(WRITE_STRING);
         if (reader == null) {

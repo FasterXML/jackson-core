@@ -181,6 +181,13 @@ public abstract class ParserMinimalBase extends JsonParser
         this(features, null);
     }
 
+    // @since 2.18
+    protected ParserMinimalBase(StreamReadConstraints src) {
+        super();
+        _streamReadConstraints = (src == null) ? StreamReadConstraints.defaults() : src;
+    }
+
+    // @since 2.18
     protected ParserMinimalBase(int features, StreamReadConstraints src) {
         super(features);
         _streamReadConstraints = (src == null) ? StreamReadConstraints.defaults() : src;

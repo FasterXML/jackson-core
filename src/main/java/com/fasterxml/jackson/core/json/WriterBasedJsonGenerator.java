@@ -17,10 +17,10 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 public class WriterBasedJsonGenerator
     extends JsonGeneratorImpl
 {
-    protected static int SHORT_WRITE = 32;
+    protected final static int SHORT_WRITE = 32;
 
-    protected static char[] HEX_CHARS_UPPER = CharTypes.copyHexChars(true);
-    protected static char[] HEX_CHARS_LOWER = CharTypes.copyHexChars(false);
+    protected final static char[] HEX_CHARS_UPPER = CharTypes.copyHexChars(true);
+    protected final static char[] HEX_CHARS_LOWER = CharTypes.copyHexChars(false);
 
     private char[] getHexChars() {
         return _cfgWriteHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;

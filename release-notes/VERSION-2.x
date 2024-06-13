@@ -34,6 +34,11 @@ a pure JSON library.
  (reported, fix contributed by Jared S)
 #1277: Add back Java 22 optimisation in FastDoubleParser
 
+2.17.2 (not yet released)
+
+#1308: Relax validation by `NumberInput.looksLikeValidNumber()` to allow
+  trailing dot (like `3.`)
+
 2.17.1 (04-May-2024)
 
 #1241: Fix `NumberInput.looksLikeValidNumber()` implementation

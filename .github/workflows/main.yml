@@ -78,11 +78,21 @@ jobs:
         file: ./target/site/jacoco/jacoco.xml
         flags: unittests
 
-  trigger-dep-build:
-    name: Trigger downstream builds
+  trigger-dep-builds-v2:
+    name: Trigger downstream builds for v2
     needs: [build]
     # Only for pushes to default branch
     if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
-    uses: ./.github/workflows/trigger_dep_builds.yml
+    uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}
+
+  trigger-dep-builds-v3:
+    name: Trigger downstream builds for v3
+    needs: [build]
+    # Only for pushes to master (v3) branch
+    if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+    uses: ./.github/workflows/trigger_dep_builds_v3.yml
+    secrets:
+      token: ${{ secrets.REPO_DISPATCH }}
+      

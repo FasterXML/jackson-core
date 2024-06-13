@@ -1,0 +1,30 @@
+# Reusable workflow; extracted for maintainability
+
+name: Trigger downstream Jackson 3.x builds
+on:
+  workflow_call:
+    secrets:
+      token:
+        required: true
+
+jobs:
+  trigger-dep-build-v3:
+    name: Trigger downstream builds
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        repo:
+          - 'FasterXML/jackson-databind'
+          - 'FasterXML/jackson-jr'
+
+    steps:
+      - name: Repository dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.token }}
+          repository: ${{ matrix.repo }}
+          event-type: jackson-core-pushed-v3
+          # Could push information on what was built but not yet
+          client-payload: '{"version": "N/A" }'

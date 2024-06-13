@@ -136,6 +136,17 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************
+    /* Minimal configuration
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.18 (was higher up in {@code ParserBase} before)
+     */
+    protected final StreamReadConstraints _streamReadConstraints;
+
+    /*
+    /**********************************************************
     /* Minimal generally useful state
     /**********************************************************
      */
@@ -159,8 +170,28 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
-    protected ParserMinimalBase() { super(); }
-    protected ParserMinimalBase(int features) { super(features); }
+    @Deprecated // since 2.18
+    protected ParserMinimalBase() {
+        super();
+        _streamReadConstraints = StreamReadConstraints.defaults();
+    }
+
+    @Deprecated // since 2.18
+    protected ParserMinimalBase(int features) {
+        this(features, null);
+    }
+
+    // @since 2.18
+    protected ParserMinimalBase(StreamReadConstraints src) {
+        super();
+        _streamReadConstraints = (src == null) ? StreamReadConstraints.defaults() : src;
+    }
+
+    // @since 2.18
+    protected ParserMinimalBase(int features, StreamReadConstraints src) {
+        super(features);
+        _streamReadConstraints = (src == null) ? StreamReadConstraints.defaults() : src;
+    }
 
     // NOTE: had base impl in 2.3 and before; but shouldn't
     // public abstract Version version();
@@ -177,6 +208,11 @@ public abstract class ParserMinimalBase extends JsonParser
     //public void disableFeature(Feature f)
     //public void setFeature(Feature f, boolean state)
     //public boolean isFeatureEnabled(Feature f)
+
+    @Override // @since 2.18 (demoted from ParserBase)
+    public StreamReadConstraints streamReadConstraints() {
+        return _streamReadConstraints;
+    }
 
     /*
     /**********************************************************
@@ -462,7 +498,7 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
-                streamReadConstraints().validateFPLength(str.length());
+                _streamReadConstraints.validateFPLength(str.length());
                 return NumberInput.parseAsDouble(str, defaultValue);
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:

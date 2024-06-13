@@ -438,3 +438,7 @@ Antonin Janec (@xtonic)
 Jared Stehler (@jaredstehler)
  * Reported, contributed fix for #1274: `NUL`-corrupted keys, values on JSON serialization
   (2.18.0)
+
+Zhanghao (@zhangOranges)
+ * Contributed #1305: Make helper methods of `WriterBasedJsonGenerator` non-final to allow overriding
+  (2.18.0)

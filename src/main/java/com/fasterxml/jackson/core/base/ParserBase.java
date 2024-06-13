@@ -41,11 +41,9 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected final IOContext _ioContext;
 
-    /**
-     * @since 2.15
-     */
-    protected final StreamReadConstraints _streamReadConstraints;
-
+    // Demoted to ParserMinimalBase in 2.18
+    //protected final StreamReadConstraints _streamReadConstraints;
+    
     /**
      * Flag that indicates whether parser is closed or not. Gets
      * set when parser is either closed by explicit call
@@ -267,11 +265,8 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     protected ParserBase(IOContext ctxt, int features) {
-        super(features);
+        super(features, ctxt.streamReadConstraints());
         _ioContext = ctxt;
-        final StreamReadConstraints streamReadConstraints = ctxt.streamReadConstraints();
-        _streamReadConstraints = streamReadConstraints == null ?
-                StreamReadConstraints.defaults() : streamReadConstraints;
         _textBuffer = ctxt.constructReadConstrainedTextBuffer();
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
@@ -871,11 +866,6 @@ public abstract class ParserBase extends ParserMinimalBase
             }
         }
         return _getBigDecimal();
-    }
-
-    @Override // @since 2.15
-    public StreamReadConstraints streamReadConstraints() {
-        return _streamReadConstraints;
     }
 
     /*

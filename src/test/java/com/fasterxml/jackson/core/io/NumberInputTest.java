@@ -73,7 +73,7 @@ class NumberInputTest
     }
 
     @Test
-    void looksLikeValidNumber()
+    void looksLikeValidNumberTrue()
     {
         assertTrue(NumberInput.looksLikeValidNumber("0"));
         assertTrue(NumberInput.looksLikeValidNumber("1"));
@@ -83,10 +83,11 @@ class NumberInputTest
 
         // https://github.com/FasterXML/jackson-databind/issues/4435
         assertTrue(NumberInput.looksLikeValidNumber(".0"));
-        assertTrue(NumberInput.looksLikeValidNumber(".01"));
-        assertTrue(NumberInput.looksLikeValidNumber("+.01"));
-        assertTrue(NumberInput.looksLikeValidNumber("-.01"));
         assertTrue(NumberInput.looksLikeValidNumber("-.0"));
+        assertTrue(NumberInput.looksLikeValidNumber("+.0"));
+        assertTrue(NumberInput.looksLikeValidNumber(".01"));
+        assertTrue(NumberInput.looksLikeValidNumber("-.01"));
+        assertTrue(NumberInput.looksLikeValidNumber("+.01"));
 
         assertTrue(NumberInput.looksLikeValidNumber("0.01"));
         assertTrue(NumberInput.looksLikeValidNumber("-0.10"));
@@ -104,11 +105,39 @@ class NumberInputTest
         assertTrue(NumberInput.looksLikeValidNumber("1.4E-45"));
         assertTrue(NumberInput.looksLikeValidNumber("1.4e+45"));
 
+        // https://github.com/FasterXML/jackson-core/issues/1308
+        assertTrue(NumberInput.looksLikeValidNumber("0."));
+        assertTrue(NumberInput.looksLikeValidNumber("6."));
+        assertTrue(NumberInput.looksLikeValidNumber("65."));
+        assertTrue(NumberInput.looksLikeValidNumber("654."));
+        assertTrue(NumberInput.looksLikeValidNumber("65432."));
+        assertTrue(NumberInput.looksLikeValidNumber("-0."));
+        assertTrue(NumberInput.looksLikeValidNumber("-6."));
+        assertTrue(NumberInput.looksLikeValidNumber("-65."));
+        assertTrue(NumberInput.looksLikeValidNumber("-654."));
+        assertTrue(NumberInput.looksLikeValidNumber("-65432."));
+        assertTrue(NumberInput.looksLikeValidNumber("+0."));
+        assertTrue(NumberInput.looksLikeValidNumber("+6."));
+        assertTrue(NumberInput.looksLikeValidNumber("+65."));
+        assertTrue(NumberInput.looksLikeValidNumber("+654."));
+        assertTrue(NumberInput.looksLikeValidNumber("+65432."));
+    }
+
+    @Test
+    void looksLikeValidNumberFalse()
+    {
+        // https://github.com/FasterXML/jackson-databind/issues/4435 and
+        // https://github.com/FasterXML/jackson-core/issues/1308
         assertFalse(NumberInput.looksLikeValidNumber(""));
         assertFalse(NumberInput.looksLikeValidNumber(" "));
         assertFalse(NumberInput.looksLikeValidNumber("   "));
         assertFalse(NumberInput.looksLikeValidNumber("."));
-        assertFalse(NumberInput.looksLikeValidNumber("0."));
         assertFalse(NumberInput.looksLikeValidNumber("10_000"));
+        assertFalse(NumberInput.looksLikeValidNumber("-"));
+        assertFalse(NumberInput.looksLikeValidNumber("+"));
+        assertFalse(NumberInput.looksLikeValidNumber("-."));
+        assertFalse(NumberInput.looksLikeValidNumber("+."));
+        assertFalse(NumberInput.looksLikeValidNumber("-E"));
+        assertFalse(NumberInput.looksLikeValidNumber("+E"));
     }
 }

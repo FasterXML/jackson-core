@@ -833,8 +833,8 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final JsonToken _updateToken(final JsonToken token) throws StreamConstraintsException {
         _currToken = token;
-        if (streamReadConstraints().hasMaxTokenCount() && token != JsonToken.NOT_AVAILABLE) {
-            streamReadConstraints().validateTokenCount(++_tokenCount);
+        if (_streamReadConstraints.hasMaxTokenCount() && token != JsonToken.NOT_AVAILABLE) {
+            _streamReadConstraints.validateTokenCount(++_tokenCount);
         }
         return token;
     }

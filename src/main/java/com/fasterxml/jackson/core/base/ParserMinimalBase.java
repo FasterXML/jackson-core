@@ -498,7 +498,7 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
-                streamReadConstraints().validateFPLength(str.length());
+                _streamReadConstraints.validateFPLength(str.length());
                 return NumberInput.parseAsDouble(str, defaultValue);
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:

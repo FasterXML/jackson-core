@@ -10,7 +10,6 @@
     <artifactId>jackson-base</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
-
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>

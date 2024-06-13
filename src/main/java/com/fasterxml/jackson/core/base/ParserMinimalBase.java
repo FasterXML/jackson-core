@@ -167,6 +167,13 @@ public abstract class ParserMinimalBase extends JsonParser
     protected long _tokenCount;
 
     /**
+     * Whether or not to track the token count due a {@link StreamReadConstraints} maxTokenCount > 0.
+     *
+     * @since 2.18
+     */
+    protected final boolean _hasMaxTokenCount;
+
+    /**
      * Last cleared token, if any: that is, value that was in
      * effect when {@link #clearCurrentToken} was called.
      */
@@ -182,6 +189,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected ParserMinimalBase() {
         super();
         _streamReadConstraints = StreamReadConstraints.defaults();
+        _hasMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
     }
 
     @Deprecated // since 2.18
@@ -193,12 +201,14 @@ public abstract class ParserMinimalBase extends JsonParser
     protected ParserMinimalBase(StreamReadConstraints src) {
         super();
         _streamReadConstraints = (src == null) ? StreamReadConstraints.defaults() : src;
+        _hasMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
     }
 
     // @since 2.18
     protected ParserMinimalBase(int features, StreamReadConstraints src) {
         super(features);
         _streamReadConstraints = (src == null) ? StreamReadConstraints.defaults() : src;
+        _hasMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
     }
 
     // NOTE: had base impl in 2.3 and before; but shouldn't
@@ -833,7 +843,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final JsonToken _updateToken(final JsonToken token) throws StreamConstraintsException {
         _currToken = token;
-        if (_streamReadConstraints.hasMaxTokenCount() && token != JsonToken.NOT_AVAILABLE) {
+        if (_hasMaxTokenCount && token != JsonToken.NOT_AVAILABLE) {
             _streamReadConstraints.validateTokenCount(++_tokenCount);
         }
         return token;

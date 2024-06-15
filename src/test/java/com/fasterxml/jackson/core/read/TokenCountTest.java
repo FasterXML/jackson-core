@@ -22,6 +22,7 @@ public class TokenCountTest extends JUnit5TestBase {
         .streamReadConstraints(StreamReadConstraints.builder().maxTokenCount(Long.MAX_VALUE).build())
         .build();
     private final static String ARRAY_DOC = a2q("{ 'nums': [1,2,3,4,5,6,7,8,9,10] }");
+    private final static String SHORT_ARRAY_DOC = a2q("{ 'nums': [1,2,3] }");
 
     @Test
     void arrayDoc() throws Exception
@@ -54,10 +55,64 @@ public class TokenCountTest extends JUnit5TestBase {
     }
 
     @Test
+    void shortArrayDoc() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testShortArrayDoc(mode);
+        }
+    }
+
+    @Test
+    void shortArrayDocNonBlockingArray() throws Exception
+    {
+        final byte[] input = SHORT_ARRAY_DOC.getBytes("UTF-8");
+        try (NonBlockingJsonParser p = (NonBlockingJsonParser) JSON_FACTORY.createNonBlockingByteArrayParser()) {
+            p.feedInput(input, 0, input.length);
+            p.endOfInput();
+            _testShortArrayDoc(p);
+        }
+    }
+
+    @Test
+    void shortArrayDocNonBlockingBuffer() throws Exception
+    {
+        final byte[] input = SHORT_ARRAY_DOC.getBytes("UTF-8");
+        try (NonBlockingByteBufferJsonParser p = (NonBlockingByteBufferJsonParser)
+            JSON_FACTORY.createNonBlockingByteBufferParser()) {
+            p.feedInput(ByteBuffer.wrap(input, 0, input.length));
+            p.endOfInput();
+            _testShortArrayDoc(p);
+        }
+    }
+
+    @Test
     void sampleDoc() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testSampleDoc(mode);
+        }
+    }
+
+    @Test
+    void sampleDocNonBlockingArray() throws Exception
+    {
+        final byte[] input = SAMPLE_DOC_JSON_SPEC.getBytes("UTF-8");
+        try (NonBlockingJsonParser p = (NonBlockingJsonParser) JSON_FACTORY.createNonBlockingByteArrayParser()) {
+            p.feedInput(input, 0, input.length);
+            p.endOfInput();
+            _testSampleDoc(p);
+        }
+    }
+
+    @Test
+    void sampleDocNonBlockingBuffer() throws Exception
+    {
+        final byte[] input = SAMPLE_DOC_JSON_SPEC.getBytes("UTF-8");
+        try (NonBlockingByteBufferJsonParser p = (NonBlockingByteBufferJsonParser)
+            JSON_FACTORY.createNonBlockingByteBufferParser()) {
+            p.feedInput(ByteBuffer.wrap(input, 0, input.length));
+            p.endOfInput();
+            _testSampleDoc(p);
         }
     }
 
@@ -73,6 +128,20 @@ public class TokenCountTest extends JUnit5TestBase {
         assertEquals(0, p.getTokenCount());
         consumeTokens(p);
         assertEquals(15, p.getTokenCount());
+    }
+
+    private void _testShortArrayDoc(int mode) throws Exception
+    {
+        try (JsonParser p = createParser(JSON_FACTORY, mode, SHORT_ARRAY_DOC)) {
+            _testShortArrayDoc(p);
+        }
+    }
+
+    private void _testShortArrayDoc(JsonParser p) throws Exception
+    {
+        assertEquals(0, p.getTokenCount());
+        consumeTokens(p);
+        assertEquals(8, p.getTokenCount());
     }
 
     private void _testSampleDoc(int mode) throws Exception

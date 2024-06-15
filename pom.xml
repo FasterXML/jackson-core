@@ -24,7 +24,6 @@
     </license>
   </licenses>
   <inceptionYear>2008</inceptionYear>
-
   <url>https://github.com/FasterXML/jackson-core</url>
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-core.git</connection>

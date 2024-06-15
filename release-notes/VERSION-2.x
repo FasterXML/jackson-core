@@ -33,6 +33,13 @@ a pure JSON library.
 #1274: `NUL`-corrupted keys, values on JSON serialization
  (reported, fix contributed by Jared S)
 #1277: Add back Java 22 optimisation in FastDoubleParser
+#1305: Make helper methods of `WriterBasedJsonGenerator` non-final to allow overriding
+  (contributed by @zhangOranges)
+
+2.17.2 (not yet released)
+
+#1308: Relax validation by `NumberInput.looksLikeValidNumber()` to allow
+  trailing dot (like `3.`)
 
 2.17.1 (04-May-2024)
 

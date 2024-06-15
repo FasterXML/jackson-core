@@ -919,8 +919,8 @@ public abstract class TokenStreamFactory
      *
      * @throws JacksonException If parser construction or initialization fails
      */
-    public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            DataInput in) throws JacksonException;
+    public abstract JsonParser createParser(ObjectReadContext readCtxt, DataInput in)
+        throws JacksonException;
 
     /**
      * Optional method for constructing parser for non-blocking parsing
@@ -945,7 +945,7 @@ public abstract class TokenStreamFactory
      */
     public <P extends JsonParser & ByteArrayFeeder> P createNonBlockingByteArrayParser(ObjectReadContext readCtxt)
             throws JacksonException {
-        return _unsupported("Non-blocking source not (yet?) support for this format ("+getFormatName()+")");
+        return _unsupported("Non-blocking source not (yet?) supported for this format ("+getFormatName()+")");
     }
 
     /**
@@ -971,7 +971,7 @@ public abstract class TokenStreamFactory
      */
     public  <P extends JsonParser & ByteArrayFeeder> P createNonBlockingByteBufferParser(ObjectReadContext readCtxt)
         throws JacksonException {
-        return _unsupported("Non-blocking source not (yet?) support for this format ("+getFormatName()+")");
+        return _unsupported("Non-blocking source not (yet?) supported for this format ("+getFormatName()+")");
     }
 
     /*
@@ -1255,7 +1255,8 @@ public abstract class TokenStreamFactory
      * @return Context constructed
      */
     protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged,
-            JsonEncoding enc) {
+            JsonEncoding enc)
+    {
         BufferRecycler br = null;
         Object content = (contentRef == null) ? null : contentRef.getRawContent();
         // 18-Jan-2024, tatu: [core#1195] Let's see if we can reuse already allocated recycler

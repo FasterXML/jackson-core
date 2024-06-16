@@ -841,6 +841,12 @@ public abstract class ParserMinimalBase extends JsonParser
         throw _constructReadException(msg, t);
     }
 
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+
     protected final JsonToken _updateToken(final JsonToken token) throws StreamConstraintsException {
         _currToken = token;
         if (_hasMaxTokenCount) {
@@ -848,7 +854,6 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return token;
     }
-
     protected final JsonToken _updateTokenToNull() {
         return (_currToken = null);
     }

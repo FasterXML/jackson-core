@@ -3874,7 +3874,7 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    private final JsonToken _closeScope(int i) throws JsonParseException, StreamConstraintsException {
+    private final JsonToken _closeScope(int i) throws IOException {
         if (i == INT_RCURLY) {
             _closeObjectScope();
             return _updateToken(JsonToken.END_OBJECT);
@@ -3883,7 +3883,7 @@ public class UTF8StreamJsonParser
         return _updateToken(JsonToken.END_ARRAY);
     }
 
-    private final void _closeArrayScope() throws JsonParseException {
+    private final void _closeArrayScope() throws IOException {
         _updateLocation();
         if (!_parsingContext.inArray()) {
             _reportMismatchedEndMarker(']', '}');
@@ -3891,7 +3891,7 @@ public class UTF8StreamJsonParser
         _parsingContext = _parsingContext.clearAndGetParent();
     }
 
-    private final void _closeObjectScope() throws JsonParseException {
+    private final void _closeObjectScope() throws IOException {
         _updateLocation();
         if (!_parsingContext.inObject()) {
             _reportMismatchedEndMarker('}', ']');

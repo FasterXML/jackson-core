@@ -901,7 +901,7 @@ public class UTF8DataInputJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-           _updateToken(t);
+            _updateToken(t);
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return getLongValue();
             }
@@ -2958,7 +2958,8 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    private void _closeScope(int i) throws JsonParseException, StreamConstraintsException {
+    private void _closeScope(int i) throws IOException
+    {
         if (i == INT_RBRACKET) {
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
@@ -2976,7 +2977,7 @@ public class UTF8DataInputJsonParser
     }
 
     /**
-     * Helper method needed to fix [Issue#148], masking of 0x00 character
+     * Helper method needed to fix [core#148], masking of 0x00 character
      */
     private final static int pad(int q, int bytes) {
         return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));

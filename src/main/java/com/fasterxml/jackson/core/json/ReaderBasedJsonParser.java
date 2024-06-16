@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
@@ -786,8 +785,7 @@ public class ReaderBasedJsonParser
             _nextToken = t;
             return _currToken;
         }
-        _updateToken(t);
-        return t;
+        return _updateToken(t);
     }
 
     private final JsonToken _nextAfterName() throws IOException
@@ -3025,7 +3023,8 @@ public class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    private void _closeScope(int i) throws JsonParseException, StreamConstraintsException {
+    private void _closeScope(int i) throws IOException
+    {
         if (i == INT_RBRACKET) {
             _updateLocation();
             if (!_parsingContext.inArray()) {

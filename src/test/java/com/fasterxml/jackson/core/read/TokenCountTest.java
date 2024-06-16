@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
+import java.nio.ByteBuffer;
+
 import com.fasterxml.jackson.core.JUnit5TestBase;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -7,9 +9,6 @@ import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.json.async.NonBlockingByteBufferJsonParser;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -158,7 +157,7 @@ public class TokenCountTest extends JUnit5TestBase {
         assertEquals(27, p.getTokenCount());
     }
 
-    private void consumeTokens(JsonParser p) throws IOException {
+    private void consumeTokens(JsonParser p) throws Exception {
         while (p.nextToken() != null) {
             ;
         }

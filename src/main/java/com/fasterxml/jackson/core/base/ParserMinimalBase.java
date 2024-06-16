@@ -344,6 +344,11 @@ public abstract class ParserMinimalBase extends JsonParser
 
 //   public abstract JsonLocation getCurrentLocation();
 
+    @Override // since 2.18
+    public long getTokenCount() {
+        return _tokenCount;
+    }
+
     /*
     /**********************************************************
     /* Public API, token state overrides
@@ -554,11 +559,6 @@ public abstract class ParserMinimalBase extends JsonParser
             return defaultValue;
         }
         return getText();
-    }
-
-    @Override
-    public long getTokenCount() {
-        return _tokenCount;
     }
 
     /*

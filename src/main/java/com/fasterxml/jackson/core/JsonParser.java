@@ -864,6 +864,18 @@ public abstract class JsonParser
         assignCurrentValue(v);
     }
 
+    /**
+     * Get an approximate count of the number of tokens that have been read.
+     * This count is likely to be only updated if {@link StreamReadConstraints.Builder#maxTokenCount(long)}
+     * has been used to set a limit on the number of tokens that can be read.
+     *
+     * @return the number of tokens that have been read (-1 if the count is not available)
+     * @since 2.18
+     */
+    public long getTokenCount() {
+        return -1L;
+    }
+
     /*
     /**********************************************************
     /* Buffer handling
@@ -2544,18 +2556,6 @@ public abstract class JsonParser
     @SuppressWarnings("unchecked")
     public <T extends TreeNode> T readValueAsTree() throws IOException {
         return (T) _codec().readTree(this);
-    }
-
-    /**
-     * Get an approximate count of the number of tokens that have been read.
-     * This count is likely to be only updated if {@link StreamReadConstraints.Builder.maxTokenCount(long)}
-     * has been used to set a limit on the number of tokens that can be read.
-     *
-     * @return the number of tokens that have been read (-1 if the count is not available)
-     * @since 2.18
-     */
-    public long getTokenCount() {
-        return -1L;
     }
 
     protected ObjectCodec _codec() {

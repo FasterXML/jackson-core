@@ -1273,7 +1273,7 @@ public class UTF8StreamJsonParser
         default:
             t = _handleUnexpectedValue(i);
         }
-        _updateToken(t);
+        _nextToken = t;
         return match;
     }
 

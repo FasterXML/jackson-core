@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -816,6 +817,25 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final void _wrapError(String msg, Throwable t) throws JsonParseException {
         throw _constructReadException(msg, t);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+
+    protected final JsonToken _updateToken(final JsonToken token) throws StreamConstraintsException {
+        _currToken = token;
+        return token;
+    }
+
+    protected final JsonToken _updateTokenToNull() {
+        return (_currToken = null);
+    }
+
+    protected final JsonToken _updateTokenToNA() {
+        return (_currToken = JsonToken.NOT_AVAILABLE);
     }
 
     @Deprecated // since 2.11

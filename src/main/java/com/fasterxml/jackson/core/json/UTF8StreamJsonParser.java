@@ -717,7 +717,7 @@ public class UTF8StreamJsonParser
         if (i < 0) { // end-of-input
             // Close/release things like input source, symbol table and recyclable buffers
             close();
-            return (_currToken = null);
+            return _updateTokenToNull();
         }
         // clear any data retained so far
         _binaryValue = null;
@@ -725,11 +725,11 @@ public class UTF8StreamJsonParser
         // Closing scope?
         if (i == INT_RBRACKET) {
             _closeArrayScope();
-            return (_currToken = JsonToken.END_ARRAY);
+            return _updateToken(JsonToken.END_ARRAY);
         }
         if (i == INT_RCURLY) {
             _closeObjectScope();
-            return (_currToken = JsonToken.END_OBJECT);
+            return _updateToken(JsonToken.END_OBJECT);
         }
 
         // Nope: do we then expect a comma?
@@ -756,7 +756,7 @@ public class UTF8StreamJsonParser
         _updateNameLocation();
         String n = _parseName(i);
         _parsingContext.setCurrentName(n);
-        _currToken = JsonToken.FIELD_NAME;
+        _updateToken(JsonToken.FIELD_NAME);
 
         i = _skipColon();
         _updateLocation();
@@ -825,33 +825,33 @@ public class UTF8StreamJsonParser
     {
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
-            return (_currToken = JsonToken.VALUE_STRING);
+            return _updateToken(JsonToken.VALUE_STRING);
         }
         switch (i) {
         case '[':
             createChildArrayContext(_tokenInputRow, _tokenInputCol);
-            return (_currToken = JsonToken.START_ARRAY);
+            return _updateToken(JsonToken.START_ARRAY);
         case '{':
             createChildObjectContext(_tokenInputRow, _tokenInputCol);
-            return (_currToken = JsonToken.START_OBJECT);
+            return _updateToken(JsonToken.START_OBJECT);
         case 't':
             _matchTrue();
-            return (_currToken = JsonToken.VALUE_TRUE);
+            return _updateToken(JsonToken.VALUE_TRUE);
         case 'f':
             _matchFalse();
-            return (_currToken = JsonToken.VALUE_FALSE);
+            return _updateToken(JsonToken.VALUE_FALSE);
         case 'n':
             _matchNull();
-            return (_currToken = JsonToken.VALUE_NULL);
+            return _updateToken(JsonToken.VALUE_NULL);
         case '-':
-            return (_currToken = _parseSignedNumber(true));
+            return _updateToken(_parseSignedNumber(true));
         case '+':
             if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                return (_currToken = _handleUnexpectedValue(i));
+                return _updateToken(_handleUnexpectedValue(i));
             }
-            return (_currToken = _parseSignedNumber(false));
+            return _updateToken(_parseSignedNumber(false));
         case '.': // [core#611]:
-            return (_currToken = _parseFloatThatStartsWithPeriod(false, false));
+            return _updateToken(_parseFloatThatStartsWithPeriod(false, false));
         case '0':
         case '1':
         case '2':
@@ -862,9 +862,9 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            return (_currToken = _parseUnsignedNumber(i));
+            return _updateToken(_parseUnsignedNumber(i));
         }
-        return (_currToken = _handleUnexpectedValue(i));
+        return _updateToken(_handleUnexpectedValue(i));
     }
 
     private final JsonToken _nextAfterName() throws IOException
@@ -881,7 +881,7 @@ public class UTF8StreamJsonParser
         } else if (t == JsonToken.START_OBJECT) {
             createChildObjectContext(_tokenInputRow, _tokenInputCol);
         }
-        return (_currToken = t);
+        return _updateToken(t);
     }
 
     @Override
@@ -913,7 +913,7 @@ public class UTF8StreamJsonParser
         int i = _skipWSOrEnd();
         if (i < 0) { // end-of-input
             close();
-            _currToken = null;
+            _updateTokenToNull();
             return false;
         }
         _binaryValue = null;
@@ -921,12 +921,12 @@ public class UTF8StreamJsonParser
         // Closing scope?
         if (i == INT_RBRACKET) {
             _closeArrayScope();
-            _currToken = JsonToken.END_ARRAY;
+            _updateToken(JsonToken.END_ARRAY);
             return false;
         }
         if (i == INT_RCURLY) {
             _closeObjectScope();
-            _currToken = JsonToken.END_OBJECT;
+            _updateToken(JsonToken.END_OBJECT);
             return false;
         }
 
@@ -999,19 +999,19 @@ public class UTF8StreamJsonParser
         int i = _skipWSOrEnd();
         if (i < 0) {
             close();
-            _currToken = null;
+            _updateTokenToNull();
             return null;
         }
         _binaryValue = null;
 
         if (i == INT_RBRACKET) {
             _closeArrayScope();
-            _currToken = JsonToken.END_ARRAY;
+            _updateToken(JsonToken.END_ARRAY);
             return null;
         }
         if (i == INT_RCURLY) {
             _closeObjectScope();
-            _currToken = JsonToken.END_OBJECT;
+            _updateToken(JsonToken.END_OBJECT);
             return null;
         }
 
@@ -1039,7 +1039,7 @@ public class UTF8StreamJsonParser
         _updateNameLocation();
         final String nameStr = _parseName(i);
         _parsingContext.setCurrentName(nameStr);
-        _currToken = JsonToken.FIELD_NAME;
+        _updateToken(JsonToken.FIELD_NAME);
 
         i = _skipColon();
         _updateLocation();
@@ -1152,7 +1152,7 @@ public class UTF8StreamJsonParser
 
     private final void _isNextTokenNameYes(int i) throws IOException
     {
-        _currToken = JsonToken.FIELD_NAME;
+        _updateToken(JsonToken.FIELD_NAME);
         _updateLocation();
 
         switch (i) {
@@ -1214,7 +1214,7 @@ public class UTF8StreamJsonParser
         String n = _parseName(i);
         _parsingContext.setCurrentName(n);
         final boolean match = n.equals(str.getValue());
-        _currToken = JsonToken.FIELD_NAME;
+        _updateToken(JsonToken.FIELD_NAME);
         i = _skipColon();
         _updateLocation();
 
@@ -1285,7 +1285,7 @@ public class UTF8StreamJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _currToken = t;
+            _updateToken(t);
             if (t == JsonToken.VALUE_STRING) {
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
@@ -1312,7 +1312,7 @@ public class UTF8StreamJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _currToken = t;
+            _updateToken(t);
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return getIntValue();
             }
@@ -1335,7 +1335,7 @@ public class UTF8StreamJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _currToken = t;
+            _updateToken(t);
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return getLongValue();
             }
@@ -1358,7 +1358,7 @@ public class UTF8StreamJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _currToken = t;
+            _updateToken(t);
             if (t == JsonToken.VALUE_TRUE) {
                 return Boolean.TRUE;
             }
@@ -3874,16 +3874,16 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    private final JsonToken _closeScope(int i) throws JsonParseException {
+    private final JsonToken _closeScope(int i) throws IOException {
         if (i == INT_RCURLY) {
             _closeObjectScope();
-            return (_currToken = JsonToken.END_OBJECT);
+            return _updateToken(JsonToken.END_OBJECT);
         }
         _closeArrayScope();
-        return (_currToken = JsonToken.END_ARRAY);
+        return _updateToken(JsonToken.END_ARRAY);
     }
 
-    private final void _closeArrayScope() throws JsonParseException {
+    private final void _closeArrayScope() throws IOException {
         _updateLocation();
         if (!_parsingContext.inArray()) {
             _reportMismatchedEndMarker(']', '}');
@@ -3891,7 +3891,7 @@ public class UTF8StreamJsonParser
         _parsingContext = _parsingContext.clearAndGetParent();
     }
 
-    private final void _closeObjectScope() throws JsonParseException {
+    private final void _closeObjectScope() throws IOException {
         _updateLocation();
         if (!_parsingContext.inObject()) {
             _reportMismatchedEndMarker('}', ']');

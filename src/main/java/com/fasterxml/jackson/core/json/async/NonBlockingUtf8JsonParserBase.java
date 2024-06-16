@@ -467,7 +467,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _pending32 = bytesHandled;
         _minorState = MINOR_ROOT_BOM;
-        return (_currToken = JsonToken.NOT_AVAILABLE);
+        return _updateTokenToNA();
     }
 
     /*
@@ -532,7 +532,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
             _minorState = MINOR_FIELD_LEADING_WS;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         ch = getByteFromBuffer(ptr);
         _inputPtr = ptr+1;
@@ -675,7 +675,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
             _minorState = MINOR_VALUE_WS_AFTER_COMMA;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         ch = getByteFromBuffer(ptr);
         _inputPtr = ptr+1;
@@ -765,7 +765,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
             _minorState = MINOR_VALUE_LEADING_WS;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         ch = getByteFromBuffer(ptr);
         _inputPtr = ptr+1;
@@ -946,7 +946,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
             }
             if (_inputPtr >= _inputEnd) {
-                _currToken = JsonToken.NOT_AVAILABLE;
+                _updateTokenToNA();
                 return 0;
             }
             ch = getNextUnsignedByteFromBuffer();
@@ -964,7 +964,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (_inputPtr >= _inputEnd) {
             _pending32 = fromMinorState;
             _minorState = MINOR_COMMENT_LEADING_SLASH;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         int ch = getNextSignedByteFromBuffer();
         if (ch == INT_ASTERISK) { // c-style
@@ -987,7 +987,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_COMMENT_YAML;
                 _pending32 = fromMinorState;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < 0x020) {
@@ -1013,7 +1013,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_COMMENT_CPP;
                 _pending32 = fromMinorState;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < 0x020) {
@@ -1039,7 +1039,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _minorState = gotStar ? MINOR_COMMENT_CLOSING_ASTERISK : MINOR_COMMENT_C;
                 _pending32 = fromMinorState;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < 0x020) {
@@ -1070,7 +1070,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // Ok, then, need one more character...
         if (_inputPtr >= _inputEnd) {
             _minorState = fromMinorState;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         int ch = getNextUnsignedByteFromBuffer();
         switch (fromMinorState) {
@@ -1161,7 +1161,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _pending32 = matched;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getByteFromBuffer(_inputPtr);
             if (matched == end) { // need to verify trailing separator
@@ -1185,7 +1185,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             JsonToken result) throws IOException
     {
         if (matched == expToken.length()) {
-            return (_currToken = result);
+            return _updateToken(result);
         }
         _textBuffer.resetWithCopy(expToken, 0, matched);
         return _finishErrorTokenWithEOF();
@@ -1201,7 +1201,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _nonStdTokenType = type;
                 _pending32 = matched;
                 _minorState = MINOR_VALUE_TOKEN_NON_STD;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getByteFromBuffer(_inputPtr);
             if (matched == end) { // need to verify trailing separator
@@ -1250,7 +1250,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             return _reportErrorToken(_textBuffer.contentsAsString());
         }
-        return (_currToken = JsonToken.NOT_AVAILABLE);
+        return _updateTokenToNA();
     }
 
     protected JsonToken _finishErrorTokenWithEOF() throws IOException
@@ -1290,7 +1290,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (_inputPtr >= _inputEnd) {
             _minorState = MINOR_NUMBER_INTEGER_DIGITS;
             _textBuffer.setCurrentLength(1);
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
 
         int outPtr = 1;
@@ -1322,7 +1322,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (++_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             ch = getByteFromBuffer(_inputPtr) & 0xFF;
         }
@@ -1336,7 +1336,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _numberNegative = true;
         if (_inputPtr >= _inputEnd) {
             _minorState = MINOR_NUMBER_MINUS;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         int ch = getNextUnsignedByteFromBuffer();
         if (ch <= INT_0) {
@@ -1358,7 +1358,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_NUMBER_INTEGER_DIGITS;
             _textBuffer.setCurrentLength(2);
             _intLength = 1;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         ch = getByteFromBuffer(_inputPtr);
         int outPtr = 2;
@@ -1388,7 +1388,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (++_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             ch = getByteFromBuffer(_inputPtr) & 0xFF;
         }
@@ -1402,7 +1402,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _numberNegative = false;
         if (_inputPtr >= _inputEnd) {
             _minorState = MINOR_NUMBER_PLUS;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         int ch = getNextUnsignedByteFromBuffer();
         if (ch <= INT_0) {
@@ -1430,7 +1430,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_NUMBER_INTEGER_DIGITS;
             _textBuffer.setCurrentLength(2);
             _intLength = 1;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
         ch = getByteFromBuffer(_inputPtr);
         int outPtr = 2;
@@ -1460,7 +1460,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (++_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             ch = getByteFromBuffer(_inputPtr) & 0xFF;
         }
@@ -1474,7 +1474,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
             _minorState = MINOR_NUMBER_ZERO;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
+            return _updateTokenToNA();
         }
 
         // While we could call `_finishNumberLeadingZeroes()`, let's try checking
@@ -1579,7 +1579,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_ZERO;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < INT_0) {
@@ -1637,7 +1637,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_ZERO;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < INT_0) {
@@ -1691,7 +1691,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getByteFromBuffer(_inputPtr) & 0xFF;
             if (ch < INT_0) {
@@ -1736,7 +1736,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _textBuffer.setCurrentLength(outPtr);
                     _minorState = MINOR_NUMBER_FRACTION_DIGITS;
                     _fractLength = fractLen;
-                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                    return _updateTokenToNA();
                 }
                 ch = getNextSignedByteFromBuffer(); // ok to have sign extension for now
                 if (ch < INT_0 || ch > INT_9) {
@@ -1767,7 +1767,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _textBuffer.setCurrentLength(outPtr);
                 _minorState = MINOR_NUMBER_EXPONENT_MARKER;
                 _expLength = 0;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             ch = getNextSignedByteFromBuffer(); // ok to have sign extension for now
             if (ch == INT_MINUS || ch == INT_PLUS) {
@@ -1779,7 +1779,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _textBuffer.setCurrentLength(outPtr);
                     _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
                     _expLength = 0;
-                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                    return _updateTokenToNA();
                 }
                 ch = getNextSignedByteFromBuffer();
             }
@@ -1793,7 +1793,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _textBuffer.setCurrentLength(outPtr);
                     _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
                     _expLength = expLen;
-                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                    return _updateTokenToNA();
                 }
                 ch = getNextSignedByteFromBuffer();
             }
@@ -2086,7 +2086,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _pending32 = currQuad;
                 _pendingBytes = currQuadBytes;
                 _minorState = MINOR_FIELD_NAME;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (codes[ch] == 0) {
@@ -2121,7 +2121,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _quadLength = qlen;
                     _pending32 = currQuad;
                     _pendingBytes = currQuadBytes;
-                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                    return _updateTokenToNA();
                 }
             }
 
@@ -2246,7 +2246,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _pending32 = currQuad;
                 _pendingBytes = currQuadBytes;
                 _minorState = MINOR_FIELD_UNQUOTED_NAME;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getByteFromBuffer(_inputPtr) & 0xFF;
             if (codes[ch] != 0) {
@@ -2292,7 +2292,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _pending32 = currQuad;
                 _pendingBytes = currQuadBytes;
                 _minorState = MINOR_FIELD_APOS_NAME;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
+                return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch == INT_APOS) {
@@ -2312,7 +2312,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                         _quadLength = qlen;
                         _pending32 = currQuad;
                         _pendingBytes = currQuadBytes;
-                        return (_currToken = JsonToken.NOT_AVAILABLE);
+                        return _updateTokenToNA();
                     }
                 }
                 if (ch > 127) {
@@ -2548,7 +2548,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _inputPtr = ptr;
                     _minorState = MINOR_VALUE_STRING;
                     _textBuffer.setCurrentLength(outPtr);
-                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                    return _updateTokenToNA();
                 }
                 if (outPtr >= outBuf.length) {
                     outBuf = _textBuffer.finishCurrentSegment();
@@ -2575,7 +2575,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _textBuffer.setCurrentLength(outPtr);
                 if (!_decodeSplitMultiByte(c, codes[c], ptr < _inputEnd)) {
                     _minorStateAfterSplit = MINOR_VALUE_STRING;
-                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                    return _updateTokenToNA();
                 }
                 outBuf = _textBuffer.getBufferWithoutReset();
                 outPtr = _textBuffer.getCurrentSegmentSize();
@@ -2671,7 +2671,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _inputPtr = ptr;
                     _minorState = MINOR_VALUE_APOS_STRING;
                     _textBuffer.setCurrentLength(outPtr);
-                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                    return _updateTokenToNA();
                 }
                 if (outPtr >= outBuf.length) {
                     outBuf = _textBuffer.finishCurrentSegment();
@@ -2698,7 +2698,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _textBuffer.setCurrentLength(outPtr);
                 if (!_decodeSplitMultiByte(c, codes[c], ptr < _inputEnd)) {
                     _minorStateAfterSplit = MINOR_VALUE_APOS_STRING;
-                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                    return _updateTokenToNA();
                 }
                 outBuf = _textBuffer.getBufferWithoutReset();
                 outPtr = _textBuffer.getCurrentSegmentSize();

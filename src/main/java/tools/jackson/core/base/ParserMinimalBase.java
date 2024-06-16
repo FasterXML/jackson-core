@@ -1132,4 +1132,23 @@ public abstract class ParserMinimalBase extends JsonParser
     protected <T> T _throwInternal() {
         return VersionUtil.throwInternalReturnAny();
     }
+
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+
+    protected final JsonToken _updateToken(final JsonToken token) {
+        _currToken = token;
+        return token;
+    }
+
+    protected final JsonToken _updateTokenToNull() {
+        return (_currToken = null);
+    }
+
+    protected final JsonToken _updateTokenToNA() {
+        return (_currToken = JsonToken.NOT_AVAILABLE);
+    }
 }

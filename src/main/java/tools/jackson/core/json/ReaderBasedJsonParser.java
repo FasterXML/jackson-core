@@ -686,7 +686,7 @@ public class ReaderBasedJsonParser
             // Should actually close/release things
             // like input source, symbol table and recyclable buffers now.
             close();
-            return (_currToken = null);
+            return _updateTokenToNull();
         }
         // clear any data retained so far
         _binaryValue = null;
@@ -719,7 +719,7 @@ public class ReaderBasedJsonParser
             _updateNameLocation();
             String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
             _streamReadContext.setCurrentName(name);
-            _currToken = JsonToken.PROPERTY_NAME;
+            _updateToken(JsonToken.PROPERTY_NAME);
             i = _skipColon();
         }
         _updateLocation();
@@ -796,8 +796,7 @@ public class ReaderBasedJsonParser
             _nextToken = t;
             return _currToken;
         }
-        _currToken = t;
-        return t;
+        return _updateToken(t);
     }
 
     private final JsonToken _nextAfterName() throws JacksonException
@@ -814,7 +813,7 @@ public class ReaderBasedJsonParser
         } else if (t == JsonToken.START_OBJECT) {
             createChildObjectContext(_tokenInputRow, _tokenInputCol);
         }
-        return (_currToken = t);
+        return _updateToken(t);
     }
 
     @Override
@@ -847,7 +846,7 @@ public class ReaderBasedJsonParser
         int i = _skipWSOrEnd();
         if (i < 0) {
             close();
-            _currToken = null;
+            _updateTokenToNull();
             return false;
         }
         _binaryValue = null;
@@ -923,7 +922,7 @@ public class ReaderBasedJsonParser
         int i = _skipWSOrEnd();
         if (i < 0) {
             close();
-            _currToken = null;
+            _updateTokenToNull();
             return null;
         }
         _binaryValue = null;
@@ -949,7 +948,7 @@ public class ReaderBasedJsonParser
         _updateNameLocation();
         String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
         _streamReadContext.setCurrentName(name);
-        _currToken = JsonToken.PROPERTY_NAME;
+        _updateToken(JsonToken.PROPERTY_NAME);
         i = _skipColon();
 
         _updateLocation();
@@ -1017,7 +1016,7 @@ public class ReaderBasedJsonParser
 
     private final void _isNextTokenNameYes(int i) throws JacksonException
     {
-        _currToken = JsonToken.PROPERTY_NAME;
+        _updateToken(JsonToken.PROPERTY_NAME);
         _updateLocation();
 
         switch (i) {
@@ -1077,7 +1076,7 @@ public class ReaderBasedJsonParser
         // // // and this is back to standard nextToken()
         String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
         _streamReadContext.setCurrentName(name);
-        _currToken = JsonToken.PROPERTY_NAME;
+        _updateToken(JsonToken.PROPERTY_NAME);
         i = _skipColon();
         _updateLocation();
         if (i == INT_QUOTE) {
@@ -1143,32 +1142,32 @@ public class ReaderBasedJsonParser
     {
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
-            return (_currToken = JsonToken.VALUE_STRING);
+            return _updateToken(JsonToken.VALUE_STRING);
         }
         switch (i) {
         case '[':
             createChildArrayContext(_tokenInputRow, _tokenInputCol);
-            return (_currToken = JsonToken.START_ARRAY);
+            return _updateToken(JsonToken.START_ARRAY);
         case '{':
             createChildObjectContext(_tokenInputRow, _tokenInputCol);
-            return (_currToken = JsonToken.START_OBJECT);
+            return _updateToken(JsonToken.START_OBJECT);
         case 't':
             _matchToken("true", 1);
-            return (_currToken = JsonToken.VALUE_TRUE);
+            return _updateToken(JsonToken.VALUE_TRUE);
         case 'f':
             _matchToken("false", 1);
-            return (_currToken = JsonToken.VALUE_FALSE);
+            return _updateToken(JsonToken.VALUE_FALSE);
         case 'n':
             _matchToken("null", 1);
-            return (_currToken = JsonToken.VALUE_NULL);
+            return _updateToken(JsonToken.VALUE_NULL);
         case '-':
-            return (_currToken = _parseSignedNumber(true));
+            return _updateToken(_parseSignedNumber(true));
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
              * and could be indicated by a more specific error message.
              */
         case '.': // [core#61]]
-            return (_currToken = _parseFloatThatStartsWithPeriod(false));
+            return _updateToken(_parseFloatThatStartsWithPeriod(false));
         case '0':
         case '1':
         case '2':
@@ -1179,7 +1178,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            return (_currToken = _parseUnsignedNumber(i));
+            return _updateToken(_parseUnsignedNumber(i));
         /*
          * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
          * The Check is for missing values. In case of missing values in an array, the next token will be either ',' or ']'.
@@ -1194,11 +1193,11 @@ public class ReaderBasedJsonParser
             if (!_streamReadContext.inRoot()) {
                 if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
                     --_inputPtr;
-                    return (_currToken = JsonToken.VALUE_NULL);
+                    return _updateToken(JsonToken.VALUE_NULL);
                 }
             }
         }
-        return (_currToken = _handleOddValue(i));
+        return _updateToken(_handleOddValue(i));
     }
     // note: identical to one in UTF8StreamJsonParser
     @Override
@@ -1208,7 +1207,7 @@ public class ReaderBasedJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _currToken = t;
+            _updateToken(t);
             if (t == JsonToken.VALUE_STRING) {
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
@@ -1235,7 +1234,7 @@ public class ReaderBasedJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _currToken = t;
+            _updateToken(t);
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return getIntValue();
             }
@@ -1258,7 +1257,7 @@ public class ReaderBasedJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _currToken = t;
+            _updateToken(t);
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return getLongValue();
             }
@@ -1281,7 +1280,7 @@ public class ReaderBasedJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _currToken = t;
+            _updateToken(t);
             if (t == JsonToken.VALUE_TRUE) {
                 return Boolean.TRUE;
             }
@@ -3037,7 +3036,7 @@ public class ReaderBasedJsonParser
                 _reportMismatchedEndMarker(i, '}');
             }
             _streamReadContext = _streamReadContext.clearAndGetParent();
-            _currToken = JsonToken.END_ARRAY;
+            _updateToken(JsonToken.END_ARRAY);
         }
         if (i == INT_RCURLY) {
             _updateLocation();
@@ -3045,7 +3044,7 @@ public class ReaderBasedJsonParser
                 _reportMismatchedEndMarker(i, ']');
             }
             _streamReadContext = _streamReadContext.clearAndGetParent();
-            _currToken = JsonToken.END_OBJECT;
+            _updateToken(JsonToken.END_OBJECT);
         }
     }
 }

@@ -782,6 +782,18 @@ public abstract class JsonParser
     }
 
     /**
+     * Get an approximate count of the number of tokens that have been read.
+     * This count is likely to be only updated if {@link StreamReadConstraints.Builder#maxTokenCount(long)}
+     * has been used to set a limit on the number of tokens that can be read.
+     *
+     * @return the number of tokens that have been read (-1 if the count is not available)
+     * @since 2.18
+     */
+    public long currentTokenCount() {
+        return -1L;
+    }
+
+    /**
      * Deprecated alias for {@link #currentLocation()} (removed from Jackson 3.0).
      *
      * @return Location of the last processed input unit (byte or character)

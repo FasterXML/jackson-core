@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#1047]: Add max-name-length constraints
@@ -19,6 +20,10 @@ class LargeDocReadTest extends AsyncTestBase
     private final JsonFactory JSON_F_DOC_10K = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxDocumentLength(10_000L).build())
             .build();
+
+    private final JsonFactory JSON_F_MAX_TOKENS_1K = JsonFactory.builder()
+        .streamReadConstraints(StreamReadConstraints.builder().maxTokenCount(1_000L).build())
+        .build();
 
     // Test name that is below default max name
     @Test
@@ -80,6 +85,18 @@ class LargeDocReadTest extends AsyncTestBase
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
             verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
+    }
+
+    @Test
+    void tokenLimitBytes() throws Exception {
+        final String doc = generateJSON(StreamReadConstraints.defaults().getMaxNameLength() - 100);
+        try (JsonParser p = createParserUsingStream(JSON_F_MAX_TOKENS_1K, doc, "UTF-8")) {
+            consumeTokens(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            assertEquals("Token count (1001) exceeds the maximum allowed (1000, from `StreamReadConstraints.getMaxTokenCount()`)",
+                    e.getMessage());
         }
     }
 

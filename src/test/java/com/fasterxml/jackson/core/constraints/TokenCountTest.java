@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.read;
+package com.fasterxml.jackson.core.constraints;
 
 import java.nio.ByteBuffer;
 

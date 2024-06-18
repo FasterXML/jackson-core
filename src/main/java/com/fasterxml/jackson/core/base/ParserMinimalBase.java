@@ -160,7 +160,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected JsonToken _currToken;
 
     /**
-     * Current count of tokens
+     * Current count of tokens, if tracked (see {@link #_trackMaxTokenCount})
      *
      * @since 2.18
      */
@@ -171,7 +171,7 @@ public abstract class ParserMinimalBase extends JsonParser
      *
      * @since 2.18
      */
-    protected final boolean _hasMaxTokenCount;
+    protected final boolean _trackMaxTokenCount;
 
     /**
      * Last cleared token, if any: that is, value that was in
@@ -189,7 +189,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected ParserMinimalBase() {
         super();
         _streamReadConstraints = StreamReadConstraints.defaults();
-        _hasMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
+        _trackMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
     }
 
     @Deprecated // since 2.18
@@ -201,14 +201,14 @@ public abstract class ParserMinimalBase extends JsonParser
     protected ParserMinimalBase(StreamReadConstraints src) {
         super();
         _streamReadConstraints = (src == null) ? StreamReadConstraints.defaults() : src;
-        _hasMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
+        _trackMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
     }
 
     // @since 2.18
     protected ParserMinimalBase(int features, StreamReadConstraints src) {
         super(features);
         _streamReadConstraints = (src == null) ? StreamReadConstraints.defaults() : src;
-        _hasMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
+        _trackMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
     }
 
     // NOTE: had base impl in 2.3 and before; but shouldn't
@@ -328,9 +328,6 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected abstract void _handleEOF() throws JsonParseException;
 
-    //public JsonToken getCurrentToken()
-    //public boolean hasCurrentToken()
-
     @Deprecated // since 2.17 -- still need to implement
     @Override
     public abstract String getCurrentName() throws IOException;
@@ -345,7 +342,7 @@ public abstract class ParserMinimalBase extends JsonParser
 //   public abstract JsonLocation getCurrentLocation();
 
     @Override // since 2.18
-    public long getTokenCount() {
+    public long currentTokenCount() {
         return _tokenCount;
     }
 
@@ -849,7 +846,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final JsonToken _updateToken(final JsonToken token) throws StreamConstraintsException {
         _currToken = token;
-        if (_hasMaxTokenCount) {
+        if (_trackMaxTokenCount) {
             _streamReadConstraints.validateTokenCount(++_tokenCount);
         }
         return token;

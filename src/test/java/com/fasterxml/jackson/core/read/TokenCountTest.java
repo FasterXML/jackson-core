@@ -124,9 +124,9 @@ public class TokenCountTest extends JUnit5TestBase {
 
     private void _testArrayDoc(JsonParser p) throws Exception
     {
-        assertEquals(0, p.getTokenCount());
+        assertEquals(0, p.currentTokenCount());
         consumeTokens(p);
-        assertEquals(15, p.getTokenCount());
+        assertEquals(15, p.currentTokenCount());
     }
 
     private void _testShortArrayDoc(int mode) throws Exception
@@ -138,9 +138,9 @@ public class TokenCountTest extends JUnit5TestBase {
 
     private void _testShortArrayDoc(JsonParser p) throws Exception
     {
-        assertEquals(0, p.getTokenCount());
+        assertEquals(0, p.currentTokenCount());
         consumeTokens(p);
-        assertEquals(8, p.getTokenCount());
+        assertEquals(8, p.currentTokenCount());
     }
 
     private void _testSampleDoc(int mode) throws Exception
@@ -152,9 +152,9 @@ public class TokenCountTest extends JUnit5TestBase {
 
     private void _testSampleDoc(JsonParser p) throws Exception
     {
-        assertEquals(0, p.getTokenCount());
+        assertEquals(0, p.currentTokenCount());
         consumeTokens(p);
-        assertEquals(27, p.getTokenCount());
+        assertEquals(27, p.currentTokenCount());
     }
 
     private void consumeTokens(JsonParser p) throws Exception {

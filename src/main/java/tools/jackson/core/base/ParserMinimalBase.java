@@ -194,6 +194,16 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected JsonToken _lastClearedToken;
 
+    /**
+     * Current count of tokens, if tracked (see {@link #_trackMaxTokenCount})
+     */
+    protected long _tokenCount;
+
+    /**
+     * Whether or not to track the token count due a {@link StreamReadConstraints} maxTokenCount > 0.
+     */
+    protected final boolean _trackMaxTokenCount;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -215,12 +225,13 @@ public abstract class ParserMinimalBase extends JsonParser
         _ioContext = ioCtxt;
         _streamReadFeatures = streamReadFeatures;
         _streamReadConstraints = ioCtxt.streamReadConstraints();
+        _trackMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
     }
 
     /**
      * Alternate constructors for cases where there is no real {@link IOContext}
      * in use; typically for abstractions that operate over non-streaming/incremental
-     * sources (such as jackson-databind {@code TokenBuffer})/
+     * sources (such as jackson-databind {@code TokenBuffer}).
      * 
      * @param readCtxt Context for databinding
      */
@@ -230,6 +241,7 @@ public abstract class ParserMinimalBase extends JsonParser
         _ioContext = null;
         _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
         _streamReadConstraints = readCtxt.streamReadConstraints();
+        _trackMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
     }
     
     /*
@@ -384,8 +396,14 @@ public abstract class ParserMinimalBase extends JsonParser
         return t.id() == id;
     }
 
-    @Override public boolean hasToken(JsonToken t) {
+    @Override
+    public boolean hasToken(JsonToken t) {
         return (_currToken == t);
+    }
+
+    @Override
+    public long currentTokenCount() {
+        return _tokenCount;
     }
 
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
@@ -1141,6 +1159,9 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final JsonToken _updateToken(final JsonToken token) {
         _currToken = token;
+        if (_trackMaxTokenCount) {
+            _streamReadConstraints.validateTokenCount(++_tokenCount);
+        }
         return token;
     }
 

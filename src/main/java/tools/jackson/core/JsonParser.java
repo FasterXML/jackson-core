@@ -178,6 +178,15 @@ public abstract class JsonParser
     public abstract JsonLocation currentLocation();
 
     /**
+     * Get an approximate count of the number of tokens that have been read.
+     * This count is likely to be only updated if {@link StreamReadConstraints.Builder#maxTokenCount(long)}
+     * has been used to set a limit on the number of tokens that can be read.
+     *
+     * @return the number of tokens that have been read (-1 if the count is not available)
+     */
+    public abstract long currentTokenCount();
+
+    /**
      * Method that can be used to get access to object that is used
      * to access input being parsed; this is usually either
      * {@link InputStream} or {@link Reader}, depending on what

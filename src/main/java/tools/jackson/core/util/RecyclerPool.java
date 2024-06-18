@@ -5,7 +5,6 @@ import java.util.Deque;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * API for object pools that control creation and possible reuse of

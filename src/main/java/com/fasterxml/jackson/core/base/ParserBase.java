@@ -847,6 +847,7 @@ public abstract class ParserBase extends ParserMinimalBase
             if (_numTypesValid == NR_UNKNOWN) {
                 _parseNumericValue(NR_DOUBLE);
             }
+            // if underlying type not FP, need conversion:
             if ((_numTypesValid & NR_DOUBLE) == 0) {
                 convertNumberToDouble();
             }
@@ -987,17 +988,19 @@ public abstract class ParserBase extends ParserMinimalBase
         if (expType == NR_BIGDECIMAL) {
             // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
             //    value is actually needed.
-            _numberBigDecimal = null;
-            _numberString = _textBuffer.contentsAsString();
+            // 24-Jun-2024, tatu: No; we shouldn't have to defer unless specifically
+            //    request w/ `getNumberValueDeferred()` or so
+            _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             _numTypesValid = NR_BIGDECIMAL;
+        } else if (expType == NR_DOUBLE) {
+            _numberDouble = _textBuffer.contentsAsDouble(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            _numTypesValid = NR_DOUBLE;
         } else if (expType == NR_FLOAT) {
-            _numberFloat = 0.0f;
-            _numberString = _textBuffer.contentsAsString();
+            _numberFloat = _textBuffer.contentsAsFloat(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             _numTypesValid = NR_FLOAT;
-        } else {
-            // Otherwise double has to do
-            // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
-            //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
+        } else { // NR_UNKOWN, or one of int types
+            // 04-Dec-2022, tatu: We can get all kinds of values here
+            //    (NR_INT, NR_LONG or even NR_UNKNOWN). Should we try further
             //    deferring some typing?
             _numberDouble = 0.0;
             _numberString = _textBuffer.contentsAsString();
@@ -1248,7 +1251,8 @@ public abstract class ParserBase extends ParserMinimalBase
     protected BigInteger _getBigInteger() throws JsonParseException {
         if (_numberBigInt != null) {
             return _numberBigInt;
-        } else if (_numberString == null) {
+        }
+        if (_numberString == null) {
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
         try {
@@ -1276,7 +1280,8 @@ public abstract class ParserBase extends ParserMinimalBase
     protected BigDecimal _getBigDecimal() throws JsonParseException {
         if (_numberBigDecimal != null) {
             return _numberBigDecimal;
-        } else if (_numberString == null) {
+        }
+        if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
         try {

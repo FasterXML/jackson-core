@@ -643,18 +643,38 @@ public class TextBuffer
     }
 
     /**
-     * @return Buffered text value parsed as a {@link BigDecimal}, if possible
-     * @throws NumberFormatException if contents are not a valid Java number
-     *
-     * @deprecated Since 2.15 just access String contents if necessary, call
-     *   {@link NumberInput#parseBigDecimal(String, boolean)} (or other overloads)
-     *   directly instead
+     * @deprecated Since 2.15 use {@link #contentsAsDecimal(boolean)} instead.
      */
     @Deprecated
     public BigDecimal contentsAsDecimal() throws NumberFormatException {
-        // Was more optimized earlier, removing special handling due to deprecation
+        return contentsAsDecimal(false);
+    }
+
+    /**
+     * @since 2.18
+     */
+    public BigDecimal contentsAsDecimal(final boolean useFastParser) throws NumberFormatException
+    {
+        // Order in which check is somewhat arbitrary... try likeliest ones
+        // that do not require allocation first
+
+        // except _resultString first since it works best with JDK (non-fast parser)
+        if (_resultString != null) {
+            return NumberInput.parseBigDecimal(_resultString, useFastParser);
+        }
+        if (_inputStart >= 0) { // shared?
+            return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen, useFastParser);
+        }
+        if (_currentSize == 0) { // all content in current segment!
+            return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize, useFastParser);
+        }
+        if (_resultArray != null) {
+            return NumberInput.parseBigDecimal(_resultArray, useFastParser);
+        }
+
+        // Otherwise, segmented so need to use slow path
         try {
-            return NumberInput.parseBigDecimal(contentsAsArray());
+            return NumberInput.parseBigDecimal(contentsAsArray(), useFastParser);
         } catch (IOException e) {
             // JsonParseException is used to denote a string that is too long
             throw new NumberFormatException(e.getMessage());

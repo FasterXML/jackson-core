@@ -265,17 +265,19 @@ public abstract class JsonParserBase
         if (expType == NR_BIGDECIMAL) {
             // 04-Dec-2022, tatu: Let's defer actual decoding until it is certain
             //    value is actually needed.
-            _numberBigDecimal = null;
-            _numberString = _textBuffer.contentsAsString();
+            // 24-Jun-2024, tatu: No; we shouldn't have to defer unless specifically
+            //    request w/ `getNumberValueDeferred()` or so
+            _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             _numTypesValid = NR_BIGDECIMAL;
+        } else if (expType == NR_DOUBLE) {
+            _numberDouble = _textBuffer.contentsAsDouble(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            _numTypesValid = NR_DOUBLE;
         } else if (expType == NR_FLOAT) {
-            _numberFloat = 0.0f;
-            _numberString = _textBuffer.contentsAsString();
+            _numberFloat = _textBuffer.contentsAsFloat(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             _numTypesValid = NR_FLOAT;
-        } else {
-            // Otherwise double has to do
-            // 04-Dec-2022, tatu: We can get all kinds of values here, NR_DOUBLE
-            //    but also NR_INT or even NR_UNKNOWN. Shouldn't we try further
+        } else { // NR_UNKOWN, or one of int types
+            // 04-Dec-2022, tatu: We can get all kinds of values here
+            //    (NR_INT, NR_LONG or even NR_UNKNOWN). Should we try further
             //    deferring some typing?
             _numberDouble = 0.0;
             _numberString = _textBuffer.contentsAsString();

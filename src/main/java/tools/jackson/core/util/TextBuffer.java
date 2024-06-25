@@ -1,6 +1,7 @@
 package tools.jackson.core.util;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 import tools.jackson.core.JacksonException;
@@ -542,7 +543,7 @@ public class TextBuffer
         if (_inputStart >= 0) { // shared?
             return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
-        if (_currentSize == 0) { // all content in current segment!
+        if (!_hasSegments) { // all content in current segment!
             return NumberInput.parseDouble(_currentSegment, 0, _currentSize, useFastParser);
         }
         if (_resultArray != null) {
@@ -581,7 +582,7 @@ public class TextBuffer
         if (_inputStart >= 0) { // shared?
             return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
-        if (_currentSize == 0) { // all content in current segment!
+        if (!_hasSegments) { // all content in current segment!
             return NumberInput.parseFloat(_currentSegment, 0, _currentSize, useFastParser);
         }
         if (_resultArray != null) {
@@ -590,6 +591,32 @@ public class TextBuffer
 
         // Otherwise, segmented so need to use slow path
         return NumberInput.parseFloat(contentsAsString(), useFastParser);
+    }
+
+    /**
+     * @since 2.18
+     */
+    public BigDecimal contentsAsDecimal(final boolean useFastParser) throws NumberFormatException
+    {
+        // Order in which check is somewhat arbitrary... try likeliest ones
+        // that do not require allocation first
+
+        // except _resultString first since it works best with JDK (non-fast parser)
+        if (_resultString != null) {
+            return NumberInput.parseBigDecimal(_resultString, useFastParser);
+        }
+        if (_inputStart >= 0) { // shared?
+            return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen, useFastParser);
+        }
+        if (!_hasSegments) { // all content in current segment!
+            return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize, useFastParser);
+        }
+        if (_resultArray != null) {
+            return NumberInput.parseBigDecimal(_resultArray, useFastParser);
+        }
+
+        // Otherwise, segmented so need to use slow path
+        return NumberInput.parseBigDecimal(contentsAsArray(), useFastParser);
     }
 
     /**

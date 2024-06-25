@@ -534,7 +534,8 @@ public abstract class ParserBase extends ParserMinimalBase
                 // from _getBigInteger()
                 if (_numberBigInt != null) {
                     return _numberBigInt;
-                } else if (_numberString != null) {
+                }
+                if (_numberString != null) {
                     return _numberString;
                 }
                 return _getBigInteger(); // will fail
@@ -916,7 +917,8 @@ public abstract class ParserBase extends ParserMinimalBase
     protected BigInteger _getBigInteger() {
         if (_numberBigInt != null) {
             return _numberBigInt;
-        } else if (_numberString == null) {
+        }
+        if (_numberString == null) {
             throw new IllegalStateException("cannot get BigInteger from current parser state");
         }
         try {
@@ -940,7 +942,8 @@ public abstract class ParserBase extends ParserMinimalBase
     protected BigDecimal _getBigDecimal() {
         if (_numberBigDecimal != null) {
             return _numberBigDecimal;
-        } else if (_numberString == null) {
+        }
+        if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
         try {

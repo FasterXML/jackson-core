@@ -545,9 +545,10 @@ public final class NumberInput
      * @since v2.15
      */
     public static BigDecimal parseBigDecimal(final char[] ch, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ?
-                BigDecimalParser.parseWithFastParser(ch, 0, ch.length) :
-                BigDecimalParser.parse(ch);
+        if (useFastParser) {
+            return BigDecimalParser.parseWithFastParser(ch, 0, ch.length);
+        }
+        return BigDecimalParser.parse(ch);
     }
 
     /**

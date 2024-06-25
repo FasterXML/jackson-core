@@ -551,7 +551,7 @@ public class TextBuffer
         if (_inputStart >= 0) { // shared?
             return NumberInput.parseDouble(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
-        if (_currentSize == 0) { // all content in current segment!
+        if (!_hasSegments) { // all content in current segment!
             return NumberInput.parseDouble(_currentSegment, 0, _currentSize, useFastParser);
         }
         if (_resultArray != null) {
@@ -626,7 +626,7 @@ public class TextBuffer
         if (_inputStart >= 0) { // shared?
             return NumberInput.parseFloat(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
-        if (_currentSize == 0) { // all content in current segment!
+        if (!_hasSegments) { // all content in current segment!
             return NumberInput.parseFloat(_currentSegment, 0, _currentSize, useFastParser);
         }
         if (_resultArray != null) {
@@ -665,7 +665,7 @@ public class TextBuffer
         if (_inputStart >= 0) { // shared?
             return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen, useFastParser);
         }
-        if (_currentSize == 0) { // all content in current segment!
+        if (!_hasSegments) { // all content in current segment!
             return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize, useFastParser);
         }
         if (_resultArray != null) {

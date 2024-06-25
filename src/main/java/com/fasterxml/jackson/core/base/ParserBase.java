@@ -990,7 +990,7 @@ public abstract class ParserBase extends ParserMinimalBase
             //    value is actually needed.
             // 24-Jun-2024, tatu: No; we shouldn't have to defer unless specifically
             //    request w/ `getNumberValueDeferred()` or so
-            _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             _numTypesValid = NR_BIGDECIMAL;
         } else if (expType == NR_DOUBLE) {
             _numberDouble = _textBuffer.contentsAsDouble(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));

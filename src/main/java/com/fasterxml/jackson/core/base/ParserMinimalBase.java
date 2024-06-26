@@ -844,6 +844,7 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
+    // for performance reasons, this method assumes that the input token is non-null
     protected final JsonToken _updateToken(final JsonToken token) throws StreamConstraintsException {
         _currToken = token;
         if (_trackMaxTokenCount) {
@@ -851,6 +852,16 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return token;
     }
+
+    // only updates the token count if input token is non-null
+    protected final JsonToken _nullSafeUpdateToken(final JsonToken token) throws StreamConstraintsException {
+        _currToken = token;
+        if (_trackMaxTokenCount && token != null) {
+            _streamReadConstraints.validateTokenCount(++_tokenCount);
+        }
+        return token;
+    }
+
     protected final JsonToken _updateTokenToNull() {
         return (_currToken = null);
     }

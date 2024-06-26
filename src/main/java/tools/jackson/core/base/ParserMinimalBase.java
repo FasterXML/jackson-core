@@ -12,6 +12,7 @@ import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.core.exc.JacksonIOException;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.sym.PropertyNameMatcher;
@@ -1157,9 +1158,23 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
-    protected final JsonToken _updateToken(final JsonToken token) {
+    // for performance reasons, this method assumes that the input token is non-null
+    protected final JsonToken _updateToken(final JsonToken token)
+        throws StreamConstraintsException
+    {
         _currToken = token;
         if (_trackMaxTokenCount) {
+            _streamReadConstraints.validateTokenCount(++_tokenCount);
+        }
+        return token;
+    }
+
+    // only updates the token count if input token is non-null
+    protected final JsonToken _nullSafeUpdateToken(final JsonToken token)
+        throws StreamConstraintsException
+    {
+        _currToken = token;
+        if (_trackMaxTokenCount && token != null) {
             _streamReadConstraints.validateTokenCount(++_tokenCount);
         }
         return token;

@@ -5,16 +5,18 @@
 
 package com.fasterxml.jackson.core;
 
-import java.io.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Iterator;
-
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.*;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+import com.fasterxml.jackson.core.util.RequestPayload;
+import com.fasterxml.jackson.core.util.TextBuffer;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Iterator;
 
 /**
  * Base class that defines public API for reading JSON content.
@@ -392,7 +394,7 @@ public abstract class JsonParser
 
          /**
           * Feature that determines whether to use the built-in Java code for parsing
-          * <code>BigDecimal</code>s and <code>BigIntegers</code>s or to use
+          * <code>BigDecimal</code>s and <code>BigInteger</code>s or to use
           * specifically optimized custom implementation instead.
           *<p>
           * This setting is disabled by default for backwards compatibility.

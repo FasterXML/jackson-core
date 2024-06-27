@@ -104,7 +104,7 @@ public enum StreamReadFeature
 
     /**
      * Feature that determines whether to use the built-in Java code for parsing
-     * <code>BigDecimal</code>s and <code>BigIntegers</code>s or to use
+     * <code>BigDecimal</code>s and <code>BigInteger</code>s or to use
      * {@code FastDoubleParser} instead.
      *<p>
      * This setting is disabled by default.

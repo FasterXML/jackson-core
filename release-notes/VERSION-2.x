@@ -41,7 +41,7 @@ a pure JSON library.
   of Tokens allowed per document
  (implemented by @pjfanning)
 
-2.17.2 (not yet released)
+2.17.2 (05-Jul-2024)
 
 #1308: Relax validation by `NumberInput.looksLikeValidNumber()` to allow
   trailing dot (like `3.`)

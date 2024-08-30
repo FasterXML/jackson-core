@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.18.0-rc1-SNAPSHOT</version>
+    <version>2.18.0-rc1</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
@@ -41,8 +41,7 @@
     <!-- 16-Nov-2022, tatu: [core#838] Verify Android SDK compatibility.
          Baseline compatibility:
          * Jackson 2.13 compatible with Android SDK 19 and up
-         * Jackson 2.14 compatible with Android SDK 26 and up
-         * Jackson 2.15 compatible with Android SDK 26 and up
+         * Jackson 2.14 - 2.18 compatible with Android SDK 26 and up
       -->
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.1</version.android.sdk.signature>

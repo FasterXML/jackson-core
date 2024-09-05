@@ -23,6 +23,9 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
  *  <li>Maximum Document length: default {@code unlimited} (coded as {@code -1},
  *      (see {@link #DEFAULT_MAX_DOC_LEN})
  *   </li>
+ *  <li>Maximum Token count: default {@code unlimited} (coded as {@code -1},
+ *      (see {@link #DEFAULT_MAX_TOKEN_COUNT})
+ *   </li>
  * </ul>
  *
  * @since 2.15

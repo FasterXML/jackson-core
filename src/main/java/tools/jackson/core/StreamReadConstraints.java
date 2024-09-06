@@ -24,6 +24,9 @@ import tools.jackson.core.exc.StreamReadException;
  *  <li>Maximum Document length: default {@code unlimited} (coded as {@code -1},
  *      (see {@link #DEFAULT_MAX_DOC_LEN})
  *   </li>
+ *  <li>Maximum Token count: default {@code unlimited} (coded as {@code -1},
+ *      (see {@link #DEFAULT_MAX_TOKEN_COUNT})
+ *   </li>
  * </ul>
  */
 public class StreamReadConstraints

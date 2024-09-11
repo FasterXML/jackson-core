@@ -361,7 +361,7 @@ public abstract class JsonParser
           * with reference to source or not. If source reference is included, its type and contents
           * are included when `toString()` method is called (most notably when printing out parse
           * exception with that location information). If feature is disabled, no source reference
-          * is passed and source is only indicated as "UNKNOWN".
+          * is passed and source is only indicated as "REDACTED".
           *<p>
           * Most common reason for disabling this feature is to avoid leaking information about
           * internal information; this may be done for security reasons.

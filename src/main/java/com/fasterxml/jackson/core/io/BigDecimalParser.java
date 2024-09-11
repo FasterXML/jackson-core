@@ -40,11 +40,18 @@ public final class BigDecimalParser
      * @throws NumberFormatException
      */
     public static BigDecimal parse(String valueStr) {
-        if (valueStr.length() < 500) {
-            return new BigDecimal(valueStr);
+        try {
+            if (valueStr.length() < 500) {
+                return new BigDecimal(valueStr);
+            }
+            // workaround https://github.com/FasterXML/jackson-databind/issues/4694
+            return JavaBigDecimalParser.parseBigDecimal(valueStr);
+
+            // 20-Aug-2022, tatu: Although "new BigDecimal(...)" only throws NumberFormatException
+            //    operations by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
+        } catch (ArithmeticException | NumberFormatException e) {
+            throw _parseFailure(e, valueStr);
         }
-        // workaround https://github.com/FasterXML/jackson-databind/issues/4694
-        return JavaBigDecimalParser.parseBigDecimal(valueStr);
     }
 
     /**
@@ -118,7 +125,8 @@ public final class BigDecimalParser
      */
     public static BigDecimal parseWithFastParser(final char[] ch, final int off, final int len) {
         try {
-            return JavaBigDecimalParser.parseBigDecimal(ch, off, len);
+            // workaround https://github.com/FasterXML/jackson-databind/issues/4694
+            return JavaBigDecimalParser.parseBigDecimal(new String(ch, off, len));
         } catch (ArithmeticException | NumberFormatException e) {
             throw _parseFailure(e, ch, off, len);
         }
@@ -167,7 +175,8 @@ public final class BigDecimalParser
     }
 
     private static String _generateExceptionMessage(final String valueToReport, final String desc) {
-        return String.format("Value %s can not be deserialized as `java.math.BigDecimal`, reason:  %s" ,
+        return String.format("Value %s cannot be deserialized as `java.math.BigDecimal`, reason:  %s" ,
             valueToReport, desc);
     }
+
 }

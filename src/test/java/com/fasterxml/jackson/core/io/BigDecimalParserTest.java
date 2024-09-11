@@ -58,8 +58,10 @@ class BigDecimalParserTest extends com.fasterxml.jackson.core.JUnit5TestBase
         final BigDecimal expected = new BigDecimal(str);
         assertEquals(expected, JavaBigDecimalParser.parseBigDecimal(str));
         assertEquals(expected, BigDecimalParser.parse(str));
+        assertEquals(expected, BigDecimalParser.parseWithFastParser(str));
         final char[] arr = str.toCharArray();
         assertEquals(expected, BigDecimalParser.parse(arr, 0, arr.length));
+        assertEquals(expected, BigDecimalParser.parseWithFastParser(arr, 0, arr.length));
     }
 
     static String genLongInvalidString() {

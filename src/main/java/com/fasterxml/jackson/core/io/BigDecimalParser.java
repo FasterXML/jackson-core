@@ -40,7 +40,11 @@ public final class BigDecimalParser
      * @throws NumberFormatException
      */
     public static BigDecimal parse(String valueStr) {
-        return parse(valueStr.toCharArray());
+        if (valueStr.length() < 500) {
+            return new BigDecimal(valueStr);
+        }
+        // workaround https://github.com/FasterXML/jackson-databind/issues/4694
+        return JavaBigDecimalParser.parseBigDecimal(valueStr);
     }
 
     /**
@@ -58,7 +62,8 @@ public final class BigDecimalParser
             if (len < 500) {
                 return new BigDecimal(chars, off, len);
             }
-            return JavaBigDecimalParser.parseBigDecimal(chars, off, len);
+            // workaround https://github.com/FasterXML/jackson-databind/issues/4694
+            return JavaBigDecimalParser.parseBigDecimal(new String(chars, off, len));
 
         // 20-Aug-2022, tatu: Although "new BigDecimal(...)" only throws NumberFormatException
         //    operations by "parseBigDecimal()" can throw "ArithmeticException", so handle both:

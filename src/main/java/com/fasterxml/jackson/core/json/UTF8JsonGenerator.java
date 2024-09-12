@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharTypes;
@@ -657,6 +658,10 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+    }
+
+    private boolean isSurrogatePair(char ch) {
+        return (ch & 0xD800) == 0xD800;
     }
 
     /*
@@ -1489,6 +1494,8 @@ public class UTF8JsonGenerator
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
 
+        boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES.enabledIn(_features);
+
         while (offset < end) {
             int ch = cbuf[offset++];
             if (ch <= 0x7F) {
@@ -1510,7 +1517,14 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
-                outputPtr = _outputMultiByteChar(ch, outputPtr);
+                // multibyte character
+                if (combineSurrogates && isSurrogatePair((char) ch) && offset < end) {
+                    char highSurrogate = (char) ch;
+                    char lowSurrogate = cbuf[offset++];
+                    outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                } else {
+                    outputPtr = _outputMultiByteChar(ch, outputPtr);
+                }
             }
         }
         _outputTail = outputPtr;
@@ -1526,6 +1540,8 @@ public class UTF8JsonGenerator
 
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
+
+        boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES.enabledIn(_features);
 
         while (offset < end) {
             int ch = text.charAt(offset++);
@@ -1548,7 +1564,14 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
-                outputPtr = _outputMultiByteChar(ch, outputPtr);
+                // multibyte character
+                if (combineSurrogates && isSurrogatePair((char) ch) && offset < end) {
+                    char highSurrogate = (char) ch;
+                    char lowSurrogate = text.charAt(offset++);
+                    outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                } else {
+                    outputPtr = _outputMultiByteChar(ch, outputPtr);
+                }
             }
         }
         _outputTail = outputPtr;
@@ -2131,6 +2154,13 @@ public class UTF8JsonGenerator
         bbuf[_outputTail++] = (byte) (0x80 | ((c >> 12) & 0x3f));
         bbuf[_outputTail++] = (byte) (0x80 | ((c >> 6) & 0x3f));
         bbuf[_outputTail++] = (byte) (0x80 | (c & 0x3f));
+    }
+
+    private int _outputSurrogatePair(char highSurrogate, char lowSurrogate, int outputPtr) {
+        String s = String.valueOf(highSurrogate) + lowSurrogate;
+        byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+        System.arraycopy(bytes, 0, _outputBuffer, outputPtr, bytes.length);
+        return outputPtr + bytes.length;
     }
 
     /**

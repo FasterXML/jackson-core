@@ -67,7 +67,7 @@ public final class BigDecimalParser
         // 20-Aug-2022, tatu: Although "new BigDecimal(...)" only throws NumberFormatException
         //    operations by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
         } catch (ArithmeticException | NumberFormatException e) {
-            throw _parseFailure(e, new String(chars, off, len));
+            throw _parseFailure(e, chars, off, len);
         }
     }
     
@@ -122,7 +122,7 @@ public final class BigDecimalParser
         try {
             return JavaBigDecimalParser.parseBigDecimal(ch, off, len);
         } catch (ArithmeticException | NumberFormatException e) {
-            throw _parseFailure(e, new String(ch, off, len));
+            throw _parseFailure(e, ch, off, len);
         }
     }
 
@@ -133,18 +133,43 @@ public final class BigDecimalParser
             desc = "Not a valid number representation";
         }
         String valueToReport = _getValueDesc(fullValue);
-        return new NumberFormatException("Value " + valueToReport
-                + " can not be deserialized as `java.math.BigDecimal`, reason: " + desc);
+        return new NumberFormatException(_generateExceptionMessage(valueToReport, desc));
     }
 
-    private static String _getValueDesc(String fullValue) {
+    private static NumberFormatException _parseFailure(final Exception e,
+                                                       final char[] array,
+                                                       final int offset,
+                                                       final int len) {
+        String desc = e.getMessage();
+        // 05-Feb-2021, tatu: Alas, JDK mostly has null message so:
+        if (desc == null) {
+            desc = "Not a valid number representation";
+        }
+        String valueToReport = _getValueDesc(array, offset, len);
+        return new NumberFormatException(_generateExceptionMessage(valueToReport, desc));
+    }
+
+    private static String _getValueDesc(final String fullValue) {
         final int len = fullValue.length();
         if (len <= MAX_CHARS_TO_REPORT) {
             return String.format("\"%s\"", fullValue);
         }
         return String.format("\"%s\" (truncated to %d chars (from %d))",
-                fullValue.substring(0, MAX_CHARS_TO_REPORT),
-                MAX_CHARS_TO_REPORT, len);
+            fullValue.substring(0, MAX_CHARS_TO_REPORT),
+            MAX_CHARS_TO_REPORT, len);
     }
 
+    private static String _getValueDesc(final char[] array, final int offset, final int len) {
+        if (len <= MAX_CHARS_TO_REPORT) {
+            return String.format("\"%s\"", new String(array, offset, len));
+        }
+        return String.format("\"%s\" (truncated to %d chars (from %d))",
+            new String(array, offset, MAX_CHARS_TO_REPORT),
+            MAX_CHARS_TO_REPORT, len);
+    }
+
+    private static String _generateExceptionMessage(final String valueToReport, final String desc) {
+        return String.format("Value %s can not be deserialized as `java.math.BigDecimal`, reason:  %s" ,
+            valueToReport, desc);
+    }
 }

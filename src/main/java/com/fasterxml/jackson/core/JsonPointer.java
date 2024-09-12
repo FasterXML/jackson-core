@@ -822,7 +822,6 @@ public class JsonPointer implements Serializable
         // and from that, length of suffix to drop
         int suffixLength = last.length();
         JsonPointer next = _nextSegment;
-        // !!! TODO 07-Oct-2022, tatu: change to iterative, not recursive
         String fullString = toString();
         return new JsonPointer(fullString.substring(0, fullString.length() - suffixLength), 0,
                 _matchingPropertyName,

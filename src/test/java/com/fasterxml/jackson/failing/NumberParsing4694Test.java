@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class NonStandardNumberParsing4694Test
+class NumberParsing4694Test
         extends JUnit5TestBase
 {
     // https://github.com/FasterXML/jackson-databind/issues/4694

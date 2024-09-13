@@ -2,6 +2,7 @@ package tools.jackson.core.io;
 
 import java.math.BigDecimal;
 
+import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JUnit5TestBase;
@@ -51,6 +52,18 @@ class BigDecimalParserTest extends JUnit5TestBase
         // Parse from String first, then char[]
         assertEquals(EXP, BigDecimalParser.parseWithFastParser(num));
         assertEquals(EXP, BigDecimalParser.parseWithFastParser(num.toCharArray(), 0, num.length()));
+    }
+
+    @Test
+    void issueDatabind4694() {
+        final String str = "-11000.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        final BigDecimal expected = new BigDecimal(str);
+        assertEquals(expected, JavaBigDecimalParser.parseBigDecimal(str));
+        assertEquals(expected, BigDecimalParser.parse(str));
+        assertEquals(expected, BigDecimalParser.parseWithFastParser(str));
+        final char[] arr = str.toCharArray();
+        assertEquals(expected, BigDecimalParser.parse(arr, 0, arr.length));
+        assertEquals(expected, BigDecimalParser.parseWithFastParser(arr, 0, arr.length));
     }
 
     static String genLongInvalidString() {

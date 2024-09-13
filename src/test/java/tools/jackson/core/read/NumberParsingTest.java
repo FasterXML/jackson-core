@@ -37,6 +37,9 @@ class NumberParsingTest
 
     }
 
+    private final String ISSUE_4694_VALUE =
+        "-11000.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+
     /*
     /**********************************************************************
     /* Tests, Boolean
@@ -1003,6 +1006,41 @@ class NumberParsingTest
             fail("expected IllegalArgumentException; instead built: "+src);
         } catch (IllegalArgumentException iae) {
             verifyException(iae, "Cannot set maxNumberLength to a negative value");
+        }
+    }
+
+    // https://github.com/FasterXML/jackson-databind/issues/4694
+    @Test
+    void databind4694() throws Exception {
+        final BigDecimal expected = new BigDecimal(ISSUE_4694_VALUE);
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, String.format(" %s ", ISSUE_4694_VALUE))) {
+                assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(expected, p.getDecimalValue());
+                assertFalse(p.isNaN());
+            }
+        }
+    }
+
+    void databind4694Double() throws Exception {
+        final Double expected = new Double(ISSUE_4694_VALUE);
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, String.format(" %s ", ISSUE_4694_VALUE))) {
+                assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(expected, p.getDoubleValue());
+                assertFalse(p.isNaN());
+            }
+        }
+    }
+
+    void databind4694Float() throws Exception {
+        final Float expected = new Float(ISSUE_4694_VALUE);
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, String.format(" %s ", ISSUE_4694_VALUE))) {
+                assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(expected, p.getFloatValue());
+                assertFalse(p.isNaN());
+            }
         }
     }
 

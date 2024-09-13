@@ -278,7 +278,7 @@ tools.jackson.core.*;version=${project.version}
     <dependency>
       <groupId>ch.randelshofer</groupId>
       <artifactId>fastdoubleparser</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
     </dependency>
     
     <!-- Test dependencies -->

@@ -38,8 +38,9 @@ a pure JSON library.
 #1305: Make helper methods of `WriterBasedJsonGenerator` non-final to allow overriding
   (contributed by @zhangOranges)
 #1310: Add new `StreamReadConstraints` (`maxTokenCount`) to limit maximum number
-  of Tokens allowed per document
- (implemented by @pjfanning)
+  of Tokens allowed per document#
+#1331: Update to FastDoubleParser v1.0.1 to fix `BigDecimal` decoding proble
+ (fixed by @pjfanning)
 
 2.17.2 (05-Jul-2024)
 

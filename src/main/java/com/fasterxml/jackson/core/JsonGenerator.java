@@ -1774,7 +1774,7 @@ public abstract class JsonGenerator
      * If implementation does not implement this method,
      * it needs to throw {@link UnsupportedOperationException}.
      *
-     * @param encodedValue Textual (possibly format) number representation to write
+     * @param encodedValue Textual (possibly formatted) number representation to write
      *
      * @throws IOException if there is either an underlying I/O problem or encoding
      *    issue at format layer

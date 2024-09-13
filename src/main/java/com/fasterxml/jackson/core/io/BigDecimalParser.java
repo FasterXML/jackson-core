@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 public final class BigDecimalParser
 {
     final static int MAX_CHARS_TO_REPORT = 1000;
+    private final static int SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER = 500;
 
     private BigDecimalParser() {}
 
@@ -40,7 +41,17 @@ public final class BigDecimalParser
      * @throws NumberFormatException
      */
     public static BigDecimal parse(String valueStr) {
-        return parse(valueStr.toCharArray());
+        try {
+            if (valueStr.length() < SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER) {
+                return new BigDecimal(valueStr);
+            }
+            return JavaBigDecimalParser.parseBigDecimal(valueStr);
+
+            // 20-Aug-2022, tatu: Although "new BigDecimal(...)" only throws NumberFormatException
+            //    operations by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
+        } catch (ArithmeticException | NumberFormatException e) {
+            throw _parseFailure(e, valueStr);
+        }
     }
 
     /**
@@ -55,7 +66,7 @@ public final class BigDecimalParser
      */
     public static BigDecimal parse(final char[] chars, final int off, final int len) {
         try {
-            if (len < 500) {
+            if (len < SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER) {
                 return new BigDecimal(chars, off, len);
             }
             return JavaBigDecimalParser.parseBigDecimal(chars, off, len);
@@ -165,4 +176,5 @@ public final class BigDecimalParser
         return String.format("Value %s can not be deserialized as `java.math.BigDecimal`, reason:  %s" ,
             valueToReport, desc);
     }
+
 }

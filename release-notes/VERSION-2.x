@@ -14,6 +14,11 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.17.3 (not yet released):
+
+#1331: Update to FastDoubleParser v1.0.1 to fix `BigDecimal` decoding problem
+ (contributed by @pjfanning)
+
 2.17.2 (05-Jul-2024)
 
 #1308: Relax validation by `NumberInput.looksLikeValidNumber()` to allow

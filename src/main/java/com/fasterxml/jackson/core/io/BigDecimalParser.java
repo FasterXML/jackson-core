@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 public final class BigDecimalParser
 {
     final static int MAX_CHARS_TO_REPORT = 1000;
+    private final static int SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER = 500;
 
     private BigDecimalParser() {}
 
@@ -41,7 +42,7 @@ public final class BigDecimalParser
      */
     public static BigDecimal parse(String valueStr) {
         try {
-            if (valueStr.length() < 500) {
+            if (valueStr.length() < SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER) {
                 return new BigDecimal(valueStr);
             }
             return JavaBigDecimalParser.parseBigDecimal(valueStr);
@@ -65,7 +66,7 @@ public final class BigDecimalParser
      */
     public static BigDecimal parse(final char[] chars, final int off, final int len) {
         try {
-            if (len < 500) {
+            if (len < SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER) {
                 return new BigDecimal(chars, off, len);
             }
             return JavaBigDecimalParser.parseBigDecimal(chars, off, len);

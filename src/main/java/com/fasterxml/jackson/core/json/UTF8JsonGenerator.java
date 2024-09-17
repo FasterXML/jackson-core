@@ -1494,7 +1494,7 @@ public class UTF8JsonGenerator
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
 
-        boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES.enabledIn(_features);
+        boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
 
         while (offset < end) {
             int ch = cbuf[offset++];
@@ -1541,7 +1541,7 @@ public class UTF8JsonGenerator
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
 
-        boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES.enabledIn(_features);
+        boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
 
         while (offset < end) {
             int ch = text.charAt(offset++);

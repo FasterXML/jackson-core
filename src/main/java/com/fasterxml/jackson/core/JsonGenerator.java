@@ -269,24 +269,20 @@ public abstract class JsonGenerator
         WRITE_HEX_UPPER_CASE(true),
 
         /**
-         * Feature that specifies whether {@link JsonGenerator} should escape forward slashes.
-         * <p>
-         * Feature is disabled by default for Jackson 2.x version, and enabled by default in Jackson 3.0.
+         * See {@link com.fasterxml.jackson.core.json.JsonWriteFeature#ESCAPE_FORWARD_SLASHES}.
          *
          * @since 2.17
          */
         ESCAPE_FORWARD_SLASHES(false),
 
         /**
-         * Feature that specifies how 4-byte characters should be handled in {@link JsonGenerator}. If enabled,
-         * 4-byte characters made by surrogate pairs are combined and flushed as a single character encoded in UTF-8.
-         * If disabled, each pair is written as UTF-16 escape.
-         * <p>
-         * Feature is disabled by default
+         * See {@link com.fasterxml.jackson.core.json.JsonWriteFeature#COMBINE_UNICODE_SURROGATES_IN_UTF8}.
          *
          * @since 2.18
          */
-        COMBINE_UNICODE_SURROGATES(false);
+        COMBINE_UNICODE_SURROGATES_IN_UTF8(false),
+
+        ;
 
         private final boolean _defaultState;
         private final int _mask;

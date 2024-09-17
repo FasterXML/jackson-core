@@ -660,10 +660,6 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
     }
 
-    private boolean isSurrogatePair(char ch) {
-        return (ch & 0xD800) == 0xD800;
-    }
-
     /*
     /**********************************************************
     /* Output method implementations, unprocessed ("raw")
@@ -1494,8 +1490,6 @@ public class UTF8JsonGenerator
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
 
-        boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
-
         while (offset < end) {
             int ch = cbuf[offset++];
             if (ch <= 0x7F) {
@@ -1517,14 +1511,17 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
-                // multibyte character
-                if (combineSurrogates && isSurrogatePair((char) ch) && offset < end) {
-                    char highSurrogate = (char) ch;
-                    char lowSurrogate = cbuf[offset++];
-                    outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                } else {
-                    outputPtr = _outputMultiByteChar(ch, outputPtr);
+                // 3- or 4-byte character
+                if (_isSurrogateChar((char) ch)) {
+                    final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
+                    if (combineSurrogates && offset < end) {
+                        char highSurrogate = (char) ch;
+                        char lowSurrogate = cbuf[offset++];
+                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                        continue;
+                    }
                 }
+                outputPtr = _outputMultiByteChar(ch, outputPtr);
             }
         }
         _outputTail = outputPtr;
@@ -1540,8 +1537,6 @@ public class UTF8JsonGenerator
 
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
-
-        boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
 
         while (offset < end) {
             int ch = text.charAt(offset++);
@@ -1564,14 +1559,17 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
-                // multibyte character
-                if (combineSurrogates && isSurrogatePair((char) ch) && offset < end) {
-                    char highSurrogate = (char) ch;
-                    char lowSurrogate = text.charAt(offset++);
-                    outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                } else {
-                    outputPtr = _outputMultiByteChar(ch, outputPtr);
+                // 3- or 4-byte character
+                if (_isSurrogateChar((char) ch)) {
+                    final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
+                    if (combineSurrogates && offset < end) {
+                        char highSurrogate = (char) ch;
+                        char lowSurrogate = text.charAt(offset++);
+                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                        continue;
+                    }
                 }
+                outputPtr = _outputMultiByteChar(ch, outputPtr);
             }
         }
         _outputTail = outputPtr;
@@ -2243,6 +2241,11 @@ public class UTF8JsonGenerator
 
     private byte[] getHexBytes() {
         return _cfgWriteHexUppercase ? HEX_BYTES_UPPER : HEX_BYTES_LOWER;
+    }
+
+    // @since 2.18
+    private boolean _isSurrogateChar(char ch) {
+        return (ch & 0xD800) == 0xD800;
     }
 }
 

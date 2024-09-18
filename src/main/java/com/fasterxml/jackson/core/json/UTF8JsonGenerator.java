@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharTypes;
@@ -2154,11 +2153,17 @@ public class UTF8JsonGenerator
         bbuf[_outputTail++] = (byte) (0x80 | (c & 0x3f));
     }
 
+    // @since 2.18
     private int _outputSurrogatePair(char highSurrogate, char lowSurrogate, int outputPtr) {
-        String s = String.valueOf(highSurrogate) + lowSurrogate;
-        byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
-        System.arraycopy(bytes, 0, _outputBuffer, outputPtr, bytes.length);
-        return outputPtr + bytes.length;
+        final int unicode = 0x10000 + ((highSurrogate & 0x03FF) << 10)
+                + (lowSurrogate & 0x03FF);
+
+        _outputBuffer[outputPtr++] = (byte) (0xF0 + ((unicode & 0b00000000_00011100_00000000_00000000) >> 18));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + ((unicode & 0b00000000_00000011_11110000_00000000) >> 12));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + ((unicode & 0b00000000_00000000_00001111_11000000) >> 6));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + (unicode & 0b00000000_00000000_00000000_00111111));
+
+        return outputPtr;
     }
 
     /**

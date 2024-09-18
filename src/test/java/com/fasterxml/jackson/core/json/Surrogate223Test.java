@@ -47,6 +47,7 @@ class Surrogate223Test extends JUnit5TestBase
         JsonParser p = f.createParser(out.toByteArray());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(toQuote, p.getText());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 

@@ -4,10 +4,10 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 

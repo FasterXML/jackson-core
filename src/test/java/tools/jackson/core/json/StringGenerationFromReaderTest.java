@@ -24,7 +24,11 @@ class StringGenerationFromReaderTest
         "Longer text & other stuff:\twith some\r\n\r\n random linefeeds etc added in to cause some \"special\" handling \\\\ to occur...\n"
     };
 
-    private final JsonFactory FACTORY = newStreamFactory();
+    // 17-Sep-2024, tatu: [core#223] change to surrogates, let's use old behavior
+    //   for now for simpler testing
+    private final JsonFactory FACTORY = streamFactoryBuilder()
+            .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+            .build();
 
     @Test
     void basicEscaping() throws Exception

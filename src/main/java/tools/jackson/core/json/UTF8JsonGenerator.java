@@ -1545,6 +1545,16 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
+                // 3- or 4-byte character
+                if (_isSurrogateChar(ch)) {
+                    final boolean combineSurrogates = JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_formatWriteFeatures);
+                    if (combineSurrogates && offset < end) {
+                        char highSurrogate = (char) ch;
+                        char lowSurrogate = cbuf[offset++];
+                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                        continue;
+                    }
+                }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
             }
         }
@@ -1583,6 +1593,16 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
+                // 3- or 4-byte character
+                if (_isSurrogateChar(ch)) {
+                    final boolean combineSurrogates = JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_formatWriteFeatures);
+                    if (combineSurrogates && offset < end) {
+                        char highSurrogate = (char) ch;
+                        char lowSurrogate = text.charAt(offset++);
+                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                        continue;
+                    }
+                }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
             }
         }
@@ -2177,6 +2197,19 @@ public class UTF8JsonGenerator
         bbuf[_outputTail++] = (byte) (0x80 | (c & 0x3f));
     }
 
+    // @since 2.18
+    private int _outputSurrogatePair(char highSurrogate, char lowSurrogate, int outputPtr) {
+        final int unicode = 0x10000 + ((highSurrogate & 0x03FF) << 10)
+                + (lowSurrogate & 0x03FF);
+
+        _outputBuffer[outputPtr++] = (byte) (0xF0 + ((unicode >> 18) & 0x07));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + ((unicode >> 12) & 0x3F));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + ((unicode >> 6) & 0x3F));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + (unicode & 0x3F));
+
+        return outputPtr;
+    }
+
     /**
      *
      * @param ch
@@ -2261,6 +2294,11 @@ public class UTF8JsonGenerator
 
     private byte[] getHexBytes() {
         return _cfgWriteHexUppercase ? HEX_BYTES_UPPER : HEX_BYTES_LOWER;
+    }
+
+    // @since 2.18
+    private boolean _isSurrogateChar(int ch) {
+        return (ch & 0xD800) == 0xD800;
     }
 }
 

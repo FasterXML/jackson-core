@@ -107,6 +107,25 @@ public enum JsonWriteFeature
      */
     ESCAPE_FORWARD_SLASHES(true),
 
+    /**
+     * Feature that specifies how characters outside "Basic Multilingual Plane" (BMP) -- ones encoded
+     * as 4-byte UTF-8 sequences but represented in JVM memory as 2 16-bit "surrogate" {@code chars} --
+     * should be encoded as UTF-8 by {@link JsonGenerator}.
+     * If enabled, surrogate pairs are combined and flushed as a
+     * single, 4-byte UTF-8 character.
+     * If disabled, each {@code char} of pair is written as 2 separate characters: that is, as 2
+     * separate 3-byte UTF-8 characters with values in Surrogate character ranges
+     * ({@code 0xD800} - {@code 0xDBFF} and {@code 0xDC00} - {@code 0xDFFF})
+     * <p>
+     * Note that this feature only has effect for {@link JsonGenerator}s that directly encode
+     * {@code byte}-based output, as UTF-8 (target {@link java.io.OutputStream}, {@code byte[]}
+     * and so on); it will not (can not) change handling of
+     * {@code char}-based output (like {@link java.io.Writer} or {@link java.lang.String}).
+     * <p>
+     * Feature is enabled by default in Jackson 3.0 (was disabled in 2.x).
+     */
+    COMBINE_UNICODE_SURROGATES_IN_UTF8(true),
+
     ;
 
     final private boolean _defaultState;

@@ -2158,10 +2158,10 @@ public class UTF8JsonGenerator
         final int unicode = 0x10000 + ((highSurrogate & 0x03FF) << 10)
                 + (lowSurrogate & 0x03FF);
 
-        _outputBuffer[outputPtr++] = (byte) (0xF0 + ((unicode & 0b00000000_00011100_00000000_00000000) >> 18));
-        _outputBuffer[outputPtr++] = (byte) (0x80 + ((unicode & 0b00000000_00000011_11110000_00000000) >> 12));
-        _outputBuffer[outputPtr++] = (byte) (0x80 + ((unicode & 0b00000000_00000000_00001111_11000000) >> 6));
-        _outputBuffer[outputPtr++] = (byte) (0x80 + (unicode & 0b00000000_00000000_00000000_00111111));
+        _outputBuffer[outputPtr++] = (byte) (0xF0 + ((unicode >> 18) & 0x07));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + ((unicode >> 12) & 0x3F));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + ((unicode >> 6) & 0x3F));
+        _outputBuffer[outputPtr++] = (byte) (0x80 + (unicode & 0x3F));
 
         return outputPtr;
     }

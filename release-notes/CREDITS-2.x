@@ -435,6 +435,15 @@ Antonin Janec (@xtonic)
  * Contributed #1218: Simplify Unicode surrogate pair conversion for generation
   (2.17.0)
 
+Ian Roberts (@ianroberts)
+ * Reported #223: `UTF8JsonGenerator` writes supplementary characters as a
+   surrogate pair: should use 4-byte encoding
+  (2.18.0)
+
+Radovan Netuka (@rnetuka)
+ * Contributed fix for #223: `UTF8JsonGenerator` writes supplementary characters as a
+  surrogate pair: should use 4-byte encoding
+
 Jared Stehler (@jaredstehler)
  * Reported, contributed fix for #1274: `NUL`-corrupted keys, values on JSON serialization
   (2.18.0)

@@ -16,6 +16,10 @@ a pure JSON library.
 
 2.18.0 (not yet released)
 
+#223: `UTF8JsonGenerator` writes supplementary characters as a surrogate pair:
+  should use 4-byte encoding
+ (reported by Ian R)
+ (fix contributed by Radovan N)
 #1230: Improve performance of `float` and `double` parsing from `TextBuffer`
  (implemented by @pjfanning)
 #1251: `InternCache` replace synchronized with `ReentrantLock` - the cache

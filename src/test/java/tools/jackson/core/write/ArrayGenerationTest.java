@@ -8,6 +8,8 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonWriteFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -17,7 +19,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 class ArrayGenerationTest extends JUnit5TestBase
 {
-    private final TokenStreamFactory FACTORY = newStreamFactory();
+    // 17-Sep-2024, tatu: [core#223] change to surrogates, let's use old behavior
+    //   for now for simpler testing
+    private final JsonFactory FACTORY = streamFactoryBuilder()
+            .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+            .build();
 
     protected TokenStreamFactory jsonFactory() {
         return FACTORY;

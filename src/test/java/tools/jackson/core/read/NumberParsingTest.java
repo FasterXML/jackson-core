@@ -463,11 +463,31 @@ class NumberParsingTest
         BigInteger biggie = new BigInteger(NUMBER_STR);
 
         for (int mode : ALL_MODES) {
-            try (JsonParser p = createParser(jsonFactory(), mode, NUMBER_STR +" ")) {
+            try (JsonParser p = createParser(jsonFactory(), mode, NUMBER_STR + " ")) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
                 assertEquals(NUMBER_STR, p.getText());
                 assertEquals(biggie, p.getBigIntegerValue());
+            }
+        }
+    }
+
+    @Test
+    void intsWith19Chars() throws Exception
+    {
+        final String[] values = new String[] {
+            "9223372036854775808", "9999999999999999999"
+        };
+        for (String value : values) {
+            BigInteger biggie = new BigInteger(value);
+
+            for (int mode : ALL_MODES) {
+                try (JsonParser p = createParser(jsonFactory(), mode, value + " ")) {
+                    assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+                    assertEquals(biggie, p.getBigIntegerValue());
+                    assertEquals(value, p.getText());
+                }
             }
         }
     }

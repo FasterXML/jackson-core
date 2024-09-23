@@ -272,7 +272,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     protected void _reportCantWriteValueExpectName(String typeMsg) throws IOException
     {
-        _reportError(String.format("Can not %s, expecting field name (context: %s)",
+        _reportError(String.format("Cannot %s, expecting field name (context: %s)",
                 typeMsg, _writeContext.typeDesc()));
     }
 }

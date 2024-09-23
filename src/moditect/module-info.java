@@ -1,6 +1,6 @@
 // Generated 08-Mar-2019 using Moditect maven plugin
 module com.fasterxml.jackson.core {
-    // 08-Mar-2019, tatu: Ugh. Can not use wildcards, stupid ass JDK 9+ module system...
+    // 08-Mar-2019, tatu: Ugh. Cannot use wildcards, stupid ass JDK 9+ module system...
     //    So, for 2.x core need to make sure we manually include everything.
     //    Worse, there is only syntactic validation, not contents, so we can both miss
     //    AND add bogus packages.

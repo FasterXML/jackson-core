@@ -43,7 +43,7 @@ public class NonBlockingJsonParser
         }
         // and shouldn't have been marked as end-of-input
         if (_endOfInput) {
-            _reportError("Already closed, can not feed more input");
+            _reportError("Already closed, cannot feed more input");
         }
         // Time to update pointers first
         _currInputProcessed += _origBufferLen;

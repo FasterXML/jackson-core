@@ -173,7 +173,7 @@ public final class BigDecimalParser
     }
 
     private static String _generateExceptionMessage(final String valueToReport, final String desc) {
-        return String.format("Value %s can not be deserialized as `java.math.BigDecimal`, reason:  %s" ,
+        return String.format("Value %s cannot be deserialized as `java.math.BigDecimal`, reason:  %s" ,
             valueToReport, desc);
     }
 

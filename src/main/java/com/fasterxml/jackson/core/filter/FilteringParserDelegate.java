@@ -248,7 +248,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         // 14-Apr-2015, tatu: Not sure whether this can be supported, and if so,
         //    what to do with it... Delegation won't work for sure, so let's for
         //    now throw an exception
-        throw new UnsupportedOperationException("Can not currently override name during filtering read");
+        throw new UnsupportedOperationException("Cannot currently override name during filtering read");
     }
 
     /*

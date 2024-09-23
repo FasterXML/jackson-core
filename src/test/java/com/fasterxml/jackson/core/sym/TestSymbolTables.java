@@ -107,7 +107,7 @@ class TestSymbolTables extends com.fasterxml.jackson.core.JUnit5TestBase
             assertEquals(exp, symbolsCRoot.size());
         }
 
-        // Note: can not validate root instance, is not set up same way
+        // Note: cannot validate root instance, is not set up same way
     }
 
     // Since 2.6

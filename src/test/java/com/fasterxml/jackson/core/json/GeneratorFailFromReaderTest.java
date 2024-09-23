@@ -69,7 +69,7 @@ class GeneratorFailFromReaderTest
             String json = bout.toString("UTF-8");
             fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeFieldName()': output = "+json);
         } catch (JsonProcessingException e) {
-            verifyException(e, "can not write a String");
+            verifyException(e, "cannot write a String");
         }
         gen.close();
     }

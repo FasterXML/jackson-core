@@ -70,7 +70,7 @@ class GeneratorFailTest
             String json = bout.toString("UTF-8");
             fail("Should not have let two consecutive field name writes succeed: output = "+json);
         } catch (JsonProcessingException e) {
-            verifyException(e, "can not write a field name, expecting a value");
+            verifyException(e, "cannot write a field name, expecting a value");
         }
         gen.close();
     }
@@ -92,7 +92,7 @@ class GeneratorFailTest
             String json = bout.toString("UTF-8");
             fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeFieldName()': output = "+json);
         } catch (JsonProcessingException e) {
-            verifyException(e, "can not write a String");
+            verifyException(e, "cannot write a String");
         }
         gen.close();
     }
@@ -113,7 +113,7 @@ class GeneratorFailTest
             String json = bout.toString("UTF-8");
             fail("Should not have let "+gen.getClass().getName()+".writeFieldName() be used in root context: output = "+json);
         } catch (JsonProcessingException e) {
-            verifyException(e, "can not write a field name");
+            verifyException(e, "cannot write a field name");
         }
         gen.close();
     }

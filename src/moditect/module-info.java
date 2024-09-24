@@ -20,4 +20,7 @@ module com.fasterxml.jackson.core {
 
     // 03-Oct-2019, tatu: [core#567] Add self-use to avoid warnings
     uses com.fasterxml.jackson.core.ObjectCodec;
+
+    provides com.fasterxml.jackson.core.JsonFactory with
+            com.fasterxml.jackson.core.JsonFactory;
 }

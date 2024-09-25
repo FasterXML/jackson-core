@@ -14,6 +14,11 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.16.3 (not yet released)
+
+#1340: Missing `JsonFactory` "provides" SPI with JPMS in `jackson-core` module
+ (contributed by @sdyura)
+
 2.16.2 (09-Mar-2024)
 
 No changes since 2.16.1

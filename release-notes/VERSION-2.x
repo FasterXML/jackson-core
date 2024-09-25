@@ -45,6 +45,8 @@ a pure JSON library.
   of Tokens allowed per document#
 #1331: Update to FastDoubleParser v1.0.1 to fix `BigDecimal` decoding proble
  (fixed by @pjfanning)
+#1340: Missing `JsonFactory` "provides" SPI with JPMS in `jackson-core` module
+ (contributed by @sdyura)
 
 2.17.2 (05-Jul-2024)
 

@@ -14,6 +14,10 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.19.0 (not yet released)
+
+-
+
 2.18.0 (26-Sep-2024)
 
 #223: `UTF8JsonGenerator` writes supplementary characters as a surrogate pair:

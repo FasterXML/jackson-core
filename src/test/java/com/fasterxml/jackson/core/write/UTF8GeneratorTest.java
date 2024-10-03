@@ -2,9 +2,9 @@ package com.fasterxml.jackson.core.write;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;

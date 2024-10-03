@@ -2,9 +2,9 @@ package com.fasterxml.jackson.core.util;
 
 import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

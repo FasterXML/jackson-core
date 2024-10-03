@@ -5,9 +5,9 @@ import java.io.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.io.ContentReference;
-import com.fasterxml.jackson.core.util.RecyclerPool;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JsonRecyclerPools;
+import com.fasterxml.jackson.core.util.RecyclerPool;
 
 import static org.junit.jupiter.api.Assertions.*;
 

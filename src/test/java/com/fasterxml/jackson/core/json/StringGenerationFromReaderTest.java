@@ -1,14 +1,13 @@
 package com.fasterxml.jackson.core.json;
 
-import com.fasterxml.jackson.core.*;
-
 import java.io.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying that the string

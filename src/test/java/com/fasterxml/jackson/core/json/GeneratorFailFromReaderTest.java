@@ -1,17 +1,17 @@
 package com.fasterxml.jackson.core.json;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.io.ByteArrayOutputStream;
-
 import static org.junit.jupiter.api.Assertions.fail;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
-
-import org.junit.jupiter.api.Test;
 
 class GeneratorFailFromReaderTest
         extends com.fasterxml.jackson.core.JUnit5TestBase

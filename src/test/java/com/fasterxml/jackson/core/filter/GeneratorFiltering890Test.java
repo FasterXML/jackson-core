@@ -1,11 +1,5 @@
 package com.fasterxml.jackson.core.filter;
 
-import com.fasterxml.jackson.core.JUnit5TestBase;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
-import org.junit.jupiter.api.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +8,13 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.JUnit5TestBase;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

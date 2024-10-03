@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

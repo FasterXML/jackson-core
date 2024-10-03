@@ -1,16 +1,15 @@
 package com.fasterxml.jackson.core.read;
 
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
-
 import java.io.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying that the basic parser

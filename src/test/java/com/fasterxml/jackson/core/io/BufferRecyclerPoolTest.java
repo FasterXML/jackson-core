@@ -1,5 +1,10 @@
 package com.fasterxml.jackson.core.io;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JUnit5TestBase;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -7,10 +12,6 @@ import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.JsonRecyclerPools;
 import com.fasterxml.jackson.core.util.RecyclerPool;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.io.OutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 

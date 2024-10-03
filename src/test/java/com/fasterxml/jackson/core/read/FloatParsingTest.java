@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.*;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

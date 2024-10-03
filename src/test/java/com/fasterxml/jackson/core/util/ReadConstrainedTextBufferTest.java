@@ -1,16 +1,17 @@
 package com.fasterxml.jackson.core.util;
 
+import java.io.IOException;
+import java.util.Arrays;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.ErrorReportConfiguration;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.IOContext;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import java.util.Arrays;
 
 class ReadConstrainedTextBufferTest {
     private static final int SEGMENT_SIZE = TextBuffer.MIN_SEGMENT_LEN;

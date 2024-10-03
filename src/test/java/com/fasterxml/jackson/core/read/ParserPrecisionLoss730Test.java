@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.*;
-
 import java.io.StringWriter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [jackson-core#730]
 class ParserPrecisionLoss730Test extends JUnit5TestBase

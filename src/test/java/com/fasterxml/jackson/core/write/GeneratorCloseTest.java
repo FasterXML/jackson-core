@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.core.write;
 
+import java.io.*;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.testsupport.ByteOutputStreamForTesting;
 import com.fasterxml.jackson.core.testsupport.StringWriterForTesting;
 
-import java.io.*;
-
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests that verify aspect of closing a

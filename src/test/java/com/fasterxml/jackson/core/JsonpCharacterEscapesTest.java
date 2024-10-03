@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.core;
 
-import com.fasterxml.jackson.core.io.SerializedString;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.io.SerializedString;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

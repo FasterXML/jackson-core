@@ -2,10 +2,9 @@ package com.fasterxml.jackson.core.constraints;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
-import com.fasterxml.jackson.core.StreamReadConstraints;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 

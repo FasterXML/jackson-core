@@ -4,9 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.CharConversionException;
 import java.io.InputStream;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.UTF32Reader;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 

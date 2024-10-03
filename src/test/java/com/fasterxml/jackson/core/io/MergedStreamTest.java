@@ -2,9 +2,9 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.JsonEncoding;
 
 import static org.junit.jupiter.api.Assertions.*;
 

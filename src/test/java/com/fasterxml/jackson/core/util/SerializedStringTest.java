@@ -4,9 +4,9 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.fasterxml.jackson.core.SerializableString;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

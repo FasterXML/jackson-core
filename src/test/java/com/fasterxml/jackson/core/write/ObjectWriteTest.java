@@ -1,15 +1,14 @@
 package com.fasterxml.jackson.core.write;
 
-import com.fasterxml.jackson.core.*;
-
 import java.io.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying that the Object write methods

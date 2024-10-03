@@ -3,9 +3,9 @@ package com.fasterxml.jackson.core.filter;
 import java.math.BigInteger;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 import static org.junit.jupiter.api.Assertions.*;

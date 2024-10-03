@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.core.type;
 
-import com.fasterxml.jackson.core.JUnit5TestBase;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import com.fasterxml.jackson.core.JUnit5TestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 

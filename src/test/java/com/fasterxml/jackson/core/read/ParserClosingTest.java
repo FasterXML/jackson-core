@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.core.read;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import com.fasterxml.jackson.core.*;
-
 import java.io.*;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests that verify that the closing (or not) of

@@ -2,9 +2,9 @@ package com.fasterxml.jackson.core.read;
 
 import java.math.BigInteger;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

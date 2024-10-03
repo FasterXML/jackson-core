@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.core.*;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;

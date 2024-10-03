@@ -3,9 +3,9 @@ package com.fasterxml.jackson.core.fuzz;
 import java.io.*;
 import java.math.BigInteger;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 

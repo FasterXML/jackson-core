@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.core.json.async;
 
-import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
-
 import java.io.IOException;
+
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncConcurrencyByteBufferTest extends AsyncConcurrencyTest {
 

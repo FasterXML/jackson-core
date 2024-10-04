@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.core.read.loc;
 
-import com.fasterxml.jackson.core.*;
-
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LocationOffsetsTest extends JUnit5TestBase
 {

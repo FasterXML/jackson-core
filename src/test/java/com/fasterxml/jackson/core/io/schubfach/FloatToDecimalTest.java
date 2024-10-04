@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.core.io.schubfach;
 
-import org.junit.jupiter.api.Test;
-
 import java.util.Random;
+
+import org.junit.jupiter.api.Test;
 
 import static com.fasterxml.jackson.core.io.schubfach.FloatToDecimalChecker.*;
 import static java.lang.Float.intBitsToFloat;

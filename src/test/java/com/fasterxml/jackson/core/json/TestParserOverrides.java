@@ -3,9 +3,9 @@ package com.fasterxml.jackson.core.json;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 
-import com.fasterxml.jackson.core.JsonFactory;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 

@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.core.read;
 
 
-import com.fasterxml.jackson.core.*;
-
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Set of basic unit tests for verifying that the basic parser

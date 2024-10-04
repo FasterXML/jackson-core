@@ -2,9 +2,9 @@ package com.fasterxml.jackson.core.constraints;
 
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.core.json;
 
-import com.fasterxml.jackson.core.JUnit5TestBase;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JUnit5TestBase;
 import com.fasterxml.jackson.core.TokenStreamFactory;
 
 import static org.junit.jupiter.api.Assertions.fail;

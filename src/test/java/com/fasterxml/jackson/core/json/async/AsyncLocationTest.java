@@ -1,15 +1,15 @@
 package com.fasterxml.jackson.core.json.async;
 
+import java.nio.ByteBuffer;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.ByteBufferFeeder;
 
-import java.nio.ByteBuffer;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
 
 class AsyncLocationTest extends AsyncTestBase
 {

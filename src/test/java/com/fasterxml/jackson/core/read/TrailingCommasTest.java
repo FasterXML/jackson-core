@@ -3,11 +3,10 @@ package com.fasterxml.jackson.core.read;
 import java.io.IOException;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.UTF8DataInputJsonParser;

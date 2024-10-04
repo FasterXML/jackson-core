@@ -14,7 +14,6 @@ import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import static com.fasterxml.jackson.core.JUnit5TestBase.a2q;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

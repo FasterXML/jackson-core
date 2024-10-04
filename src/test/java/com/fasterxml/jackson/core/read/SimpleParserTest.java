@@ -1,17 +1,16 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.testsupport.MockDataInput;
-import com.fasterxml.jackson.core.util.JsonParserDelegate;
-
 import java.io.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.net.URL;
 import java.util.*;
 
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.testsupport.MockDataInput;
+import com.fasterxml.jackson.core.util.JsonParserDelegate;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying that the basic parser

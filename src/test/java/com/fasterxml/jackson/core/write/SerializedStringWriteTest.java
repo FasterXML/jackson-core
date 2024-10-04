@@ -3,9 +3,9 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 import java.util.Random;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

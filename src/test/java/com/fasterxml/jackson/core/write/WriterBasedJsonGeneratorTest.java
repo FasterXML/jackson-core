@@ -2,9 +2,9 @@ package com.fasterxml.jackson.core.write;
 
 import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

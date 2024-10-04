@@ -25,10 +25,10 @@ package com.fasterxml.jackson.core.io.schubfach;
 import java.math.BigDecimal;
 import java.util.Random;
 
+import static com.fasterxml.jackson.core.io.schubfach.MathUtils.flog10pow2;
 import static java.lang.Float.*;
 import static java.lang.Integer.numberOfTrailingZeros;
 import static java.lang.StrictMath.scalb;
-import static com.fasterxml.jackson.core.io.schubfach.MathUtils.flog10pow2;
 
 public class FloatToDecimalChecker extends ToDecimalChecker {
 

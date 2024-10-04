@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.io.ContentReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 

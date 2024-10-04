@@ -14,7 +14,7 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.18.0 (not yet released)
+2.18.0 (26-Sep-2024)
 
 #223: `UTF8JsonGenerator` writes supplementary characters as a surrogate pair:
   should use 4-byte encoding
@@ -45,6 +45,13 @@ a pure JSON library.
   of Tokens allowed per document#
 #1331: Update to FastDoubleParser v1.0.1 to fix `BigDecimal` decoding proble
  (fixed by @pjfanning)
+
+2.17.3 (not yet released):
+
+#1331: Update to FastDoubleParser v1.0.1 to fix `BigDecimal` decoding problem
+ (contributed by @pjfanning)
+#1340: Missing `JsonFactory` "provides" SPI with JPMS in `jackson-core` module
+ (contributed by @sdyura)
 
 2.17.2 (05-Jul-2024)
 

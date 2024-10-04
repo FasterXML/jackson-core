@@ -298,4 +298,37 @@ tools.jackson.core.*;version=${project.version}
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>openrewrite</id>
+      <!-- `mvn -P openrewrite org.openrewrite.maven:rewrite-maven-plugin:run` -->
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.openrewrite.maven</groupId>
+            <artifactId>rewrite-maven-plugin</artifactId>
+            <version>5.41.0</version>
+            <configuration>
+              <activeRecipes>
+                <recipe>org.openrewrite.java.OrderImports</recipe>
+              </activeRecipes>
+              <activeStyles>
+                <style>io.github.timoa.misc.JacksonImportStyle</style>
+              </activeStyles>
+              <failOnDryRunResults>true</failOnDryRunResults>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>io.github.timo-a</groupId>
+                <artifactId>rewrite-recipe-starter</artifactId>
+                <version>0.4.0</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>

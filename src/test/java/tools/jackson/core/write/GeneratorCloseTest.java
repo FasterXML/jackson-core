@@ -1,16 +1,16 @@
 package tools.jackson.core.write;
 
 
+import java.io.*;
+
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.ByteOutputStreamForTesting;
 import tools.jackson.core.testsupport.StringWriterForTesting;
 
-import java.io.*;
-
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.Test;
 
 /**
  * Set of basic unit tests that verify aspect of closing a

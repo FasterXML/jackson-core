@@ -1,7 +1,5 @@
 package tools.jackson.core.base;
 
-import static tools.jackson.core.JsonTokenId.*;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
@@ -9,10 +7,10 @@ import java.math.BigInteger;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.InputCoercionException;
-import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamConstraintsException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.sym.PropertyNameMatcher;
@@ -21,6 +19,8 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.ByteArrayBuilder;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.core.util.VersionUtil;
+
+import static tools.jackson.core.JsonTokenId.*;
 
 /**
  * Intermediate base class used by all Jackson {@link JsonParser}

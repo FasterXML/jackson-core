@@ -5,8 +5,8 @@
 
 package tools.jackson.core;
 
-import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.exc.JacksonIOException;
+import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.util.Separators;
 

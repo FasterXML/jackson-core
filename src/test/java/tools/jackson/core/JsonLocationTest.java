@@ -11,7 +11,6 @@ import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.json.JsonFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

@@ -4,21 +4,21 @@
  */
 package tools.jackson.core;
 
-import static tools.jackson.core.JsonTokenId.*;
-
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
 
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.StreamWriteException;
-import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.core.type.WritableTypeId.Inclusion;
 import tools.jackson.core.util.JacksonFeatureSet;
+
+import static tools.jackson.core.JsonTokenId.*;
 
 /**
  * Base class that defines public API for writing JSON content.

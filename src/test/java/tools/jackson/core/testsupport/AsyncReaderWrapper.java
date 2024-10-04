@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.TokenStreamContext;
-import tools.jackson.core.JsonParser.NumberType;
 
 public abstract class AsyncReaderWrapper
     implements AutoCloseable

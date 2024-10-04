@@ -6,8 +6,8 @@ import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JsonToken;
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.json.JsonFactory;

@@ -1,8 +1,8 @@
 package tools.jackson.core.io;
 
-import ch.randelshofer.fastdoubleparser.JavaBigIntegerParser;
-
 import java.math.BigInteger;
+
+import ch.randelshofer.fastdoubleparser.JavaBigIntegerParser;
 
 import static tools.jackson.core.io.BigDecimalParser.MAX_CHARS_TO_REPORT;
 

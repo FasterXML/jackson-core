@@ -14,9 +14,8 @@ import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 
-import static tools.jackson.core.JUnit5TestBase.a2q;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static tools.jackson.core.JUnit5TestBase.a2q;
 
 /**
  * Tests that the {@link JsonLocation} attached to a thrown {@link StreamReadException}

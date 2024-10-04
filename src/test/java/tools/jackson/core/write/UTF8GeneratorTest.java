@@ -1,7 +1,5 @@
 package tools.jackson.core.write;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.*;
 
 import org.junit.jupiter.api.Test;
@@ -15,6 +13,7 @@ import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.UTF8JsonGenerator;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UTF8GeneratorTest extends JUnit5TestBase

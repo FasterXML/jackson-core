@@ -7,8 +7,8 @@ import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
 import tools.jackson.core.util.BufferRecycler;
-import tools.jackson.core.util.TextBuffer;
 import tools.jackson.core.util.ReadConstrainedTextBuffer;
+import tools.jackson.core.util.TextBuffer;
 
 /**
  * To limit number of configuration and state objects to pass, all

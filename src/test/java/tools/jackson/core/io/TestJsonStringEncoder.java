@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TestJsonStringEncoder
     extends tools.jackson.core.JUnit5TestBase

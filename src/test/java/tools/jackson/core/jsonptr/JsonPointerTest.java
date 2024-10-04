@@ -3,7 +3,6 @@ package tools.jackson.core.jsonptr;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
-import tools.jackson.core.JsonPointer;
 
 import static org.junit.jupiter.api.Assertions.*;
 

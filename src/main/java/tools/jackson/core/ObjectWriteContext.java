@@ -3,8 +3,8 @@ package tools.jackson.core;
 import java.io.OutputStream;
 import java.io.Writer;
 
-import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.exc.JacksonIOException;
+import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.tree.ArrayTreeNode;
 import tools.jackson.core.tree.ObjectTreeNode;

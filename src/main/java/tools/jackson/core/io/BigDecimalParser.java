@@ -1,8 +1,8 @@
 package tools.jackson.core.io;
 
-import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
-
 import java.math.BigDecimal;
+
+import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
 
 /**
  * Internal Jackson Helper class used to implement more optimized parsing of

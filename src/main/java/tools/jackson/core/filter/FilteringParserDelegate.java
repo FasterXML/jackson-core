@@ -1,11 +1,11 @@
 package tools.jackson.core.filter;
 
-import static tools.jackson.core.JsonTokenId.*;
-
 import tools.jackson.core.*;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.JsonParserDelegate;
+
+import static tools.jackson.core.JsonTokenId.*;
 
 /**
  * Specialized {@link JsonParserDelegate} that allows use of

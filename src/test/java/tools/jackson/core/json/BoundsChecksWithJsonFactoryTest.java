@@ -3,7 +3,6 @@ package tools.jackson.core.json;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
-import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.exc.StreamReadException;
 
 import static org.junit.jupiter.api.Assertions.fail;

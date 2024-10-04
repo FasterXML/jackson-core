@@ -1,7 +1,5 @@
 package tools.jackson.core.json.async;
 
-import static tools.jackson.core.JsonTokenId.*;
-
 import java.io.*;
 
 import tools.jackson.core.*;
@@ -11,6 +9,8 @@ import tools.jackson.core.json.JsonReadContext;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 import tools.jackson.core.util.ByteArrayBuilder;
+
+import static tools.jackson.core.JsonTokenId.*;
 
 /**
  * Intermediate base class for non-blocking JSON parsers.

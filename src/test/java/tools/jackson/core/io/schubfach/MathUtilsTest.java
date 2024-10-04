@@ -22,17 +22,15 @@
 
 package tools.jackson.core.io.schubfach;
 
-import org.junit.jupiter.api.Test;
-
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.Test;
 
 import static java.lang.Double.*;
 import static java.lang.Long.numberOfTrailingZeros;
 import static java.lang.StrictMath.scalb;
 import static java.math.BigInteger.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.core.io.schubfach.MathUtils.*;
 
 class MathUtilsTest {

@@ -1,7 +1,6 @@
 package tools.jackson.core.read;
 
 import java.io.*;
-
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;

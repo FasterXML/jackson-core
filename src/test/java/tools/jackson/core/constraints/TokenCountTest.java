@@ -1,8 +1,8 @@
 package tools.jackson.core.constraints;
 
-import org.junit.jupiter.api.Test;
-
 import java.nio.ByteBuffer;
+
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;

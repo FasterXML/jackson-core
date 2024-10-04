@@ -2,9 +2,9 @@ package tools.jackson.core.json;
 
 import java.io.*;
 
-import tools.jackson.core.*;
-
 import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

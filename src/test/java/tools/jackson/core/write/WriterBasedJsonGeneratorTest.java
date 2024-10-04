@@ -9,7 +9,6 @@ import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.junit.jupiter.api.Assertions.fail;
 
 class WriterBasedJsonGeneratorTest extends JUnit5TestBase

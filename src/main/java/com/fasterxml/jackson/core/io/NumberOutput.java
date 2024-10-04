@@ -553,7 +553,7 @@ public final class NumberOutput
         return off;
     }
 
-    // // // Special cases for where we can not flip the sign bit
+    // // // Special cases for where we cannot flip the sign bit
 
     private static int _outputSmallestL(char[] b, int off)
     {

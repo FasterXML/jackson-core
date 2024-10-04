@@ -76,7 +76,7 @@ public final class Base64Variants
      * This non-standard variant is usually used when encoded data needs to be
      * passed via URLs (such as part of GET request). It differs from the
      * base {@link #MIME} variant in multiple ways.
-     * First, no padding is used: this also means that it generally can not
+     * First, no padding is used: this also means that it generally cannot
      * be written in multiple separate but adjacent chunks (which would not
      * be the usual use case in any case). Also, no linefeeds are used (max
      * line length set to infinite). And finally, two characters (plus and

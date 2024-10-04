@@ -363,7 +363,7 @@ public class UTF8DataInputJsonParser
     {
         if (_currToken != JsonToken.VALUE_STRING &&
                 (_currToken != JsonToken.VALUE_EMBEDDED_OBJECT || _binaryValue == null)) {
-            _reportError("Current token ("+_currToken+") not VALUE_STRING or VALUE_EMBEDDED_OBJECT, can not access as binary");
+            _reportError("Current token ("+_currToken+") not VALUE_STRING or VALUE_EMBEDDED_OBJECT, cannot access as binary");
         }
         /* To ensure that we won't see inconsistent data, better clear up
          * state...
@@ -737,7 +737,7 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    // Can not implement without look-ahead...
+    // Cannot implement without look-ahead...
 //    public boolean nextFieldName(SerializableString str) throws IOException
 
     @Override

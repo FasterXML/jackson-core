@@ -90,7 +90,8 @@ class NumberOutputTest
     // Comment out for manual testing:
     @Disabled
     void divBy1000FullRange() {
-        for (int number = 0; number <= Integer.MAX_VALUE; ++number) {
+        // To get to Integer.MAX_VALUE, need to check for overflow
+        for (int number = 0; number >= 0; ++number) {
             int expected = number / 1000;
             int actual = NumberOutput.divBy1000(number);
             if (expected != actual) { // only construct String if fail

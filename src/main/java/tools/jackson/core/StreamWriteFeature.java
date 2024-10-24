@@ -113,13 +113,18 @@ public enum StreamWriteFeature
     // // Misc other features
 
     /**
-     * Feature that determines whether to use standard JDK methods to write floats/doubles
-     * or use faster Schubfach algorithm.
-     * The latter approach may lead to small differences in the precision of the
-     * float/double that is written to the JSON output.
+     * Feature that determines whether to use standard Java code to write floats/doubles
+     * (default) or use the Schubfach algorithm which may be faster (but see the next
+     * paragraph for details).
+     * Schubfach algorithm output may have small differences in the precision of the
+     * float/double that compared to JDK default processing.
      *<p>
-     * This setting is enabled by default (since 3.0) so that faster Schubfach
-     * implementation is used.
+     * NOTE! Enabling this feature appears to improve performance significantly
+     * up to and including JDK 17, but NOT when using JDK 21
+     * and above -- in fact, it seems that JDK implementation is slightly faster.
+     * Because of this,enabling this feature is only recommended for JDKs 17 and below.
+     *<p>
+     * Feature is disabled by default, meaning that JDK default conversions are used.
      */
     USE_FAST_DOUBLE_WRITER(false)
     ;

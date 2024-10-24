@@ -2544,7 +2544,14 @@ public class UTF8StreamJsonParser
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
-                final int max = Math.min(_inputEnd, (ptr + (outBuf.length - outPtr)));
+
+                int max;
+                try {
+                    max = Math.min(_inputEnd, Math.addExact(ptr, outBuf.length - outPtr));
+                } catch (ArithmeticException ex) {
+                    max = Integer.MAX_VALUE;
+                }
+
                 while (ptr < max) {
                     c = inputBuffer[ptr++] & 0xFF;
                     if (codes[c] != 0) {

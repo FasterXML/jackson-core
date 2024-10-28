@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
+import com.fasterxml.jackson.core.util.InternalJacksonUtil;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
@@ -2554,7 +2555,9 @@ public abstract class NonBlockingUtf8JsonParserBase
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
-                final int max = Math.min(_inputEnd, (ptr + (outBuf.length - outPtr)));
+                final int max = Math.min(
+                    _inputEnd,
+                    InternalJacksonUtil.addOverflowSafe(ptr, outBuf.length - outPtr));
                 while (ptr < max) {
                     c = getByteFromBuffer(ptr++) & 0xFF;
                     if (codes[c] != 0) {
@@ -2677,7 +2680,9 @@ public abstract class NonBlockingUtf8JsonParserBase
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
-                final int max = Math.min(_inputEnd, (ptr + (outBuf.length - outPtr)));
+                final int max = Math.min(
+                    _inputEnd,
+                    InternalJacksonUtil.addOverflowSafe(ptr, outBuf.length - outPtr));
                 while (ptr < max) {
                     c = getByteFromBuffer(ptr++) & 0xFF;
                     if ((codes[c] != 0) && (c != INT_QUOTE)) {

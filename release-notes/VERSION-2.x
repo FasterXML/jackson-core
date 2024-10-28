@@ -18,6 +18,11 @@ a pure JSON library.
 
 -
 
+2.18.1 (not yet released)
+
+#1353: Use fastdoubleparser 1.0.90
+ (fixed by @pjfanning)
+
 2.18.0 (26-Sep-2024)
 
 #223: `UTF8JsonGenerator` writes supplementary characters as a surrogate pair:

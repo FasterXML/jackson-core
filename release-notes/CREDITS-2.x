@@ -433,4 +433,9 @@ Antonin Janec (@xtonic)
  * Contributed #1217: Optimize char comparison using bitwise OR
   (2.17.0)
  * Contributed #1218: Simplify Unicode surrogate pair conversion for generation
- (2.17.0)
+  (2.17.0)
+
+Adam J. Shook (@adamjshook)
+ * Reported, suggested fix for  #1352: Fix infinite loop due to integer overflow
+   when reading large strings
+  (2.17.3)

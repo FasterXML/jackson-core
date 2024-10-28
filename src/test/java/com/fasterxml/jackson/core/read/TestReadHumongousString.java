@@ -1,17 +1,18 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JUnit5TestBase;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.StreamReadConstraints;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// https://github.com/FasterXML/jackson-core/pull/1350
-class TestLargeString extends JUnit5TestBase {
-
+// https://github.com/FasterXML/jackson-core/pull/1352
+class TestReadHumongousString extends JUnit5TestBase
+{
     // disabled because it takes too much memory to run
     @Disabled
     @Test

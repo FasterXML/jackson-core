@@ -20,6 +20,10 @@ a pure JSON library.
  (contributed by @pjfanning)
 #1340: Missing `JsonFactory` "provides" SPI with JPMS in `jackson-core` module
  (contributed by @sdyura)
+#1352: Fix infinite loop due to integer overflow when reading large strings
+ (reported by Adam J.S)
+ (fix contributed by @pjfanning)
+ 
 
 2.17.2 (05-Jul-2024)
 

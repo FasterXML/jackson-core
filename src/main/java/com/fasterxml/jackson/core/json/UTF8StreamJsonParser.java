@@ -2546,7 +2546,7 @@ public class UTF8StreamJsonParser
                 }
                 final int max = Math.min(
                     _inputEnd,
-                    CommonUtil.addWithOverflowDefault(ptr, outBuf.length - outPtr));
+                    InternalJacksonUtil.addOverflowSafe(ptr, outBuf.length - outPtr));
                 while (ptr < max) {
                     c = inputBuffer[ptr++] & 0xFF;
                     if (codes[c] != 0) {
@@ -2779,7 +2779,7 @@ public class UTF8StreamJsonParser
                 int max = _inputEnd;
                 {
                     final int max2 =
-                        CommonUtil.addWithOverflowDefault(_inputPtr, outBuf.length - outPtr);
+                        InternalJacksonUtil.addOverflowSafe(_inputPtr, outBuf.length - outPtr);
                     if (max2 < max) {
                         max = max2;
                     }

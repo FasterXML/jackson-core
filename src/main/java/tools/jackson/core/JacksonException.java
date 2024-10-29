@@ -405,8 +405,7 @@ public class JacksonException
 
     public StringBuilder getPathReference(StringBuilder sb)
     {
-        _appendPathDesc(sb);
-        return sb;
+        return _appendPathDesc(sb);
     }
 
     /*
@@ -527,38 +526,40 @@ public class JacksonException
             }
         }
         if (_path != null) {
-            // 18-Feb-2009, tatu: originally there was a linefeed between
-            //    message and path reference; but unfortunately many systems
-            //   (loggers, junit) seem to assume linefeeds are only added to
-            //   separate stack trace.
-            sb.append(" (through reference chain: ");
-            sb = getPathReference(sb);
-            sb.append(')');
+            sb = _appendReferenceChain(sb);
         }
         return sb.toString();
     }
 
     @Override
     public String toString() { return getClass().getName()+": "+getMessage(); }
-
+    
     /*
     /**********************************************************************
     /* Internal methods
     /**********************************************************************
      */
 
-    protected void _appendPathDesc(StringBuilder sb)
+    protected StringBuilder _appendReferenceChain(StringBuilder sb)
     {
-        if (_path == null) {
-            return;
-        }
-        Iterator<Reference> it = _path.iterator();
-        while (it.hasNext()) {
-            sb.append(it.next().toString());
-            if (it.hasNext()) {
-                sb.append("->");
+        sb.append(" (through reference chain: ");
+        sb = _appendPathDesc(sb);
+        sb.append(')');
+        return sb;
+    }
+    
+    protected StringBuilder _appendPathDesc(StringBuilder sb)
+    {
+        if (_path != null) {
+            Iterator<Reference> it = _path.iterator();
+            while (it.hasNext()) {
+                sb.append(it.next().toString());
+                if (it.hasNext()) {
+                    sb.append("->");
+                }
             }
         }
+        return sb;
     }
 
 }

@@ -16,7 +16,7 @@ a pure JSON library.
 
 2.19.0 (not yet released)
 
--
+#1328: Optimize handling of `JsonPointer.head()`
 
 2.18.1 (28-Oct-2024)
 

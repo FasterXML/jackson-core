@@ -178,6 +178,15 @@ public class JsonPointer implements Serializable
         _matchingElementIndex = src._matchingElementIndex;
     }
 
+    // @since 2.19
+    protected JsonPointer(JsonPointer src, String newFullString, int newFullStringOffset) {
+        _asString = newFullString;
+        _asStringOffset = newFullStringOffset;
+        _nextSegment = null;
+        _matchingPropertyName = src._matchingPropertyName;
+        _matchingElementIndex = src._matchingElementIndex;
+    }
+    
     /*
     /**********************************************************
     /* Factory methods
@@ -836,12 +845,15 @@ public class JsonPointer implements Serializable
         ArrayList<JsonPointer> pointers = new ArrayList<>();
 
         JsonPointer current = this;
+        String fullString = toString();
+        // Make sure to share the new full string for path segments
+        fullString = fullString.substring(0, fullString.length() - suffixLength);
+        int offset = 0;
 
         while (current != last) {
-            String str = current.toString();
-            JsonPointer nextSegment = new JsonPointer(str.substring(0, str.length() - suffixLength), 0,
-                    current._matchingPropertyName,
-                    current._matchingElementIndex, null);
+            JsonPointer nextSegment = new JsonPointer(current,
+                    fullString, offset);
+            offset += suffixLength;
             pointers.add(nextSegment);
             current = current._nextSegment;
         }

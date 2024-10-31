@@ -495,7 +495,7 @@ class NumberParsingTest
         String tooBigString = tooBig.toPlainString();
 
         // sanity check that it is beyond Double range:
-        assertTrue(new Double(tooBigString).isInfinite());
+        assertTrue(Double.valueOf(tooBigString).isInfinite());
 
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(jsonFactory(), mode, tooBigString +" ")) {
@@ -1033,7 +1033,7 @@ class NumberParsingTest
     }
 
     void databind4694Double() throws Exception {
-        final Double expected = new Double(ISSUE_4694_VALUE);
+        final Double expected = Double.valueOf(ISSUE_4694_VALUE);
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, String.format(" %s ", ISSUE_4694_VALUE))) {
                 assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
@@ -1044,7 +1044,7 @@ class NumberParsingTest
     }
 
     void databind4694Float() throws Exception {
-        final Float expected = new Float(ISSUE_4694_VALUE);
+        final Float expected = Float.valueOf(ISSUE_4694_VALUE);
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, String.format(" %s ", ISSUE_4694_VALUE))) {
                 assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());

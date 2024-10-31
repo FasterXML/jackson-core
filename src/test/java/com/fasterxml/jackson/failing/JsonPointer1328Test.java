@@ -23,8 +23,13 @@ class JsonPointer1328Test extends JUnit5TestBase
 
     private final static String repeat(String part, int count) {
         StringBuilder sb = new StringBuilder(count * part.length());
+        int index = 0;
         while (--count >= 0) {
-            sb.append(part);
+            // Add variation so we'll have "a0" .. "a8"; this to try
+            // to avoid possibility of accidentally "working" with
+            // super-repetitive paths
+            sb.append(part).append(index % 9);
+            ++index;
         }
         return sb.toString();
     }

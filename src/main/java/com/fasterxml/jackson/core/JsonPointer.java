@@ -103,7 +103,7 @@ public class JsonPointer implements Serializable
      * We will retain representation of the pointer, as a String,
      * so that {@link #toString} should be as efficient as possible.
      *<p>
-     * NOTE: starting with 2.14, there is no accompanying
+     * NOTE: starting with 2.14, there is now accompanying
      * {@link #_asStringOffset} that MUST be considered with this String;
      * this {@code String} may contain preceding path, as it is now full path
      * of parent pointer, except for the outermost pointer instance.
@@ -836,6 +836,7 @@ public class JsonPointer implements Serializable
         ArrayList<JsonPointer> pointers = new ArrayList<>();
 
         JsonPointer current = this;
+
         while (current != last) {
             String str = current.toString();
             JsonPointer nextSegment = new JsonPointer(str.substring(0, str.length() - suffixLength), 0,

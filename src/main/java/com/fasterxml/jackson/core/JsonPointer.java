@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core;
 
 import java.io.*;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.io.NumberInput;
 
@@ -166,6 +167,15 @@ public class JsonPointer implements Serializable
         _nextSegment = next;
         _matchingPropertyName = segment;
         _matchingElementIndex = matchIndex;
+    }
+
+    // @since 2.19
+    protected JsonPointer(JsonPointer src, JsonPointer next) {
+        _asString = src._asString;
+        _asStringOffset = src._asStringOffset;
+        _nextSegment = next;
+        _matchingPropertyName = src._matchingPropertyName;
+        _matchingElementIndex = src._matchingElementIndex;
     }
 
     /*
@@ -814,31 +824,34 @@ public class JsonPointer implements Serializable
 
     protected JsonPointer _constructHead()
     {
-        // ok; find out who we are to drop
+        // ok; find out the segment we are to drop
         JsonPointer last = last();
         if (last == this) {
             return EMPTY;
         }
         // and from that, length of suffix to drop
-        int suffixLength = last.length();
-        JsonPointer next = _nextSegment;
-        String fullString = toString();
-        return new JsonPointer(fullString.substring(0, fullString.length() - suffixLength), 0,
-                _matchingPropertyName,
-                _matchingElementIndex, next._constructHead(suffixLength, last));
-    }
+        final int suffixLength = last.length();
 
-    protected JsonPointer _constructHead(int suffixLength, JsonPointer last)
-    {
-        if (this == last) {
-            return EMPTY;
+        // Initialize a list to store intermediate JsonPointers in reverse
+        ArrayList<JsonPointer> pointers = new ArrayList<>();
+
+        JsonPointer current = this;
+        while (current != last) {
+            String str = current.toString();
+            JsonPointer nextSegment = new JsonPointer(str.substring(0, str.length() - suffixLength), 0,
+                    current._matchingPropertyName,
+                    current._matchingElementIndex, null);
+            pointers.add(nextSegment);
+            current = current._nextSegment;
         }
-        JsonPointer next = _nextSegment;
-        String str = toString();
-        // !!! TODO 07-Oct-2022, tatu: change to iterative, not recursive
-        return new JsonPointer(str.substring(0, str.length() - suffixLength), 0,
-                _matchingPropertyName,
-                _matchingElementIndex, next._constructHead(suffixLength, last));
+
+        // Iteratively build the JsonPointer chain from the list in reverse
+        JsonPointer head = EMPTY;
+        for (int i = pointers.size() - 1; i >= 0; i--) {
+            head = new JsonPointer(pointers.get(i), head);
+        }
+
+        return head;
     }
 
     /*

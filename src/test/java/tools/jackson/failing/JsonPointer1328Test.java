@@ -6,6 +6,7 @@ import tools.jackson.core.JUnit5TestBase;
 import tools.jackson.core.JsonPointer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class JsonPointer1328Test extends JUnit5TestBase
 {
@@ -17,14 +18,26 @@ class JsonPointer1328Test extends JUnit5TestBase
     void deepHead()
     {
         final String INPUT = repeat("/a", DEPTH);
-        JsonPointer ptr = JsonPointer.compile(INPUT);
-        assertEquals(repeat("/a", DEPTH - 1), ptr.head().toString());
+        JsonPointer origPtr = JsonPointer.compile(INPUT);
+        JsonPointer head = origPtr.head();
+        final String fullHead = head.toString();
+        assertEquals(repeat("/a", DEPTH - 1), fullHead);
+
+        // But let's also traverse the hierarchy to make sure:
+        for (JsonPointer ctr = head; ctr != JsonPointer.empty(); ctr = ctr.tail()) {
+            assertThat(fullHead).endsWith(ctr.toString());
+        }
     }
 
     private final static String repeat(String part, int count) {
         StringBuilder sb = new StringBuilder(count * part.length());
+        int index = 0;
         while (--count >= 0) {
-            sb.append(part);
+            // Add variation so we'll have "a0" .. "a8"; this to try
+            // to avoid possibility of accidentally "working" with
+            // super-repetitive paths
+            sb.append(part).append(index % 9);
+            ++index;
         }
         return sb.toString();
     }

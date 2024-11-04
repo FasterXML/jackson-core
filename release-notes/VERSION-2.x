@@ -16,7 +16,12 @@ a pure JSON library.
 
 2.19.0 (not yet released)
 
--
+#1328: Optimize handling of `JsonPointer.head()`
+
+2.18.1 (28-Oct-2024)
+
+#1353: Use fastdoubleparser 1.0.90
+ (fixed by @pjfanning)
 
 2.18.0 (26-Sep-2024)
 
@@ -50,12 +55,15 @@ a pure JSON library.
 #1331: Update to FastDoubleParser v1.0.1 to fix `BigDecimal` decoding proble
  (fixed by @pjfanning)
 
-2.17.3 (not yet released):
+2.17.3 (01-Nov-2024)
 
 #1331: Update to FastDoubleParser v1.0.1 to fix `BigDecimal` decoding problem
  (contributed by @pjfanning)
 #1340: Missing `JsonFactory` "provides" SPI with JPMS in `jackson-core` module
  (contributed by @sdyura)
+#1352: Fix infinite loop due to integer overflow when reading large strings
+ (reported by Adam J.S)
+ (fix contributed by @pjfanning)
 
 2.17.2 (05-Jul-2024)
 

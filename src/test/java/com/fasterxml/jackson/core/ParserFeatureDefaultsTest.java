@@ -14,6 +14,8 @@ class ParserFeatureDefaultsTest
 {
     static class TestParser extends ParserMinimalBase
     {
+        public TestParser() { super(null); }
+
         @Override
         public JsonToken nextToken() {
             return null;

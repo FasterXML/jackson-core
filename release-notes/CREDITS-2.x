@@ -435,6 +435,11 @@ Antonin Janec (@xtonic)
  * Contributed #1218: Simplify Unicode surrogate pair conversion for generation
   (2.17.0)
 
+Adam J. Shook (@adamjshook)
+ * Reported, suggested fix for  #1352: Fix infinite loop due to integer overflow
+   when reading large strings
+  (2.17.3)
+
 Ian Roberts (@ianroberts)
  * Reported #223: `UTF8JsonGenerator` writes supplementary characters as a
    surrogate pair: should use 4-byte encoding

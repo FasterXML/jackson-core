@@ -10,6 +10,7 @@ import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
@@ -1978,12 +1979,13 @@ public abstract class JsonGenerator
         } else {
             // No native type id; write wrappers
             // Normally we only support String type ids (non-String reserved for native type ids)
-            String idStr = (id instanceof String) ? (String) id : String.valueOf(id);
+            String idStr = (id instanceof String) ? (String) id : Objects.toString(id, null);
             typeIdDef.wrapperWritten = true;
 
             Inclusion incl = typeIdDef.include;
             // first: can not output "as property" if value not Object; if so, must do "as array"
             if ((valueShape != JsonToken.START_OBJECT)
+                    && idStr != null 
                     && incl.requiresObjectContext()) {
                 typeIdDef.include = incl = WritableTypeId.Inclusion.WRAPPER_ARRAY;
             }

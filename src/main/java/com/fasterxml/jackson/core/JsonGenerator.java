@@ -1969,62 +1969,85 @@ public abstract class JsonGenerator
      */
     public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef) throws IOException
     {
-        Object id = typeIdDef.id;
+        final boolean hasStartObjectWritten = canWriteTypeId()
+                // just rely on native type output method (sub-classes likely to override)
+                ? writeTypePrefixWithTypeId(typeIdDef)
+                // No native type id; write wrappers
+                : writeTypePrefixWrapper(typeIdDef);
 
-        final JsonToken valueShape = typeIdDef.valueShape;
-        if (canWriteTypeId()) {
-            typeIdDef.wrapperWritten = false;
-            // just rely on native type output method (sub-classes likely to override)
-            writeTypeId(id);
-        } else {
-            // No native type id; write wrappers
-            // Normally we only support String type ids (non-String reserved for native type ids)
-            String idStr = (id instanceof String) ? (String) id : Objects.toString(id, null);
-            typeIdDef.wrapperWritten = true;
-
-            Inclusion incl = typeIdDef.include;
-            // first: can not output "as property" if value not Object; if so, must do "as array"
-            if ((valueShape != JsonToken.START_OBJECT)
-                    && idStr != null 
-                    && incl.requiresObjectContext()) {
-                typeIdDef.include = incl = WritableTypeId.Inclusion.WRAPPER_ARRAY;
-            }
-
-            switch (incl) {
-            case PARENT_PROPERTY:
-                // nothing to do here, as it has to be written in suffix...
-                break;
-            case PAYLOAD_PROPERTY:
-                // only output as native type id; otherwise caller must handle using some
-                // other mechanism, so...
-                break;
-            case METADATA_PROPERTY:
-                // must have Object context by now, so simply write as field name
-                // Note, too, that it's bit tricky, since we must print START_OBJECT that is part
-                // of value first -- and then NOT output it later on: hence return "early"
-                writeStartObject(typeIdDef.forValue);
-                writeStringField(typeIdDef.asProperty, idStr);
-                return typeIdDef;
-
-            case WRAPPER_OBJECT:
-                // NOTE: this is wrapper, not directly related to value to output, so don't pass
-                writeStartObject();
-                writeFieldName(idStr);
-                break;
-            case WRAPPER_ARRAY:
-            default: // should never occur but translate as "as-array"
-                writeStartArray(); // wrapper, not actual array object to write
-                writeString(idStr);
-            }
-        }
         // and finally possible start marker for value itself:
-        if (valueShape == JsonToken.START_OBJECT) {
-            writeStartObject(typeIdDef.forValue);
-        } else if (valueShape == JsonToken.START_ARRAY) {
+        switch (typeIdDef.valueShape) {
+        case START_OBJECT:
+            if (!hasStartObjectWritten)
+                writeStartObject(typeIdDef.forValue);
+            break;
+        case START_ARRAY:
             // should we now set the current object?
             writeStartArray();
+            break;
         }
+
         return typeIdDef;
+    }
+
+    private boolean writeTypePrefixWithTypeId(WritableTypeId typeIdDef) throws IOException {
+        typeIdDef.wrapperWritten = false;
+        writeTypeId(typeIdDef.id);
+
+        return false;
+    }
+
+    /**
+     * Writes a wrapper for the type id; if necessary.
+     * @return True if start of an object has been written, False otherwise.
+     */
+    private boolean writeTypePrefixWrapper(WritableTypeId typeIdDef) throws IOException {
+        // Normally we only support String type ids (non-String reserved for native type ids)
+        final String id = Objects.toString(typeIdDef.id, null);
+
+        // If we don't have Type ID we don't write a wrapper.
+        if (id == null) {
+            return false;
+        }
+
+        Inclusion incl = typeIdDef.include;
+
+        // first: can not output "as property" if value not Object; if so, must do "as array"
+        if ((typeIdDef.valueShape != JsonToken.START_OBJECT) && incl.requiresObjectContext()) {
+            typeIdDef.include = incl = WritableTypeId.Inclusion.WRAPPER_ARRAY;
+        }
+
+
+        typeIdDef.wrapperWritten = true;
+
+        switch (incl) {
+        case PARENT_PROPERTY:
+            // nothing to do here, as it has to be written in suffix...
+            break;
+        case PAYLOAD_PROPERTY:
+            // only output as native type id; otherwise caller must handle using some
+            // other mechanism, so...
+            break;
+        case METADATA_PROPERTY:
+            // must have Object context by now, so simply write as field name
+            // Note, too, that it's bit tricky, since we must print START_OBJECT that is part
+            // of value first -- and then NOT output it later on: hence return "early"
+            writeStartObject(typeIdDef.forValue);
+            writeStringField(typeIdDef.asProperty, id);
+            return true;
+
+        case WRAPPER_OBJECT:
+            // NOTE: this is wrapper, not directly related to value to output, so don't pass
+            writeStartObject();
+            writeFieldName(id);
+            break;
+        case WRAPPER_ARRAY:
+        default: // should never occur but translate as "as-array"
+            writeStartArray(); // wrapper, not actual array object to write
+            writeString(id);
+        }
+
+        return false;
     }
 
     /**

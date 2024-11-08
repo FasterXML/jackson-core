@@ -1969,39 +1969,47 @@ public abstract class JsonGenerator
      */
     public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef) throws IOException
     {
-        final boolean hasStartObjectWritten = canWriteTypeId()
-                // just rely on native type output method (sub-classes likely to override)
-                ? writeTypePrefixWithTypeId(typeIdDef)
-                // No native type id; write wrappers
-                : writeTypePrefixWrapper(typeIdDef);
+        // First: is this a native type id? If so, just use write method, be done
+        if (canWriteTypeId()) {
+            // just rely on native type output method (sub-classes likely to override)
+            return _writeNativeTypePrefix(typeIdDef);
+        }
+        
+        // No native type id; write wrappers
+        final boolean wasStartObjectWritten = _writeTypePrefixWrapper(typeIdDef);
 
         // and finally possible start marker for value itself:
         switch (typeIdDef.valueShape) {
         case START_OBJECT:
-            if (!hasStartObjectWritten)
+            if (!wasStartObjectWritten) {
                 writeStartObject(typeIdDef.forValue);
+            }
             break;
         case START_ARRAY:
             // should we now set the current object?
             writeStartArray();
             break;
+        default: // otherwise: no start marker
         }
 
         return typeIdDef;
     }
 
-    private boolean writeTypePrefixWithTypeId(WritableTypeId typeIdDef) throws IOException {
+    // @since 2.19
+    protected WritableTypeId _writeNativeTypePrefix(WritableTypeId typeIdDef) throws IOException {
         typeIdDef.wrapperWritten = false;
         writeTypeId(typeIdDef.id);
-
-        return false;
+        return typeIdDef;
     }
 
     /**
      * Writes a wrapper for the type id; if necessary.
+     *
      * @return True if start of an object has been written, False otherwise.
+     *
+     * @since 2.19
      */
-    private boolean writeTypePrefixWrapper(WritableTypeId typeIdDef) throws IOException {
+    protected boolean _writeTypePrefixWrapper(WritableTypeId typeIdDef) throws IOException {
         // Normally we only support String type ids (non-String reserved for native type ids)
         final String id = Objects.toString(typeIdDef.id, null);
 
@@ -2016,7 +2024,6 @@ public abstract class JsonGenerator
         if ((typeIdDef.valueShape != JsonToken.START_OBJECT) && incl.requiresObjectContext()) {
             typeIdDef.include = incl = WritableTypeId.Inclusion.WRAPPER_ARRAY;
         }
-
 
         typeIdDef.wrapperWritten = true;
 

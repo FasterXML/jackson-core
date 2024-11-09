@@ -456,3 +456,8 @@ Jared Stehler (@jaredstehler)
 Zhanghao (@zhangOranges)
  * Contributed #1305: Make helper methods of `WriterBasedJsonGenerator` non-final to allow overriding
   (2.18.0)
+
+Eduard Gomoliako (@Gems)
+ * Contributed #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
+  `WRAPPER_ARRAY` when `typeIdDef.id == null`
+  (2.19.0)

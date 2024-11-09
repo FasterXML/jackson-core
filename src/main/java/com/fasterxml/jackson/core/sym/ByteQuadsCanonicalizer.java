@@ -1120,10 +1120,10 @@ public final class ByteQuadsCanonicalizer
         final int newStart = start + qlen;
         if (newStart < 0) {
             throw new IllegalStateException(String.format(
-                    "Long name offset overflow; start=%s, qlen=%s", start, qlen));
+                    "Internal error: long name offset overflow; start=%s, qlen=%s", start, qlen));
         }
 
-        // note: at this point we must already be shared. But may not have enough space
+        // note: at this point we must already be unshared. But may not have enough space
         if (newStart > _hashArea.length) {
             // try to increment in reasonable chunks; at least space that we need
             int toAdd = newStart - _hashArea.length;
@@ -1264,9 +1264,8 @@ public final class ByteQuadsCanonicalizer
         final int newSize = oldSize + oldSize;
         final int oldEnd = _spilloverEnd;
 
-        /* 13-Mar-2010, tatu: Let's guard against OOME that could be caused by
-         *    large documents with unique (or mostly so) names
-         */
+        // 13-Mar-2010, tatu: Let's guard against OOME that could be caused by
+        //    large documents with unique (or mostly so) names
         if (newSize > MAX_T_SIZE) {
             nukeSymbols(true);
             return;

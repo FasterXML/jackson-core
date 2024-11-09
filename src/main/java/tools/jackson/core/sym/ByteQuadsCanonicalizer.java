@@ -989,9 +989,9 @@ public final class ByteQuadsCanonicalizer
             //   parent tables
             if (_parent == null) {
                 if (_count == 0) { // root
-                    throw new IllegalStateException("Internal error: Cannot add names to Root symbol table");
+                    _throwInternalError("Cannot add names to Root symbol table");
                 }
-                throw new IllegalStateException("Internal error: Cannot add names to Placeholder symbol table");
+                _throwInternalError("Cannot add names to Placeholder symbol table");
             }
 
             _hashArea = Arrays.copyOf(_hashArea, _hashArea.length);
@@ -1112,8 +1112,8 @@ public final class ByteQuadsCanonicalizer
         final int start = _longNameOffset;
         final int newStart = start + qlen;
         if (newStart < 0) {
-            throw new IllegalStateException(String.format(
-                    "Internal error: long name offset overflow; start=%s, qlen=%s", start, qlen));
+            return _throwInternalError(String.format(
+                    "long name offset overflow; start=%s, qlen=%s", start, qlen));
         }
 
         // note: at this point we must already be unshared. But may not have enough space
@@ -1385,6 +1385,10 @@ public final class ByteQuadsCanonicalizer
         }
         // and biggest buckets have 32 slots
         return 7;
+    }
+
+    private <T> T _throwInternalError(String msg) {
+        throw new IllegalStateException("Internal error: "+msg);
     }
 
     /*

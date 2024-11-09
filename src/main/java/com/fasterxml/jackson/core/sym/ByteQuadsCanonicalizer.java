@@ -1114,14 +1114,19 @@ public final class ByteQuadsCanonicalizer
         return false;
     }
 
-    private int _appendLongName(int[] quads, int qlen)
+    private int _appendLongName(final int[] quads, final int qlen)
     {
-        int start = _longNameOffset;
+        final int start = _longNameOffset;
+        final int newStart = start + qlen;
+        if (newStart < 0) {
+            throw new IllegalStateException(String.format(
+                    "Long name offset overflow; start=%s, qlen=%s", start, qlen));
+        }
 
         // note: at this point we must already be shared. But may not have enough space
-        if ((start + qlen) > _hashArea.length) {
+        if (newStart > _hashArea.length) {
             // try to increment in reasonable chunks; at least space that we need
-            int toAdd = (start + qlen) - _hashArea.length;
+            int toAdd = newStart - _hashArea.length;
             // but at least 1/8 of regular hash area size or 16kB (whichever smaller)
             int minAdd = Math.min(4096, _hashSize);
 
@@ -1129,7 +1134,7 @@ public final class ByteQuadsCanonicalizer
             _hashArea = Arrays.copyOf(_hashArea, newSize);
         }
         System.arraycopy(quads, 0, _hashArea, start, qlen);
-        _longNameOffset += qlen;
+        _longNameOffset = newStart;
         return start;
     }
 

@@ -115,7 +115,6 @@ public class UTF8JsonGenerator
      */
 
     // @since 2.10
-    @SuppressWarnings("deprecation")
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
             OutputStream out, char quoteChar)
     {
@@ -131,16 +130,15 @@ public class UTF8JsonGenerator
         _outputBuffer = ctxt.allocWriteEncodingBuffer();
         _outputEnd = _outputBuffer.length;
 
-        /* To be exact, each char can take up to 6 bytes when escaped (Unicode
-         * escape with backslash, 'u' and 4 hex digits); but to avoid fluctuation,
-         * we will actually round down to only do up to 1/8 number of chars
-         */
+        // To be exact, each char can take up to 6 bytes when escaped (Unicode
+        // escape with backslash, 'u' and 4 hex digits); but to avoid fluctuation,
+        // we will actually round down to only do up to 1/8 number of chars
         _outputMaxContiguous = _outputEnd >> 3;
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
 
         // By default we use this feature to determine additional quoting
-        if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
+        if (isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature())) {
             setHighestNonEscapedChar(127);
         }
     }

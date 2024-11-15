@@ -1,10 +1,11 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.write;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class Surrogate223Test extends JUnit5TestBase
+class SurrogateWrite223Test extends JUnit5TestBase
 {
     private final JsonFactory DEFAULT_JSON_F = newStreamFactory();
 
@@ -92,14 +93,15 @@ class Surrogate223Test extends JUnit5TestBase
         p.close();
     }
 
+    //https://github.com/FasterXML/jackson-core/issues/1359
     @Test
     void checkNonSurrogates() throws Exception {
-        //https://github.com/FasterXML/jackson-core/issues/1359
-        JsonFactory factory = new JsonFactory();
+        JsonFactory f = JsonFactory.builder()
+                .enable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+                .build();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (JsonGenerator gen = factory.createGenerator(out)) {
+        try (JsonGenerator gen = f.createGenerator(out)) {
             gen.writeStartObject();
-            gen.enable(JsonGenerator.Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
 
             // Inside the BMP, beyond surrogate block; 0xFF0C - full-width comma
             gen.writeStringField("test_full_width", "foo" + new String(Character.toChars(0xFF0C)) + "bar");

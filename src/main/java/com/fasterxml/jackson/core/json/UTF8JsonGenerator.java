@@ -2248,7 +2248,8 @@ public class UTF8JsonGenerator
 
     // @since 2.18
     private static boolean _isStartOfSurrogatePair(final int ch) {
-        return (ch & 0xF800) == 0xD800;
+        // In 0xD800 - 0xDBFF range?
+        return (ch & 0xFC00) == 0xD800;
     }
 }
 

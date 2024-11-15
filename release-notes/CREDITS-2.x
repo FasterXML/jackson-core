@@ -456,3 +456,8 @@ Jared Stehler (@jaredstehler)
 Zhanghao (@zhangOranges)
  * Contributed #1305: Make helper methods of `WriterBasedJsonGenerator` non-final to allow overriding
   (2.18.0)
+
+Justin Gosselin (@jgosselin-accesso)
+ * Reported #1359: Non-surrogate characters being incorrectly combined when
+  `JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8` is enabled
+  (2.18.2)

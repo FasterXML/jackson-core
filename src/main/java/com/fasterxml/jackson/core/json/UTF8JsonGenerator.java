@@ -1509,7 +1509,7 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
                 // 3- or 4-byte character
-                if (_isSurrogateChar(ch)) {
+                if (_isStartOfSurrogatePair(ch)) {
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
@@ -1557,7 +1557,7 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
                 // 3- or 4-byte character
-                if (_isSurrogateChar(ch)) {
+                if (_isStartOfSurrogatePair(ch)) {
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
@@ -2247,8 +2247,9 @@ public class UTF8JsonGenerator
     }
 
     // @since 2.18
-    private boolean _isSurrogateChar(int ch) {
-        return (ch & 0xD800) == 0xD800;
+    private static boolean _isStartOfSurrogatePair(final int ch) {
+        // In 0xD800 - 0xDBFF range?
+        return (ch & 0xFC00) == 0xD800;
     }
 }
 

@@ -1,4 +1,4 @@
-package tools.jackson.core.json;
+package tools.jackson.core.write;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
@@ -7,11 +7,14 @@ import java.io.Writer;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonWriteFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class Surrogate223Test extends JUnit5TestBase
+class SurrogateWrite223Test extends JUnit5TestBase
 {
     private final JsonFactory DEFAULT_JSON_F = newStreamFactory();
 
@@ -69,25 +72,54 @@ class Surrogate223Test extends JUnit5TestBase
     @Test
     void surrogatesCharBacked() throws Exception
     {
-        Writer out;
-        JsonGenerator g;
         final String toQuote = new String(Character.toChars(0x1F602));
         assertEquals(2, toQuote.length()); // just sanity check
 
-        out = new StringWriter();
-        g = DEFAULT_JSON_F.createGenerator(ObjectWriteContext.empty(), out);
-        g.writeStartArray();
-        g.writeString(toQuote);
-        g.writeEndArray();
-        g.close();
+        Writer out = new StringWriter();
+        try (JsonGenerator g = DEFAULT_JSON_F.createGenerator(ObjectWriteContext.empty(), out)) {
+            g.writeStartArray();
+            g.writeString(toQuote);
+            g.writeEndArray();
+        }
         assertEquals(2 + 2 + 2, out.toString().length()); // brackets, quotes, 2 chars as is
 
         // Also parse back to ensure correctness
-        JsonParser p = DEFAULT_JSON_F.createParser(ObjectReadContext.empty(), out.toString());
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(toQuote, p.getText());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
-        p.close();
+        try (JsonParser p = DEFAULT_JSON_F.createParser(ObjectReadContext.empty(), out.toString())) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals(toQuote, p.getText());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+        }
+    }
+
+    //https://github.com/FasterXML/jackson-core/issues/1359
+    @Test
+    void checkNonSurrogates() throws Exception {
+        JsonFactory f = JsonFactory.builder()
+                .enable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+                .build();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), out)) {
+            gen.writeStartObject();
+
+            // Inside the BMP, beyond surrogate block; 0xFF0C - full-width comma
+            gen.writeStringProperty("test_full_width", "foo" + new String(Character.toChars(0xFF0C)) + "bar");
+
+            // Inside the BMP, beyond surrogate block; 0xFE6A - small form percent
+            gen.writeStringProperty("test_small_form", "foo" + new String(Character.toChars(0xFE6A)) + "bar");
+
+            // Inside the BMP, before the surrogate block; 0x3042 - Hiragana A
+            gen.writeStringProperty("test_hiragana", "foo" + new String(Character.toChars(0x3042)) + "bar");
+
+            // Outside the BMP; 0x1F60A - emoji
+            gen.writeStringProperty("test_emoji", new String(Character.toChars(0x1F60A)));
+
+            gen.writeEndObject();
+        }
+        String json = out.toString("UTF-8");
+        assertTrue(json.contains("foo\uFF0Cbar"));
+        assertTrue(json.contains("foo\uFE6Abar"));
+        assertTrue(json.contains("foo\u3042bar"));
+        assertTrue(json.contains("\"test_emoji\":\"\uD83D\uDE0A\""));
     }
 }

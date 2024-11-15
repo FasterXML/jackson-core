@@ -457,6 +457,11 @@ Zhanghao (@zhangOranges)
  * Contributed #1305: Make helper methods of `WriterBasedJsonGenerator` non-final to allow overriding
   (2.18.0)
 
+Justin Gosselin (@jgosselin-accesso)
+ * Reported #1359: Non-surrogate characters being incorrectly combined when
+  `JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8` is enabled
+  (2.18.2)
+
 Eduard Gomoliako (@Gems)
  * Contributed #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
   `WRAPPER_ARRAY` when `typeIdDef.id == null`

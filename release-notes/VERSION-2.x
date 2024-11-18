@@ -20,6 +20,8 @@ a pure JSON library.
 #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
   `WRAPPER_ARRAY` when `typeIdDef.id == null`
  (contributed by Eduard G)
+#1361: `JsonPointer` parsing of '~' not followed by "0" or "1" unexpected
+ (reported by @slz30)
 
 2.18.1 (28-Oct-2024)
 

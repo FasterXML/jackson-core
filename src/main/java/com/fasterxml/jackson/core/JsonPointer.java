@@ -803,7 +803,7 @@ public class JsonPointer implements Serializable
         if (toCopy > 0) {
             sb.append(input, firstCharOffset, i-1);
         }
-        _appendEscape(sb, input.charAt(i++));
+        i += _appendEscape(sb, input.charAt(i));
         while (i < end) {
             char c = input.charAt(i);
             if (c == SEPARATOR) { // end is nigh!
@@ -811,7 +811,7 @@ public class JsonPointer implements Serializable
             }
             ++i;
             if (c == ESC && i < end) {
-                _appendEscape(sb, input.charAt(i++));
+                i += _appendEscape(sb, input.charAt(i));
                 continue;
             }
             sb.append(c);
@@ -820,15 +820,18 @@ public class JsonPointer implements Serializable
         return -1;
     }
 
-    private static void _appendEscape(StringBuilder sb, char c) {
+    private static int _appendEscape(StringBuilder sb, char c) {
         if (c == '0') {
-            c = ESC;
-        } else if (c == '1') {
-            c = SEPARATOR;
-        } else {
             sb.append(ESC);
+            return 1;
         }
-        sb.append(c);
+        if (c == '1') {
+            sb.append(SEPARATOR);
+            return 1;
+        }
+        // Not a valid escape; just output tilde, do not advance past following char
+        sb.append(ESC);
+        return 0;
     }
 
     protected JsonPointer _constructHead()

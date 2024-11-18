@@ -115,7 +115,6 @@ public class UTF8JsonGenerator
      */
 
     // @since 2.10
-    @SuppressWarnings("deprecation")
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
             OutputStream out, char quoteChar)
     {
@@ -131,16 +130,15 @@ public class UTF8JsonGenerator
         _outputBuffer = ctxt.allocWriteEncodingBuffer();
         _outputEnd = _outputBuffer.length;
 
-        /* To be exact, each char can take up to 6 bytes when escaped (Unicode
-         * escape with backslash, 'u' and 4 hex digits); but to avoid fluctuation,
-         * we will actually round down to only do up to 1/8 number of chars
-         */
+        // To be exact, each char can take up to 6 bytes when escaped (Unicode
+        // escape with backslash, 'u' and 4 hex digits); but to avoid fluctuation,
+        // we will actually round down to only do up to 1/8 number of chars
         _outputMaxContiguous = _outputEnd >> 3;
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
 
         // By default we use this feature to determine additional quoting
-        if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
+        if (isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII.mappedFeature())) {
             setHighestNonEscapedChar(127);
         }
     }
@@ -1516,7 +1514,7 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
                 // 3- or 4-byte character
-                if (_isSurrogateChar(ch)) {
+                if (_isStartOfSurrogatePair(ch)) {
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
@@ -1564,7 +1562,7 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
                 // 3- or 4-byte character
-                if (_isSurrogateChar(ch)) {
+                if (_isStartOfSurrogatePair(ch)) {
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
@@ -2263,8 +2261,9 @@ public class UTF8JsonGenerator
     }
 
     // @since 2.18
-    private boolean _isSurrogateChar(int ch) {
-        return (ch & 0xD800) == 0xD800;
+    private static boolean _isStartOfSurrogatePair(final int ch) {
+        // In 0xD800 - 0xDBFF range?
+        return (ch & 0xFC00) == 0xD800;
     }
 }
 

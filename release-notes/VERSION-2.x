@@ -23,13 +23,16 @@ a pure JSON library.
 #1361: `JsonPointer` parsing of '~' not followed by "0" or "1" unexpected
  (reported by @slz30)
 
-2.18.1 (28-Oct-2024)
+2.18.2 (27-Nov-2024)
 
-#1353: Use fastdoubleparser 1.0.90
- (fixed by @pjfanning)
 #1359: Non-surrogate characters being incorrectly combined when
   `JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8` is enabled
  (reported by Justin G)
+ (fixed by @pjfanning)
+
+2.18.1 (28-Oct-2024)
+
+#1353: Use fastdoubleparser 1.0.90
  (fixed by @pjfanning)
 
 2.18.0 (26-Sep-2024)

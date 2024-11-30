@@ -353,8 +353,8 @@ public abstract class ParserMinimalBase extends JsonParser
 
     // public abstract TokenStreamContext getParsingContext();
 
-    //  public abstract JsonLocation currentTokenLocation();
-    //  public abstract JsonLocation currentLocation();
+    // public abstract TokenStreamLocation currentTokenLocation();
+    // public abstract TokenStreamLocation currentLocation();
 
     @Override
     public ObjectReadContext objectReadContext() {
@@ -1061,7 +1061,7 @@ public abstract class ParserMinimalBase extends JsonParser
      *
      * @return Same as {@link #currentLocation()} except offset by -1
      */
-    protected JsonLocation _currentLocationMinusOne() {
+    protected TokenStreamLocation _currentLocationMinusOne() {
         return currentLocation();
     }
 

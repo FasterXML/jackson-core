@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JUnit5TestBase;
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.JsonParser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,7 +59,7 @@ class LocationDuringStreamParsingTest extends JUnit5TestBase
     private void initialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
-        JsonLocation loc = p.currentLocation();
+        TokenStreamLocation loc = p.currentLocation();
         p.close();
 
         assertLocation(loc, at(1, 1, 0));
@@ -88,7 +88,7 @@ class LocationDuringStreamParsingTest extends JUnit5TestBase
         assertLocation(p.currentTokenLocation(), loc);
     }
 
-    private void assertLocation(JsonLocation pLoc, LocData loc)
+    private void assertLocation(TokenStreamLocation pLoc, LocData loc)
     {
         String expected = String.format("(%d, %d, %d)",
                 loc.lineNumber, loc.columnNumber, loc.offset);

@@ -53,7 +53,7 @@ public class DupDetector
         _seen = null;
     }
 
-    public JsonLocation findLocation() {
+    public TokenStreamLocation findLocation() {
         // ugly but:
         if (_source instanceof JsonParser) {
             return ((JsonParser)_source).currentLocation();

@@ -282,8 +282,8 @@ public abstract class ParserBase extends ParserMinimalBase
         _inputPtr = Math.max(_inputPtr, _inputEnd);
     }
 
-//    public JsonLocation getTokenLocation()
-//   public JsonLocation getCurrentLocation()
+    // public TokenStreamLocation currentTokenLocation()
+    // public TokenStreamLocation currentLocation()
 
     /*
     /**********************************************************************
@@ -1110,7 +1110,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * Helper method used to encapsulate logic of including (or not) of
-     * "content reference" when constructing {@link JsonLocation} instances.
+     * "content reference" when constructing {@link TokenStreamLocation} instances.
      *
      * @return ContentReference object to use.
      */
@@ -1123,7 +1123,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * Helper method used to encapsulate logic of providing
-     * "content reference" when constructing {@link JsonLocation} instances
+     * "content reference" when constructing {@link TokenStreamLocation} instances
      * and source information is <b>NOT</b> to be included
      * ({@code StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION} disabled).
      *<p>

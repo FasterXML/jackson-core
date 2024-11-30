@@ -153,7 +153,7 @@ class SimpleParserTest extends JUnit5TestBase
         assertEquals("/", ctxt.toString());
 
         assertTrue(p.hasCurrentToken());
-        JsonLocation loc = p.currentTokenLocation();
+        TokenStreamLocation loc = p.currentTokenLocation();
         assertNotNull(loc);
         assertEquals(1, loc.getLineNr());
         if (checkColumn) {
@@ -471,7 +471,7 @@ class SimpleParserTest extends JUnit5TestBase
         JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), input);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
-        JsonLocation loc = p.currentTokenLocation();
+        TokenStreamLocation loc = p.currentTokenLocation();
         assertEquals(3, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());

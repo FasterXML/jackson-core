@@ -47,6 +47,7 @@ JSON library.
   `StreamWriteConstraints` to 500 in 3.0
 #1269: Change `JsonFactory.builder()` configuration of `RecyclerPool` to avoid
   allocation default implementation (in 3.0)
+#1364: JSTEP-6: rename `JsonLocation` as `TokenStreamLocation`
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

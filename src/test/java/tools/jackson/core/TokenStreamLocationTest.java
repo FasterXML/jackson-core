@@ -14,10 +14,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for verifying internal working of {@link JsonLocation} class itself,
+ * Tests for verifying internal working of {@link TokenStreamLocation} class itself,
  * as opposed to accuracy of reported location information by parsers.
  */
-class JsonLocationTest
+class TokenStreamLocationTest
     extends JUnit5TestBase
 {
     static class Foobar { }
@@ -25,9 +25,9 @@ class JsonLocationTest
     @Test
     void basics()
     {
-        JsonLocation loc1 = new JsonLocation(_sourceRef("src"),
+        TokenStreamLocation loc1 = new TokenStreamLocation(_sourceRef("src"),
                 10L, 10L, 1, 2);
-        JsonLocation loc2 = new JsonLocation(null, 10L, 10L, 3, 2);
+        TokenStreamLocation loc2 = new TokenStreamLocation(null, 10L, 10L, 3, 2);
         assertEquals(loc1, loc1);
         assertNotEquals(null, loc1);
         assertNotEquals(loc1, loc2);
@@ -43,33 +43,33 @@ class JsonLocationTest
     {
         // no location; presumed to be Binary due to defaulting
         assertEquals("[Source: UNKNOWN; byte offset: #10]",
-                new JsonLocation(null, 10L, 10L, 3, 2).toString());
+                new TokenStreamLocation(null, 10L, 10L, 3, 2).toString());
 
         // Short String
         assertEquals("[Source: (String)\"string-source\"; line: 1, column: 2]",
-                new JsonLocation(_sourceRef("string-source"), 10L, 10L, 1, 2).toString());
+                new TokenStreamLocation(_sourceRef("string-source"), 10L, 10L, 1, 2).toString());
 
         // Short char[]
         assertEquals("[Source: (char[])\"chars-source\"; line: 1, column: 2]",
-                new JsonLocation(_sourceRef("chars-source".toCharArray()), 10L, 10L, 1, 2).toString());
+                new TokenStreamLocation(_sourceRef("chars-source".toCharArray()), 10L, 10L, 1, 2).toString());
 
         // Short byte[]
         assertEquals("[Source: (byte[])\"bytes-source\"; line: 1, column: 2]",
-                new JsonLocation(_sourceRef(utf8Bytes("bytes-source")), 10L, 10L, 1, 2).toString());
+                new TokenStreamLocation(_sourceRef(utf8Bytes("bytes-source")), 10L, 10L, 1, 2).toString());
 
         // InputStream
         assertEquals("[Source: (ByteArrayInputStream); line: 1, column: 2]",
-                new JsonLocation(_sourceRef(new ByteArrayInputStream(new byte[0])),
+                new TokenStreamLocation(_sourceRef(new ByteArrayInputStream(new byte[0])),
                         10L, 10L, 1, 2).toString());
 
         // Class<?> that specifies source type
         assertEquals("[Source: (InputStream); line: 1, column: 2]",
-                new JsonLocation(_rawSourceRef(true, InputStream.class), 10L, 10L, 1, 2).toString());
+                new TokenStreamLocation(_rawSourceRef(true, InputStream.class), 10L, 10L, 1, 2).toString());
 
         // misc other
         Foobar srcRef = new Foobar();
         assertEquals("[Source: ("+srcRef.getClass().getName()+"); line: 1, column: 2]",
-                new JsonLocation(_rawSourceRef(true, srcRef), 10L, 10L, 1, 2).toString());
+                new TokenStreamLocation(_rawSourceRef(true, srcRef), 10L, 10L, 1, 2).toString());
     }
 
     @Test
@@ -81,12 +81,12 @@ class JsonLocationTest
         }
         String main = sb.toString();
         String json = main + "yyy";
-        JsonLocation loc = new JsonLocation(_sourceRef(json), 0L, 0L, 1, 1);
+        TokenStreamLocation loc = new TokenStreamLocation(_sourceRef(json), 0L, 0L, 1, 1);
         String desc = loc.sourceDescription();
         assertEquals(String.format("(String)\"%s\"[truncated 3 chars]", main), desc);
 
         // and same with bytes
-        loc = new JsonLocation(_sourceRef(utf8Bytes(json)), 0L, 0L, 1, 1);
+        loc = new TokenStreamLocation(_sourceRef(utf8Bytes(json)), 0L, 0L, 1, 1);
         desc = loc.sourceDescription();
         assertEquals(String.format("(byte[])\"%s\"[truncated 3 bytes]", main), desc);
     }
@@ -96,7 +96,7 @@ class JsonLocationTest
     void escapeNonPrintable() throws Exception
     {
         final String DOC = "[ \"tab:[\t]/null:[\0]\" ]";
-        JsonLocation loc = new JsonLocation(_sourceRef(DOC), 0L, 0L, -1, -1);
+        TokenStreamLocation loc = new TokenStreamLocation(_sourceRef(DOC), 0L, 0L, -1, -1);
         final String sourceDesc = loc.sourceDescription();
         assertEquals(String.format("(String)\"[ \"tab:[%s]/null:[%s]\" ]\"",
                 "\\u0009", "\\u0000"), sourceDesc);
@@ -134,7 +134,7 @@ class JsonLocationTest
 
     private void _verifyContentDisabled(StreamReadException e) {
         verifyException(e, "unrecognized token");
-        JsonLocation loc = e.getLocation();
+        TokenStreamLocation loc = e.getLocation();
         assertNull(loc.contentReference().getRawContent());
         assertThat(loc.sourceDescription()).startsWith("REDACTED");
     }
@@ -148,9 +148,9 @@ class JsonLocationTest
         File src2 = new File("/tmp/foo");
         assertEquals(src1, src2);
 
-        JsonLocation loc1 = new JsonLocation(_sourceRef(src1),
+        TokenStreamLocation loc1 = new TokenStreamLocation(_sourceRef(src1),
                 10L, 10L, 1, 2);
-        JsonLocation loc2 = new JsonLocation(_sourceRef(src2),
+        TokenStreamLocation loc2 = new TokenStreamLocation(_sourceRef(src2),
                 10L, 10L, 1, 2);
         assertEquals(loc1, loc2);
 
@@ -158,13 +158,13 @@ class JsonLocationTest
         final byte[] bogus = "BOGUS".getBytes();
 
         // If same, equals:
-        assertEquals(new JsonLocation(_sourceRef(bogus, 0, 5), 5L, 0L, 1, 2),
-                new JsonLocation(_sourceRef(bogus, 0, 5), 5L, 0L, 1, 2));
+        assertEquals(new TokenStreamLocation(_sourceRef(bogus, 0, 5), 5L, 0L, 1, 2),
+                new TokenStreamLocation(_sourceRef(bogus, 0, 5), 5L, 0L, 1, 2));
 
         // If different, not equals
-        loc1 = new JsonLocation(_sourceRef(bogus, 0, 5),
+        loc1 = new TokenStreamLocation(_sourceRef(bogus, 0, 5),
                 5L, 0L, 1, 2);
-        loc2 = new JsonLocation(_sourceRef(bogus, 1, 4),
+        loc2 = new TokenStreamLocation(_sourceRef(bogus, 1, 4),
                 5L, 0L, 1, 2);
         assertNotEquals(loc1, loc2);
         assertNotEquals(loc2, loc1);

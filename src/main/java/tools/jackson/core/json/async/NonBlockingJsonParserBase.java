@@ -327,30 +327,30 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public JsonLocation currentLocation()
+    public TokenStreamLocation currentLocation()
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         // Since we track CR and LF separately, max should gives us right answer
         int row = Math.max(_currInputRow, _currInputRowAlt);
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 _currInputProcessed + (_inputPtr - _currBufferStart), -1L, // bytes, chars
                 row, col);
     }
 
     @Override // @since 2.17
-    protected JsonLocation _currentLocationMinusOne() {
+    protected TokenStreamLocation _currentLocationMinusOne() {
         final int prevInputPtr = _inputPtr - 1;
         int row = Math.max(_currInputRow, _currInputRowAlt);
         final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 _currInputProcessed + (prevInputPtr - _currBufferStart), -1L, // bytes, chars
                 row, col);
     }
 
     @Override
-    public JsonLocation currentTokenLocation()
+    public TokenStreamLocation currentTokenLocation()
     {
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 _tokenInputTotal, -1L, _tokenInputRow, _tokenInputCol);
     }
 

@@ -12,7 +12,7 @@ import tools.jackson.core.ErrorReportConfiguration;
  * Abstraction that encloses information about content being processed --
  * input source or output target, streaming or
  * not -- for the purpose of including pertinent information in
- * location (see {@link tools.jackson.core.JsonLocation})
+ * location (see {@link tools.jackson.core.TokenStreamLocation})
  * objections, most commonly to be printed out as part of {@code Exception}
  * messages.
  */
@@ -374,9 +374,8 @@ public class ContentReference
     /**********************************************************************
      */
 
-    // Just needed for JsonLocation#equals(): although it'd seem we only need
-    // to care about identity, for backwards compatibility better compare
-    // bit more
+    // Just needed for TokenStreamLocation#equals(): although it'd seem we only need
+    // to care about identity, for backwards compatibility better compare bit more
     @Override
     public boolean equals(Object other)
     {

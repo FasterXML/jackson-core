@@ -36,7 +36,7 @@ public class ErrorReportConfigurationMaxRawContentLengthTest
 
     private void _verifyToString(String rawSrc, int rawContentLength, String expectedMessage) {
         ContentReference reference = _sourceRefWithErrorReportConfig(rawSrc, rawContentLength);
-        String location = new JsonLocation(reference, 10L, 10L, 1, 1).toString();
+        String location = new TokenStreamLocation(reference, 10L, 10L, 1, 1).toString();
         assertEquals(expectedMessage, location);
     }
 

@@ -154,13 +154,13 @@ public abstract class JsonParser
      *<p>
      * Note that the location is not guaranteed to be accurate (although most
      * implementation will try their best): some implementations may only
-     * return {@link JsonLocation#NA} due to not having access
+     * return {@link TokenStreamLocation#NA} due to not having access
      * to input location information (when delegating actual decoding work
      * to other library).
      *
      * @return Starting location of the token parser currently points to
      */
-    public abstract JsonLocation currentTokenLocation();
+    public abstract TokenStreamLocation currentTokenLocation();
 
     /**
      * Method that returns location of the last processed character;
@@ -169,13 +169,13 @@ public abstract class JsonParser
      * Note that the location is not guaranteed to be accurate (although most
      * implementation will try their best): some implementations may only
      * report specific boundary locations (start or end locations of tokens)
-     * and others only return {@link JsonLocation#NA} due to not having access
+     * and others only return {@link TokenStreamLocation#NA} due to not having access
      * to input location information (when delegating actual decoding work
      * to other library).
      *
      * @return Location of the last processed input unit (byte or character)
      */
-    public abstract JsonLocation currentLocation();
+    public abstract TokenStreamLocation currentLocation();
 
     /**
      * Get an approximate count of the number of tokens that have been read.
@@ -1739,7 +1739,7 @@ public abstract class JsonParser
     /**
      * Helper method for constructing {@link StreamReadException}
      * based on current state of the parser, except for specified
-     * {@link JsonLocation} for problem location (which may not be
+     * {@link TokenStreamLocation} for problem location (which may not be
      * the exact current location)
      *
      * @param msg Base exception message to construct exception with
@@ -1749,7 +1749,7 @@ public abstract class JsonParser
      *
      * @since 2.13
      */
-    protected StreamReadException _constructReadException(String msg, JsonLocation loc) {
+    protected StreamReadException _constructReadException(String msg, TokenStreamLocation loc) {
         return new StreamReadException(this, msg, loc);
     }
 }

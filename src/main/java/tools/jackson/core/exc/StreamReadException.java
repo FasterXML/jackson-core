@@ -23,16 +23,16 @@ public class StreamReadException
         this(p, msg, _loc(p), rootCause);
     }
 
-    public StreamReadException(JsonParser p, String msg, JsonLocation loc) {
+    public StreamReadException(JsonParser p, String msg, TokenStreamLocation loc) {
         super(p, msg, loc);
     }
 
-    public StreamReadException(JsonParser p, String msg, JsonLocation loc,
+    public StreamReadException(JsonParser p, String msg, TokenStreamLocation loc,
             Throwable rootCause) {
         super(p, msg, loc, rootCause);
     }
 
-    private static JsonLocation _loc(JsonParser p) {
+    private static TokenStreamLocation _loc(JsonParser p) {
         return(p == null) ? null : p.currentLocation();    
     }
 

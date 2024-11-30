@@ -16,7 +16,7 @@ class LocationOffsets455Test extends JUnit5TestBase
         JsonParser p = createParserUsingReader("42");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(42, p.getIntValue());
-        JsonLocation loc = p.currentLocation();
+        TokenStreamLocation loc = p.currentLocation();
         assertEquals(1, loc.getLineNr());
         assertEquals(3, loc.getColumnNr());
         assertEquals(2, loc.getCharOffset());
@@ -39,7 +39,7 @@ class LocationOffsets455Test extends JUnit5TestBase
         JsonParser p = createParserUsingStream("42", "UTF-8");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(42, p.getIntValue());
-        JsonLocation loc = p.currentLocation();
+        TokenStreamLocation loc = p.currentLocation();
         assertEquals(1, loc.getLineNr());
         assertEquals(3, loc.getColumnNr());
         assertEquals(2, loc.getByteOffset());

@@ -1,7 +1,7 @@
 package tools.jackson.core.exc;
 
 import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonLocation;
+import tools.jackson.core.TokenStreamLocation;
 
 /**
  * Exception type used to indicate violations of stream constraints
@@ -17,7 +17,7 @@ public class StreamConstraintsException
         super(msg);
     }
 
-    public StreamConstraintsException(String msg, JsonLocation loc) {
+    public StreamConstraintsException(String msg, TokenStreamLocation loc) {
         super(msg, loc, null);
     }
 }

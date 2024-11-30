@@ -59,7 +59,7 @@ class LocationInArrayTest extends JUnit5TestBase
         p.close();
     }
 
-    private void _assertLocation(boolean useBytes, JsonLocation loc, long offset, int row, int col)
+    private void _assertLocation(boolean useBytes, TokenStreamLocation loc, long offset, int row, int col)
     {
         assertEquals(row, loc.getLineNr());
         assertEquals(col, loc.getColumnNr());

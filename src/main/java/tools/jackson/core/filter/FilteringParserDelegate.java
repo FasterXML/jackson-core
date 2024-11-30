@@ -160,7 +160,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
 
-    @Override public JsonLocation currentLocation() { return delegate.currentLocation(); }
+    @Override public TokenStreamLocation currentLocation() { return delegate.currentLocation(); }
 
     @Override
     public TokenStreamContext streamReadContext() {

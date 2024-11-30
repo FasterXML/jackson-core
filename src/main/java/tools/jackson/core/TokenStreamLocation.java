@@ -15,9 +15,11 @@ import tools.jackson.core.io.ContentReference;
  * NOTE: users should be careful if using {@link #equals} implementation as
  * it may or may not compare underlying "content reference" for equality.
  * Instead if would make sense to explicitly implementing equality checks
- * using specific criteria caller desires.
+ * using specific criteria caller desires
+ * <br />
+ * NOTE: in Jackson 2.x this type was named {@code JsonLocation}
  */
-public class JsonLocation
+public class TokenStreamLocation
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 2L;
@@ -26,7 +28,7 @@ public class JsonLocation
      * Shared immutable "N/A location" that can be returned to indicate
      * that no location information is available.
      */
-    public final static JsonLocation NA = new JsonLocation(ContentReference.unknown(),
+    public final static TokenStreamLocation NA = new TokenStreamLocation(ContentReference.unknown(),
             -1L, -1L, -1, -1);
 
     private final static String NO_LOCATION_DESC = "[No location information]";
@@ -57,13 +59,13 @@ public class JsonLocation
     /**********************************************************************
      */
 
-    public JsonLocation(ContentReference contentRef, long totalChars,
+    public TokenStreamLocation(ContentReference contentRef, long totalChars,
             int lineNr, int colNr)
     {
         this(contentRef, -1L, totalChars, lineNr, colNr);
     }
 
-    public JsonLocation(ContentReference contentRef, long totalBytes, long totalChars,
+    public TokenStreamLocation(ContentReference contentRef, long totalBytes, long totalChars,
             int lineNr, int columnNr)
     {
         // 14-Mar-2021, tatu: Defensive programming, but also for convenience...
@@ -220,8 +222,8 @@ public class JsonLocation
     {
         if (other == this) return true;
         if (other == null) return false;
-        if (!(other instanceof JsonLocation)) return false;
-        JsonLocation otherLoc = (JsonLocation) other;
+        if (!(other instanceof TokenStreamLocation)) return false;
+        TokenStreamLocation otherLoc = (TokenStreamLocation) other;
 
         if (_contentReference == null) {
             if (otherLoc._contentReference != null) return false;

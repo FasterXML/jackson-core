@@ -2945,30 +2945,30 @@ public class ReaderBasedJsonParser
      */
 
     @Override
-    public JsonLocation currentTokenLocation()
+    public TokenStreamLocation currentTokenLocation()
     {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
-            return new JsonLocation(_contentReference(),
+            return new TokenStreamLocation(_contentReference(),
                     -1L, total, _nameStartRow, _nameStartCol);
         }
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 -1L, _tokenInputTotal-1, _tokenInputRow, _tokenInputCol);
     }
 
     @Override
-    public JsonLocation currentLocation() {
+    public TokenStreamLocation currentLocation() {
         final int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 -1L, _currInputProcessed + _inputPtr,
                 _currInputRow, col);
     }
 
     @Override // @since 2.17
-    protected JsonLocation _currentLocationMinusOne() {
+    protected TokenStreamLocation _currentLocationMinusOne() {
         final int prevInputPtr = _inputPtr - 1;
         final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 -1L, _currInputProcessed + prevInputPtr,
                 _currInputRow, col);
     }

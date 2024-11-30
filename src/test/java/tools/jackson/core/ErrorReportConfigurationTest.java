@@ -140,14 +140,14 @@ class ErrorReportConfigurationTest
     }
 
     @Test
-    void withJsonLocation() throws Exception
+    void withLocation() throws Exception
     {
         // Truncated result
-        _verifyJsonLocationToString("abc", 2, "\"ab\"[truncated 1 chars]");
+        _verifyLocationToString("abc", 2, "\"ab\"[truncated 1 chars]");
         // Exact length
-        _verifyJsonLocationToString("abc", 3, "\"abc\"");
+        _verifyLocationToString("abc", 3, "\"abc\"");
         // Enough length
-        _verifyJsonLocationToString("abc", 4, "\"abc\"");
+        _verifyLocationToString("abc", 4, "\"abc\"");
     }
 
     @Test
@@ -273,7 +273,7 @@ class ErrorReportConfigurationTest
         }
     }
 
-    private void _verifyJsonLocationToString(String rawSrc, int rawContentLength, String expectedMessage)
+    private void _verifyLocationToString(String rawSrc, int rawContentLength, String expectedMessage)
     {
         ErrorReportConfiguration erc = ErrorReportConfiguration.builder()
                 .maxRawContentLength(rawContentLength)
@@ -281,7 +281,7 @@ class ErrorReportConfigurationTest
         ContentReference reference = ContentReference.construct(true, rawSrc, 0, rawSrc.length(), erc);
         assertEquals(
                 "[Source: (String)" + expectedMessage + "; line: 1, column: 1]",
-                new JsonLocation(reference, 10L, 10L, 1, 1).toString());
+                new TokenStreamLocation(reference, 10L, 10L, 1, 1).toString());
     }
 
     private void _verifyErrorTokenLength(int expectedTokenLen, ErrorReportConfiguration errorReportConfiguration)

@@ -2952,31 +2952,31 @@ public class UTF8DataInputJsonParser
      */
 
     @Override
-    public JsonLocation currentTokenLocation() {
+    public TokenStreamLocation currentTokenLocation() {
         // 03-Jan-2020, tatu: Should probably track this, similar to how
         //   streaming parsers do it, but... not done yet
 
 //        if (_currToken == JsonToken.PROPERTY_NAME) {
-//           return new JsonLocation(_getSourceReference(),
+//           return new TokenStreamLocation(_getSourceReference(),
 //                    -1L, -1L, _nameStartRow, _nameStartCol);
 //        }
 
         // No column tracking since we do not have pointers, DataInput has no offset
 
-        return new JsonLocation(_contentReference(), -1L, -1L, _tokenInputRow, -1);
+        return new TokenStreamLocation(_contentReference(), -1L, -1L, _tokenInputRow, -1);
     }
 
     @Override
-    public JsonLocation currentLocation() {
+    public TokenStreamLocation currentLocation() {
         // No column tracking since we do not have pointers, DataInput has no offset
         final int col = -1;
-        return new JsonLocation(_contentReference(), -1L, -1L,
+        return new TokenStreamLocation(_contentReference(), -1L, -1L,
                 _currInputRow, col);
     }
 
     // Since we only know row, may as well return currentLocation()
     @Override // @since 2.17
-    protected JsonLocation _currentLocationMinusOne() {
+    protected TokenStreamLocation _currentLocationMinusOne() {
         return currentLocation();
     }
 

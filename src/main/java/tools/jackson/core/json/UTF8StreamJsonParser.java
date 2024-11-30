@@ -4163,31 +4163,31 @@ public class UTF8StreamJsonParser
      */
 
     @Override
-    public JsonLocation currentTokenLocation()
+    public TokenStreamLocation currentTokenLocation()
     {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
-            return new JsonLocation(_contentReference(),
+            return new TokenStreamLocation(_contentReference(),
                     total, -1L, _nameStartRow, _nameStartCol);
         }
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 _tokenInputTotal-1, -1L, _tokenInputRow, _tokenInputCol);
     }
 
     @Override
-    public JsonLocation currentLocation()
+    public TokenStreamLocation currentLocation()
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 _currInputProcessed + _inputPtr, -1L, // bytes, chars
                 _currInputRow, col);
     }
 
     @Override // @since 2.17
-    protected JsonLocation _currentLocationMinusOne() {
+    protected TokenStreamLocation _currentLocationMinusOne() {
         final int prevInputPtr = _inputPtr - 1;
         final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_contentReference(),
+        return new TokenStreamLocation(_contentReference(),
                 _currInputProcessed + prevInputPtr, -1L, // bytes, chars
                 _currInputRow, col);
     }

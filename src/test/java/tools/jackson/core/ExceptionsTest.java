@@ -20,7 +20,7 @@ class ExceptionsTest
     @Test
     void originalMesssage()
     {
-        final JsonLocation loc = new JsonLocation(null, -1L, 1, 1);
+        final TokenStreamLocation loc = new TokenStreamLocation(null, -1L, 1, 1);
         StreamReadException exc = new StreamReadException(null, "Foobar", loc);
         String msg = exc.getMessage();
         String orig = exc.getOriginalMessage();
@@ -50,7 +50,7 @@ class ExceptionsTest
         StreamReadException e = new StreamReadException(p, "Test!");
         assertSame(p, e.processor());
         assertEquals("Test!", e.getOriginalMessage());
-        JsonLocation loc = e.getLocation();
+        TokenStreamLocation loc = e.getLocation();
         assertNotNull(loc);
         assertEquals(2, loc.getColumnNr());
         assertEquals(1, loc.getLineNr());
@@ -174,7 +174,7 @@ class ExceptionsTest
             fail("Should not pass");
         } catch (StreamReadException e) {
             verifyException(e, "Unrecognized token 'broken'");
-            JsonLocation loc = e.getLocation();
+            TokenStreamLocation loc = e.getLocation();
             assertEquals(1, loc.getLineNr());
             assertEquals(expColumn, loc.getColumnNr());
             final String srcDesc = loc.sourceDescription();

@@ -1235,7 +1235,7 @@ public abstract class TokenStreamFactory
      * Overridable factory method that actually instantiates desired
      * context object.
      *
-     * @param contentRef Source reference to use (relevant to {@code JsonLocation} construction)
+     * @param contentRef Source reference to use (relevant to {@code TokenStreamLocation} construction)
      * @param resourceManaged Whether input/output buffers used are managed by this factory
      *
      * @return Context constructed
@@ -1248,7 +1248,7 @@ public abstract class TokenStreamFactory
      * Overridable factory method that actually instantiates desired
      * context object.
      *
-     * @param contentRef Source reference to use (relevant to {@code JsonLocation} construction)
+     * @param contentRef Source reference to use (relevant to {@code TokenStreamLocation} construction)
      * @param resourceManaged Whether input/output buffers used are managed by this factory
      * @param enc Character encoding defined to be used/expected
      *

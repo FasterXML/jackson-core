@@ -98,10 +98,10 @@ class JDKSerializabilityTest
         JsonFactory jf = new JsonFactory();
         JsonParser jp = jf.createParser(ObjectReadContext.empty(), "  { }");
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        JsonLocation loc = jp.currentLocation();
+        TokenStreamLocation loc = jp.currentLocation();
 
         byte[] stuff = jdkSerialize(loc);
-        JsonLocation loc2 = jdkDeserialize(stuff);
+        TokenStreamLocation loc2 = jdkDeserialize(stuff);
         assertNotNull(loc2);
 
         assertEquals(loc.getLineNr(), loc2.getLineNr());

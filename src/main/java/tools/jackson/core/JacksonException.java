@@ -157,7 +157,7 @@ public class JacksonException
     /**********************************************************************
      */
 
-    protected JsonLocation _location;
+    protected TokenStreamLocation _location;
 
     /**
      * Path through which problem that triggering throwing of
@@ -191,7 +191,7 @@ public class JacksonException
         this(null, msg, null, rootCause);
     }
 
-    protected JacksonException(String msg, JsonLocation loc, Throwable rootCause) {
+    protected JacksonException(String msg, TokenStreamLocation loc, Throwable rootCause) {
         this(null, msg, loc, rootCause);
     }
 
@@ -201,7 +201,7 @@ public class JacksonException
         _location = _nonNullLocation(null);
     }
 
-    protected JacksonException(Closeable processor, String msg, JsonLocation loc,
+    protected JacksonException(Closeable processor, String msg, TokenStreamLocation loc,
             Throwable rootCause) {
         super(msg, rootCause);
         _processor = processor;
@@ -212,7 +212,7 @@ public class JacksonException
     {
         super(msg);
         _processor = processor;
-        JsonLocation loc = null;
+        TokenStreamLocation loc = null;
         if (processor instanceof JsonParser) {
             // 17-Aug-2015, tatu: Use of token location makes some sense from databinding,
             //   since actual parsing (current) location is typically only needed for low-level
@@ -227,7 +227,7 @@ public class JacksonException
     {
         super(msg, problem);
         _processor = processor;
-        JsonLocation loc = null;
+        TokenStreamLocation loc = null;
         if (problem instanceof JacksonException) {
             loc = ((JacksonException) problem).getLocation();
         } else if (processor instanceof JsonParser) {
@@ -237,15 +237,15 @@ public class JacksonException
         _location = _nonNullLocation(loc);
     }
 
-    protected JacksonException(Closeable processor, String msg, JsonLocation loc)
+    protected JacksonException(Closeable processor, String msg, TokenStreamLocation loc)
     {
         super(msg);
         _processor = processor;
         _location = _nonNullLocation(loc);
     }
 
-    private static JsonLocation _nonNullLocation(JsonLocation loc) {
-        return (loc == null) ? JsonLocation.NA : loc;
+    private static TokenStreamLocation _nonNullLocation(TokenStreamLocation loc) {
+        return (loc == null) ? TokenStreamLocation.NA : loc;
     }
     
     // @since 3.0
@@ -417,7 +417,7 @@ public class JacksonException
     /**
      * Accessor for location information related to position within input
      * or output (depending on operation), if available; if not available
-     * may return {@link JsonLocation#NA} (but never {@code null}).
+     * may return {@link TokenStreamLocation#NA} (but never {@code null}).
      *<p>
      * Accuracy of location information depends on backend (format) as well
      * as (in some cases) operation being performed.
@@ -425,7 +425,7 @@ public class JacksonException
      * @return Location in input or output that triggered the problem reported, if
      *    available; {@code null} otherwise.
      */
-    public JsonLocation getLocation() { return _location; }
+    public TokenStreamLocation getLocation() { return _location; }
 
     /**
      * Method that allows accessing the original "message" argument,
@@ -510,7 +510,7 @@ public class JacksonException
         if (baseMessage == null) {
             baseMessage = "N/A";
         }
-        JsonLocation loc = getLocation();
+        TokenStreamLocation loc = getLocation();
         String suffix = messageSuffix();
         // mild optimization, if nothing extra is needed:
         StringBuilder sb = new StringBuilder(200);

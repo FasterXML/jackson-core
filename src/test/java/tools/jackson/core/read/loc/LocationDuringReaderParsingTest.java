@@ -56,7 +56,7 @@ class LocationDuringReaderParsingTest
     private void initialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingReader(test.json);
-        JsonLocation loc = p.currentLocation();
+        TokenStreamLocation loc = p.currentLocation();
         p.close();
 
         assertLocation(loc, at(1, 1, 0));
@@ -84,7 +84,7 @@ class LocationDuringReaderParsingTest
         assertLocation(p.currentTokenLocation(), loc);
     }
 
-    private void assertLocation(JsonLocation pLoc, LocData loc)
+    private void assertLocation(TokenStreamLocation pLoc, LocData loc)
     {
         String expected = String.format("(%d, %d, %d)",
                 loc.lineNumber, loc.columnNumber, loc.offset);

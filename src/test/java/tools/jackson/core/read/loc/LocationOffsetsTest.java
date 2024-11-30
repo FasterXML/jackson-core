@@ -18,7 +18,7 @@ class LocationOffsetsTest extends JUnit5TestBase
     @Test
     void simpleInitialOffsets() throws Exception
     {
-        JsonLocation loc;
+        TokenStreamLocation loc;
         JsonParser p;
         final String DOC = "{ }";
 
@@ -64,7 +64,7 @@ class LocationOffsetsTest extends JUnit5TestBase
     @Test
     void offsetWithInputOffset() throws Exception
     {
-        JsonLocation loc;
+        TokenStreamLocation loc;
         JsonParser p;
         // 3 spaces before, 2 after, just for padding
         byte[] b = "   { }  ".getBytes("UTF-8");
@@ -91,7 +91,7 @@ class LocationOffsetsTest extends JUnit5TestBase
     @Test
     void offsetWithoutInputOffset() throws Exception
     {
-        JsonLocation loc;
+        TokenStreamLocation loc;
         JsonParser p;
         // 3 spaces before, 2 after, just for padding
         byte[] b = "   { }  ".getBytes("UTF-8");
@@ -160,7 +160,7 @@ class LocationOffsetsTest extends JUnit5TestBase
     @Test
     void utf8Bom() throws Exception
     {
-        JsonLocation loc;
+        TokenStreamLocation loc;
         JsonParser p;
 
         byte[] b = withUtf8Bom("{ }".getBytes());
@@ -187,7 +187,7 @@ class LocationOffsetsTest extends JUnit5TestBase
     @Test
     void utf8BomWithPadding() throws Exception
     {
-        JsonLocation loc;
+        TokenStreamLocation loc;
         JsonParser p;
 
         byte[] b = withUtf8Bom("   { }".getBytes());
@@ -214,7 +214,7 @@ class LocationOffsetsTest extends JUnit5TestBase
     @Test
     void utf8BomWithInputOffset() throws Exception
     {
-        JsonLocation loc;
+        TokenStreamLocation loc;
         JsonParser p;
 
         byte[] b = withUtf8Bom("   { }".getBytes());
@@ -251,7 +251,7 @@ class LocationOffsetsTest extends JUnit5TestBase
     // [core#603]
     @Test
     void bigPayload() throws IOException {
-        JsonLocation loc;
+        TokenStreamLocation loc;
         JsonParser p;
 
         String doc = "{\"key\":\"" + generateRandomAlpha(50000) + "\"}";

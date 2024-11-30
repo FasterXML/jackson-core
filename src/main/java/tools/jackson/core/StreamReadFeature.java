@@ -74,7 +74,7 @@ public enum StreamReadFeature
     // // // Other
 
     /**
-     * Feature that determines whether {@link JsonLocation} instances should be constructed
+     * Feature that determines whether {@link TokenStreamLocation} instances should be constructed
      * with reference to source or not. If source reference is included, its type and contents
      * are included when `toString()` method is called (most notably when printing out parse
      * exception with that location information). If feature is disabled, no source reference
@@ -88,7 +88,7 @@ public enum StreamReadFeature
      *<p>
      * Feature is disabled by default for security reason (to avoid leaking additional source
      * information), meaning that "source reference" information is NOT passed
-     * and none of source content will be included in {@link JsonLocation}
+     * and none of source content will be included in {@link TokenStreamLocation}
      * constructed either when requested explicitly, or when needed for an exception.
      */
     INCLUDE_SOURCE_IN_LOCATION(false),

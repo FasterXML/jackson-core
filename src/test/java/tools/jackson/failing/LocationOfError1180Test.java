@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.core.JUnit5TestBase.a2q;
 
 /**
- * Tests that the {@link JsonLocation} attached to a thrown {@link StreamReadException}
+ * Tests that the {@link TokenStreamLocation} attached to a thrown {@link StreamReadException}
  * due to invalid JSON points to the correct character.
  */
 class LocationOfError1180Test
@@ -136,7 +136,7 @@ class LocationOfError1180Test
                 }
             );
 
-            JsonLocation location = e.getLocation();
+            TokenStreamLocation location = e.getLocation();
             assertEquals(invalidJson.lineNr, location.getLineNr());
             final String msg = e.getOriginalMessage();
 

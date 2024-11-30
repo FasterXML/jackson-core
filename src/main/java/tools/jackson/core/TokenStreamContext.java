@@ -265,15 +265,15 @@ public abstract class TokenStreamContext
      * for example, in case of JSON `Object` context, offset at which `[` token was
      * read or written. Often used for error reporting purposes.
      * Implementations that do not keep track of such location are expected to return
-     * {@link JsonLocation#NA}; this is what the default implementation does.
+     * {@link TokenStreamLocation#NA}; this is what the default implementation does.
      *
      * @param srcRef Source reference needed to construct location instance
      *
      * @return Location pointing to the point where the context
      *   start marker was found (or written); never {@code null}.
      */
-    public JsonLocation startLocation(ContentReference srcRef) {
-        return JsonLocation.NA;
+    public TokenStreamLocation startLocation(ContentReference srcRef) {
+        return TokenStreamLocation.NA;
     }
 
     /**

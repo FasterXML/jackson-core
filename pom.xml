@@ -44,7 +44,7 @@
       -->
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
-    <version.plugin.animal-sniffer>1.23</version.plugin.animal-sniffer>
+    <version.plugin.animal-sniffer>1.24</version.plugin.animal-sniffer>
 
     <osgi.export>tools.jackson.core;version=${project.version},
 tools.jackson.core.*;version=${project.version}

@@ -34,6 +34,10 @@
   </scm>
 
   <properties>
+    <!-- [databind#4820]: Java 17 baseline -->
+    <javac.src.version>17</javac.src.version>
+    <javac.target.version>17</javac.target.version>
+
     <!-- Baseline Android SDK compatibility:
 
          * Jackson 3.0 compatible with Android SDK 26 and up

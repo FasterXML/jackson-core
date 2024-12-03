@@ -463,7 +463,7 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         if (_binaryValue == null) {
             if (_currToken != JsonToken.VALUE_STRING) {
-                _reportError("Current token ("+_currToken+") not VALUE_STRING, can not access as binary");
+                _reportError("Current token ("+_currToken+") not VALUE_STRING, cannot access as binary");
             }
             ByteArrayBuilder builder = _getByteArrayBuilder();
             _decodeBase64(getText(), builder, variant);
@@ -947,7 +947,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _parseSlowFloat(expType);
             return;
         }
-        _reportError("Current token (%s) not numeric, can not use numeric value accessors", _currToken);
+        _reportError("Current token (%s) not numeric, cannot use numeric value accessors", _currToken);
     }
 
     // @since 2.6

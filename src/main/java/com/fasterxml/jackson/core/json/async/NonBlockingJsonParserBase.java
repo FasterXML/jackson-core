@@ -263,7 +263,7 @@ public abstract class NonBlockingJsonParserBase
 
     @Override
     public void setCodec(ObjectCodec c) {
-        throw new UnsupportedOperationException("Can not use ObjectMapper with non-blocking parser");
+        throw new UnsupportedOperationException("Cannot use ObjectMapper with non-blocking parser");
     }
 
     /*
@@ -428,7 +428,7 @@ public abstract class NonBlockingJsonParserBase
                 return _textBuffer.contentsToWriter(writer);
             }
             if (t == JsonToken.NOT_AVAILABLE) {
-                _reportError("Current token not available: can not call this method");
+                _reportError("Current token not available: cannot call this method");
             }
             char[] ch = t.asCharArray();
             writer.write(ch);
@@ -548,7 +548,7 @@ public abstract class NonBlockingJsonParserBase
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
         if (_currToken != JsonToken.VALUE_STRING) {
-            _reportError("Current token (%s) not VALUE_STRING or VALUE_EMBEDDED_OBJECT, can not access as binary",
+            _reportError("Current token (%s) not VALUE_STRING or VALUE_EMBEDDED_OBJECT, cannot access as binary",
                     _currToken);
         }
         if (_binaryValue == null) {

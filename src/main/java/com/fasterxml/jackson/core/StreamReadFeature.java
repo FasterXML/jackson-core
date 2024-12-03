@@ -82,7 +82,7 @@ public enum StreamReadFeature
      * Most common reason for disabling this feature is to avoid leaking
      * internal information; this may be done for security reasons.
      * Note that even if source reference is included, only parts of contents are usually
-     * printed, and not the whole contents. Further, many source reference types can not
+     * printed, and not the whole contents. Further, many source reference types cannot
      * necessarily access contents (like streams), so only type is indicated, not contents.
      *<p>
      * Feature is enabled by default, meaning that "source reference" information is passed

@@ -21,11 +21,11 @@ public enum JsonToken
 
     /**
      * NOT_AVAILABLE can be returned if {@link JsonParser}
-     * implementation can not currently return the requested
+     * implementation cannot currently return the requested
      * token (usually next one), or even if any will be
      * available, but that may be able to determine this in
      * future. This is the case with non-blocking parsers --
-     * they can not block to wait for more data to parse and
+     * they cannot block to wait for more data to parse and
      * must return something.
      */
     NOT_AVAILABLE(null, JsonTokenId.ID_NOT_AVAILABLE),

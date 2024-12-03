@@ -366,7 +366,7 @@ public abstract class JsonParser
           * Most common reason for disabling this feature is to avoid leaking information about
           * internal information; this may be done for security reasons.
           * Note that even if source reference is included, only parts of contents are usually
-          * printed, and not the whole contents. Further, many source reference types can not
+          * printed, and not the whole contents. Further, many source reference types cannot
           * necessarily access contents (like streams), so only type is indicated, not contents.
           *<p>
           * Since 2.16 feature is <b>disabled</b> by default (before 2.16 it was enabled),
@@ -888,12 +888,12 @@ public abstract class JsonParser
      * done after reading all content of interest using parser.
      * Content is released by writing it to given stream if possible;
      * if underlying input is byte-based it can released, if not (char-based)
-     * it can not.
+     * it cannot.
      *
      * @param out OutputStream to which buffered, undecoded content is written to
      *
      * @return -1 if the underlying content source is not byte based
-     *    (that is, input can not be sent to {@link OutputStream};
+     *    (that is, input cannot be sent to {@link OutputStream};
      *    otherwise number of bytes released (0 if there was nothing to release)
      *
      * @throws IOException if write to stream threw exception
@@ -909,12 +909,12 @@ public abstract class JsonParser
      * done after reading all content of interest using parser.
      * Content is released by writing it to given writer if possible;
      * if underlying input is char-based it can released, if not (byte-based)
-     * it can not.
+     * it cannot.
      *
      * @param w Writer to which buffered but unprocessed content is written to
      *
      * @return -1 if the underlying content source is not char-based
-     *    (that is, input can not be sent to {@link Writer};
+     *    (that is, input cannot be sent to {@link Writer};
      *    otherwise number of chars released (0 if there was nothing to release)
      *
      * @throws IOException if write using Writer threw exception
@@ -1926,7 +1926,7 @@ public abstract class JsonParser
     /**
      * Numeric accessor that can be called when the current
      * token is of type {@link JsonToken#VALUE_NUMBER_INT} and
-     * it can not be used as a Java long primitive type due to its
+     * it cannot be used as a Java long primitive type due to its
      * magnitude.
      * It can also be called for {@link JsonToken#VALUE_NUMBER_FLOAT};
      * if so, it is equivalent to calling {@link #getDecimalValue}
@@ -2146,7 +2146,7 @@ public abstract class JsonParser
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to an int (including structured type
+     * If representation cannot be converted to an int (including structured type
      * markers like start/end Object/Array)
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      *
@@ -2167,7 +2167,7 @@ public abstract class JsonParser
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to an int (including structured type
+     * If representation cannot be converted to an int (including structured type
      * markers like start/end Object/Array)
      * specified <b>def</b> will be returned; no exceptions are thrown.
      *
@@ -2187,7 +2187,7 @@ public abstract class JsonParser
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to a long (including structured type
+     * If representation cannot be converted to a long (including structured type
      * markers like start/end Object/Array)
      * default value of <b>0L</b> will be returned; no exceptions are thrown.
      *
@@ -2208,7 +2208,7 @@ public abstract class JsonParser
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
      *<p>
-     * If representation can not be converted to a long (including structured type
+     * If representation cannot be converted to a long (including structured type
      * markers like start/end Object/Array)
      * specified <b>def</b> will be returned; no exceptions are thrown.
      *
@@ -2230,7 +2230,7 @@ public abstract class JsonParser
      * and 1.0 (true), and Strings are parsed using default Java language floating
      * point parsing rules.
      *<p>
-     * If representation can not be converted to a double (including structured types
+     * If representation cannot be converted to a double (including structured types
      * like Objects and Arrays),
      * default value of <b>0.0</b> will be returned; no exceptions are thrown.
      *
@@ -2251,7 +2251,7 @@ public abstract class JsonParser
      * and 1.0 (true), and Strings are parsed using default Java language floating
      * point parsing rules.
      *<p>
-     * If representation can not be converted to a double (including structured types
+     * If representation cannot be converted to a double (including structured types
      * like Objects and Arrays),
      * specified <b>def</b> will be returned; no exceptions are thrown.
      *
@@ -2273,7 +2273,7 @@ public abstract class JsonParser
      * 0 maps to false
      * and Strings 'true' and 'false' map to corresponding values.
      *<p>
-     * If representation can not be converted to a boolean value (including structured types
+     * If representation cannot be converted to a boolean value (including structured types
      * like Objects and Arrays),
      * default value of <b>false</b> will be returned; no exceptions are thrown.
      *
@@ -2294,7 +2294,7 @@ public abstract class JsonParser
      * 0 maps to false
      * and Strings 'true' and 'false' map to corresponding values.
      *<p>
-     * If representation can not be converted to a boolean value (including structured types
+     * If representation cannot be converted to a boolean value (including structured types
      * like Objects and Arrays),
      * specified <b>def</b> will be returned; no exceptions are thrown.
      *
@@ -2314,7 +2314,7 @@ public abstract class JsonParser
      * {@link java.lang.String}.
      * JSON Strings map naturally; scalar values get converted to
      * their textual representation.
-     * If representation can not be converted to a String value (including structured types
+     * If representation cannot be converted to a String value (including structured types
      * like Objects and Arrays and {@code null} token), default value of
      * <b>null</b> will be returned; no exceptions are thrown.
      *
@@ -2334,7 +2334,7 @@ public abstract class JsonParser
      * {@link java.lang.String}.
      * JSON Strings map naturally; scalar values get converted to
      * their textual representation.
-     * If representation can not be converted to a String value (including structured types
+     * If representation cannot be converted to a String value (including structured types
      * like Objects and Arrays and {@code null} token), specified default value
      * will be returned; no exceptions are thrown.
      *
@@ -2363,7 +2363,7 @@ public abstract class JsonParser
      * Default implementation returns true; overridden by data formats
      * that do support native Object Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
-     * in case it can not use native object ids.
+     * in case it cannot use native object ids.
      *
      * @return {@code True} if the format being read supports native Object Ids;
      *    {@code false} if not
@@ -2380,7 +2380,7 @@ public abstract class JsonParser
      * Default implementation returns true; overridden by data formats
      * that do support native Type Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
-     * in case it can not use native type ids.
+     * in case it cannot use native type ids.
      *
      * @return {@code True} if the format being read supports native Type Ids;
      *    {@code false} if not
@@ -2454,7 +2454,7 @@ public abstract class JsonParser
      * Note: this method should NOT be used if the result type is a
      * container ({@link java.util.Collection} or {@link java.util.Map}.
      * The reason is that due to type erasure, key and value types
-     * can not be introspected when using this method.
+     * cannot be introspected when using this method.
      *
      * @param <T> Nominal type parameter for value type
      *

@@ -10,15 +10,15 @@ package com.fasterxml.jackson.core.format;
 public enum MatchStrength
 {
     /**
-     * Value that indicates that given data can not be in given format.
+     * Value that indicates that given data cannot be in given format.
      */
     NO_MATCH,
 
     /**
-     * Value that indicates that detector can not find out whether could
+     * Value that indicates that detector cannot find out whether could
      * be a match or not.
      * This can occur for example for textual data formats t
-     * when there are so many leading spaces that detector can not
+     * when there are so many leading spaces that detector cannot
      * find the first data byte (because detectors typically limit lookahead
      * to some smallish value).
      */
@@ -26,7 +26,7 @@ public enum MatchStrength
 
     /**
      * Value that indicates that given data could be of specified format (i.e.
-     * it can not be ruled out). This can occur for example when seen data
+     * it cannot be ruled out). This can occur for example when seen data
      * is both not in canonical formats (for example: JSON data should be a JSON Array or Object
      * not a scalar value, as per JSON specification) and there are known use case
      * where a format detected is actually used (plain JSON Strings are actually used, even

@@ -44,7 +44,7 @@ public abstract class ObjectCodec
      * Note: this method should NOT be used if the result type is a
      * container ({@link java.util.Collection} or {@link java.util.Map}.
      * The reason is that due to type erasure, key and value types
-     * can not be introspected when using this method.
+     * cannot be introspected when using this method.
      *
      * @param <T> Nominal parameter for target type
      *

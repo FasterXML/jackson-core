@@ -34,13 +34,17 @@
   </scm>
 
   <properties>
+    <!-- [databind#4820]: Java 17 baseline -->
+    <javac.src.version>17</javac.src.version>
+    <javac.target.version>17</javac.target.version>
+
     <!-- Baseline Android SDK compatibility:
 
          * Jackson 3.0 compatible with Android SDK 26 and up
       -->
     <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
-    <version.plugin.animal-sniffer>1.23</version.plugin.animal-sniffer>
+    <version.plugin.animal-sniffer>1.24</version.plugin.animal-sniffer>
 
     <osgi.export>tools.jackson.core;version=${project.version},
 tools.jackson.core.*;version=${project.version}

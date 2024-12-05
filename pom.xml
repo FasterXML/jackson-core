@@ -64,7 +64,7 @@ tools.jackson.core.*;version=${project.version}
   <repositories>
     <repository>
       <id>sonatype-nexus-snapshots-new</id>
-      <name>Sonatype Nexus Snapshots</name>
+      <name>Sonatype Nexus Snapshots (new)</name>
       <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>

@@ -56,7 +56,9 @@ public enum JsonToken
 
     /**
      * PROPERTY_NAME is returned when a String token is encountered
-     * as a property name (same lexical value, different function)
+     * as a property name (same lexical value, different function).
+     *<p>
+     * NOTE: in Jackson 2.x this enum was named {@code FIELD_NAME}
      */
     PROPERTY_NAME(null, JsonTokenId.ID_PROPERTY_NAME),
 

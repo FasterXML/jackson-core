@@ -21,7 +21,7 @@ import tools.jackson.core.io.ContentReference;
  * also include information about current property name (for Objects)
  * and element index (for Arrays).
  *<p>
- * NOTE: In jackson 2.x this class was named <code>JsonStreamContext</code>
+ * NOTE: in Jackson 2.x this class was named {@code JsonStreamContext}
  */
 public abstract class TokenStreamContext
 {

@@ -17,6 +17,8 @@ import com.fasterxml.jackson.core.io.ContentReference;
  * being processed. This allows for some contextual processing: for
  * example, output within Array context can differ from that of
  * Object context.
+ *<p>
+ * NOTE: in Jackson 3.x this class is renamed as {@code TokenStreamContext}
  */
 public abstract class JsonStreamContext
 {

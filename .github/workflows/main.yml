@@ -25,7 +25,7 @@ jobs:
       matrix:
         java_version: ['17', '21', '23']
         # We will actually need "os" as Matrix to have Windows build
-        os: ['ubuntu-22.04']
+        os: ['ubuntu-24.04']
         include:
           - java_version: '17'
             os: 'ubuntu-22.04'

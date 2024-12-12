@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['17', '21', '22']
+        java_version: ['17', '21', '23']
         # We will actually need "os" as Matrix to have Windows build
         os: ['ubuntu-22.04']
         include:

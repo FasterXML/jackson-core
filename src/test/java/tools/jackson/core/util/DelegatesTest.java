@@ -4,7 +4,6 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Iterator;
-import java.util.Spliterator;
 
 import org.junit.jupiter.api.Test;
 
@@ -94,11 +93,6 @@ class DelegatesTest extends JUnit5TestBase
 
         @Override
         public Iterator<String> propertyNames() {
-            return null;
-        }
-
-        @Override
-        public Spliterator<String> propertyNamesSpliterator() {
             return null;
         }
 

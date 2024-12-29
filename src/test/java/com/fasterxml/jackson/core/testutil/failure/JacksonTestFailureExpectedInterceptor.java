@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.core.testutil.failure;
 
+import java.lang.reflect.Method;
+
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
-
-import java.lang.reflect.Method;
 
 /**
  * Custom {@link InvocationInterceptor} that intercepts test method invocation.

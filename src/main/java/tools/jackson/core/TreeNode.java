@@ -230,15 +230,15 @@ public interface TreeNode
     Iterator<String> propertyNames();
 
     /**
-     * Method for accessing names of all properties for this node via a <code>Spliterator</code> ,
+     * Method for accessing names of all properties for this node via a {@code Spliterator} ,
      * if (and only if) this node is an Object node. Number of property names accessible
      * will be {@link #size}.
      *
-     * @return A <code>Spliterator</code> for traversing names of all properties this Object node
+     * @return A {@link Spliterator} for traversing names of all properties this Object node
      *   has (if Object node); empty {@link Spliterator} otherwise (never {@code null}).
      * @since 3.0
      */
-    default Spliterator<String> propertyNamesSpliterator() {
+    default Spliterator<String> propertyNameSpliterator() {
         return Spliterators.spliteratorUnknownSize(propertyNames(), Spliterator.ORDERED);
     }
 

@@ -118,9 +118,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
         <version>${version.plugin.surefire}</version>
         <configuration>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
-          <excludes>
-            <exclude>**/failing/**/*.java</exclude>
-          </excludes>
 <!-- 13-Apr-2018, tatu: for debugging [core#400]
           <systemPropertyVariables>
 <com.fasterxml.jackson.core.util.BufferRecyclers.trackReusableBuffers>true</com.fasterxml.jackson.core.util.BufferRecyclers.trackReusableBuffers>

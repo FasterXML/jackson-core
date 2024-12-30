@@ -37,4 +37,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(JacksonTestFailureExpectedInterceptor.class)
-public @interface JacksonTestFailureExpected { }
+public @interface JacksonTestFailureExpected {
+
+    /**
+     * Implementation class {@link ExpectedPassingTestCasePredicate} class that will be used to
+     * determine if a test case is expected to pass.
+     */
+    public Class<? extends ExpectedPassingTestCasePredicate> expectedPassingTestCasePredicate()
+            default ExpectedPassingTestCasePredicate.class;
+
+}

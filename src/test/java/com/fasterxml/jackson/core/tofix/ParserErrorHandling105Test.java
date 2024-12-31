@@ -1,8 +1,9 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.tofix;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -11,6 +12,7 @@ class ParserErrorHandling105Test
         extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     // Tests for [core#105] ("eager number parsing misses errors")
+    @JacksonTestFailureExpected
     @Test
     void mangledIntsBytes() throws Exception {
         // 02-Jun-2017, tatu: Fails to fail; should check whether this is expected
@@ -18,6 +20,7 @@ class ParserErrorHandling105Test
         _testMangledNonRootInts(MODE_DATA_INPUT);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledFloatsBytes() throws Exception {
 //        _testMangledNonRootFloats(MODE_INPUT_STREAM);
@@ -27,11 +30,13 @@ class ParserErrorHandling105Test
         _testMangledNonRootFloats(MODE_DATA_INPUT);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledIntsChars() throws Exception {
         _testMangledNonRootInts(MODE_READER);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledFloatsChars() throws Exception {
         _testMangledNonRootFloats(MODE_READER);

@@ -29,6 +29,39 @@ public class JacksonTestFailureExpectedInterceptor
         handleUnexpectePassingTest(invocationContext);
     }
 
+    /**
+     * Interceptor API method that is called to intercept test template
+     * method invocation, like {@link org.junit.jupiter.params.ParameterizedTest}.
+     *<p>
+     * Before failing passing test case, it checks if the test should pass according to the
+     * {@link ExpectedPassingTestCasePredicate} provided in the
+     * {@link JacksonTestFailureExpected} annotation.
+     */
+    @Override
+    public void interceptTestTemplateMethod(Invocation<Void> invocation,
+            ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext)
+        throws Throwable
+    {
+
+        try {
+            invocation.proceed();
+        } catch (Throwable t) {
+            // do-nothing, we do expect an exception
+            return;
+        }
+
+        // Before we fail the test for passing,
+        // check if the test should pass according to the predicate given
+        ExpectedPassingTestCasePredicate predicate = findzExpectedPassingTestCasePredicate(invocationContext);
+        if (predicate != null) {
+            if (predicate.shouldPass(invocationContext.getArguments())) {
+                // do-nothing, we do not expect an exception
+                return;
+            }
+        }
+        handleUnexpectePassingTest(invocationContext);
+    }
+
     private void handleUnexpectePassingTest(ReflectiveInvocationContext<Method> invocationContext) {
         // Collect information we need
         Object targetClass = invocationContext.getTargetClass();
@@ -40,6 +73,23 @@ public class JacksonTestFailureExpectedInterceptor
 
         // throw exception
         throw new JacksonTestShouldFailException(message);
+    }
+
+    /**
+     * @return null if the default predicate is found,
+     *       otherwise instance of the {@link ExpectedPassingTestCasePredicate}.
+     */
+    private ExpectedPassingTestCasePredicate findzExpectedPassingTestCasePredicate(
+            ReflectiveInvocationContext<Method> invocationContext)
+            throws InstantiationException, IllegalAccessException
+    {
+        JacksonTestFailureExpected annotation = invocationContext.getExecutable().getAnnotation(JacksonTestFailureExpected.class);
+        Class<? extends ExpectedPassingTestCasePredicate> predicate = annotation.expectedPassingTestCasePredicate();
+        if (ExpectedPassingTestCasePredicate.class.equals(predicate)) {
+            return null;
+        } else {
+            return predicate.newInstance();
+        }
     }
 
 }

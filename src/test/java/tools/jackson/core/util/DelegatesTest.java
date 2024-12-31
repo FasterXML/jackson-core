@@ -3,6 +3,7 @@ package tools.jackson.core.util;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.Test;
@@ -92,7 +93,7 @@ class DelegatesTest extends JUnit5TestBase
         }
 
         @Override
-        public Iterator<String> propertyNames() {
+        public Collection<String> propertyNames() {
             return null;
         }
 

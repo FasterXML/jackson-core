@@ -229,19 +229,6 @@ public interface TreeNode
     Collection<String> propertyNames();
 
     /**
-     * Method for accessing names of all properties for this node via a {@code Spliterator} ,
-     * if (and only if) this node is an Object node. Number of property names accessible
-     * will be {@link #size}.
-     *
-     * @return A {@link Spliterator} for traversing names of all properties this Object node
-     *   has (if Object node); empty {@link Spliterator} otherwise (never {@code null}).
-     * @since 3.0
-     */
-    default Spliterator<String> propertyNameSpliterator() {
-        return propertyNames().spliterator();
-    }
-
-    /**
      * Method for locating node specified by given JSON pointer instances.
      * Method will never return null; if no matching node exists,
      * will return a node for which {@link TreeNode#isMissingNode()} returns true.

@@ -5,6 +5,7 @@
 
 package tools.jackson.core;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -227,7 +228,7 @@ public interface TreeNode
      * @return An iterator for traversing names of all properties this Object node
      *   has (if Object node); empty {@link Iterator} otherwise (never {@code null}).
      */
-    Iterator<String> propertyNames();
+    Collection<String> propertyNames();
 
     /**
      * Method for accessing names of all properties for this node via a {@code Spliterator} ,
@@ -239,7 +240,7 @@ public interface TreeNode
      * @since 3.0
      */
     default Spliterator<String> propertyNameSpliterator() {
-        return Spliterators.spliteratorUnknownSize(propertyNames(), Spliterator.ORDERED);
+        return propertyNames().spliterator();
     }
 
     /**

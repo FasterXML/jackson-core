@@ -6,9 +6,7 @@
 package tools.jackson.core;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Spliterator;
-import java.util.Spliterators;
 
 /**
  * Marker interface used to denote JSON Tree nodes, as far as
@@ -225,8 +223,8 @@ public interface TreeNode
      * this node is an Object node. Number of property names accessible
      * will be {@link #size}.
      *
-     * @return An iterator for traversing names of all properties this Object node
-     *   has (if Object node); empty {@link Iterator} otherwise (never {@code null}).
+     * @return {@link Collection} of names of all properties this Object node
+     *   has (if Object node); empty {@link Collection} otherwise (never {@code null}).
      */
     Collection<String> propertyNames();
 

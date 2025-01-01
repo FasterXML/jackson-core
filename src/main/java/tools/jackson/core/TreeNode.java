@@ -6,7 +6,6 @@
 package tools.jackson.core;
 
 import java.util.Collection;
-import java.util.Spliterator;
 
 /**
  * Marker interface used to denote JSON Tree nodes, as far as

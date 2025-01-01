@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.core.tofix;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,6 +7,7 @@ import tools.jackson.core.filter.FilteringParserDelegate;
 import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -30,6 +31,7 @@ class ParserFilterEmpty708Test extends JUnit5TestBase
     private final JsonFactory JSON_F = newStreamFactory();
 
     // [core#708]
+    @JacksonTestFailureExpected
     @Test
     void emptyArray() throws Exception
     {
@@ -49,6 +51,7 @@ class ParserFilterEmpty708Test extends JUnit5TestBase
     }
 
     // [core#708]
+    @JacksonTestFailureExpected
     @Test
     void emptyObject() throws Exception
     {

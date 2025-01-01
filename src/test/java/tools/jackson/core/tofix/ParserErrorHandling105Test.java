@@ -1,9 +1,10 @@
-package tools.jackson.failing;
+package tools.jackson.core.tofix;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -12,6 +13,7 @@ class ParserErrorHandling105Test
     extends tools.jackson.core.JUnit5TestBase
 {
     // Tests for [core#105] ("eager number parsing misses errors")
+    @JacksonTestFailureExpected
     @Test
     void mangledIntsBytes() throws Exception {
         // 02-Jun-2017, tatu: Fails to fail; should check whether this is expected
@@ -19,6 +21,7 @@ class ParserErrorHandling105Test
         _testMangledNonRootInts(MODE_DATA_INPUT);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledFloatsBytes() throws Exception {
 //        _testMangledNonRootFloats(MODE_INPUT_STREAM);
@@ -28,11 +31,13 @@ class ParserErrorHandling105Test
         _testMangledNonRootFloats(MODE_DATA_INPUT);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledIntsChars() throws Exception {
         _testMangledNonRootInts(MODE_READER);
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledFloatsChars() throws Exception {
         _testMangledNonRootFloats(MODE_READER);

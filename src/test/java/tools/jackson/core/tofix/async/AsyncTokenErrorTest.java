@@ -1,4 +1,4 @@
-package tools.jackson.failing.async;
+package tools.jackson.core.tofix.async;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,6 +7,7 @@ import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
+import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -28,6 +29,7 @@ class AsyncTokenErrorTest extends AsyncTestBase
         _doTestInvalidKeyword("trueenough");
     }
 
+    @JacksonTestFailureExpected
     @Test
     void invalidKeywordsStartFail() throws Exception
     {
@@ -62,6 +64,7 @@ class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledRootInts() throws Exception
     {
@@ -73,6 +76,7 @@ class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledRootFloats() throws Exception
     {
@@ -85,6 +89,7 @@ class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledNonRootInts() throws Exception
     {
@@ -97,6 +102,7 @@ class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
+    @JacksonTestFailureExpected
     @Test
     void mangledNonRootFloats() throws Exception
     {

@@ -1,10 +1,11 @@
-package tools.jackson.failing;
+package tools.jackson.core.tofix;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -13,6 +14,7 @@ class ParserErrorHandling679Test
     extends tools.jackson.core.JUnit5TestBase
 {
     // [core#679]
+    @JacksonTestFailureExpected
     @Test
     void nonRootMangledFloats679Bytes() throws Exception {
         _testNonRootMangledFloats679(MODE_INPUT_STREAM);
@@ -22,11 +24,13 @@ class ParserErrorHandling679Test
 
     // [core#679]
     @Test
+    @JacksonTestFailureExpected
     void nonRootMangledFloats679Chars() throws Exception {
         _testNonRootMangledFloats679(MODE_READER);
     }
 
     // [core#679]
+    @JacksonTestFailureExpected
     @Test
     void nonRootMangledInts679Bytes() throws Exception {
         _testNonRootMangledInts(MODE_INPUT_STREAM);

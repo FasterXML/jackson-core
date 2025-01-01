@@ -1,4 +1,4 @@
-package tools.jackson.failing.async;
+package tools.jackson.core.tofix.async;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

@@ -1,8 +1,9 @@
-package tools.jackson.failing;
+package tools.jackson.core.tofix;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,6 +14,8 @@ import tools.jackson.core.*;
 import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.testutil.failure.ExpectedPassingTestCasePredicate;
+import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static tools.jackson.core.JUnit5TestBase.a2q;
@@ -121,12 +124,13 @@ class LocationOfError1180Test
         )
     );
 
+    @JacksonTestFailureExpected(expectedPassingTestCasePredicate = ShouldPredicate1180Test.class)
     @ParameterizedTest
     @MethodSource("_generateTestData")
     void parserBackendWithInvalidJson(ParserVariant variant, InvalidJson invalidJson)
             throws Exception
     {
-        try (JsonParser parser = variant.createParser(invalidJson.input))
+       try (JsonParser parser = variant.createParser(invalidJson.input))
         {
             StreamReadException e = assertThrows(
                     StreamReadException.class,
@@ -195,5 +199,19 @@ class LocationOfError1180Test
         public final int charOffset;
         public final int lineNr;
         public final int columnNr;
+    }
+
+    public static class ShouldPredicate1180Test
+            implements ExpectedPassingTestCasePredicate
+    {
+        @Override
+        public boolean shouldPass(List<Object> arguments) {
+            if (arguments.get(0) == ParserVariant.CHAR_ARRAY
+                && Objects.equals(((InvalidJson) (arguments.get(1)))._name, "Invalid JSON with raw unicode character")
+            ) {
+                return true;
+            }
+            return false;
+        }
     }
 }

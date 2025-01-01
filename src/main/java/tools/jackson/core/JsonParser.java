@@ -860,7 +860,7 @@ public abstract class JsonParser
      * after encountering end-of-input), returns null.
      * Method can be called for any token type.
      *
-     * @return Textual value associated with the current token (one returned
+     * @return String value associated with the current token (one returned
      *   by {@link #nextToken()} or other iteration methods)
      *
      * @throws JacksonIOException for low-level read issues
@@ -901,11 +901,11 @@ public abstract class JsonParser
      * to contain this information.
      * Note, however, that:
      *<ul>
-     * <li>Textual contents are not guaranteed to start at
+     * <li>String contents are not guaranteed to start at
      *   index 0 (rather, call {@link #getTextOffset}) to
      *   know the actual offset
      *  </li>
-     * <li>Length of textual contents may be less than the
+     * <li>Length of string contents may be less than the
      *  length of returned buffer: call {@link #getTextLength}
      *  for actual length of returned content.
      *  </li>

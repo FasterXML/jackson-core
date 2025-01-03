@@ -582,7 +582,7 @@ public abstract class JsonParser
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public String nextStringValue() throws JacksonException {
-        return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
+        return (nextToken() == JsonToken.VALUE_STRING) ? getString() : null;
     }
 
     /**
@@ -846,7 +846,7 @@ public abstract class JsonParser
     /**
      * Method that can be called to get the name associated with
      * the current token: for {@link JsonToken#PROPERTY_NAME}s it will
-     * be the same as what {@link #getText} returns;
+     * be the same as what {@link #getString()} returns;
      * for Object property values it will be the preceding property name;
      * and for others (array element, root-level values) null.
      *
@@ -866,7 +866,7 @@ public abstract class JsonParser
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract String getText() throws JacksonException;
+    public abstract String getString() throws JacksonException;
 
     /**
      * Method to read the textual representation of the current token in chunks and
@@ -883,7 +883,9 @@ public abstract class JsonParser
      * using {@link TextBuffer}) and <b>will</b> be accessible with
      * other {@code getText()} calls (that is, it will not be consumed).
      * So this accessor only avoids construction of {@link java.lang.String}
-     * compared to plain {@link #getText()} method.
+     * compared to plain {@link #getString()} method.
+     *<p>
+     * NOTE: In Jackson 2.x this method was called {@code getString(Writer)}.
      *
      * @param writer Writer to write String value to
      *
@@ -895,7 +897,7 @@ public abstract class JsonParser
     public abstract int getString(Writer writer) throws JacksonException;
 
     /**
-     * Method similar to {@link #getText}, but that will return
+     * Method similar to {@link #getString()}, but that will return
      * underlying (unmodifiable) character array that contains
      * textual value, instead of constructing a String object
      * to contain this information.
@@ -915,7 +917,7 @@ public abstract class JsonParser
      * character array in any way -- doing so may corrupt
      * current parser state and render parser instance useless.
      *<p>
-     * The only reason to call this method (over {@link #getText})
+     * The only reason to call this method (over {@link #getString()})
      * is to avoid construction of a String object (which
      * will make a copy of contents).
      *
@@ -957,7 +959,7 @@ public abstract class JsonParser
      * Method that can be used to determine whether calling of
      * {@link #getStringCharacters} would be the most efficient
      * way to access String value for the event parser currently
-     * points to (compared to {@link #getText}).
+     * points to (compared to {@link #getString()}).
      *
      * @return True if parser currently has character array that can
      *   be efficiently returned via {@link #getTextCharacters}; false
@@ -965,6 +967,17 @@ public abstract class JsonParser
      */
     public abstract boolean hasStringCharacters();
 
+    /**
+     * Deprecated alias for {@link #getString()}: MAY be removed in a 3.x version
+     * past 3.0; only included to help initial migration.
+     *
+     * @deprecated since 3.0 use {@link #getString()} instead.
+     */
+    @Deprecated // since 3.0
+    public String getText() throws JacksonException {
+        return getString();
+    }
+    
     /*
     /**********************************************************************
     /* Public API, access to token information, numeric
@@ -1255,7 +1268,7 @@ public abstract class JsonParser
      * may not be accessible using other methods after the call)
      * base64-encoded binary data
      * included in the current textual JSON value.
-     * It works similar to getting String value via {@link #getText}
+     * It works similar to getting String value via {@link #getString()}
      * and decoding result (except for decoding part),
      * but should be significantly more performant.
      *<p>

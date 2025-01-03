@@ -2212,7 +2212,7 @@ public abstract class JsonGenerator
         if (p.hasStringCharacters()) {
             writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
         } else {
-            writeString(p.getText());
+            writeString(p.getString());
         }
     }
 

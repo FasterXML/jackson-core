@@ -294,7 +294,7 @@ public class ReaderBasedJsonParser
      * see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     @Override
-    public final String getText() throws JacksonException
+    public final String getString() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -482,7 +482,7 @@ public class ReaderBasedJsonParser
             if (_binaryValue == null) {
                 @SuppressWarnings("resource")
                 ByteArrayBuilder builder = _getByteArrayBuilder();
-                _decodeBase64(getText(), builder, b64variant);
+                _decodeBase64(getString(), builder, b64variant);
                 _binaryValue = builder.toByteArray();
             }
         }
@@ -1223,7 +1223,7 @@ public class ReaderBasedJsonParser
             return null;
         }
         // !!! TODO: optimize this case as well
-        return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
+        return (nextToken() == JsonToken.VALUE_STRING) ? getString() : null;
     }
 
     // note: identical to one in Utf8StreamParser

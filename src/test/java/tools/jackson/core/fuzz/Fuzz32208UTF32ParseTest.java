@@ -28,7 +28,7 @@ class Fuzz32208UTF32ParseTest extends JUnit5TestBase
         JsonParser p = f.createParser(ObjectReadContext.empty(), DOC);
         try {
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            String text = p.getText();
+            String text = p.getString();
             fail("Should not have passed; got text with length of: "+text.length());
         } catch (JacksonIOException e) {
             verifyException(e, "Invalid UTF-32 character ");

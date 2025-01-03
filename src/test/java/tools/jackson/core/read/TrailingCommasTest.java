@@ -57,10 +57,10 @@ public class TrailingCommasTest extends JUnit5TestBase
       assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("a", p.getText());
+      assertEquals("a", p.getString());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("b", p.getText());
+      assertEquals("b", p.getString());
 
       assertEquals(JsonToken.END_ARRAY, p.nextToken());
       assertEnd(p);
@@ -78,7 +78,7 @@ public class TrailingCommasTest extends JUnit5TestBase
       assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("a", p.getText());
+      assertEquals("a", p.getString());
 
       if (!features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
         assertUnexpected(p, ',');
@@ -88,7 +88,7 @@ public class TrailingCommasTest extends JUnit5TestBase
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("b", p.getText());
+      assertEquals("b", p.getString());
 
       assertEquals(JsonToken.END_ARRAY, p.nextToken());
       assertEnd(p);
@@ -113,10 +113,10 @@ public class TrailingCommasTest extends JUnit5TestBase
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("a", p.getText());
+      assertEquals("a", p.getString());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("b", p.getText());
+      assertEquals("b", p.getString());
 
       assertEquals(JsonToken.END_ARRAY, p.nextToken());
       assertEnd(p);
@@ -134,10 +134,10 @@ public class TrailingCommasTest extends JUnit5TestBase
       assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("a", p.getText());
+      assertEquals("a", p.getString());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("b", p.getText());
+      assertEquals("b", p.getString());
 
       // ALLOW_TRAILING_COMMA takes priority over ALLOW_MISSING_VALUES
       if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
@@ -164,10 +164,10 @@ public class TrailingCommasTest extends JUnit5TestBase
       assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("a", p.getText());
+      assertEquals("a", p.getString());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("b", p.getText());
+      assertEquals("b", p.getString());
 
       // ALLOW_TRAILING_COMMA takes priority over ALLOW_MISSING_VALUES
       if (features.contains(JsonReadFeature.ALLOW_MISSING_VALUES) &&
@@ -197,10 +197,10 @@ public class TrailingCommasTest extends JUnit5TestBase
       assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("a", p.getText());
+      assertEquals("a", p.getString());
 
       assertToken(JsonToken.VALUE_STRING, p.nextToken());
-      assertEquals("b", p.getText());
+      assertEquals("b", p.getString());
 
       // ALLOW_TRAILING_COMMA takes priority over ALLOW_MISSING_VALUES
       if (features.contains(JsonReadFeature.ALLOW_MISSING_VALUES) &&
@@ -231,11 +231,11 @@ public class TrailingCommasTest extends JUnit5TestBase
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("a", p.getText());
+        assertEquals("a", p.getString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
     
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("b", p.getText());
+        assertEquals("b", p.getString());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
@@ -253,7 +253,7 @@ public class TrailingCommasTest extends JUnit5TestBase
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("a", p.getText());
+        assertEquals("a", p.getString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
         assertUnexpected(p, ',');
@@ -285,11 +285,11 @@ public class TrailingCommasTest extends JUnit5TestBase
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("a", p.getText());
+        assertEquals("a", p.getString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
     
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("b", p.getText());
+        assertEquals("b", p.getString());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
         if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
@@ -371,11 +371,11 @@ public class TrailingCommasTest extends JUnit5TestBase
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("a", p.getText());
+        assertEquals("a", p.getString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
     
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("b", p.getText());
+        assertEquals("b", p.getString());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
         assertUnexpected(p, ',');

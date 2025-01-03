@@ -72,7 +72,7 @@ public class GeneratorMiscTest
         assertEquals(-123, jp.getIntValue());
         assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("x", jp.getText());
+        assertEquals("x", jp.getString());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         jp.close();
     }

@@ -370,7 +370,7 @@ public abstract class NonBlockingJsonParserBase
      * see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     @Override
-    public String getText() throws JacksonException
+    public String getString() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             return _textBuffer.contentsAsString();
@@ -531,7 +531,7 @@ public abstract class NonBlockingJsonParserBase
         if (_binaryValue == null) {
             @SuppressWarnings("resource")
             ByteArrayBuilder builder = _getByteArrayBuilder();
-            _decodeBase64(getText(), builder, b64variant);
+            _decodeBase64(getString(), builder, b64variant);
             _binaryValue = builder.toByteArray();
         }
         return _binaryValue;

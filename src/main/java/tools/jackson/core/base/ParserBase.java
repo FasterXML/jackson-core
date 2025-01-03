@@ -305,7 +305,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 _reportError("Current token (%s) not VALUE_EMBEDDED_OBJECT or VALUE_STRING, can not access as binary", _currToken);
             }
             ByteArrayBuilder builder = _getByteArrayBuilder();
-            _decodeBase64(getText(), builder, variant);
+            _decodeBase64(getString(), builder, variant);
             _binaryValue = builder.toByteArray();
         }
         return _binaryValue;
@@ -721,7 +721,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's verify its lossless conversion by simple roundtrip
             int result = (int) _numberLong;
             if (result != _numberLong) {
-                _reportOverflowInt(getText(), currentToken());
+                _reportOverflowInt(getString(), currentToken());
             }
             _numberInt = result;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
@@ -884,7 +884,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
-            final String numStr = _numberString == null ? getText() : _numberString;
+            final String numStr = _numberString == null ? getString() : _numberString;
             _numberBigDecimal = NumberInput.parseBigDecimal(
                     numStr,
                     isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));

@@ -44,7 +44,7 @@ class DataInputTest
     {
         JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, "\"foobar\" ");
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("foobar", p.getText());
+        assertEquals("foobar", p.getString());
         assertNull(p.nextToken());
         p.close();
     }

@@ -156,7 +156,7 @@ public class UTF8DataInputJsonParser
      */
 
     @Override
-    public String getText() throws JacksonException
+    public String getString() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -384,7 +384,7 @@ public class UTF8DataInputJsonParser
             if (_binaryValue == null) {
                 @SuppressWarnings("resource")
                 ByteArrayBuilder builder = _getByteArrayBuilder();
-                _decodeBase64(getText(), builder, b64variant);
+                _decodeBase64(getString(), builder, b64variant);
                 _binaryValue = builder.toByteArray();
             }
         }
@@ -892,7 +892,7 @@ public class UTF8DataInputJsonParser
             }
             return null;
         }
-        return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
+        return (nextToken() == JsonToken.VALUE_STRING) ? getString() : null;
     }
 
     @Override

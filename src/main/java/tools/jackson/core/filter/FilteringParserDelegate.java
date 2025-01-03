@@ -904,11 +904,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
     // 19-Jul-2021, tatu: Cannot quite just delegate these methods due to oddity
     //   of property name token, which may be buffered.
 
-    @Override public String getText() throws JacksonException {
+    @Override public String getString() throws JacksonException {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
-        return delegate.getText();
+        return delegate.getString();
     }
 
     @Override public boolean hasStringCharacters() {

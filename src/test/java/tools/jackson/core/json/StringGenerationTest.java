@@ -163,7 +163,7 @@ class StringGenerationTest
         }
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(text, p.getText());
+        assertEquals(text, p.getString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
@@ -189,7 +189,7 @@ class StringGenerationTest
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
             JsonToken t = p.nextToken();
             assertEquals(JsonToken.VALUE_STRING, t);
-            assertEquals(VALUE, p.getText());
+            assertEquals(VALUE, p.getString());
             assertEquals(JsonToken.END_ARRAY, p.nextToken());
             assertNull(p.nextToken());
             p.close();
@@ -217,7 +217,7 @@ class StringGenerationTest
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         JsonToken t = p.nextToken();
         assertEquals(JsonToken.VALUE_STRING, t);
-        String act = p.getText();
+        String act = p.getString();
         if (!text.equals(act)) {
             if (text.length() != act.length()) {
                 fail("Expected string length "+text.length()+", actual "+act.length());
@@ -283,7 +283,7 @@ class StringGenerationTest
         offset = 0;
         while (p.nextToken() == JsonToken.VALUE_STRING) {
             // Let's verify, piece by piece
-            String act = p.getText();
+            String act = p.getString();
             String exp = text.substring(offset, offset+act.length());
             if (act.length() != exp.length()) {
                 fail("String segment ["+offset+" - "+(offset+act.length())+"[ differs; exp length "+exp+", actual "+act);

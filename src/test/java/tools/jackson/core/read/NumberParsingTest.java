@@ -91,7 +91,7 @@ class NumberParsingTest
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
         assertEquals(JsonParser.NumberTypeFP.UNKNOWN, p.getNumberTypeFP());
         assertTrue(p.isExpectedNumberIntToken());
-        assertEquals(""+EXP_I, p.getText());
+        assertEquals(""+EXP_I, p.getString());
 
         if (((short) EXP_I) == EXP_I) {
             assertEquals((short) EXP_I, p.getShortValue());
@@ -131,7 +131,7 @@ class NumberParsingTest
         p = createParser(jsonFactory(), mode, DOC + " "); // DataInput requires separator
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertTrue(p.isExpectedNumberIntToken());
-        assertEquals(DOC, p.getText());
+        assertEquals(DOC, p.getString());
 
         int i = p.getIntValue();
 
@@ -320,7 +320,7 @@ class NumberParsingTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         // beyond int, should be long
         assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
-        assertEquals(""+EXP_L, p.getText());
+        assertEquals(""+EXP_L, p.getString());
 
         assertEquals(EXP_L, p.getLongValue());
         // Should get an exception if trying to convert to int
@@ -466,7 +466,7 @@ class NumberParsingTest
             try (JsonParser p = createParser(jsonFactory(), mode, NUMBER_STR + " ")) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
-                assertEquals(NUMBER_STR, p.getText());
+                assertEquals(NUMBER_STR, p.getString());
                 assertEquals(biggie, p.getBigIntegerValue());
             }
         }
@@ -486,7 +486,7 @@ class NumberParsingTest
                     assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                     assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
                     assertEquals(biggie, p.getBigIntegerValue());
-                    assertEquals(value, p.getText());
+                    assertEquals(value, p.getString());
                 }
             }
         }
@@ -513,7 +513,7 @@ class NumberParsingTest
                 // it `NumberType.DOUBLE`
 //                assertEquals(JsonParser.NumberType.BIG_DECIMAL, p.getNumberType());
                 assertFalse(p.isNaN());
-                assertEquals(tooBigString, p.getText());
+                assertEquals(tooBigString, p.getString());
                 assertEquals(tooBig, p.getDecimalValue());
                 assertFalse(p.isNaN());
             }
@@ -599,7 +599,7 @@ class NumberParsingTest
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
 
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                assertEquals(STR, p.getText());
+                assertEquals(STR, p.getString());
                 assertEquals(EXP_D, p.getDoubleValue());
                 assertToken(JsonToken.END_ARRAY, p.nextToken());
                 if (mode != MODE_DATA_INPUT) {
@@ -618,7 +618,7 @@ class NumberParsingTest
                 }
 
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
-                assertEquals(STR, p.getText());
+                assertEquals(STR, p.getString());
                 if (mode != MODE_DATA_INPUT) {
                     assertNull(p.nextToken());
                 }
@@ -690,7 +690,7 @@ class NumberParsingTest
         assertEquals(-13, p.getIntValue());
         assertEquals(-13L, p.getLongValue());
         assertEquals(-13., p.getDoubleValue());
-        assertEquals("-13", p.getText());
+        assertEquals("-13", p.getString());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(8100200300L, p.getLongValue());
@@ -702,25 +702,25 @@ class NumberParsingTest
             verifyException(e, "out of range of `int`");
         }
         assertEquals(8100200300.0, p.getDoubleValue());
-        assertEquals("8100200300", p.getText());
+        assertEquals("8100200300", p.getString());
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(13, p.getIntValue());
         assertEquals(13L, p.getLongValue());
         assertEquals(13.5, p.getDoubleValue());
-        assertEquals("13.5", p.getText());
+        assertEquals("13.5", p.getString());
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(0, p.getIntValue());
         assertEquals(0L, p.getLongValue());
         assertEquals(0.00010, p.getDoubleValue());
-        assertEquals("0.00010", p.getText());
+        assertEquals("0.00010", p.getString());
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(-2, p.getIntValue());
         assertEquals(-2L, p.getLongValue());
         assertEquals(-2.033, p.getDoubleValue());
-        assertEquals("-2.033", p.getText());
+        assertEquals("-2.033", p.getString());
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
@@ -812,7 +812,7 @@ class NumberParsingTest
                         : f.createParser(ObjectReadContext.empty(), doc)) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-            assertEquals(num, p.getText());
+            assertEquals(num, p.getString());
             assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
     }
@@ -1001,7 +1001,7 @@ class NumberParsingTest
     private void _testLongerFloat(JsonParser p, String text)
     {
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        assertEquals(text, p.getText());
+        assertEquals(text, p.getString());
         assertNull(p.nextToken());
     }
 

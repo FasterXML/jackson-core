@@ -22,7 +22,7 @@ public abstract class AsyncReaderWrapper
         return _streamReader.currentToken();
     }
     public String currentText() {
-        return _streamReader.getText();
+        return _streamReader.getString();
     }
 
     public String currentTextViaCharacters()

@@ -110,7 +110,7 @@ class ArrayWriteTest
         assertEquals(13, p.getIntValue());
         assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("foobar", p.getText());
+        assertEquals("foobar", p.getString());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
         assertEquals(null, p.nextToken());
         p.close();

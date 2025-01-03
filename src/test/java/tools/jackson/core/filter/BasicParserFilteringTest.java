@@ -667,7 +667,7 @@ class BasicParserFilteringTest extends JUnit5TestBase
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("value", p.currentName());
-        assertEquals("value", p.getText());
+        assertEquals("value", p.getString());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.currentToken());

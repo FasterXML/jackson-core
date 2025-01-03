@@ -281,7 +281,7 @@ class PrettyPrinterTest
         assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(3, jp.getIntValue());
         assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("abc", jp.getText());
+        assertEquals("abc", jp.getString());
 
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         assertEquals(JsonToken.VALUE_TRUE, jp.nextToken());
@@ -289,10 +289,10 @@ class PrettyPrinterTest
 
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals(JsonToken.PROPERTY_NAME, jp.nextToken());
-        assertEquals("f", jp.getText());
+        assertEquals("f", jp.getString());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
         assertEquals(JsonToken.PROPERTY_NAME, jp.nextToken());
-        assertEquals("f2", jp.getText());
+        assertEquals("f2", jp.getString());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
 

@@ -48,7 +48,7 @@ class ParserFiltering700Test extends JUnit5TestBase
         assertEquals("value", p.currentName());
         // 19-Jul-2021, tatu: while not ideal, existing contract is that "getText()"
         //    ought to return property name as well...
-        assertEquals("value", p.getText());
+        assertEquals("value", p.getString());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(12, p.getIntValue());
@@ -77,12 +77,12 @@ class ParserFiltering700Test extends JUnit5TestBase
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("value", p.currentName());
         // as earlier, this needs to hold true too
-        assertEquals("value", p.getText());
+        assertEquals("value", p.getString());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
-        assertEquals("a", p.getText());
+        assertEquals("a", p.getString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(12, p.getIntValue());
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
@@ -119,11 +119,11 @@ class ParserFiltering700Test extends JUnit5TestBase
         if (useNextName) {
             assertEquals("value", p.nextName());
             // as earlier, this needs to hold true too
-            assertEquals("value", p.getText());
+            assertEquals("value", p.getString());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertTrue(p.isExpectedStartObjectToken());
             assertEquals("a", p.nextName());
-            assertEquals("a", p.getText());
+            assertEquals("a", p.getString());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(99, p.getIntValue());
             assertNull(p.nextName());
@@ -131,12 +131,12 @@ class ParserFiltering700Test extends JUnit5TestBase
         } else {
             assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("value", p.currentName());
-            assertEquals("value", p.getText());
+            assertEquals("value", p.getString());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertTrue(p.isExpectedStartObjectToken());
             assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("a", p.currentName());
-            assertEquals("a", p.getText());
+            assertEquals("a", p.getString());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(99, p.getIntValue());
             assertEquals(JsonToken.END_OBJECT, p.nextToken());

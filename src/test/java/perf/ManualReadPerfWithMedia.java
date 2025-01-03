@@ -72,7 +72,7 @@ public class ManualReadPerfWithMedia extends ManualPerfTestBase
         while ((t = p.nextToken()) != null) {
             // force decoding/reading of scalar values too (booleans are fine, nulls too)
             if (t == JsonToken.VALUE_STRING) {
-                p.getText();
+                p.getString();
             } else if (t == JsonToken.VALUE_NUMBER_INT) {
                 p.getLongValue();
             }

@@ -307,7 +307,7 @@ public class JUnit5TestBase
         int actLen = p.getTextLength();
         char[] ch = p.getTextCharacters();
         String str2 = new String(ch, p.getTextOffset(), actLen);
-        String str = p.getText();
+        String str = p.getString();
 
         if (str.length() !=  actLen) {
             fail("Internal problem (p.token == "+p.currentToken()+"): p.getText().length() ['"+str+"'] == "+str.length()+"; p.getTextLength() == "+actLen);

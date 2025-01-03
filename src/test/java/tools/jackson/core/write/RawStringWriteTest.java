@@ -39,7 +39,7 @@ class RawStringWriteTest extends JUnit5TestBase
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         for (byte[] inputBytes : strings) {
             assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-            String string = jp.getText();
+            String string = jp.getString();
             byte[] outputBytes = string.getBytes("UTF-8");
             assertEquals(inputBytes.length, outputBytes.length);
             assertArrayEquals(inputBytes, outputBytes);
@@ -74,7 +74,7 @@ class RawStringWriteTest extends JUnit5TestBase
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         for (byte[] inputBytes : strings) {
             assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-            String string = jp.getText();
+            String string = jp.getString();
 
             byte[] outputBytes = string.getBytes("UTF-8");
             assertEquals(inputBytes.length, outputBytes.length);
@@ -116,7 +116,7 @@ class RawStringWriteTest extends JUnit5TestBase
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("foo", p.getText());
+        assertEquals("foo", p.getString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(12, p.getIntValue());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());

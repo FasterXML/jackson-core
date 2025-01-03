@@ -2209,7 +2209,7 @@ public abstract class JsonGenerator
      */
     protected void _copyCurrentStringValue(JsonParser p) throws JacksonException
     {
-        if (p.hasTextCharacters()) {
+        if (p.hasStringCharacters()) {
             writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
         } else {
             writeString(p.getText());

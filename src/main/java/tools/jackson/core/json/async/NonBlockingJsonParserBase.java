@@ -312,7 +312,7 @@ public abstract class NonBlockingJsonParserBase
      */
 
     @Override
-    public boolean hasTextCharacters()
+    public boolean hasStringCharacters()
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             // yes; is or can be made available efficiently as char[]

@@ -955,22 +955,15 @@ public abstract class JsonParser
 
     /**
      * Method that can be used to determine whether calling of
-     * {@link #getTextCharacters} would be the most efficient
-     * way to access textual content for the event parser currently
-     * points to.
-     *<p>
-     * Default implementation simply returns false since only actual
-     * implementation class has knowledge of its internal buffering
-     * state.
-     * Implementations are strongly encouraged to properly override
-     * this method, to allow efficient copying of content by other
-     * code.
+     * {@link #getStringCharacters} would be the most efficient
+     * way to access String value for the event parser currently
+     * points to (compared to {@link #getText}).
      *
      * @return True if parser currently has character array that can
      *   be efficiently returned via {@link #getTextCharacters}; false
      *   means that it may or may not exist
      */
-    public abstract boolean hasTextCharacters();
+    public abstract boolean hasStringCharacters();
 
     /*
     /**********************************************************************

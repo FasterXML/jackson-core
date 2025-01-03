@@ -66,7 +66,7 @@ class AsyncStringObjectTest extends AsyncTestBase
             assertToken(JsonToken.VALUE_STRING, r.nextToken());
             // also, should always be accessible this way:
             if (verifyContents) {
-                assertTrue(r.parser().hasTextCharacters());
+                assertTrue(r.parser().hasStringCharacters());
                 assertEquals(UNICODE_LONG_NAME, r.currentText());
             }
 

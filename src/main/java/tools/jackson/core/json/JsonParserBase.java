@@ -132,7 +132,7 @@ public abstract class JsonParserBase
     }
 
     @Override
-    public boolean hasTextCharacters() {
+    public boolean hasStringCharacters() {
         if (_currToken == JsonToken.VALUE_STRING) { return true; } // usually true
         if (_currToken == JsonToken.PROPERTY_NAME) { return _nameCopied; }
         return false;

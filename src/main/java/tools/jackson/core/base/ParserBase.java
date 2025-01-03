@@ -292,7 +292,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     @Override
-    public boolean hasTextCharacters() {
+    public boolean hasStringCharacters() {
         return false;
     }
 

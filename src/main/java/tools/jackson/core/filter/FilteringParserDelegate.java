@@ -911,11 +911,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
         return delegate.getText();
     }
 
-    @Override public boolean hasTextCharacters() {
+    @Override public boolean hasStringCharacters() {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return false;
         }
-        return delegate.hasTextCharacters();
+        return delegate.hasStringCharacters();
     }
 
     @Override public char[] getTextCharacters() throws JacksonException {

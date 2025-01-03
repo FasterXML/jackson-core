@@ -575,7 +575,7 @@ public abstract class JsonParser
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
      *
-     * @return Text value of the {@code JsonToken.VALUE_STRING} token parser advanced
+     * @return String value of {@code JsonToken.VALUE_STRING} token parser advanced
      *   to; or {@code null} if next token is of some other type
      *
      * @throws JacksonIOException for low-level read issues
@@ -879,20 +879,20 @@ public abstract class JsonParser
      * be combined into a single <code>String</code> to return, and write
      * can occur directly from intermediate buffers Jackson uses.
      *<p>
-     * NOTE: textual content <b>will</b> still be buffered (usually
+     * NOTE: String value <b>will</b> still be buffered (usually
      * using {@link TextBuffer}) and <b>will</b> be accessible with
      * other {@code getText()} calls (that is, it will not be consumed).
      * So this accessor only avoids construction of {@link java.lang.String}
      * compared to plain {@link #getText()} method.
      *
-     * @param writer Writer to write textual content to
+     * @param writer Writer to write String value to
      *
      * @return The number of characters written to the Writer
      *
      * @throws JacksonIOException for low-level read issues, or failed write using {@link Writer}
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract int getText(Writer writer) throws JacksonException;
+    public abstract int getString(Writer writer) throws JacksonException;
 
     /**
      * Method similar to {@link #getText}, but that will return

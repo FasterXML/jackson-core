@@ -111,7 +111,7 @@ class AsyncScalarArrayTest extends AsyncTestBase
             String asStr = String.valueOf(values[i]);
             assertEquals(asStr, r.currentText());
             StringWriter sw = new StringWriter();
-            assertEquals(asStr.length(), r.parser().getText(sw));
+            assertEquals(asStr.length(), r.parser().getString(sw));
             assertEquals(asStr, sw.toString());
         }
         assertToken(JsonToken.END_ARRAY, r.nextToken());

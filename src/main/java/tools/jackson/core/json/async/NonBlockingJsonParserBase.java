@@ -399,7 +399,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override // since 2.8
-    public int getText(Writer writer) throws JacksonException
+    public int getString(Writer writer) throws JacksonException
     {
         JsonToken t = _currToken;
         try {

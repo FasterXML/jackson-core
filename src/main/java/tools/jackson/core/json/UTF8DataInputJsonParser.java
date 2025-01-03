@@ -169,7 +169,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public int getText(Writer writer) throws JacksonException
+    public int getString(Writer writer) throws JacksonException
     {
         JsonToken t = _currToken;
         try {

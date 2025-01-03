@@ -307,7 +307,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public int getText(Writer writer) throws JacksonException
+    public int getString(Writer writer) throws JacksonException
     {
         final JsonToken t = _currToken;
 

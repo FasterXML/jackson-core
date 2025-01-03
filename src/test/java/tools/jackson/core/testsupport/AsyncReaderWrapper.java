@@ -36,7 +36,7 @@ public abstract class AsyncReaderWrapper
     public String currentTextViaWriter()
     {
         StringWriter sw = new StringWriter();
-        int len = _streamReader.getText(sw);
+        int len = _streamReader.getString(sw);
         String str = sw.toString();
         if (len != str.length()) {
             throw new IllegalStateException(String.format(

@@ -528,7 +528,7 @@ public abstract class ParserMinimalBase extends JsonParser
 //    @Override public abstract int getTextOffset();
 
     @Override
-    public int getText(Writer writer) throws JacksonException
+    public int getString(Writer writer) throws JacksonException
     {
         String str = getText();
         if (str == null) {

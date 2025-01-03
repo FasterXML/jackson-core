@@ -612,7 +612,7 @@ class SimpleParserTest extends JUnit5TestBase
     private void _getAndVerifyText(JsonParser p, String exp)
     {
         Writer writer = new StringWriter();
-        int len = p.getText(writer);
+        int len = p.getString(writer);
         String resultString = writer.toString();
         assertEquals(len, resultString.length());
         assertEquals(exp, resultString);
@@ -641,7 +641,7 @@ class SimpleParserTest extends JUnit5TestBase
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
 
         Writer writer = new StringWriter();
-        int len = parser.getText(writer);
+        int len = parser.getString(writer);
         String resultString = writer.toString();
         assertEquals(len, resultString.length());
         assertEquals(longText, resultString);

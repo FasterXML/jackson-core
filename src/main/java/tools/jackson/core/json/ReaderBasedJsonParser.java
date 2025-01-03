@@ -294,7 +294,7 @@ public class ReaderBasedJsonParser
      * see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     @Override
-    public final String getText() throws JacksonException
+    public final String getString() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -307,7 +307,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public int getText(Writer writer) throws JacksonException
+    public int getString(Writer writer) throws JacksonException
     {
         final JsonToken t = _currToken;
 
@@ -390,7 +390,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final char[] getTextCharacters() throws JacksonException
+    public final char[] getStringCharacters() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -413,7 +413,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final int getTextLength() throws JacksonException
+    public final int getStringLength() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -436,7 +436,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final int getTextOffset() throws JacksonException
+    public final int getStringOffset() throws JacksonException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
@@ -482,7 +482,7 @@ public class ReaderBasedJsonParser
             if (_binaryValue == null) {
                 @SuppressWarnings("resource")
                 ByteArrayBuilder builder = _getByteArrayBuilder();
-                _decodeBase64(getText(), builder, b64variant);
+                _decodeBase64(getString(), builder, b64variant);
                 _binaryValue = builder.toByteArray();
             }
         }
@@ -1201,7 +1201,7 @@ public class ReaderBasedJsonParser
     }
     // note: identical to one in UTF8StreamJsonParser
     @Override
-    public final String nextTextValue() throws JacksonException
+    public final String nextStringValue() throws JacksonException
     {
         if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
@@ -1223,7 +1223,7 @@ public class ReaderBasedJsonParser
             return null;
         }
         // !!! TODO: optimize this case as well
-        return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
+        return (nextToken() == JsonToken.VALUE_STRING) ? getString() : null;
     }
 
     // note: identical to one in Utf8StreamParser

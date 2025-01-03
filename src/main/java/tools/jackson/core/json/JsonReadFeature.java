@@ -99,7 +99,7 @@ public enum JsonReadFeature
      * JSON integral numbers to start with additional (ignorable)
      * zeroes (like: {@code 000001}). If enabled, no exception is thrown, and extra
      * nulls are silently ignored (and not included in textual representation
-     * exposed via {@link JsonParser#getText}).
+     * exposed via {@link JsonParser#getString()}).
      *<p>
      * Since JSON specification does not allow leading zeroes,
      * this is a non-standard feature, and as such disabled by default.

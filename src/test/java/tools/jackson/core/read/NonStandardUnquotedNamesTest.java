@@ -88,26 +88,26 @@ class NonStandardUnquotedNamesTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("@type", p.getText());
+        assertEquals("@type", p.getString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("mytype", p.getText());
+        assertEquals("mytype", p.getString());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("#color", p.getText());
+        assertEquals("#color", p.getString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(123, p.getIntValue());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("*error*", p.getText());
+        assertEquals("*error*", p.getString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("hyphen-ated", p.getText());
+        assertEquals("hyphen-ated", p.getString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("yes", p.getText());
+        assertEquals("yes", p.getString());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("me+my", p.getText());
+        assertEquals("me+my", p.getString());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -162,7 +162,7 @@ class NonStandardUnquotedNamesTest
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("$", p.currentName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("money!", p.getText());
+        assertEquals("money!", p.getString());
 
         // and then regular quoted one should still work too:
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());

@@ -58,7 +58,7 @@ class JsonBufferRecyclersTest extends JUnit5TestBase
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("foobar", p.getText());
+        assertEquals("foobar", p.getString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         
         p.close();

@@ -43,7 +43,7 @@ class Fuzz34435ParseTest extends JUnit5TestBase
                     p.currentName();
                     break;
                 case VALUE_STRING:
-                    p.getText();
+                    p.getString();
                     break;
                 default:
                 }

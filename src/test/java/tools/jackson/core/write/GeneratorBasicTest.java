@@ -55,7 +55,7 @@ public class GeneratorBasicTest
                     JsonToken t = jp.nextToken();
                     assertNotNull(t, "Document \""+utf8String(bout)+"\" yielded no tokens");
                     assertEquals(JsonToken.VALUE_STRING, t);
-                    assertEquals(input, jp.getText());
+                    assertEquals(input, jp.getString());
                     assertNull(jp.nextToken());
                     jp.close();
                 }
@@ -102,8 +102,8 @@ public class GeneratorBasicTest
             JsonParser jp = createParserUsingReader(docStr);
             JsonToken t = jp.nextToken();
             String exp = Boolean.valueOf(state).toString();
-            if (!exp.equals(jp.getText())) {
-                fail("Expected '"+exp+"', got '"+jp.getText());
+            if (!exp.equals(jp.getString())) {
+                fail("Expected '"+exp+"', got '"+jp.getString());
             }
             assertEquals(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE, t);
             assertNull(jp.nextToken());
@@ -128,8 +128,8 @@ public class GeneratorBasicTest
             JsonParser jp = createParserUsingReader(docStr);
             JsonToken t = jp.nextToken();
             String exp = "null";
-            if (!exp.equals(jp.getText())) {
-                fail("Expected '"+exp+"', got '"+jp.getText());
+            if (!exp.equals(jp.getString())) {
+                fail("Expected '"+exp+"', got '"+jp.getString());
             }
             assertEquals(JsonToken.VALUE_NULL, t);
             assertNull(jp.nextToken());
@@ -376,8 +376,8 @@ public class GeneratorBasicTest
             assertNotNull(t, "Document \""+docStr+"\" yielded no tokens");
             // Number are always available as lexical representation too
             String exp = ""+VALUE;
-            if (!exp.equals(p.getText())) {
-                fail("Expected '"+exp+"', got '"+p.getText());
+            if (!exp.equals(p.getString())) {
+                fail("Expected '"+exp+"', got '"+p.getString());
             }
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
             assertEquals(VALUE, p.getIntValue());
@@ -431,8 +431,8 @@ public class GeneratorBasicTest
             }
             assertNotNull(t, "Document \""+docStr+"\" yielded no tokens");
             String exp = ""+VALUE;
-            if (!exp.equals(p.getText())) {
-                fail("Expected '"+exp+"', got '"+p.getText());
+            if (!exp.equals(p.getString())) {
+                fail("Expected '"+exp+"', got '"+p.getString());
             }
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
             assertEquals(VALUE, p.getLongValue());

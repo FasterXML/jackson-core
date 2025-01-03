@@ -87,7 +87,7 @@ class NonStandardParserFeaturesTest
         JsonParser p = createParser(STD_F, mode, JSON);
         try {
             p.nextToken();
-            p.getText();
+            p.getString();
             fail("Should have thrown an exception for doc <"+JSON+">");
         } catch (StreamReadException e) {
             verifyException(e, "unrecognized character escape");
@@ -100,7 +100,7 @@ class NonStandardParserFeaturesTest
                 .build();
         p = createParser(f, mode, JSON);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("'", p.getText());
+        assertEquals("'", p.getString());
         p.close();
     }
 
@@ -114,7 +114,7 @@ class NonStandardParserFeaturesTest
         JsonParser p = createParser(STD_F, mode, JSON);
         try {
             p.nextToken();
-            p.getText();
+            p.getString();
             fail("Should have thrown an exception for doc <"+JSON+">");
         } catch (StreamReadException e) {
             verifyException(e, "invalid numeric value");
@@ -136,7 +136,7 @@ class NonStandardParserFeaturesTest
         p = createParser(LEADING_ZERO_F, mode, JSON);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
-        assertEquals("3", p.getText());
+        assertEquals("3", p.getString());
         p.close();
 
         // Plus, also: verify that leading zero magnitude is ok:
@@ -146,7 +146,7 @@ class NonStandardParserFeaturesTest
         }
         p = createParser(LEADING_ZERO_F, mode, JSON);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(String.valueOf(Integer.MAX_VALUE), p.getText());
+        assertEquals(String.valueOf(Integer.MAX_VALUE), p.getString());
         assertEquals(Integer.MAX_VALUE, p.getIntValue());
         Number nr = p.getNumberValue();
         assertSame(Integer.class, nr.getClass());
@@ -159,7 +159,7 @@ class NonStandardParserFeaturesTest
         assertEquals(0, p.getIntValue());
         // 03-Jan-2020, tatu: Actually not 100% sure if we ought to retain invalid
         //   representation or not? Won't, for now:
-        assertEquals("0", p.getText());
+        assertEquals("0", p.getString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
@@ -190,7 +190,7 @@ class NonStandardParserFeaturesTest
 
         double d = p.getDoubleValue();
         assertTrue(Double.isNaN(d));
-        assertEquals("NaN", p.getText());
+        assertEquals("NaN", p.getString());
 
         // [Issue#98]
         try {
@@ -234,31 +234,31 @@ class NonStandardParserFeaturesTest
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         double d = p.getDoubleValue();
-        assertEquals("-INF", p.getText());
+        assertEquals("-INF", p.getString());
         assertTrue(Double.isInfinite(d));
         assertEquals(Double.NEGATIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
-        assertEquals("+INF", p.getText());
+        assertEquals("+INF", p.getString());
         assertTrue(Double.isInfinite(d));
         assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
-        assertEquals("+Infinity", p.getText());
+        assertEquals("+Infinity", p.getString());
         assertTrue(Double.isInfinite(d));
         assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
-        assertEquals("Infinity", p.getText());
+        assertEquals("Infinity", p.getString());
         assertTrue(Double.isInfinite(d));
         assertEquals(Double.POSITIVE_INFINITY, d);
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
-        assertEquals("-Infinity", p.getText());
+        assertEquals("-Infinity", p.getString());
         assertTrue(Double.isInfinite(d));
         assertEquals(Double.NEGATIVE_INFINITY, d);
 

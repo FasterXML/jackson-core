@@ -156,7 +156,7 @@ public class UTF8DataInputJsonParser
      */
 
     @Override
-    public String getText() throws JacksonException
+    public String getString() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -169,7 +169,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public int getText(Writer writer) throws JacksonException
+    public int getString(Writer writer) throws JacksonException
     {
         JsonToken t = _currToken;
         try {
@@ -290,7 +290,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public char[] getTextCharacters() throws JacksonException
+    public char[] getStringCharacters() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -315,7 +315,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public int getTextLength() throws JacksonException
+    public int getStringLength() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -337,7 +337,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public int getTextOffset() throws JacksonException
+    public int getStringOffset() throws JacksonException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
@@ -384,7 +384,7 @@ public class UTF8DataInputJsonParser
             if (_binaryValue == null) {
                 @SuppressWarnings("resource")
                 ByteArrayBuilder builder = _getByteArrayBuilder();
-                _decodeBase64(getText(), builder, b64variant);
+                _decodeBase64(getString(), builder, b64variant);
                 _binaryValue = builder.toByteArray();
             }
         }
@@ -870,7 +870,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public String nextTextValue() throws JacksonException
+    public String nextStringValue() throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
         if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
@@ -892,7 +892,7 @@ public class UTF8DataInputJsonParser
             }
             return null;
         }
-        return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
+        return (nextToken() == JsonToken.VALUE_STRING) ? getString() : null;
     }
 
     @Override

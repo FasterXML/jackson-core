@@ -56,7 +56,7 @@ public class UTF8NamesParseTest
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("", p.currentName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("", p.getText());
+        assertEquals("", p.getString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }
@@ -215,7 +215,7 @@ public class UTF8NamesParseTest
         JsonParser p = createParser(mode, bout.toByteArray());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        String act = p.getText();
+        String act = p.getString();
 
         assertEquals(VALUE.length(), act.length());
         assertEquals(VALUE, act);
@@ -233,7 +233,7 @@ public class UTF8NamesParseTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
 
-        act = p.getText();
+        act = p.getString();
         assertEquals(VALUE.length(), act.length());
         assertEquals(VALUE, act);
 

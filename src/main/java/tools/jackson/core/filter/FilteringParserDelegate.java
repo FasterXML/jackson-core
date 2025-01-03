@@ -904,40 +904,40 @@ public class FilteringParserDelegate extends JsonParserDelegate
     // 19-Jul-2021, tatu: Cannot quite just delegate these methods due to oddity
     //   of property name token, which may be buffered.
 
-    @Override public String getText() throws JacksonException {
+    @Override public String getString() throws JacksonException {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
-        return delegate.getText();
+        return delegate.getString();
     }
 
-    @Override public boolean hasTextCharacters() {
+    @Override public boolean hasStringCharacters() {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return false;
         }
-        return delegate.hasTextCharacters();
+        return delegate.hasStringCharacters();
     }
 
-    @Override public char[] getTextCharacters() throws JacksonException {
+    @Override public char[] getStringCharacters() throws JacksonException {
         // Not optimal but is correct, unlike delegating (as underlying stream
         // may point to something else due to buffering)
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName().toCharArray();
         }
-        return delegate.getTextCharacters();
+        return delegate.getStringCharacters();
     }
 
-    @Override public int getTextLength() throws JacksonException {
+    @Override public int getStringLength() throws JacksonException {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName().length();
         }
-        return delegate.getTextLength();
+        return delegate.getStringLength();
     }
-    @Override public int getTextOffset() throws JacksonException {
+    @Override public int getStringOffset() throws JacksonException {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return 0;
         }
-        return delegate.getTextOffset();
+        return delegate.getStringOffset();
     }
 
     @Override public String getValueAsString() throws JacksonException {

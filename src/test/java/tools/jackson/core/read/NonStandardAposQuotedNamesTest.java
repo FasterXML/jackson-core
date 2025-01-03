@@ -93,26 +93,26 @@ class NonStandardAposQuotedNamesTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("a", p.getText());
+        assertEquals("a", p.getString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals("1", p.getText());
+        assertEquals("1", p.getString());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("foobar", p.getText());
+        assertEquals("foobar", p.getString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("b", p.getText());
+        assertEquals("b", p.getString());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("_abc\u00A0e'23'", p.getText());
+        assertEquals("_abc\u00A0e'23'", p.getString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("d'foo'", p.getText());
+        assertEquals("d'foo'", p.getString());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("\"", p.getText());
+        assertEquals("\"", p.getString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         //assertEquals("\"\"", p.getText());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("", p.getText());
+        assertEquals("", p.getString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("", p.getText());
+        assertEquals("", p.getString());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
@@ -166,7 +166,7 @@ class NonStandardAposQuotedNamesTest
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("16'", p.getText());
+        assertEquals("16'", p.getString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
@@ -196,7 +196,7 @@ class NonStandardAposQuotedNamesTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals(expKey, p.nextName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("value", p.getText());
+        assertEquals("value", p.getString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }
@@ -226,7 +226,7 @@ class NonStandardAposQuotedNamesTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("bar", p.nextName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(expValue, p.getText());
+        assertEquals(expValue, p.getString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }

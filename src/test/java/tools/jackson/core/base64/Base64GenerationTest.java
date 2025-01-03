@@ -173,7 +173,7 @@ class Base64GenerationTest
                 break;
             }
             assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-            String actualValue = jp.getText();
+            String actualValue = jp.getString();
             jp.close();
             assertEquals(WIKIPEDIA_BASE64_ENCODED, actualValue);
         }

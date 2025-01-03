@@ -143,11 +143,11 @@ class SimpleParserTest extends JUnit5TestBase
 
         // Before advancing to content, we should have following default state...
         assertFalse(p.hasCurrentToken());
-        assertNull(p.getText());
-        assertNull(p.getTextCharacters());
-        assertEquals(0, p.getTextLength());
+        assertNull(p.getString());
+        assertNull(p.getStringCharacters());
+        assertEquals(0, p.getStringLength());
         // not sure if this is defined but:
-        assertEquals(0, p.getTextOffset());
+        assertEquals(0, p.getStringOffset());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("/", ctxt.toString());
@@ -540,7 +540,7 @@ class SimpleParserTest extends JUnit5TestBase
         assertEquals("foobar", p.getValueAsString("foobar"));
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("a", p.getText());
+        assertEquals("a", p.getString());
         assertEquals("a", p.getValueAsString());
         assertEquals("a", p.getValueAsString("default"));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -612,7 +612,7 @@ class SimpleParserTest extends JUnit5TestBase
     private void _getAndVerifyText(JsonParser p, String exp)
     {
         Writer writer = new StringWriter();
-        int len = p.getText(writer);
+        int len = p.getString(writer);
         String resultString = writer.toString();
         assertEquals(len, resultString.length());
         assertEquals(exp, resultString);
@@ -641,7 +641,7 @@ class SimpleParserTest extends JUnit5TestBase
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
 
         Writer writer = new StringWriter();
-        int len = parser.getText(writer);
+        int len = parser.getString(writer);
         String resultString = writer.toString();
         assertEquals(len, resultString.length());
         assertEquals(longText, resultString);
@@ -706,7 +706,7 @@ class SimpleParserTest extends JUnit5TestBase
             assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("mac", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            assertNotNull(p.getText());
+            assertNotNull(p.getString());
             assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("data", p.currentName());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -899,13 +899,13 @@ class SimpleParserTest extends JUnit5TestBase
 
     protected void verifyFieldName(JsonParser p, String expName)
     {
-        assertEquals(expName, p.getText());
+        assertEquals(expName, p.getString());
         assertEquals(expName, p.currentName());
     }
 
     protected void verifyIntValue(JsonParser p, long expValue)
     {
         // First, via textual
-        assertEquals(String.valueOf(expValue), p.getText());
+        assertEquals(String.valueOf(expValue), p.getString());
     }
 }

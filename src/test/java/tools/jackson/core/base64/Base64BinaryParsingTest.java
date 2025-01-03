@@ -192,7 +192,7 @@ class Base64BinaryParsingTest
         // second, access String first
         p = createParser(JSON_F, mode, doc);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        /*String str =*/ p.getText();
+        /*String str =*/ p.getString();
         try {
             /*byte[] b =*/ p.getBinaryValue(Base64Variants.MIME);
             fail("Should not pass");
@@ -250,7 +250,7 @@ class Base64BinaryParsingTest
 
                 // minor twist: for even-length values, force access as String first:
                 if ((len & 1) == 0) {
-                    assertNotNull(p.getText());
+                    assertNotNull(p.getString());
                 }
 
                 byte[] data = null;

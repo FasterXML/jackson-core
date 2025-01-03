@@ -95,16 +95,16 @@ public class ObjectWriteTest
         JsonParser p = createParserUsingReader(docStr);
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("first", p.getText());
+        assertEquals("first", p.getString());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(-901, p.getIntValue());
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("sec", p.getText());
+        assertEquals("sec", p.getString());
         assertEquals(JsonToken.VALUE_FALSE, p.nextToken());
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("3rd!", p.getText());
+        assertEquals("3rd!", p.getString());
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("yee-haw", p.getText());
+        assertEquals("yee-haw", p.getString());
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
         assertEquals(null, p.nextToken());
         p.close();
@@ -144,68 +144,68 @@ public class ObjectWriteTest
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("null", p.getText());
+        assertEquals("null", p.getString());
         assertEquals(JsonToken.VALUE_NULL, p.nextToken());
 
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("bt", p.getText());
+        assertEquals("bt", p.getString());
         assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
 
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("bf", p.getText());
+        assertEquals("bf", p.getString());
         assertEquals(JsonToken.VALUE_FALSE, p.nextToken());
 
         //Short parsed as int
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("short", p.getText());
+        assertEquals("short", p.getString());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
 
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("int", p.getText());
+        assertEquals("int", p.getString());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
 
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("long", p.getText());
+        assertEquals("long", p.getString());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
 
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("big", p.getText());
+        assertEquals("big", p.getString());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
 
         //All floating point types parsed as double
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("float", p.getText());
+        assertEquals("float", p.getString());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(JsonParser.NumberType.DOUBLE, p.getNumberType());
 
         //All floating point types parsed as double
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("double", p.getText());
+        assertEquals("double", p.getString());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(JsonParser.NumberType.DOUBLE, p.getNumberType());
 
         //All floating point types parsed as double
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("dec", p.getText());
+        assertEquals("dec", p.getString());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(JsonParser.NumberType.DOUBLE, p.getNumberType());
 
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("ob", p.getText());
+        assertEquals("ob", p.getString());
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
 
-        assertEquals("str", p.getText());
+        assertEquals("str", p.getString());
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(TEXT, getAndVerifyText(p));
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
 
         assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("arr", p.getText());
+        assertEquals("arr", p.getString());
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
 
@@ -253,7 +253,7 @@ public class ObjectWriteTest
         assertEquals("bin", p.currentName());
         // no native binary indicator in JSON, so:
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("AQI=", p.getText());
+        assertEquals("AQI=", p.getString());
 
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
         p.close();

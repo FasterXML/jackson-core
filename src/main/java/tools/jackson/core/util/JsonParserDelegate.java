@@ -173,12 +173,12 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
-    @Override public String getText() throws JacksonException { return delegate.getText();  }
-    @Override public boolean hasTextCharacters() { return delegate.hasTextCharacters(); }
-    @Override public char[] getTextCharacters() throws JacksonException { return delegate.getTextCharacters(); }
-    @Override public int getTextLength() throws JacksonException { return delegate.getTextLength(); }
-    @Override public int getTextOffset() throws JacksonException { return delegate.getTextOffset(); }
-    @Override public int getText(Writer writer) throws JacksonException { return delegate.getText(writer);  }
+    @Override public String getString() throws JacksonException { return delegate.getString();  }
+    @Override public boolean hasStringCharacters() { return delegate.hasStringCharacters(); }
+    @Override public char[] getStringCharacters() throws JacksonException { return delegate.getStringCharacters(); }
+    @Override public int getStringLength() throws JacksonException { return delegate.getStringLength(); }
+    @Override public int getStringOffset() throws JacksonException { return delegate.getStringOffset(); }
+    @Override public int getString(Writer writer) throws JacksonException { return delegate.getString(writer);  }
 
     /*
     /**********************************************************************

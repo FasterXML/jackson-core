@@ -150,7 +150,7 @@ class DelegatesTest extends JUnit5TestBase
         // initial state
         assertNull(del.currentToken());
         assertFalse(del.hasCurrentToken());
-        assertFalse(del.hasTextCharacters());
+        assertFalse(del.hasStringCharacters());
         assertNull(del.currentValue());
         assertNull(del.currentName());
 
@@ -163,7 +163,7 @@ class DelegatesTest extends JUnit5TestBase
         assertTrue(del.isExpectedStartArrayToken());
         assertFalse(del.isExpectedStartObjectToken());
         assertFalse(del.isExpectedNumberIntToken());
-        assertEquals("[", del.getText());
+        assertEquals("[", del.getString());
         assertNotNull(del.streamReadContext());
         assertSame(parser.streamReadContext(), del.streamReadContext());
 
@@ -206,8 +206,8 @@ class DelegatesTest extends JUnit5TestBase
         assertEquals("a", del.currentName());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
-        assertTrue(del.hasTextCharacters());
-        assertEquals("foo", del.getText());
+        assertTrue(del.hasStringCharacters());
+        assertEquals("foo", del.getString());
 
         assertToken(JsonToken.END_OBJECT, del.nextToken());
         assertEquals(TOKEN, del.currentValue());

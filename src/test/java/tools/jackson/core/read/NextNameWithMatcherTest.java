@@ -80,7 +80,7 @@ public class NextNameWithMatcherTest
         assertEquals(names.get(2), p.currentName());
         assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
-        assertEquals("Billy-Bob Burger", p.getText());
+        assertEquals("Billy-Bob Burger", p.getString());
 
         assertEquals(PropertyNameMatcher.MATCH_UNKNOWN_NAME, p.nextNameMatch(matcher));
         assertEquals("extra", p.currentName());

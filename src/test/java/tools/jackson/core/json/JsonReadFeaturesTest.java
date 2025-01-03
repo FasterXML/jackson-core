@@ -101,7 +101,7 @@ class JsonReadFeaturesTest
         try (JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON)) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             p.nextToken();
-            p.getText();
+            p.getString();
             fail("Expected exception");
         } catch (StreamReadException e) {
             verifyException(e, "Illegal unquoted character");
@@ -120,9 +120,9 @@ class JsonReadFeaturesTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals(PROP_NAME, p.getText());
+        assertEquals(PROP_NAME, p.getString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(VALUE, p.getText());
+        assertEquals(VALUE, p.getString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }

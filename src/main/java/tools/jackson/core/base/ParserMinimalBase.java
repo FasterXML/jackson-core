@@ -528,9 +528,9 @@ public abstract class ParserMinimalBase extends JsonParser
 //    @Override public abstract int getTextOffset();
 
     @Override
-    public int getText(Writer writer) throws JacksonException
+    public int getString(Writer writer) throws JacksonException
     {
-        String str = getText();
+        String str = getString();
         if (str == null) {
             return 0;
         }
@@ -573,7 +573,7 @@ public abstract class ParserMinimalBase extends JsonParser
         // Let's actually allow range of [-128, 255] instead of just signed range of [-128, 127]
         // since "unsigned" usage quite common for bytes (but Java may use signed range, too)
         if (value < MIN_BYTE_I || value > MAX_BYTE_I) {
-            _reportOverflowByte(getText(), currentToken());
+            _reportOverflowByte(getString(), currentToken());
         }
         return (byte) value;
     }
@@ -583,7 +583,7 @@ public abstract class ParserMinimalBase extends JsonParser
     {
         int value = getIntValue();
         if (value < MIN_SHORT_I || value > MAX_SHORT_I) {
-            _reportOverflowShort(getText(), currentToken());
+            _reportOverflowShort(getString(), currentToken());
         }
         return (short) value;
     }
@@ -631,7 +631,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (t != null) {
             switch (t.id()) {
             case ID_STRING:
-                String str = getText().trim();
+                String str = getString().trim();
                 if ("true".equals(str)) {
                     return true;
                 }
@@ -682,7 +682,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (t != null) {
             switch (t.id()) {
             case ID_STRING:
-                String str = getText();
+                String str = getString();
                 if (_hasTextualNull(str)) {
                     return 0;
                 }
@@ -723,7 +723,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (t != null) {
             switch (t.id()) {
             case ID_STRING:
-                String str = getText();
+                String str = getString();
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
@@ -750,7 +750,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (t != null) {
             switch (t.id()) {
             case ID_STRING:
-                String str = getText();
+                String str = getString();
                 if (_hasTextualNull(str)) {
                     return 0L;
                 }
@@ -783,7 +783,7 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override
     public String getValueAsString(String defaultValue) {
         if (_currToken == JsonToken.VALUE_STRING) {
-            return getText();
+            return getString();
         }
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
@@ -791,7 +791,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
             return defaultValue;
         }
-        return getText();
+        return getString();
     }
 
     /*
@@ -915,7 +915,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * @throws InputCoercionException Exception that describes problem with number range validity
      */
     protected void _reportOverflowInt() throws InputCoercionException {
-        _reportOverflowInt(getText());
+        _reportOverflowInt(getString());
     }
 
     protected void _reportOverflowInt(String numDesc) throws InputCoercionException {
@@ -937,7 +937,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * @throws InputCoercionException Exception that describes problem with number range validity
      */
     protected void _reportOverflowLong() throws InputCoercionException {
-        _reportOverflowLong(getText());
+        _reportOverflowLong(getString());
     }
 
     protected void _reportOverflowLong(String numDesc) throws InputCoercionException {

@@ -49,7 +49,7 @@ class NumberOverflowTest
             p.nextToken();
             try {
                 long x = p.getLongValue();
-                fail("Expected an exception for underflow (input "+p.getText()+"): instead, got long value: "+x);
+                fail("Expected an exception for underflow (input "+p.getString()+"): instead, got long value: "+x);
             } catch (InputCoercionException e) {
                 verifyException(e, "out of range of `long`");
             }
@@ -59,7 +59,7 @@ class NumberOverflowTest
             p.nextToken();
             try {
                 long x = p.getLongValue();
-                fail("Expected an exception for underflow (input "+p.getText()+"): instead, got long value: "+x);
+                fail("Expected an exception for underflow (input "+p.getString()+"): instead, got long value: "+x);
             } catch (InputCoercionException e) {
                 verifyException(e, "out of range of `long`");
                 assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());

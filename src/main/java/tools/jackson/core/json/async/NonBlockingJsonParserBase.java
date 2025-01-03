@@ -312,7 +312,7 @@ public abstract class NonBlockingJsonParserBase
      */
 
     @Override
-    public boolean hasTextCharacters()
+    public boolean hasStringCharacters()
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             // yes; is or can be made available efficiently as char[]
@@ -370,7 +370,7 @@ public abstract class NonBlockingJsonParserBase
      * see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
      */
     @Override
-    public String getText() throws JacksonException
+    public String getString() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             return _textBuffer.contentsAsString();
@@ -399,7 +399,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override // since 2.8
-    public int getText(Writer writer) throws JacksonException
+    public int getString(Writer writer) throws JacksonException
     {
         JsonToken t = _currToken;
         try {
@@ -455,7 +455,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public char[] getTextCharacters() throws JacksonException
+    public char[] getStringCharacters() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -476,7 +476,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public int getTextLength() throws JacksonException
+    public int getStringLength() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -497,7 +497,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public int getTextOffset() throws JacksonException
+    public int getStringOffset() throws JacksonException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
@@ -531,7 +531,7 @@ public abstract class NonBlockingJsonParserBase
         if (_binaryValue == null) {
             @SuppressWarnings("resource")
             ByteArrayBuilder builder = _getByteArrayBuilder();
-            _decodeBase64(getText(), builder, b64variant);
+            _decodeBase64(getString(), builder, b64variant);
             _binaryValue = builder.toByteArray();
         }
         return _binaryValue;

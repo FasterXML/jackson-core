@@ -49,7 +49,7 @@ class UTF8GeneratorTest extends JUnit5TestBase
             assertEquals(1, p.getIntValue());
         }
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(str, p.getText());
+        assertEquals(str, p.getString());
         assertNull(p.nextToken());
         p.close();
     }
@@ -101,7 +101,7 @@ class UTF8GeneratorTest extends JUnit5TestBase
         JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), JSON);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        String str = jp.getText();
+        String str = jp.getString();
         assertEquals(2, str.length());
         assertEquals((char) 0xD83D, str.charAt(0));
         assertEquals((char) 0xDE0C, str.charAt(1));
@@ -151,7 +151,7 @@ class UTF8GeneratorTest extends JUnit5TestBase
             assertEquals("escapes", p.currentName());
     
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            assertEquals(SAMPLE_WITH_QUOTES, p.getText());
+            assertEquals(SAMPLE_WITH_QUOTES, p.getString());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             assertNull(p.nextToken());
         }

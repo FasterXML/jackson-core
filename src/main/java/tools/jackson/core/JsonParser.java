@@ -467,7 +467,7 @@ public abstract class JsonParser
      * so that even if lazy processing is enabled, the whole contents are
      * read for possible retrieval. This is usually used to ensure that
      * the token end location is available, as well as token contents
-     * (similar to what calling, say {@link #getTextCharacters()}, would
+     * (similar to what calling, say {@link #getStringCharacters()}, would
      * achieve).
      *<p>
      * Note that for many dataformat implementations this method
@@ -570,19 +570,19 @@ public abstract class JsonParser
      * otherwise returns null.
      * It is functionally equivalent to:
      *<pre>
-     *  return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
+     *  return (nextToken() == JsonToken.VALUE_STRING) ? getString() : null;
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
      *
-     * @return Text value of the {@code JsonToken.VALUE_STRING} token parser advanced
+     * @return String value of {@code JsonToken.VALUE_STRING} token parser advanced
      *   to; or {@code null} if next token is of some other type
      *
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public String nextTextValue() throws JacksonException {
-        return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
+    public String nextStringValue() throws JacksonException {
+        return (nextToken() == JsonToken.VALUE_STRING) ? getString() : null;
     }
 
     /**
@@ -839,14 +839,14 @@ public abstract class JsonParser
 
     /*
     /**********************************************************************
-    /* Public API, access to token information, text
+    /* Public API, access to token information, Strings
     /**********************************************************************
      */
 
     /**
      * Method that can be called to get the name associated with
      * the current token: for {@link JsonToken#PROPERTY_NAME}s it will
-     * be the same as what {@link #getText} returns;
+     * be the same as what {@link #getString()} returns;
      * for Object property values it will be the preceding property name;
      * and for others (array element, root-level values) null.
      *
@@ -866,47 +866,49 @@ public abstract class JsonParser
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract String getText() throws JacksonException;
+    public abstract String getString() throws JacksonException;
 
     /**
      * Method to read the textual representation of the current token in chunks and
      * pass it to the given Writer.
-     * Conceptually same as calling:
+     * Functionally same as calling:
      *<pre>
-     *  writer.write(parser.getText());
+     *  writer.write(parser.getString());
      *</pre>
      * but should typically be more efficient as longer content does need to
      * be combined into a single <code>String</code> to return, and write
      * can occur directly from intermediate buffers Jackson uses.
      *<p>
-     * NOTE: textual content <b>will</b> still be buffered (usually
+     * NOTE: String value <b>will</b> still be buffered (usually
      * using {@link TextBuffer}) and <b>will</b> be accessible with
-     * other {@code getText()} calls (that is, it will not be consumed).
+     * other {@code getString()} calls (that is, it will not be consumed).
      * So this accessor only avoids construction of {@link java.lang.String}
-     * compared to plain {@link #getText()} method.
+     * compared to plain {@link #getString()} method.
+     *<p>
+     * NOTE: In Jackson 2.x this method was called {@code getString(Writer)}.
      *
-     * @param writer Writer to write textual content to
+     * @param writer Writer to write String value to
      *
      * @return The number of characters written to the Writer
      *
      * @throws JacksonIOException for low-level read issues, or failed write using {@link Writer}
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract int getText(Writer writer) throws JacksonException;
+    public abstract int getString(Writer writer) throws JacksonException;
 
     /**
-     * Method similar to {@link #getText}, but that will return
+     * Method similar to {@link #getString()}, but that will return
      * underlying (unmodifiable) character array that contains
      * textual value, instead of constructing a String object
      * to contain this information.
      * Note, however, that:
      *<ul>
      * <li>String contents are not guaranteed to start at
-     *   index 0 (rather, call {@link #getTextOffset}) to
+     *   index 0 (rather, call {@link #getStringOffset}) to
      *   know the actual offset
      *  </li>
      * <li>Length of string contents may be less than the
-     *  length of returned buffer: call {@link #getTextLength}
+     *  length of returned buffer: call {@link #getStringLength}
      *  for actual length of returned content.
      *  </li>
      * </ul>
@@ -915,7 +917,7 @@ public abstract class JsonParser
      * character array in any way -- doing so may corrupt
      * current parser state and render parser instance useless.
      *<p>
-     * The only reason to call this method (over {@link #getText})
+     * The only reason to call this method (over {@link #getString()})
      * is to avoid construction of a String object (which
      * will make a copy of contents).
      *
@@ -925,52 +927,95 @@ public abstract class JsonParser
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract char[] getTextCharacters() throws JacksonException;
+    public abstract char[] getStringCharacters() throws JacksonException;
 
     /**
-     * Accessor used with {@link #getTextCharacters}, to know length
+     * Accessor used with {@link #getStringCharacters}, to know length
      * of String stored in returned buffer.
      *
      * @return Number of characters within buffer returned
-     *   by {@link #getTextCharacters} that are part of
+     *   by {@link #getStringCharacters} that are part of
      *   textual content of the current token.
      *
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract int getTextLength() throws JacksonException;
+    public abstract int getStringLength() throws JacksonException;
 
     /**
-     * Accessor used with {@link #getTextCharacters}, to know offset
+     * Accessor used with {@link #getStringCharacters}, to know offset
      * of the first text content character within buffer.
      *
      * @return Offset of the first character within buffer returned
-     *   by {@link #getTextCharacters} that is part of
+     *   by {@link #getStringCharacters} that is part of
      *   textual content of the current token.
      *
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract int getTextOffset() throws JacksonException;
+    public abstract int getStringOffset() throws JacksonException;
 
     /**
      * Method that can be used to determine whether calling of
-     * {@link #getTextCharacters} would be the most efficient
-     * way to access textual content for the event parser currently
-     * points to.
-     *<p>
-     * Default implementation simply returns false since only actual
-     * implementation class has knowledge of its internal buffering
-     * state.
-     * Implementations are strongly encouraged to properly override
-     * this method, to allow efficient copying of content by other
-     * code.
+     * {@link #getStringCharacters} would be the most efficient
+     * way to access String value for the event parser currently
+     * points to (compared to {@link #getString()}).
      *
      * @return True if parser currently has character array that can
-     *   be efficiently returned via {@link #getTextCharacters}; false
+     *   be efficiently returned via {@link #getStringCharacters}; false
      *   means that it may or may not exist
      */
-    public abstract boolean hasTextCharacters();
+    public abstract boolean hasStringCharacters();
+
+    /*
+    /**********************************************************************
+    /* Deprecated Public API String access methods (deprecated in 3.0)
+    /**********************************************************************
+     */
+    
+    /**
+     * Deprecated alias for {@link #getString()}:
+     * MAY be removed in a 3.x version past 3.0; only included to help initial migration.
+     *
+     * @deprecated since 3.0 use {@link #getString()} instead.
+     */
+    @Deprecated // since 3.0
+    public String getText() throws JacksonException {
+        return getString();
+    }
+
+    /**
+     * Deprecated alias for {@link #getStringCharacters()}:
+     * MAY be removed in a 3.x version past 3.0; only included to help initial migration.
+     *
+     * @deprecated since 3.0 use {@link #getStringCharacters()} instead.
+     */
+    @Deprecated // since 3.0
+    public char[] getTextCharacters() throws JacksonException {
+        return getStringCharacters();
+    }
+
+    /**
+     * Deprecated alias for {@link #getStringLength()}:
+     * MAY be removed in a 3.x version past 3.0; only included to help initial migration.
+     *
+     * @deprecated since 3.0 use {@link #getStringLength()} instead.
+     */
+    @Deprecated // since 3.0
+    public int getTextLength() throws JacksonException {
+        return getStringLength();
+    }
+
+    /**
+     * Deprecated alias for {@link #getStringOffset()}:
+     * MAY be removed in a 3.x version past 3.0; only included to help initial migration.
+     *
+     * @deprecated since 3.0 use {@link #getStringOffset()} instead.
+     */
+    @Deprecated // since 3.0
+    public int getTextOffset() throws JacksonException {
+        return getStringOffset();
+    }
 
     /*
     /**********************************************************************
@@ -1262,7 +1307,7 @@ public abstract class JsonParser
      * may not be accessible using other methods after the call)
      * base64-encoded binary data
      * included in the current textual JSON value.
-     * It works similar to getting String value via {@link #getText}
+     * It works similar to getting String value via {@link #getString()}
      * and decoding result (except for decoding part),
      * but should be significantly more performant.
      *<p>

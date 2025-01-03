@@ -32,11 +32,11 @@ class TestUnicode extends tools.jackson.core.JUnit5TestBase
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
         if (checkText) {
-            assertEquals("text", jp.getText());
+            assertEquals("text", jp.getString());
         }
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         if (checkText) {
-            assertEquals("\uD83D\uDE03", jp.getText());
+            assertEquals("\uD83D\uDE03", jp.getString());
         }
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.close();

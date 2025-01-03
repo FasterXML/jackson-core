@@ -132,7 +132,7 @@ class LocationOffsetsTest extends JUnit5TestBase
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(1, p.currentLocation().getLineNr());
         p.finishToken();
-        assertEquals("text", p.getText());
+        assertEquals("text", p.getString());
         p.close();
     }
 
@@ -151,7 +151,7 @@ class LocationOffsetsTest extends JUnit5TestBase
         assertEquals(8, p.currentLocation().getColumnNr());
 
         // also just for fun, verify content
-        assertEquals("text", p.getText());
+        assertEquals("text", p.getString());
         assertEquals(8, p.currentLocation().getColumnNr());
         p.close();
     }
@@ -294,7 +294,7 @@ class LocationOffsetsTest extends JUnit5TestBase
         assertEquals(1, loc.getLineNr());
         assertEquals(9, loc.getColumnNr());
 
-        p.getTextCharacters();
+        p.getStringCharacters();
         loc = p.currentTokenLocation();
         assertEquals(7, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());

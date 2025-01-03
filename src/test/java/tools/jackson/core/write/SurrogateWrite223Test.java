@@ -49,7 +49,7 @@ class SurrogateWrite223Test extends JUnit5TestBase
         JsonParser p = f.createParser(ObjectReadContext.empty(), out.toByteArray());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(toQuote, p.getText());
+        assertEquals(toQuote, p.getString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 
@@ -86,7 +86,7 @@ class SurrogateWrite223Test extends JUnit5TestBase
         try (JsonParser p = DEFAULT_JSON_F.createParser(ObjectReadContext.empty(), out.toString())) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            assertEquals(toQuote, p.getText());
+            assertEquals(toQuote, p.getString());
             assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
     }

@@ -41,7 +41,7 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     {
         try (AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset)) {
             assertToken(JsonToken.START_OBJECT, r.nextToken());
-            assertFalse(r.parser().hasTextCharacters());
+            assertFalse(r.parser().hasStringCharacters());
 
             assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
             assertEquals("foobar", r.currentName());
@@ -106,7 +106,7 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     {
         try (AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset)) {
             assertToken(JsonToken.START_ARRAY, r.nextToken());
-            assertFalse(r.parser().hasTextCharacters());
+            assertFalse(r.parser().hasStringCharacters());
 
             assertToken(JsonToken.VALUE_TRUE, r.nextToken());
             assertToken(JsonToken.START_OBJECT, r.nextToken());

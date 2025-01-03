@@ -66,7 +66,7 @@ class TestCharEscaping
             JsonToken t = jp.nextToken();
             assertToken(JsonToken.VALUE_STRING, t);
             // and if not, should get it here:
-            jp.getText();
+            jp.getString();
             fail("Expected an exception for un-escaped linefeed in string value");
         } catch (StreamReadException jex) {
             verifyException(jex, "has to be escaped");
@@ -90,7 +90,7 @@ class TestCharEscaping
         JsonParser jp = createParser(JSON_F, readMode, DOC);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("LF=\n", jp.getText());
+        assertEquals("LF=\n", jp.getString());
         jp.close();
 
         // Note: must split Strings, so that javac won't try to handle
@@ -98,21 +98,21 @@ class TestCharEscaping
         jp = createParser(JSON_F, readMode, "[\"NULL:\\u0000!\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("NULL:\0!", jp.getText());
+        assertEquals("NULL:\0!", jp.getString());
         jp.close();
 
         // Then just a single char escaping
         jp = createParser(JSON_F, readMode, "[\"\\u0123\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("\u0123", jp.getText());
+        assertEquals("\u0123", jp.getString());
         jp.close();
 
         // And then double sequence
         jp = createParser(JSON_F, readMode, "[\"\\u0041\\u0043\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("AC", jp.getText());
+        assertEquals("AC", jp.getString());
         jp.close();
     }
 
@@ -158,7 +158,7 @@ class TestCharEscaping
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         try {
             jp.nextToken();
-            jp.getText();
+            jp.getString();
             fail("Expected an exception for unclosed ARRAY");
         } catch (StreamReadException jpe) {
             verifyException(jpe, "for character escape");
@@ -183,7 +183,7 @@ class TestCharEscaping
         JsonParser jp = createParser(JSON_F, readMode, DOC);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("A1234", jp.getText());
+        assertEquals("A1234", jp.getString());
         jp.close();
     }
 
@@ -213,7 +213,7 @@ class TestCharEscaping
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         // this is where we should get proper exception
         try {
-            p.getText();
+            p.getString();
             fail("Should not pass");
         } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");

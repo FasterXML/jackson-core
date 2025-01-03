@@ -1631,7 +1631,7 @@ public class UTF8StreamJsonParser
      */
 
     @Override
-    public String nextTextValue() throws JacksonException
+    public String nextStringValue() throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
         if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'

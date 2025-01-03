@@ -1201,7 +1201,7 @@ public class ReaderBasedJsonParser
     }
     // note: identical to one in UTF8StreamJsonParser
     @Override
-    public final String nextTextValue() throws JacksonException
+    public final String nextStringValue() throws JacksonException
     {
         if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;

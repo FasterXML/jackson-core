@@ -341,13 +341,13 @@ class NextXxxAccessTest
     {
         final String DOC = a2q("{'a':'123','b':5,'c':[false,'foo']}");
         JsonParser p = createParser(mode, DOC);
-        assertNull(p.nextTextValue());
+        assertNull(p.nextStringValue());
         assertToken(JsonToken.START_OBJECT, p.currentToken());
-        assertNull(p.nextTextValue());
+        assertNull(p.nextStringValue());
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("a", p.currentName());
 
-        assertEquals("123", p.nextTextValue());
+        assertEquals("123", p.nextStringValue());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertNull(p.nextName());
@@ -355,18 +355,18 @@ class NextXxxAccessTest
 
         assertEquals("c", p.nextName());
 
-        assertNull(p.nextTextValue());
+        assertNull(p.nextStringValue());
         assertToken(JsonToken.START_ARRAY, p.currentToken());
-        assertNull(p.nextTextValue());
+        assertNull(p.nextStringValue());
         assertToken(JsonToken.VALUE_FALSE, p.currentToken());
-        assertEquals("foo", p.nextTextValue());
+        assertEquals("foo", p.nextStringValue());
 
-        assertNull(p.nextTextValue());
+        assertNull(p.nextStringValue());
         assertToken(JsonToken.END_ARRAY, p.currentToken());
-        assertNull(p.nextTextValue());
+        assertNull(p.nextStringValue());
         assertToken(JsonToken.END_OBJECT, p.currentToken());
         if (mode != MODE_DATA_INPUT) {
-            assertNull(p.nextTextValue());
+            assertNull(p.nextStringValue());
             assertNull(p.currentToken());
         }
         p.close();

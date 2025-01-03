@@ -231,7 +231,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), inputStream);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     public void test_createParser_File() throws Exception
@@ -241,7 +241,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), path.toFile());
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     public void test_createParser_Path() throws Exception
@@ -251,7 +251,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), path);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     public void test_createParser_Url() throws Exception
@@ -261,7 +261,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), path.toUri().toURL());
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     public void test_createParser_Reader() throws Exception
@@ -270,7 +270,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), reader);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     public void test_createParser_ByteArray() throws Exception
@@ -279,7 +279,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), bytes);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     public void test_createParser_String() throws Exception
@@ -288,7 +288,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), string);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     public void test_createParser_CharArray() throws Exception
@@ -297,7 +297,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), chars);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
     public void test_createParser_DataInput() throws Exception
@@ -307,7 +307,7 @@ public class JsonFactoryTest
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), dataInput);
 
-        assertEquals(jsonParser.nextTextValue(), "value");
+        assertEquals(jsonParser.nextStringValue(), "value");
     }
 
 

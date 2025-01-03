@@ -581,7 +581,7 @@ public abstract class JsonParser
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public String nextTextValue() throws JacksonException {
+    public String nextStringValue() throws JacksonException {
         return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
     }
 

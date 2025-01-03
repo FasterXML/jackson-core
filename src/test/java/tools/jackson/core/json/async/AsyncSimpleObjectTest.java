@@ -60,9 +60,9 @@ class AsyncSimpleObjectTest extends AsyncTestBase
         // by default no cheap access to char[] version:
         assertFalse(r.parser().hasStringCharacters());
         // but...
-        char[] ch = r.parser().getTextCharacters();
-        assertEquals(0, r.parser().getTextOffset());
-        assertEquals(1, r.parser().getTextLength());
+        char[] ch = r.parser().getStringCharacters();
+        assertEquals(0, r.parser().getStringOffset());
+        assertEquals(1, r.parser().getStringLength());
         assertEquals("a", new String(ch, 0, 1));
         assertTrue(r.parser().hasStringCharacters());
 

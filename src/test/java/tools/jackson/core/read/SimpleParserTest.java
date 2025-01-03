@@ -144,10 +144,10 @@ class SimpleParserTest extends JUnit5TestBase
         // Before advancing to content, we should have following default state...
         assertFalse(p.hasCurrentToken());
         assertNull(p.getString());
-        assertNull(p.getTextCharacters());
-        assertEquals(0, p.getTextLength());
+        assertNull(p.getStringCharacters());
+        assertEquals(0, p.getStringLength());
         // not sure if this is defined but:
-        assertEquals(0, p.getTextOffset());
+        assertEquals(0, p.getStringOffset());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("/", ctxt.toString());

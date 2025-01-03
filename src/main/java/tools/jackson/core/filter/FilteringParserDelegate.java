@@ -918,26 +918,26 @@ public class FilteringParserDelegate extends JsonParserDelegate
         return delegate.hasStringCharacters();
     }
 
-    @Override public char[] getTextCharacters() throws JacksonException {
+    @Override public char[] getStringCharacters() throws JacksonException {
         // Not optimal but is correct, unlike delegating (as underlying stream
         // may point to something else due to buffering)
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName().toCharArray();
         }
-        return delegate.getTextCharacters();
+        return delegate.getStringCharacters();
     }
 
-    @Override public int getTextLength() throws JacksonException {
+    @Override public int getStringLength() throws JacksonException {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName().length();
         }
-        return delegate.getTextLength();
+        return delegate.getStringLength();
     }
-    @Override public int getTextOffset() throws JacksonException {
+    @Override public int getStringOffset() throws JacksonException {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return 0;
         }
-        return delegate.getTextOffset();
+        return delegate.getStringOffset();
     }
 
     @Override public String getValueAsString() throws JacksonException {

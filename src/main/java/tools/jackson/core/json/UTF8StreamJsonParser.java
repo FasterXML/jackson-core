@@ -417,7 +417,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public char[] getTextCharacters() throws JacksonException
+    public char[] getStringCharacters() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -442,7 +442,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public int getTextLength() throws JacksonException
+    public int getStringLength() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -467,7 +467,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public int getTextOffset() throws JacksonException
+    public int getStringOffset() throws JacksonException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {

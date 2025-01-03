@@ -294,7 +294,7 @@ class LocationOffsetsTest extends JUnit5TestBase
         assertEquals(1, loc.getLineNr());
         assertEquals(9, loc.getColumnNr());
 
-        p.getTextCharacters();
+        p.getStringCharacters();
         loc = p.currentTokenLocation();
         assertEquals(7, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());

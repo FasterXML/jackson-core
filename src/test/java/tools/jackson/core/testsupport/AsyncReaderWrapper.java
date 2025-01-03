@@ -27,9 +27,9 @@ public abstract class AsyncReaderWrapper
 
     public String currentTextViaCharacters()
     {
-        char[] ch = _streamReader.getTextCharacters();
-        int start = _streamReader.getTextOffset();
-        int len = _streamReader.getTextLength();
+        char[] ch = _streamReader.getStringCharacters();
+        int start = _streamReader.getStringOffset();
+        int len = _streamReader.getStringLength();
         return new String(ch, start, len);
     }
 

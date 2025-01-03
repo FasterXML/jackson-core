@@ -304,9 +304,9 @@ public class JUnit5TestBase
     public static String getAndVerifyText(JsonParser p)
     {
         // Ok, let's verify other accessors
-        int actLen = p.getTextLength();
-        char[] ch = p.getTextCharacters();
-        String str2 = new String(ch, p.getTextOffset(), actLen);
+        int actLen = p.getStringLength();
+        char[] ch = p.getStringCharacters();
+        String str2 = new String(ch, p.getStringOffset(), actLen);
         String str = p.getString();
 
         if (str.length() !=  actLen) {

@@ -35,7 +35,7 @@ class TestReadHumongousString extends JUnit5TestBase
             // Let's not construct String but just check that length is
             // expected: this avoids having to allocate 4 gig more of heap
             // for test -- should still trigger problem if fix not valid
-            assertEquals(len, parser.getTextLength());
+            assertEquals(len, parser.getStringLength());
             // TODO: could use streaming accessor (`JsonParser.getText(Writer)`)
             assertNull(parser.nextToken());
         }

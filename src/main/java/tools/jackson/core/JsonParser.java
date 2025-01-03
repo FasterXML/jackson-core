@@ -467,7 +467,7 @@ public abstract class JsonParser
      * so that even if lazy processing is enabled, the whole contents are
      * read for possible retrieval. This is usually used to ensure that
      * the token end location is available, as well as token contents
-     * (similar to what calling, say {@link #getTextCharacters()}, would
+     * (similar to what calling, say {@link #getStringCharacters()}, would
      * achieve).
      *<p>
      * Note that for many dataformat implementations this method
@@ -570,7 +570,7 @@ public abstract class JsonParser
      * otherwise returns null.
      * It is functionally equivalent to:
      *<pre>
-     *  return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
+     *  return (nextToken() == JsonToken.VALUE_STRING) ? getString() : null;
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
@@ -839,7 +839,7 @@ public abstract class JsonParser
 
     /*
     /**********************************************************************
-    /* Public API, access to token information, text
+    /* Public API, access to token information, Strings
     /**********************************************************************
      */
 
@@ -871,9 +871,9 @@ public abstract class JsonParser
     /**
      * Method to read the textual representation of the current token in chunks and
      * pass it to the given Writer.
-     * Conceptually same as calling:
+     * Functionally same as calling:
      *<pre>
-     *  writer.write(parser.getText());
+     *  writer.write(parser.getString());
      *</pre>
      * but should typically be more efficient as longer content does need to
      * be combined into a single <code>String</code> to return, and write
@@ -881,7 +881,7 @@ public abstract class JsonParser
      *<p>
      * NOTE: String value <b>will</b> still be buffered (usually
      * using {@link TextBuffer}) and <b>will</b> be accessible with
-     * other {@code getText()} calls (that is, it will not be consumed).
+     * other {@code getString()} calls (that is, it will not be consumed).
      * So this accessor only avoids construction of {@link java.lang.String}
      * compared to plain {@link #getString()} method.
      *<p>
@@ -904,11 +904,11 @@ public abstract class JsonParser
      * Note, however, that:
      *<ul>
      * <li>String contents are not guaranteed to start at
-     *   index 0 (rather, call {@link #getTextOffset}) to
+     *   index 0 (rather, call {@link #getStringOffset}) to
      *   know the actual offset
      *  </li>
      * <li>Length of string contents may be less than the
-     *  length of returned buffer: call {@link #getTextLength}
+     *  length of returned buffer: call {@link #getStringLength}
      *  for actual length of returned content.
      *  </li>
      * </ul>
@@ -927,33 +927,33 @@ public abstract class JsonParser
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract char[] getTextCharacters() throws JacksonException;
+    public abstract char[] getStringCharacters() throws JacksonException;
 
     /**
-     * Accessor used with {@link #getTextCharacters}, to know length
+     * Accessor used with {@link #getStringCharacters}, to know length
      * of String stored in returned buffer.
      *
      * @return Number of characters within buffer returned
-     *   by {@link #getTextCharacters} that are part of
+     *   by {@link #getStringCharacters} that are part of
      *   textual content of the current token.
      *
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract int getTextLength() throws JacksonException;
+    public abstract int getStringLength() throws JacksonException;
 
     /**
-     * Accessor used with {@link #getTextCharacters}, to know offset
+     * Accessor used with {@link #getStringCharacters}, to know offset
      * of the first text content character within buffer.
      *
      * @return Offset of the first character within buffer returned
-     *   by {@link #getTextCharacters} that is part of
+     *   by {@link #getStringCharacters} that is part of
      *   textual content of the current token.
      *
      * @throws JacksonIOException for low-level read issues
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract int getTextOffset() throws JacksonException;
+    public abstract int getStringOffset() throws JacksonException;
 
     /**
      * Method that can be used to determine whether calling of
@@ -962,14 +962,20 @@ public abstract class JsonParser
      * points to (compared to {@link #getString()}).
      *
      * @return True if parser currently has character array that can
-     *   be efficiently returned via {@link #getTextCharacters}; false
+     *   be efficiently returned via {@link #getStringCharacters}; false
      *   means that it may or may not exist
      */
     public abstract boolean hasStringCharacters();
 
+    /*
+    /**********************************************************************
+    /* Deprecated Public API String access methods (deprecated in 3.0)
+    /**********************************************************************
+     */
+    
     /**
-     * Deprecated alias for {@link #getString()}: MAY be removed in a 3.x version
-     * past 3.0; only included to help initial migration.
+     * Deprecated alias for {@link #getString()}:
+     * MAY be removed in a 3.x version past 3.0; only included to help initial migration.
      *
      * @deprecated since 3.0 use {@link #getString()} instead.
      */
@@ -977,7 +983,40 @@ public abstract class JsonParser
     public String getText() throws JacksonException {
         return getString();
     }
-    
+
+    /**
+     * Deprecated alias for {@link #getStringCharacters()}:
+     * MAY be removed in a 3.x version past 3.0; only included to help initial migration.
+     *
+     * @deprecated since 3.0 use {@link #getStringCharacters()} instead.
+     */
+    @Deprecated // since 3.0
+    public char[] getTextCharacters() throws JacksonException {
+        return getStringCharacters();
+    }
+
+    /**
+     * Deprecated alias for {@link #getStringLength()}:
+     * MAY be removed in a 3.x version past 3.0; only included to help initial migration.
+     *
+     * @deprecated since 3.0 use {@link #getStringLength()} instead.
+     */
+    @Deprecated // since 3.0
+    public int getTextLength() throws JacksonException {
+        return getStringLength();
+    }
+
+    /**
+     * Deprecated alias for {@link #getStringOffset()}:
+     * MAY be removed in a 3.x version past 3.0; only included to help initial migration.
+     *
+     * @deprecated since 3.0 use {@link #getStringOffset()} instead.
+     */
+    @Deprecated // since 3.0
+    public int getTextOffset() throws JacksonException {
+        return getStringOffset();
+    }
+
     /*
     /**********************************************************************
     /* Public API, access to token information, numeric

@@ -390,7 +390,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final char[] getTextCharacters() throws JacksonException
+    public final char[] getStringCharacters() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -413,7 +413,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final int getTextLength() throws JacksonException
+    public final int getStringLength() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -436,7 +436,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final int getTextOffset() throws JacksonException
+    public final int getStringOffset() throws JacksonException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {

@@ -193,7 +193,7 @@ class LocationOfError1180Test
             return _name;
         }
 
-        private final String _name;
+        protected final String _name;
         public final String input;
         public final int byteOffset;
         public final int charOffset;

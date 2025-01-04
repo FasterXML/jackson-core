@@ -67,7 +67,7 @@ class AsyncNaNHandlingTest extends AsyncTestBase
             /*BigDecimal dec =*/ p.getDecimalValue();
             fail("Should fail when trying to access NaN as BigDecimal");
         } catch (NumberFormatException e) {
-            verifyException(e, "can not be deserialized as `java.math.BigDecimal`");
+            verifyException(e, "cannot be deserialized as `java.math.BigDecimal`");
         }
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());

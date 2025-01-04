@@ -214,7 +214,7 @@ public class UTF8JsonGenerator
         }
         final int status = _writeContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a field name, expecting a value");
+            _reportError("Cannot write a field name, expecting a value");
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) { // need comma
             if (_outputTail >= _outputEnd) {
@@ -264,7 +264,7 @@ public class UTF8JsonGenerator
         }
         final int status = _writeContext.writeFieldName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a field name, expecting a value");
+            _reportError("Cannot write a field name, expecting a value");
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) {
             if (_outputTail >= _outputEnd) {
@@ -433,7 +433,7 @@ public class UTF8JsonGenerator
     {
         int status = _writeContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a field name, expecting a value");
+            _reportError("Cannot write a field name, expecting a value");
         }
         if ((status == JsonWriteContext.STATUS_OK_AFTER_COMMA)) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);
@@ -473,7 +473,7 @@ public class UTF8JsonGenerator
     {
         final int status = _writeContext.writeFieldName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a field name, expecting a value");
+            _reportError("Cannot write a field name, expecting a value");
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);
@@ -849,7 +849,7 @@ public class UTF8JsonGenerator
      * Helper method that is called for segmented write of raw content
      * when explicitly outputting a segment of longer thing.
      * Caller has to take care of ensuring there's no split surrogate
-     * pair at the end (that is, last char can not be first part of a
+     * pair at the end (that is, last char cannot be first part of a
      * surrogate char pair).
      *
      * @since 2.8.2
@@ -1401,7 +1401,7 @@ public class UTF8JsonGenerator
     /**
      * This method called when the string content is already in
      * a char buffer, and its maximum total encoded and escaped length
-     * can not exceed size of the output buffer.
+     * cannot exceed size of the output buffer.
      * Caller must ensure that there is enough space in output buffer,
      * assuming case of all non-escaped ASCII characters, as well as
      * potentially enough space for other cases (but not necessarily flushed)

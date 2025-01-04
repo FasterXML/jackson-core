@@ -261,7 +261,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     /* 26-Jun-2018, tatu: This should not be needed here, but due to 2.x limitations,
      *   we do need to include it or require casting.
      *   Specifically: since `JsonFactory` (and not `TokenStreamFactory`) is base class
-     *   for all backends, it can not expose JSON-specific builder, but this.
+     *   for all backends, it cannot expose JSON-specific builder, but this.
      *   So let's select lesser evil(s).
      */
 

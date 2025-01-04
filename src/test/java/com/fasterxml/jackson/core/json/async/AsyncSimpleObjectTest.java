@@ -98,7 +98,7 @@ class AsyncSimpleObjectTest extends AsyncTestBase
             fail("Should not pass");
         } catch (JsonProcessingException e) {
             verifyException(e, "Current token (VALUE_TRUE) not");
-            verifyException(e, "can not access as binary");
+            verifyException(e, "cannot access as binary");
         }
 
         assertToken(JsonToken.END_OBJECT, r.nextToken());

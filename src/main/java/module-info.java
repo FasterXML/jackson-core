@@ -1,4 +1,8 @@
+// jackson-core main Module descriptor
 module tools.jackson.core {
+    // FastDoubleParser shaded but JPMS still requires it to compile?
+    requires static ch.randelshofer.fastdoubleparser;
+
     exports tools.jackson.core;
     exports tools.jackson.core.async;
     exports tools.jackson.core.base;

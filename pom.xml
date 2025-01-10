@@ -143,6 +143,7 @@ tools.jackson.core.*;version=${project.version}
                   <artifact>ch.randelshofer:fastdoubleparser</artifact>
                   <excludes>
                     <exclude>META-INF/versions/**/module-info.*</exclude>
+                    <exclude>META-INF/versions/11/**/*</exclude>
                   </excludes>
                 </filter>
               </filters>
@@ -171,10 +172,6 @@ tools.jackson.core.*;version=${project.version}
                 <relocation>
                   <pattern>META-INF/jackson-core-NOTICE</pattern>
                   <shadedPattern>META-INF/NOTICE</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>META-INF/versions/11/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/11/tools/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/versions/17/ch/randelshofer/fastdoubleparser</pattern>

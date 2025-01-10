@@ -49,7 +49,7 @@ JSON library.
   allocation default implementation (in 3.0)
 #1364: JSTEP-6: rename `JsonLocation` as `TokenStreamLocation`
 #1378: Rename `JsonParser.getText()` as `.getString()` [JSTEP-6]
-#1380: Change 3.0 to use `module-info.java` directly, remove use of Moditect
+#1380: Change 3.0 to use `module-info.java` directly (and not via Moditect)
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

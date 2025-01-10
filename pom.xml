@@ -102,14 +102,6 @@ tools.jackson.core.*;version=${project.version}
         <version>${version.plugin.surefire}</version>
         <configuration>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
-          <excludes>
-            <exclude>**/failing/**/*.java</exclude>
-          </excludes>
-<!-- 13-Apr-2018, tatu: for debugging [core#400]
-          <systemPropertyVariables>
-<tools.jackson.core.util.BufferRecyclers.trackReusableBuffers>true</tools.jackson.core.util.BufferRecyclers.trackReusableBuffers>
-          </systemPropertyVariables>
--->
         </configuration>
       </plugin>
       <plugin> <!-- default settings are fine, just need to enable here -->

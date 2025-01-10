@@ -88,7 +88,11 @@ public class JacksonTestFailureExpectedInterceptor
         if (ExpectedPassingTestCasePredicate.class.equals(predicate)) {
             return null;
         } else {
-            return predicate.newInstance();
+            try {
+                return predicate.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

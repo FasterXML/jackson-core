@@ -167,10 +167,6 @@ tools.jackson.core.*;version=${project.version}
                   <shadedPattern>META-INF/NOTICE</shadedPattern>
                 </relocation>
                 <relocation>
-                  <pattern>META-INF/versions/11/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/11/tools/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
-                </relocation>
-                <relocation>
                   <pattern>META-INF/versions/17/ch/randelshofer/fastdoubleparser</pattern>
                   <shadedPattern>META-INF/versions/17/tools/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>

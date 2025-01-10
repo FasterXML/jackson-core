@@ -108,7 +108,33 @@ tools.jackson.core.*;version=${project.version}
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
       </plugin>
-
+      <!-- 10-Jan-2025, tatu: [core#1380] Still need to use Moditect to
+         work around bug/misfeature of maven-shade-plugin where it absolutely
+         removes root-level `module-info.class`. So use Moditect to put it back
+         (but from diff place than with Jackson 2.x)
+        -->
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-module-infos</id>
+            <phase>package</phase>
+            <goals>
+              <goal>add-module-info</goal>
+            </goals>
+            <configuration>
+              <overwriteExistingFiles>true</overwriteExistingFiles>
+              <module>
+                <moduleInfoFile>src/main/java/module-info.java</moduleInfoFile>
+              </module>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <jvmVersion>17</jvmVersion>
+        </configuration>
+      </plugin>
       <!-- 03-Nov-2020, tatu: Add LICENSE from main level -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -132,6 +158,9 @@ tools.jackson.core.*;version=${project.version}
             </goals>
             <configuration>
               <filters>
+                <!-- Need to filter out FDP module-infos, don't need JDK11
+                     versions (min JDK 17+).
+                  -->
                 <filter>
                   <artifact>ch.randelshofer:fastdoubleparser</artifact>
                   <excludes>
@@ -186,10 +215,10 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>de.jjohannes</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
-	<!-- 27-Apr-2023, tatu: [core#999]: Need to exclude shaded FDP
-	   dependency from GMM
-	  -->
-	<configuration>
+        <!-- 27-Apr-2023, tatu: [core#999]: Need to exclude shaded FDP
+             dependency from GMM
+          -->
+        <configuration>
           <removedDependencies>
             <dependency>
               <groupId>ch.randelshofer</groupId>
@@ -207,6 +236,14 @@ tools.jackson.core.*;version=${project.version}
               <Multi-Release>true</Multi-Release>
             </manifestEntries>
           </archive>
+          <!-- 10-Jan-2025, tatu: [core#1380] Kludgerus Maximums... must actually
+             remove `module-info.class` just so Moditect can add it in place
+             where shade plugin will not filter it out. Oy vey.
+            -->
+          <excludes>
+            <exclude>module-info.class</exclude>
+          </excludes>
+
         </configuration>
       </plugin>
 

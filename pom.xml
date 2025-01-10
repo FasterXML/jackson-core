@@ -177,7 +177,10 @@ tools.jackson.core.*;version=${project.version}
                      NOTE: `project.version.underscore' comes from `jackson-base/pom.xml`
                      parent pom
                     -->
-                  <shadedPattern>tools/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern> 
+                   <!-- 10-Jan-2025, tatu: while good idea pre-Modules (to break access),
+                      won't mix well with JPMS. So let's not.
+                     -->
+                  <shadedPattern>tools/jackson/core/internal/shaded/fdp</shadedPattern> 
                 </relocation>
                 <relocation>
                   <pattern>META-INF/LICENSE</pattern>
@@ -197,15 +200,15 @@ tools.jackson.core.*;version=${project.version}
                 </relocation>
                 <relocation>
                   <pattern>META-INF/versions/17/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/17/tools/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
+                  <shadedPattern>META-INF/versions/17/tools/jackson/core/internal/shaded/fdp</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/versions/21/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/21/tools/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
+                  <shadedPattern>META-INF/versions/21/tools/jackson/core/internal/shaded/fdp</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/versions/22/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/22/tools/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
+                  <shadedPattern>META-INF/versions/22/tools/jackson/core/internal/shaded/fdp</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

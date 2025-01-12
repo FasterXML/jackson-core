@@ -230,6 +230,8 @@ tools.jackson.core.*;version=${project.version}
           </removedDependencies>
         </configuration>
       </plugin>
+
+      <!-- Main Artfact build (jar) first -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -248,6 +250,26 @@ tools.jackson.core.*;version=${project.version}
           </excludes>
 
         </configuration>
+      </plugin>
+      <!-- And then Test JAR for other Jackson components -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-jar</id>
+            <phase>package</phase>
+            <goals>
+               <goal>test-jar</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>tools/jackson/core/testsupport/**/*.*</include>
+                <include>tools/jackson/core/testutil/**/*.*</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- 23-Mar-2023, tatu: [core#965] Need to put back Gradle module metadata marker -->

@@ -9,6 +9,10 @@ module tools.jackson.core {
     // FastDoubleParser shaded but JPMS still requires it to compile?
     requires static ch.randelshofer.fastdoubleparser;
 
+    // Test utilities to export
+    exports tools.jackson.core.testutil;
+    exports tools.jackson.core.testutil.failure;
+    
     // Main exports need to switch to "opens" for testing
     opens tools.jackson.core;
     opens tools.jackson.core.async;

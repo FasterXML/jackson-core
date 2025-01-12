@@ -10,7 +10,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.UTF32Reader;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testsupport.ThrottledInputStream;
+import tools.jackson.core.testutil.ThrottledInputStream;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

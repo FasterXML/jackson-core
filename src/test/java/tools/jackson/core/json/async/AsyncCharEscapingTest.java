@@ -6,7 +6,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testsupport.AsyncReaderWrapper;
+import tools.jackson.core.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

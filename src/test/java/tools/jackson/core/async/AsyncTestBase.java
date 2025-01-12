@@ -2,9 +2,9 @@ package tools.jackson.core.async;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testsupport.AsyncReaderWrapper;
-import tools.jackson.core.testsupport.AsyncReaderWrapperForByteArray;
-import tools.jackson.core.testsupport.AsyncReaderWrapperForByteBuffer;
+import tools.jackson.core.testutil.AsyncReaderWrapper;
+import tools.jackson.core.testutil.AsyncReaderWrapperForByteArray;
+import tools.jackson.core.testutil.AsyncReaderWrapperForByteBuffer;
 
 public abstract class AsyncTestBase extends JUnit5TestBase
 {

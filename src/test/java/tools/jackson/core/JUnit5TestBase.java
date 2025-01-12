@@ -7,10 +7,10 @@ import java.util.Arrays;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
-import tools.jackson.core.testsupport.MockDataInput;
-import tools.jackson.core.testsupport.TestSupport;
-import tools.jackson.core.testsupport.ThrottledInputStream;
-import tools.jackson.core.testsupport.ThrottledReader;
+import tools.jackson.core.testutil.MockDataInput;
+import tools.jackson.core.testutil.JacksonTestUtilBase;
+import tools.jackson.core.testutil.ThrottledInputStream;
+import tools.jackson.core.testutil.ThrottledReader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Replacement of JUnit4-based {@code BaseTest}
  */
 public class JUnit5TestBase
+    extends JacksonTestUtilBase
 {
     protected final static String FIELD_BASENAME = "f";
 
@@ -247,7 +248,7 @@ public class JUnit5TestBase
      */
 
     public static IOContext testIOContext() {
-        return TestSupport.testIOContext();
+        return JacksonTestUtilBase.testIOContext();
     }
 
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
@@ -315,34 +316,6 @@ public class JUnit5TestBase
         assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
 
         return str;
-    }
-
-    /*
-    /**********************************************************************
-    /* Escaping/quoting
-    /**********************************************************************
-     */
-
-    protected String q(String str) {
-        return '"'+str+'"';
-    }
-
-    public static String a2q(String json) {
-        return json.replace('\'', '"');
-    }
-
-    public static byte[] encodeInUTF32BE(String input)
-    {
-        int len = input.length();
-        byte[] result = new byte[len * 4];
-        int ptr = 0;
-        for (int i = 0; i < len; ++i, ptr += 4) {
-            char c = input.charAt(i);
-            result[ptr] = result[ptr+1] = (byte) 0;
-            result[ptr+2] = (byte) (c >> 8);
-            result[ptr+3] = (byte) c;
-        }
-        return result;
     }
 
     /*

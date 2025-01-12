@@ -11,7 +11,7 @@ import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.json.JsonReadFeature;
-import tools.jackson.core.testsupport.AsyncReaderWrapper;
+import tools.jackson.core.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 

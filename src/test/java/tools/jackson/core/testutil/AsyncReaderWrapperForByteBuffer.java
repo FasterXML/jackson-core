@@ -1,14 +1,17 @@
-package tools.jackson.core.testsupport;
+package tools.jackson.core.testutil;
 
+import java.nio.ByteBuffer;
+
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import tools.jackson.core.async.ByteArrayFeeder;
+import tools.jackson.core.async.ByteBufferFeeder;
 import tools.jackson.core.exc.StreamReadException;
 
 /**
  * Helper class used with async parser
  */
-public class AsyncReaderWrapperForByteArray extends AsyncReaderWrapper
+public class AsyncReaderWrapperForByteBuffer extends AsyncReaderWrapper
 {
     private final byte[] _doc;
     private final int _bytesPerFeed;
@@ -17,8 +20,8 @@ public class AsyncReaderWrapperForByteArray extends AsyncReaderWrapper
     private int _offset;
     private int _end;
 
-    public AsyncReaderWrapperForByteArray(JsonParser sr, int bytesPerCall,
-            byte[] doc, int padding)
+    public AsyncReaderWrapperForByteBuffer(JsonParser sr, int bytesPerCall,
+                                           byte[] doc, int padding)
     {
         super(sr);
         _bytesPerFeed = bytesPerCall;
@@ -29,12 +32,12 @@ public class AsyncReaderWrapperForByteArray extends AsyncReaderWrapper
     }
 
     @Override
-    public JsonToken nextToken()
+    public JsonToken nextToken() throws JacksonException
     {
         JsonToken token;
 
         while ((token = _streamReader.nextToken()) == JsonToken.NOT_AVAILABLE) {
-            ByteArrayFeeder feeder = (ByteArrayFeeder) _streamReader.nonBlockingInputFeeder();
+            ByteBufferFeeder feeder = (ByteBufferFeeder) _streamReader.nonBlockingInputFeeder();
             if (!feeder.needMoreInput()) {
                 throw new StreamReadException(null, "Got NOT_AVAILABLE, could not feed more input");
             }
@@ -44,11 +47,11 @@ public class AsyncReaderWrapperForByteArray extends AsyncReaderWrapper
             } else {
                 // padding?
                 if (_padding == 0) {
-                    feeder.feedInput(_doc, _offset, _offset+amount);
+                    feeder.feedInput(ByteBuffer.wrap(_doc, _offset, amount));
                 } else {
                     byte[] tmp = new byte[amount + _padding + _padding];
                     System.arraycopy(_doc, _offset, tmp, _padding, amount);
-                    feeder.feedInput(tmp, _padding, _padding+amount);
+                    feeder.feedInput(ByteBuffer.wrap(tmp, _padding, amount));
                 }
                 _offset += amount;
             }

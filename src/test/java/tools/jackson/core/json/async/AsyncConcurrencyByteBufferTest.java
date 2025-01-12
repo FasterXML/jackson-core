@@ -2,7 +2,7 @@ package tools.jackson.core.json.async;
 
 import java.io.IOException;
 
-import tools.jackson.core.testsupport.AsyncReaderWrapper;
+import tools.jackson.core.testutil.AsyncReaderWrapper;
 
 public class AsyncConcurrencyByteBufferTest extends AsyncConcurrencyTest {
 

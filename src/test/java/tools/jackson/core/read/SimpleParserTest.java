@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testsupport.MockDataInput;
+import tools.jackson.core.testutil.MockDataInput;
 import tools.jackson.core.util.JsonParserDelegate;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testsupport.ThrottledInputStream;
+import tools.jackson.core.testutil.ThrottledInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

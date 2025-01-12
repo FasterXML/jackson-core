@@ -1,4 +1,4 @@
-package tools.jackson.core.testsupport;
+package tools.jackson.core.testutil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

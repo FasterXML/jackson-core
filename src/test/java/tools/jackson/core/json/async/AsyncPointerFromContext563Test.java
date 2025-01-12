@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.*;
 import tools.jackson.core.async.AsyncTestBase;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testsupport.AsyncReaderWrapper;
+import tools.jackson.core.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 

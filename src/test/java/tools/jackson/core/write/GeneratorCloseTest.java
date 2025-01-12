@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testsupport.ByteOutputStreamForTesting;
-import tools.jackson.core.testsupport.StringWriterForTesting;
+import tools.jackson.core.testutil.ByteOutputStreamForTesting;
+import tools.jackson.core.testutil.StringWriterForTesting;
 
 import static org.junit.jupiter.api.Assertions.*;
 

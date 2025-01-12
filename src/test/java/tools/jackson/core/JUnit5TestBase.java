@@ -2,23 +2,21 @@ package tools.jackson.core;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
-import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
-import tools.jackson.core.testsupport.MockDataInput;
-import tools.jackson.core.testsupport.TestSupport;
-import tools.jackson.core.testsupport.ThrottledInputStream;
-import tools.jackson.core.testsupport.ThrottledReader;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import tools.jackson.core.testutil.MockDataInput;
+import tools.jackson.core.testutil.JacksonTestUtilBase;
+import tools.jackson.core.testutil.ThrottledInputStream;
+import tools.jackson.core.testutil.ThrottledReader;
 
 /**
- * Replacement of JUnit4-based {@code BaseTest}
+ * Base class for Jackson-core unit tests, using JUnit 5.
+ *<p>
+ * NOTE: replacement of Jackson 2.x JUnit4-based {@code BaseTest}
  */
 public class JUnit5TestBase
+    extends JacksonTestUtilBase
 {
     protected final static String FIELD_BASENAME = "f";
 
@@ -95,9 +93,6 @@ public class JUnit5TestBase
      */
 
     protected final static JsonFactory JSON_FACTORY = new JsonFactory();
-
-
-
 
     /*
     /**********************************************************************
@@ -246,10 +241,6 @@ public class JUnit5TestBase
     /**********************************************************************
      */
 
-    public static IOContext testIOContext() {
-        return TestSupport.testIOContext();
-    }
-
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
     {
         try (JsonParser p = f.createParser(ObjectReadContext.empty(), a2q(doc))) {
@@ -262,106 +253,9 @@ public class JUnit5TestBase
 
     /*
     /**********************************************************************
-    /* Assertions
-    /**********************************************************************
-     */
-
-    protected void assertToken(JsonToken expToken, JsonToken actToken)
-    {
-        if (actToken != expToken) {
-            fail("Expected token "+expToken+", current token "+actToken);
-        }
-    }
-
-    protected void assertToken(JsonToken expToken, JsonParser p)
-    {
-        assertToken(expToken, p.currentToken());
-    }
-
-    /**
-     * @param e Exception to check
-     * @param anyMatches Array of Strings of which AT LEAST ONE ("any") has to be included
-     *    in {@code e.getMessage()} -- using case-INSENSITIVE comparison
-     */
-    public static void verifyException(Throwable e, String... anyMatches)
-    {
-        String msg = e.getMessage();
-        String lmsg = (msg == null) ? "" : msg.toLowerCase();
-        for (String match : anyMatches) {
-            String lmatch = match.toLowerCase();
-            if (lmsg.indexOf(lmatch) >= 0) {
-                return;
-            }
-        }
-        fail("Expected an exception with one of substrings ("+Arrays.asList(anyMatches)+"): got one with message \""+msg+"\"");
-    }
-
-    /**
-     * Method that gets textual contents of the current token using
-     * available methods, and ensures results are consistent, before
-     * returning them
-     */
-    public static String getAndVerifyText(JsonParser p)
-    {
-        // Ok, let's verify other accessors
-        int actLen = p.getStringLength();
-        char[] ch = p.getStringCharacters();
-        String str2 = new String(ch, p.getStringOffset(), actLen);
-        String str = p.getString();
-
-        if (str.length() !=  actLen) {
-            fail("Internal problem (p.token == "+p.currentToken()+"): p.getText().length() ['"+str+"'] == "+str.length()+"; p.getTextLength() == "+actLen);
-        }
-        assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
-
-        return str;
-    }
-
-    /*
-    /**********************************************************************
-    /* Escaping/quoting
-    /**********************************************************************
-     */
-
-    protected String q(String str) {
-        return '"'+str+'"';
-    }
-
-    public static String a2q(String json) {
-        return json.replace('\'', '"');
-    }
-
-    public static byte[] encodeInUTF32BE(String input)
-    {
-        int len = input.length();
-        byte[] result = new byte[len * 4];
-        int ptr = 0;
-        for (int i = 0; i < len; ++i, ptr += 4) {
-            char c = input.charAt(i);
-            result[ptr] = result[ptr+1] = (byte) 0;
-            result[ptr+2] = (byte) (c >> 8);
-            result[ptr+3] = (byte) c;
-        }
-        return result;
-    }
-
-    /*
-    /**********************************************************************
     /* Misc other
     /**********************************************************************
      */
-
-    protected ObjectReadContext testObjectReadContext() {
-        return ObjectReadContext.empty();
-    }
-
-    protected static byte[] utf8Bytes(String str) {
-        return str.getBytes(StandardCharsets.UTF_8);
-    }
-
-    protected String utf8String(ByteArrayOutputStream bytes) {
-        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
-    }
 
     public static String fieldNameFor(int index)
     {
@@ -414,57 +308,4 @@ public class JUnit5TestBase
         }
         return result;
     }
-
-    /*
-    /**********************************************************************
-    /* Content reading, serialization
-    /**********************************************************************
-     */
-
-    public static byte[] readResource(String ref)
-    {
-       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-       final byte[] buf = new byte[4000];
-
-       InputStream in = JUnit5TestBase.class.getResourceAsStream(ref);
-       if (in != null) {
-           try {
-               int len;
-               while ((len = in.read(buf)) > 0) {
-                   bytes.write(buf, 0, len);
-               }
-               in.close();
-           } catch (IOException e) {
-               throw new RuntimeException("Failed to read resource '"+ref+"': "+e);
-           }
-       }
-       if (bytes.size() == 0) {
-           throw new IllegalArgumentException("Failed to read resource '"+ref+"': empty resource?");
-       }
-       return bytes.toByteArray();
-    }
-
-    public static byte[] jdkSerialize(Object o) throws IOException
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(1000);
-        ObjectOutputStream obOut = new ObjectOutputStream(bytes);
-        obOut.writeObject(o);
-        obOut.close();
-        return bytes.toByteArray();
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T jdkDeserialize(byte[] raw) throws IOException
-    {
-        ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
-        try {
-            return (T) objIn.readObject();
-        } catch (ClassNotFoundException e) {
-            fail("Missing class: "+e.getMessage());
-            return null;
-        } finally {
-            objIn.close();
-        }
-    }
-
 }

@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * expected
  */
 @SuppressWarnings("serial")
-class TestDecorators extends tools.jackson.core.JUnit5TestBase
+class TestDecorators extends tools.jackson.core.JacksonCoreTestBase
 {
     /*
     /**********************************************************

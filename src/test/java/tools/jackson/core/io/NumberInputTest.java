@@ -4,12 +4,12 @@ import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class NumberInputTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     @Test
     void nastySmallDouble()

@@ -8,7 +8,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests mostly for [core#229]
-class LocationInArrayTest extends JUnit5TestBase
+class LocationInArrayTest extends JacksonCoreTestBase
 {
     final JsonFactory JSON_F = new JsonFactory();
 

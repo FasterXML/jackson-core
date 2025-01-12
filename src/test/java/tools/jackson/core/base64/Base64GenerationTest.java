@@ -11,7 +11,7 @@ import tools.jackson.core.testutil.ThrottledInputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Base64GenerationTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     /* The usual sample input string, from Thomas Hobbes's "Leviathan"
      * (via Wikipedia)

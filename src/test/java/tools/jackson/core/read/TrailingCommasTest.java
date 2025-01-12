@@ -16,7 +16,7 @@ import tools.jackson.core.json.UTF8DataInputJsonParser;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-public class TrailingCommasTest extends JUnit5TestBase
+public class TrailingCommasTest extends JacksonCoreTestBase
 {
     JsonFactory factory;
     Set<JsonReadFeature> features;

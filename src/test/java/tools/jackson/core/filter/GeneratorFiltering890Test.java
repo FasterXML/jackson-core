@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#890]
 class GeneratorFiltering890Test
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private static final class OrTokenFilter extends TokenFilter {
 

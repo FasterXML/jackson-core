@@ -12,7 +12,7 @@ import tools.jackson.core.exc.InputCoercionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class NumberCoercionTest extends JUnit5TestBase
+class NumberCoercionTest extends JacksonCoreTestBase
 {
     /*
     /**********************************************************

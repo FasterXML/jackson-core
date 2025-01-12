@@ -7,7 +7,7 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PointerFromContextTest extends JUnit5TestBase
+public class PointerFromContextTest extends JacksonCoreTestBase
 {
     /*
     /**********************************************************

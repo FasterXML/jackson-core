@@ -15,7 +15,7 @@ import tools.jackson.core.util.RecyclerPool;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [core#1064] wrt custom `BufferRecycler`
-class BufferRecyclerPoolTest extends JUnit5TestBase
+class BufferRecyclerPoolTest extends JacksonCoreTestBase
 {
     @Test
     void noOp() throws Exception {

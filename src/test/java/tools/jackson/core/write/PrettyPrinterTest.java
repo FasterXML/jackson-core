@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @SuppressWarnings("serial")
 class PrettyPrinterTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     static class CountPrinter extends MinimalPrettyPrinter
     {

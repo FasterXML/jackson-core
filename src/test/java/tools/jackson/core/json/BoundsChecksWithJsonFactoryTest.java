@@ -8,7 +8,7 @@ import tools.jackson.core.exc.StreamReadException;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class BoundsChecksWithJsonFactoryTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     interface ByteBackedCreation {
         void call(byte[] data, int offset, int len) throws Exception;

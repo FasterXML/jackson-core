@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 // Simple tests to verify "placeholder" variant added in 2.13
-class PlaceholderSymbolTableTest extends tools.jackson.core.JUnit5TestBase
+class PlaceholderSymbolTableTest extends tools.jackson.core.JacksonCoreTestBase
 {
     // Test to verify it is ok to try to find names, and that none
     // are ever found

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // For https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=51806
 // (reported as [core#818]
-class Fuzz51806JsonPointerParse818Test extends JUnit5TestBase
+class Fuzz51806JsonPointerParse818Test extends JacksonCoreTestBase
 {
     // Before fix, StackOverflowError with 6_000 or so,
     // and OOME with 20_000.

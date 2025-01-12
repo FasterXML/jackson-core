@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * challenges for parsing.
  */
 class DataInputTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

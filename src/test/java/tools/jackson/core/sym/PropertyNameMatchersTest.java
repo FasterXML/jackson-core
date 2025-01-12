@@ -3,7 +3,7 @@ package tools.jackson.core.sym;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 import tools.jackson.core.util.Named;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Tests for {@link PropertyNameMatcher} implementations
  */
-public class PropertyNameMatchersTest extends JUnit5TestBase
+public class PropertyNameMatchersTest extends JacksonCoreTestBase
 {
     public void testSmallMatching()
     {

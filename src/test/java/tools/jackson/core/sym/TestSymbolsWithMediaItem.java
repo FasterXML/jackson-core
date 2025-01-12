@@ -9,7 +9,7 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TestSymbolsWithMediaItem extends JUnit5TestBase
+class TestSymbolsWithMediaItem extends JacksonCoreTestBase
 {
     private final String JSON = a2q(
             "{'media' : {\n"

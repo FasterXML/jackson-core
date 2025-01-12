@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Set of basic unit tests for verifying that the token count
  * functionality works as expected.
  */
-public class TokenCountTest extends JUnit5TestBase {
+public class TokenCountTest extends JacksonCoreTestBase {
     private final static JsonFactory JSON_FACTORY = JsonFactory.builder()
         .streamReadConstraints(StreamReadConstraints.builder().maxTokenCount(Long.MAX_VALUE).build())
         .build();

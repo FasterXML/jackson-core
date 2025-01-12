@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * is working.
  */
 class TestByteBasedSymbols
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     final static String[] PROPERTY_NAMES = new String[] {
         "a", "b", "c", "x", "y", "b13", "abcdefg", "a123",

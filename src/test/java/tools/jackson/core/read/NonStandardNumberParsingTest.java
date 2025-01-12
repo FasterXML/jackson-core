@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // easier to read on IDE
 @TestMethodOrder(MethodName.class)
 class NonStandardNumberParsingTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)

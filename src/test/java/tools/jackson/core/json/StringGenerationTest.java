@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * generation, including character escaping, works as expected.
  */
 class StringGenerationTest
-        extends JUnit5TestBase
+        extends JacksonCoreTestBase
 {
     final static String[] SAMPLES = new String[] {
         "\"test\"",

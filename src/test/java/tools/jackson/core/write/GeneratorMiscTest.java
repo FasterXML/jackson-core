@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("resource")
 public class GeneratorMiscTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

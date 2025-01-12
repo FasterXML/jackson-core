@@ -9,7 +9,7 @@ import tools.jackson.core.json.JsonReadFeature;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-class TrailingCommas616Test extends JUnit5TestBase
+class TrailingCommas616Test extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F_ALLOW_MISSING = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_MISSING_VALUES)

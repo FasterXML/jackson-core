@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("resource")
 class LargeNumberReadTest
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

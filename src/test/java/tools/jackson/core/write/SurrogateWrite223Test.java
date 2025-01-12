@@ -13,7 +13,7 @@ import tools.jackson.core.json.JsonWriteFeature;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SurrogateWrite223Test extends JUnit5TestBase
+class SurrogateWrite223Test extends JacksonCoreTestBase
 {
     private final JsonFactory DEFAULT_JSON_F = newStreamFactory();
 

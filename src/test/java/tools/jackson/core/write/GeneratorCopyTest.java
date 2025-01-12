@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * of {@link JsonGenerator} work as expected.
  */
 class GeneratorCopyTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 

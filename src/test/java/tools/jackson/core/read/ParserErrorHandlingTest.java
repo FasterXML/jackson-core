@@ -2,7 +2,7 @@ package tools.jackson.core.read;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
@@ -11,7 +11,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ParserErrorHandlingTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * functionality works as expected.
  */
 public class GeneratorBasicTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final TokenStreamFactory JSON_F = newStreamFactory();
 

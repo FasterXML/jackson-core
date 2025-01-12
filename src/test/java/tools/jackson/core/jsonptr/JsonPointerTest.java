@@ -6,7 +6,7 @@ import tools.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class JsonPointerTest extends JUnit5TestBase
+class JsonPointerTest extends JacksonCoreTestBase
 {
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
 

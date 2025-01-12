@@ -11,7 +11,7 @@ import tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JsonFactoryTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     static class BogusSchema implements FormatSchema
     {

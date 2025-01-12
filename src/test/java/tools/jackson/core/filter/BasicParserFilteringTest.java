@@ -14,7 +14,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-class BasicParserFilteringTest extends JUnit5TestBase
+class BasicParserFilteringTest extends JacksonCoreTestBase
 {
     static class NameMatchFilter extends TokenFilter
     {

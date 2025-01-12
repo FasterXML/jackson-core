@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 //[core#764] (and [databind#3508]
 class OutputStreamInitTest
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     static class FailingOutputStream extends OutputStream {
         public int written = 0;

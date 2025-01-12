@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests that the {@link TokenStreamLocation} attached to a thrown {@link StreamReadException}
  * due to invalid JSON points to the correct character.
  */
-class LocationOfError1173Test extends JUnit5TestBase
+class LocationOfError1173Test extends JacksonCoreTestBase
 {
     static final JsonFactory JSON_F = new JsonFactory();
 

@@ -12,7 +12,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#1047]: Add max-name-length constraints
-class LargeNameReadTest extends JUnit5TestBase
+class LargeNameReadTest extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F_DEFAULT = newStreamFactory();
 

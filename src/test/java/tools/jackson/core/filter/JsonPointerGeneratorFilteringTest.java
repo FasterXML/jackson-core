@@ -11,7 +11,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("resource")
-class JsonPointerGeneratorFilteringTest extends tools.jackson.core.JUnit5TestBase
+class JsonPointerGeneratorFilteringTest extends tools.jackson.core.JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

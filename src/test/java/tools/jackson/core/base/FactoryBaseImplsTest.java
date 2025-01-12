@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 //
 // In future might add some actual tests too
 @SuppressWarnings("serial")
-class FactoryBaseImplsTest extends JUnit5TestBase
+class FactoryBaseImplsTest extends JacksonCoreTestBase
 {
     static class ToyBinaryFormatFactory
         extends BinaryTSFactory

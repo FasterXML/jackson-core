@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 // Tests to guarad against [core#213]: does not verify symbol tables
 // directly but only indirect issue(s).
 public class SymbolsViaParserTest
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     // for [jackson-core#213]
     @Test

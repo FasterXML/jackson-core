@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <code>JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT</code>
  * are tested.
  */
-class GeneratorCloseTest extends JUnit5TestBase
+class GeneratorCloseTest extends JacksonCoreTestBase
 {
     /**
      * This unit test checks the default behaviour; with no auto-close, no

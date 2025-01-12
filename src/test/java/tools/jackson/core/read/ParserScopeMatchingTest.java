@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Set of basic unit tests for verifying that Array/Object scopes
  * are properly matched.
  */
-public class ParserScopeMatchingTest extends JUnit5TestBase
+public class ParserScopeMatchingTest extends JacksonCoreTestBase
 {
     @Test
     void unclosedArray() throws Exception

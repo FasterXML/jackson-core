@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Tests to verify functioning of {@link Version} class.
  */
 class ComponentVersionsTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     @Test
     void coreVersions() throws Exception

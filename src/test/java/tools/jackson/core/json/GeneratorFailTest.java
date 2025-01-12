@@ -14,7 +14,7 @@ import tools.jackson.core.exc.StreamWriteException;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class GeneratorFailTest
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     private final JsonFactory F = newStreamFactory();
 

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * wrt maximum nesting depth.
  */
 public class DeeplyNestedContentReadTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

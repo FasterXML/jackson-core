@@ -2,7 +2,7 @@ package tools.jackson.core.read;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class NextNameParserTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     @Test
     void basicNextNameWithReader() throws Exception

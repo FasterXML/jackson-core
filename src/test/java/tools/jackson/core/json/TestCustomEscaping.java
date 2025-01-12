@@ -11,7 +11,7 @@ import tools.jackson.core.util.JsonpCharacterEscapes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TestCustomEscaping extends tools.jackson.core.JUnit5TestBase
+class TestCustomEscaping extends tools.jackson.core.JacksonCoreTestBase
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;

@@ -6,7 +6,7 @@ import tools.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class JsonPointer1168Test extends JUnit5TestBase
+class JsonPointer1168Test extends JacksonCoreTestBase
 {
     // [core#1168]
     @Test

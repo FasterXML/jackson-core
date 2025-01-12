@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * of {@link JsonGenerator} work as expected.
  */
 public class ObjectWriteTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     final TokenStreamFactory JSON_F = newStreamFactory();
 

@@ -11,7 +11,7 @@ import tools.jackson.core.util.JsonRecyclerPools;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SegmentedStringWriterTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     @Test
     void simple() throws Exception

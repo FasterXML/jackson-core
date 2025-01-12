@@ -11,7 +11,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class BoundsChecksWithGeneratorTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     final static JsonFactory JSON_F = new JsonFactory();
 

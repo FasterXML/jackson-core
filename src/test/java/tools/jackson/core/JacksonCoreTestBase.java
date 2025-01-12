@@ -15,7 +15,7 @@ import tools.jackson.core.testutil.ThrottledReader;
  *<p>
  * NOTE: replacement of Jackson 2.x JUnit4-based {@code BaseTest}
  */
-public class JUnit5TestBase
+public class JacksonCoreTestBase
     extends JacksonTestUtilBase
 {
     protected final static String FIELD_BASENAME = "f";

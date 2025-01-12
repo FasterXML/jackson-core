@@ -9,7 +9,7 @@ import tools.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MergedStreamTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     @Test
     void simple() throws Exception

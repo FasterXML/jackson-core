@@ -11,7 +11,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class WriterBasedJsonGeneratorTest extends JUnit5TestBase
+class WriterBasedJsonGeneratorTest extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_MAX_NESTING_1 = JsonFactory.builder()
             .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build())

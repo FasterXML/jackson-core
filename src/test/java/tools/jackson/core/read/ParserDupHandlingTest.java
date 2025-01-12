@@ -9,7 +9,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ParserDupHandlingTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final String[] DUP_DOCS = new String[] {
             "{ 'a':1, 'a':2 }",

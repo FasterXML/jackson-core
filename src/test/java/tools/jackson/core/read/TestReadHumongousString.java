@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // https://github.com/FasterXML/jackson-core/pull/1352
-class TestReadHumongousString extends JUnit5TestBase
+class TestReadHumongousString extends JacksonCoreTestBase
 {
     // disabled because it takes too much memory to run
     @Disabled

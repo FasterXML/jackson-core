@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class NumberDeferredReadTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     protected JsonFactory jsonFactory() {
         return sharedStreamFactory();

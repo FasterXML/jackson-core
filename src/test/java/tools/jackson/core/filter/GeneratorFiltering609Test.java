@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#609]
 class GeneratorFiltering609Test
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     static class NullExcludingTokenFilter extends TokenFilter {
         static final NullExcludingTokenFilter INSTANCE =

@@ -5,11 +5,11 @@ import java.math.BigDecimal;
 import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BigDecimalParserTest extends JUnit5TestBase
+class BigDecimalParserTest extends JacksonCoreTestBase
 {
     @Test
     void longInvalidStringParse() {

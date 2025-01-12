@@ -9,7 +9,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests from [jackson-core#382]
-class UTF32ParseTest extends JUnit5TestBase
+class UTF32ParseTest extends JacksonCoreTestBase
 {
     private final JsonFactory FACTORY = newStreamFactory();
 

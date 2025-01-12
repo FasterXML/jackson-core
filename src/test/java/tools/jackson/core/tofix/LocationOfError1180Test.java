@@ -18,7 +18,8 @@ import tools.jackson.core.testutil.failure.ExpectedPassingTestCasePredicate;
 import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tools.jackson.core.JUnit5TestBase.a2q;
+
+import static tools.jackson.core.JacksonCoreTestBase.a2q;
 
 /**
  * Tests that the {@link TokenStreamLocation} attached to a thrown {@link StreamReadException}

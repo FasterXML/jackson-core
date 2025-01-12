@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BinaryNameMatcherTest extends JUnit5TestBase
+public class BinaryNameMatcherTest extends JacksonCoreTestBase
 {
     public void testSmallMatching()
     {

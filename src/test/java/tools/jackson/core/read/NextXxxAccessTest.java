@@ -10,7 +10,7 @@ import tools.jackson.core.io.SerializedString;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NextXxxAccessTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     /*
     /********************************************************

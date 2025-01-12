@@ -10,7 +10,7 @@ import tools.jackson.core.ObjectWriteContext;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class RawValueWithSurrogatesTest
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     final String SURROGATES_307;
     {

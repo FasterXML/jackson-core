@@ -7,7 +7,7 @@ import tools.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class LocationOffsets455Test extends JUnit5TestBase
+class LocationOffsets455Test extends JacksonCoreTestBase
 {
     // for [jackson-core#455]
     @Test

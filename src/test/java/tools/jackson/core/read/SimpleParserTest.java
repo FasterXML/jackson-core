@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * functionality works as expected.
  */
 @SuppressWarnings("resource")
-class SimpleParserTest extends JUnit5TestBase
+class SimpleParserTest extends JacksonCoreTestBase
 {
     @Test
     void config() throws Exception

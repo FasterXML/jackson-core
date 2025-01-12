@@ -12,7 +12,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class RawStringWriteTest extends JUnit5TestBase
+class RawStringWriteTest extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 

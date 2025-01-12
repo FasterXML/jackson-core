@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * functionality works as expected.
  */
 class ParserLinefeedsTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     @Test
     void cr() throws Exception

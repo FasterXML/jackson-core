@@ -8,7 +8,7 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class JsonPointerOOME736Test extends JUnit5TestBase
+class JsonPointerOOME736Test extends JacksonCoreTestBase
 {
     // such as https://github.com/nst/JSONTestSuite/blob/master/test_parsing/n_structure_100000_opening_arrays.json
     @Test

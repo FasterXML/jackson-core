@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // [core#763] (and [databind#3455]
 class InputStreamInitTest
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     static class FailingInputStream extends InputStream {
         public boolean closed = false;

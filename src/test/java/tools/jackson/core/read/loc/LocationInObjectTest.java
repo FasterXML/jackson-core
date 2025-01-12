@@ -8,7 +8,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // tests for [core#37]
-class LocationInObjectTest extends JUnit5TestBase
+class LocationInObjectTest extends JacksonCoreTestBase
 {
     @Test
     void offsetWithObjectFieldsUsingUTF8() throws Exception

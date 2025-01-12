@@ -11,7 +11,7 @@ import tools.jackson.core.exc.StreamReadException;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestRootValues
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     static class Issue516InputStream extends InputStream
     {

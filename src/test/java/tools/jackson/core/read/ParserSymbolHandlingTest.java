@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ParserSymbolHandlingTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     // For [core#148]
     @Test

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * settings work as expected.
  */
 class JsonReadFeaturesTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 

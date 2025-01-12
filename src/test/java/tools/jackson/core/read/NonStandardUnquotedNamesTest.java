@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class NonStandardUnquotedNamesTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory UNQUOTED_NAMES_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)

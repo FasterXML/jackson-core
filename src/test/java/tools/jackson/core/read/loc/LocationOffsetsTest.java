@@ -10,7 +10,7 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LocationOffsetsTest extends JUnit5TestBase
+class LocationOffsetsTest extends JacksonCoreTestBase
 {
     final JsonFactory JSON_F = new JsonFactory();
 

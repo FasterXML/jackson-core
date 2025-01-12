@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @see JsonParserSequence
  */
 @SuppressWarnings("resource")
-public class JsonParserSequenceTest extends JUnit5TestBase
+public class JsonParserSequenceTest extends JacksonCoreTestBase
 {
     public void testClose() throws IOException {
         IOContext ioContext = testIOContext();

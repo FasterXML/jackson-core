@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Basic testing for scalar-array write methods added in 2.8.
  */
-class ArrayGenerationTest extends JUnit5TestBase
+class ArrayGenerationTest extends JacksonCoreTestBase
 {
     // 17-Sep-2024, tatu: [core#223] change to surrogates, let's use old behavior
     //   for now for simpler testing

@@ -8,7 +8,7 @@ import tools.jackson.core.exc.StreamWriteException;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class GeneratorDupHandlingTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     public void testSimpleDupsEagerlyBytes() {
         _testSimpleDups(true, newStreamFactory());

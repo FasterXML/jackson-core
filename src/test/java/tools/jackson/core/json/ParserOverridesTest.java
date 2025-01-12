@@ -7,7 +7,7 @@ import tools.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ParserOverridesTest extends JUnit5TestBase
+public class ParserOverridesTest extends JacksonCoreTestBase
 {
     /*
     /**********************************************************

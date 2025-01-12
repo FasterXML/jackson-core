@@ -9,7 +9,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-class ParserFiltering700Test extends JUnit5TestBase
+class ParserFiltering700Test extends JacksonCoreTestBase
 {
     static class NoTypeFilter extends TokenFilter {
         @Override

@@ -13,7 +13,7 @@ import tools.jackson.core.util.Separators.Spacing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class DefaultPrettyPrinterTest extends JUnit5TestBase
+class DefaultPrettyPrinterTest extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

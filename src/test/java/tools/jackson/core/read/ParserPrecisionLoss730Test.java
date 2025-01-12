@@ -10,7 +10,7 @@ import tools.jackson.core.json.JsonFactory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [jackson-core#730]
-class ParserPrecisionLoss730Test extends JUnit5TestBase
+class ParserPrecisionLoss730Test extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 

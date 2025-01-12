@@ -8,7 +8,7 @@ import tools.jackson.core.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TestUnicode extends tools.jackson.core.JUnit5TestBase
+class TestUnicode extends tools.jackson.core.JacksonCoreTestBase
 {
     @Test
     void surrogates() throws Exception

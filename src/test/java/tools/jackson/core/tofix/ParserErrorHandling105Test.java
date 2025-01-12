@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // Failing tests for non-root-token problem
 class ParserErrorHandling105Test
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     // Tests for [core#105] ("eager number parsing misses errors")
     @JacksonTestFailureExpected

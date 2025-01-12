@@ -12,7 +12,7 @@ import tools.jackson.core.type.WritableTypeId;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WriteTypeIdTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 

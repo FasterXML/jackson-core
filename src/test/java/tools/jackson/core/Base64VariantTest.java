@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @see Base64Variant
  **/
 @SuppressWarnings("resource")
-public class Base64VariantTest extends JUnit5TestBase
+public class Base64VariantTest extends JacksonCoreTestBase
 {
     @Test
     public void testDecodeTaking2ArgumentsThrowsIllegalArgumentException() {

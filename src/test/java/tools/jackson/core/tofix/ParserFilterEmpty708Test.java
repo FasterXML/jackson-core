@@ -12,7 +12,7 @@ import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 // for [core#708]
-class ParserFilterEmpty708Test extends JUnit5TestBase
+class ParserFilterEmpty708Test extends JacksonCoreTestBase
 {
     // Could actually just return basic TokenFilter but...
     static class IncludeAllFilter extends TokenFilter {

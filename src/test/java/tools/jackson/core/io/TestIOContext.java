@@ -11,7 +11,7 @@ import tools.jackson.core.util.BufferRecycler;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TestIOContext
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     @Test
     void allocations() throws Exception

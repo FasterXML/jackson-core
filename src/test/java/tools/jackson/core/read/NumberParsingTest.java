@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("resource")
 class NumberParsingTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final static JsonFactory VANILLA_F = JsonFactory.builder().build();
     /*

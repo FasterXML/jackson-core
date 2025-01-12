@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * may be JDK serialized/deserialized.
  */
 class JDKSerializabilityTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     /*
     /**********************************************************************

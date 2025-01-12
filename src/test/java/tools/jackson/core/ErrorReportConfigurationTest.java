@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Unit tests for class {@link ErrorReportConfiguration}.
  */
 class ErrorReportConfigurationTest
-        extends JUnit5TestBase
+        extends JacksonCoreTestBase
 {
     /*
     /**********************************************************

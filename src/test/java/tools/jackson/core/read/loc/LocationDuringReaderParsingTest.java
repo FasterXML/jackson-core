@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * parsing.
  */
 class LocationDuringReaderParsingTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     @Test
     void locationAtEndOfParse() throws Exception

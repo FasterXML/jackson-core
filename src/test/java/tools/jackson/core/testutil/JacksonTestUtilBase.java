@@ -155,7 +155,7 @@ public class JacksonTestUtilBase
        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
        final byte[] buf = new byte[4000];
 
-       InputStream in = JUnit5TestBase.class.getResourceAsStream(ref);
+       InputStream in = JacksonCoreTestBase.class.getResourceAsStream(ref);
        if (in != null) {
            try {
                int len;

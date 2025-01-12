@@ -2,7 +2,7 @@ package tools.jackson.core.json;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.ContentReference;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for class {@link JsonReadContext}.
  */
-class JsonReadContextTest extends JUnit5TestBase
+class JsonReadContextTest extends JacksonCoreTestBase
 {
     @Test
     void setCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception

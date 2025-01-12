@@ -10,7 +10,7 @@ import tools.jackson.core.util.Named;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class NextNameWithMatcherTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

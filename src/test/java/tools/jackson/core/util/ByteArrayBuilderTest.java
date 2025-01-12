@@ -9,7 +9,7 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ByteArrayBuilderTest extends JUnit5TestBase
+public class ByteArrayBuilderTest extends JacksonCoreTestBase
 {
     public void testSimple() throws Exception
     {

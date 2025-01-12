@@ -7,7 +7,7 @@ import tools.jackson.core.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#755]
-class FloatParsingTest extends JUnit5TestBase
+class FloatParsingTest extends JacksonCoreTestBase
 {
     private final byte[] FLOATS_DOC = readResource("/data/floats-755.json");
 

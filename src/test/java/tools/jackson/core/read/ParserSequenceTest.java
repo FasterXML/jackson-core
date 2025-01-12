@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
 class ParserSequenceTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     @Test
     void simple() throws Exception

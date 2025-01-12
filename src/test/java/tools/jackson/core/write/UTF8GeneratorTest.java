@@ -16,7 +16,7 @@ import tools.jackson.core.json.UTF8JsonGenerator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UTF8GeneratorTest extends JUnit5TestBase
+class UTF8GeneratorTest extends JacksonCoreTestBase
 {
     private final TokenStreamFactory JSON_F = newStreamFactory();
 

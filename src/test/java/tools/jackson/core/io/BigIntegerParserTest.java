@@ -2,12 +2,12 @@ package tools.jackson.core.io;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class BigIntegerParserTest extends JUnit5TestBase {
+class BigIntegerParserTest extends JacksonCoreTestBase {
 
     @Test
     void fastParseBigIntegerFailsWithENotation() {

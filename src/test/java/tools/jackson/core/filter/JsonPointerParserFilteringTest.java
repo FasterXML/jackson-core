@@ -10,7 +10,7 @@ import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class JsonPointerParserFilteringTest extends tools.jackson.core.JUnit5TestBase
+class JsonPointerParserFilteringTest extends tools.jackson.core.JacksonCoreTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

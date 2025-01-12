@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * edge cases.
  */
 public class ArrayParsingTest
-    extends JUnit5TestBase
+    extends JacksonCoreTestBase
 {
     public void testValidEmpty() throws Exception
     {

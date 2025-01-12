@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 // For [core#549], ability to use alternate quote characters
 class CustomQuoteCharTest
-    extends tools.jackson.core.JUnit5TestBase
+    extends tools.jackson.core.JacksonCoreTestBase
 {
     final JsonFactory JSON_F = streamFactoryBuilder()
             .quoteChar('\'')

@@ -2,13 +2,13 @@ package tools.jackson.core.jsonptr;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JUnit5TestBase;
+import tools.jackson.core.JacksonCoreTestBase;
 import tools.jackson.core.JsonPointer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class JsonPointer1328Test extends JUnit5TestBase
+class JsonPointer1328Test extends JacksonCoreTestBase
 {
     // 5k enough on some systems to reproduce; use 10k
     private final static int DEPTH = 10_000;

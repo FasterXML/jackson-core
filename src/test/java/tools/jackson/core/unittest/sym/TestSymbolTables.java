@@ -61,7 +61,7 @@ class TestSymbolTables extends JacksonCoreTestBase
         // pass seed, to keep results consistent:
         final int SEED = 33333;
         ByteQuadsCanonicalizer symbols =
-                ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
+                TestByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
         assertTrue(symbols.isCanonicalizing());
 
         final int COUNT = 12000;
@@ -121,7 +121,7 @@ class TestSymbolTables extends JacksonCoreTestBase
     {
         final int SEED = 33333;
 
-        ByteQuadsCanonicalizer symbolsBRoot = ByteQuadsCanonicalizer.createRoot(SEED);
+        ByteQuadsCanonicalizer symbolsBRoot = TestByteQuadsCanonicalizer.createRoot(SEED);
         final Charset utf8 = StandardCharsets.UTF_8;
         int exp = 0;
         ByteQuadsCanonicalizer symbolsB = null;
@@ -141,7 +141,7 @@ class TestSymbolTables extends JacksonCoreTestBase
             symbolsB.release();
 
             exp += 250;
-            if (exp > ByteQuadsCanonicalizer.MAX_ENTRIES_FOR_REUSE) {
+            if (exp > TestByteQuadsCanonicalizer.MAX_ENTRIES_FOR_REUSE) {
                 exp = 0;
             }
             assertEquals(exp, symbolsBRoot.size());
@@ -227,7 +227,7 @@ class TestSymbolTables extends JacksonCoreTestBase
     void collisionsWithBytesNew187a() throws IOException
     {
         ByteQuadsCanonicalizer symbols =
-                ByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
+                TestByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
 
         final int COUNT = 43000;
         for (int i = 0; i < COUNT; ++i) {
@@ -255,7 +255,7 @@ class TestSymbolTables extends JacksonCoreTestBase
     void collisionsWithBytesNew187b() throws IOException
     {
         ByteQuadsCanonicalizer symbols =
-                ByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
+                TestByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
 
         final int COUNT = 10000;
         for (int i = 0; i < COUNT; ++i) {
@@ -341,7 +341,7 @@ class TestSymbolTables extends JacksonCoreTestBase
     {
         final int COUNT = 400;
         ByteQuadsCanonicalizer symbols =
-                ByteQuadsCanonicalizer.createRoot(123).makeChild(JsonFactory.Feature.collectDefaults());
+                TestByteQuadsCanonicalizer.createRoot(123).makeChild(JsonFactory.Feature.collectDefaults());
         for (int i = 0; i < COUNT; ++i) {
             String id = String.format("\\u%04x", i);
             int[] quads = calcQuads(id.getBytes("UTF-8"));
@@ -384,7 +384,7 @@ class TestSymbolTables extends JacksonCoreTestBase
         final int COUNT = 700;
         {
             ByteQuadsCanonicalizer symbols =
-                    ByteQuadsCanonicalizer.createRoot(333).makeChild(JsonFactory.Feature.collectDefaults());
+                    TestByteQuadsCanonicalizer.createRoot(333).makeChild(JsonFactory.Feature.collectDefaults());
             for (int i = 0; i < COUNT; ++i) {
                 String id = String.valueOf((char) i);
                 int[] quads = calcQuads(id.getBytes("UTF-8"));
@@ -411,7 +411,7 @@ class TestSymbolTables extends JacksonCoreTestBase
     void longSymbols17Bytes() throws Exception
     {
         ByteQuadsCanonicalizer symbolsB =
-                ByteQuadsCanonicalizer.createRoot(3).makeChild(JsonFactory.Feature.collectDefaults());
+                TestByteQuadsCanonicalizer.createRoot(3).makeChild(JsonFactory.Feature.collectDefaults());
         CharsToNameCanonicalizer symbolsC = CharsToNameCanonicalizer.createRoot(JSON_F, 3).makeChild();
 
         for (int i = 1001; i <= 1050; ++i) {

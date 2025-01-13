@@ -12,7 +12,6 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
-import tools.jackson.core.unittest.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -114,7 +113,7 @@ class TestByteBasedSymbols
     @Test
     void issue207() throws Exception
     {
-        ByteQuadsCanonicalizer nc = ByteQuadsCanonicalizer.createRoot(-523743345);
+        ByteQuadsCanonicalizer nc = TestByteQuadsCanonicalizer.createRoot(-523743345);
         Field byteSymbolCanonicalizerField = JsonFactory.class.getDeclaredField("_byteSymbolCanonicalizer");
         byteSymbolCanonicalizerField.setAccessible(true);
         JsonFactory jsonF = new JsonFactory();

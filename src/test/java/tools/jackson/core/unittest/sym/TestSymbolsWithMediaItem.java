@@ -47,7 +47,7 @@ class TestSymbolsWithMediaItem extends JacksonCoreTestBase
     {
         final int SEED = 33333;
 
-        ByteQuadsCanonicalizer symbolsRoot = ByteQuadsCanonicalizer.createRoot(SEED);
+        ByteQuadsCanonicalizer symbolsRoot = TestByteQuadsCanonicalizer.createRoot(SEED);
         ByteQuadsCanonicalizer symbols = symbolsRoot.makeChild(JsonFactory.Feature.collectDefaults());
         JsonFactory f = new JsonFactory();
         JsonParser p = f.createParser(ObjectReadContext.empty(), JSON.getBytes("UTF-8"));

@@ -76,7 +76,7 @@ public final class CharsToNameCanonicalizer
      * this corresponds to 64k main hash index. This should allow for enough distinct
      * names for almost any case.
      */
-    static final int MAX_ENTRIES_FOR_REUSE = 12000;
+    public static final int MAX_ENTRIES_FOR_REUSE = 12000;
 
     /**
      * Also: to thwart attacks based on hash collisions (which may or may not
@@ -740,7 +740,7 @@ public final class CharsToNameCanonicalizer
 
     // Diagnostics method that will verify that internal data structures are consistent;
     // not meant as user-facing method but only for test suites and possible troubleshooting.
-    protected void verifyInternalConsistency() {
+    public void verifyInternalConsistency() { // public for unit tests
         int count = 0;
         final int size = _symbols.length;
 

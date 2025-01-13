@@ -14,7 +14,7 @@ class PlaceholderSymbolTableTest extends tools.jackson.core.unittest.JacksonCore
     @Test
     void basicPlaceholderLookups() throws Exception
     {
-        final ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot(137);
+        final ByteQuadsCanonicalizer root = TestByteQuadsCanonicalizer.createRoot(137);
         assertEquals(0, root.size());
         assertFalse(root.isCanonicalizing());
 
@@ -36,7 +36,7 @@ class PlaceholderSymbolTableTest extends tools.jackson.core.unittest.JacksonCore
     @Test
     void basicPlaceholderAddFails() throws Exception
     {
-        final ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot(137);
+        final ByteQuadsCanonicalizer root = TestByteQuadsCanonicalizer.createRoot(137);
         ByteQuadsCanonicalizer placeholder = root.makeChildOrPlaceholder(0);
 
         final int[] quads = calcQuads("abcd1234efgh5678"); // 4 ints

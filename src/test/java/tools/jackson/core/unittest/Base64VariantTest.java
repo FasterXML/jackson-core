@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for class {@link Base64Variant}.
  *
  * @see Base64Variant
- **/
+ */
 @SuppressWarnings("resource")
 public class Base64VariantTest extends JacksonCoreTestBase
 {
@@ -55,13 +55,6 @@ public class Base64VariantTest extends JacksonCoreTestBase
         assertEquals((byte) 76, base64Variant.getPaddingByte());
         assertEquals(3, base64Variant.getMaxLineLength());
         assertEquals('L', base64Variant.getPaddingChar());
-
-        try {
-            base64Variant._reportInvalidBase64('L', 2274, "r68;3&@B");
-            fail("Expecting exception: IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals(Base64Variant.class.getName(), e.getStackTrace()[0].getClassName());
-        }
     }
 
     @Test

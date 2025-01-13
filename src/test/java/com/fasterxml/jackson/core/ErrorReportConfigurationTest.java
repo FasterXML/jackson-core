@@ -133,7 +133,7 @@ class ErrorReportConfigurationTest
                 .maxRawContentLength(5678)
                 .build();
 
-        ErrorReportConfiguration configB = new ErrorReportConfiguration.Builder(configA).build();
+        ErrorReportConfiguration configB = configA.rebuild().build();
 
         assertEquals(configA.getMaxErrorTokenLength(), configB.getMaxErrorTokenLength());
         assertEquals(configA.getMaxRawContentLength(), configB.getMaxRawContentLength());
@@ -312,7 +312,7 @@ class ErrorReportConfigurationTest
             parser.nextToken();
             parser.nextToken();
         } catch (JsonProcessingException e) {
-            assertThat(e.getLocation()._totalChars).isEqualTo(expectedSize);
+            assertThat(e.getLocation().getCharOffset()).isEqualTo(expectedSize);
             assertThat(e.getMessage()).contains("Unrecognized token");
         }
     }

@@ -1,6 +1,8 @@
 package perf;
 
-import tools.jackson.core.*;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.json.JsonFactory;
 
 /**

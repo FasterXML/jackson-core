@@ -29,7 +29,7 @@ package tools.jackson.core.io.schubfach;
  *
  * @author Raffaello Giulietti
  */
-final class MathUtils {
+public final class MathUtils { // public only for testing (but not exposed by Module)
     /*
     For full details about this code see the following reference:
 

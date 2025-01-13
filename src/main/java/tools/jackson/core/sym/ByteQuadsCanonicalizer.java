@@ -54,7 +54,7 @@ public final class ByteQuadsCanonicalizer
      * names for almost any case, while preventing ballooning for cases where names
      * are unique (or close thereof).
      */
-    protected final static int MAX_ENTRIES_FOR_REUSE = 6000;
+    public final static int MAX_ENTRIES_FOR_REUSE = 6000;
 
     /*
     /**********************************************************

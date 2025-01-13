@@ -34,10 +34,10 @@ public final class JsonStringEncoder
     //    to estimate ok initial encoding buffer, switch to segmented for
     //    possible (but rare) big content
 
-    final static int MIN_CHAR_BUFFER_SIZE = 16;
-    final static int MAX_CHAR_BUFFER_SIZE = 32000; // use segments beyond
-    final static int MIN_BYTE_BUFFER_SIZE = 24;
-    final static int MAX_BYTE_BUFFER_SIZE = 32000; // use segments beyond
+    public final static int MIN_CHAR_BUFFER_SIZE = 16;
+    public final static int MAX_CHAR_BUFFER_SIZE = 32000; // use segments beyond
+    public final static int MIN_BYTE_BUFFER_SIZE = 24;
+    public final static int MAX_BYTE_BUFFER_SIZE = 32000; // use segments beyond
 
     /*
     /**********************************************************************

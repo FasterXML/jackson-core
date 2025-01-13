@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
-import tools.jackson.core.*;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.json.JsonFactory;
 
 public class MediaItem

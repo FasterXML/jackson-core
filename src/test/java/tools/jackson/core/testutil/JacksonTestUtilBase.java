@@ -39,7 +39,7 @@ public class JacksonTestUtilBase
                 ErrorReportConfiguration.defaults());
     }
 
-    private static IOContext testIOContext(StreamReadConstraints src,
+    protected static IOContext testIOContext(StreamReadConstraints src,
             StreamWriteConstraints swc,
             ErrorReportConfiguration erc) {
         return new IOContext(src, swc, erc,
@@ -58,7 +58,7 @@ public class JacksonTestUtilBase
     /**********************************************************************
      */
 
-    protected String q(String str) {
+    public static String q(String str) {
         return '"'+str+'"';
     }
 
@@ -72,14 +72,14 @@ public class JacksonTestUtilBase
     /**********************************************************************
      */
 
-    public void assertToken(JsonToken expToken, JsonToken actToken)
+    public static void assertToken(JsonToken expToken, JsonToken actToken)
     {
         if (actToken != expToken) {
             fail("Expected token "+expToken+", current token "+actToken);
         }
     }
 
-    public void assertToken(JsonToken expToken, JsonParser p)
+    public static void assertToken(JsonToken expToken, JsonParser p)
     {
         assertToken(expToken, p.currentToken());
     }
@@ -143,11 +143,11 @@ public class JacksonTestUtilBase
         return result;
     }
 
-    protected static byte[] utf8Bytes(String str) {
+    public static byte[] utf8Bytes(String str) {
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
-    protected String utf8String(ByteArrayOutputStream bytes) {
+    public String utf8String(ByteArrayOutputStream bytes) {
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
@@ -159,25 +159,25 @@ public class JacksonTestUtilBase
 
     public static byte[] readResource(String ref)
     {
-       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-       final byte[] buf = new byte[4000];
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        final byte[] buf = new byte[4000];
 
-       InputStream in = JacksonCoreTestBase.class.getResourceAsStream(ref);
-       if (in != null) {
-           try {
-               int len;
-               while ((len = in.read(buf)) > 0) {
-                   bytes.write(buf, 0, len);
-               }
-               in.close();
-           } catch (IOException e) {
-               throw new RuntimeException("Failed to read resource '"+ref+"': "+e);
-           }
-       }
-       if (bytes.size() == 0) {
-           throw new IllegalArgumentException("Failed to read resource '"+ref+"': empty resource?");
-       }
-       return bytes.toByteArray();
+        InputStream in = JacksonCoreTestBase.class.getResourceAsStream(ref);
+        if (in != null) {
+            try {
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    bytes.write(buf, 0, len);
+                }
+                in.close();
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to read resource '"+ref+"': "+e);
+            }
+        }
+        if (bytes.size() == 0) {
+            throw new IllegalArgumentException("Failed to read resource '"+ref+"': empty resource?");
+        }
+        return bytes.toByteArray();
     }
 
     /*

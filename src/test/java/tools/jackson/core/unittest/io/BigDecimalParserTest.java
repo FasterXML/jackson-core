@@ -2,7 +2,6 @@ package tools.jackson.core.unittest.io;
 
 import java.math.BigDecimal;
 
-import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
 import tools.jackson.core.io.BigDecimalParser;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
 
@@ -59,7 +58,8 @@ class BigDecimalParserTest extends JacksonCoreTestBase
     void issueDatabind4694() {
         final String str = "-11000.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         final BigDecimal expected = new BigDecimal(str);
-        assertEquals(expected, JavaBigDecimalParser.parseBigDecimal(str));
+        // 12-Jan-2025, tatu: Cannot easily expose FastBigDecimalParser yet, leave out
+        // assertEquals(expected, JavaBigDecimalParser.parseBigDecimal(str));
         assertEquals(expected, BigDecimalParser.parse(str));
         assertEquals(expected, BigDecimalParser.parseWithFastParser(str));
         final char[] arr = str.toCharArray();

@@ -57,32 +57,32 @@ final public class DoubleToDecimal {
     // Sources with the license are here: https://github.com/c4f7fcce9cb06515/Schubfach/blob/3c92d3c9b1fead540616c918cdfef432bca53dfa/todec/src/math/FloatToDecimal.java
 
     // The precision in bits.
-    static final int P = 53;
+    public static final int P = 53;
 
     // Exponent width in bits.
     private static final int W = (Double.SIZE - 1) - (P - 1);
 
     // Minimum value of the exponent: -(2^(W-1)) - P + 3.
-    static final int Q_MIN = (-1 << W - 1) - P + 3;
+    public static final int Q_MIN = (-1 << W - 1) - P + 3;
 
     // Maximum value of the exponent: 2^(W-1) - P.
-    static final int Q_MAX = (1 << W - 1) - P;
+    public static final int Q_MAX = (1 << W - 1) - P;
 
     // 10^(E_MIN - 1) <= MIN_VALUE < 10^E_MIN
-    static final int E_MIN = -323;
+    public static final int E_MIN = -323;
 
     // 10^(E_MAX - 1) <= MAX_VALUE < 10^E_MAX
-    static final int E_MAX = 309;
+    public static final int E_MAX = 309;
 
     // Threshold to detect tiny values, as in section 8.1.1 of [1]
-    static final long C_TINY = 3;
+    public static final long C_TINY = 3;
 
     // The minimum and maximum k, as in section 8 of [1]
-    static final int K_MIN = -324;
-    static final int K_MAX = 292;
+    public static final int K_MIN = -324;
+    public static final int K_MAX = 292;
 
     // H is as in section 8 of [1].
-    static final int H = 17;
+    public static final int H = 17;
 
     // Minimum value of the significand of a normal value: 2^(P-1).
     private static final long C_MIN = 1L << P - 1;

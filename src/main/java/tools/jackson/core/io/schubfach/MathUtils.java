@@ -44,11 +44,11 @@ public final class MathUtils { // public only for testing (but not exposed by Mo
     K_MIN must be DoubleToDecimal.K_MIN or less.
     K_MAX must be DoubleToDecimal.K_MAX or more.
      */
-    static final int K_MIN = -324;
-    static final int K_MAX = 292;
+    public static final int K_MIN = -324;
+    public static final int K_MAX = 292;
 
     // Must be DoubleToDecimal.H or more
-    static final int H = 17;
+    public static final int H = 17;
 
     // C_10 = floor(log10(2) * 2^Q_10), A_10 = floor(log10(3/4) * 2^Q_10)
     private static final int Q_10 = 41;
@@ -91,7 +91,7 @@ public final class MathUtils { // public only for testing (but not exposed by Mo
      *          0 &le; {@code e} &le; {@link #H}.
      * @return 10<sup>{@code e}</sup>.
      */
-    static long pow10(int e) {
+    public static long pow10(int e) {
         return pow10[e];
     }
 
@@ -107,7 +107,7 @@ public final class MathUtils { // public only for testing (but not exposed by Mo
      *          |{@code e}| &le; 5_456_721 for safe results.
      * @return &lfloor;log<sub>10</sub>2<sup>{@code e}</sup>&rfloor;.
      */
-    static int flog10pow2(int e) {
+    public static int flog10pow2(int e) {
         return (int) (e * C_10 >> Q_10);
     }
 
@@ -125,7 +125,7 @@ public final class MathUtils { // public only for testing (but not exposed by Mo
      * @return &lfloor;log<sub>10</sub>(3/4 &middot;
      * 2<sup>{@code e}</sup>)&rfloor;.
      */
-    static int flog10threeQuartersPow2(int e) {
+    public static int flog10threeQuartersPow2(int e) {
         return (int) (e * C_10 + A_10 >> Q_10);
     }
 
@@ -141,7 +141,7 @@ public final class MathUtils { // public only for testing (but not exposed by Mo
      *          |{@code e}| &le; 1_838_394 for safe results.
      * @return &lfloor;log<sub>2</sub>10<sup>{@code e}</sup>&rfloor;.
      */
-    static int flog2pow10(int e) {
+    public static int flog2pow10(int e) {
         return (int) (e * C_2 >> Q_2);
     }
 
@@ -168,7 +168,7 @@ public final class MathUtils { // public only for testing (but not exposed by Mo
      *          {@link #K_MIN} &le; {@code e} &le; {@link #K_MAX}.
      * @return <i>g</i><sub>1</sub> as described above.
      */
-    static long g1(int k) {
+    public static long g1(int k) {
         return g[k - K_MIN << 1];
     }
 
@@ -181,7 +181,7 @@ public final class MathUtils { // public only for testing (but not exposed by Mo
      * @return <i>g</i><sub>0</sub> as described in
      * {@link #g1(int)}.
      */
-    static long g0(int k) {
+    public static long g0(int k) {
         return g[k - K_MIN << 1 | 1];
     }
 

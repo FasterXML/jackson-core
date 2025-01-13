@@ -268,7 +268,8 @@ public abstract class NonBlockingJsonParserBase
     /**********************************************************
      */
 
-    protected ByteQuadsCanonicalizer symbolTableForTests() {
+    // Alas, needs to be public for testing
+    public ByteQuadsCanonicalizer symbolTableForTests() {
         return _symbols;
     }
 

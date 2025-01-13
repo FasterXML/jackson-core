@@ -13,7 +13,7 @@ import tools.jackson.core.util.TextBuffer;
  * Reason is that conversion method results are expected to be cached so that
  * these methods will not be hot spots during normal operation.
  */
-public final class JsonStringEncoder
+public class JsonStringEncoder
 {
     /*
     /**********************************************************************
@@ -34,10 +34,10 @@ public final class JsonStringEncoder
     //    to estimate ok initial encoding buffer, switch to segmented for
     //    possible (but rare) big content
 
-    final static int MIN_CHAR_BUFFER_SIZE = 16;
-    final static int MAX_CHAR_BUFFER_SIZE = 32000; // use segments beyond
-    final static int MIN_BYTE_BUFFER_SIZE = 24;
-    final static int MAX_BYTE_BUFFER_SIZE = 32000; // use segments beyond
+    public final static int MIN_CHAR_BUFFER_SIZE = 16;
+    public final static int MAX_CHAR_BUFFER_SIZE = 32000; // use segments beyond
+    public final static int MIN_BYTE_BUFFER_SIZE = 24;
+    public final static int MAX_BYTE_BUFFER_SIZE = 32000; // use segments beyond
 
     /*
     /**********************************************************************
@@ -452,7 +452,7 @@ public final class JsonStringEncoder
     }
 
     // non-private for unit test access
-    static int _initialCharBufSize(int strLen) {
+    public static int _initialCharBufSize(int strLen) {
         // char->char won't expand but we need to give some room for escaping
         // like 1/8 (12.5% expansion) but cap addition to something modest
         final int estimated = Math.max(MIN_CHAR_BUFFER_SIZE,
@@ -461,7 +461,7 @@ public final class JsonStringEncoder
     }
 
     // non-private for unit test access
-    static int _initialByteBufSize(int strLen) {
+    public static int _initialByteBufSize(int strLen) {
         // char->byte for UTF-8 can expand size by x3 itself, and escaping
         // more... but let's use lower factor of 1.5
         final int doubled = Math.max(MIN_BYTE_BUFFER_SIZE, strLen + 6 + (strLen>>1));

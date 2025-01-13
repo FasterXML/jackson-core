@@ -242,7 +242,7 @@ public final class NumberOutput
      *
      * @since 2.17
      */
-    static int divBy1000(int number) {
+    public static int divBy1000(int number) {
         return (int) (number * 274_877_907L >>> 38);
     }
 

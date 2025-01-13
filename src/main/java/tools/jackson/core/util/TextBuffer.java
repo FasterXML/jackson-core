@@ -34,14 +34,14 @@ public class TextBuffer
      *<p>
      * Reduced from 1000 down to 500 in 2.10.
      */
-    protected final static int MIN_SEGMENT_LEN = 500;
+    public  final static int MIN_SEGMENT_LEN = 500;
 
     // Non-private to access from a test
     /*
      * Let's limit maximum segment length to something sensible.
      * For 2.10, let's limit to using 64kc chunks (128 kB) -- was 256kC/512kB up to 2.9
      */
-    protected final static int MAX_SEGMENT_LEN = 0x10000;
+    public  final static int MAX_SEGMENT_LEN = 0x10000;
 
     /*
     /**********************************************************************

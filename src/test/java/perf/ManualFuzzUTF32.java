@@ -2,7 +2,9 @@ package perf;
 
 import java.io.*;
 
-import tools.jackson.core.*;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.json.JsonFactory;
 
 // Tests from [jackson-core#382]

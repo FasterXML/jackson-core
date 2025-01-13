@@ -25,7 +25,7 @@ import tools.jackson.core.util.InternCache;
  * UTF-8 encoded bytes of name (null-padded), and last int is offset in
  * {@code _names} that contains actual name Strings.
  */
-public final class ByteQuadsCanonicalizer
+public class ByteQuadsCanonicalizer
 {
     /**
      * Initial size of the primary hash area. Each entry consumes 4 ints (16 bytes),
@@ -33,7 +33,7 @@ public final class ByteQuadsCanonicalizer
      * (plus 64x4 or 64x8 (256/512 bytes) for references to Strings, and Strings
      * themselves).
      */
-    private static final int DEFAULT_T_SIZE = 64;
+    protected static final int DEFAULT_T_SIZE = 64;
 //    private static final int DEFAULT_T_SIZE = 256;
 
     /**
@@ -219,7 +219,7 @@ public final class ByteQuadsCanonicalizer
      * @param seed Random seed valued used to make it more difficult to cause
      *   collisions (used for collision-based DoS attacks).
      */
-    private ByteQuadsCanonicalizer(int sz, int seed)
+    protected ByteQuadsCanonicalizer(int sz, int seed)
     {
         // Settings to distinguish parent table: no parent
         _parent = null;
@@ -1090,7 +1090,7 @@ public final class ByteQuadsCanonicalizer
     }
 
     // @since 2.17
-    static int multiplyByFourFifths(int number) {
+    public static int multiplyByFourFifths(int number) {
         return (int) (number * 3_435_973_837L >>> 32);
     }
 

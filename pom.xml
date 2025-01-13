@@ -264,7 +264,7 @@ tools.jackson.core.*;version=${project.version}
             </goals>
             <configuration>
               <includes>
-                <include>tools/jackson/core/testsupport/**/*.*</include>
+                <include>module-info.*</include>
                 <include>tools/jackson/core/testutil/**/*.*</include>
               </includes>
             </configuration>

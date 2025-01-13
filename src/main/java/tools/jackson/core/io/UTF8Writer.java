@@ -4,10 +4,10 @@ import java.io.*;
 
 public final class UTF8Writer extends Writer
 {
-    final static int SURR1_FIRST = 0xD800;
-    final static int SURR1_LAST = 0xDBFF;
-    final static int SURR2_FIRST = 0xDC00;
-    final static int SURR2_LAST = 0xDFFF;
+    public final static int SURR1_FIRST = 0xD800;
+    public final static int SURR1_LAST = 0xDBFF;
+    public final static int SURR2_FIRST = 0xDC00;
+    public final static int SURR2_LAST = 0xDFFF;
 
     /**
      * @since 2.17

@@ -50,6 +50,8 @@ JSON library.
 #1364: JSTEP-6: rename `JsonLocation` as `TokenStreamLocation`
 #1378: Rename `JsonParser.getText()` as `.getString()` [JSTEP-6]
 #1380: Change 3.0 to use `module-info.java` directly (and not via Moditect)
+#1385: Create `jackson-core-[VERSION]-tests.jar` to contain shared
+  test utility classes
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

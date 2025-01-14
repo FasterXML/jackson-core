@@ -1,6 +1,7 @@
 // jackson-core test Module descriptor: used both for tests and to
 // to produce "test-jar" for other Jackson components to use
-module tools.jackson.core.test {
+module tools.jackson.core.testutil
+{
     // Additional test lib/framework dependencies
     requires org.assertj.core;
     requires org.junit.jupiter.api;

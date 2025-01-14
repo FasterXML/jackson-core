@@ -18,19 +18,19 @@ module tools.jackson.core {
     exports tools.jackson.core.util;
 
     // But opens only for unit test suite; as well as some extra exports
-    opens tools.jackson.core to tools.jackson.core.test;
-    opens tools.jackson.core.async to tools.jackson.core.test;
-    opens tools.jackson.core.base to tools.jackson.core.test;
-    opens tools.jackson.core.exc to tools.jackson.core.test;
-    opens tools.jackson.core.filter to tools.jackson.core.test;
-    opens tools.jackson.core.io to tools.jackson.core.test;
-    exports tools.jackson.core.io.schubfach to tools.jackson.core.test;
-    opens tools.jackson.core.json to tools.jackson.core.test;
-    opens tools.jackson.core.json.async to tools.jackson.core.test;
-    opens tools.jackson.core.sym to tools.jackson.core.test;
-    opens tools.jackson.core.tree to tools.jackson.core.test;
-    opens tools.jackson.core.type to tools.jackson.core.test;
-    opens tools.jackson.core.util to tools.jackson.core.test;
+    opens tools.jackson.core to tools.jackson.core.testutil;
+    opens tools.jackson.core.async to tools.jackson.core.testutil;
+    opens tools.jackson.core.base to tools.jackson.core.testutil;
+    opens tools.jackson.core.exc to tools.jackson.core.testutil;
+    opens tools.jackson.core.filter to tools.jackson.core.testutil;
+    opens tools.jackson.core.io to tools.jackson.core.testutil;
+    exports tools.jackson.core.io.schubfach to tools.jackson.core.testutil;
+    opens tools.jackson.core.json to tools.jackson.core.testutil;
+    opens tools.jackson.core.json.async to tools.jackson.core.testutil;
+    opens tools.jackson.core.sym to tools.jackson.core.testutil;
+    opens tools.jackson.core.tree to tools.jackson.core.testutil;
+    opens tools.jackson.core.type to tools.jackson.core.testutil;
+    opens tools.jackson.core.util to tools.jackson.core.testutil;
 
     provides tools.jackson.core.TokenStreamFactory with
         tools.jackson.core.json.JsonFactory;

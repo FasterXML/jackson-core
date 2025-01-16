@@ -3,16 +3,18 @@
 module tools.jackson.core.testutil
 {
     // Additional test lib/framework dependencies
-    requires org.assertj.core;
-    requires org.junit.jupiter.api;
-    requires org.junit.jupiter.params;
+    requires transitive org.assertj.core;
+    requires transitive org.junit.jupiter.api;
+    requires transitive org.junit.jupiter.params;
 
     // Requires Main jar for tests
     requires tools.jackson.core;
 
-    // Exports a small set of Classes for downstream Jackson components
+    // Exports/opens a small set of Classes for downstream Jackson components
     exports tools.jackson.core.testutil;
     exports tools.jackson.core.testutil.failure;
+    opens tools.jackson.core.testutil;
+    opens tools.jackson.core.testutil.failure;
 
     // Additional test opens for JUnit tests
 
@@ -31,7 +33,6 @@ module tools.jackson.core.testutil
     opens tools.jackson.core.unittest.jsonptr;
     opens tools.jackson.core.unittest.read;
     opens tools.jackson.core.unittest.read.loc;
-    opens tools.jackson.core.testutil.failure;
     opens tools.jackson.core.unittest.tofix;
     opens tools.jackson.core.unittest.tofix.async;
     opens tools.jackson.core.unittest.sym;

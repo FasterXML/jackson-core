@@ -19,15 +19,18 @@ class JsonNumberParsingTest extends JUnit5TestBase
         final String json = a2q("{'decimalHolder':100.00,'number':50}");
         TokenStreamFactory jsonF = newStreamFactory();
         for (int mode : ALL_MODES) {
-            try (JsonParser p = createParser(jsonF, MODE_READER, json)) {
+            try (JsonParser p = createParser(jsonF, mode, json)) {
                 assertToken(JsonToken.START_OBJECT, p.nextToken());
                 assertToken(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("decimalHolder", p.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals("100.00", p.getNumberValueDeferred());
                 assertEquals(new BigDecimal("100.00"), p.getDecimalValue());
+                assertEquals("100.00", p.getText());
                 assertToken(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("number", p.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(Integer.valueOf(50), p.getNumberValueDeferred());
                 assertEquals(50.0, p.getDoubleValue());
                 assertEquals(50, p.getIntValue());
                 assertToken(JsonToken.END_OBJECT, p.nextToken());

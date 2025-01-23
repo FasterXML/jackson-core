@@ -24,12 +24,14 @@ class JsonNumberParsingTest extends JUnit5TestBase
                 assertToken(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("decimalHolder", p.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                assertEquals("100.00", p.getNumberValueDeferred());
+                assertEquals(JsonParser.NumberType.DOUBLE, p.getNumberType());
+                assertEquals(Double.valueOf(100.0), p.getNumberValueDeferred());
                 assertEquals(new BigDecimal("100.00"), p.getDecimalValue());
                 assertEquals("100.00", p.getText());
                 assertToken(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("number", p.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(JsonParser.NumberType.INT, p.getNumberType());
                 assertEquals(Integer.valueOf(50), p.getNumberValueDeferred());
                 assertEquals(50.0, p.getDoubleValue());
                 assertEquals(50, p.getIntValue());

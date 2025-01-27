@@ -263,7 +263,7 @@ public abstract class NonBlockingJsonParserBase
 
     @Override
     public void setCodec(ObjectCodec c) {
-        throw new UnsupportedOperationException("Can not use ObjectMapper with non-blocking parser");
+        throw new UnsupportedOperationException("Cannot use ObjectMapper with non-blocking parser");
     }
 
     /*

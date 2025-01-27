@@ -737,7 +737,7 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    // Can not implement without look-ahead...
+    // Cannot implement without look-ahead...
 //    public boolean nextFieldName(SerializableString str) throws IOException
 
     @Override

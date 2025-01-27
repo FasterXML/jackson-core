@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing.async;
+package com.fasterxml.jackson.core.tofix.async;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

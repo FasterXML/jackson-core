@@ -435,6 +435,11 @@ Antonin Janec (@xtonic)
  * Contributed #1218: Simplify Unicode surrogate pair conversion for generation
   (2.17.0)
 
+Adam J. Shook (@adamjshook)
+ * Reported, suggested fix for  #1352: Fix infinite loop due to integer overflow
+   when reading large strings
+  (2.17.3)
+
 Ian Roberts (@ianroberts)
  * Reported #223: `UTF8JsonGenerator` writes supplementary characters as a
    surrogate pair: should use 4-byte encoding
@@ -451,3 +456,13 @@ Jared Stehler (@jaredstehler)
 Zhanghao (@zhangOranges)
  * Contributed #1305: Make helper methods of `WriterBasedJsonGenerator` non-final to allow overriding
   (2.18.0)
+
+Justin Gosselin (@jgosselin-accesso)
+ * Reported #1359: Non-surrogate characters being incorrectly combined when
+  `JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8` is enabled
+  (2.18.2)
+
+Eduard Gomoliako (@Gems)
+ * Contributed #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
+  `WRAPPER_ARRAY` when `typeIdDef.id == null`
+  (2.19.0)

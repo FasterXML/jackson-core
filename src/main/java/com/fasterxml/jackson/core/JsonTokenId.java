@@ -47,6 +47,8 @@ public interface JsonTokenId
 
     /**
      * Id used to represent {@link JsonToken#FIELD_NAME}
+     *<p>
+     * NOTE: in Jackson 3.x this enum is renamed as {@code ID_PROPERTY_NAME}
      */
     public final static int ID_FIELD_NAME = 5;
 

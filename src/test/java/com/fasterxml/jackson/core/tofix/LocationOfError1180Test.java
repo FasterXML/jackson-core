@@ -1,8 +1,9 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.tofix;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,6 +13,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.testutil.failure.ExpectedPassingTestCasePredicate;
+import com.fasterxml.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static com.fasterxml.jackson.core.JUnit5TestBase.a2q;
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,12 +123,13 @@ class LocationOfError1180Test
         )
     );
 
+    @JacksonTestFailureExpected(expectedPassingTestCasePredicate = ShouldPredicate1180Test.class)
     @ParameterizedTest
     @MethodSource("_generateTestData")
     void parserBackendWithInvalidJson(ParserVariant variant, InvalidJson invalidJson)
             throws Exception
     {
-        try (JsonParser parser = variant.createParser(invalidJson.input))
+       try (JsonParser parser = variant.createParser(invalidJson.input))
         {
             StreamReadException e = assertThrows(
                     StreamReadException.class,
@@ -188,11 +192,25 @@ class LocationOfError1180Test
             return _name;
         }
 
-        private final String _name;
+        protected final String _name;
         public final String input;
         public final int byteOffset;
         public final int charOffset;
         public final int lineNr;
         public final int columnNr;
+    }
+
+    public static class ShouldPredicate1180Test
+            implements ExpectedPassingTestCasePredicate
+    {
+        @Override
+        public boolean shouldPass(List<Object> arguments) {
+            if (arguments.get(0) == ParserVariant.CHAR_ARRAY
+                && Objects.equals(((InvalidJson) (arguments.get(1)))._name, "Invalid JSON with raw unicode character")
+            ) {
+                return true;
+            }
+            return false;
+        }
     }
 }

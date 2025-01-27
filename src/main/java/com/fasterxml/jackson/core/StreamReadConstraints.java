@@ -48,7 +48,7 @@ public class StreamReadConstraints
 
     /**
      * Default setting for maximum token count:
-     * see {@link Builder#maxTokenCount} for details.
+     * see {@link Builder#maxTokenCount(long)} for details.
      */
     public static final long DEFAULT_MAX_TOKEN_COUNT = -1L;
 

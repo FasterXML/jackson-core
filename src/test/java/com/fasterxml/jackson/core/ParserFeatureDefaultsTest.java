@@ -10,10 +10,14 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ParserFeatureDefaultsTest
-        extends JUnit5TestBase
+    extends JUnit5TestBase
 {
     static class TestParser extends ParserMinimalBase
     {
+        public TestParser() {
+            super(StreamReadConstraints.defaults());
+        }
+
         @Override
         public JsonToken nextToken() {
             return null;

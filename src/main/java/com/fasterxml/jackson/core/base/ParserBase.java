@@ -790,7 +790,6 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_INT) == 0) { // wasn't an int natively?
                 convertNumberToInt(); // let's make it so, if possible
-                _numberString = null;
             }
         }
         return _numberInt;
@@ -805,7 +804,6 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_LONG) == 0) {
                 convertNumberToLong();
-                _numberString = null;
             }
         }
         return _numberLong;
@@ -820,7 +818,6 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_BIGINT) == 0) {
                 convertNumberToBigInteger();
-                _numberString = null;
                 return _numberBigInt;
             }
         }
@@ -844,7 +841,6 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_FLOAT) == 0) {
                 convertNumberToFloat();
-                _numberString = null;
                 return _numberFloat;
             }
         }
@@ -860,7 +856,6 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_DOUBLE) == 0) {
                 convertNumberToDouble();
-                _numberString = null;
                 return _numberDouble;
             }
         }
@@ -876,7 +871,6 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
                 convertNumberToBigDecimal();
-                _numberString = null;
                 return _numberBigDecimal;
             }
         }

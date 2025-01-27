@@ -29,6 +29,7 @@ class NumberParsingDb4917Test extends JUnit5TestBase
         }
     }
 
+    @Test
     public void bigDecimal4917Floats() throws Exception
     {
         for (int mode : ALL_MODES) {

@@ -1,41 +1,50 @@
 package com.fasterxml.jackson.core.read;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JUnit5TestBase;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TokenStreamFactory;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class JsonNumberParsingTest extends JUnit5TestBase
+class NumberParsingDb4917Test extends JUnit5TestBase
 {
+    private TokenStreamFactory JSON_F = newStreamFactory();
+
+    final String INPUT_JSON = a2q("{'decimalHolder':100.00,'number':50}");
+
     // [jackson-databind#4917]
     @Test
-    public void bigDecimal4917() throws Exception
+    public void bigDecimal4917Integers() throws Exception
     {
-        final String json = a2q("{'decimalHolder':100.00,'number':50}");
-        TokenStreamFactory jsonF = newStreamFactory();
         for (int mode : ALL_MODES) {
-            testBigDecimal4917(jsonF, mode, json, false, JsonParser.NumberType.DOUBLE);
-            testBigDecimal4917(jsonF, mode, json, true, JsonParser.NumberType.DOUBLE);
-            testBigDecimal4917(jsonF, mode, json, true, JsonParser.NumberType.FLOAT);
-            testBigDecimal4917(jsonF, mode, json, true, JsonParser.NumberType.BIG_DECIMAL);
-            testBigDecimal4917(jsonF, mode, json, true, JsonParser.NumberType.BIG_INTEGER);
-            testBigDecimal4917(jsonF, mode, json, true, JsonParser.NumberType.INT);
-            testBigDecimal4917(jsonF, mode, json, true, JsonParser.NumberType.LONG);
+            testBigDecimal4917(JSON_F, mode, INPUT_JSON, true, JsonParser.NumberType.BIG_INTEGER);
+            testBigDecimal4917(JSON_F, mode, INPUT_JSON, true, JsonParser.NumberType.INT);
+            testBigDecimal4917(JSON_F, mode, INPUT_JSON, true, JsonParser.NumberType.LONG);
         }
     }
 
+    public void bigDecimal4917Floats() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            testBigDecimal4917(JSON_F, mode, INPUT_JSON, false, JsonParser.NumberType.DOUBLE);
+            testBigDecimal4917(JSON_F, mode, INPUT_JSON, true, JsonParser.NumberType.DOUBLE);
+            testBigDecimal4917(JSON_F, mode, INPUT_JSON, true, JsonParser.NumberType.FLOAT);
+            testBigDecimal4917(JSON_F, mode, INPUT_JSON, true, JsonParser.NumberType.BIG_DECIMAL);
+        }
+    }
+    
     private void testBigDecimal4917(final TokenStreamFactory jsonF,
-                                    final int mode,
-                                    final String json,
-                                    final boolean checkFirstNumValues,
-                                    final JsonParser.NumberType secondNumTypeCheck) throws IOException {
+            final int mode,
+            final String json,
+            final boolean checkFirstNumValues,
+            final JsonParser.NumberType secondNumTypeCheck) throws Exception
+    {
         // checkFirstNumValues=false reproduces the issue in https://github.com/FasterXML/jackson-databind/issues/4917
         // it is useful to check the second number value while requesting different number types
         // but the call adjusts state of the parser, so it is better to redo the test and then test w

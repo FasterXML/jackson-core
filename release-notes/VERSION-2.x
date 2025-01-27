@@ -14,6 +14,12 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.17.4 (not yet released)
+
+#1391: Fix issue where the parser can read back old number state when
+  parsing later numbers
+ (fix contributed by @pjfanning)
+
 2.17.3 (01-Nov-2024)
 
 #1331: Update to FastDoubleParser v1.0.1 to fix `BigDecimal` decoding problem
@@ -23,7 +29,6 @@ a pure JSON library.
 #1352: Fix infinite loop due to integer overflow when reading large strings
  (reported by Adam J.S)
  (fix contributed by @pjfanning)
- 
 
 2.17.2 (05-Jul-2024)
 

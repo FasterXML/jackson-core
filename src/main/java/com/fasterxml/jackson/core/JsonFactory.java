@@ -2308,7 +2308,7 @@ public class JsonFactory
      * for JSON handling. Problem here is that when adding new functionality
      * via factory methods, it is not possible to leave these methods abstract
      * (because we are implementing them for JSON); but there is risk that
-     * sub-classes do not override them all (plus older version can not implement).
+     * sub-classes do not override them all (plus older version cannot implement).
      * So a work-around is to add a check to ensure that factory is still one
      * used for JSON; and if not, make base implementation of a factory method fail.
      *

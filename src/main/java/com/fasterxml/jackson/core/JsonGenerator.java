@@ -177,7 +177,7 @@ public abstract class JsonGenerator
          * since Javascript standard specifies that all number handling
          * should be done using 64-bit IEEE 754 floating point values,
          * result being that some 64-bit integer values cannot be
-         * accurately represent (as mantissa is only 51 bit wide).
+         * accurately represented (as mantissa is only 51 bit wide).
          *<p>
          * Feature is disabled by default.
          *

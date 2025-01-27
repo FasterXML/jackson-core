@@ -409,6 +409,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _fractLength = 0;
         _expLength = 0;
         _numTypesValid = NR_UNKNOWN; // to force decoding
+        _numberString = null;
         return JsonToken.VALUE_NUMBER_INT;
     }
 
@@ -423,6 +424,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _fractLength = fractLen;
         _expLength = expLen;
         _numTypesValid = NR_UNKNOWN; // to force decoding
+        _numberString = null;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
@@ -432,6 +434,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _numberDouble = value;
         _numTypesValid = NR_DOUBLE;
         _numberIsNaN = true;
+        _numberString = null;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
@@ -630,6 +633,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_BIGINT) == 0) {
                 convertNumberToBigInteger();
+                return _numberBigInt;
             }
         }
         return _getBigInteger();
@@ -651,6 +655,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_FLOAT) == 0) {
                 convertNumberToFloat();
+                return _numberFloat;
             }
         }
         return _getNumberFloat();
@@ -665,6 +670,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_DOUBLE) == 0) {
                 convertNumberToDouble();
+                return _numberDouble;
             }
         }
         return _getNumberDouble();
@@ -679,6 +685,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
                 convertNumberToBigDecimal();
+                return _numberBigDecimal;
             }
         }
         return _getBigDecimal();

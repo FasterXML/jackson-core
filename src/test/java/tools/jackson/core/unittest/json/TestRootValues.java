@@ -85,7 +85,7 @@ class TestRootValues
 
     @Test
     void simpleNumbers() throws Exception {
-        // DataInput can not detect EOF so:
+        // DataInput cannot detect EOF so:
         _testSimpleNumbers(MODE_INPUT_STREAM);
         _testSimpleNumbers(MODE_INPUT_STREAM_THROTTLED);
         _testSimpleNumbers(MODE_READER);

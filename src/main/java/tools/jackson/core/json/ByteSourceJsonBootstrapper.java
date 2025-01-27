@@ -378,7 +378,7 @@ public final class ByteSourceJsonBootstrapper
         } else if ((quad & ~0x0000FF00) == 0) { // 0x0000??00 -> UTF32-in-order
             _reportWeirdUCS4("2143");
         } else {
-            // Can not be valid UTF-32 encoded JSON...
+            // Cannot be valid UTF-32 encoded JSON...
             return false;
         }
         // Not BOM (just regular content), nothing to skip past:

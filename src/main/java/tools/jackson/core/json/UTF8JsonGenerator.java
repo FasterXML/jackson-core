@@ -874,7 +874,7 @@ public class UTF8JsonGenerator
      * Helper method that is called for segmented write of raw content
      * when explicitly outputting a segment of longer thing.
      * Caller has to take care of ensuring there's no split surrogate
-     * pair at the end (that is, last char can not be first part of a
+     * pair at the end (that is, last char cannot be first part of a
      * surrogate char pair).
      */
     private void _writeRawSegment(char[] cbuf, int offset, int end) throws JacksonException
@@ -1439,7 +1439,7 @@ public class UTF8JsonGenerator
     /**
      * This method called when the string content is already in
      * a char buffer, and its maximum total encoded and escaped length
-     * can not exceed size of the output buffer.
+     * cannot exceed size of the output buffer.
      * Caller must ensure that there is enough space in output buffer,
      * assuming case of all non-escaped ASCII characters, as well as
      * potentially enough space for other cases (but not necessarily flushed)

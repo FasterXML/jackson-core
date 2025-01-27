@@ -1067,7 +1067,7 @@ public class ByteQuadsCanonicalizer
         // First things first: we need to resize+rehash (or, if too big, nuke contents)
         rehash();
 
-        // Copy of main _findOffsetForAdd except for checks to resize: can not be needed
+        // Copy of main _findOffsetForAdd except for checks to resize: cannot be needed
         int offset = _calcOffset(hash);
         final int[] hashArea = _hashArea;
         if (hashArea[offset+3] == 0) {

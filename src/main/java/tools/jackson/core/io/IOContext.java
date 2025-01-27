@@ -105,7 +105,7 @@ public class IOContext implements AutoCloseable
     /**
      * Reference temporary buffer Parser instances need if calling
      * app decides it wants to access name via 'getTextCharacters' method.
-     * Regular text buffer can not be used as it may contain textual
+     * Regular text buffer cannot be used as it may contain textual
      * representation of the value token.
      */
     protected char[] _nameCopyBuffer;

@@ -2,7 +2,7 @@ package tools.jackson.core.util;
 
 /**
  * Add-on interface used to indicate things that may be "blueprint" objects
- * which can not be used as is, but are used for creating usable per-process
+ * which cannot be used as is, but are used for creating usable per-process
  * (serialization, deserialization) instances, using
  * {@link #createInstance} method.
  *<p>

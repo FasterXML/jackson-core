@@ -50,7 +50,7 @@ public enum JsonWriteFeature
      * One use case is to avoid problems with Javascript limitations:
      * since Javascript standard specifies that all number handling
      * should be done using 64-bit IEEE 754 floating point values,
-     * result being that some 64-bit integer values can not be
+     * result being that some 64-bit integer values cannot be
      * accurately represent (as mantissa is only 51 bit wide).
      *<p>
      * Feature is disabled by default.
@@ -119,7 +119,7 @@ public enum JsonWriteFeature
      * <p>
      * Note that this feature only has effect for {@link JsonGenerator}s that directly encode
      * {@code byte}-based output, as UTF-8 (target {@link java.io.OutputStream}, {@code byte[]}
-     * and so on); it will not (can not) change handling of
+     * and so on); it will not (cannot) change handling of
      * {@code char}-based output (like {@link java.io.Writer} or {@link java.lang.String}).
      * <p>
      * Feature is enabled by default in Jackson 3.0 (was disabled in 2.x).

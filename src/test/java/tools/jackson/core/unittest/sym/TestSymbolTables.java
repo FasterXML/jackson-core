@@ -112,7 +112,7 @@ class TestSymbolTables extends JacksonCoreTestBase
             assertEquals(exp, symbolsCRoot.size());
         }
 
-        // Note: can not validate root instance, is not set up same way
+        // Note: cannot validate root instance, is not set up same way
     }
 
     // Since 2.6

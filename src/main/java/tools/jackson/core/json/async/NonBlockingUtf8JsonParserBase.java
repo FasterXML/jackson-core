@@ -91,7 +91,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 //    public long nextLongValue(long defaultValue) throws JacksonException
 //    public Boolean nextBooleanValue() throws JacksonException
 
-    // Should never be called: can not be implemented quite as expected
+    // Should never be called: cannot be implemented quite as expected
     // due to non-blocking behavior
     @Override
     protected char _decodeEscaped() throws JacksonException {
@@ -759,7 +759,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (ch == INT_HASH) {
                 return _finishHashComment(MINOR_VALUE_EXPECTING_COLON);
             }
-            // can not omit colon here
+            // cannot omit colon here
             _reportUnexpectedChar(ch, "was expecting a colon to separate field name and value");
         }
         int ptr = _inputPtr;

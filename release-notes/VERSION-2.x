@@ -23,6 +23,12 @@ a pure JSON library.
 #1361: `JsonPointer` parsing of '~' not followed by "0" or "1" unexpected
  (reported by @slz30)
 
+2.18.3 (not yet released)
+
+#1391: Fix issue where the parser can read back old number state when
+  parsing later numbers
+ (fix contributed by @pjfanning)
+
 2.18.2 (27-Nov-2024)
 
 #1359: Non-surrogate characters being incorrectly combined when

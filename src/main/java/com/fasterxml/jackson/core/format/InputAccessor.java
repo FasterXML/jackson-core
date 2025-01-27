@@ -103,7 +103,7 @@ public interface InputAccessor
                 return false;
             }
             int amount = _buffer.length - _ptr;
-            if (amount < 1) { // can not load any more
+            if (amount < 1) { // cannot load any more
                 return false;
             }
             int count = _in.read(_buffer, _ptr, amount);

@@ -813,6 +813,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_BIGINT) == 0) {
                 convertNumberToBigInteger();
+                return _numberBigInt;
             }
         }
         return _getBigInteger();
@@ -835,6 +836,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_FLOAT) == 0) {
                 convertNumberToFloat();
+                return _numberFloat;
             }
         }
         return _getNumberFloat();
@@ -850,6 +852,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // if underlying type not FP, need conversion:
             if ((_numTypesValid & NR_DOUBLE) == 0) {
                 convertNumberToDouble();
+                return _numberDouble;
             }
         }
         return _getNumberDouble();
@@ -864,6 +867,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
                 convertNumberToBigDecimal();
+                return _numberBigDecimal;
             }
         }
         return _getBigDecimal();

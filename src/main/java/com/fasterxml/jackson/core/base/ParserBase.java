@@ -1389,10 +1389,24 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
         final JsonReadContext ctxt = getParsingContext();
+
+        // 31-Jan-2025, tatu: [core#1394] Need to check case of no open scope
+        if (ctxt.inRoot()) {
+            _reportExtraEndMarker(actCh);
+            return;
+        }
         final String msg = String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
                 (char) actCh, expCh, ctxt.typeDesc(),
                 ctxt.startLocation(_contentReference()));
+        throw _constructReadException(msg, _currentLocationMinusOne());
+    }
+
+    // @since 2.19
+    protected void _reportExtraEndMarker(int actCh) throws JsonParseException {
+        final String scopeDesc = (actCh == '}') ? "Object" : "Array";
+        final String msg = String.format(
+                "Unexpected close marker '%s': no open %s to close", (char) actCh, scopeDesc);
         throw _constructReadException(msg, _currentLocationMinusOne());
     }
 

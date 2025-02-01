@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -187,5 +188,51 @@ public class ParserScopeMatchingTest extends JUnit5TestBase
             verifyException(pe, "was expecting a colon");
         }
         p.close();
+    }
+
+    // [core#1394]
+    @Test
+    void extraEndArray() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _extraEndArray(mode);
+        }
+    }
+
+    public void _extraEndArray(int mode) throws Exception
+    {
+        try (JsonParser p = createParser(mode, "{ }]")) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            try {
+                p.nextToken();
+                fail("Should have thrown an exception");
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected close marker ']': no open Array");
+            }
+        }
+    }
+
+    // [core#1394]
+    @Test
+    void extraEndObject() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _extraEndObject(mode);
+        }
+    }
+
+    public void _extraEndObject(int mode) throws Exception
+    {
+        try (JsonParser p = createParser(mode, "[ ]}")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            try {
+                p.nextToken();
+                fail("Should have thrown an exception");
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected close marker '}': no open Object");
+            }
+        }
     }
 }

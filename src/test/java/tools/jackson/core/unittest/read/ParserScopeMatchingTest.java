@@ -2,9 +2,7 @@ package tools.jackson.core.unittest.read;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
+import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.unittest.*;
 
@@ -188,5 +186,51 @@ public class ParserScopeMatchingTest extends JacksonCoreTestBase
             verifyException(pe, "was expecting a colon");
         }
         p.close();
+    }
+
+    // [core#1394]
+    @Test
+    void extraEndArray() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _extraEndArray(mode);
+        }
+    }
+
+    public void _extraEndArray(int mode) throws Exception
+    {
+        try (JsonParser p = createParser(mode, "{ }]")) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            try {
+                p.nextToken();
+                fail("Should have thrown an exception");
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected close marker ']': no open Array");
+            }
+        }
+    }
+
+    // [core#1394]
+    @Test
+    void extraEndObject() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _extraEndObject(mode);
+        }
+    }
+
+    public void _extraEndObject(int mode) throws Exception
+    {
+        try (JsonParser p = createParser(mode, "[ ]}")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            try {
+                p.nextToken();
+                fail("Should have thrown an exception");
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected close marker '}': no open Object");
+            }
+        }
     }
 }

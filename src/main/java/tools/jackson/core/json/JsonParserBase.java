@@ -360,10 +360,22 @@ public abstract class JsonParserBase
 
     // Promoted from `ParserBase` in 3.0
     protected void _reportMismatchedEndMarker(int actCh, char expCh) throws StreamReadException {
-        TokenStreamContext ctxt = streamReadContext();
+        final TokenStreamContext ctxt = streamReadContext();
+        // 31-Jan-2025, tatu: [core#1394] Need to check case of no open scope
+        if (ctxt.inRoot()) {
+            _reportExtraEndMarker(actCh);
+            return;
+        }
         final String msg = String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
                 (char) actCh, expCh, ctxt.typeDesc(), ctxt.startLocation(_contentReference()));
+        throw _constructReadException(msg, _currentLocationMinusOne());
+    }
+
+    protected void _reportExtraEndMarker(int actCh) throws StreamReadException {
+        final String scopeDesc = (actCh == '}') ? "Object" : "Array";
+        final String msg = String.format(
+                "Unexpected close marker '%s': no open %s to close", (char) actCh, scopeDesc);
         throw _constructReadException(msg, _currentLocationMinusOne());
     }
 

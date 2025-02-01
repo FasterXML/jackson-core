@@ -22,6 +22,8 @@ a pure JSON library.
  (contributed by Eduard G)
 #1361: `JsonPointer` parsing of '~' not followed by "0" or "1" unexpected
  (reported by @slz30)
+#1394: Wrong/misleading error for "extra" close token (`]` or `}`) when
+  at root level
 
 2.18.3 (not yet released)
 

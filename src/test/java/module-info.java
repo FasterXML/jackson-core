@@ -3,9 +3,9 @@
 module tools.jackson.core.testutil
 {
     // Additional test lib/framework dependencies
-    requires transitive org.assertj.core;
-    requires transitive org.junit.jupiter.api;
-    requires transitive org.junit.jupiter.params;
+    requires org.assertj.core;
+    requires org.junit.jupiter.api;
+    requires org.junit.jupiter.params;
 
     // Requires Main jar for tests
     requires tools.jackson.core;

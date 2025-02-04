@@ -35,6 +35,7 @@ class NumberParsing1397Test extends JUnit5TestBase
                            final String json,
                            final boolean checkFirstNumValues) throws Exception
     {
+        // checkFirstNumValues=false reproduces the issue in https://github.com/FasterXML/jackson-core/issues/1397
         try (JsonParser p = createParser(jsonF, mode, json)) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());

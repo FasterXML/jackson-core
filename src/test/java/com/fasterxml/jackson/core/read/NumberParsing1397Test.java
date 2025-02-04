@@ -1,0 +1,76 @@
+package com.fasterxml.jackson.core.read;
+
+import com.fasterxml.jackson.core.JUnit5TestBase;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TokenStreamFactory;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class NumberParsing1397Test extends JUnit5TestBase
+{
+    private TokenStreamFactory JSON_F = newStreamFactory();
+
+    final String radiusValue = "179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    final String INPUT_JSON = a2q("{ 'results': [ { " +
+        "'radius': " + radiusValue + ", " +
+        "'type': 'center', " +
+        "'center': { " +
+        "'x': -11.0, " +
+        "'y': -2.0 } } ] }");
+
+    // [jackson-core#1397]
+    @Test
+    public void issue1397() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            testIssue(JSON_F, mode, INPUT_JSON, true);
+            testIssue(JSON_F, mode, INPUT_JSON, false);
+        }
+    }
+    
+    private void testIssue(final TokenStreamFactory jsonF,
+                           final int mode,
+                           final String json,
+                           final boolean checkFirstNumValues) throws Exception
+    {
+        try (JsonParser p = createParser(jsonF, mode, json)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("results", p.currentName());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("radius", p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+            assertEquals(radiusValue, p.getNumberValueDeferred());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("type", p.currentName());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals("center", p.getText());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("center", p.currentName());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("x", p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            if (checkFirstNumValues) {
+                assertEquals(JsonParser.NumberType.DOUBLE, p.getNumberType());
+                assertEquals(Double.valueOf(-11.0d), p.getNumberValueDeferred());
+            }
+            assertEquals(Double.valueOf(-11.0d), p.getDoubleValue());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("y", p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(JsonParser.NumberType.DOUBLE, p.getNumberType());
+            assertEquals(Double.valueOf(-2.0d), p.getNumberValueDeferred());
+            assertEquals(Double.valueOf(-2.0d), p.getDoubleValue());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+    }
+}

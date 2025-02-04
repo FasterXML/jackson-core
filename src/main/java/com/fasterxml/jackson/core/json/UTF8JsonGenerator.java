@@ -1732,6 +1732,16 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
+                // 3- or 4-byte character
+                if (_isStartOfSurrogatePair(ch)) {
+                    final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
+                    if (combineSurrogates && offset < end) {
+                        char highSurrogate = (char) ch;
+                        char lowSurrogate = cbuf[offset++];
+                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                        continue;
+                    }
+                }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
             }
         }
@@ -1789,6 +1799,16 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
+                // 3- or 4-byte character
+                if (_isStartOfSurrogatePair(ch)) {
+                    final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
+                    if (combineSurrogates && offset < end) {
+                        char highSurrogate = (char) ch;
+                        char lowSurrogate = text.charAt(offset++);
+                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                        continue;
+                    }
+                }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
             }
         }

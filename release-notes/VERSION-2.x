@@ -34,6 +34,9 @@ a pure JSON library.
   JSON structures and existing infinite values
  (reported by @Rodenstock)
  (fix contributed by @pjfanning)
+#1398: Fix issue that feature COMBINE_UNICODE_SURROGATES_IN_UTF8 doesn't work
+  when custom characterEscape is used
+ (reported and fixed by @stackunderflow111)
 
 2.18.2 (27-Nov-2024)
 

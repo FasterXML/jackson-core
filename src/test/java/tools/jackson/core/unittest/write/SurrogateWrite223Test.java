@@ -126,4 +126,21 @@ class SurrogateWrite223Test extends JacksonCoreTestBase
         assertTrue(json.contains("foo\u3042bar"));
         assertTrue(json.contains("\"test_emoji\":\"\uD83D\uDE0A\""));
     }
+
+    @Test
+    void checkSurrogateWithCharacterEscapes() throws Exception {
+        JsonFactory f = JsonFactory.builder()
+                .enable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+                .build();
+        f.setCharacterEscapes(JsonpCharacterEscapes.instance());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator gen = f.createGenerator(out)) {
+            gen.writeStartObject();
+            // Outside the BMP; 0x1F60A - emoji
+            gen.writeStringField("test_emoji", new String(Character.toChars(0x1F60A)));
+            gen.writeEndObject();
+        }
+        String json = out.toString("UTF-8");
+        assertEquals("{\"test_emoji\":\"\uD83D\uDE0A\"}", json);
+    }
 }

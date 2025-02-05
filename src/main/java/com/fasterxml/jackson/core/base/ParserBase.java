@@ -592,6 +592,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _fractLength = 0;
         _expLength = 0;
         _numTypesValid = NR_UNKNOWN; // to force decoding
+        _numberString = null;
         return JsonToken.VALUE_NUMBER_INT;
     }
 
@@ -606,6 +607,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _fractLength = fractLen;
         _expLength = expLen;
         _numTypesValid = NR_UNKNOWN; // to force decoding
+        _numberString = null;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
@@ -616,6 +618,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _numberDouble = value;
         _numTypesValid = NR_DOUBLE;
         _numberIsNaN = true;
+        _numberString = null;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 

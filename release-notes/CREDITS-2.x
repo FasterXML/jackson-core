@@ -465,7 +465,7 @@ Justin Gosselin (@jgosselin-accesso)
 Haruki (@stackunderflow111)
  * Reported #1398: feature COMBINE_UNICODE_SURROGATES_IN_UTF8 doesn't work
   when custom characterEscape is used
-  (2.18.2)
+  (2.18.3)
 
 Eduard Gomoliako (@Gems)
  * Contributed #1356: Make `JsonGenerator::writeTypePrefix` method to not write a

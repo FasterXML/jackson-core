@@ -30,6 +30,10 @@ a pure JSON library.
 #1391: Fix issue where the parser can read back old number state when
   parsing later numbers
  (fix contributed by @pjfanning)
+#1397: Jackson changes additional values to infinite in case of special
+  JSON structures and existing infinite values
+ (reported by @Rodenstock)
+ (fix contributed by @pjfanning)
 
 2.18.2 (27-Nov-2024)
 

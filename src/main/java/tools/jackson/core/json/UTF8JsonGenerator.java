@@ -1772,7 +1772,7 @@ public class UTF8JsonGenerator
             } else {
                 // 3- or 4-byte character
                 if (_isStartOfSurrogatePair(ch)) {
-                    final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
+                    final boolean combineSurrogates = JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_formatWriteFeatures);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
                         char lowSurrogate = cbuf[offset++];
@@ -1839,7 +1839,7 @@ public class UTF8JsonGenerator
             } else {
                 // 3- or 4-byte character
                 if (_isStartOfSurrogatePair(ch)) {
-                    final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
+                    final boolean combineSurrogates = JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_formatWriteFeatures);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
                         char lowSurrogate = text.charAt(offset++);

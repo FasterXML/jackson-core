@@ -52,6 +52,7 @@ JSON library.
 #1380: Change 3.0 to use `module-info.java` directly (and not via Moditect)
 #1385: Create `jackson-core-[VERSION]-tests.jar` to contain shared
   test utility classes
+#1401: Rename `TreeNode.isContainerNode()` as `isContainer()` (3.0)
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

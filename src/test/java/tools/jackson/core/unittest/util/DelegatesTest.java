@@ -55,7 +55,7 @@ class DelegatesTest extends JacksonCoreTestBase
         }
 
         @Override
-        public boolean isContainerNode() {
+        public boolean isContainer() {
             return false;
         }
 

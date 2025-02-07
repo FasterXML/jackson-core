@@ -61,7 +61,7 @@ public interface TreeNode
      * and null values from JSON.
      *<p>
      * Note: one and only one of methods {@link #isValueNode},
-     * {@link #isContainerNode} and {@link #isMissingNode} ever
+     * {@link #isContainer()} and {@link #isMissingNode} ever
      * returns true for any given node.
      *
      * @return True if this node is considered a value node; something that
@@ -73,12 +73,12 @@ public interface TreeNode
      * Method that returns true for container nodes: Arrays and Objects.
      *<p>
      * Note: one and only one of methods {@link #isValueNode},
-     * {@link #isContainerNode} and {@link #isMissingNode} ever
+     * {@link #isContainer()} and {@link #isMissingNode} ever
      * returns true for any given node.
      *
      * @return {@code True} for Array and Object nodes, {@code false} otherwise
      */
-    boolean isContainerNode();
+    boolean isContainer();
 
     /**
      * Method that returns true for "virtual" nodes which represent
@@ -86,7 +86,7 @@ public interface TreeNode
      * there is no actual node matching given criteria.
      *<p>
      * Note: one and only one of methods {@link #isValueNode},
-     * {@link #isContainerNode} and {@link #isMissingNode} ever
+     * {@link #isContainer()} and {@link #isMissingNode} ever
      * returns true for any given node.
      *
      * @return {@code True} if this node represents a "missing" node
@@ -96,7 +96,7 @@ public interface TreeNode
     /**
      * Method that returns true if this node is an Array node, false
      * otherwise.
-     * Note that if true is returned, {@link #isContainerNode}
+     * Note that if true is returned, {@link #isContainer()}
      * must also return true.
      *
      * @return {@code True} for Array nodes, {@code false} for everything else
@@ -106,7 +106,7 @@ public interface TreeNode
     /**
      * Method that returns true if this node is an Object node, false
      * otherwise.
-     * Note that if true is returned, {@link #isContainerNode}
+     * Note that if true is returned, {@link #isContainer()}
      * must also return true.
      *
      * @return {@code True} for Object nodes, {@code false} for everything else

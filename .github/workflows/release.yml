@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
       TAG: ${{ github.ref_name }}

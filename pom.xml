@@ -60,8 +60,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <project.build.outputTimestamp>2024-09-27T01:42:02Z</project.build.outputTimestamp>
 
     <!-- for validation of JaCoCo execution -->
-    <version.maven-enforcer-plugin>3.5.0</version.maven-enforcer-plugin>
-    <version.jacoco-maven-plugin>0.8.12</version.jacoco-maven-plugin>
     <jacocoStrict>true</jacocoStrict>
   </properties>
 
@@ -90,13 +88,10 @@ com.fasterxml.jackson.core.*;version=${project.version}
             <goals>
               <goal>prepare-agent</goal>
             </goals>
-	    <configuration>
-      	      <propertyName>jacoco.argLine</propertyName>
-            </configuration>
           </execution>
           <execution>
             <id>report</id>
-            <phase>test</phase>
+            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>
@@ -115,7 +110,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
           </execution>
 	  <execution>
             <id>enforce-jacoco-exec</id>
-            <phase>test</phase>
+            <phase>verify</phase>
             <goals>
                 <goal>enforce</goal>
             </goals>

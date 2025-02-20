@@ -13,11 +13,11 @@ class UTF8ParsingTest extends JUnit5TestBase
     private TokenStreamFactory JSON_F = newStreamFactory();
 
     final String testValue = createTestString();
-    final String INPUT_JSON = a2q("{ 'value': '" + testValue +"' }");
+    final String INPUT_JSON = a2q("{ 'value': '" + testValue + "' }");
 
-    // [jackson-core#1397]
+    // https://github.com/FasterXML/jackson-dataformats-text/issues/497
     @Test
-    public void issue1397() throws Exception
+    public void utf8Char3Bytes() throws Exception
     {
         for (int mode : ALL_MODES) {
             testIssue(JSON_F, mode, INPUT_JSON);

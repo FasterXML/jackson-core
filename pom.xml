@@ -58,6 +58,9 @@ com.fasterxml.jackson.core.*;version=${project.version}
 
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2024-09-27T01:42:02Z</project.build.outputTimestamp>
+
+    <!-- for validation of JaCoCo execution -->
+    <jacocoStrict>true</jacocoStrict>
   </properties>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
@@ -88,7 +91,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
           </execution>
           <execution>
             <id>report</id>
-            <phase>test</phase>
+            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>
@@ -104,6 +107,23 @@ com.fasterxml.jackson.core.*;version=${project.version}
             <id>enforce-properties</id>
 	        <phase>validate</phase>
             <goals><goal>enforce</goal></goals>
+          </execution>
+	  <execution>
+            <id>enforce-jacoco-exec</id>
+            <phase>verify</phase>
+            <goals>
+                <goal>enforce</goal>
+            </goals>
+            <configuration>
+                <rules>
+                    <requireFilesExist>
+                        <files>
+                            <file>${project.build.directory}/jacoco.exec</file>
+                        </files>
+                    </requireFilesExist>
+                </rules>
+                <fail>${jacocoStrict}</fail>
+            </configuration>
           </execution>
         </executions>
       </plugin>

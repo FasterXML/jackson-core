@@ -461,3 +461,9 @@ Justin Gosselin (@jgosselin-accesso)
  * Reported #1359: Non-surrogate characters being incorrectly combined when
   `JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8` is enabled
   (2.18.2)
+
+Haruki (@stackunderflow111)
+ * Reported #1398: feature COMBINE_UNICODE_SURROGATES_IN_UTF8 doesn't work
+  when custom characterEscape is used
+  (2.18.3)
+

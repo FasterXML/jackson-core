@@ -14,6 +14,19 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.18.3 (not yet released)
+
+#1391: Fix issue where the parser can read back old number state when
+  parsing later numbers
+ (fix contributed by @pjfanning)
+#1397: Jackson changes additional values to infinite in case of special
+  JSON structures and existing infinite values
+ (reported by @Rodenstock)
+ (fix contributed by @pjfanning)
+#1398: Fix issue that feature COMBINE_UNICODE_SURROGATES_IN_UTF8 doesn't work
+  when custom characterEscape is used
+ (reported and fixed by @stackunderflow111)
+
 2.18.2 (27-Nov-2024)
 
 #1359: Non-surrogate characters being incorrectly combined when

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * deals with symbol (table) management.
  */
 class TestWithTonsaSymbols
-        extends JacksonCoreTestBase
+    extends JacksonCoreTestBase
 {
     /**
      * How many fields to generate? Since maximum symbol table

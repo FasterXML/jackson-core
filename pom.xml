@@ -79,20 +79,6 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <!-- Important: enable enforcer plug-in: -->
@@ -284,6 +270,9 @@ tools.jackson.core.*;version=${project.version}
         </configuration>
       </plugin>
       <!-- And then Test JAR for other Jackson components -->
+      <!-- 26-Feb-2025, tatu: Does not work, comment out for now
+        -->
+      <!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -306,6 +295,7 @@ tools.jackson.core.*;version=${project.version}
           </execution>
         </executions>
       </plugin>
+      -->
 
       <!-- 23-Mar-2023, tatu: [core#965] Need to put back Gradle module metadata marker -->
       <plugin>

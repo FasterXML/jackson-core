@@ -27,7 +27,7 @@ a pure JSON library.
 #1407: [gradle-module-metadata-maven-plugin] update to version 1.0
  (contributed by @jjohannes)
 
-2.18.3 (not yet released)
+2.18.3 (28-Feb-2025)
 
 #1391: Fix issue where the parser can read back old number state when
   parsing later numbers

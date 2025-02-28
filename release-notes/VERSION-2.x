@@ -24,6 +24,8 @@ a pure JSON library.
  (reported by @slz30)
 #1394: Wrong/misleading error for "extra" close token (`]` or `}`) when
   at root level
+#1407: [gradle-module-metadata-maven-plugin] update to version 1.0
+ (contributed by @jjohannes)
 
 2.18.3 (not yet released)
 

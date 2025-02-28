@@ -236,12 +236,10 @@ com.fasterxml.jackson.core.*;version=${project.version}
         </executions>
       </plugin>
       <plugin>
-        <groupId>de.jjohannes</groupId>
+        <groupId>org.gradlex</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
-	<!-- 27-Apr-2023, tatu: [core#999]: Need to exclude shaded FDP
-	   dependency from GMM
-	  -->
-	<configuration>
+        <!-- 27-Apr-2023, tatu: [core#999]: Need to exclude shaded FDP dependency from GMM -->
+        <configuration>
           <removedDependencies>
             <dependency>
               <groupId>ch.randelshofer</groupId>
@@ -261,36 +259,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
           </archive>
         </configuration>
       </plugin>
-
-      <!-- 23-Mar-2023, tatu: [core#965] Need to put back Gradle module metadata marker -->
-      <plugin>
-        <groupId>io.github.floverfelt</groupId>
-        <artifactId>find-and-replace-maven-plugin</artifactId>
-        <version>1.1.0</version>
-        <executions>
-          <execution>
-            <id>exec</id>
-            <phase>package</phase>
-            <goals>
-              <goal>find-and-replace</goal>
-            </goals>
-            <configuration>
-              <replacementType>file-contents</replacementType>
-              <baseDir>${basedir}</baseDir>
-              <findRegex><![CDATA[<modelVersion>4.0.0</modelVersion>]]></findRegex>
-              <fileMask>dependency-reduced-pom.xml</fileMask>
-              <replaceValue><![CDATA[  <!-- This module was also published with a richer model, Gradle metadata,  -->
-  <!-- which should be used instead. Do not delete the following line which  -->
-  <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
-  <!-- that they should prefer consuming it instead. -->
-  <!-- do_not_remove: published-with-gradle-metadata -->
-  <modelVersion>4.0.0</modelVersion>]]></replaceValue>
-              <recursive>false</recursive>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- 16-Nov-2022, tatu: [core#838] add verification of compatibility
            wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
            To be run from CI, but manually with:

@@ -203,11 +203,7 @@ public class JsonFactory
      * @return Builder instance to use
      */
     public static JsonFactoryBuilder builderWithJackson2Defaults() {
-        return builder()
-                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
-                .disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
-                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER);
+        return builder().configureForJackson2();
     }
 
     /**

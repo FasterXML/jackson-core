@@ -116,6 +116,13 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         return state ? enable(f) : disable(f);
     }
 
+    @Override
+    public JsonFactoryBuilder configureForJackson2() {
+        return super.configureForJackson2()
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
+    }
+
     // // // Other JSON-specific configuration
 
     /**

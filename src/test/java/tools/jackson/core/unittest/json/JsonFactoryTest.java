@@ -4,20 +4,11 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 
-import tools.jackson.core.FormatSchema;
-import tools.jackson.core.JsonEncoding;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectReadContext;
-import tools.jackson.core.ObjectWriteContext;
-import tools.jackson.core.StreamWriteFeature;
-import tools.jackson.core.TokenStreamFactory;
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
-import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.json.JsonFactoryBuilder;
-import tools.jackson.core.json.JsonReadFeature;
-import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.json.*;
 import tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;
 import tools.jackson.core.unittest.*;
 
@@ -42,6 +33,7 @@ public class JsonFactoryTest
 
     private final JsonFactory JSON_F = newStreamFactory();
 
+    @Test
     public void testStreamWriteFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -53,6 +45,7 @@ public class JsonFactoryTest
         assertFalse(f.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
     }
 
+    @Test
     public void testJsonWriteFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -64,6 +57,7 @@ public class JsonFactoryTest
         assertFalse(f.isEnabled(JsonWriteFeature.QUOTE_PROPERTY_NAMES));
     }
 
+    @Test
     public void testFactoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -79,6 +73,7 @@ public class JsonFactoryTest
         assertFalse(f.canHandleBinaryNatively());
     }
 
+    @Test
     public void testFactoryMisc() throws Exception
     {
         assertNull(JSON_F.getInputDecorator());
@@ -91,6 +86,7 @@ public class JsonFactoryTest
         assertEquals(JsonWriteFeature.class, JSON_F.getFormatWriteFeatureType());
     }
 
+    @Test
     public void testJsonWithFiles() throws Exception
     {
         File file = File.createTempFile("jackson-test", null);
@@ -123,6 +119,7 @@ public class JsonFactoryTest
         file.delete();
     }
 
+    @Test
     public void testCopy() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -149,6 +146,7 @@ public class JsonFactoryTest
         assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
     }
 
+    @Test
     public void testRootValues() throws Exception
     {
         assertEquals(" ", JSON_F.getRootValueSeparator());
@@ -168,6 +166,7 @@ public class JsonFactoryTest
         assertEquals("1/2/3", w.toString());
     }
 
+    @Test
     public void test_createGenerator_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -183,6 +182,7 @@ public class JsonFactoryTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_createGenerator_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -195,6 +195,7 @@ public class JsonFactoryTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_createGenerator_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -207,6 +208,7 @@ public class JsonFactoryTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_createGenerator_Writer() throws Exception
     {
         Writer writer = new StringWriter();
@@ -222,6 +224,7 @@ public class JsonFactoryTest
         writer.append('1');
     }
 
+    @Test
     public void test_createGenerator_DataOutput() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -238,6 +241,7 @@ public class JsonFactoryTest
         dataOutput.write(1);
     }
 
+    @Test
     public void test_createParser_InputStream() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
@@ -247,6 +251,7 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
+    @Test
     public void test_createParser_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -257,6 +262,7 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
+    @Test
     public void test_createParser_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -267,6 +273,7 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
+    @Test
     public void test_createParser_Url() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -277,6 +284,7 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
+    @Test
     public void test_createParser_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
@@ -286,6 +294,7 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
+    @Test
     public void test_createParser_ByteArray() throws Exception
     {
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
@@ -295,6 +304,7 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
+    @Test
     public void test_createParser_String() throws Exception
     {
         String string = "\"value\"";
@@ -304,6 +314,7 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
+    @Test
     public void test_createParser_CharArray() throws Exception
     {
         char[] chars = "\"value\"".toCharArray();
@@ -313,6 +324,7 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
+    @Test
     public void test_createParser_DataInput() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
@@ -323,11 +335,12 @@ public class JsonFactoryTest
         assertEquals(jsonParser.nextStringValue(), "value");
     }
 
-
+    @Test
     public void testCanonicalizationEnabled() throws Exception {
         doCanonicalizationTest(false);
     }
 
+    @Test
     public void testCanonicalizationDisabled() throws Exception {
         doCanonicalizationTest(false);
     }

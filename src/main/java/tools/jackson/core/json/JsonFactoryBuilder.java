@@ -116,21 +116,6 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         return state ? enable(f) : disable(f);
     }
 
-    /**
-     * Modifies the settings of this builder to more closely match the default configs used
-     * in Jackson 2.x versions.
-     * <p>
-     *     This method is still a work in progress and may not yet fully replicate the
-     *     default settings of Jackson 2.x.
-     * </p>
-     */
-    public JsonFactoryBuilder setJackson2Defaults() {
-        return disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
-                .disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
-                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER);
-    }
-
     // // // Other JSON-specific configuration
 
     /**

@@ -183,12 +183,30 @@ public class JsonFactory
 
     /**
      * Main factory method to use for constructing {@link JsonFactory} instances with
-     * different configuration.
-     *
+     * different configuration. The builder returned uses default settings more closely
+     * matched the default configs used in Jackson 2.x versions.
+     * <p>
+     *     This method is still a work in progress and may not yet fully replicate the
+     *     default settings of Jackson 2.x.
+     * </p>
      * @return Builder instance to use
      */
     public static JsonFactoryBuilder builder() {
         return new JsonFactoryBuilder();
+    }
+
+    /**
+     * Factory method to use for constructing {@link JsonFactory} instances with
+     * different configuration.
+     *
+     * @return Builder instance to use
+     */
+    public static JsonFactoryBuilder builderWithJackson2Defaults() {
+        return builder()
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+                .disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER);
     }
 
     /**

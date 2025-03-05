@@ -194,7 +194,7 @@ public class JsonFactory
     /**
      * Factory method to use for constructing {@link JsonFactory} instances with
      * different configuration. The builder returned uses default settings more closely
-     * matched the default configs used in Jackson 2.x versions.
+     * matching the default configs used in Jackson 2.x versions.
      * <p>
      *     This method is still a work in progress and may not yet fully replicate the
      *     default settings of Jackson 2.x.

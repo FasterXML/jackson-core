@@ -122,7 +122,7 @@ public enum StreamWriteFeature
      * NOTE! Enabling this feature appears to improve performance significantly
      * up to and including JDK 17, but NOT when using JDK 21
      * and above -- in fact, it seems that JDK implementation is slightly faster.
-     * Because of this,enabling this feature is only recommended for JDKs 17 and below.
+     * Because of this, enabling this feature is only recommended for JDKs 17 and below.
      *<p>
      * Feature is disabled by default, meaning that JDK default conversions are used.
      */

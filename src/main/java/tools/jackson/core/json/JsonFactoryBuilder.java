@@ -126,7 +126,9 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
      */
     public JsonFactoryBuilder setJackson2Defaults() {
         return disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
+                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+                .disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER);
     }
 
     // // // Other JSON-specific configuration

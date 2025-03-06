@@ -345,6 +345,15 @@ public class JsonFactoryTest
         doCanonicalizationTest(false);
     }
 
+    @Test
+    public void testBuilderWithJackson2Defaults() {
+        JsonFactory factory = JsonFactory.builderWithJackson2Defaults().build();
+        assertFalse(factory.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+        assertFalse(factory.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        assertFalse(factory.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
+        assertFalse(factory.isEnabled(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8));
+    }
+
     // Configure the JsonFactory as expected, and verify across common shapes of input
     // to cover common JsonParser implementations.
     private void doCanonicalizationTest(boolean canonicalize) throws Exception {

@@ -192,6 +192,21 @@ public class JsonFactory
     }
 
     /**
+     * Factory method to use for constructing {@link JsonFactory} instances with
+     * different configuration. The builder returned uses default settings more closely
+     * matching the default configs used in Jackson 2.x versions.
+     * <p>
+     *     This method is still a work in progress and may not yet fully replicate the
+     *     default settings of Jackson 2.x.
+     * </p>
+     *
+     * @return Builder instance to use
+     */
+    public static JsonFactoryBuilder builderWithJackson2Defaults() {
+        return builder().configureForJackson2();
+    }
+
+    /**
      * Method for constructing a new {@link JsonFactory} that has
      * the same settings as this instance, but is otherwise
      * independent (i.e. nothing is actually shared, symbol tables

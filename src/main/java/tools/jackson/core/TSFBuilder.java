@@ -192,6 +192,19 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
         return state ? enable(f) : disable(f);
     }
 
+    /**
+     * The builder returned uses default settings more closely
+     * matching the default configs used in Jackson 2.x versions.
+     * <p>
+     *     This method is still a work in progress and may not yet fully replicate the
+     *     default settings of Jackson 2.x.
+     * </p>
+     */
+    public B configureForJackson2() {
+        return disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER);
+    }
+
     // // // Other configuration, constraints
 
     /**

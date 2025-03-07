@@ -15,7 +15,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-3.0.0 (not yet released)
+3.0.0-rc1 (07-Mar-2025)
 
 #378: Change default for `TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES` to `false`
 #402: Remove dataformat-auto-detection functionality

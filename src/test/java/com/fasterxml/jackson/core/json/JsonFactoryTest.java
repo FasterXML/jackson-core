@@ -405,7 +405,7 @@ class JsonFactoryTest
             assertEquals("key", field1);
             assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
             assertToken(JsonToken.END_OBJECT, parser.nextToken());
-            parser.nextToken(); // 
+            parser.nextToken(); // RS token
             if (!recordSeparation) {
                 fail("Should have thrown an exception");
             }

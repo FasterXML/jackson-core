@@ -157,9 +157,9 @@ class ParserFeaturesTest
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
-            p.nextToken(); // key
+            p.nextToken(); // val
             p.nextToken(); // ]
-            p.nextToken(); // 
+            p.nextToken(); // RS token
             fail("Expected exception");
         } catch (JsonParseException e) {
             verifyException(e, "Illegal character");
@@ -185,7 +185,7 @@ class ParserFeaturesTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE, p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        p.nextToken();
+        p.nextToken(); // RS token
         p.close();
     }
 }

@@ -151,7 +151,7 @@ class ParserFeaturesTest
 
     private void _testRecordSeparatorDefault(boolean useStream) throws Exception {
         JsonFactory f = new JsonFactory();
-        String JSON = "[\"key:\"]\u001E";
+        String JSON = "[\"val:\"]\u001E";
 
         JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
 
@@ -171,12 +171,12 @@ class ParserFeaturesTest
     private void _testRecordSeparatorEnabled(boolean useStream) throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
+                .configure(JsonReadFeature.ALLOW_RS_CONTROL_CHAR, true)
                 .build();
 
-        String FIELD = "a\u001Eb";
-        String VALUE = "\u001E";
-        String JSON = "{ "+q(FIELD)+" : "+q(VALUE)+"}";
+        String FIELD = "key";
+        String VALUE = "value";
+        String JSON = "{ "+q(FIELD)+" : "+q(VALUE)+"}\u001E";
         JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -185,6 +185,7 @@ class ParserFeaturesTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE, p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.nextToken();
         p.close();
     }
 }

@@ -2498,13 +2498,14 @@ public class ReaderBasedJsonParser
             }
             return i;
         }
+        boolean n = !JsonParser.Feature.ALLOW_RS_CONTROL_CHAR.enabledIn(_features);
         if (i != INT_SPACE) {
             if (i == INT_LF) {
                 ++_currInputRow;
                 _currInputRowStart = _inputPtr;
             } else if (i == INT_CR) {
                 _skipCR();
-            } else if (i != INT_TAB && ((_features & FEAT_MASK_ALLOW_RS_CTRL_CHAR) == 0 || i != INT_RS)) {
+            } else if (i != INT_TAB && (!JsonParser.Feature.ALLOW_RS_CONTROL_CHAR.enabledIn(_features) || i != INT_RS)) {
                 _throwInvalidSpace(i);
             }
         }
@@ -2524,7 +2525,7 @@ public class ReaderBasedJsonParser
                     _currInputRowStart = _inputPtr;
                 } else if (i == INT_CR) {
                     _skipCR();
-                } else if (i != INT_TAB && ((_features & FEAT_MASK_ALLOW_RS_CTRL_CHAR) == 0 || i != INT_RS)) {
+                } else if (i != INT_TAB && (!JsonParser.Feature.ALLOW_RS_CONTROL_CHAR.enabledIn(_features) || i != INT_RS)) {
                     _throwInvalidSpace(i);
                 }
             }

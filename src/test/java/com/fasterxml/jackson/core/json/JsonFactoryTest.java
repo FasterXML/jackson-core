@@ -312,6 +312,16 @@ class JsonFactoryTest
         doCanonicalizationTest(false);
     }
 
+    @Test
+    void recordSeparatorEnabled() throws Exception {
+        doRecordSeparationTest(true);
+    }
+
+    @Test
+    void recordSeparatorDisabled() throws Exception {
+        doRecordSeparationTest(false);
+    }
+
     // Configure the JsonFactory as expected, and verify across common shapes of input
     // to cover common JsonParser implementations.
     private void doCanonicalizationTest(boolean canonicalize) throws Exception {
@@ -363,5 +373,36 @@ class JsonFactoryTest
         }
         assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
         assertToken(JsonToken.END_OBJECT, parser.nextToken());
+    }
+
+    // Testing record separation for all parser implementations
+    private void doRecordSeparationTest(boolean recordSeparation) throws Exception {
+        String contents = "{\"key\":true}\u001E";
+        JsonFactory factory = JsonFactory.builder()
+                .configure(JsonReadFeature.ALLOW_RS_CONTROL_CHAR, true)
+                .build();
+        try (JsonParser parser = factory.createParser(contents)) {
+            verifyRecordSeparation(parser, recordSeparation);
+        }
+        try (JsonParser parser = factory.createParser(new StringReader(contents))) {
+            verifyRecordSeparation(parser, recordSeparation);
+        }
+    }
+
+    private void verifyRecordSeparation(JsonParser parser, boolean recordSeparation) throws Exception {
+        try {
+            assertToken(JsonToken.START_OBJECT, parser.nextToken());
+            String field1 = parser.nextFieldName();
+            assertEquals("key", field1);
+            assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
+            assertToken(JsonToken.END_OBJECT, parser.nextToken());
+            parser.nextToken(); // 
+        } catch (JsonParseException e) {
+            if (!recordSeparation) {
+                verifyException(e, "Illegal character");
+            } else {
+                throw e;
+            }
+        }
     }
 }

@@ -2498,7 +2498,6 @@ public class ReaderBasedJsonParser
             }
             return i;
         }
-        boolean n = !JsonParser.Feature.ALLOW_RS_CONTROL_CHAR.enabledIn(_features);
         if (i != INT_SPACE) {
             if (i == INT_LF) {
                 ++_currInputRow;

@@ -379,12 +379,21 @@ class JsonFactoryTest
     private void doRecordSeparationTest(boolean recordSeparation) throws Exception {
         String contents = "{\"key\":true}\u001E";
         JsonFactory factory = JsonFactory.builder()
-                .configure(JsonReadFeature.ALLOW_RS_CONTROL_CHAR, true)
+                .configure(JsonReadFeature.ALLOW_RS_CONTROL_CHAR, recordSeparation)
                 .build();
         try (JsonParser parser = factory.createParser(contents)) {
             verifyRecordSeparation(parser, recordSeparation);
         }
         try (JsonParser parser = factory.createParser(new StringReader(contents))) {
+            verifyRecordSeparation(parser, recordSeparation);
+        }
+        try (JsonParser parser = factory.createParser(contents.getBytes(StandardCharsets.UTF_8))) {
+            verifyRecordSeparation(parser, recordSeparation);
+        }
+        try (NonBlockingJsonParser parser = (NonBlockingJsonParser) factory.createNonBlockingByteArrayParser()) {
+            byte[] data = contents.getBytes(StandardCharsets.UTF_8);
+            parser.feedInput(data, 0, data.length);
+            parser.endOfInput();
             verifyRecordSeparation(parser, recordSeparation);
         }
     }
@@ -397,6 +406,9 @@ class JsonFactoryTest
             assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
             assertToken(JsonToken.END_OBJECT, parser.nextToken());
             parser.nextToken(); // 
+            if (!recordSeparation) {
+                fail("Should have thrown an exception");
+            }
         } catch (JsonParseException e) {
             if (!recordSeparation) {
                 verifyException(e, "Illegal character");

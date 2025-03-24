@@ -31,6 +31,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int INT_LF = '\n';
     protected final static int INT_CR = '\r';
     protected final static int INT_SPACE = 0x0020;
+    protected final static int INT_RS = 0x001E;
 
     // Markup
     protected final static int INT_LBRACKET = '[';
@@ -768,7 +769,7 @@ public abstract class ParserMinimalBase extends JsonParser
     
     protected void _throwInvalidSpace(int i) throws JsonParseException {
         char c = (char) i;
-        String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
+        String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t, \\u001E) is allowed between tokens";
         throw _constructReadException(msg);
     }
 

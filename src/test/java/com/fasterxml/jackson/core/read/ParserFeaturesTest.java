@@ -57,6 +57,20 @@ class ParserFeaturesTest
         _testTabsEnabled(true);
     }
 
+    @Test
+    void recordSeparatorDefault() throws Exception
+    {
+        _testRecordSeparatorDefault(false);
+        _testRecordSeparatorDefault(true);
+    }
+
+    @Test
+    void recordSeparatorEnabled() throws Exception
+    {
+        _testRecordSeparatorEnabled(false);
+        _testRecordSeparatorEnabled(true);
+    }
+
     /*
     /****************************************************************
     /* Secondary test methods
@@ -123,6 +137,45 @@ class ParserFeaturesTest
 
         String FIELD = "a\tb";
         String VALUE = "\t";
+        String JSON = "{ "+q(FIELD)+" : "+q(VALUE)+"}";
+        JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(FIELD, p.getText());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(VALUE, p.getText());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
+    }
+
+    private void _testRecordSeparatorDefault(boolean useStream) throws Exception {
+        JsonFactory f = new JsonFactory();
+        String JSON = "[\"key:\"]\u001E";
+
+        JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
+
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            p.nextToken(); // key
+            p.nextToken(); // ]
+            p.nextToken(); // 
+            fail("Expected exception");
+        } catch (JsonParseException e) {
+            verifyException(e, "Illegal character");
+        } finally {
+            p.close();
+        }
+    }
+
+    private void _testRecordSeparatorEnabled(boolean useStream) throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
+                .build();
+
+        String FIELD = "a\u001Eb";
+        String VALUE = "\u001E";
         String JSON = "{ "+q(FIELD)+" : "+q(VALUE)+"}";
         JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
 

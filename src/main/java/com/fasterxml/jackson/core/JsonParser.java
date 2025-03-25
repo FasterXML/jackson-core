@@ -202,7 +202,7 @@ public abstract class JsonParser
          * characters as whitespace, this is a non-standard feature and is disabled by default.
          * </p>
          *
-         * @since 2.18
+         * @since 2.19
          */
         ALLOW_RS_CONTROL_CHAR(false),
 

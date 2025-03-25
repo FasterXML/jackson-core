@@ -769,7 +769,7 @@ public abstract class ParserMinimalBase extends JsonParser
     
     protected void _throwInvalidSpace(int i) throws JsonParseException {
         char c = (char) i;
-        String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t, \\u001E) is allowed between tokens";
+        String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
 
         if (i == INT_RS) {
             msg += " Consider enabling ALLOW_RS_CONTROL_CHAR feature to allow use of record separators (\\u001E).";

@@ -76,7 +76,6 @@ class AsyncLocation1412Test extends AsyncTestBase
       }
     }
 
-    @JacksonTestFailureExpected
     @Test
     @DisplayName("Feed one byte at a time from non-zero array offset")
     void feedByteByByteFromNonZeroOffset() throws Exception {
@@ -94,7 +93,6 @@ class AsyncLocation1412Test extends AsyncTestBase
       }
     }
 
-    @JacksonTestFailureExpected
     @Test
     @DisplayName("Feed whole document at once from non-zero array offset")
     void feedWholeDocumentFromNonZeroOffset() throws Exception {

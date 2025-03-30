@@ -138,7 +138,8 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // No: fresh new token; may or may not have existing one
         _numTypesValid = NR_UNKNOWN;
-        _tokenInputTotal = _currInputProcessed + _inputPtr;
+        _tokenInputTotal = _currInputProcessed + (_inputPtr - _currBufferStart);
+
         // also: clear any data retained so far
         _binaryValue = null;
         int ch = getNextUnsignedByteFromBuffer();

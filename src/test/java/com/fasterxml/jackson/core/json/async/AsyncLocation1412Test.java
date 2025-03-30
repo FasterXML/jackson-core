@@ -1,5 +1,6 @@
-package com.fasterxml.jackson.core.tofix.async;
+package com.fasterxml.jackson.core.json.async;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,15 +11,13 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
-import com.fasterxml.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AsyncLocation1412Test extends AsyncTestBase
 {
     private static final JsonFactory jsonFactory = new JsonFactory();
-    private static final byte[] json = "[true]".getBytes(UTF_8);
+    private static final byte[] json = "[true]".getBytes(StandardCharsets.UTF_8);
 
     static class TokenAndByteOffsets {
         public final JsonToken token;

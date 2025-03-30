@@ -1,5 +1,6 @@
-package tools.jackson.core.unittest.tofix.async;
+package tools.jackson.core.unittest.json.async;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,16 +11,14 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.*;
 import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.core.unittest.async.AsyncTestBase;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AsyncLocation1412Test extends AsyncTestBase
 {
     private static final JsonFactory jsonFactory = new JsonFactory();
-    private static final byte[] json = "[true]".getBytes(UTF_8);
+    private static final byte[] json = "[true]".getBytes(StandardCharsets.UTF_8);
 
     static class TokenAndByteOffsets {
         public final JsonToken token;
@@ -77,7 +76,6 @@ class AsyncLocation1412Test extends AsyncTestBase
       }
     }
 
-    @JacksonTestFailureExpected
     @Test
     @DisplayName("Feed one byte at a time from non-zero array offset")
     void feedByteByByteFromNonZeroOffset() throws Exception {
@@ -95,7 +93,6 @@ class AsyncLocation1412Test extends AsyncTestBase
       }
     }
 
-    @JacksonTestFailureExpected
     @Test
     @DisplayName("Feed whole document at once from non-zero array offset")
     void feedWholeDocumentFromNonZeroOffset() throws Exception {

@@ -26,6 +26,10 @@ a pure JSON library.
   at root level
 #1407: [gradle-module-metadata-maven-plugin] update to version 1.0
  (contributed by @jjohannes)
+#1412: More cases of Non-blocking parser reporting incorrect locations
+  when fed with non-zero offset
+ (reported by David N)
+ (fixed by Fawzi E)
 
 2.18.3 (28-Feb-2025)
 

@@ -772,7 +772,7 @@ public abstract class ParserMinimalBase extends JsonParser
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
 
         if (i == INT_RS) {
-            msg += " (consider enabling `JsonReadFeature.ALLOW_RS_CONTROL_CHAR` feature to allow use of Record Separators (\\u001E).";
+            msg += " (consider enabling `JsonReadFeature.ALLOW_RS_CONTROL_CHAR` to allow use of Record Separators (\\u001E))";
         }
         throw _constructReadException(msg);
     }

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.read;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -153,18 +154,17 @@ class ParserFeaturesTest
         JsonFactory f = new JsonFactory();
         String JSON = "[\"val:\"]\u001E";
 
-        JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
-
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        try {
-            p.nextToken(); // val
-            p.nextToken(); // ]
-            p.nextToken(); // RS token
-            fail("Expected exception");
-        } catch (JsonParseException e) {
-            verifyException(e, "Illegal character");
-        } finally {
-            p.close();
+        try (JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                p.nextToken(); // val
+                p.nextToken(); // ]
+                p.nextToken(); // RS token
+                fail("Expected exception");
+            } catch (StreamReadException e) {
+                verifyException(e, "Illegal character ((CTRL-CHAR");
+                verifyException(e, "consider enabling `JsonReadFeature.ALLOW_RS_CONTROL_CHAR`");
+            }
         }
     }
 

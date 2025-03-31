@@ -312,16 +312,6 @@ class JsonFactoryTest
         doCanonicalizationTest(false);
     }
 
-    @Test
-    void recordSeparatorEnabled() throws Exception {
-        doRecordSeparationTest(true);
-    }
-
-    @Test
-    void recordSeparatorDisabled() throws Exception {
-        doRecordSeparationTest(false);
-    }
-
     // Configure the JsonFactory as expected, and verify across common shapes of input
     // to cover common JsonParser implementations.
     private void doCanonicalizationTest(boolean canonicalize) throws Exception {
@@ -373,48 +363,5 @@ class JsonFactoryTest
         }
         assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
         assertToken(JsonToken.END_OBJECT, parser.nextToken());
-    }
-
-    // Testing record separation for all parser implementations
-    private void doRecordSeparationTest(boolean recordSeparation) throws Exception {
-        String contents = "{\"key\":true}\u001E";
-        JsonFactory factory = JsonFactory.builder()
-                .configure(JsonReadFeature.ALLOW_RS_CONTROL_CHAR, recordSeparation)
-                .build();
-        try (JsonParser parser = factory.createParser(contents)) {
-            verifyRecordSeparation(parser, recordSeparation);
-        }
-        try (JsonParser parser = factory.createParser(new StringReader(contents))) {
-            verifyRecordSeparation(parser, recordSeparation);
-        }
-        try (JsonParser parser = factory.createParser(contents.getBytes(StandardCharsets.UTF_8))) {
-            verifyRecordSeparation(parser, recordSeparation);
-        }
-        try (NonBlockingJsonParser parser = (NonBlockingJsonParser) factory.createNonBlockingByteArrayParser()) {
-            byte[] data = contents.getBytes(StandardCharsets.UTF_8);
-            parser.feedInput(data, 0, data.length);
-            parser.endOfInput();
-            verifyRecordSeparation(parser, recordSeparation);
-        }
-    }
-
-    private void verifyRecordSeparation(JsonParser parser, boolean recordSeparation) throws Exception {
-        try {
-            assertToken(JsonToken.START_OBJECT, parser.nextToken());
-            String field1 = parser.nextFieldName();
-            assertEquals("key", field1);
-            assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
-            assertToken(JsonToken.END_OBJECT, parser.nextToken());
-            parser.nextToken(); // RS token
-            if (!recordSeparation) {
-                fail("Should have thrown an exception");
-            }
-        } catch (JsonParseException e) {
-            if (!recordSeparation) {
-                verifyException(e, "Illegal character");
-            } else {
-                throw e;
-            }
-        }
     }
 }

@@ -194,16 +194,9 @@ public abstract class JsonParser
         ALLOW_UNQUOTED_CONTROL_CHARS(false),
 
         /**
-         * Feature that determines whether parser will allow
-         * Record Separator (RS) control character ({@code 0x1E})
-         * as part of ignorable whitespace in JSON input, similar to the TAB character.
-         * <p>
-         * Since the official JSON specification permits only a limited set of control
-         * characters as whitespace, this is a non-standard feature and is disabled by default.
-         * </p>
-         *
-         * @since 2.19
+         * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_RS_CONTROL_CHAR} instead
          */
+        @Deprecated // but due to technical reasons we need this entry too
         ALLOW_RS_CONTROL_CHAR(false),
 
         /**

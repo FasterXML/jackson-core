@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -943,7 +942,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 } else if (ch == INT_CR) {
                     ++_currInputRowAlt;
                     _currInputRowStart = _inputPtr;
-                } else if (ch != INT_TAB && (!JsonParser.Feature.ALLOW_RS_CONTROL_CHAR.enabledIn(_features) || ch != INT_RS)) {
+                } else if (ch != INT_TAB && !_isAllowedCtrlCharRS(ch)) {
                     _throwInvalidSpace(ch);
                 }
             }

@@ -467,6 +467,14 @@ Haruki (@stackunderflow111)
   when custom characterEscape is used
   (2.18.3)
 
+Yanming Zhou (@quaff)
+ * Requested #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
+  (2.19.0)
+
+Fawzi Essam (@iifawzi)
+ * Contributed #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
+  (2.19.0)
+
 Eduard Gomoliako (@Gems)
  * Contributed #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
   `WRAPPER_ARRAY` when `typeIdDef.id == null`

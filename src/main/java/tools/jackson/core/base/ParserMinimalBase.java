@@ -37,6 +37,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int INT_TAB = '\t';
     protected final static int INT_LF = '\n';
     protected final static int INT_CR = '\r';
+    protected final static int INT_RS = 0x001E;
     protected final static int INT_SPACE = 0x0020;
 
     // Markup
@@ -1020,7 +1021,11 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected <T> T _reportInvalidSpace(int i) throws StreamReadException {
         char c = (char) i;
-        String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
+        String msg = "Illegal character ("+_getCharDesc(c)
+            +"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
+        if (i == INT_RS) {
+            msg += " (consider enabling `JsonReadFeature.ALLOW_RS_CONTROL_CHAR` to allow use of Record Separators (\\u001E))";
+        }
         throw _constructReadException(msg, _currentLocationMinusOne());
     }
 

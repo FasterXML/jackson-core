@@ -82,6 +82,16 @@ public enum JsonReadFeature
     ALLOW_UNESCAPED_CONTROL_CHARS(false),
 
     /**
+     * Feature that determines whether parser will allow
+     * Record Separator (RS) control character ({@code 0x1E})
+     * as part of ignorable whitespace in JSON input, similar to the TAB character.
+     * <p>
+     * Since the official JSON specification permits only a limited set of control
+     * characters as whitespace, this is a non-standard feature and is disabled by default.
+     */
+    ALLOW_RS_CONTROL_CHAR(false),
+
+    /**
      * Feature that can be enabled to accept quoting of all character
      * using backslash quoting mechanism: if not enabled, only characters
      * that are explicitly listed by JSON specification can be thus

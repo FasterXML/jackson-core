@@ -3420,7 +3420,7 @@ public class UTF8StreamJsonParser
                 _currInputRowStart = _inputPtr;
             } else if (i == INT_CR) {
                 _skipCR();
-            } else if (i != INT_TAB) {
+            } else if (i != INT_TAB  && !_isAllowedCtrlCharRS(i)) {
                 _reportInvalidSpace(i);
             }
         }
@@ -3440,7 +3440,7 @@ public class UTF8StreamJsonParser
                     _currInputRowStart = _inputPtr;
                 } else if (i == INT_CR) {
                     _skipCR();
-                } else if (i != INT_TAB) {
+                } else if (i != INT_TAB && !_isAllowedCtrlCharRS(i)) {
                     _reportInvalidSpace(i);
                 }
             }

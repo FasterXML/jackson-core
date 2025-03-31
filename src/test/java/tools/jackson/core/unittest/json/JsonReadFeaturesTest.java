@@ -2,9 +2,7 @@ package tools.jackson.core.unittest.json;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.StreamReadCapability;
+import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
@@ -54,13 +52,27 @@ class JsonReadFeaturesTest
     }
 
     @Test
-    public void tabsEnabledBytes() throws Exception {
+    void tabsEnabledBytes() throws Exception {
         _testTabsEnabled(true);
     }
 
     @Test
-    public void testTabsEnabledChars() throws Exception {
+    void testTabsEnabledChars() throws Exception {
         _testTabsEnabled(false);
+    }
+
+    @Test
+    void recordSeparatorDefault() throws Exception
+    {
+        _testRecordSeparatorDefault(false);
+        _testRecordSeparatorDefault(true);
+    }
+
+    @Test
+    void recordSeparatorEnabled() throws Exception
+    {
+        _testRecordSeparatorEnabled(false);
+        _testRecordSeparatorEnabled(true);
     }
 
     /*
@@ -129,6 +141,45 @@ class JsonReadFeaturesTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE, p.getString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
+    }
+
+    private void _testRecordSeparatorDefault(boolean useStream) throws Exception {
+        JsonFactory f = new JsonFactory();
+        String JSON = "[\"val:\"]\u001E";
+
+        try (JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                p.nextToken(); // val
+                p.nextToken(); // ]
+                p.nextToken(); // RS token
+                fail("Expected exception");
+            } catch (StreamReadException e) {
+                verifyException(e, "Illegal character ((CTRL-CHAR");
+                verifyException(e, "consider enabling `JsonReadFeature.ALLOW_RS_CONTROL_CHAR`");
+            }
+        }
+    }
+
+    private void _testRecordSeparatorEnabled(boolean useStream) throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .configure(JsonReadFeature.ALLOW_RS_CONTROL_CHAR, true)
+                .build();
+
+        String FIELD = "key";
+        String VALUE = "value";
+        String JSON = "{ "+q(FIELD)+" : "+q(VALUE)+"}\u001E";
+        JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals(FIELD, p.getString());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(VALUE, p.getString());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.nextToken(); // RS token
         p.close();
     }
 }

@@ -407,4 +407,14 @@ public abstract class JsonParserBase
         }
         return "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
     }
+
+    /*
+    /**********************************************************************
+    /* Internal/package methods: other
+    /**********************************************************************
+     */
+
+    protected boolean _isAllowedCtrlCharRS(int i) {
+        return (i == INT_RS) && JsonReadFeature.ALLOW_RS_CONTROL_CHAR.enabledIn(_formatReadFeatures);
+    }
 }

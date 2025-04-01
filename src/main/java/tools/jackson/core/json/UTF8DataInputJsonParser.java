@@ -2150,7 +2150,7 @@ public class UTF8DataInputJsonParser
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(c)) {
-            _reportInvalidToken(c, ""+((char) c), _validJsonTokenList());
+            _reportInvalidToken(c, "", _validJsonTokenList());
         }
         // but if it doesn't look like a token:
         _reportUnexpectedChar(c, "expected a valid value "+_validJsonValueList());
@@ -2788,11 +2788,9 @@ public class UTF8DataInputJsonParser
         throws JacksonException
      {
          StringBuilder sb = new StringBuilder(matchedPart);
-
-         /* Let's just try to find what appears to be the token, using
-          * regular Java identifier character rules. It's just a heuristic,
-          * nothing fancy here (nor fast).
-          */
+         // Let's just try to find what appears to be the token, using
+         // regular Java identifier character rules. It's just a heuristic,
+         // nothing fancy here (nor fast).
          try {
              while (true) {
                  char c = (char) _decodeCharForError(ch);

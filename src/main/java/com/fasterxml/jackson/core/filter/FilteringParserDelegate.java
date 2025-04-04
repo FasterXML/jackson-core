@@ -134,11 +134,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**
      * Creates a filtering parser delegate.
      *
-     * @param p Parser to delegate calls to (NonBlockingJsonParser only allowed when explicitly permitted)
+     * @param p Parser to delegate calls to
      * @param f Filter to use
      * @param inclusion Definition of inclusion criteria
      * @param allowMultipleMatches Whether to allow multiple matches
-     * @param allowNonBlockingParser If true, permits NonBlockingJsonParser (default false)
+     * @param allowNonBlockingParser If true, permits NonBlockingJsonParser
      * @throws IllegalArgumentException if NonBlockingJsonParser is used without explicit permission
      */
     public FilteringParserDelegate(JsonParser p, TokenFilter f,

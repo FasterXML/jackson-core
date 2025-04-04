@@ -132,8 +132,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
     }
 
     /**
-     * Creates a filtering parser delegate.
-     *
      * @param p Parser to delegate calls to
      * @param f Filter to use
      * @param inclusion Definition of inclusion criteria

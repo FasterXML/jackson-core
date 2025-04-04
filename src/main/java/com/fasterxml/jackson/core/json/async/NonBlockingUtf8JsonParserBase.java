@@ -943,7 +943,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 } else if (ch == INT_CR) {
                     ++_currInputRowAlt;
                     _currInputRowStart = _inputPtr;
-                } else if (ch != INT_TAB) {
+                } else if (ch != INT_TAB && !_isAllowedCtrlCharRS(ch)) {
                     _throwInvalidSpace(ch);
                 }
             }

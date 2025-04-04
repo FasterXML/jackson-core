@@ -194,6 +194,12 @@ public abstract class JsonParser
         ALLOW_UNQUOTED_CONTROL_CHARS(false),
 
         /**
+         * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_RS_CONTROL_CHAR} instead
+         */
+        @Deprecated // but due to technical reasons we need this entry too
+        ALLOW_RS_CONTROL_CHAR(false),
+
+        /**
          * Feature that can be enabled to accept quoting of all character
          * using backslash quoting mechanism: if not enabled, only characters
          * that are explicitly listed by JSON specification can be thus

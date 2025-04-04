@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.read;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,6 +56,20 @@ class ParserFeaturesTest
     {
         _testTabsEnabled(false);
         _testTabsEnabled(true);
+    }
+
+    @Test
+    void recordSeparatorDefault() throws Exception
+    {
+        _testRecordSeparatorDefault(false);
+        _testRecordSeparatorDefault(true);
+    }
+
+    @Test
+    void recordSeparatorEnabled() throws Exception
+    {
+        _testRecordSeparatorEnabled(false);
+        _testRecordSeparatorEnabled(true);
     }
 
     /*
@@ -132,6 +147,45 @@ class ParserFeaturesTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE, p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
+    }
+
+    private void _testRecordSeparatorDefault(boolean useStream) throws Exception {
+        JsonFactory f = new JsonFactory();
+        String JSON = "[\"val:\"]\u001E";
+
+        try (JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                p.nextToken(); // val
+                p.nextToken(); // ]
+                p.nextToken(); // RS token
+                fail("Expected exception");
+            } catch (StreamReadException e) {
+                verifyException(e, "Illegal character ((CTRL-CHAR");
+                verifyException(e, "consider enabling `JsonReadFeature.ALLOW_RS_CONTROL_CHAR`");
+            }
+        }
+    }
+
+    private void _testRecordSeparatorEnabled(boolean useStream) throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .configure(JsonReadFeature.ALLOW_RS_CONTROL_CHAR, true)
+                .build();
+
+        String FIELD = "key";
+        String VALUE = "value";
+        String JSON = "{ "+q(FIELD)+" : "+q(VALUE)+"}\u001E";
+        JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(FIELD, p.getText());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(VALUE, p.getText());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.nextToken(); // RS token
         p.close();
     }
 }

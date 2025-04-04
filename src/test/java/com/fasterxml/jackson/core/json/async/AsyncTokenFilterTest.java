@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#462], [core#463]
@@ -35,6 +37,25 @@ class AsyncTokenFilterTest extends AsyncTestBase
         JsonToken.END_OBJECT
     };
 
+    @Test
+    void filteredNonBlockingParserNotExplicitlyAllowed() throws IOException {
+        NonBlockingJsonParser nonBlockingParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
+        assertThrows(IllegalArgumentException.class, () ->
+                new FilteringParserDelegate(nonBlockingParser, TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true)
+        );
+    }
+
+    @Test
+    void filteringNonBlockingParser() throws Exception
+    {
+        JsonParser nonBlockingParser = JSON_F.createNonBlockingByteArrayParser();
+        JsonParser filteringParser = new FilteringParserDelegate(nonBlockingParser,
+                new JsonPointerBasedFilter("/second"),
+                TokenFilter.Inclusion.ONLY_INCLUDE_ALL, false, true);
+
+        assertThrows(JsonParseException.class, filteringParser::nextToken);
+    }
+
     // Passes if (but only if) all content is actually available
     @Test
     void filteredNonBlockingParserAllContent() throws IOException
@@ -43,7 +64,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
         assertNotNull(nonBlockingParser.getNonBlockingInputFeeder());
 
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nonBlockingParser,
-                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true, true);
         nonBlockingParser.feedInput(INPUT_BYTES, 0, INPUT_BYTES.length);
         int expectedIdx = 0;
         while (expectedIdx < EXPECTED_TOKENS.length) {
@@ -89,7 +110,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
         NonBlockingJsonParser nbParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         @SuppressWarnings("resource")
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
-                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true, true);
         nbParser.feedInput(INPUT_BYTES, 0, 5);
 
         assertToken(JsonToken.START_OBJECT, nbParser.nextToken());

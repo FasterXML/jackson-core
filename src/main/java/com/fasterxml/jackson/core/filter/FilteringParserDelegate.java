@@ -7,6 +7,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -113,13 +114,57 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * @param f Filter to use
      * @param inclusion Definition of inclusion criteria
      * @param allowMultipleMatches Whether to allow multiple matches
+     * @throws IllegalArgumentException if NonBlockingJsonParser is used without explicit permission
      */
     public FilteringParserDelegate(JsonParser p, TokenFilter f,
             TokenFilter.Inclusion inclusion, boolean allowMultipleMatches)
     {
         super(p);
+
+        if (p instanceof NonBlockingJsonParser) {
+            throw new IllegalArgumentException(
+                    "NonBlockingJsonParser requires explicit permission. " +
+                            "Use constructor with allowNonBlockingParser parameter instead."
+            );
+        }
+
+        initializeFilters(f, inclusion, allowMultipleMatches);
+    }
+
+    /**
+     * Creates a filtering parser delegate.
+     *
+     * @param p Parser to delegate calls to (NonBlockingJsonParser only allowed when explicitly permitted)
+     * @param f Filter to use
+     * @param inclusion Definition of inclusion criteria
+     * @param allowMultipleMatches Whether to allow multiple matches
+     * @param allowNonBlockingParser If true, permits NonBlockingJsonParser (default false)
+     * @throws IllegalArgumentException if NonBlockingJsonParser is used without explicit permission
+     */
+    public FilteringParserDelegate(JsonParser p, TokenFilter f,
+                                   TokenFilter.Inclusion inclusion, boolean allowMultipleMatches,
+                                   boolean allowNonBlockingParser) {
+        super(p);
+
+        if (p instanceof NonBlockingJsonParser && !allowNonBlockingParser) {
+            throw new IllegalArgumentException(
+                    "NonBlockingJsonParser requires explicit permission. " +
+                            "Set allowNonBlockingParser=true if this is intended."
+            );
+        }
+
+        initializeFilters(f, inclusion, allowMultipleMatches);
+    }
+
+    /**
+     * Initializes filter-related fields
+     *
+     * @param f Filter to use
+     * @param inclusion Definition of inclusion criteria
+     * @param allowMultipleMatches Whether to allow multiple matches
+     */
+    private void initializeFilters(TokenFilter f, TokenFilter.Inclusion inclusion, boolean allowMultipleMatches) {
         rootFilter = f;
-        // and this is the currently active filter for root values
         _itemFilter = f;
         _headContext = TokenFilterContext.createRootContext(f);
         _inclusion = inclusion;
@@ -335,7 +380,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
         TokenFilter f;
 
         switch (t.id()) {
-        case ID_START_ARRAY:
+            case JsonTokenId.ID_NOT_AVAILABLE:
+                throw _constructError("Token unavailable - Ensure all JSON data is fed to the parser all at once");
+            case ID_START_ARRAY:
             f = _itemFilter;
             if (f == TokenFilter.INCLUDE_ALL) {
                 _headContext = _headContext.createChildArrayContext(f, true);

@@ -46,7 +46,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
     }
 
     @Test
-    void filteringNonBlockingParser() throws Exception
+    void filteringNonBlockingParserWithoutInputFed() throws Exception
     {
         JsonParser nonBlockingParser = JSON_F.createNonBlockingByteArrayParser();
         JsonParser filteringParser = new FilteringParserDelegate(nonBlockingParser,

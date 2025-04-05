@@ -46,7 +46,7 @@ No changes since 3.0.0-rc1
 #1090: Remove `BufferRecyclers.SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS`
 #1125: Remove `TokenStreamFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING`
 #1200: Change `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` default to `true` for 3.0
-#1231: Enable Fast Floating-Point reading/writing by default in 3.0
+#1231: Enable Fast Floating-Point reading by default in 3.0
 #1233: Lower default `maxNestingDepth` of `StreamReadConstraints` /
   `StreamWriteConstraints` to 500 in 3.0
 #1269: Change `JsonFactory.builder()` configuration of `RecyclerPool` to avoid

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -40,9 +41,11 @@ class AsyncTokenFilterTest extends AsyncTestBase
     @Test
     void filteredNonBlockingParserNotExplicitlyAllowed() throws IOException {
         NonBlockingJsonParser nonBlockingParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
-        assertThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 new FilteringParserDelegate(nonBlockingParser, TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true)
         );
+
+        assertEquals("NonBlockingJsonParser requires explicit permission. Use constructor with allowNonBlockingParser parameter instead.", exception.getMessage());
     }
 
     @Test

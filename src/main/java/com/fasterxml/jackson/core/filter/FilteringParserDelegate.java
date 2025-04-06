@@ -121,7 +121,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     {
         super(p);
 
-        if (p instanceof NonBlockingJsonParser) {
+        if (p.canParseAsync()) {
             throw new IllegalArgumentException(
                     "NonBlockingJsonParser requires explicit permission. " +
                             "Use constructor with allowNonBlockingParser parameter instead."
@@ -138,13 +138,14 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * @param allowMultipleMatches Whether to allow multiple matches
      * @param allowNonBlockingParser If true, permits NonBlockingJsonParser
      * @throws IllegalArgumentException if NonBlockingJsonParser is used without explicit permission
+     * @since 2.19
      */
     public FilteringParserDelegate(JsonParser p, TokenFilter f,
                                    TokenFilter.Inclusion inclusion, boolean allowMultipleMatches,
                                    boolean allowNonBlockingParser) {
         super(p);
 
-        if (p instanceof NonBlockingJsonParser && !allowNonBlockingParser) {
+        if (p.canParseAsync() && !allowNonBlockingParser) {
             throw new IllegalArgumentException(
                     "NonBlockingJsonParser requires explicit permission. " +
                             "Set allowNonBlockingParser=true if this is intended."

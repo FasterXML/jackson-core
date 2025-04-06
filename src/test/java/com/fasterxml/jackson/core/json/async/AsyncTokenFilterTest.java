@@ -46,7 +46,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
         );
 
         assertEquals("NonBlockingJsonParser is an asynchronous parser (canParseAsync() == true), " +
-                "which require explicit permission to be used. To allow it, use constructor with allowNonBlockingParser parameter instead.", exception.getMessage());
+                "which require explicit permission to be used, as all input need to be fed at once. To allow it, use constructor with allowNonBlockingParser parameter instead.", exception.getMessage());
     }
 
     @Test

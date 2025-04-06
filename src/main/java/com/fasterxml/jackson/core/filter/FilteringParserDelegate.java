@@ -124,7 +124,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             throw new IllegalArgumentException(
                     String.format(
                             "%s is an asynchronous parser (canParseAsync() == true), " +
-                                    "which require explicit permission to be used. " +
+                                    "which require explicit permission to be used, as all input need to be fed at once. " +
                                     "To allow it, use constructor with allowNonBlockingParser parameter instead.",
                             p.getClass().getSimpleName()
                     )
@@ -152,7 +152,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             throw new IllegalArgumentException(
                     String.format(
                             "%s is an asynchronous parser (canParseAsync() == true), " +
-                                    "which require explicit permission to be used. " +
+                                    "which require explicit permission to be used, as all input need to be fed at once. " +
                                     "To allow it, set allowNonBlockingParser=true.",
                             p.getClass().getSimpleName()
                     )

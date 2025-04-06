@@ -7,7 +7,6 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
-import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -123,8 +122,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
         if (p.canParseAsync()) {
             throw new IllegalArgumentException(
-                    "NonBlockingJsonParser requires explicit permission. " +
-                            "Use constructor with allowNonBlockingParser parameter instead."
+                    String.format(
+                            "%s is an asynchronous parser (canParseAsync() == true), " +
+                                    "which require explicit permission to be used. " +
+                                    "To allow it, use constructor with allowNonBlockingParser parameter instead.",
+                            p.getClass().getSimpleName()
+                    )
             );
         }
 
@@ -147,8 +150,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
         if (p.canParseAsync() && !allowNonBlockingParser) {
             throw new IllegalArgumentException(
-                    "NonBlockingJsonParser requires explicit permission. " +
-                            "Set allowNonBlockingParser=true if this is intended."
+                    String.format(
+                            "%s is an asynchronous parser (canParseAsync() == true), " +
+                                    "which require explicit permission to be used. " +
+                                    "To allow it, set allowNonBlockingParser=true.",
+                            p.getClass().getSimpleName()
+                    )
             );
         }
 

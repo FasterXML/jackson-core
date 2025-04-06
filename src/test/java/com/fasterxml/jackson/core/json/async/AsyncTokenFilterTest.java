@@ -45,7 +45,8 @@ class AsyncTokenFilterTest extends AsyncTestBase
                 new FilteringParserDelegate(nonBlockingParser, TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true)
         );
 
-        assertEquals("NonBlockingJsonParser requires explicit permission. Use constructor with allowNonBlockingParser parameter instead.", exception.getMessage());
+        assertEquals("NonBlockingJsonParser is an asynchronous parser (canParseAsync() == true), " +
+                "which require explicit permission to be used. To allow it, use constructor with allowNonBlockingParser parameter instead.", exception.getMessage());
     }
 
     @Test
@@ -90,7 +91,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
         assertNotNull(nonBlockingParser.getNonBlockingInputFeeder());
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nonBlockingParser,
-                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true, true);
         ByteBuffer byteBuffer = ByteBuffer.wrap(INPUT_BYTES);
         nonBlockingParser.feedInput(byteBuffer);
         int expectedIdx = 0;
@@ -135,7 +136,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
         @SuppressWarnings("resource")
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
-                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true, true);
         ByteBuffer byteBuffer = ByteBuffer.wrap(INPUT_BYTES, 0, 5);
         nbParser.feedInput(byteBuffer);
 

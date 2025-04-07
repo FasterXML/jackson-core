@@ -1,18 +1,17 @@
 package com.fasterxml.jackson.core.json.async;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
+import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -39,30 +38,31 @@ class AsyncTokenFilterTest extends AsyncTestBase
     };
 
     @Test
-    void filteredNonBlockingParserNotExplicitlyAllowed() throws IOException {
+    void filteredNonBlockingParserNotExplicitlyAllowed() throws Exception {
         NonBlockingJsonParser nonBlockingParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 new FilteringParserDelegate(nonBlockingParser, TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true)
         );
 
-        assertEquals("NonBlockingJsonParser is an asynchronous parser (canParseAsync() == true), " +
-                "which require explicit permission to be used, as all input need to be fed at once. To allow it, use constructor with allowNonBlockingParser parameter instead.", exception.getMessage());
+        verifyException(exception, "NonBlockingJsonParser");
+        verifyException(exception, "(canParseAsync() == true)");
     }
 
     @Test
     void filteringNonBlockingParserWithoutInputFed() throws Exception
     {
         JsonParser nonBlockingParser = JSON_F.createNonBlockingByteArrayParser();
-        JsonParser filteringParser = new FilteringParserDelegate(nonBlockingParser,
+        try (JsonParser filteringParser = new FilteringParserDelegate(nonBlockingParser,
                 new JsonPointerBasedFilter("/second"),
-                TokenFilter.Inclusion.ONLY_INCLUDE_ALL, false, true);
-
-        assertThrows(JsonParseException.class, filteringParser::nextToken);
+                TokenFilter.Inclusion.ONLY_INCLUDE_ALL, false, true)) {
+            StreamReadException e = assertThrows(StreamReadException.class, filteringParser::nextToken);
+            verifyException(e, "JsonToken.NOT_AVAILABLE");
+        }
     }
 
     // Passes if (but only if) all content is actually available
     @Test
-    void filteredNonBlockingParserAllContent() throws IOException
+    void filteredNonBlockingParserAllContent() throws Exception
     {
         NonBlockingJsonParser nonBlockingParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         assertNotNull(nonBlockingParser.getNonBlockingInputFeeder());
@@ -85,7 +85,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
     }
 
     @Test
-    void filteredNonBlockingByteBufferParserAllContent() throws IOException
+    void filteredNonBlockingByteBufferParserAllContent() throws Exception
     {
         NonBlockingByteBufferJsonParser nonBlockingParser =
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
@@ -109,7 +109,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
     }
 
     @Test
-    void skipChildrenFailOnSplit() throws IOException
+    void skipChildrenFailOnSplit() throws Exception
     {
         NonBlockingJsonParser nbParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         @SuppressWarnings("resource")
@@ -121,7 +121,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
         try {
             nbParser.skipChildren();
             fail("Should not pass!");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "not enough content available");
             verifyException(e, "skipChildren()");
         }
@@ -130,7 +130,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
     }
 
     @Test
-    void skipChildrenFailOnSplitByteBuffer() throws IOException
+    void skipChildrenFailOnSplitByteBuffer() throws Exception
     {
         NonBlockingByteBufferJsonParser nbParser =
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
@@ -144,7 +144,7 @@ class AsyncTokenFilterTest extends AsyncTestBase
         try {
             nbParser.skipChildren();
             fail("Should not pass!");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "not enough content available");
             verifyException(e, "skipChildren()");
         }

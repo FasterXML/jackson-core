@@ -105,7 +105,8 @@ public class FilteringParserDelegate extends JsonParserDelegate
     public FilteringParserDelegate(JsonParser p, TokenFilter f,
             boolean includePath, boolean allowMultipleMatches)
     {
-        this(p, f, includePath ? Inclusion.INCLUDE_ALL_AND_PATH : Inclusion.ONLY_INCLUDE_ALL, allowMultipleMatches);
+        this(p, f, includePath ? Inclusion.INCLUDE_ALL_AND_PATH : Inclusion.ONLY_INCLUDE_ALL,
+                allowMultipleMatches);
     }
 
     /**
@@ -113,50 +114,54 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * @param f Filter to use
      * @param inclusion Definition of inclusion criteria
      * @param allowMultipleMatches Whether to allow multiple matches
-     * @throws IllegalArgumentException if NonBlockingJsonParser is used without explicit permission
+     *
+     * @throws IllegalArgumentException if non-blocking (async) parser
+     *    (for which {@code parser.canParseAsync()} returns `true`) is
+     *    used -- doing so requires use of different constructor:
+     *    {@link #FilteringParserDelegate(JsonParser, TokenFilter, TokenFilter.Inclusion, boolean, boolean)}
      */
     public FilteringParserDelegate(JsonParser p, TokenFilter f,
             TokenFilter.Inclusion inclusion, boolean allowMultipleMatches)
     {
         super(p);
 
-        if (p.canParseAsync()) {
-            throw new IllegalArgumentException(
-                    String.format(
-                            "%s is an asynchronous parser (canParseAsync() == true), " +
-                                    "which require explicit permission to be used, as all input need to be fed at once. " +
-                                    "To allow it, use constructor with allowNonBlockingParser parameter instead.",
-                            p.getClass().getSimpleName()
-                    )
-            );
-        }
+        _checkAsyncParser(p);
 
         initializeFilters(f, inclusion, allowMultipleMatches);
     }
 
+    private static void _checkAsyncParser(JsonParser p) throws IllegalArgumentException {
+        if (p.canParseAsync()) {
+            throw new IllegalArgumentException(
+                    String.format(
+"%s is an asynchronous parser (canParseAsync() == true), " +
+"which requires explicit permission to be used: " +
+"to allow use, call constructor with `allowNonBlockingParser` passed as `true`",
+                            p.getClass().getSimpleName()
+                    )
+            );
+        }
+    }
+    
     /**
      * @param p Parser to delegate calls to
      * @param f Filter to use
      * @param inclusion Definition of inclusion criteria
      * @param allowMultipleMatches Whether to allow multiple matches
-     * @param allowNonBlockingParser If true, permits NonBlockingJsonParser
+     * @param allowNonBlockingParser If true, allows use of NonBlockingJsonParser: must
+     *   also feed all input to parser before calling nextToken on this delegate
+     *
      * @throws IllegalArgumentException if NonBlockingJsonParser is used without explicit permission
+     *
      * @since 2.19
      */
     public FilteringParserDelegate(JsonParser p, TokenFilter f,
-                                   TokenFilter.Inclusion inclusion, boolean allowMultipleMatches,
-                                   boolean allowNonBlockingParser) {
+            TokenFilter.Inclusion inclusion, boolean allowMultipleMatches,
+            boolean allowNonBlockingParser) {
         super(p);
 
-        if (p.canParseAsync() && !allowNonBlockingParser) {
-            throw new IllegalArgumentException(
-                    String.format(
-                            "%s is an asynchronous parser (canParseAsync() == true), " +
-                                    "which require explicit permission to be used, as all input need to be fed at once. " +
-                                    "To allow it, set allowNonBlockingParser=true.",
-                            p.getClass().getSimpleName()
-                    )
-            );
+        if (!allowNonBlockingParser) {
+            _checkAsyncParser(p);
         }
 
         initializeFilters(f, inclusion, allowMultipleMatches);
@@ -387,7 +392,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
         switch (t.id()) {
             case JsonTokenId.ID_NOT_AVAILABLE:
-                throw _constructError("Token unavailable - Ensure all JSON data is fed to the parser all at once");
+                throw _constructError("`JsonToken.NOT_AVAILABLE` received: ensure all input is fed to the Parser before use");
             case ID_START_ARRAY:
             f = _itemFilter;
             if (f == TokenFilter.INCLUDE_ALL) {

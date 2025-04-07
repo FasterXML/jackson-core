@@ -2,10 +2,10 @@ package tools.jackson.core.unittest.json.async;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.filter.FilteringParserDelegate;
+import tools.jackson.core.filter.JsonPointerBasedFilter;
 import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.json.JsonFactory;
@@ -28,13 +28,36 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         }
     };
 
+    @Test
+    void filteredNonBlockingParserNotExplicitlyAllowed() throws Exception {
+        NonBlockingByteArrayJsonParser nbParser = _nonBlockingParser();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                new FilteringParserDelegate(nbParser, TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true)
+        );
+
+        verifyException(exception, "NonBlockingByteArrayJsonParser");
+        verifyException(exception, "(canParseAsync() == true)");
+    }
+
+    @Test
+    void filteringNonBlockingParserWithoutInputFed() throws Exception
+    {
+        NonBlockingByteArrayJsonParser nbParser = _nonBlockingParser();
+        try (JsonParser filteringParser = new FilteringParserDelegate(nbParser,
+                new JsonPointerBasedFilter("/second"),
+                TokenFilter.Inclusion.ONLY_INCLUDE_ALL, false, true)) {
+            StreamReadException e = assertThrows(StreamReadException.class, filteringParser::nextToken);
+            verifyException(e, "JsonToken.NOT_AVAILABLE");
+        }
+    }
+
     // Passes if (but only if) all content is actually available
     @Test
     public void testFilteredNonBlockingParserAllContent()
     {
         NonBlockingByteArrayJsonParser nbParser = _nonBlockingParser();
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
-                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true, true);
         nbParser.feedInput(INPUT_BYTES, 0, INPUT_BYTES.length);
 
         assertToken(JsonToken.START_OBJECT, filteredParser.nextToken());
@@ -53,7 +76,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     {
         NonBlockingByteArrayJsonParser nbParser = _nonBlockingParser();
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
-                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true, true);
         nbParser.feedInput(INPUT_BYTES, 0, 5);
 
         assertToken(JsonToken.START_OBJECT, nbParser.nextToken());

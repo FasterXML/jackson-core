@@ -477,6 +477,9 @@ Yanming Zhou (@quaff)
 Fawzi Essam (@iifawzi)
  * Contributed #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
   (2.19.0)
+ * Contributed #1144: `FilteringParserDelegate` can go into an infinite loop if underlying
+  parser is non-blocking
+  (2.19.0)
 
 Eduard Gomoliako (@Gems)
  * Contributed #1356: Make `JsonGenerator::writeTypePrefix` method to not write a

@@ -19,6 +19,10 @@ a pure JSON library.
 #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
  (requested by Yanming Z)
  (contributed by Fawzi E)
+#1144: `FilteringParserDelegate` can go into an infinite loop if underlying
+  parser is non-blocking
+ (reported by @simonbasle)
+ (contributed by Fawzi E)
 #1328: Optimize handling of `JsonPointer.head()`
 #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
   `WRAPPER_ARRAY` when `typeIdDef.id == null`

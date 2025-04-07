@@ -854,7 +854,7 @@ public class UTF8JsonGenerator
      * Helper method that is called for segmented write of raw content
      * when explicitly outputting a segment of longer thing.
      * Caller has to take care of ensuring there's no split surrogate
-     * pair at the end (that is, last char can not be first part of a
+     * pair at the end (that is, last char cannot be first part of a
      * surrogate char pair).
      *
      * @since 2.8.2
@@ -1406,7 +1406,7 @@ public class UTF8JsonGenerator
     /**
      * This method called when the string content is already in
      * a char buffer, and its maximum total encoded and escaped length
-     * can not exceed size of the output buffer.
+     * cannot exceed size of the output buffer.
      * Caller must ensure that there is enough space in output buffer,
      * assuming case of all non-escaped ASCII characters, as well as
      * potentially enough space for other cases (but not necessarily flushed)
@@ -1737,6 +1737,16 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
+                // 3- or 4-byte character
+                if (_isStartOfSurrogatePair(ch)) {
+                    final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
+                    if (combineSurrogates && offset < end) {
+                        char highSurrogate = (char) ch;
+                        char lowSurrogate = cbuf[offset++];
+                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                        continue;
+                    }
+                }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
             }
         }
@@ -1794,6 +1804,16 @@ public class UTF8JsonGenerator
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
             } else {
+                // 3- or 4-byte character
+                if (_isStartOfSurrogatePair(ch)) {
+                    final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
+                    if (combineSurrogates && offset < end) {
+                        char highSurrogate = (char) ch;
+                        char lowSurrogate = text.charAt(offset++);
+                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                        continue;
+                    }
+                }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
             }
         }

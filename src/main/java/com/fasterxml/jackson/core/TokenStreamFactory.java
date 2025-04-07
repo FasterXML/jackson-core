@@ -282,7 +282,7 @@ public abstract class TokenStreamFactory
      */
     protected InputStream _optimizedStreamFromURL(URL url) throws IOException {
         if ("file".equals(url.getProtocol())) {
-            /* Can not do this if the path refers
+            /* Cannot do this if the path refers
              * to a network drive on windows. This fixes the problem;
              * might not be needed on all platforms (NFS?), but should not
              * matter a lot: performance penalty of extra wrapping is more

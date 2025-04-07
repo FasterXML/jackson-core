@@ -16,20 +16,47 @@ a pure JSON library.
 
 2.19.0 (not yet released)
 
+#633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
+ (requested by Yanming Z)
+ (contributed by Fawzi E)
 #1328: Optimize handling of `JsonPointer.head()`
 #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
   `WRAPPER_ARRAY` when `typeIdDef.id == null`
  (contributed by Eduard G)
 #1361: `JsonPointer` parsing of '~' not followed by "0" or "1" unexpected
  (reported by @slz30)
+#1394: Wrong/misleading error for "extra" close token (`]` or `}`) when
+  at root level
+#1407: [gradle-module-metadata-maven-plugin] update to version 1.0
+ (contributed by @jjohannes)
+#1412: More cases of Non-blocking parser reporting incorrect locations
+  when fed with non-zero offset
+ (reported by David N)
+ (fixed by Fawzi E)
+
+2.18.3 (28-Feb-2025)
+
+#1391: Fix issue where the parser can read back old number state when
+  parsing later numbers
+ (fix contributed by @pjfanning)
+#1397: Jackson changes additional values to infinite in case of special
+  JSON structures and existing infinite values
+ (reported by @Rodenstock)
+ (fix contributed by @pjfanning)
+#1398: Fix issue that feature COMBINE_UNICODE_SURROGATES_IN_UTF8 doesn't work
+  when custom characterEscape is used
+ (reported and fixed by @stackunderflow111)
+
+2.18.2 (27-Nov-2024)
+
+#1359: Non-surrogate characters being incorrectly combined when
+  `JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8` is enabled
+ (reported by Justin G)
+ (fixed by @pjfanning)
 
 2.18.1 (28-Oct-2024)
 
 #1353: Use fastdoubleparser 1.0.90
- (fixed by @pjfanning)
-#1359: Non-surrogate characters being incorrectly combined when
-  `JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8` is enabled
- (reported by Justin G)
  (fixed by @pjfanning)
 
 2.18.0 (26-Sep-2024)

@@ -21,11 +21,11 @@ public enum JsonToken
 
     /**
      * NOT_AVAILABLE can be returned if {@link JsonParser}
-     * implementation can not currently return the requested
+     * implementation cannot currently return the requested
      * token (usually next one), or even if any will be
      * available, but that may be able to determine this in
      * future. This is the case with non-blocking parsers --
-     * they can not block to wait for more data to parse and
+     * they cannot block to wait for more data to parse and
      * must return something.
      */
     NOT_AVAILABLE(null, JsonTokenId.ID_NOT_AVAILABLE),
@@ -56,7 +56,9 @@ public enum JsonToken
 
     /**
      * FIELD_NAME is returned when a String token is encountered
-     * as a field name (same lexical value, different function)
+     * as a field name (same lexical value, different function).
+     *<p>
+     * NOTE: in Jackson 3.x this enum is renamed as {@code PROPERTY_NAME}
      */
     FIELD_NAME(null, JsonTokenId.ID_FIELD_NAME),
 

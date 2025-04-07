@@ -214,6 +214,9 @@ David Nault (dnault@github)
   * Reported #531: Non-blocking parser reports incorrect locations when fed with
    non-zero offset
   (2.10.0)
+  * Reported 1412: More cases of Non-blocking parser reporting incorrect locations
+   when fed with non-zero offset
+  (2.19.0)
 
 Fabien Renaud (fabienrenaud@github)
   * Reported, contributed fix for #533: UTF-8 BOM not accounted for in
@@ -462,7 +465,25 @@ Justin Gosselin (@jgosselin-accesso)
   `JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8` is enabled
   (2.18.2)
 
+Haruki (@stackunderflow111)
+ * Reported #1398: feature COMBINE_UNICODE_SURROGATES_IN_UTF8 doesn't work
+  when custom characterEscape is used
+  (2.18.3)
+
+Yanming Zhou (@quaff)
+ * Requested #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
+  (2.19.0)
+
+Fawzi Essam (@iifawzi)
+ * Contributed #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
+  (2.19.0)
+
 Eduard Gomoliako (@Gems)
  * Contributed #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
   `WRAPPER_ARRAY` when `typeIdDef.id == null`
+  (2.19.0)
+
+Fawzi Essam (@iifawzi)
+ * Contributed fix for #1412: More cases of Non-blocking parser reporting incorrect locations
+   when fed with non-zero offset
   (2.19.0)

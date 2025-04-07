@@ -26,6 +26,9 @@ public abstract class JsonParserBase
     protected final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
     @SuppressWarnings("deprecation")
     protected final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
+    @SuppressWarnings("deprecation")
+    protected final static int FEAT_MASK_ALLOW_CTRL_RS = Feature.ALLOW_RS_CONTROL_CHAR.getMask();
+    
     protected final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
     protected final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
     protected final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
@@ -129,5 +132,16 @@ public abstract class JsonParserBase
     @Override
     public final JsonLocation getTokenLocation() {
         return currentTokenLocation();
+    }
+
+    /*
+    /**********************************************************************
+    /* Other helper methods
+    /**********************************************************************
+     */
+
+    // @since 2.19
+    protected boolean _isAllowedCtrlCharRS(int i) {
+        return (i == INT_RS)  && (_features & FEAT_MASK_ALLOW_CTRL_RS) != 0;
     }
 }

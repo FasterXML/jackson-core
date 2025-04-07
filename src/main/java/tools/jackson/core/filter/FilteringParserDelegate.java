@@ -956,7 +956,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
     /*
     /**********************************************************************
-    /* Public API, traversal methods that CAN NOT just delegate
+    /* Public API, traversal methods that CANNOT just delegate
     /* and where we need to override default delegation
     /**********************************************************************
      */
@@ -975,7 +975,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException {
         String str = nextName();
         if (str != null) {
-            // 15-Nov-2017, tatu: We can not rely on name being interned here
+            // 15-Nov-2017, tatu: We cannot rely on name being interned here
             return matcher.matchName(str);
         }
         if (hasToken(JsonToken.END_OBJECT)) {

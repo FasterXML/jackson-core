@@ -21,7 +21,7 @@ public final class BigIntegerParser
             final String reportNum = valueStr.length() <= MAX_CHARS_TO_REPORT ?
                     valueStr : valueStr.substring(0, MAX_CHARS_TO_REPORT) + " [truncated]";
             throw new NumberFormatException("Value \"" + reportNum
-                    + "\" can not be represented as `java.math.BigInteger`, reason: " + nfe.getMessage());
+                    + "\" cannot be represented as `java.math.BigInteger`, reason: " + nfe.getMessage());
         }
     }
 
@@ -32,7 +32,7 @@ public final class BigIntegerParser
             final String reportNum = valueStr.length() <= MAX_CHARS_TO_REPORT ?
                     valueStr : valueStr.substring(0, MAX_CHARS_TO_REPORT) + " [truncated]";
             throw new NumberFormatException("Value \"" + reportNum
-                    + "\" can not be represented as `java.math.BigInteger` with radix " + radix +
+                    + "\" cannot be represented as `java.math.BigInteger` with radix " + radix +
                     ", reason: " + nfe.getMessage());
         }
     }

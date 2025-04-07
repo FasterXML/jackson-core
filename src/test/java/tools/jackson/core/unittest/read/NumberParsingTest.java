@@ -951,7 +951,7 @@ class NumberParsingTest
             p.getIntValue();
             fail("Expected error trying to call getIntValue on non-numeric value");
         } catch (InputCoercionException e) {
-            verifyException(e, "can not use numeric value accessors");
+            verifyException(e, "cannot use numeric value accessors");
         }
         p.close();
     }
@@ -973,7 +973,7 @@ class NumberParsingTest
             p.getLongValue();
             fail("Expected error trying to call getLongValue on non-numeric value");
         } catch (InputCoercionException e) {
-            verifyException(e, "can not use numeric value accessors");
+            verifyException(e, "cannot use numeric value accessors");
         }
         p.close();
     }

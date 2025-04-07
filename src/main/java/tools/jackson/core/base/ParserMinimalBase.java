@@ -1092,7 +1092,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected InputCoercionException _constructNotNumericType(JsonToken actualToken, int expNumericType)
     {
         final String msg = String.format(
-"Current token (%s) not numeric, can not use numeric value accessors", actualToken);
+"Current token (%s) not numeric, cannot use numeric value accessors", actualToken);
 
         Class<?> targetType;
 

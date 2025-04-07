@@ -41,18 +41,18 @@ class ParserClosingTest
         assertFalse(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
         @SuppressWarnings("resource")
         MyReader input = new MyReader(DOC);
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), input);
+        JsonParser p = f.createParser(ObjectReadContext.empty(), input);
 
         // shouldn't be closed to begin with...
         assertFalse(input.isClosed());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
         // normally would be closed now
         assertFalse(input.isClosed());
         // regular close won't close it either:
-        jp.close();
+        p.close();
         assertFalse(input.isClosed());
     }
 
@@ -65,21 +65,21 @@ class ParserClosingTest
                 .enable(StreamReadFeature.AUTO_CLOSE_SOURCE).build();
         assertTrue(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
         MyReader input = new MyReader(DOC);
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), input);
+        JsonParser p = f.createParser(ObjectReadContext.empty(), input);
         assertFalse(input.isClosed());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         // but can close half-way through
-        jp.close();
+        p.close();
         assertTrue(input.isClosed());
 
         // And then let's test implicit close at the end too:
         input = new MyReader(DOC);
-        jp = f.createParser(ObjectReadContext.empty(), input);
+        p = f.createParser(ObjectReadContext.empty(), input);
         assertFalse(input.isClosed());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
         assertTrue(input.isClosed());
     }
 
@@ -91,18 +91,18 @@ class ParserClosingTest
         JsonFactory f = JsonFactory.builder()
                 .disable(StreamReadFeature.AUTO_CLOSE_SOURCE).build();
         MyStream input = new MyStream(DOC.getBytes("UTF-8"));
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), input);
+        JsonParser p = f.createParser(ObjectReadContext.empty(), input);
 
         // shouldn't be closed to begin with...
         assertFalse(input.isClosed());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
         // normally would be closed now
         assertFalse(input.isClosed());
         // regular close won't close it either:
-        jp.close();
+        p.close();
         assertFalse(input.isClosed());
     }
 
@@ -111,33 +111,33 @@ class ParserClosingTest
     void releaseContentBytes() throws Exception
     {
         byte[] input = "[1]foobar".getBytes("UTF-8");
-        JsonParser jp = sharedStreamFactory().createParser(ObjectReadContext.empty(), input);
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        JsonParser p = sharedStreamFactory().createParser(ObjectReadContext.empty(), input);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         // theoretically could have only read subset; but current impl is more greedy
-        assertEquals(6, jp.releaseBuffered(out));
+        assertEquals(6, p.releaseBuffered(out));
         assertArrayEquals("foobar".getBytes("UTF-8"), out.toByteArray());
-        // also will "drain" so can not release twice
-        assertEquals(0, jp.releaseBuffered(out));
-        jp.close();
+        // also will "drain" so cannot release twice
+        assertEquals(0, p.releaseBuffered(out));
+        p.close();
     }
 
     @Test
     void releaseContentChars() throws Exception
     {
-        JsonParser jp = sharedStreamFactory().createParser(ObjectReadContext.empty(), "[true]xyz");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        JsonParser p = sharedStreamFactory().createParser(ObjectReadContext.empty(), "[true]xyz");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
         StringWriter sw = new StringWriter();
         // theoretically could have only read subset; but current impl is more greedy
-        assertEquals(3, jp.releaseBuffered(sw));
+        assertEquals(3, p.releaseBuffered(sw));
         assertEquals("xyz", sw.toString());
-        // also will "drain" so can not release twice
-        assertEquals(0, jp.releaseBuffered(sw));
-        jp.close();
+        // also will "drain" so cannot release twice
+        assertEquals(0, p.releaseBuffered(sw));
+        p.close();
     }
 
     /*

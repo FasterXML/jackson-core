@@ -63,7 +63,7 @@ public class SimpleNameMatcher
         //    be valid value, indicating first entry
         Arrays.fill(offsets, PropertyNameMatcher.MATCH_UNKNOWN_NAME); // since we are never called if there's no name involved
 
-        // Alas: can not easily extract out without tuples or such since names/offsets need resizing...
+        // Alas: cannot easily extract out without tuples or such since names/offsets need resizing...
         final int mask = hashSize-1;
         int spillPtr = names.length;
 

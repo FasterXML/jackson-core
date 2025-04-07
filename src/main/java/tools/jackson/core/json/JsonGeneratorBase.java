@@ -58,7 +58,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      * escapes are used.
      *<p>
      * NOTE: although typically set during construction (in constructor),
-     * can not be made final in 3.0 due to some edge use cases (JSONP support).
+     * cannot be made final in 3.0 due to some edge use cases (JSONP support).
      */
     protected CharacterEscapes _characterEscapes;
 

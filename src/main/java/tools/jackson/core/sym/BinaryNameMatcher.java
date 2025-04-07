@@ -792,7 +792,7 @@ public final class BinaryNameMatcher
         }
         // count as Most-Significant-Word (16-bits); length LSB
         if (_count == MAX_ENTRIES) {
-            throw new IllegalArgumentException("Maximum entry count ("+MAX_ENTRIES+") reached, can not add more entries");
+            throw new IllegalArgumentException("Maximum entry count ("+MAX_ENTRIES+") reached, cannot add more entries");
         }
         int enc = (_count << 16) | qlen;
         ++_count;

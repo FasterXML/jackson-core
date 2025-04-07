@@ -5,12 +5,12 @@ package tools.jackson.core.util;
  * an instance that does not allow modifying state of `this` instance. Instance returned
  * may be `this` if (and only if) it is immutable through its API (or, for some limited
  * circumstances, if usage is guaranteed not to modify it after this point -- such usage
- * is discouraged however); or, if that can not be guaranteed, a newly created copy
+ * is discouraged however); or, if that cannot be guaranteed, a newly created copy
  * with same configuration and state as `this`.
  *<p>
  * Interface is intended to be used for persisting state for serialization, or to support
  * "re-build" of otherwise immutable objects like factories. Some of the helper objects
- * factories use and rely on have mutable state which can not be shared: instead, to support
+ * factories use and rely on have mutable state which cannot be shared: instead, to support
  * re-building, a state object may be created to contain copies (snapshots).
  * Intent, therefore, is that caller does not need to know about immutability (or lack thereof)
  * of an entity but can simply call {@link #snapshot}.

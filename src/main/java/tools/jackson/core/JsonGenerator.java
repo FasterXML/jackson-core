@@ -270,7 +270,7 @@ public abstract class JsonGenerator
      * Default implementation returns false; overridden by data formats
      * that do support native Object Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
-     * in case it can not use native object ids.
+     * in case it cannot use native object ids.
      *
      * @return {@code True} if this generator is capable of writing "native" Object Ids
      *   (which is typically determined by capabilities of the underlying format),
@@ -288,7 +288,7 @@ public abstract class JsonGenerator
      * Default implementation returns false; overridden by data formats
      * that do support native Type Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
-     * in case it can not use native type ids.
+     * in case it cannot use native type ids.
      *
      * @return {@code True} if this generator is capable of writing "native" Type Ids
      *   (which is typically determined by capabilities of the underlying format),
@@ -670,7 +670,7 @@ public abstract class JsonGenerator
      * Otherwise, write only len characters.
      *<p>
      * Note: actual length of content available may exceed {@code len} but
-     * can not be less than it: if not enough content available, a
+     * cannot be less than it: if not enough content available, a
      * {@link StreamWriteException} will be thrown.
      *
      * @param reader Reader to use for reading Text value to write
@@ -948,7 +948,7 @@ public abstract class JsonGenerator
      * encoded, as a complete String value (surrounded by double quotes).
      * This method defaults
      *<p>
-     * Note: because JSON Strings can not contain unescaped linefeeds,
+     * Note: because JSON Strings cannot contain unescaped linefeeds,
      * if linefeeds are included (as per last argument), they must be
      * escaped. This adds overhead for decoding without improving
      * readability.
@@ -1179,7 +1179,7 @@ public abstract class JsonGenerator
      * Write method that can be used for custom numeric types that can
      * not be (easily?) converted to "standard" Java number types.
      * Because numbers are not surrounded by double quotes, regular
-     * {@link #writeString} method can not be used; nor
+     * {@link #writeString} method cannot be used; nor
      * {@link #writeRaw} because that does not properly handle
      * value separators needed in Array or Object contexts.
      *<p>
@@ -1424,7 +1424,7 @@ public abstract class JsonGenerator
         }
         Inclusion incl = typeIdDef.include;
 
-        // first: can not output "as property" if value not Object; if so, must do "as array"
+        // first: cannot output "as property" if value not Object; if so, must do "as array"
         if ((typeIdDef.valueShape != JsonToken.START_OBJECT) && incl.requiresObjectContext()) {
             typeIdDef.include = incl = WritableTypeId.Inclusion.WRAPPER_ARRAY;
         }

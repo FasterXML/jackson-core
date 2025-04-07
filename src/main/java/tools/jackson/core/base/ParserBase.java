@@ -302,7 +302,7 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         if (_binaryValue == null) {
             if (_currToken != JsonToken.VALUE_STRING) {
-                _reportError("Current token (%s) not VALUE_EMBEDDED_OBJECT or VALUE_STRING, can not access as binary", _currToken);
+                _reportError("Current token (%s) not VALUE_EMBEDDED_OBJECT or VALUE_STRING, cannot access as binary", _currToken);
             }
             ByteArrayBuilder builder = _getByteArrayBuilder();
             _decodeBase64(getString(), builder, variant);

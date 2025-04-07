@@ -4,7 +4,7 @@ import tools.jackson.core.util.JacksonFeature;
 
 /**
  * Marker interface that is to be implemented by data format - specific features.
- * Interface used since Java Enums can not extend classes or other Enums, but
+ * Interface used since Java Enums cannot extend classes or other Enums, but
  * they can implement interfaces; and as such we may be able to use limited
  * amount of generic functionality.
  *<p>

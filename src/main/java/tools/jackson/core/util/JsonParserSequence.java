@@ -196,7 +196,7 @@ public class JsonParserSequence extends JsonParserDelegate
         // NOTE: call `nextToken()` to handle delegation
         String str = nextName();
         if (str != null) {
-            // 15-Nov-2017, tatu: Can not assume intern()ing aspects when delegating...
+            // 15-Nov-2017, tatu: Cannot assume intern()ing aspects when delegating...
             return matcher.matchName(str);
         }
         if (hasToken(JsonToken.END_OBJECT)) {

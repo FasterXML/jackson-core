@@ -50,7 +50,7 @@ public class ReaderBasedJsonParser
      * Flag that indicates whether the input buffer is recycable (and
      * needs to be returned to recycler once we are done) or not.
      *<p>
-     * If it is not, it also means that parser can NOT modify underlying
+     * If it is not, it also means that parser CANNOT modify underlying
      * buffer.
      */
     protected boolean _bufferRecyclable;
@@ -465,7 +465,7 @@ public class ReaderBasedJsonParser
             return _binaryValue;
         }
         if (_currToken != JsonToken.VALUE_STRING) {
-            _reportError("Current token ("+_currToken+") not VALUE_STRING or VALUE_EMBEDDED_OBJECT, can not access as binary");
+            _reportError("Current token ("+_currToken+") not VALUE_STRING or VALUE_EMBEDDED_OBJECT, cannot access as binary");
         }
         // To ensure that we won't see inconsistent data, better clear up state
         if (_tokenIncomplete) {

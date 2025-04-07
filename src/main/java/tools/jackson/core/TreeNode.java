@@ -128,7 +128,7 @@ public interface TreeNode
      * Method that returns true if this node represents an embedded
      * "foreign" (or perhaps native?) object (like POJO), not represented
      * as regular content. Such nodes are used to pass information that
-     * either native format can not express as-is, metadata not included within
+     * either native format cannot express as-is, metadata not included within
      * at all, or something else that requires special handling.
      *
      * @return {@code True} for nodes representing "embedded" (or format-specific, native)

@@ -94,7 +94,7 @@ class Base64BinaryParsingTest
                 fail("Should not pass");
             } catch (StreamReadException e) {
                 verifyException(e, "current token");
-                verifyException(e, "can not access as binary");
+                verifyException(e, "cannot access as binary");
             }
             p.close();
         }

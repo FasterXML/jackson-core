@@ -9,11 +9,11 @@ This package is the base on which [Jackson data-binding](https://github.com/Fast
 It is licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 Alternate data format implementations (like
-[Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/smile),
-[XML](https://github.com/FasterXML/jackson-dataformat-xml),
-[CSV](https://github.com/FasterXML/jackson-dataformats-text/tree/master/csv),
-[Protobuf](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/protobuf),
-and [CBOR](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/cbor))
+[Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformats-binary/tree/3.x/smile),
+[XML](https://github.com/FasterXML/jackson-dataformat-xml/),
+[CSV](https://github.com/FasterXML/jackson-dataformats-text/tree/3.x/csv),
+[Protobuf](https://github.com/FasterXML/jackson-dataformats-binary/tree/3.x/protobuf),
+and [CBOR](https://github.com/FasterXML/jackson-dataformats-binary/tree/3.x/cbor))
 also build on this base package, implementing the core interfaces,
 making it possible to use standard [data-binding package](https://github.com/FasterXML/jackson-databind) regardless of underlying data format.
 
@@ -28,7 +28,7 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 | Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core) |
-| Code coverage (3.0) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=master)](https://codecov.io/github/FasterXML/jackson-core?branch=master) |
+| Code coverage (3.0) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=3.x)](https://codecov.io/github/FasterXML/jackson-core?branch=3.x) |
 | CodeQ (ClusterFuzz) | [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/jackson-core.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:jackson-core) |
 | OpenSSF Score | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-core/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-core) |
 
@@ -37,15 +37,23 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 ## Maven
 
 Functionality of this package is contained in 
-Java package `com.fasterxml.jackson.core`.
+Java package
+
+* `com.fasterxml.jackson.core` (Jackson 2.x)
+* `tools.jackson.core` (Jackson 3.x -- to be released)
 
 To use the package, you need to use following Maven dependency:
 
 ```xml
-<dependency>
+<dependency> <!-- Jackson 2.x -->
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-core</artifactId>
     <version>${jackson.version.core}</version>
+</dependency>
+<dependency> <!-- Jackson 3.x -->
+    <groupId>tools.jackson.core</groupId>
+    <artifactId>jackson-core</artifactId>
+    <version>3.0.0-rc2</version>
 </dependency>
 ```
 

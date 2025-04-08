@@ -15,6 +15,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.0.0-rc3 (not yet released)
+
+- Branch rename "master" -> "3.x" [JSTEP-12]
+
 3.0.0-rc2 (28-Mar-2025)
 
 No changes since 3.0.0-rc1

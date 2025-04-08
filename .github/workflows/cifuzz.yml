@@ -1,8 +1,8 @@
 name: CIFuzz
 on:
   pull_request:
-    branches: # Only works for 2.x, due package renaming in 3.0 (master)
-    - "2.18"
+    branches: # Only works for 2.x, due package renaming in 3.0
+    - "2.19"
 permissions:
   contents: read
 concurrency:

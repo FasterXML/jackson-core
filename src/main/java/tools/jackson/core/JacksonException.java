@@ -322,22 +322,13 @@ public class JacksonException
             if (msg == null || msg.isEmpty()) {
                 msg = "(was "+src.getClass().getName()+")";
             }
-            // 17-Aug-2015, tatu: Let's also pass the processor (parser/generator) along
-            Closeable proc = null;
-            if (src instanceof JacksonException) {
-                Object proc0 = ((JacksonException) src).processor();
-                if (proc0 instanceof Closeable) {
-                    proc = (Closeable) proc0;
-                }
-            }
             jme = ctor.apply(msg, src);
-            jme._processor = proc;
         }
         jme.prependPath(ref);
         return jme;
     }
 
-    private static String _exceptionMessage(Throwable t) {
+    public static String _exceptionMessage(Throwable t) {
         if (t instanceof JacksonException) {
             return ((JacksonException) t).getOriginalMessage();
         }

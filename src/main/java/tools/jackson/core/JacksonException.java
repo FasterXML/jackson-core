@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.BiFunction;
 
 /**
  * Base class for all Jackson-produced checked exceptions.
@@ -273,8 +274,8 @@ public class JacksonException
      */
 
     /**
-     * Method that can be called to either create a new DatabindException
-     * (if underlying exception is not a DatabindException), or augment
+     * Method that can be called to either create a new {@link JacksonException}
+     * (if underlying exception is not a {@link JacksonException}), or augment
      * given exception with given path/reference information.
      *
      * This version of method is called when the reference is through a
@@ -286,8 +287,8 @@ public class JacksonException
     }
 
     /**
-     * Method that can be called to either create a new DatabindException
-     * (if underlying exception is not a DatabindException), or augment
+     * Method that can be called to either create a new {@link JacksonException}
+     * (if underlying exception is not a {@link JacksonException}), or augment
      * given exception with given path/reference information.
      *
      * This version of method is called when the reference is through an
@@ -298,12 +299,18 @@ public class JacksonException
     }
 
     /**
-     * Method that can be called to either create a new DatabindException
-     * (if underlying exception is not a DatabindException), or augment
+     * Method that can be called to either create a new {@link JacksonException}
+     * (if underlying exception is not a {@link JacksonException}), or augment
      * given exception with given path/reference information.
      */
     @SuppressWarnings("resource")
     public static JacksonException wrapWithPath(Throwable src, Reference ref)
+    {
+        return wrapWithPath(src, ref, JacksonException::new);
+    }
+
+    public static JacksonException wrapWithPath(Throwable src, Reference ref,
+            BiFunction<String, Throwable, JacksonException> ctor)
     {
         JacksonException jme;
         if (src instanceof JacksonException) {
@@ -323,7 +330,7 @@ public class JacksonException
                     proc = (Closeable) proc0;
                 }
             }
-            jme = new JacksonException(msg, src);
+            jme = ctor.apply(msg, src);
             jme._processor = proc;
         }
         jme.prependPath(ref);

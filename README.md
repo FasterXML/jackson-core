@@ -12,6 +12,7 @@ Alternate data format implementations (like
 [Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformats-binary/tree/3.x/smile),
 [XML](https://github.com/FasterXML/jackson-dataformat-xml/),
 [CSV](https://github.com/FasterXML/jackson-dataformats-text/tree/3.x/csv),
+[YAML](https://github.com/FasterXML/jackson-dataformats-text/tree/3.x/yaml),
 [Protobuf](https://github.com/FasterXML/jackson-dataformats-binary/tree/3.x/protobuf),
 and [CBOR](https://github.com/FasterXML/jackson-dataformats-binary/tree/3.x/cbor))
 also build on this base package, implementing the core interfaces,

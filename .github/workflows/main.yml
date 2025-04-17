@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         java_version: ['8', '11', '17', '21', '23']
-        os: ['ubuntu-22.04']
+        os: ['ubuntu-24.04']
         include:
           - java_version: '8'
             os: 'ubuntu-22.04'
@@ -56,7 +56,7 @@ jobs:
       id: projectVersion
       # for some reason fails on Windows; we don't need it so skip:
       if: ${{ !matrix.is_windows }}
-      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.3.0:evaluate -DforceStdout -Dexpression=project.version -q)" >>$GITHUB_OUTPUT
+      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.5.1:evaluate -DforceStdout -Dexpression=project.version -q)" >>$GITHUB_OUTPUT
     - name: Verify Android SDK Compatibility
       if: ${{ matrix.release_build }}
       run: ./mvnw -B -q -ff -ntp -DskipTests animal-sniffer:check

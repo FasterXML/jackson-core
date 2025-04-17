@@ -1762,7 +1762,7 @@ public class UTF8DataInputJsonParser
         if (name != null) {
             return name;
         }
-        // If not, more work. We'll need add stuff to buffer
+        // If not, more work. We'll need to add stuff to buffer
         _quadBuffer[0] = q1;
         _quadBuffer[1] = q2;
         return addName(_quadBuffer, 2, lastQuadBytes);
@@ -1959,6 +1959,7 @@ public class UTF8DataInputJsonParser
                     if (c == INT_QUOTE) {
                         return _textBuffer.setCurrentAndReturn(outPtr);
                     }
+System.err.println("c="+Integer.toHexString(c));
                     _finishString2(outBuf, outPtr, c);
                     return _textBuffer.contentsAsString();
                 }

@@ -490,3 +490,6 @@ Fawzi Essam (@iifawzi)
  * Contributed fix for #1412: More cases of Non-blocking parser reporting incorrect locations
    when fed with non-zero offset
   (2.19.0)
+
+Ilenia Salvadori (@isalvadori)
+ * Requested #1421: Make `JsonReadContext` non-final

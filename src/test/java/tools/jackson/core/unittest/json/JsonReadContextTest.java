@@ -16,6 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class JsonReadContextTest extends JacksonCoreTestBase
 {
+    static class MyContext extends JsonReadContext {
+        public MyContext(JsonReadContext parent, int nestingDepth, DupDetector dups,
+                         int type, int lineNr, int colNr) {
+            super(parent, nestingDepth, dups, type, lineNr, colNr);
+        }
+    }
+
     @Test
     void setCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
     {
@@ -59,5 +66,12 @@ class JsonReadContextTest extends JacksonCoreTestBase
       assertEquals("?", jsonReadContext.typeDesc());
       assertEquals(500, jsonReadContext.startLocation(bogusSrc).getLineNr());
       assertEquals(200, jsonReadContext.startLocation(bogusSrc).getColumnNr());
+    }
+
+    // [core#1421]
+    @Test
+    void testExtension() {
+        MyContext context = new MyContext(null, 0, null, 0, 0, 0);
+        assertNotNull(context);
     }
 }

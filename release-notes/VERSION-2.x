@@ -37,6 +37,9 @@ a pure JSON library.
   when fed with non-zero offset
  (reported by David N)
  (fixed by Fawzi E)
+#1421: Make `JsonReadContext` non-final
+ (requested by Ilenia S)
+ (fixed by @pjfanning)
 
 2.18.3 (28-Feb-2025)
 

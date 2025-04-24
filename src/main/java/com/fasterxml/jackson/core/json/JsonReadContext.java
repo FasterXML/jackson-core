@@ -7,8 +7,10 @@ import com.fasterxml.jackson.core.io.ContentReference;
  * Extension of {@link JsonStreamContext}, which implements
  * core methods needed, and also exposes
  * more complete API to parser implementation classes.
+ *<p>
+ * NOTE: non-final since 2.19
  */
-public final class JsonReadContext extends JsonStreamContext
+public class JsonReadContext extends JsonStreamContext
 {
     // // // Configuration
 

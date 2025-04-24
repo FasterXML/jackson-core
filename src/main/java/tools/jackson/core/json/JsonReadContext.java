@@ -9,7 +9,7 @@ import tools.jackson.core.io.ContentReference;
  * core methods needed, and also exposes
  * more complete API to parser implementation classes.
  */
-public final class JsonReadContext extends TokenStreamContext
+public class JsonReadContext extends TokenStreamContext
 {
     // // // Configuration
 

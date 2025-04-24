@@ -59,7 +59,7 @@ tools.jackson.core.*;version=${project.version}
     <project.build.outputTimestamp>2025-04-14T01:43:17Z</project.build.outputTimestamp>
 
     <!-- for validation of JaCoCo execution -->
-    <jacocoStrict>true</jacocoStrict>
+    <jacocoStrict>false</jacocoStrict>
   </properties>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

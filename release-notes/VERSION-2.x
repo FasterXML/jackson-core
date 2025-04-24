@@ -14,7 +14,7 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.19.0-rc2 (07-Apr-2025)
+2.19.0 (24-Apr-2025)
 
 #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
  (requested by Yanming Z)

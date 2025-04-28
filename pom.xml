@@ -127,6 +127,12 @@ tools.jackson.core.*;version=${project.version}
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
       </plugin>
+      <!-- 28-Apr-2025, tatu: SBOM generation [JSTEP-14] -->
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
+      </plugin>
+
       <!-- 10-Jan-2025, tatu: [core#1380] Still need to use Moditect to
          work around bug/misfeature of maven-shade-plugin where it absolutely
          removes root-level `module-info.class`. So use Moditect to put it back

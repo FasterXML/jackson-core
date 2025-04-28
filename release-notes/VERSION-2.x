@@ -14,6 +14,12 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.19.1 (not yet relesed)
+
+#1425: `JsonPointer.head()` throws `StringIndexOutOfBoundsException` for
+  valid JSON Pointers
+ (reported by @sergeykad)
+
 2.19.0 (24-Apr-2025)
 
 #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences

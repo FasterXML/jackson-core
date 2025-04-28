@@ -16,7 +16,7 @@ a pure JSON library.
 
 2.20.0 (not yet released)
 
--
+- Generate SBOMs [JSTEP-14]
 
 2.19.1 (not yet relesed)
 

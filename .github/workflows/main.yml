@@ -1,16 +1,10 @@
 name: Build and Deploy Snapshot
 on:
   push:
-    branches:
-    - 3.x
-    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
   pull_request:
-    branches:
-    - 3.x
-    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -81,7 +75,7 @@ jobs:
     name: Trigger downstream builds for v2
     needs: [build]
     # Only for pushes to default branch
-    if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+    if: ${{ github.event_name == 'push' && github.ref_name == '2.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}

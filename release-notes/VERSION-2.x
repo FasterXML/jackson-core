@@ -14,6 +14,10 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.18.4 (06-May-2025)
+
+No changes since 2.18.3
+
 2.18.3 (28-Feb-2025)
 
 #1391: Fix issue where the parser can read back old number state when

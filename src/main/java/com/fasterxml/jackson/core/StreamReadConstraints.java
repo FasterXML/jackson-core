@@ -150,7 +150,11 @@ public class StreamReadConstraints
          * indicate that any length is acceptable ({@code 0} or negative number).
          * The length is in input units of the input source, that is, in
          * {@code byte}s or {@code char}s.
-         *
+         * <p>
+         *   The check is not done after every byte or character but checked when a
+         *   new chunk of data is read. This means that the check is not likely to be exact
+         *   but that documents smaller than this limit will be treated as valid.
+         * </p>
          * @param maxDocLen the maximum allowed document length if positive number above 0; otherwise
          *   ({@code 0} or negative number) means "unlimited".
          *

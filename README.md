@@ -26,9 +26,9 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 | Type | Status |
 | ---- | ------ |
 | Build (CI) | [![Build (github)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml) |
-| Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core) |
-| OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme) |
-| Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core) |
+| Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/tools.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/tools.jackson.core/jackson-core) |
+| OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/tools.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme) |
+| Javadocs | [![Javadoc](https://javadoc.io/badge/tools.jackson.core/jackson-core.svg)](https://javadoc.io/doc/tools.jackson.core/jackson-core) |
 | Code coverage (3.0) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=3.x)](https://codecov.io/github/FasterXML/jackson-core?branch=3.x) |
 | CodeQ (ClusterFuzz) | [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/jackson-core.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:jackson-core) |
 | OpenSSF Score | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-core/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-core) |
@@ -40,21 +40,21 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 Functionality of this package is contained in 
 Java package
 
+* `tools.jackson.core` (Jackson 3.x)
 * `com.fasterxml.jackson.core` (Jackson 2.x)
-* `tools.jackson.core` (Jackson 3.x -- to be released)
 
 To use the package, you need to use following Maven dependency:
 
 ```xml
+<dependency> <!-- Jackson 3.x -->
+    <groupId>tools.jackson.core</groupId>
+    <artifactId>jackson-core</artifactId>
+    <version>3.0.0-rc4</version>
+</dependency>
 <dependency> <!-- Jackson 2.x -->
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-core</artifactId>
     <version>${jackson.version.core}</version>
-</dependency>
-<dependency> <!-- Jackson 3.x -->
-    <groupId>tools.jackson.core</groupId>
-    <artifactId>jackson-core</artifactId>
-    <version>3.0.0-rc2</version>
 </dependency>
 ```
 
@@ -86,17 +86,12 @@ JsonFactory factory = JsonFactory.builder()
 // configure, if necessary:
      .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
      .build();
-
-// older 2.x mechanism, still supported for 2.x
-JsonFactory factory = new JsonFactory();
-// configure, if necessary:
-factory.enable(JsonReadFeature.ALLOW_JAVA_COMMENTS);
 ```
 
 Alternatively, you have an `ObjectMapper` (from [Jackson Databind package](https://github.com/FasterXML/jackson-databind)) handy; if so, you can do:
 
 ```java
-JsonFactory factory = objectMapper.getFactory();
+JsonFactory factory = objectMapper.tokenStreamFactory();
 ```
 
 ## Usage, simple reading
@@ -156,8 +151,7 @@ JsonFactory f = JsonFactory.builder()
 
 ## Error Report Configuration
 
-Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16), Jackson offers configurable
-behavior around error-reporting.
+Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16), Jackson offers configurable behavior around error-reporting.
 
 Currently supported configuration options are:
 
@@ -185,15 +179,15 @@ JsonFactory f = JsonFactory.builder()
 
 Jackson-core package baseline JDK requirement:
 
-* Versions 2.0 - 2.13 require JDK 6
 * Versions 2.14 and above require JDK 8
+* Versions 3.0 and above require JDK 17
 
 ### Android
 
 List is incomplete due to recent addition of compatibility checker.
 
-* 2.13: Android SDK 19+
 * 2.14 and above: Android SDK 26+
+* 3.0 and above: Android SDK 26+
 
 for information on Android SDK versions to Android Release names see [Android version history](https://en.wikipedia.org/wiki/Android_version_history)
 
@@ -201,7 +195,7 @@ for information on Android SDK versions to Android Release names see [Android ve
 
 ## Release Process
 
-Starting with Jackson 2.15, releases of this module will be [SLSA](https://slsa.dev/) compliant: see issue #844 for details.
+Starting with Jackson 2.15, releases of this module was meant be [SLSA](https://slsa.dev/) compliant: see issue #844 for details.
 
 Release process is triggered by
 
@@ -209,6 +203,7 @@ Release process is triggered by
 
 script which uses Maven Release plug-in under the hood (earlier release plug-in was directly invoked).
 
+**NOTE**: Unfortunately this process does not yet work (as of May 2025, Jackson 2.19.0)
 -----
 
 ## Support
@@ -236,7 +231,10 @@ Note that the main differences compared to 1.0 core jar are:
 
 * Maven build instead of Ant
 * Annotations carved out to a separate package (that this package depends on)
-* Java package is now `com.fasterxml.jackson.core` (instead of `org.codehaus.jackson`)
+* Java package is:
+    * 3.x `tools.jackson.core`
+    * 2.x `com.fasterxml.jackson.core`
+    * 1.x: `org.codehaus.jackson`
 
 ## Links
 

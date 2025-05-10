@@ -29,7 +29,7 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 | Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core) |
-| Code coverage (2.18) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=2.18)](https://codecov.io/github/FasterXML/jackson-core?branch=2.18) |
+| Code coverage (2.19) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=2.19)](https://codecov.io/github/FasterXML/jackson-core?branch=2.19) |
 | CodeQ (ClusterFuzz) | [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/jackson-core.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:jackson-core) |
 | OpenSSF Score | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-core/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-core) |
 
@@ -148,8 +148,7 @@ JsonFactory f = JsonFactory.builder()
 
 ## Error Report Configuration
 
-Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16), Jackson offers configurable
-behavior around error-reporting.
+Starting with [Jackson 2.16](https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.16), Jackson offers configurable behavior around error-reporting.
 
 Currently supported configuration options are:
 
@@ -193,7 +192,7 @@ for information on Android SDK versions to Android Release names see [Android ve
 
 ## Release Process
 
-Starting with Jackson 2.15, releases of this module will be [SLSA](https://slsa.dev/) compliant: see issue #844 for details.
+Starting with Jackson 2.15, releases of this module was meant be [SLSA](https://slsa.dev/) compliant: see issue #844 for details.
 
 Release process is triggered by
 
@@ -201,6 +200,7 @@ Release process is triggered by
 
 script which uses Maven Release plug-in under the hood (earlier release plug-in was directly invoked).
 
+**NOTE**: Unfortunately this process does not yet work (as of May 2025, Jackson 2.19.0)
 -----
 
 ## Support

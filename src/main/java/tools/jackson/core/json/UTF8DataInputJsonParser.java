@@ -1959,7 +1959,6 @@ public class UTF8DataInputJsonParser
                     if (c == INT_QUOTE) {
                         return _textBuffer.setCurrentAndReturn(outPtr);
                     }
-System.err.println("c="+Integer.toHexString(c));
                     _finishString2(outBuf, outPtr, c);
                     return _textBuffer.contentsAsString();
                 }

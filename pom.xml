@@ -14,7 +14,7 @@
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>
-  <version>3.0.0-rc5-SNAPSHOT</version>
+  <version>3.0.0-rc5</version>
   <packaging>jar</packaging>
   <description>Core Jackson processing abstractions (aka Streaming API), implementation for JSON</description>
   <inceptionYear>2007</inceptionYear>
@@ -31,7 +31,7 @@
     <connection>scm:git:https://github.com/FasterXML/jackson-core.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-core.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-core</url>    
-    <tag>HEAD</tag>
+    <tag>jackson-core-3.0.0-rc5</tag>
   </scm>
 
   <properties>
@@ -57,7 +57,7 @@ tools.jackson.core.*;version=${project.version}
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2025-05-10T23:11:58Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-05-22T16:36:17Z</project.build.outputTimestamp>
 
     <!-- for validation of JaCoCo execution -->
     <jacocoStrict>false</jacocoStrict>

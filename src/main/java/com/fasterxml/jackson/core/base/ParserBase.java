@@ -900,11 +900,9 @@ public abstract class ParserBase extends ParserMinimalBase
         //    (note: could alternatively see if TextBuffer has aggregated contents, avoid
         //    exception -- but that might be more confusing)
         if (_closed) {
-            _reportError("Internal error: _parseNumericValue called when parser instance closed");
-        }
-
+            ;
         // Int or float?
-        if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+        } else if (_currToken == JsonToken.VALUE_NUMBER_INT) {
             final int len = _intLength;
             // First: optimization for simple int
             if (len <= 9) {

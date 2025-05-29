@@ -33,35 +33,48 @@ public class NumberParsingGetType1433Test
         JsonParser p;
 
         p = createParser(jsonFactory(), mode, " 123 ");
-        _verifyGetNumberTypeFail(p);
+        _verifyGetNumberTypeFail(p, "null");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
         assertNull(p.nextToken());
-        _verifyGetNumberTypeFail(p);
+        _verifyGetNumberTypeFail(p, "null");
         p.close();
-        _verifyGetNumberTypeFail(p);
+        _verifyGetNumberTypeFail(p, "null");
 
-        p = createParser(jsonFactory(), mode, "[123]");
-        _verifyGetNumberTypeFail(p);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        _verifyGetNumberTypeFail(p);
+        p = createParser(jsonFactory(), mode, " -9 false ");
+        _verifyGetNumberTypeFail(p, "null");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+        _verifyGetNumberTypeFail(p, "VALUE_FALSE");
         assertNull(p.nextToken());
-        _verifyGetNumberTypeFail(p);
+        _verifyGetNumberTypeFail(p, "null");
         p.close();
-        _verifyGetNumberTypeFail(p);
+        _verifyGetNumberTypeFail(p, "null");
+
+        p = createParser(jsonFactory(), mode, "[123, true]");
+        _verifyGetNumberTypeFail(p, "null");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        _verifyGetNumberTypeFail(p, "START_ARRAY");
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        _verifyGetNumberTypeFail(p, "VALUE_TRUE");
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        _verifyGetNumberTypeFail(p, "END_ARRAY");
+        assertNull(p.nextToken());
+        _verifyGetNumberTypeFail(p, "null");
+        p.close();
+        _verifyGetNumberTypeFail(p, "null");
     }
 
-    private void _verifyGetNumberTypeFail(JsonParser p) throws Exception
+    private void _verifyGetNumberTypeFail(JsonParser p, String token) throws Exception
     {
         try {
             p.getNumberType();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "Current token (");
-            verifyException(e, ") not numeric, can not use numeric");
+            verifyException(e, "Current token ("+token+") not numeric, can not use numeric");
         }
     }
     

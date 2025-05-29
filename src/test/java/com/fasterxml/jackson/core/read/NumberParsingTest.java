@@ -7,9 +7,10 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 
-import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("resource")
 class NumberParsingTest
-        extends JUnit5TestBase
+    extends JUnit5TestBase
 {
     protected JsonFactory jsonFactory() {
         return sharedStreamFactory();
@@ -33,7 +34,7 @@ class NumberParsingTest
 
     /*
     /**********************************************************************
-    /* Tests, Boolean
+    /* Tests, Boolean (why here?)
     /**********************************************************************
      */
 

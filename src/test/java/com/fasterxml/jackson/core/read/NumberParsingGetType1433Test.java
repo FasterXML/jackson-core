@@ -2,11 +2,7 @@ package com.fasterxml.jackson.core.read;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JUnit5TestBase;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -78,5 +74,4 @@ public class NumberParsingGetType1433Test
             verifyException(e, "Current token ("+token+") not numeric, can not use numeric");
         }
     }
-    
 }

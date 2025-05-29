@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -73,7 +74,7 @@ public class NumberParsingGetType1433Test
         try {
             p.getNumberType();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Current token ("+token+") not numeric, can not use numeric");
         }
     }

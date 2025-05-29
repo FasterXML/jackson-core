@@ -129,7 +129,7 @@ class LocationOffsetsTest extends JacksonCoreTestBase
     @Test
     void withLazyStringReadDataInput() throws Exception
     {
-        // DataInput-backed reader does not track column, so can not
+        // DataInput-backed reader does not track column, so cannot
         // verify much; but force finishToken() regardless
         JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, "[\"text\"]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());

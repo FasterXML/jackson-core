@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("resource")
 class NumberParsingTest
-        extends JUnit5TestBase
+    extends JUnit5TestBase
 {
     protected JsonFactory jsonFactory() {
         return sharedStreamFactory();
@@ -33,7 +33,7 @@ class NumberParsingTest
 
     /*
     /**********************************************************************
-    /* Tests, Boolean
+    /* Tests, Boolean (why here?)
     /**********************************************************************
      */
 

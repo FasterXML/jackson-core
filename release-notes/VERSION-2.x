@@ -47,6 +47,12 @@ a pure JSON library.
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
+2.18.5 (not yet released)
+
+#1433: `JsonParser#getNumberType()` throws `JsonParseException` when
+  the current token is non-numeric instead of returning null
+ (reported by @CrazySqueak)
+
 2.18.4 (06-May-2025)
 
 No changes since 2.18.3

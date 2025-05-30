@@ -16,6 +16,27 @@ import static org.junit.jupiter.api.Assertions.*;
 class ParserClosingTest
         extends JUnit5TestBase
 {
+    // [core#1438]: clear _currToken on parser.close()
+    @Test
+    void clearTokenOnClose() throws Exception
+    {
+        _clearTokenOnClose(MODE_INPUT_STREAM);
+        _clearTokenOnClose(MODE_INPUT_STREAM_THROTTLED);
+        _clearTokenOnClose(MODE_READER);
+        _clearTokenOnClose(MODE_DATA_INPUT);
+        
+    }
+
+    private void _clearTokenOnClose(int mode) throws Exception
+    {
+        try (JsonParser p = createParser(mode, "[1, 2]")) {
+            assertNull(p.currentToken());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            p.close();
+            assertNull(p.currentToken());
+        }
+    }
+    
     /**
      * This unit test checks the default behaviour; with no auto-close, no
      * automatic closing should occur, nor explicit one unless specific

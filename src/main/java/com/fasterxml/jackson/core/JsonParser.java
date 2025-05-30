@@ -405,9 +405,15 @@ public abstract class JsonParser
           *
           * @since 2.15
           */
-          USE_FAST_BIG_NUMBER_PARSER(false)
+         USE_FAST_BIG_NUMBER_PARSER(false),
 
-         ;
+         /**
+          * See {@link StreamReadFeature#CLEAR_CURRENT_TOKEN_ON_CLOSE}.
+          *
+          * @since 2.20
+          */
+         CLEAR_CURRENT_TOKEN_ON_CLOSE(true)
+        ;
 
         /**
          * Whether feature is enabled or disabled by default.

@@ -111,8 +111,19 @@ public enum StreamReadFeature
      *
      * @since 2.15
      */
-    USE_FAST_BIG_NUMBER_PARSER(JsonParser.Feature.USE_FAST_BIG_NUMBER_PARSER)
+    USE_FAST_BIG_NUMBER_PARSER(JsonParser.Feature.USE_FAST_BIG_NUMBER_PARSER),
 
+    /**
+     * Feature that determines whether parser will clear "current token"
+     * (accessible via JsonParser#currentToken()) when it is closed (via
+     * {@link JsonParser#close()}).
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.20
+     */
+    CLEAR_CURRENT_TOKEN_ON_CLOSE(JsonParser.Feature.CLEAR_CURRENT_TOKEN_ON_CLOSE),
+    
     ;
 
     /**

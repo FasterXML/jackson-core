@@ -403,6 +403,8 @@ public abstract class ParserBase extends ParserMinimalBase
             // 19-Jan-2018, tatu: as per [core#440] need to ensure no more data assumed available
             _inputPtr = Math.max(_inputPtr, _inputEnd);
             _closed = true;
+            // 30-May-2025, tatu: was missing before 2.20
+            _currToken = null;
             try {
                 _closeInput();
             } finally {

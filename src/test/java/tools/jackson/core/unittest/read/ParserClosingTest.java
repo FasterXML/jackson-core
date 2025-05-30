@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * by documentation.
  */
 class ParserClosingTest
-        extends JacksonCoreTestBase
+    extends JacksonCoreTestBase
 {
     // [core#1438]: clear _currToken on parser.close()
     @Test

@@ -404,7 +404,9 @@ public abstract class ParserBase extends ParserMinimalBase
             _inputPtr = Math.max(_inputPtr, _inputEnd);
             _closed = true;
             // 30-May-2025, tatu: was missing before 2.20
-            _currToken = null;
+            if (JsonParser.Feature.CLEAR_CURRENT_TOKEN_ON_CLOSE.enabledIn(_features)) {
+                _currToken = null;
+            }
             try {
                 _closeInput();
             } finally {

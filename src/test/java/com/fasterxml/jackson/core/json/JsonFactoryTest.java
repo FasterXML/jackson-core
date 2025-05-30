@@ -354,9 +354,9 @@ class JsonFactoryTest
         if (canonicalize) {
             assertSame(field1, field2);
         } else {
-            // n.b. It's possible that this may flake if a garbage collector with string deduplication
+            // n.b. It's possible that this may flake if a garbage collector with string de-duplication
             // enabled is used. Such a failure is unlikely because younger GC generations are typically
-            // not considered for deduplication due to high churn, but under heavy memory pressure it
+            // not considered for de-duplication due to high churn, but under heavy memory pressure it
             // may be possible. I've left this comment in an attempt to simplify investigation in the
             // off-chance that such flakes eventually occur.
             assertNotSame(field1, field2);

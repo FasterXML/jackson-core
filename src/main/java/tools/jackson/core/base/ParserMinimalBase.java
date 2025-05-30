@@ -311,6 +311,8 @@ public abstract class ParserMinimalBase extends JsonParser
             return;
         }
         _closed = true;
+        // 30-May-2025, tatu: was missing before 2.20
+        _currToken = null;
 
         // Ordering is important: needs to be done in following order:
         //

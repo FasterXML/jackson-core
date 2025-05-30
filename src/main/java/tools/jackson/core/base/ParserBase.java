@@ -569,6 +569,11 @@ public abstract class ParserBase extends ParserMinimalBase
     public NumberType getNumberType()
     {
         if (_numTypesValid == NR_UNKNOWN) {
+            // 29-May-2025, tatu: [core#1434] Short-circuit for non-numbers
+            if (_currToken != JsonToken.VALUE_NUMBER_INT
+                    && _currToken != JsonToken.VALUE_NUMBER_FLOAT) {
+                 return null;
+            }
             _parseNumericValue(NR_UNKNOWN); // will also check event type
         }
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {

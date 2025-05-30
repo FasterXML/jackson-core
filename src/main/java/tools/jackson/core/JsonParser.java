@@ -1081,6 +1081,8 @@ public abstract class JsonParser
      * {@link JsonToken#VALUE_NUMBER_INT} or
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
      * one of {@link NumberType} constants; otherwise returns null.
+     *<p>
+     * NOTE: in Jackson 2.x, an exception was wrong if called for non-numeric token.
      *
      * @return Type of current number, if parser points to numeric token; {@code null} otherwise
      */

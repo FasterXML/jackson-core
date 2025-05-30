@@ -111,8 +111,16 @@ public enum StreamReadFeature
      * This setting is enabled by default (since 3.0) so that {@code FastDoubleParser}
      * implementation is used.
      */
-    USE_FAST_BIG_NUMBER_PARSER(true)
+    USE_FAST_BIG_NUMBER_PARSER(true),
 
+    /**
+     * Feature that determines whether parser will clear "current token"
+     * (accessible via JsonParser#currentToken()) when it is closed (via
+     * {@link JsonParser#close()}).
+     *<p>
+     * Feature is enabled by default.
+     */
+    CLEAR_CURRENT_TOKEN_ON_CLOSE(true),
     ;
 
     /**

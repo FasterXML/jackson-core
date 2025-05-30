@@ -5,14 +5,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testutil.MockDataInput;
+import tools.jackson.core.unittest.JacksonCoreTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -21,7 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Tests asserts that using closed `JsonParser` doesn't cause ArrayIndexOutOfBoundsException
  * with `nextXxx()` methods but returns `null` as expected.
  */
-public class JsonParserClosedCaseTest {
+public class JsonParserClosedCaseTest
+    extends JacksonCoreTestBase
+{
     private static final JsonFactory JSON_F = new JsonFactory();
 
     JsonParser parser;
@@ -72,6 +75,49 @@ public class JsonParserClosedCaseTest {
     void nullReturnedOnClosedParserOnNextValue(String parserName, JsonParser parser) throws Exception {
         initJsonParserClosedCaseTest(parserName, parser);
         assertNull(parser.nextValue());
+    }
+
+    // [core#1441]: StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE
+    @Test
+    void clearCurrentTokenOnCloseEnabled() throws Exception {
+         JsonFactory f = JsonFactory.builder()
+                 .enable(StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE)
+                 .build();
+         _clearCurrentTokenOnCloseEnabled(f, MODE_INPUT_STREAM);
+         _clearCurrentTokenOnCloseEnabled(f, MODE_INPUT_STREAM_THROTTLED);
+         _clearCurrentTokenOnCloseEnabled(f, MODE_READER);
+         _clearCurrentTokenOnCloseEnabled(f, MODE_DATA_INPUT);
+                 
+    }
+
+    @Test
+    void clearCurrentTokenOnCloseDisabled() throws Exception {
+         JsonFactory f = JsonFactory.builder()
+                 .disable(StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE)
+                 .build();
+         _clearCurrentTokenOnCloseDisabled(f, MODE_INPUT_STREAM);
+         _clearCurrentTokenOnCloseDisabled(f, MODE_INPUT_STREAM_THROTTLED);
+         _clearCurrentTokenOnCloseDisabled(f, MODE_READER);
+         _clearCurrentTokenOnCloseDisabled(f, MODE_DATA_INPUT);
+                 
+    }
+
+    private void _clearCurrentTokenOnCloseEnabled(JsonFactory f, int mode) throws Exception
+    {
+        try (JsonParser p = f.createParser(ObjectReadContext.empty(), "[ 1 ]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            p.close();
+            assertNull(p.currentToken());
+        }
+    }
+    
+    private void _clearCurrentTokenOnCloseDisabled(JsonFactory f, int mode) throws Exception
+    {
+        try (JsonParser p = f.createParser(ObjectReadContext.empty(), "[ 1 ]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            p.close();
+            assertToken(JsonToken.START_ARRAY, p.currentToken());
+        }
     }
 
     private static Collection<Object[]> closeParsers(JsonParser... parsersToClose) throws IOException {

@@ -17,6 +17,7 @@ a pure JSON library.
 2.20.0 (not yet released)
 
 #1438: `ParserBase.close()` does not clear `_currToken`
+#1441: Add `StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE` (default: true)
 - Generate SBOMs [JSTEP-14]
 
 2.19.1 (not yet released)

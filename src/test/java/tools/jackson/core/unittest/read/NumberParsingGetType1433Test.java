@@ -3,12 +3,10 @@ package tools.jackson.core.unittest.read;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class NumberParsingGetType1433Test
     extends tools.jackson.core.unittest.JacksonCoreTestBase
@@ -68,11 +66,7 @@ public class NumberParsingGetType1433Test
 
     private void _verifyGetNumberTypeFail(JsonParser p, String token) throws Exception
     {
-        try {
-            p.getNumberType();
-            fail("Should not pass");
-        } catch (StreamReadException e) {
-            verifyException(e, "Current token ("+token+") not numeric, cannot use numeric");
-        }
+        // In 2.x, this would throw an exception; in 3.x it should just return null
+        assertNull(p.getNumberType());
     }
 }

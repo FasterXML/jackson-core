@@ -318,7 +318,7 @@ No changes since 2.13.3
 2.13.0 (30-Sep-2021)
 
 #652: Misleading exception for input source when processing byte buffer
-  with start offset
+  with start offset [CVE-2025-49128]
  (reported by Greg W)
 #658: Escape contents of source document snippet for `JsonLocation._appendSourceDesc()`
 #664: Add `StreamWriteException` type to eventually replace `JsonGenerationException`

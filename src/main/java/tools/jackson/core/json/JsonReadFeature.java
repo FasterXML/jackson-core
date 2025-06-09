@@ -44,6 +44,17 @@ public enum JsonReadFeature
     // // // Support for non-standard data format constructs: quoting/escaping
 
     /**
+     * Feature that can be enabled to accept quoting of all character
+     * using backslash quoting mechanism: if not enabled, only characters
+     * that are explicitly listed by JSON specification can be thus
+     * escaped (see JSON spec for small list of these characters)
+     *<p>
+     * Since JSON specification requires quoting for all control characters,
+     * this is a non-standard feature, and as such disabled by default.
+     */
+    ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false),
+
+    /**
      * Feature that determines whether parser will allow use
      * of single quotes (apostrophe, character '\'') for
      * quoting Strings (names and String values). If so,
@@ -56,17 +67,14 @@ public enum JsonReadFeature
     ALLOW_SINGLE_QUOTES(false),
 
     /**
-     * Feature that determines whether parser will allow use
-     * of unquoted Object property names (which is allowed by Javascript,
-     * but not by JSON specification).
-     *<p>
-     * Since JSON specification requires use of double quotes for
-     * Object property names,
-     * this is a non-standard feature, and as such disabled by default.
-     *<p>
-     * NOTE: in Jackson 2.x, was called {@code ALLOW_UNQUOTED_FIELD_NAMES}
+     * Feature that determines whether parser will allow
+     * Record Separator (RS) control character ({@code 0x1E})
+     * as part of ignorable whitespace in JSON input, similar to the TAB character.
+     * <p>
+     * Since the official JSON specification permits only a limited set of control
+     * characters as whitespace, this is a non-standard feature and is disabled by default.
      */
-    ALLOW_UNQUOTED_PROPERTY_NAMES(false),
+    ALLOW_RS_CONTROL_CHAR(false),
 
     /**
      * Feature that determines whether parser will allow
@@ -80,52 +88,21 @@ public enum JsonReadFeature
      * this is a non-standard feature, and as such disabled by default.
      */
     ALLOW_UNESCAPED_CONTROL_CHARS(false),
-
+    
     /**
-     * Feature that determines whether parser will allow
-     * Record Separator (RS) control character ({@code 0x1E})
-     * as part of ignorable whitespace in JSON input, similar to the TAB character.
-     * <p>
-     * Since the official JSON specification permits only a limited set of control
-     * characters as whitespace, this is a non-standard feature and is disabled by default.
-     */
-    ALLOW_RS_CONTROL_CHAR(false),
-
-    /**
-     * Feature that can be enabled to accept quoting of all character
-     * using backslash quoting mechanism: if not enabled, only characters
-     * that are explicitly listed by JSON specification can be thus
-     * escaped (see JSON spec for small list of these characters)
+     * Feature that determines whether parser will allow use
+     * of unquoted Object property names (which is allowed by Javascript,
+     * but not by JSON specification).
      *<p>
-     * Since JSON specification requires quoting for all control characters,
+     * Since JSON specification requires use of double quotes for
+     * Object property names,
      * this is a non-standard feature, and as such disabled by default.
+     *<p>
+     * NOTE: in Jackson 2.x, was called {@code ALLOW_UNQUOTED_FIELD_NAMES}
      */
-    ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false),
+    ALLOW_UNQUOTED_PROPERTY_NAMES(false),
 
     // // // Support for non-standard data format constructs: number representations
-
-    /**
-     * Feature that determines whether parser will allow
-     * JSON integral numbers to start with additional (ignorable)
-     * zeroes (like: {@code 000001}). If enabled, no exception is thrown, and extra
-     * nulls are silently ignored (and not included in textual representation
-     * exposed via {@link JsonParser#getString()}).
-     *<p>
-     * Since JSON specification does not allow leading zeroes,
-     * this is a non-standard feature, and as such disabled by default.
-     */
-    ALLOW_LEADING_ZEROS_FOR_NUMBERS(false),
-
-    /**
-     * Feature that determines whether parser will allow
-     * JSON decimal numbers to start with a plus sign
-     * (like: {@code +123}). If enabled, no exception is thrown, and the number
-     * is parsed as though a leading sign had not been present.
-     *<p>
-     * Since JSON specification does not allow leading plus signs,
-     * this is a non-standard feature, and as such disabled by default.
-     */
-    ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS(false),
 
     /**
      * Feature that determines whether parser will allow
@@ -140,14 +117,26 @@ public enum JsonReadFeature
 
     /**
      * Feature that determines whether parser will allow
-     * JSON decimal numbers to end with a decimal point
-     * (like: {@code 123.}). If enabled, no exception is thrown, and the number
-     * is parsed as though the trailing decimal point had not been present.
+     * JSON decimal numbers to start with a plus sign
+     * (like: {@code +123}). If enabled, no exception is thrown, and the number
+     * is parsed as though a leading sign had not been present.
      *<p>
-     * Since JSON specification does not allow trailing decimal points,
+     * Since JSON specification does not allow leading plus signs,
      * this is a non-standard feature, and as such disabled by default.
      */
-    ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS(false),
+    ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS(false),
+
+    /**
+     * Feature that determines whether parser will allow
+     * JSON integral numbers to start with additional (ignorable)
+     * zeroes (like: {@code 000001}). If enabled, no exception is thrown, and extra
+     * nulls are silently ignored (and not included in textual representation
+     * exposed via {@link JsonParser#getString()}).
+     *<p>
+     * Since JSON specification does not allow leading zeroes,
+     * this is a non-standard feature, and as such disabled by default.
+     */
+    ALLOW_LEADING_ZEROS_FOR_NUMBERS(false),
 
     /**
      * Feature that allows parser to recognize set of
@@ -168,6 +157,17 @@ public enum JsonReadFeature
      * this is a non-standard feature, and as such disabled by default.
      */
     ALLOW_NON_NUMERIC_NUMBERS(false),
+
+    /**
+     * Feature that determines whether parser will allow
+     * JSON decimal numbers to end with a decimal point
+     * (like: {@code 123.}). If enabled, no exception is thrown, and the number
+     * is parsed as though the trailing decimal point had not been present.
+     *<p>
+     * Since JSON specification does not allow trailing decimal points,
+     * this is a non-standard feature, and as such disabled by default.
+     */
+    ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS(false),
 
     // // // Support for non-standard data format constructs: array/value separators
 
@@ -209,8 +209,8 @@ public enum JsonReadFeature
     ALLOW_TRAILING_COMMA(false),
     ;
 
-    final private boolean _defaultState;
-    final private int _mask;
+    private final boolean _defaultState;
+    private final int _mask;
 
     /**
      * Method that calculates bit set (flags) of all features that

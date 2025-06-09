@@ -18,6 +18,18 @@ public enum StreamWriteFeature
     // // Low-level I/O / content features
 
     /**
+     * Feature that determines what happens when the generator is
+     * closed while there are still unmatched
+     * {@link JsonToken#START_ARRAY} or {@link JsonToken#START_OBJECT}
+     * entries in output content. If enabled, such Array(s) and/or
+     * Object(s) are automatically closed; if disabled, nothing
+     * specific is done.
+     *<p>
+     * Feature is enabled by default.
+     */
+    AUTO_CLOSE_CONTENT(true),
+
+    /**
      * Feature that determines whether generator will automatically
      * close underlying output target that is NOT owned by the
      * generator.
@@ -31,18 +43,6 @@ public enum StreamWriteFeature
      * Feature is enabled by default.
      */
     AUTO_CLOSE_TARGET(true),
-
-    /**
-     * Feature that determines what happens when the generator is
-     * closed while there are still unmatched
-     * {@link JsonToken#START_ARRAY} or {@link JsonToken#START_OBJECT}
-     * entries in output content. If enabled, such Array(s) and/or
-     * Object(s) are automatically closed; if disabled, nothing
-     * specific is done.
-     *<p>
-     * Feature is enabled by default.
-     */
-    AUTO_CLOSE_CONTENT(true),
 
     /**
      * Feature that specifies that calls to {@link JsonGenerator#flush} will cause
@@ -76,21 +76,6 @@ public enum StreamWriteFeature
     // // Schema/Validity support features
 
     /**
-     * Feature that determines whether {@link JsonGenerator} will explicitly
-     * check that no duplicate JSON Object Property names are written.
-     * If enabled, generator will check all names within context and report
-     * duplicates by throwing a {@link StreamWriteException}; if disabled,
-     * no such checking will be done. Assumption in latter case is
-     * that caller takes care of not trying to write duplicate names.
-     *<p>
-     * Note that enabling this feature will incur performance overhead
-     * due to having to store and check additional information.
-     *<p>
-     * Feature is disabled by default.
-     */
-    STRICT_DUPLICATE_DETECTION(false),
-
-    /**
      * Feature that determines what to do if the underlying data format requires knowledge
      * of all properties to output, and if no definition is found for a property that
      * caller tries to write. If enabled, such properties will be quietly ignored;
@@ -109,6 +94,21 @@ public enum StreamWriteFeature
      * property will result in a {@link StreamWriteException}
      */
     IGNORE_UNKNOWN(false),
+
+    /**
+     * Feature that determines whether {@link JsonGenerator} will explicitly
+     * check that no duplicate JSON Object Property names are written.
+     * If enabled, generator will check all names within context and report
+     * duplicates by throwing a {@link StreamWriteException}; if disabled,
+     * no such checking will be done. Assumption in latter case is
+     * that caller takes care of not trying to write duplicate names.
+     *<p>
+     * Note that enabling this feature will incur performance overhead
+     * due to having to store and check additional information.
+     *<p>
+     * Feature is disabled by default.
+     */
+    STRICT_DUPLICATE_DETECTION(false),
 
     // // Misc other features
 

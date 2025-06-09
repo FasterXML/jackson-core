@@ -40,22 +40,30 @@ public enum JsonWriteFeature
     // // // Support for escaping variations
 
     /**
-     * Feature that forces all regular number values to be written as JSON Strings,
-     * instead of as JSON Numbers.
-     * Default state is 'false', meaning that Java numbers are to
-     * be serialized using basic numeric representation but
-     * if enabled all such numeric values are instead written out as
-     * JSON Strings instead.
-     *<p>
-     * One use case is to avoid problems with Javascript limitations:
-     * since Javascript standard specifies that all number handling
-     * should be done using 64-bit IEEE 754 floating point values,
-     * result being that some 64-bit integer values cannot be
-     * accurately represent (as mantissa is only 51 bit wide).
-     *<p>
-     * Feature is disabled by default.
+     * Feature that specifies how characters outside "Basic Multilingual Plane" (BMP) -- ones encoded
+     * as 4-byte UTF-8 sequences but represented in JVM memory as 2 16-bit "surrogate" {@code chars} --
+     * should be encoded as UTF-8 by {@link JsonGenerator}.
+     * If enabled, surrogate pairs are combined and flushed as a
+     * single, 4-byte UTF-8 character.
+     * If disabled, each {@code char} of pair is written as 2 separate characters: that is, as 2
+     * separate 3-byte UTF-8 characters with values in Surrogate character ranges
+     * ({@code 0xD800} - {@code 0xDBFF} and {@code 0xDC00} - {@code 0xDFFF})
+     * <p>
+     * Note that this feature only has effect for {@link JsonGenerator}s that directly encode
+     * {@code byte}-based output, as UTF-8 (target {@link java.io.OutputStream}, {@code byte[]}
+     * and so on); it will not (cannot) change handling of
+     * {@code char}-based output (like {@link java.io.Writer} or {@link java.lang.String}).
+     * <p>
+     * Feature is enabled by default in Jackson 3.0 (was disabled in 2.x).
      */
-    WRITE_NUMBERS_AS_STRINGS(false),
+    COMBINE_UNICODE_SURROGATES_IN_UTF8(true),
+
+    /**
+     * Feature that specifies whether {@link JsonGenerator} should escape forward slashes.
+     * <p>
+     * Feature is enabled by default in Jackson 3.0 (was disabled in 2.x).
+     */
+    ESCAPE_FORWARD_SLASHES(true),
 
     /**
      * Feature that specifies that all characters beyond 7-bit ASCII
@@ -78,6 +86,24 @@ public enum JsonWriteFeature
      */
     WRITE_HEX_UPPER_CASE(true),
 
+    /**
+     * Feature that forces all regular number values to be written as JSON Strings,
+     * instead of as JSON Numbers.
+     * Default state is 'false', meaning that Java numbers are to
+     * be serialized using basic numeric representation but
+     * if enabled all such numeric values are instead written out as
+     * JSON Strings instead.
+     *<p>
+     * One use case is to avoid problems with Javascript limitations:
+     * since Javascript standard specifies that all number handling
+     * should be done using 64-bit IEEE 754 floating point values,
+     * result being that some 64-bit integer values cannot be
+     * accurately represent (as mantissa is only 51 bit wide).
+     *<p>
+     * Feature is disabled by default.
+     */
+    WRITE_NUMBERS_AS_STRINGS(false),
+    
 //23-Nov-2015, tatu: for [core#223], if and when it gets implemented
     /*
      * Feature that specifies handling of UTF-8 content that contains
@@ -100,36 +126,10 @@ public enum JsonWriteFeature
      */
 //    ESCAPE_UTF8_SURROGATES(false, JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES),
 
-    /**
-     * Feature that specifies whether {@link JsonGenerator} should escape forward slashes.
-     * <p>
-     * Feature is enabled by default in Jackson 3.0 (was disabled in 2.x).
-     */
-    ESCAPE_FORWARD_SLASHES(true),
-
-    /**
-     * Feature that specifies how characters outside "Basic Multilingual Plane" (BMP) -- ones encoded
-     * as 4-byte UTF-8 sequences but represented in JVM memory as 2 16-bit "surrogate" {@code chars} --
-     * should be encoded as UTF-8 by {@link JsonGenerator}.
-     * If enabled, surrogate pairs are combined and flushed as a
-     * single, 4-byte UTF-8 character.
-     * If disabled, each {@code char} of pair is written as 2 separate characters: that is, as 2
-     * separate 3-byte UTF-8 characters with values in Surrogate character ranges
-     * ({@code 0xD800} - {@code 0xDBFF} and {@code 0xDC00} - {@code 0xDFFF})
-     * <p>
-     * Note that this feature only has effect for {@link JsonGenerator}s that directly encode
-     * {@code byte}-based output, as UTF-8 (target {@link java.io.OutputStream}, {@code byte[]}
-     * and so on); it will not (cannot) change handling of
-     * {@code char}-based output (like {@link java.io.Writer} or {@link java.lang.String}).
-     * <p>
-     * Feature is enabled by default in Jackson 3.0 (was disabled in 2.x).
-     */
-    COMBINE_UNICODE_SURROGATES_IN_UTF8(true),
-
     ;
 
-    final private boolean _defaultState;
-    final private int _mask;
+    private final boolean _defaultState;
+    private final int _mask;
 
     /**
      * Method that calculates bit set (flags) of all features that

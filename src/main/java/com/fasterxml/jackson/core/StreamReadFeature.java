@@ -33,22 +33,6 @@ public enum StreamReadFeature
     // // // Validity checks
 
     /**
-     * Feature that determines whether {@link JsonParser} will explicitly
-     * check that no duplicate JSON Object field names are encountered.
-     * If enabled, parser will check all names within context and report
-     * duplicates by throwing a {@link JsonParseException}; if disabled,
-     * parser will not do such checking. Assumption in latter case is
-     * that caller takes care of handling duplicates at a higher level:
-     * data-binding, for example, has features to specify detection to
-     * be done there.
-     *<p>
-     * Note that enabling this feature will incur performance overhead
-     * due to having to store and check additional information: this typically
-     * adds 20-30% to execution time for basic parsing.
-     */
-    STRICT_DUPLICATE_DETECTION(JsonParser.Feature.STRICT_DUPLICATE_DETECTION),
-
-    /**
      * Feature that determines what to do if the underlying data format requires knowledge
      * of all properties to decode (usually via a Schema), and if no definition is
      * found for a property that input content contains.
@@ -70,7 +54,34 @@ public enum StreamReadFeature
      */
     IGNORE_UNDEFINED(JsonParser.Feature.IGNORE_UNDEFINED),
 
+    /**
+     * Feature that determines whether {@link JsonParser} will explicitly
+     * check that no duplicate JSON Object field names are encountered.
+     * If enabled, parser will check all names within context and report
+     * duplicates by throwing a {@link JsonParseException}; if disabled,
+     * parser will not do such checking. Assumption in latter case is
+     * that caller takes care of handling duplicates at a higher level:
+     * data-binding, for example, has features to specify detection to
+     * be done there.
+     *<p>
+     * Note that enabling this feature will incur performance overhead
+     * due to having to store and check additional information: this typically
+     * adds 20-30% to execution time for basic parsing.
+     */
+    STRICT_DUPLICATE_DETECTION(JsonParser.Feature.STRICT_DUPLICATE_DETECTION),
+
     // // // Other
+
+    /**
+     * Feature that determines whether parser will clear "current token"
+     * (accessible via JsonParser#currentToken()) when it is closed (via
+     * {@link JsonParser#close()}).
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.20
+     */
+    CLEAR_CURRENT_TOKEN_ON_CLOSE(JsonParser.Feature.CLEAR_CURRENT_TOKEN_ON_CLOSE),
 
     /**
      * Feature that determines whether {@link JsonLocation} instances should be constructed
@@ -92,17 +103,6 @@ public enum StreamReadFeature
     INCLUDE_SOURCE_IN_LOCATION(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION),
 
     /**
-     * Feature that determines whether we use the built-in {@link Double#parseDouble(String)} code to parse
-     * doubles or if we use {@code FastDoubleParser}
-     * instead.
-     *<p>
-     * This setting is disabled by default.
-     *
-     * @since 2.14
-     */
-    USE_FAST_DOUBLE_PARSER(JsonParser.Feature.USE_FAST_DOUBLE_PARSER),
-
-    /**
      * Feature that determines whether to use the built-in Java code for parsing
      * <code>BigDecimal</code>s and <code>BigInteger</code>s or to use
      * {@code FastDoubleParser} instead.
@@ -114,16 +114,16 @@ public enum StreamReadFeature
     USE_FAST_BIG_NUMBER_PARSER(JsonParser.Feature.USE_FAST_BIG_NUMBER_PARSER),
 
     /**
-     * Feature that determines whether parser will clear "current token"
-     * (accessible via JsonParser#currentToken()) when it is closed (via
-     * {@link JsonParser#close()}).
+     * Feature that determines whether we use the built-in {@link Double#parseDouble(String)} code to parse
+     * doubles or if we use {@code FastDoubleParser}
+     * instead.
      *<p>
-     * Feature is enabled by default.
+     * This setting is disabled by default.
      *
-     * @since 2.20
+     * @since 2.14
      */
-    CLEAR_CURRENT_TOKEN_ON_CLOSE(JsonParser.Feature.CLEAR_CURRENT_TOKEN_ON_CLOSE),
-    
+    USE_FAST_DOUBLE_PARSER(JsonParser.Feature.USE_FAST_DOUBLE_PARSER),
+
     ;
 
     /**
@@ -137,7 +137,7 @@ public enum StreamReadFeature
      * For backwards compatibility we may need to map to one of existing {@link JsonParser.Feature}s;
      * if so, this is the feature to enable/disable.
      */
-    final private JsonParser.Feature _mappedFeature;
+    private final JsonParser.Feature _mappedFeature;
 
     private StreamReadFeature(JsonParser.Feature mapTo) {
         // only for 2.x, let's map everything to legacy feature:

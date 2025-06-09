@@ -44,6 +44,18 @@ public enum JsonReadFeature
     // // // Support for non-standard data format constructs: quoting/escaping
 
     /**
+     * Feature that can be enabled to accept quoting of all character
+     * using backslash quoting mechanism: if not enabled, only characters
+     * that are explicitly listed by JSON specification can be thus
+     * escaped (see JSON spec for small list of these characters)
+     *<p>
+     * Since JSON specification requires quoting for all control characters,
+     * this is a non-standard feature, and as such disabled by default.
+     */
+    @SuppressWarnings("deprecation")
+    ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false, JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER),
+
+    /**
      * Feature that determines whether parser will allow use
      * of single quotes (apostrophe, character '\'') for
      * quoting Strings (names and String values). If so,
@@ -54,17 +66,6 @@ public enum JsonReadFeature
      * this is a non-standard feature, and as such disabled by default.
      */
     ALLOW_SINGLE_QUOTES(false, JsonParser.Feature.ALLOW_SINGLE_QUOTES),
-
-    /**
-     * Feature that determines whether parser will allow use
-     * of unquoted field names (which is allowed by Javascript,
-     * but not by JSON specification).
-     *<p>
-     * Since JSON specification requires use of double quotes for
-     * field names,
-     * this is a non-standard feature, and as such disabled by default.
-     */
-    ALLOW_UNQUOTED_FIELD_NAMES(false, JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES),
 
     /**
      * Feature that determines whether parser will allow
@@ -81,6 +82,17 @@ public enum JsonReadFeature
     ALLOW_UNESCAPED_CONTROL_CHARS(false, JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS),
 
     /**
+     * Feature that determines whether parser will allow use
+     * of unquoted field names (which is allowed by Javascript,
+     * but not by JSON specification).
+     *<p>
+     * Since JSON specification requires use of double quotes for
+     * field names,
+     * this is a non-standard feature, and as such disabled by default.
+     */
+    ALLOW_UNQUOTED_FIELD_NAMES(false, JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES),
+
+    /**
      * Feature that determines whether parser will allow
      * Record Separator (RS) control character ({@code 0x1E})
      * as part of ignorable whitespace in JSON input, similar to the TAB character.
@@ -93,47 +105,7 @@ public enum JsonReadFeature
     @SuppressWarnings("deprecation")
     ALLOW_RS_CONTROL_CHAR(false, JsonParser.Feature.ALLOW_RS_CONTROL_CHAR),
 
-    /**
-     * Feature that can be enabled to accept quoting of all character
-     * using backslash quoting mechanism: if not enabled, only characters
-     * that are explicitly listed by JSON specification can be thus
-     * escaped (see JSON spec for small list of these characters)
-     *<p>
-     * Since JSON specification requires quoting for all control characters,
-     * this is a non-standard feature, and as such disabled by default.
-     */
-    @SuppressWarnings("deprecation")
-    ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false, JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER),
-
     // // // Support for non-standard data format constructs: number representations
-
-    /**
-     * Feature that determines whether parser will allow
-     * JSON integral numbers to start with additional (ignorable)
-     * zeroes (like: 000001). If enabled, no exception is thrown, and extra
-     * nulls are silently ignored (and not included in textual representation
-     * exposed via {@link JsonParser#getText}).
-     *<p>
-     * Since JSON specification does not allow leading zeroes,
-     * this is a non-standard feature, and as such disabled by default.
-     */
-    @SuppressWarnings("deprecation")
-    ALLOW_LEADING_ZEROS_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS),
-
-    /**
-     * Feature that determines whether parser will allow
-     * JSON decimal numbers to start with a plus sign
-     * (like: +123). If enabled, no exception is thrown, and the number
-     * is parsed as though a leading sign had not been present.
-     *<p>
-     * Since JSON specification does not allow leading plus signs,
-     * this is a non-standard feature, and as such disabled by default.
-     *
-     * @since 2.14
-     */
-    @SuppressWarnings("deprecation")
-    ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS),
-
 
     /**
      * Feature that determines whether parser will allow
@@ -151,17 +123,30 @@ public enum JsonReadFeature
 
     /**
      * Feature that determines whether parser will allow
-     * JSON decimal numbers to end with a decimal point
-     * (like: 123.). If enabled, no exception is thrown, and the number
-     * is parsed as though the trailing decimal point had not been present.
+     * JSON decimal numbers to start with a plus sign
+     * (like: +123). If enabled, no exception is thrown, and the number
+     * is parsed as though a leading sign had not been present.
      *<p>
-     * Since JSON specification does not allow trailing decimal points,
+     * Since JSON specification does not allow leading plus signs,
      * this is a non-standard feature, and as such disabled by default.
      *
      * @since 2.14
      */
     @SuppressWarnings("deprecation")
-    ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS),
+    ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS),
+
+    /**
+     * Feature that determines whether parser will allow
+     * JSON integral numbers to start with additional (ignorable)
+     * zeroes (like: 000001). If enabled, no exception is thrown, and extra
+     * nulls are silently ignored (and not included in textual representation
+     * exposed via {@link JsonParser#getText}).
+     *<p>
+     * Since JSON specification does not allow leading zeroes,
+     * this is a non-standard feature, and as such disabled by default.
+     */
+    @SuppressWarnings("deprecation")
+    ALLOW_LEADING_ZEROS_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS),
 
     /**
      * Feature that allows parser to recognize set of
@@ -183,6 +168,20 @@ public enum JsonReadFeature
      */
     @SuppressWarnings("deprecation")
     ALLOW_NON_NUMERIC_NUMBERS(false, JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS),
+
+    /**
+     * Feature that determines whether parser will allow
+     * JSON decimal numbers to end with a decimal point
+     * (like: 123.). If enabled, no exception is thrown, and the number
+     * is parsed as though the trailing decimal point had not been present.
+     *<p>
+     * Since JSON specification does not allow trailing decimal points,
+     * this is a non-standard feature, and as such disabled by default.
+     *
+     * @since 2.14
+     */
+    @SuppressWarnings("deprecation")
+    ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS),
 
     // // // Support for non-standard data format constructs: array/value separators
 
@@ -226,14 +225,14 @@ public enum JsonReadFeature
     ALLOW_TRAILING_COMMA(false, JsonParser.Feature.ALLOW_TRAILING_COMMA),
     ;
 
-    final private boolean _defaultState;
-    final private int _mask;
+    private final boolean _defaultState;
+    private final int _mask;
 
     /**
      * For backwards compatibility we may need to map to one of existing {@link JsonParser.Feature}s;
      * if so, this is the feature to enable/disable.
      */
-    final private JsonParser.Feature _mappedFeature;
+    private final JsonParser.Feature _mappedFeature;
 
     /**
      * Method that calculates bit set (flags) of all features that

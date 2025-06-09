@@ -15,6 +15,18 @@ public enum JsonWriteFeature
     // // Quoting/escaping-related features
 
     /**
+     * Feature that specifies that all characters beyond 7-bit ASCII
+     * range (i.e. code points of 128 and above) need to be output
+     * using format-specific escapes (for JSON, backslash escapes),
+     * if format uses escaping mechanisms (which is generally true
+     * for textual formats but not for binary formats).
+     *<p>
+     * Feature is disabled by default.
+     */
+    @SuppressWarnings("deprecation")
+    ESCAPE_NON_ASCII(false, JsonGenerator.Feature.ESCAPE_NON_ASCII),
+
+    /**
      * Feature that determines whether JSON Object field names are
      * quoted using double-quotes, as specified by JSON specification
      * or not. Ability to disable quoting was added to support use
@@ -25,6 +37,20 @@ public enum JsonWriteFeature
      */
     @SuppressWarnings("deprecation")
     QUOTE_FIELD_NAMES(true, JsonGenerator.Feature.QUOTE_FIELD_NAMES),
+
+    /**
+     * Feature that specifies that hex values are encoded with upper-case letters.
+     *<p>
+     * Can be disabled to have a better possibility to compare between other JSON
+     * writer libraries, such as JSON.stringify from Javascript.
+     *<p>
+     * Feature is enabled by default for backwards compatibility with earlier
+     * versions.
+     *
+     * @since 2.14
+     */
+    @SuppressWarnings("deprecation")
+    WRITE_HEX_UPPER_CASE(true, JsonGenerator.Feature.WRITE_HEX_UPPER_CASE),
 
     /**
      * Feature that determines whether "NaN" ("not a number", that is, not
@@ -59,32 +85,6 @@ public enum JsonWriteFeature
      */
     @SuppressWarnings("deprecation")
     WRITE_NUMBERS_AS_STRINGS(false, JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS),
-
-    /**
-     * Feature that specifies that all characters beyond 7-bit ASCII
-     * range (i.e. code points of 128 and above) need to be output
-     * using format-specific escapes (for JSON, backslash escapes),
-     * if format uses escaping mechanisms (which is generally true
-     * for textual formats but not for binary formats).
-     *<p>
-     * Feature is disabled by default.
-     */
-    @SuppressWarnings("deprecation")
-    ESCAPE_NON_ASCII(false, JsonGenerator.Feature.ESCAPE_NON_ASCII),
-
-    /**
-     * Feature that specifies that hex values are encoded with capital letters.
-     *<p>
-     * Can be disabled to have a better possibility to compare between other JSON
-     * writer libraries, such as JSON.stringify from Javascript.
-     *<p>
-     * Feature is enabled by default for backwards compatibility with earlier
-     * versions.
-     *
-     * @since 2.14
-     */
-    @SuppressWarnings("deprecation")
-    WRITE_HEX_UPPER_CASE(true, JsonGenerator.Feature.WRITE_HEX_UPPER_CASE),
 
 //23-Nov-2015, tatu: for [core#223], if and when it gets implemented
     /*
@@ -141,14 +141,14 @@ public enum JsonWriteFeature
 
     ;
 
-    final private boolean _defaultState;
-    final private int _mask;
+    private final boolean _defaultState;
+    private final int _mask;
 
     /**
      * For backwards compatibility we may need to map to one of existing {@link JsonGenerator.Feature}s;
      * if so, this is the feature to enable/disable.
      */
-    final private JsonGenerator.Feature _mappedFeature;
+    private final JsonGenerator.Feature _mappedFeature;
 
     /**
      * Method that calculates bit set (flags) of all features that

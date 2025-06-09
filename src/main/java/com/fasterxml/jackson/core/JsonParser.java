@@ -2100,7 +2100,7 @@ public abstract class JsonParser
     }
 
     /**
-     * Method that can be used as an alternative to {@link #getBigIntegerValue()},
+     * Method that can be used as an alternative to {@link #getBinaryValue()},
      * especially when value can be large. The main difference (beyond method
      * of returning content using {@link OutputStream} instead of as byte array)
      * is that content will NOT remain accessible after method returns: any content

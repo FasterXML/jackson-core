@@ -175,6 +175,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
         <configuration>
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
           <createDependencyReducedPom>true</createDependencyReducedPom>
@@ -210,6 +211,14 @@ com.fasterxml.jackson.core.*;version=${project.version}
                      parent pom
                     -->
                   <shadedPattern>com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>ch/randelshofer/fastdoubleparser/bte</pattern>
+                  <shadedPattern>com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}/bte</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>ch/randelshofer/fastdoubleparser/chr</pattern>
+                  <shadedPattern>com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}/chr</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/LICENSE</pattern>

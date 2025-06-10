@@ -22,7 +22,7 @@ jobs:
         os: ['ubuntu-24.04']
         include:
           - java_version: '8'
-            os: 'ubuntu-22.04'
+            os: 'ubuntu-24.04'
             release_build: 'R'
           - java_version: '8'
             os: 'windows-latest'

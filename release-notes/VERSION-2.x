@@ -52,6 +52,10 @@ a pure JSON library.
 #1433: `JsonParser#getNumberType()` throws `JsonParseException` when
   the current token is non-numeric instead of returning null
  (reported by @CrazySqueak)
+#1446: Invalid package reference to "java.lang.foreign" from
+  `com.fasterxml.jackson.core:jackson-core` (from `FastDoubleParser`) [Android]
+ (reported by Vincent B)
+ (fix by @pjfanning)
 
 2.18.4 (06-May-2025)
 

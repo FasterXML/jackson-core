@@ -192,7 +192,12 @@ com.fasterxml.jackson.core.*;version=${project.version}
                 <filter>
                   <artifact>ch.randelshofer:fastdoubleparser</artifact>
                   <excludes>
+                    <exclude>META-INF/LICENSE</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
                     <exclude>META-INF/versions/**/module-info.*</exclude>
+                    <!-- 09-Jun-2025, PJ: [core#1446] Exclude Multi-Release classes
+                       for Java 22 due to issues in Android Linting tool -->
+                    <exclude>META-INF/versions/22/**</exclude>
                   </excludes>
                 </filter>
               </filters>
@@ -233,10 +238,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
                 <relocation>
                   <pattern>META-INF/versions/21/ch/randelshofer/fastdoubleparser</pattern>
                   <shadedPattern>META-INF/versions/21/com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>META-INF/versions/22/ch/randelshofer/fastdoubleparser</pattern>
-                  <shadedPattern>META-INF/versions/22/com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

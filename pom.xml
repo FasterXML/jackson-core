@@ -196,8 +196,8 @@ com.fasterxml.jackson.core.*;version=${project.version}
                     <exclude>META-INF/MANIFEST.MF</exclude>
                     <exclude>META-INF/versions/**/module-info.*</exclude>
                     <!-- 09-Jun-2025, PJ: [core#1446] Exclude Multi-Release classes
-                       for Java 22 due to issues in Android Linting tool -->
-                    <exclude>META-INF/versions/22/**</exclude>
+                       for Java 23 due to issues in Android Linting tool -->
+                    <exclude>META-INF/versions/23/**</exclude>
                   </excludes>
                 </filter>
               </filters>

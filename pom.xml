@@ -190,6 +190,8 @@ tools.jackson.core.*;version=${project.version}
                 <filter>
                   <artifact>ch.randelshofer:fastdoubleparser</artifact>
                   <excludes>
+                    <exclude>META-INF/LICENSE</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
                     <exclude>META-INF/versions/**/module-info.*</exclude>
                     <exclude>META-INF/versions/11/**/*</exclude>
                   </excludes>

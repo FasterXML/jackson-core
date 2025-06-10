@@ -467,3 +467,8 @@ Haruki (@stackunderflow111)
   when custom characterEscape is used
   (2.18.3)
 
+Vincent Biret (@baywet)
+ * Reported #1446: Invalid package reference to "java.lang.foreign" from
+  `com.fasterxml.jackson.core:jackson-core` (from `FastDoubleParser`) [Android]
+  (2.18.5)
+

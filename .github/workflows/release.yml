@@ -5,19 +5,22 @@
 # over and perform the actual release.
 
 name: Publish new release
+
+# 10-Jun-2025, tatu: Disabled since it doesn't work
 on:
-  push:
-    tags:
-      - "*"
-      - "!*.pr*"
-      - "!*b"
+  workflow_dispatch:
+#  push:
+#    tags:
+#      - "*"
+#      - "!*.pr*"
+#      - "!*b"
 
 permissions:
   contents: read
 
 jobs:
   release:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
       TAG: ${{ github.ref_name }}

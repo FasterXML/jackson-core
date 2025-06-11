@@ -175,7 +175,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.0</version>
         <configuration>
           <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
           <createDependencyReducedPom>true</createDependencyReducedPom>

@@ -14,6 +14,10 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.18.5 (not yet released)
+
+-
+
 2.18.4.1 (10-June-2025)
 
 #1433: `JsonParser#getNumberType()` throws `JsonParseException` when

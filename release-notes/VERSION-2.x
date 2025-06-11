@@ -18,6 +18,8 @@ a pure JSON library.
 
 #1438: `ParserBase.close()` does not clear `_currToken`
 #1441: Add `StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE` (default: true)
+#1448: Upgrade `FastDoubleParser` to 2.0.1
+ (contributed by @pjfanning)
 - Generate SBOMs [JSTEP-14]
 
 2.19.1 (not yet released)
@@ -29,7 +31,6 @@ a pure JSON library.
   `com.fasterxml.jackson.core:jackson-core` (from `FastDoubleParser`) [Android]
  (reported by Vincent B)
  (fix by @pjfanning)
-
 
 2.19.0 (24-Apr-2025)
 

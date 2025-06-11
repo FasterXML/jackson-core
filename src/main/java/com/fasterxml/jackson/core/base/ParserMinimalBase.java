@@ -31,6 +31,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int INT_LF = '\n';
     protected final static int INT_CR = '\r';
     protected final static int INT_SPACE = 0x0020;
+    protected final static int INT_RS = 0x001E;
 
     // Markup
     protected final static int INT_LBRACKET = '[';

@@ -178,6 +178,23 @@ public abstract class JsonParser
         ALLOW_SINGLE_QUOTES(false),
 
         /**
+         * Feature that determines whether parser will allow use 
+         * of the RS control character ({@code 0x1E}) within ignorable
+         * whitespace portion of input content (similar to TAB which
+         * is an allowed control character).
+         *<p>
+         * Since JSON specification only allows a small set of control characters
+         * as whitespace by default,
+         * this is a non-standard feature, and as such disabled by default.
+         *<p>
+         * NOTE: while not technically deprecated, it is recommended to use
+         * {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_RS_CONTROL_CHAR} instead.
+         *
+         * @since 2.17
+         */
+        ALLOW_RS_CONTROL_CHAR(false),
+
+        /**
          * Feature that determines whether parser will allow
          * JSON Strings to contain unquoted control characters
          * (ASCII characters with value less than 32, including

@@ -14,7 +14,7 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.19.1 (not yet released)
+2.19.1 (13-Jun-2025)
 
 #1425: `JsonPointer.head()` throws `StringIndexOutOfBoundsException` for
   valid JSON Pointers

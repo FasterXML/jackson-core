@@ -645,11 +645,16 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+
+        // When writing raw UTF-8 encoded bytes, it is beneficial if the escaping table can directly be indexed into
+        // using the byte value.
+        final int[] extendedOutputEscapes = _extendOutputEscapesTo8Bits();
+
         // One or multiple segments?
         if (len <= _outputMaxContiguous) {
-            _writeUTF8Segment(text, offset, len);
+            _writeUTF8Segment(text, offset, len, extendedOutputEscapes);
         } else {
-            _writeUTF8Segments(text, offset, len);
+            _writeUTF8Segments(text, offset, len, extendedOutputEscapes);
         }
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -1864,28 +1869,26 @@ public class UTF8JsonGenerator
      * to fit in the output buffer after escaping; as such, we just need to
      * chunk writes.
      */
-    private final void _writeUTF8Segments(byte[] utf8, int offset, int totalLen)
+    private final void _writeUTF8Segments(byte[] utf8, int offset, int totalLen, final int[] extendedOutputEscapes)
         throws IOException, JsonGenerationException
     {
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
-            _writeUTF8Segment(utf8, offset, len);
+            _writeUTF8Segment(utf8, offset, len, extendedOutputEscapes);
             offset += len;
             totalLen -= len;
         } while (totalLen > 0);
     }
 
-    private final void _writeUTF8Segment(byte[] utf8, final int offset, final int len)
+    private final void _writeUTF8Segment(byte[] utf8, final int offset, final int len, final int[] extendedOutputEscapes)
         throws IOException, JsonGenerationException
     {
         // fast loop to see if escaping is needed; don't copy, just look
-        final int[] escCodes = _outputEscapes;
-
         for (int ptr = offset, end = offset + len; ptr < end; ) {
             // 28-Feb-2011, tatu: escape codes just cover 7-bit range, so:
-            int ch = utf8[ptr++];
-            if ((ch >= 0) && escCodes[ch] != 0) {
-                _writeUTF8Segment2(utf8, offset, len);
+            int ch = utf8[ptr++] & 0xFF;
+            if (extendedOutputEscapes[ch] != 0) {
+                _writeUTF8Segment2(utf8, offset, len, extendedOutputEscapes);
                 return;
             }
         }
@@ -1898,7 +1901,7 @@ public class UTF8JsonGenerator
         _outputTail += len;
     }
 
-    private final void _writeUTF8Segment2(final byte[] utf8, int offset, int len)
+    private final void _writeUTF8Segment2(final byte[] utf8, int offset, int len, final int[] extendedOutputEscapes)
         throws IOException, JsonGenerationException
     {
         int outputPtr = _outputTail;
@@ -1910,17 +1913,16 @@ public class UTF8JsonGenerator
         }
 
         final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
         len += offset; // so 'len' becomes 'end'
 
         while (offset < len) {
             byte b = utf8[offset++];
-            int ch = b;
-            if (ch < 0 || escCodes[ch] == 0) {
+            int ch = b & 0xFF;
+            int escape = extendedOutputEscapes[ch];
+            if (escape == 0) {
                 outputBuffer[outputPtr++] = b;
                 continue;
             }
-            int escape = escCodes[ch];
             if (escape > 0) { // 2-char escape, fine
                 outputBuffer[outputPtr++] = BYTE_BACKSLASH;
                 outputBuffer[outputPtr++] = (byte) escape;
@@ -1930,6 +1932,18 @@ public class UTF8JsonGenerator
             }
         }
         _outputTail = outputPtr;
+    }
+
+    private int[] _extendOutputEscapesTo8Bits() {
+        final int[] escapes = _outputEscapes;
+        if (escapes.length >= 0xFF) {
+            return escapes;
+        }
+
+        final int[] extended = new int[0xFF];
+        System.arraycopy(escapes, 0, extended, 0, escapes.length);
+        _outputEscapes = extended;
+        return extended;
     }
 
     /*

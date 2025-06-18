@@ -405,14 +405,14 @@ final public class FloatToDecimal {
     /*
     Formats the decimal f 10^e.
      */
-    private int toChars(int f, int e) {
+    private int toChars(long f, int e) {
         /*
         For details not discussed here see section 10 of [1].
 
         Determine len such that
             10^(len-1) <= f < 10^len
          */
-        int len = flog10pow2(Integer.SIZE - numberOfLeadingZeros(f));
+        int len = flog10pow2(Long.SIZE - numberOfLeadingZeros(f));
         if (f >= pow10(len)) {
             len += 1;
         }
@@ -437,7 +437,7 @@ final public class FloatToDecimal {
             floor(f / 10^8) = floor(1_441_151_881 f / 2^57)
          */
         int h = (int) (f * 1_441_151_881L >>> 57);
-        int l = f - 100_000_000 * h;
+        int l = (int) (f - 100_000_000L * h);
 
         if (0 < e && e <= 7) {
             return toChars1(h, l, e);

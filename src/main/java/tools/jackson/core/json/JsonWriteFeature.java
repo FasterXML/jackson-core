@@ -59,9 +59,10 @@ public enum JsonWriteFeature
     COMBINE_UNICODE_SURROGATES_IN_UTF8(true),
 
     /**
-     * Feature that specifies whether {@link JsonGenerator} should escape forward slashes.
+     * Feature that specifies whether {@link JsonGenerator} should escape forward slashes
+     * (unless overridden by custom escaping (see {@link tools.jackson.core.io.CharacterEscapes})).
      * <p>
-     * Feature is enabled by default in Jackson 3.0 (was disabled in 2.x).
+     * Feature is disabled by default.
      */
     ESCAPE_FORWARD_SLASHES(true),
 

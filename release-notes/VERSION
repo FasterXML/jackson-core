@@ -15,7 +15,13 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-3.0.0-rc5 (18-Jul-2025)
+3.0.0-rc7 (not yet released)
+
+* REVERT #1200: Change `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` default
+  to `true` for 3.0
+ (that is, default remains `false` same as in 2.x)
+
+3.0.0-rc6 (18-Jul-2025)
 
 #1434: Change `JsonParser.getNumberType()` to return `null` instead of
   throwing exception in 3.0
@@ -59,7 +65,8 @@ No changes since 3.0.0-rc1
 #793: Rename "com.fasterxml.jackson" -> "tools.jackson"
 #1090: Remove `BufferRecyclers.SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS`
 #1125: Remove `TokenStreamFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING`
-#1200: Change `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` default to `true` for 3.0
+(REVERTED in 3.0.0-rc7: #1200: Change `JsonWriteFeature.ESCAPE_FORWARD_SLASHES`
+  default to `true` for 3.0)
 #1231: Enable Fast Floating-Point reading by default in 3.0
 #1233: Lower default `maxNestingDepth` of `StreamReadConstraints` /
   `StreamWriteConstraints` to 500 in 3.0

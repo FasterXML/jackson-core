@@ -15,11 +15,15 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-3.0.0-rc7 (08-Aug-2025)
+3.0.0-rc8 (not yet released)
 
 * REVERT #1200: Change `JsonWriteFeature.ESCAPE_FORWARD_SLASHES` default
   to `true` for 3.0
  (that is, default remains `false` same as in 2.x)
+
+3.0.0-rc7 (08-Aug-2025)
+
+No changes since 3.0.0-rc6
 
 3.0.0-rc6 (18-Jul-2025)
 

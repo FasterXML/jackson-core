@@ -64,7 +64,7 @@ public enum JsonWriteFeature
      * <p>
      * Feature is disabled by default.
      */
-    ESCAPE_FORWARD_SLASHES(true),
+    ESCAPE_FORWARD_SLASHES(false),
 
     /**
      * Feature that specifies that all characters beyond 7-bit ASCII

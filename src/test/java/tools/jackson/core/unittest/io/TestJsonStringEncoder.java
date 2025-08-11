@@ -83,22 +83,27 @@ class TestJsonStringEncoder
         // In this case, let's actually use existing JsonGenerator to produce expected values
         JsonFactory f = new JsonFactory();
         JsonStringEncoder encoder = new JsonStringEncoder();
-        int[] lengths = new int[] {
-            5, 19, 200, 7000, 21000, 37000
-        };
-        for (int length : lengths) {
-            String str = generateRandom(length);
-            StringWriter sw = new StringWriter(length*2);
-            JsonGenerator jgen = f.createGenerator(ObjectWriteContext.empty(), sw);
-            jgen.writeString(str);
-            jgen.close();
-            String encoded = sw.toString();
-            // ok, except need to remove surrounding quotes
-            encoded = encoded.substring(1, encoded.length() - 1);
-            byte[] expected = encoded.getBytes("UTF-8");
-            byte[] actual = encoder.quoteAsUTF8(str);
-            assertArrayEquals(expected, actual);
+        for (int length : new int[] {
+                5, 19, 200, 7000, 21000, 37000
+            }) {
+            _quoteAsUTF8(f, encoder, length);
         }
+    }
+
+    private void _quoteAsUTF8(JsonFactory f, JsonStringEncoder encoder, int length) throws Exception
+    {
+        String str = generateRandom(length);
+        StringWriter sw = new StringWriter(length*2);
+        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw)) {
+            g.writeString(str);
+        }
+        String encoded = sw.toString();
+        // ok, except need to remove surrounding quotes
+        encoded = encoded.substring(1, encoded.length() - 1);
+        byte[] expected = encoded.getBytes("UTF-8");
+        byte[] actual = encoder.quoteAsUTF8(str);
+        assertArrayEquals(expected, actual,
+                "For content length "+length);
     }
 
     @Test

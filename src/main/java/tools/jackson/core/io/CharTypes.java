@@ -24,10 +24,9 @@ public final class CharTypes
      */
     protected final static int[] sInputCodes;
     static {
-        /* 96 would do for most cases (backslash is ASCII 94)
-         * but if we want to do lookups by raw bytes it's better
-         * to have full table
-         */
+        // 96 would do for most cases (backslash is ASCII 94)
+        // but if we want to do lookups by raw bytes it's better
+        // to have full table
         final int[] table = new int[256];
         // Control chars and non-space white space are not allowed unquoted
         for (int i = 0; i < 32; ++i) {
@@ -217,13 +216,13 @@ public final class CharTypes
      * Value of 0 means "no escaping"; other positive values that value is character
      * to use after backslash; and negative values that generic (backslash - u)
      * escaping is to be used.
-     *<p>
-     * NOTE: as of Jackson 3.0, forward slash ({@code "/"}) is escaped by default.
      *
      * @return 128-entry {@code int[]} that contains escape definitions
      */
     public static int[] get7BitOutputEscapes() {
-        return get7BitOutputEscapes('"', true);
+        // 11-Aug-2025, tatu: Note! 3.x still defaults to NOT escaping forward slash
+        //   by defeault
+        return get7BitOutputEscapes('"', false);
     }
 
     /**

@@ -11,21 +11,22 @@ import tools.jackson.core.json.JsonGeneratorBase;
 import tools.jackson.core.json.JsonWriteFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class JsonWriteFeatureEscapeForwardSlashTest
 {
     @Test
     public void testDefaultSettings() {
         JsonFactory jsonF = new JsonFactory();
-        assertTrue(jsonF.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
+        // 11-Aug-2025, tatu: [core#1200] was reverted, so...
+        assertFalse(jsonF.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
         try (JsonGeneratorBase g = (JsonGeneratorBase) jsonF.createGenerator(ObjectWriteContext.empty(),
                 new StringWriter())) {
-            assertTrue(g.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
+            assertFalse(g.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
         }
         try (JsonGeneratorBase g = (JsonGeneratorBase) jsonF.createGenerator(ObjectWriteContext.empty(),
                 new ByteArrayOutputStream())) {
-            assertTrue(g.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
+            assertFalse(g.isEnabled(JsonWriteFeature.ESCAPE_FORWARD_SLASHES));
         }
     }
 

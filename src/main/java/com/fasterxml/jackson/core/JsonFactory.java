@@ -1221,23 +1221,18 @@ public class JsonFactory
     }
 
     /**
-     * Method for constructing JSON parser instance to parse
-     * contents of resource reference by given URL.
-     *<p>
-     * Encoding is auto-detected from contents according to JSON
-     * specification recommended mechanism. Json specification
-     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
-     * so auto-detection implemented only for this charsets.
-     * For other charsets use {@link #createParser(java.io.Reader)}.
-     *<p>
-     * Underlying input stream (needed for reading contents)
-     * will be <b>owned</b> (and managed, i.e. closed as need be) by
-     * the parser, since caller has no access to it.
+     * Deprecated variant of {@link #createParser(InputStream)} 
+     * no longer recommended to be used due to implementation
+     * problems like {@href "https://github.com/FasterXML/jackson-core/issues/803"}.
      *
      * @param url URL pointing to resource that contains JSON content to parse
      *
      * @since 2.1
+     *
+     * @deprecated Since 2.20 use other variants (like {@link #createParser(InputStream)})
+     *   instead.
      */
+    @Deprecated // since 2.20
     @Override
     public JsonParser createParser(URL url) throws IOException, JsonParseException {
         // true, since we create InputStream from URL

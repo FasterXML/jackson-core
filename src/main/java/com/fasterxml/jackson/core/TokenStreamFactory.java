@@ -198,6 +198,15 @@ public abstract class TokenStreamFactory
     public abstract JsonParser createParser(InputStream in) throws IOException;
     public abstract JsonParser createParser(Reader r) throws IOException;
     public abstract JsonParser createParser(String content) throws IOException;
+
+    /**
+     * Deprecated factory method: no longer recommended to be used due to implementation
+     * problems like {@href "https://github.com/FasterXML/jackson-core/issues/803"}.
+     *
+     * @deprecated since 2.20 caller needs to construct {@link InputStream} (or {@link Reader})
+     *    from {@link URL} directly and pass that.
+     */
+    @Deprecated
     public abstract JsonParser createParser(URL url) throws IOException;
 
     /**

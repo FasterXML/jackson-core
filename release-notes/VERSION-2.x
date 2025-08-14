@@ -14,6 +14,8 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+#1462: Deprecate `URL`-taking factory method of `JsonFactory`
+
 2.20.0-rc1 (04-Aug-2025)
 
 #1438: `ParserBase.close()` does not clear `_currToken`

@@ -93,17 +93,9 @@ public class JsonParserSequence extends JsonParserDelegate
             return new JsonParserSequence(checkForExistingToken,
                     new JsonParser[] { first, second });
         }
-        ArrayList<JsonParser> p = new ArrayList<>();
-        if (first instanceof JsonParserSequence) {
-            ((JsonParserSequence) first).addFlattenedActiveParsers(p);
-        } else {
-            p.add(first);
-        }
-        if (second instanceof JsonParserSequence) {
-            ((JsonParserSequence) second).addFlattenedActiveParsers(p);
-        } else {
-            p.add(second);
-        }
+        ArrayList<JsonParser> p = new ArrayList<>(8);
+        flattenParsers(first, p);
+        flattenParsers(second, p);
         return new JsonParserSequence(checkForExistingToken,
                 p.toArray(new JsonParser[p.size()]));
     }
@@ -116,13 +108,26 @@ public class JsonParserSequence extends JsonParserDelegate
     @SuppressWarnings("resource")
     protected void addFlattenedActiveParsers(List<JsonParser> listToAddIn)
     {
-        for (int i = _nextParserIndex-1, len = _parsers.length; i < len; ++i) {
-            JsonParser p = _parsers[i];
-            if (p instanceof JsonParserSequence) {
-                ((JsonParserSequence) p).addFlattenedActiveParsers(listToAddIn);
-            } else {
-                listToAddIn.add(p);
-            }
+        int i = _nextParserIndex-1;
+        int len = _parsers.length;
+        expandToAdd(listToAddIn, len - i);
+        for (; i < len; ++i) {
+            flattenParsers(_parsers[i], listToAddIn);
+        }
+    }
+
+    private static void flattenParsers(JsonParser parser, List<JsonParser> p) {
+        if (parser instanceof JsonParserSequence) {
+            ((JsonParserSequence) parser).addFlattenedActiveParsers(p);
+        } else {
+            p.add(parser);
+        }
+    }
+
+    private static void expandToAdd(List<?> list, int additionalCapacity) {
+        if (additionalCapacity > 0 && list instanceof ArrayList<?>) {
+            int newCapacity = list.size() + additionalCapacity;
+            ((ArrayList<?>) list).ensureCapacity(newCapacity);
         }
     }
 

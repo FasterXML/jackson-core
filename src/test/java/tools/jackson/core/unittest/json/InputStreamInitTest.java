@@ -60,20 +60,4 @@ class InputStreamInitTest
         assertNotNull(jsonF.lastStream);
         assertTrue(jsonF.lastStream.closed);
     }
-
-    @SuppressWarnings("deprecation")
-    @Test
-    void forURL() throws Exception
-    {
-        final FailingJsonFactory jsonF = new FailingJsonFactory();
-        try {
-            /*JsonParser p =*/ jsonF.createParser(ObjectReadContext.empty(),
-                    new URL("http://localhost:80/"));
-            fail("Should not pass");
-        } catch (Exception e) {
-            verifyException(e, "Will not read");
-        }
-        assertNotNull(jsonF.lastStream);
-        assertTrue(jsonF.lastStream.closed);
-    }
 }

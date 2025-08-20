@@ -108,13 +108,6 @@ public class JsonFactoryTest
         assertNull(p.nextToken());
         p.close();
 
-        // Then via URL:
-        p = f.createParser(ObjectReadContext.empty(), file.toURI().toURL());
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertNull(p.nextToken());
-        p.close();
-
         // ok, delete once we are done
         file.delete();
     }
@@ -269,17 +262,6 @@ public class JsonFactoryTest
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
         JsonParser jsonParser = new JsonFactory()
                 .createParser(ObjectReadContext.empty(), path);
-
-        assertEquals(jsonParser.nextStringValue(), "value");
-    }
-
-    @Test
-    public void test_createParser_Url() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), path.toUri().toURL());
 
         assertEquals(jsonParser.nextStringValue(), "value");
     }

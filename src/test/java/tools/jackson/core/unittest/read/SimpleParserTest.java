@@ -1,7 +1,6 @@
 package tools.jackson.core.unittest.read;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -494,23 +493,6 @@ class SimpleParserTest extends JacksonCoreTestBase
         assertNotNull(loc);
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
-        p.close();
-    }
-
-    // [core#48]
-    @SuppressWarnings("deprecation")
-    @Test
-    void spacesInURL() throws Exception
-    {
-        File f = File.createTempFile("pre fix&stuff", ".txt");
-        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
-        w.write("{ }");
-        w.close();
-        URL url = f.toURI().toURL();
-
-        JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), url);
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }
 

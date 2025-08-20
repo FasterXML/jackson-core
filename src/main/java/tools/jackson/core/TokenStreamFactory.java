@@ -627,32 +627,6 @@ public abstract class TokenStreamFactory
             Path p) throws JacksonException;
 
     /**
-     * Method for constructing JSON parser instance to decode
-     * contents of resource reference by given URL.
-     *
-     *<p>
-     * Encoding is auto-detected from contents according to JSON
-     * specification recommended mechanism. Json specification
-     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
-     * so auto-detection implemented only for this charsets.
-     * For other charsets use {@link #createParser(java.io.Reader)}.
-     *<p>
-     * Underlying input stream (needed for reading contents)
-     * will be <b>owned</b> (and managed, i.e. closed as need be) by
-     * the parser, since caller has no access to it.
-     *
-     * @param readCtxt Object read context to use
-     * @param url URL pointing to resource that contains content to parse
-     *
-     * @return Parser constructed
-     *
-     * @throws JacksonException If parser construction or initialization fails
-     */
-    @Deprecated // since 3.0
-    public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            URL url) throws JacksonException;
-
-    /**
      * Method for constructing JSON parser instance to parse
      * the contents accessed via specified input stream.
      *<p>
@@ -789,19 +763,6 @@ public abstract class TokenStreamFactory
     @Deprecated
     public JsonParser createParser(File f) throws JacksonException {
         return createParser(ObjectReadContext.empty(), f);
-    }
-
-    /**
-     * @param src Resource that contains content to parse
-     * @return Parser constructed
-     *
-     * @throws JacksonException If parser construction or initialization fails
-     *
-     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.net.URL)}
-     */
-    @Deprecated
-    public JsonParser createParser(URL src) throws JacksonException {
-        return createParser(ObjectReadContext.empty(), src);
     }
 
     /**
@@ -1318,7 +1279,10 @@ public abstract class TokenStreamFactory
      * @return InputStream constructed for given {@link URL}
      *
      * @throws JacksonException If there is a problem accessing content from specified {@link URL}
+     *
+     * @deprecated Since 3.0
      */
+    @Deprecated // since 3.0
     protected InputStream _optimizedStreamFromURL(URL url) throws JacksonException {
         if ("file".equals(url.getProtocol())) {
             /* Cannot do this if the path refers

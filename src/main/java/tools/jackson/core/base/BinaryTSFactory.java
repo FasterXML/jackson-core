@@ -1,7 +1,6 @@
 package tools.jackson.core.base;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Path;
 
 import tools.jackson.core.*;
@@ -85,18 +84,6 @@ public abstract class BinaryTSFactory
         IOContext ioCtxt = _createContext(_createContentReference(p), true);
         return _createParser(readCtxt, ioCtxt,
                 _decorate(ioCtxt, _pathInputStream(p)));
-    }
-
-    @Deprecated // since 3.0
-    @Override
-    public JsonParser createParser(ObjectReadContext readCtxt,
-            URL url) throws JacksonException
-    {
-        // true, since we create InputStream from URL
-        IOContext ioCtxt = _createContext(_createContentReference(url), true);
-        InputStream in = _optimizedStreamFromURL(url);
-        return _createParser(readCtxt, ioCtxt,
-                _decorate(ioCtxt, in));
     }
 
     @Override

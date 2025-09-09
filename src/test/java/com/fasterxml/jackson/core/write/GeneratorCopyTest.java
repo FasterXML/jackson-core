@@ -100,4 +100,39 @@ class GeneratorCopyTest
         gen.close();
         assertEquals("{\"a\":1}", sw.toString());
     }
+
+    @Test
+    void copyNumericTokensExactly()
+            throws Exception
+    {
+        JsonFactory jf = JSON_F;
+        final String DOC = a2q("{ 'a':0.123456789123456789123456789, 'b':[" +
+            "{ 'c' : null, 'd' : 0.123456789123456789123456789 }] }");
+        try(JsonParser jp = jf.createParser(new StringReader(DOC))) {
+            StringWriter sw = new StringWriter();
+            try (JsonGenerator gen = jf.createGenerator(sw)) {
+                assertToken(JsonToken.START_OBJECT, jp.nextToken());
+                gen.copyCurrentStructureExact(jp);
+                // which will advance parser to matching end Object
+                assertToken(JsonToken.END_OBJECT, jp.currentToken());
+            }
+
+            assertEquals(
+                a2q("{'a':0.123456789123456789123456789,'b':[" +
+                    "{'c':null,'d':0.123456789123456789123456789}]}"),
+                sw.toString()
+            );
+        }
+
+        try(JsonParser jp = jf.createParser(new StringReader("0.123456789123456789123456789"))) {
+            StringWriter sw = new StringWriter();
+            try (JsonGenerator gen = jf.createGenerator(sw)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
+                gen.copyCurrentStructureExact(jp);
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.currentToken());
+            }
+
+            assertEquals("0.123456789123456789123456789", sw.toString());
+        }
+    }
 }

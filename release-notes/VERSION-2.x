@@ -14,14 +14,17 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-#1462: Deprecate `URL`-taking factory method of `JsonFactory`
+2.21.0 (not yet released)
 
-2.20.0-rc1 (04-Aug-2025)
+No changes since 2.20
+
+2.20.0 (28-Aug-2025)
 
 #1438: `ParserBase.close()` does not clear `_currToken`
 #1441: Add `StreamReadFeature.CLEAR_CURRENT_TOKEN_ON_CLOSE` (default: true)
 #1448: Upgrade `FastDoubleParser` to 2.0.1
- (contributed by @pjfanning)
+ (contributed by @pjfanning)-
+#1462: Deprecate `URL`-taking factory method of `JsonFactory`
 - Generate SBOMs [JSTEP-14]
 
 2.19.2 (18-Jul-2025)

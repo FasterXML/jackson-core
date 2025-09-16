@@ -2,6 +2,9 @@ package com.fasterxml.jackson.core.write;
 
 import java.io.*;
 
+import com.fasterxml.jackson.core.io.SegmentedStringWriter;
+import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
@@ -103,6 +106,39 @@ class UTF8GeneratorTest extends JUnit5TestBase
         assertEquals((char) 0xDE0C, str.charAt(1));
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         jp.close();
+    }
+
+    @Test
+    void lastSegmentCharSplitSurrogateCharInTwoSegments() throws Exception
+    {
+        // segments split every 1000 chars.
+        // We need a string with length 1001 where the surrogate is
+        // at 1000 and 1001 positions
+        int count = 999;
+        char[] chars = new char[count];
+        java.util.Arrays.fill(chars, 'x');
+        String base = new String(chars);
+
+        final String VALUE = base + "\uD83E\uDEE1";
+
+        // alas, we have to pull the recycler directly here...
+        final BufferRecycler br = JSON_F._getBufferRecycler();
+        ByteArrayBuilder bb = new ByteArrayBuilder(br);
+        JsonGenerator g = JSON_F.createGenerator(bb);
+        g.enable(JsonGenerator.Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
+
+        g.writeStartArray();
+        g.writeString(VALUE);
+        g.writeEndArray();
+
+        g.close();
+
+        String result = new String(bb.toByteArray());
+
+        bb.release();
+        br.releaseToPool();
+
+        assertEquals("\uD83E\uDEE1", result.substring(count+2, result.length()-2));
     }
 
     @Test

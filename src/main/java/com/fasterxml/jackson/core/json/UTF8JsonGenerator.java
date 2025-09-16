@@ -1344,6 +1344,9 @@ public class UTF8JsonGenerator
 
         while (left > 0) {
             int len = Math.min(_outputMaxContiguous, left);
+            if (_isStartOfSurrogatePair(text.charAt(len-1))) {
+                len--;
+            }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
             }
@@ -1370,6 +1373,9 @@ public class UTF8JsonGenerator
     {
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
+            if (_isStartOfSurrogatePair(cbuf[len-1])) {
+                len--;
+            }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
             }
@@ -1383,6 +1389,9 @@ public class UTF8JsonGenerator
     {
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
+            if (_isStartOfSurrogatePair(text.charAt(len-1))) {
+                len--;
+            }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
             }
@@ -1869,6 +1878,9 @@ public class UTF8JsonGenerator
     {
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
+            if (_isStartOfSurrogatePair(utf8[len-1])) {
+                len--;
+            }
             _writeUTF8Segment(utf8, offset, len);
             offset += len;
             totalLen -= len;

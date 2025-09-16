@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.write;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -133,7 +134,7 @@ class UTF8GeneratorTest extends JUnit5TestBase
 
         g.close();
 
-        String result = new String(bb.toByteArray());
+        String result = new String(bb.toByteArray(), StandardCharsets.UTF_8);
 
         bb.release();
         br.releaseToPool();

@@ -109,7 +109,7 @@ class UTF8GeneratorTest extends JUnit5TestBase
     @Test
     void surrogateCharSplitInTwoSegments() throws Exception
     {
-        // segments split every 1000 chars.
+        // Segments split every 1000 chars.
         // We need a string with length 1001 where the surrogate is
         // at 1000 and 1001 positions
         int count = 999;
@@ -131,6 +131,8 @@ class UTF8GeneratorTest extends JUnit5TestBase
 
         String result = new String(bb.toByteArray(), StandardCharsets.UTF_8);
 
+        // +2 and -2 to remove array and quotes: result should contain ["xxxx....🫡"]
+        // "\uD83E\uDEE1" is the combined surrogate form of the emoji
         assertEquals("\uD83E\uDEE1", result.substring(count+2, result.length()-2));
     }
 

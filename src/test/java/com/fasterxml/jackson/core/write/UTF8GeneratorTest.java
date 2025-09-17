@@ -107,7 +107,7 @@ class UTF8GeneratorTest extends JUnit5TestBase
     }
 
     @Test
-    void lastSegmentCharSplitSurrogateCharInTwoSegments() throws Exception
+    void surrogateCharSplitInTwoSegments() throws Exception
     {
         // segments split every 1000 chars.
         // We need a string with length 1001 where the surrogate is

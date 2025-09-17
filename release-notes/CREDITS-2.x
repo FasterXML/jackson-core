@@ -498,3 +498,8 @@ Fawzi Essam (@iifawzi)
 
 Ilenia Salvadori (@isalvadori)
  * Requested #1421: Make `JsonReadContext` non-final
+  (2.19.0)
+
+Lars Hagen (@larshagencognite)
+ * Contributed #1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`
+  (2.21.0)

@@ -16,7 +16,8 @@ a pure JSON library.
 
 2.21.0 (not yet released)
 
-No changes since 2.20
+#1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`
+ (contributed by Lars H)
 
 2.20.0 (28-Aug-2025)
 

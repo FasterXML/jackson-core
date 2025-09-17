@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.write;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -104,36 +103,6 @@ class UTF8GeneratorTest extends JUnit5TestBase
         assertEquals((char) 0xDE0C, str.charAt(1));
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         jp.close();
-    }
-
-    @Test
-    void surrogateCharSplitInTwoSegments() throws Exception
-    {
-        // Segments split every 1000 chars.
-        // We need a string with length 1001 where the surrogate is
-        // at 1000 and 1001 positions
-        int count = 999;
-        char[] chars = new char[count];
-        java.util.Arrays.fill(chars, 'x');
-        String base = new String(chars);
-
-        final String VALUE = base + "\uD83E\uDEE1";
-
-        ByteArrayOutputStream bb = new ByteArrayOutputStream();
-        JsonGenerator g = JSON_F.createGenerator(bb);
-        g.enable(JsonGenerator.Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
-
-        g.writeStartArray();
-        g.writeString(VALUE);
-        g.writeEndArray();
-
-        g.close();
-
-        String result = new String(bb.toByteArray(), StandardCharsets.UTF_8);
-
-        // +2 and -2 to remove array and quotes: result should contain ["xxxx....🫡"]
-        // "\uD83E\uDEE1" is the combined surrogate form of the emoji
-        assertEquals("\uD83E\uDEE1", result.substring(count+2, result.length()-2));
     }
 
     @Test

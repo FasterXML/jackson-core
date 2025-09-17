@@ -1345,7 +1345,8 @@ public class UTF8JsonGenerator
         while (left > 0) {
             int len = Math.min(_outputMaxContiguous, left);
             // avoids splitting surrogates between two segments.
-            if (_isStartOfSurrogatePair(text.charAt(len-1))) {
+            // if len == 1 (edge case) don't apply to avoid infinite loop
+            if (len > 1 && _isStartOfSurrogatePair(text.charAt(len-1))) {
                 len--;
             }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
@@ -1375,7 +1376,8 @@ public class UTF8JsonGenerator
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
             // avoids splitting surrogates between two segments.
-            if (_isStartOfSurrogatePair(cbuf[len-1])) {
+            // if len == 1 (edge case) don't apply to avoid infinite loop
+            if (len > 1 && _isStartOfSurrogatePair(cbuf[len-1])) {
                 len--;
             }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
@@ -1392,7 +1394,8 @@ public class UTF8JsonGenerator
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
             // avoids splitting surrogates between two segments.
-            if (_isStartOfSurrogatePair(text.charAt(len-1))) {
+            // if len == 1 (edge case) don't apply to avoid infinite loop
+            if (len > 1 && _isStartOfSurrogatePair(text.charAt(len-1))) {
                 len--;
             }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
@@ -1882,7 +1885,8 @@ public class UTF8JsonGenerator
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
             // avoids splitting surrogates between two segments.
-            if (_isStartOfSurrogatePair(utf8[len-1])) {
+            // if len == 1 (edge case) don't apply to avoid infinite loop
+            if (len > 1 && _isStartOfSurrogatePair(utf8[len-1])) {
                 len--;
             }
             _writeUTF8Segment(utf8, offset, len);

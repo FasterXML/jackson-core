@@ -3,9 +3,6 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import com.fasterxml.jackson.core.io.SegmentedStringWriter;
-import com.fasterxml.jackson.core.util.BufferRecycler;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;

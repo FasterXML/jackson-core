@@ -122,9 +122,7 @@ class UTF8GeneratorTest extends JUnit5TestBase
 
         final String VALUE = base + "\uD83E\uDEE1";
 
-        // alas, we have to pull the recycler directly here...
-        final BufferRecycler br = JSON_F._getBufferRecycler();
-        ByteArrayBuilder bb = new ByteArrayBuilder(br);
+        ByteArrayOutputStream bb = new ByteArrayOutputStream();
         JsonGenerator g = JSON_F.createGenerator(bb);
         g.enable(JsonGenerator.Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
 
@@ -135,9 +133,6 @@ class UTF8GeneratorTest extends JUnit5TestBase
         g.close();
 
         String result = new String(bb.toByteArray(), StandardCharsets.UTF_8);
-
-        bb.release();
-        br.releaseToPool();
 
         assertEquals("\uD83E\uDEE1", result.substring(count+2, result.length()-2));
     }

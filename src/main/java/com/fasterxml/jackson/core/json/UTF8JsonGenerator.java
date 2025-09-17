@@ -1344,7 +1344,7 @@ public class UTF8JsonGenerator
 
         while (left > 0) {
             int len = Math.min(_outputMaxContiguous, left);
-            // avoids splitting surrogates between two segments.
+            // [core#1473]: avoid splitting surrogates between two segments.
             if (_isStartOfSurrogatePair(text.charAt(len-1))) {
                 len--;
             }

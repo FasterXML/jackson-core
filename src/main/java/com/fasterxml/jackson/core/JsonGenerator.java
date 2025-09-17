@@ -2690,6 +2690,46 @@ public abstract class JsonGenerator
         }
     }
 
+    /**
+     * Same as {@link #copyCurrentStructure} with the exception that copying of numeric
+     * values tries to avoid any conversion losses; in particular for floating-point
+     * numbers. This usually matters when transcoding from textual format like JSON
+     * to a binary format.
+     * See {@link #_copyCurrentFloatValueExact} for details.
+     *
+     * @param p Parser that points to the value to copy
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
+     *
+     * @since 2.21
+     */
+    public void copyCurrentStructureExact(JsonParser p) throws IOException
+    {
+        JsonToken t = p.currentToken();
+        // Let's handle field-name separately first
+        int id = (t == null) ? ID_NOT_AVAILABLE : t.id();
+        if (id == ID_FIELD_NAME) {
+            writeFieldName(p.currentName());
+            t = p.nextToken();
+            id = (t == null) ? ID_NOT_AVAILABLE : t.id();
+            // fall-through to copy the associated value
+        }
+        switch (id) {
+        case ID_START_OBJECT:
+            writeStartObject();
+            _copyCurrentContentsExact(p);
+            return;
+        case ID_START_ARRAY:
+            writeStartArray();
+            _copyCurrentContentsExact(p);
+            return;
+
+        default:
+            copyCurrentEventExact(p);
+        }
+    }
+
     // @since 2.10
     protected void _copyCurrentContents(JsonParser p) throws IOException
     {
@@ -2734,6 +2774,69 @@ public abstract class JsonGenerator
                 break;
             case ID_NUMBER_FLOAT:
                 _copyCurrentFloatValue(p);
+                break;
+            case ID_TRUE:
+                writeBoolean(true);
+                break;
+            case ID_FALSE:
+                writeBoolean(false);
+                break;
+            case ID_NULL:
+                writeNull();
+                break;
+            case ID_EMBEDDED_OBJECT:
+                writeObject(p.getEmbeddedObject());
+                break;
+            default:
+                throw new IllegalStateException("Internal error: unknown current token, "+t);
+            }
+        }
+    }
+
+    // @since 2.21
+    protected void _copyCurrentContentsExact(JsonParser p) throws IOException
+    {
+        int depth = 1;
+        JsonToken t;
+
+        // Mostly copied from `copyCurrentEventExact()`, but with added nesting counts
+        while ((t = p.nextToken()) != null) {
+            switch (t.id()) {
+            case ID_FIELD_NAME:
+                writeFieldName(p.currentName());
+                break;
+
+            case ID_START_ARRAY:
+                writeStartArray();
+                ++depth;
+                break;
+
+            case ID_START_OBJECT:
+                writeStartObject();
+                ++depth;
+                break;
+
+            case ID_END_ARRAY:
+                writeEndArray();
+                if (--depth == 0) {
+                    return;
+                }
+                break;
+            case ID_END_OBJECT:
+                writeEndObject();
+                if (--depth == 0) {
+                    return;
+                }
+                break;
+
+            case ID_STRING:
+                _copyCurrentStringValue(p);
+                break;
+            case ID_NUMBER_INT:
+                _copyCurrentIntValue(p);
+                break;
+            case ID_NUMBER_FLOAT:
+                _copyCurrentFloatValueExact(p);
                 break;
             case ID_TRUE:
                 writeBoolean(true);

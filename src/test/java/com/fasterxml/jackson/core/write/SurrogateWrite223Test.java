@@ -144,10 +144,13 @@ class SurrogateWrite223Test extends JUnit5TestBase
     @Test
     void surrogateCharSplitInTwoSegments() throws Exception
     {
-        // Segments split every 1000 chars.
-        // We need a string with length 1001 where the surrogate is
-        // at 1000 and 1001 positions
-        int count = 999;
+        // UTF8JsonGenerator must avoid splitting surrogate chars
+        // into separate segments. We want to test the third segment
+        // split to make sure indexes, offsets, etc are all correct.
+        // By default, segments split in every 1000 chars.
+        // Thus, we need a string with length 2001 where the surrogate is
+        // at 2000 and 2001 positions.
+        int count = 1999;
         char[] chars = new char[count];
         java.util.Arrays.fill(chars, 'x');
         String base = new String(chars);

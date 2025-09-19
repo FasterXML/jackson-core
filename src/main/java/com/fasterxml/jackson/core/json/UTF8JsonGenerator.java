@@ -1347,7 +1347,7 @@ public class UTF8JsonGenerator
             // [core#1473]: avoid splitting surrogates between two segments.
             // if len == 1 (edge case) don't apply to avoid infinite loop
             if (len > 1 && _isStartOfSurrogatePair(text.charAt(offset + len-1))) {
-                len--;
+                --len;
             }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
@@ -1378,7 +1378,7 @@ public class UTF8JsonGenerator
             // avoids splitting surrogates between two segments.
             // if len == 1 (edge case) don't apply to avoid infinite loop
             if (len > 1 && _isStartOfSurrogatePair(cbuf[offset + len-1])) {
-                len--;
+                --len;
             }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
@@ -1396,7 +1396,7 @@ public class UTF8JsonGenerator
             // avoids splitting surrogates between two segments.
             // if len == 1 (edge case) don't apply to avoid infinite loop
             if (len > 1 && _isStartOfSurrogatePair(text.charAt(offset + len-1))) {
-                len--;
+                --len;
             }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
@@ -1887,7 +1887,7 @@ public class UTF8JsonGenerator
             // avoids splitting surrogates between two segments.
             // if len == 1 (edge case) don't apply to avoid infinite loop
             if (len > 1 && _isStartOfSurrogatePair(utf8[offset + len-1])) {
-                len--;
+                --len;
             }
             _writeUTF8Segment(utf8, offset, len);
             offset += len;

@@ -234,6 +234,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         return JSON_WRITE_CAPABILITIES;
     }
 
+    @Override
+    public boolean has(StreamWriteCapability capability) {
+        return JSON_WRITE_CAPABILITIES.isEnabled(capability);
+    }
+
     /*
     /**********************************************************
     /* Shared helper methods

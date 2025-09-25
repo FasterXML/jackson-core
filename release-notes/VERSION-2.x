@@ -18,6 +18,7 @@ a pure JSON library.
 
 #1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`
  (contributed by Lars H)
+#1477: Add `JsonGenerator.has(StreamWriteCapability)` convenience method
 
 2.20.1 (not yet released)
 

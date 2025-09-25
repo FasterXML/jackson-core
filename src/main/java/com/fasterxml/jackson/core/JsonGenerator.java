@@ -920,6 +920,19 @@ public abstract class JsonGenerator
         return DEFAULT_WRITE_CAPABILITIES;
     }
 
+    /**
+     * Accessor for checking whether this generator has specified capability.
+     * Short-hand for:
+     * {@code return getWriteCapabilities().isEnabled(capability); }
+     *
+     * @param capability Capability to check
+     *
+     * @return True if this generator has specified capability; false if not
+     */
+    public boolean has(StreamWriteCapability capability) {
+        return getWriteCapabilities().isEnabled(capability);
+    }
+
     /*
     /**********************************************************************
     /* Public API, write methods, structural

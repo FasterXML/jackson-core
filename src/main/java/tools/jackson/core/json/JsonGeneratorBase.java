@@ -80,11 +80,18 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
     /**
-     * Object that handles pretty-printing (usually additional
-     * white space to make results more human-readable) during
-     * output. If null, no pretty-printing is done.
+     * Object that handles pretty-printing (usually additional white space to make
+     * results more human-readable) during output. If {@code null}, no pretty-printing is
+     * done.
+     * <p>
+     * NOTE: this may be {@link PrettyPrinter} that {@link TokenStreamFactory} was
+     * configured with (if stateless), OR an instance created via
+     * {@link tools.jackson.core.util.Instantiatable#createInstance()} (if
+     * stateful). Either way, it is per-generator instance.
+     *<p>
+     * NOTE: in Jackson 2.x this field was called {@code _cfgPrettyPrinter}.
      */
-    protected final PrettyPrinter _cfgPrettyPrinter;
+    protected final PrettyPrinter _prettyPrinter;
 
     /**
      * Separator to use, if any, between root-level values.
@@ -146,7 +153,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
         _cfgWriteHexUppercase = JsonWriteFeature.WRITE_HEX_UPPER_CASE.enabledIn(formatWriteFeatures);
         _rootValueSeparator = rootValueSeparator;
 
-        _cfgPrettyPrinter = pp;
+        _prettyPrinter = pp;
 
         final DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamWriteFeatures)
                 ? DupDetector.rootDetector(this) : null;
@@ -204,6 +211,11 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     @Override
     public CharacterEscapes getCharacterEscapes() {
         return _characterEscapes;
+    }
+
+    @Override
+    public PrettyPrinter getPrettyPrinter() {
+        return _prettyPrinter;
     }
 
     /*
@@ -266,20 +278,20 @@ public abstract class JsonGeneratorBase extends GeneratorBase
         // If we have a pretty printer, it knows what to do:
         switch (status) {
         case JsonWriteContext.STATUS_OK_AFTER_COMMA: // array
-            _cfgPrettyPrinter.writeArrayValueSeparator(this);
+            _prettyPrinter.writeArrayValueSeparator(this);
             break;
         case JsonWriteContext.STATUS_OK_AFTER_COLON:
-            _cfgPrettyPrinter.writeObjectNameValueSeparator(this);
+            _prettyPrinter.writeObjectNameValueSeparator(this);
             break;
         case JsonWriteContext.STATUS_OK_AFTER_SPACE:
-            _cfgPrettyPrinter.writeRootValueSeparator(this);
+            _prettyPrinter.writeRootValueSeparator(this);
             break;
         case JsonWriteContext.STATUS_OK_AS_IS:
             // First entry, but of which context?
             if (_streamWriteContext.inArray()) {
-                _cfgPrettyPrinter.beforeArrayValues(this);
+                _prettyPrinter.beforeArrayValues(this);
             } else if (_streamWriteContext.inObject()) {
-                _cfgPrettyPrinter.beforeObjectEntries(this);
+                _prettyPrinter.beforeObjectEntries(this);
             }
             break;
         case JsonWriteContext.STATUS_EXPECT_NAME:

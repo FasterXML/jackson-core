@@ -169,7 +169,7 @@ public class WriterBasedJsonGenerator
 
     protected final void _writeName(String name, boolean commaBefore) throws JacksonException
     {
-        if (_cfgPrettyPrinter != null) {
+        if (_prettyPrinter != null) {
             _writePPName(name, commaBefore);
             return;
         }
@@ -198,7 +198,7 @@ public class WriterBasedJsonGenerator
 
     protected final void _writeName(SerializableString name, boolean commaBefore) throws JacksonException
     {
-        if (_cfgPrettyPrinter != null) {
+        if (_prettyPrinter != null) {
             _writePPName(name, commaBefore);
             return;
         }
@@ -253,8 +253,8 @@ public class WriterBasedJsonGenerator
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(null);
         streamWriteConstraints().validateNestingDepth(_streamWriteContext.getNestingDepth());
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeStartArray(this);
+        if (_prettyPrinter != null) {
+            _prettyPrinter.writeStartArray(this);
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -270,8 +270,8 @@ public class WriterBasedJsonGenerator
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(forValue);
         streamWriteConstraints().validateNestingDepth(_streamWriteContext.getNestingDepth());
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeStartArray(this);
+        if (_prettyPrinter != null) {
+            _prettyPrinter.writeStartArray(this);
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -287,8 +287,8 @@ public class WriterBasedJsonGenerator
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(forValue);
         streamWriteConstraints().validateNestingDepth(_streamWriteContext.getNestingDepth());
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeStartArray(this);
+        if (_prettyPrinter != null) {
+            _prettyPrinter.writeStartArray(this);
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -304,8 +304,8 @@ public class WriterBasedJsonGenerator
         if (!_streamWriteContext.inArray()) {
             _reportError("Current context not Array but "+_streamWriteContext.typeDesc());
         }
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndArray(this, _streamWriteContext.getEntryCount());
+        if (_prettyPrinter != null) {
+            _prettyPrinter.writeEndArray(this, _streamWriteContext.getEntryCount());
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -322,8 +322,8 @@ public class WriterBasedJsonGenerator
         _verifyValueWrite("start an object");
         _streamWriteContext = _streamWriteContext.createChildObjectContext(null);
         streamWriteConstraints().validateNestingDepth(_streamWriteContext.getNestingDepth());
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeStartObject(this);
+        if (_prettyPrinter != null) {
+            _prettyPrinter.writeStartObject(this);
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -340,8 +340,8 @@ public class WriterBasedJsonGenerator
         JsonWriteContext ctxt = _streamWriteContext.createChildObjectContext(forValue);
         streamWriteConstraints().validateNestingDepth(ctxt.getNestingDepth());
         _streamWriteContext = ctxt;
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeStartObject(this);
+        if (_prettyPrinter != null) {
+            _prettyPrinter.writeStartObject(this);
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -358,8 +358,8 @@ public class WriterBasedJsonGenerator
         JsonWriteContext ctxt = _streamWriteContext.createChildObjectContext(forValue);
         streamWriteConstraints().validateNestingDepth(ctxt.getNestingDepth());
         _streamWriteContext = ctxt;
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeStartObject(this);
+        if (_prettyPrinter != null) {
+            _prettyPrinter.writeStartObject(this);
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -375,8 +375,8 @@ public class WriterBasedJsonGenerator
         if (!_streamWriteContext.inObject()) {
             _reportError("Current context not Object but "+_streamWriteContext.typeDesc());
         }
-        if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndObject(this, _streamWriteContext.getEntryCount());
+        if (_prettyPrinter != null) {
+            _prettyPrinter.writeEndObject(this, _streamWriteContext.getEntryCount());
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -392,9 +392,9 @@ public class WriterBasedJsonGenerator
     protected final void _writePPName(String name, boolean commaBefore) throws JacksonException
     {
         if (commaBefore) {
-            _cfgPrettyPrinter.writeObjectEntrySeparator(this);
+            _prettyPrinter.writeObjectEntrySeparator(this);
         } else {
-            _cfgPrettyPrinter.beforeObjectEntries(this);
+            _prettyPrinter.beforeObjectEntries(this);
         }
 
         if (_cfgUnqNames) {// non-standard, omit quotes
@@ -415,9 +415,9 @@ public class WriterBasedJsonGenerator
     protected final void _writePPName(SerializableString name, boolean commaBefore) throws JacksonException
     {
         if (commaBefore) {
-            _cfgPrettyPrinter.writeObjectEntrySeparator(this);
+            _prettyPrinter.writeObjectEntrySeparator(this);
         } else {
-            _cfgPrettyPrinter.beforeObjectEntries(this);
+            _prettyPrinter.beforeObjectEntries(this);
         }
         final char[] quoted = name.asQuotedChars();
         if (_cfgUnqNames) {// non-standard, omit quotes
@@ -996,7 +996,7 @@ public class WriterBasedJsonGenerator
     protected final void _verifyValueWrite(String typeMsg) throws JacksonException
     {
         final int status = _streamWriteContext.writeValue();
-        if (_cfgPrettyPrinter != null) {
+        if (_prettyPrinter != null) {
             // Otherwise, pretty printer knows what to do...
             _verifyPrettyValueWrite(typeMsg, status);
             return;

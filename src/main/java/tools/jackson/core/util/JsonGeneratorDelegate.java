@@ -118,6 +118,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public CharacterEscapes getCharacterEscapes() {  return delegate.getCharacterEscapes(); }
 
+    @Override
+    public PrettyPrinter getPrettyPrinter() { return delegate.getPrettyPrinter(); }
+
     /*
     /**********************************************************************
     /* Public API, write methods, structural

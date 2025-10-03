@@ -15,6 +15,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.0.0 (not yet released)
+
+#1480: Add `JsonGenerator.getPrettyPrinter()`
+
 3.0.0-rc10 (19-Sep-2025)
 
 No changes since 3.0.0-rc9

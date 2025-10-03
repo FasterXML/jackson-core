@@ -11,8 +11,7 @@ import tools.jackson.core.unittest.*;
 import tools.jackson.core.util.*;
 import tools.jackson.core.util.Separators.Spacing;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Set of basic unit tests for verifying that indenting
@@ -43,7 +42,7 @@ class PrettyPrinterTest
     /**********************************************************
      */
 
-    private final JsonFactory JSON_F = sharedStreamFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     @Test
     void objectCount() throws Exception
@@ -111,13 +110,18 @@ class PrettyPrinterTest
     @Test
     void simpleDocWithMinimal() throws Exception
     {
+        final PrettyPrinter MINIMAL = new MinimalPrettyPrinter();
         StringWriter sw = new StringWriter();
         // first with standard minimal
         ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
             @Override
-            public PrettyPrinter getPrettyPrinter() { return new MinimalPrettyPrinter(); }
+            public PrettyPrinter getPrettyPrinter() { return MINIMAL; }
         };
         JsonGenerator gen = JSON_F.createGenerator(ppContext, sw);
+
+        // Verify instance uses stateless PP
+        assertSame(MINIMAL, gen.getPrettyPrinter());
+
         String docStr = _verifyPrettyPrinter(gen, sw);
         // which should have no linefeeds, tabs
         assertEquals(-1, docStr.indexOf('\n'));
@@ -130,9 +134,9 @@ class PrettyPrinterTest
                 return new MinimalPrettyPrinter() {
                     @Override
                     // use TAB between array values
-                    public void beforeArrayValues(JsonGenerator jg)
+                    public void beforeArrayValues(JsonGenerator g)
                     {
-                        jg.writeRaw("\t");
+                        g.writeRaw("\t");
                     }
                 };
             }
@@ -264,6 +268,28 @@ class PrettyPrinterTest
         assertEquals(EXPECTED_CUSTOM_SEPARATORS_WITH_PP_WITHOUT_SPACES, sw.toString());
     }
 
+    // [core#1480]: access to configured/actual PrettyPrinter
+    @Test
+    void accessToPrettyPrinterInUse() throws Exception
+    {
+        // By default, no pretty-printer
+        try (JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(),
+                new StringWriter())) {
+            assertNull(gen.getPrettyPrinter());
+        }
+
+        // But we can configure Default PP
+        final PrettyPrinter DEFAULT_PP = new DefaultPrettyPrinter();
+        try (JsonGenerator gen = JSON_F.createGenerator(objectWriteContext(DEFAULT_PP),
+                new StringWriter())) {
+            PrettyPrinter pp = gen.getPrettyPrinter();
+            assertNotNull(pp);
+            // Note: stateful, new instance created by our OWC
+            assertEquals(DEFAULT_PP.getClass(), pp.getClass());
+            assertNotSame(DEFAULT_PP, pp);
+        }    
+    }
+
     /*
     /**********************************************************
     /* Helper methods
@@ -325,23 +351,30 @@ class PrettyPrinterTest
         gen.close();
     }
 
-    protected String _generateRoot(TokenStreamFactory f, final PrettyPrinter pp) throws IOException
+    protected String _generateRoot(TokenStreamFactory f, PrettyPrinter pp) throws IOException
     {
         StringWriter sw = new StringWriter();
-        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+        try (JsonGenerator gen = f.createGenerator(objectWriteContext(pp), sw)) {
+            gen.writeStartObject();
+            gen.writeEndObject();
+            gen.writeStartObject();
+            gen.writeEndObject();
+            gen.writeStartArray();
+            gen.writeEndArray();
+        }
+        return sw.toString();
+    }
+
+    protected ObjectWriteContext objectWriteContext(final PrettyPrinter pp) {
+        return new ObjectWriteContext.Base() {
+            @SuppressWarnings("unchecked")
             @Override
             public PrettyPrinter getPrettyPrinter() {
+                if (pp instanceof Instantiatable) {
+                    return ((Instantiatable<PrettyPrinter>) pp).createInstance();
+                }
                 return pp;
             }
         };
-        JsonGenerator gen = f.createGenerator(ppContext, sw);
-        gen.writeStartObject();
-        gen.writeEndObject();
-        gen.writeStartObject();
-        gen.writeEndObject();
-        gen.writeStartArray();
-        gen.writeEndArray();
-        gen.close();
-        return sw.toString();
     }
 }

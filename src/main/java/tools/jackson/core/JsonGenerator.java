@@ -255,20 +255,21 @@ public abstract class JsonGenerator
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) { return this; }
 
     /**
-     * Accessfor for object that handles pretty-printing (usually additional white space to make
+     * Accessor for object that handles pretty-printing (usually additional white space to make
      * results more human-readable) during output. If {@code null}, no pretty-printing is
      * done.
      * <p>
      * NOTE: this may be {@link PrettyPrinter} that {@link TokenStreamFactory} was
      * configured with (if stateless), OR an instance created via
      * {@link tools.jackson.core.util.Instantiatable#createInstance()} (if
-     * stateful). Either way, it is per-generator instance.
+     * stateful).
+     *<p>
+     * Default implementation returns null so pretty-printing capable generators
+     * need to override it.
      *
      * @return Pretty printer used by this generator, if any; {@code null} if none
-     *
-     * @since 3.0
      */
-    public abstract PrettyPrinter getPrettyPrinter();
+    public PrettyPrinter getPrettyPrinter()  { return null; }
 
     /*
     /**********************************************************************

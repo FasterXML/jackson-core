@@ -323,9 +323,13 @@ public class TextBuffer
     }
 
     /**
+     * Init method called to reset buffer with contents of given ASCII byte array.
+     * Used to reduce JDK overhead in post-JDK8 world
+     * where {@code String} uses {@code byte[]} internally.
+     *
      * @since 3.1
      */
-    public void resetWithASCII(byte[] buffer, int offset, int len) throws JacksonException
+    public String resetWithASCII(byte[] buffer, int offset, int len) throws JacksonException
     {
         _inputBuffer = null;
         _inputStart = -1;
@@ -333,19 +337,25 @@ public class TextBuffer
 
         validateStringLength(len);
         // NOTE: we know it's US-Ascii, validated: ISO-8859-1 is a superset that maps without checks
-        _resultString = new String(buffer, offset, len, java.nio.charset.StandardCharsets.ISO_8859_1);
+        String str = new String(buffer, offset, len, java.nio.charset.StandardCharsets.ISO_8859_1);
+        _resultString = str;
         _resultArray = null;
 
         if (_hasSegments) {
             clearSegments();
         }
         _currentSize = 0;
+        return str;
     }
 
     /**
+     * Init method called to reset buffer with contents of given UTF-8 byte array.
+     * Used to reduce JDK overhead in post-JDK8 world
+     * where {@code String} uses {@code byte[]} internally.
+     *
      * @since 3.1
      */
-    public void resetWithUTF8(byte[] buffer, int offset, int len) throws JacksonException
+    public String resetWithUTF8(byte[] buffer, int offset, int len) throws JacksonException
     {
         _inputBuffer = null;
         _inputStart = -1;
@@ -353,15 +363,17 @@ public class TextBuffer
 
         validateStringLength(len);
         // NOTE: could be ASCII, Latin-1; we know it's UTF-8, though
-        _resultString = new String(buffer, offset, len, java.nio.charset.StandardCharsets.UTF_8);
+        String str = new String(buffer, offset, len, java.nio.charset.StandardCharsets.UTF_8);
+        _resultString = str;
         _resultArray = null;
 
         if (_hasSegments) {
             clearSegments();
         }
         _currentSize = 0;
+        return str;
     }
-    
+
     /**
      * Method for accessing the currently active (last) content segment
      * without changing state of the buffer

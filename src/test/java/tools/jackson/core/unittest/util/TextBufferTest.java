@@ -1,6 +1,7 @@
 package tools.jackson.core.unittest.util;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -195,6 +196,30 @@ class TextBufferTest
         textBuffer.resetWithString("asdf");
 
         assertEquals(0, textBuffer.getTextOffset());
+    }
+
+    // 3.1
+    @Test
+    void resetWithAsciiBytes() throws Exception {
+        BufferRecycler bufferRecycler = new BufferRecycler();
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
+
+        assertEquals("abc", textBuffer.resetWithASCII(new byte[] { 'a', 'b', 'c' }, 0, 3));
+        assertEquals(0, textBuffer.getTextOffset());
+        assertEquals("abc", textBuffer.contentsAsString());
+    }
+
+    // 3.1
+    @Test
+    void resetWithUTF8Bytes() throws Exception {
+        BufferRecycler bufferRecycler = new BufferRecycler();
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
+
+        final String UTF8_STR = "\u00E9\u00E8\u00E0"; // "éèà"
+        final byte[] BYTES = UTF8_STR.getBytes(StandardCharsets.UTF_8);
+        assertEquals(6, BYTES.length);
+        assertEquals(UTF8_STR, textBuffer.resetWithUTF8(BYTES, 0, BYTES.length));
+        assertEquals(UTF8_STR, textBuffer.contentsAsString());
     }
 
     @Test

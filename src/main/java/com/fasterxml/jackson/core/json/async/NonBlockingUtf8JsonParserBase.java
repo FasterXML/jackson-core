@@ -1262,10 +1262,11 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     protected JsonToken _reportErrorToken(String actualToken) throws IOException
     {
+        // [core#1180]: Report error at token start, not current position
         // !!! TODO: Include non-standard ones if enabled
-        _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
-                _validJsonTokenList());
-        return JsonToken.NOT_AVAILABLE; // never gets here
+        final String fullMsg = String.format("Unrecognized token '%s': was expecting %s",
+                _textBuffer.contentsAsString(), _validJsonTokenList());
+        throw _constructReadException(fullMsg, currentTokenLocation());
     }
 
     /*

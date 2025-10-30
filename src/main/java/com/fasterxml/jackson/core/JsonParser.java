@@ -1778,12 +1778,18 @@ public abstract class JsonParser
      * If current token is of type
      * {@link JsonToken#VALUE_NUMBER_INT} or
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
-     * one of {@link NumberType} constants; otherwise returns {@code null}.
+     * one of {@link NumberType} constants; otherwise throws
+     * a {@link JsonParseException}.
+     *<p>
+     * NOTE: before 2.18 was documented to return {@code null} for non-numeric
+     * tokens, but this has never been the case.
      *
-     * @return Type of current number, if parser points to numeric token; {@code null} otherwise
+     * @return Type of current number, if parser points to numeric token.
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws IOException {@link JsonParseException} if
+     *    the current token is not numeric, or if decoding of the value fails
+     *    (invalid format for numbers); plain {@link IOException} if underlying
+     *    content read fails (possible if numbers are decoded lazily).
      */
     public abstract NumberType getNumberType() throws IOException;
 
@@ -2100,7 +2106,7 @@ public abstract class JsonParser
     }
 
     /**
-     * Method that can be used as an alternative to {@link #getBigIntegerValue()},
+     * Method that can be used as an alternative to {@link #getBinaryValue()},
      * especially when value can be large. The main difference (beyond method
      * of returning content using {@link OutputStream} instead of as byte array)
      * is that content will NOT remain accessible after method returns: any content

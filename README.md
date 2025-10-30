@@ -9,11 +9,12 @@ This package is the base on which [Jackson data-binding](https://github.com/Fast
 It is licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 Alternate data format implementations (like
-[Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/smile),
+[Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformats-binary/tree/2.19/smile),
 [XML](https://github.com/FasterXML/jackson-dataformat-xml),
-[CSV](https://github.com/FasterXML/jackson-dataformats-text/tree/master/csv),
-[Protobuf](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/protobuf),
-and [CBOR](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/cbor))
+[CSV](https://github.com/FasterXML/jackson-dataformats-text/tree/2.19/csv),
+[YAML](https://github.com/FasterXML/jackson-dataformats-text/tree/2.19/yaml),
+[Protobuf](https://github.com/FasterXML/jackson-dataformats-binary/tree/2.19/protobuf),
+and [CBOR](https://github.com/FasterXML/jackson-dataformats-binary/tree/2.19/cbor))
 also build on this base package, implementing the core interfaces,
 making it possible to use standard [data-binding package](https://github.com/FasterXML/jackson-databind) regardless of underlying data format.
 

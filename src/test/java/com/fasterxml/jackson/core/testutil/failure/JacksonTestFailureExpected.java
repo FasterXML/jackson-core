@@ -18,7 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * indicating that the test was expected to fail but didn't.
  * </p>
  *
- * <h3>Usage Example:</h3>
+ * <h2>Usage Example:</h2>
  *
  * <pre><code>
  *

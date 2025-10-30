@@ -28,7 +28,7 @@ public abstract class FloatToStringTest {
   }
 
   /**
-   * Floating point values in the range 1.0E-3 <= x < 1.0E7 have to be printed
+   * Floating point values in the range {@code 1.0E-3 <= x < 1.0E7} have to be printed
    * without exponent. This test checks the values at those boundaries.
    */
   @Test

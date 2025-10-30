@@ -14,10 +14,30 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.19.0 (not yet released)
+2.19.4 (29-Oct-2025)
+2.19.3 (29-Oct-2025)
+2.19.2 (18-Jul-2025)
+
+No changes since 2.19.1
+
+2.19.1 (13-Jun-2025)
+
+#1425: `JsonPointer.head()` throws `StringIndexOutOfBoundsException` for
+  valid JSON Pointers
+ (reported by @sergeykad)
+#1446: Invalid package reference to "java.lang.foreign" from
+  `com.fasterxml.jackson.core:jackson-core` (from `FastDoubleParser`) [Android]
+ (reported by Vincent B)
+ (fix by @pjfanning)
+
+2.19.0 (24-Apr-2025)
 
 #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
  (requested by Yanming Z)
+ (contributed by Fawzi E)
+#1144: `FilteringParserDelegate` can go into an infinite loop if underlying
+  parser is non-blocking
+ (reported by @simonbasle)
  (contributed by Fawzi E)
 #1328: Optimize handling of `JsonPointer.head()`
 #1356: Make `JsonGenerator::writeTypePrefix` method to not write a
@@ -33,6 +53,24 @@ a pure JSON library.
   when fed with non-zero offset
  (reported by David N)
  (fixed by Fawzi E)
+#1421: Make `JsonReadContext` non-final
+ (requested by Ilenia S)
+ (fixed by @pjfanning)
+
+2.18.5 (27-Oct-2025)
+ (same as 2.18.4.1 on 10-June-2025)
+
+#1433: `JsonParser#getNumberType()` throws `JsonParseException` when
+  the current token is non-numeric instead of returning null
+ (reported by @CrazySqueak)
+#1446: Invalid package reference to "java.lang.foreign" from
+  `com.fasterxml.jackson.core:jackson-core` (from `FastDoubleParser`) [Android]
+ (reported by Vincent B)
+ (fix by @pjfanning)
+
+2.18.4 (06-May-2025)
+
+No changes since 2.18.3
 
 2.18.3 (28-Feb-2025)
 
@@ -259,7 +297,7 @@ No changes since 2.16.1
 #921: Add `JsonFactory.Feature.CHARSET_DETECTION` to disable charset detection
  (contributed by @yawkat) 
 #943: Add `StreamReadConstraints.maxNestingDepth()` to constraint max nesting
-  depth (default: 1000)
+  depth (default: 1000) [CVE-2025-52999]
 #948: Use `StreamConstraintsException` in name canonicalizers
  (contributed by @pjfanning)
 #962: Offer a way to directly set `StreamReadConstraints` via `JsonFactory` (not just Builder)
@@ -385,7 +423,7 @@ No changes since 2.13.3
 2.13.0 (30-Sep-2021)
 
 #652: Misleading exception for input source when processing byte buffer
-  with start offset
+  with start offset [CVE-2025-49128]
  (reported by Greg W)
 #658: Escape contents of source document snippet for `JsonLocation._appendSourceDesc()`
 #664: Add `StreamWriteException` type to eventually replace `JsonGenerationException`

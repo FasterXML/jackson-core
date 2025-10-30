@@ -44,7 +44,6 @@ class LocationDuringStreamParsingTest extends JUnit5TestBase
         }
     }
 
-    @Test
     private void locationAtEndOfParse(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
@@ -55,7 +54,6 @@ class LocationDuringStreamParsingTest extends JUnit5TestBase
         p.close();
     }
 
-    @Test
     private void initialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
@@ -65,7 +63,6 @@ class LocationDuringStreamParsingTest extends JUnit5TestBase
         assertLocation(loc, at(1, 1, 0));
     }
 
-    @Test
     private void tokenLocations(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");

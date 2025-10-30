@@ -77,7 +77,6 @@ class BoundsChecksWithJsonFactoryTest
                 (data,offset,len)->PARSER_F.createParser(data, offset, len));
     }
 
-    @Test
     private void boundsWithCharArrayInput(CharBackedCreation creator) throws Exception
     {
         final char[] DATA = new char[10];
@@ -92,7 +91,6 @@ class BoundsChecksWithJsonFactoryTest
         boundsWithCharArrayInput(creator, null, 0, 3);
     }
 
-    @Test
     private void boundsWithCharArrayInput(CharBackedCreation creator,
             char[] data, int offset, int len) throws Exception
     {

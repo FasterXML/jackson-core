@@ -169,7 +169,15 @@ public class JsonPointer implements Serializable
         _matchingElementIndex = matchIndex;
     }
 
-    // @since 2.19
+    /**
+     * Copy-constructor used for creating transformed instances with
+     * re-linking textual contents to new "next" pointer instance.
+     *
+     * @param src Original pointer to copy "full String" from
+     * @param next New "next" pointed to link to
+     *
+     * @since 2.19
+     */
     protected JsonPointer(JsonPointer src, JsonPointer next) {
         _asString = src._asString;
         _asStringOffset = src._asStringOffset;
@@ -178,7 +186,16 @@ public class JsonPointer implements Serializable
         _matchingElementIndex = src._matchingElementIndex;
     }
 
-    // @since 2.19
+    /**
+     * Copy-constructor used for creating transformed instances without
+     * "next" linkage
+     *
+     * @param src Original pointer to copy "matchingXxx" fields from
+     * @param newFullString Full String to use
+     * @param newFullStringOffset Offset for new full String to use
+     *
+     * @since 2.19
+     */
     protected JsonPointer(JsonPointer src, String newFullString, int newFullStringOffset) {
         _asString = newFullString;
         _asStringOffset = newFullStringOffset;
@@ -841,22 +858,22 @@ public class JsonPointer implements Serializable
         if (last == this) {
             return EMPTY;
         }
-        // and from that, length of suffix to drop
-        final int suffixLength = last.length();
 
         // Initialize a list to store intermediate JsonPointers in reverse
         ArrayList<JsonPointer> pointers = new ArrayList<>();
 
         JsonPointer current = this;
-        String fullString = toString();
+        String origFullString = toString();
         // Make sure to share the new full string for path segments
-        fullString = fullString.substring(0, fullString.length() - suffixLength);
-        int offset = 0;
+        String fullString = origFullString.substring(0, origFullString.length() - last.length());
+
+        // Also: if there was an offset, must compensate (new String starts at 0)
+        final int offsetDiff = -_asStringOffset;
 
         while (current != last) {
+            // NOTE: since we drop from the end we can simply reuse offset (w/ possible modification)
             JsonPointer nextSegment = new JsonPointer(current,
-                    fullString, offset);
-            offset += suffixLength;
+                    fullString, current._asStringOffset + offsetDiff);
             pointers.add(nextSegment);
             current = current._nextSegment;
         }

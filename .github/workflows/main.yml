@@ -1,18 +1,11 @@
 name: Build and Deploy Snapshot
 on:
   push:
-    branches:
-    - master
-    - "3.0"
-    - "2.19"
+    branches: ['2.*']
     paths-ignore:
     - "README.md"
     - "release-notes/*"
   pull_request:
-    branches:
-    - master
-    - "3.0"
-    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -27,10 +20,10 @@ jobs:
       matrix:
         java_version: ['8', '17', '21', '23']
         # We will actually need "os" as Matrix to have Windows build
-        os: ['ubuntu-22.04']
+        os: ['ubuntu-24.04']
         include:
           - java_version: '8'
-            os: 'ubuntu-22.04'
+            os: 'ubuntu-24.04'
             release_build: 'R'
           - java_version: '8'
             os: 'windows-latest'
@@ -45,7 +38,7 @@ jobs:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
-        server-id: sonatype-nexus-snapshots
+        server-id: central-snapshots
         server-username: CI_DEPLOY_USERNAME
         server-password: CI_DEPLOY_PASSWORD
         # See https://github.com/actions/setup-java/blob/v2/docs/advanced-usage.md#Publishing-using-Apache-Maven
@@ -64,8 +57,8 @@ jobs:
     - name: Deploy snapshot
       if: ${{ matrix.release_build && github.event_name != 'pull_request' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
-        CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
-        CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+        CI_DEPLOY_USERNAME: ${{ secrets.CENTRAL_DEPLOY_USERNAME }}
+        CI_DEPLOY_PASSWORD: ${{ secrets.CENTRAL_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
       run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
     - name: Generate code coverage
@@ -83,7 +76,7 @@ jobs:
     name: Trigger downstream builds for v2
     needs: [build]
     # Only for pushes to default branch
-    if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+    if: ${{ github.event_name == 'push' && github.ref_name == '2.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v2.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}
@@ -91,8 +84,8 @@ jobs:
   trigger-dep-builds-v3:
     name: Trigger downstream builds for v3
     needs: [build]
-    # Only for pushes to master (v3) branch
-    if: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
+    # Only for pushes to 3.x branch
+    if: ${{ github.event_name == 'push' && github.ref_name == '3.x' }}
     uses: ./.github/workflows/trigger_dep_builds_v3.yml
     secrets:
       token: ${{ secrets.REPO_DISPATCH }}

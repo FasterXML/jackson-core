@@ -19,6 +19,8 @@ public class BinaryNameMatcherTest extends JacksonCoreTestBase
         // First small (1 - 4)
         _testMatching("single");
         _testMatching("1", "2a");
+        //[core#1491]
+        _testMatching("aaaabbbbcccc", "aaaabbbbcccc2");
         _testMatching("first", "secondlong", "3rd");
     }
 

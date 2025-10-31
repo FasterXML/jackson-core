@@ -18,9 +18,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PropertyNameMatcher1491Test
     extends tools.jackson.core.unittest.JacksonCoreTestBase
 {
+    // Occurs with min of 12 chars (multiples of 4, 16 works).
+    // Choice of first N does not matter, nor last (13th);
+    // All of below show failure
+    
     private final String KEY_1 = "aaaabbbbcccc";
     private final String KEY_2 = "aaaabbbbcccc2";
+//    private final String KEY_1 = "a234b234c234";
+//    private final String KEY_2 = "a234b234c234x";
+//    private final String KEY_1 = "a234b234c234dXYZ";
+//    private final String KEY_2 = "a234b234c234dXYZ0";
 
+    
     private final Named NAMED_1 = Named.fromString(KEY_1);
     private final Named NAMED_2 = Named.fromString(KEY_2);
 

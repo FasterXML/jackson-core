@@ -214,6 +214,7 @@ class ErrorReportConfigurationTest
         try {
             _verifyErrorTokenLength(tokenStartOffset,
                     null);
+            fail("Should not reach here as exception is expected");
         } catch (NullPointerException e) {
             // no-op
         }

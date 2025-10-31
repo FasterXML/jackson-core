@@ -16,6 +16,8 @@ a pure JSON library.
 
 2.21.0 (not yet released)
 
+#1180: `JsonLocation` off for unrecognized tokens
+ (fix by @cowtowncoder, w/ Claude code)
 #1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`
  (contributed by Lars H)
 #1477: Add `JsonGenerator.has(StreamWriteCapability)` convenience method

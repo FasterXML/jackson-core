@@ -20,7 +20,7 @@ a pure JSON library.
  (contributed by Lars H)
 #1477: Add `JsonGenerator.has(StreamWriteCapability)` convenience method
 
-2.20.1 (not yet released)
+2.20.1 (30-Oct-2025)
 
 #1473: Bug with Surrogates + Segments in the `UTF8JsonGenerator`
  (fix contributed by Vitor P)
@@ -34,6 +34,8 @@ a pure JSON library.
 #1462: Deprecate `URL`-taking factory method of `JsonFactory`
 - Generate SBOMs [JSTEP-14]
 
+2.19.4 (29-Oct-2025)
+2.19.3 (29-Oct-2025)
 2.19.2 (18-Jul-2025)
 
 No changes since 2.19.1
@@ -75,11 +77,8 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
-2.18.5 (not yet released)
-
--
-
-2.18.4.1 (10-June-2025)
+2.18.5 (27-Oct-2025)
+ (same as 2.18.4.1 on 10-June-2025)
 
 #1433: `JsonParser#getNumberType()` throws `JsonParseException` when
   the current token is non-numeric instead of returning null

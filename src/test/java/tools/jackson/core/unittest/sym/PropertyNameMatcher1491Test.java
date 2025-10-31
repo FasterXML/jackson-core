@@ -22,18 +22,18 @@ public class PropertyNameMatcher1491Test
     // Choice of first N does not matter, nor last (13th);
     // All of below show failure
     
-    private final String KEY_1 = "aaaabbbbcccc";
-    private final String KEY_2 = "aaaabbbbcccc2";
+    private final static String KEY_1 = "aaaabbbbcccc";
+    private final static String KEY_2 = "aaaabbbbcccc2";
 //    private final String KEY_1 = "a234b234c234";
 //    private final String KEY_2 = "a234b234c234x";
 //    private final String KEY_1 = "a234b234c234dXYZ";
 //    private final String KEY_2 = "a234b234c234dXYZ0";
 
     
-    private final Named NAMED_1 = Named.fromString(KEY_1);
-    private final Named NAMED_2 = Named.fromString(KEY_2);
+    private final static Named NAMED_1 = Named.fromString(KEY_1);
+    private final static Named NAMED_2 = Named.fromString(KEY_2);
 
-    private final String DOC_1491 = """
+    private final static String DOC_1491 = """
 {
 "%s": "v3",
 "%s": "v4"

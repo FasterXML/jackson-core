@@ -1573,6 +1573,8 @@ public class UTF8StreamJsonParser
                 if (i != INT_QUOTE) {
                     return -1;
                 }
+                // [core#1491]: Need to include partial quad in matching
+                _quadBuffer[qlen++] = q;
                 _quadPtr = qptr;
                 return matcher.matchByQuad(_quadBuffer, qlen);
             }
@@ -1582,8 +1584,10 @@ public class UTF8StreamJsonParser
                 if (i != INT_QUOTE) {
                     return -1;
                 }
-//                q = _padLastQuadNoCheck(q, (-1 << 8));
-                break;
+                // [core#1491]: Need to include partial quad in matching
+                _quadBuffer[qlen++] = q;
+                _quadPtr = qptr;
+                return matcher.matchByQuad(_quadBuffer, qlen);
             }
             q = (q << 8) | i;
             i = input[qptr++] & 0xFF;
@@ -1591,8 +1595,10 @@ public class UTF8StreamJsonParser
                 if (i != INT_QUOTE) {
                     return -1;
                 }
-//                q = _padLastQuadNoCheck(q, (-1 << 16));
-                break;
+                // [core#1491]: Need to include partial quad in matching
+                _quadBuffer[qlen++] = q;
+                _quadPtr = qptr;
+                return matcher.matchByQuad(_quadBuffer, qlen);
             }
             q = (q << 8) | i;
             i = input[qptr++] & 0xFF;
@@ -1600,8 +1606,10 @@ public class UTF8StreamJsonParser
                 if (i != INT_QUOTE) {
                     return -1;
                 }
-//                q = _padLastQuadNoCheck(q, (-1 << 24));
-                break;
+                // [core#1491]: Need to include partial quad in matching
+                _quadBuffer[qlen++] = q;
+                _quadPtr = qptr;
+                return matcher.matchByQuad(_quadBuffer, qlen);
             }
             // Nope, no end in sight. Need to grow quad array etc
             if (qlen >= _quadBuffer.length) {

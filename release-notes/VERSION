@@ -15,6 +15,15 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.1.0 (not yet released)
+
+-
+
+3.0.2 (not yet released)
+
+#1491: Mismatched property name for byte-backed `JsonParser.nextNameMatch(PropertyNameMatcher)`
+ (fix by @cowtowncoder, w/ Claude code)
+
 3.0.1 (21-Oct-2025)
 
 No changes since 3.0.0

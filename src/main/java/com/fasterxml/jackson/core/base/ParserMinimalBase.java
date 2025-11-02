@@ -769,7 +769,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /**
-     * Method called to throw an exception for invalid UTF-8 surrogate character.
+     * Method called to throw an exception for invalid UTF-8 surrogate character: case
+     * where a surrogate character (between U+D800 and U+DFFF) is decoded from UTF-8
+     * bytes (but NOT from JSON entity!)
      *
      * @param ch Character code (int) that is invalid surrogate
      *

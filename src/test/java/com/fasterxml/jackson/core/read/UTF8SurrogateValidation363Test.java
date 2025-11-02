@@ -40,7 +40,8 @@ class UTF8SurrogateValidation363Test extends JUnit5TestBase
             assertEquals("value", p.currentName());
 
             // This should fail when trying to read the string value
-            p.nextToken();
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            p.getText(); // Actual parsing happens here
             fail("Should have thrown an exception for surrogate code point in UTF-8");
         } catch (IOException e) {
             verifyException(e, "Invalid UTF-8");
@@ -70,7 +71,8 @@ class UTF8SurrogateValidation363Test extends JUnit5TestBase
             assertEquals("value", p.currentName());
 
             // This should fail when trying to read the string value
-            p.nextToken();
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            p.getText(); // Actual parsing happens here
             fail("Should have thrown an exception for surrogate code point in UTF-8");
         } catch (IOException e) {
             verifyException(e, "Invalid UTF-8");
@@ -100,7 +102,8 @@ class UTF8SurrogateValidation363Test extends JUnit5TestBase
             assertEquals("value", p.currentName());
 
             // This should fail when trying to read the string value
-            p.nextToken();
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            p.getText(); // Actual parsing happens here
             fail("Should have thrown an exception for surrogate code point in UTF-8");
         } catch (IOException e) {
             verifyException(e, "Invalid UTF-8");
@@ -126,7 +129,8 @@ class UTF8SurrogateValidation363Test extends JUnit5TestBase
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
             // This should fail when trying to read the field name
-            p.nextToken();
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            p.currentName(); // Actual parsing happens here
             fail("Should have thrown an exception for surrogate code point in UTF-8");
         } catch (IOException e) {
             verifyException(e, "Invalid UTF-8");

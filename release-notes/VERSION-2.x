@@ -16,6 +16,8 @@ a pure JSON library.
 
 2.21.0 (not yet released)
 
+#363: UTF-8 decoding should fail on Surrogate characters (0xD800 - 0xDFFF)
+ (fix by @cowtowncoder, w/ Claude code)
 #1180: `JsonLocation` off for unrecognized tokens
  (fix by @cowtowncoder, w/ Claude code)
 #1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`

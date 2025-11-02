@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.core.read;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -41,9 +40,9 @@ class UTF8SurrogateValidation363Test extends JUnit5TestBase
 
             // This should fail when trying to read the string value
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            p.getText(); // Actual parsing happens here
+            p.getText(); // Actual parsing happens here  (lazy parsing)
             fail("Should have thrown an exception for surrogate code point in UTF-8");
-        } catch (IOException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Invalid UTF-8");
         }
     }
@@ -72,9 +71,9 @@ class UTF8SurrogateValidation363Test extends JUnit5TestBase
 
             // This should fail when trying to read the string value
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            p.getText(); // Actual parsing happens here
+            p.getText(); // Actual parsing happens here  (lazy parsing)
             fail("Should have thrown an exception for surrogate code point in UTF-8");
-        } catch (IOException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Invalid UTF-8");
         }
     }
@@ -103,9 +102,9 @@ class UTF8SurrogateValidation363Test extends JUnit5TestBase
 
             // This should fail when trying to read the string value
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            p.getText(); // Actual parsing happens here
+            p.getText(); // Actual parsing happens here  (lazy parsing)
             fail("Should have thrown an exception for surrogate code point in UTF-8");
-        } catch (IOException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Invalid UTF-8");
         }
     }
@@ -129,10 +128,10 @@ class UTF8SurrogateValidation363Test extends JUnit5TestBase
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
             // This should fail when trying to read the field name
+            // (no lazy parsing for names)
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            p.currentName(); // Actual parsing happens here
             fail("Should have thrown an exception for surrogate code point in UTF-8");
-        } catch (IOException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Invalid UTF-8");
         }
     }

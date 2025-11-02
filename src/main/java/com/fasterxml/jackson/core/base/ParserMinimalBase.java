@@ -767,6 +767,20 @@ public abstract class ParserMinimalBase extends JsonParser
     protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
         _reportUnexpectedNumberChar(ch, comment);
     }
+
+    /**
+     * Method called to throw an exception for invalid UTF-8 surrogate character.
+     *
+     * @param ch Character code (int) that is invalid surrogate
+     *
+     * @throws JsonParseException Exception that describes problem with UTF-8 surrogate
+     *
+     * @since 2.21
+     */
+    protected void _reportInvalidUTF8Surrogate(int ch) throws IOException {
+        throw _constructReadException(
+                "Invalid UTF-8: Illegal surrogate character 0x"+Integer.toHexString(ch));
+    }
     
     protected void _throwInvalidSpace(int i) throws JsonParseException {
         char c = (char) i;

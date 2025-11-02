@@ -2831,7 +2831,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         int c = (prev << 6) | (next & 0x3F);
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportError("Invalid UTF-8: Illegal surrogate character 0x"+Integer.toHexString(c));
+            _reportInvalidUTF8Surrogate(c);
         }
         _textBuffer.append((char) c);
         return true;
@@ -2982,7 +2982,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         c = (c << 6) | (e & 0x3F);
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportError("Invalid UTF-8: Illegal surrogate character 0x"+Integer.toHexString(c));
+            _reportInvalidUTF8Surrogate(c);
         }
         return c;
     }

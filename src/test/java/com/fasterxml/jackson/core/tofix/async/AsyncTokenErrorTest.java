@@ -13,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class AsyncTokenErrorTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     @Test
-    void invalidKeywordsStartOk() throws Exception
+    void invalidKeywordsAfterMatching1st() throws Exception
     {
         _doTestInvalidKeyword("nul");
         _doTestInvalidKeyword("nulla");
@@ -30,7 +30,7 @@ class AsyncTokenErrorTest extends AsyncTestBase
     }
 
     @Test
-    void invalidKeywordsStartFail() throws Exception
+    void invalidKeywordsAfterNonMatching1st() throws Exception
     {
         _doTestInvalidKeyword("Null");
         _doTestInvalidKeyword("False");

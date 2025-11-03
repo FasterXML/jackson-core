@@ -671,7 +671,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     boolean returnEnd = _headContext.isStartHandled();
                     f = _headContext.getFilter();
                     if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
-                        boolean includeEmpty = f.includeEmptyArray(_headContext.hasCurrentName());
+                        boolean includeEmpty = f.includeEmptyObject(_headContext.hasCurrentName());
                         f.filterFinishObject();
                         if (includeEmpty) {
                             return _nextBuffered(_headContext);

@@ -18,8 +18,11 @@ a pure JSON library.
 
 #363: UTF-8 decoding should fail on Surrogate characters (0xD800 - 0xDFFF)
  (fix by @cowtowncoder, w/ Claude code)
-#1180: `JsonLocation` off for unrecognized tokens
+#708: `FilteringParserDelegate` cannot deserialize empty list
+ (reported by @xiazuojie)
  (fix by @cowtowncoder, w/ Claude code)
+#1180: `JsonLocation` off for unrecognized tokens
+(fix by @cowtowncoder, w/ Claude code)
 #1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`
  (contributed by Lars H)
 #1477: Add `JsonGenerator.has(StreamWriteCapability)` convenience method

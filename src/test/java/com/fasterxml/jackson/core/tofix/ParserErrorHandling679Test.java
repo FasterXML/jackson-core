@@ -2,16 +2,16 @@ package com.fasterxml.jackson.core.tofix;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ParserErrorHandling679Test
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     // [core#679]
     @JacksonTestFailureExpected
@@ -58,7 +58,7 @@ class ParserErrorHandling679Test
             JsonToken t = p.nextToken();
             Double v = p.getDoubleValue();
             fail("Should have gotten an exception for '"+value+"'; instead got ("+t+") number: "+v);
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected ");
         }
     }
@@ -77,7 +77,7 @@ class ParserErrorHandling679Test
                 JsonToken t = p.nextToken();
                 int v = p.getIntValue();
                 fail("Should have gotten an exception for '" + value + "'; instead got (" + t + ") number: " + v);
-            } catch (JsonParseException e) {
+            } catch (StreamReadException e) {
                 verifyException(e, "expected ");
             }
         }

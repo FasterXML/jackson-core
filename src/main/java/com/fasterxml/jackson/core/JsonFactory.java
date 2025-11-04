@@ -1174,6 +1174,10 @@ public class JsonFactory
      * with this factory (and more importantly, parsers and generators
      * it constructs). This is needed to use data-binding methods
      * of {@link JsonParser} and {@link JsonGenerator} instances.
+     *<p>
+     * NOTE: removed from 3.0: no codec associated with {@code TokenStreamFactory}
+     * instances (but equivalent contexts passed to {@link JsonParser}
+     * and {@link JsonGenerator} instances).
      *
      * @param oc Codec to use
      *
@@ -1184,6 +1188,21 @@ public class JsonFactory
         return this;
     }
 
+    /**
+     * Accessor for {@code ObjectCodec} associated with this factory
+     * if (and only if) this factory was constructed with a reference.
+     * Instance type depends on databind-level implementation in use: for
+     * vanilla {@code jackson-databind} it is {@code ObjectMapper} (but for
+     * {@code jackson-jr} something else; and for other format backends
+     * subtype of {@code ObjectMapper} (such as {@code XmlMapper} for
+     * {@code jackson-dataformat-xml}).
+     *<p>
+     * NOTE: removed from 3.0: no codec associated with {@code TokenStreamFactory}
+     * instances (but equivalent contexts passed to {@link JsonParser}
+     * and {@link JsonGenerator} instances).
+     *
+     * @return Databinding codec associated with this factory, if any; null if none
+     */
     public ObjectCodec getCodec() { return _objectCodec; }
 
     /*
@@ -1223,7 +1242,8 @@ public class JsonFactory
     /**
      * Deprecated variant of {@link #createParser(InputStream)} 
      * no longer recommended to be used due to implementation
-     * problems like {@href "https://github.com/FasterXML/jackson-core/issues/803"}.
+     * problems like
+     * <a href="https://github.com/FasterXML/jackson-core/issues/803">core#803</a>.
      *
      * @param url URL pointing to resource that contains JSON content to parse
      *

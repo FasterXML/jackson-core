@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.tofix;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -26,7 +27,6 @@ class ParserErrorHandling105Test
 //        _testMangledNonRootFloats(MODE_INPUT_STREAM);
 //        _testMangledNonRootFloats(MODE_INPUT_STREAM_THROTTLED);
 
-        // 02-Jun-2017, tatu: Fails as expected, unlike int one. Bit puzzling...
         _testMangledNonRootFloats(MODE_DATA_INPUT);
     }
 
@@ -54,7 +54,7 @@ class ParserErrorHandling105Test
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
     }
@@ -65,7 +65,7 @@ class ParserErrorHandling105Test
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
     }

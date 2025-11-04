@@ -1859,7 +1859,12 @@ public class UTF8DataInputJsonParser
                         _reportInvalidOther(ch2);
                     }
                     ch = (ch << 6) | (ch2 & 0x3F);
-                    if (needed > 2) { // 4 bytes? (need surrogates on output)
+                    // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8 for 3-byte sequences
+                    if (needed == 2) {
+                        if (ch >= 0xD800 && ch <= 0xDFFF) {
+                            _reportInvalidUTF8Surrogate(ch);
+                        }
+                    } else { // 4 bytes? (need surrogates on output)
                         ch2 = quads[ix >> 2];
                         byteIx = (ix & 3);
                         ch2 = (ch2 >> ((3 - byteIx) << 3));
@@ -2678,6 +2683,10 @@ public class UTF8DataInputJsonParser
             _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
+        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
+        if (c >= 0xD800 && c <= 0xDFFF) {
+            _reportInvalidUTF8Surrogate(c);
+        }
         return c;
     }
 

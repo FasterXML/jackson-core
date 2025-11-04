@@ -1,12 +1,9 @@
-package com.fasterxml.jackson.core.tofix;
+package com.fasterxml.jackson.core.filter;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
-import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
-import com.fasterxml.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -17,7 +14,17 @@ class ParserFilterEmpty708Test extends JUnit5TestBase
     static class IncludeAllFilter extends TokenFilter {
         @Override
         public TokenFilter includeProperty(String name) {
-            return this;
+            return TokenFilter.INCLUDE_ALL;
+        }
+
+        @Override
+        public boolean includeEmptyArray(boolean contentsFiltered) {
+            return true;
+        }
+
+        @Override
+        public boolean includeEmptyObject(boolean contentsFiltered) {
+            return true;
         }
     }
 
@@ -30,12 +37,10 @@ class ParserFilterEmpty708Test extends JUnit5TestBase
     private final JsonFactory JSON_F = newStreamFactory();
 
     // [core#708]
-    @JacksonTestFailureExpected
     @Test
     void emptyArray() throws Exception
     {
         final String json = "[ ]";
-        // should become: {"value":12}
         JsonParser p0 = _createParser(JSON_F, json);
         JsonParser p = new FilteringParserDelegate(p0,
                 new IncludeAllFilter(),
@@ -50,12 +55,10 @@ class ParserFilterEmpty708Test extends JUnit5TestBase
     }
 
     // [core#708]
-    @JacksonTestFailureExpected
     @Test
     void emptyObject() throws Exception
     {
         final String json = "{ }";
-        // should become: {"value":12}
         JsonParser p0 = _createParser(JSON_F, json);
         JsonParser p = new FilteringParserDelegate(p0,
                 new IncludeAllFilter(),

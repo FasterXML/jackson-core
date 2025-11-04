@@ -103,6 +103,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
         return delegate.getWriteCapabilities();
     }
 
+    @Override
+    public boolean has(StreamWriteCapability capability) { return delegate.has(capability); }
+
     /*
     /**********************************************************************
     /* Public API, configuration

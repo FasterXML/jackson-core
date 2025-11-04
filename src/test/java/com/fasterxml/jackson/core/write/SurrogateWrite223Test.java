@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.write;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SurrogateWrite223Test extends JUnit5TestBase
 {
     private final JsonFactory DEFAULT_JSON_F = newStreamFactory();
+
+    private final JsonFactory SURROGATE_COMBINING_JSON_F = JsonFactory.builder()
+            .enable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+            .build();
 
     // for [core#223]
     @Test
@@ -35,9 +40,7 @@ class SurrogateWrite223Test extends JUnit5TestBase
 
         out = new ByteArrayOutputStream();
 
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
-                .build();
+        JsonFactory f = SURROGATE_COMBINING_JSON_F;
         g = f.createGenerator(out);
         g.writeStartArray();
         g.writeString(toQuote);
@@ -96,9 +99,7 @@ class SurrogateWrite223Test extends JUnit5TestBase
     //https://github.com/FasterXML/jackson-core/issues/1359
     @Test
     void checkNonSurrogates() throws Exception {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
-                .build();
+        JsonFactory f = SURROGATE_COMBINING_JSON_F;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (JsonGenerator gen = f.createGenerator(out)) {
             gen.writeStartObject();
@@ -126,9 +127,7 @@ class SurrogateWrite223Test extends JUnit5TestBase
 
     @Test
     void checkSurrogateWithCharacterEscapes() throws Exception {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
-                .build();
+        JsonFactory f = SURROGATE_COMBINING_JSON_F;
         f.setCharacterEscapes(JsonpCharacterEscapes.instance());
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (JsonGenerator gen = f.createGenerator(out)) {
@@ -139,5 +138,38 @@ class SurrogateWrite223Test extends JUnit5TestBase
         }
         String json = out.toString("UTF-8");
         assertEquals("{\"test_emoji\":\"\uD83D\uDE0A\"}", json);
+    }
+
+    //https://github.com/FasterXML/jackson-core/issues/1473
+    @Test
+    void surrogateCharSplitInTwoSegments() throws Exception
+    {
+        // UTF8JsonGenerator must avoid splitting surrogate chars
+        // into separate segments. We want to test the third segment
+        // split to make sure indexes, offsets, etc are all correct.
+        // By default, segments split in every 1000 chars.
+        // Thus, we need a string with length 2001 where the surrogate is
+        // at 2000 and 2001 positions.
+        int count = 1999;
+        char[] chars = new char[count];
+        java.util.Arrays.fill(chars, 'x');
+        String base = new String(chars);
+
+        final String VALUE = base + "\uD83E\uDEE1";
+
+        ByteArrayOutputStream bb = new ByteArrayOutputStream();
+        try (JsonGenerator g = SURROGATE_COMBINING_JSON_F.createGenerator(bb)) {
+            g.enable(JsonGenerator.Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
+    
+            g.writeStartArray();
+            g.writeString(VALUE);
+            g.writeEndArray();
+        }
+
+        String result = new String(bb.toByteArray(), StandardCharsets.UTF_8);
+
+        // +2 and -2 to remove array and quotes: result should contain ["xxxx....🫡"]
+        // "\uD83E\uDEE1" is the combined surrogate form of the emoji
+        assertEquals("\uD83E\uDEE1", result.substring(count+2, result.length()-2));
     }
 }

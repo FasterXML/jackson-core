@@ -268,4 +268,18 @@ public class GeneratorMiscTest
             verifyException(e, "No native support for");
         }
     }
+
+    @Test
+    void capabilitiesAccess() throws Exception {
+        try (JsonGenerator g = JSON_F.createGenerator(new StringWriter())) {
+            assertFalse(g.getWriteCapabilities().isEnabled(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY));
+            assertFalse(g.has(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY));
+            assertTrue(g.has(StreamWriteCapability.CAN_WRITE_FORMATTED_NUMBERS));
+        }
+        try (JsonGenerator g = JSON_F.createGenerator(new ByteArrayOutputStream())) {
+            assertFalse(g.getWriteCapabilities().isEnabled(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY));
+            assertFalse(g.has(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY));
+            assertFalse(g.has(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY));
+        }
+    }
 }

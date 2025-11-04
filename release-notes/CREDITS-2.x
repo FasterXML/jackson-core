@@ -498,3 +498,12 @@ Fawzi Essam (@iifawzi)
 
 Ilenia Salvadori (@isalvadori)
  * Requested #1421: Make `JsonReadContext` non-final
+  (2.19.0)
+
+Vitor Pamplona (@vitorpamplona)
+ * Contributed fix for #1473: Bug with Surrogates + Segments in the `UTF8JsonGenerator`
+  (2.20.1)
+
+Lars Hagen (@larshagencognite)
+ * Contributed #1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`
+  (2.21.0)

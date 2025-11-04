@@ -488,6 +488,8 @@ public abstract class JsonParser
      * Accessor for {@link ObjectCodec} associated with this
      * parser, if any. Codec is used by {@link #readValueAs(Class)}
      * method (and its variants).
+     *<p>
+     * NOTE: removed from 3.0, replaced with {@code objectReadContext()}
      *
      * @return Codec assigned to this parser, if any; {@code null} if none
      */
@@ -2524,6 +2526,12 @@ public abstract class JsonParser
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
+     *<p>
+     * NOTE: this method will be removed in Jackson 3.0, only single-value
+     * read methods like {@link #readValueAs(Class)} will remain.
+     * You will instead need to use {@code readValues()}
+     * methods of {@code jackson-databind} objects {@code ObjectMapper} and
+     * {@code ObjectReader}.
      *
      * @param <T> Nominal type parameter for value type
      *
@@ -2540,18 +2548,7 @@ public abstract class JsonParser
     }
 
     /**
-     * Method for reading sequence of Objects from parser stream,
-     * all with same specified value type.
-     *
-     * @param <T> Nominal type parameter for value type
-     *
-     * @param valueTypeRef Java type to read content as (passed to ObjectCodec that
-     *    deserializes content)
-     *
-     * @return Iterator for reading multiple Java values from content
-     *
-     * @throws IOException if there is either an underlying I/O problem or decoding
-     *    issue at format layer
+     * Same as {@link #readValuesAs(Class)} but taking generic type {@link TypeReference}.
      */
     public <T> Iterator<T> readValuesAs(TypeReference<T> valueTypeRef) throws IOException {
         return _codec().readValues(this, valueTypeRef);

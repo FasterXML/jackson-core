@@ -146,20 +146,19 @@ class ExceptionsTest
         final int len = json.length() - start;
 
         p = jsonF.createParser(jsonB, start, len);
-        // for byte-based, will be after character that follows token:
-        // (and alas cannot be easily fixed)
-        _testContentSnippetWithOffset(p, 9, "(byte[])\"[broken]\n\"");
+        // [core#1180]: error location now points to start of invalid token
+        _testContentSnippetWithOffset(p, 2, "(byte[])\"[broken]\n\"");
         p.close();
 
         final char[] jsonC = json.toCharArray();
         p = jsonF.createParser(jsonC, start, len);
-        // for char-based we get true offset at end of token
-        _testContentSnippetWithOffset(p, 8, "(char[])\"[broken]\n\"");
+        // [core#1180]: error location now points to start of invalid token
+        _testContentSnippetWithOffset(p, 2, "(char[])\"[broken]\n\"");
         p.close();
 
         p = jsonF.createParser(json.substring(start));
-        // for char-based we get true offset at end of token
-        _testContentSnippetWithOffset(p, 8, "(String)\"[broken]\n\"");
+        // [core#1180]: error location now points to start of invalid token
+        _testContentSnippetWithOffset(p, 2, "(String)\"[broken]\n\"");
         p.close();
     }
 

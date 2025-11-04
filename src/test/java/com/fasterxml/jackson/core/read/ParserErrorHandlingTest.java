@@ -27,25 +27,23 @@ class ParserErrorHandlingTest
 
     // Tests for [core#105] ("eager number parsing misses errors")
     @Test
-    void mangledIntsBytes() throws Exception {
-        _testMangledNumbersInt(MODE_INPUT_STREAM);
-        _testMangledNumbersInt(MODE_INPUT_STREAM_THROTTLED);
-        _testMangledNumbersInt(MODE_DATA_INPUT);
+    void mangledRootIntsBytes() throws Exception {
+        _testMangledRootNumbersInt(MODE_INPUT_STREAM);
+        _testMangledRootNumbersInt(MODE_INPUT_STREAM_THROTTLED);
+        _testMangledRootNumbersInt(MODE_DATA_INPUT);
     }
 
     @Test
-    void mangledFloatsBytes() throws Exception {
-        _testMangledNumbersFloat(MODE_INPUT_STREAM);
-        _testMangledNumbersFloat(MODE_INPUT_STREAM_THROTTLED);
-
-        // 02-Jun-2017, tatu: Fails as expected, unlike int one. Bit puzzling...
-        _testMangledNumbersFloat(MODE_DATA_INPUT);
+    void mangledRootFloatsBytes() throws Exception {
+        _testMangledRootNumbersFloat(MODE_INPUT_STREAM);
+        _testMangledRootNumbersFloat(MODE_INPUT_STREAM_THROTTLED);
+        _testMangledRootNumbersFloat(MODE_DATA_INPUT);
     }
 
     @Test
-    void mangledNumbersChars() throws Exception {
-        _testMangledNumbersInt(MODE_READER);
-        _testMangledNumbersFloat(MODE_READER);
+    void mangledRootNumbersChars() throws Exception {
+        _testMangledRootNumbersInt(MODE_READER);
+        _testMangledRootNumbersFloat(MODE_READER);
     }
 
     /*
@@ -103,7 +101,7 @@ class ParserErrorHandlingTest
         }
     }
 
-    private void _testMangledNumbersInt(int mode) throws Exception
+    private void _testMangledRootNumbersInt(int mode) throws Exception
     {
         JsonParser p = createParser(JSON_F, mode, "123true");
         try {
@@ -115,7 +113,7 @@ class ParserErrorHandlingTest
         p.close();
     }
 
-    private void _testMangledNumbersFloat(int mode) throws Exception
+    private void _testMangledRootNumbersFloat(int mode) throws Exception
     {
         // Also test with floats
         JsonParser p = createParser(JSON_F, mode, "1.5false");

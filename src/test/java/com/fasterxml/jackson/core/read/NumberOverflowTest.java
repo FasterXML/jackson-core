@@ -14,12 +14,11 @@ class NumberOverflowTest
         extends JUnit5TestBase
 {
     private final JsonFactory FACTORY = JsonFactory.builder()
-            .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(1000000).build())
+            .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(1_000_000).build())
             .build();
 
     // NOTE: this should be long enough to trigger perf problems
-    // 19-
-    private final static int BIG_NUM_LEN = 199999;
+    private final static int BIG_NUM_LEN = 199_999;
     private final static String BIG_POS_INTEGER;
     static {
         StringBuilder sb = new StringBuilder(BIG_NUM_LEN);
@@ -67,13 +66,12 @@ class NumberOverflowTest
     }
 
     // Note: only 4 cardinal types; `short`, `byte` and `char` use same code paths
-    // Note: due to [jackson-core#493], we'll skip DataInput-backed parser
 
     // [jackson-core#488]
     @Test
     void maliciousLongOverflow() throws Exception
     {
-        for (int mode : ALL_STREAMING_MODES) {
+        for (int mode : ALL_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
                 JsonParser p = createParser(FACTORY, mode, doc);
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -94,7 +92,7 @@ class NumberOverflowTest
     @Test
     void maliciousIntOverflow() throws Exception
     {
-        for (int mode : ALL_STREAMING_MODES) {
+        for (int mode : ALL_MODES) {
             for (String doc : new String[] { BIG_POS_DOC, BIG_NEG_DOC }) {
                 JsonParser p = createParser(FACTORY, mode, doc);
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -115,7 +113,7 @@ class NumberOverflowTest
     @Test
     void maliciousBigIntToDouble() throws Exception
     {
-        for (int mode : ALL_STREAMING_MODES) {
+        for (int mode : ALL_MODES) {
             final String doc = BIG_POS_DOC;
             JsonParser p = createParser(FACTORY, mode, doc);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -131,7 +129,7 @@ class NumberOverflowTest
     @Test
     void maliciousBigIntToFloat() throws Exception
     {
-        for (int mode : ALL_STREAMING_MODES) {
+        for (int mode : ALL_MODES) {
             final String doc = BIG_POS_DOC;
             JsonParser p = createParser(FACTORY, mode, doc);
             assertToken(JsonToken.START_ARRAY, p.nextToken());

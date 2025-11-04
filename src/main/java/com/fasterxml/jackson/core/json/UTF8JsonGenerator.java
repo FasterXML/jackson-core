@@ -1344,6 +1344,11 @@ public class UTF8JsonGenerator
 
         while (left > 0) {
             int len = Math.min(_outputMaxContiguous, left);
+            // [core#1473]: avoid splitting surrogates between two segments.
+            // if len == 1 (edge case) don't apply to avoid infinite loop
+            if (len > 1 && _isStartOfSurrogatePair(text.charAt(offset + len-1))) {
+                --len;
+            }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
             }
@@ -1370,6 +1375,11 @@ public class UTF8JsonGenerator
     {
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
+            // [core#1473]: avoid splitting surrogates between two segments.
+            // if len == 1 (edge case) don't apply to avoid infinite loop
+            if (len > 1 && _isStartOfSurrogatePair(cbuf[offset + len-1])) {
+                --len;
+            }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
             }
@@ -1383,6 +1393,11 @@ public class UTF8JsonGenerator
     {
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
+            // [core#1473]: avoid splitting surrogates between two segments.
+            // if len == 1 (edge case) don't apply to avoid infinite loop
+            if (len > 1 && _isStartOfSurrogatePair(text.charAt(offset + len-1))) {
+                --len;
+            }
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
             }
@@ -1513,9 +1528,12 @@ public class UTF8JsonGenerator
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
-                        char lowSurrogate = cbuf[offset++];
-                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                        continue;
+                        char lowSurrogate = cbuf[offset];
+                        if (_isEndOfSurrogatePair(lowSurrogate)) {
+                            offset++;
+                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                            continue;
+                        }
                     }
                 }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
@@ -1561,9 +1579,12 @@ public class UTF8JsonGenerator
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
-                        char lowSurrogate = text.charAt(offset++);
-                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                        continue;
+                        char lowSurrogate = text.charAt(offset);
+                        if (_isEndOfSurrogatePair(lowSurrogate)) {
+                            offset++;
+                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                            continue;
+                        }
                     }
                 }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
@@ -1737,9 +1758,12 @@ public class UTF8JsonGenerator
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
-                        char lowSurrogate = cbuf[offset++];
-                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                        continue;
+                        char lowSurrogate = cbuf[offset];
+                        if (_isEndOfSurrogatePair(lowSurrogate)) {
+                            offset++;
+                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                            continue;
+                        }
                     }
                 }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
@@ -1804,9 +1828,12 @@ public class UTF8JsonGenerator
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
-                        char lowSurrogate = text.charAt(offset++);
-                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                        continue;
+                        char lowSurrogate = text.charAt(offset);
+                        if (_isEndOfSurrogatePair(lowSurrogate)) {
+                            offset++;
+                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                            continue;
+                        }
                     }
                 }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
@@ -1869,6 +1896,11 @@ public class UTF8JsonGenerator
     {
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
+            // [core#1473]: avoid splitting surrogates between two segments.
+            // if len == 1 (edge case) don't apply to avoid infinite loop
+            if (len > 1 && _isStartOfSurrogatePair(utf8[offset + len-1])) {
+                --len;
+            }
             _writeUTF8Segment(utf8, offset, len);
             offset += len;
             totalLen -= len;
@@ -2270,6 +2302,12 @@ public class UTF8JsonGenerator
     private static boolean _isStartOfSurrogatePair(final int ch) {
         // In 0xD800 - 0xDBFF range?
         return (ch & 0xFC00) == 0xD800;
+    }
+
+    // @since 2.21
+    private static boolean _isEndOfSurrogatePair(final int ch) {
+        // In 0xDC00 - 0xDFFF range?
+        return (ch & 0xFC00) == 0xDC00;
     }
 }
 

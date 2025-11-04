@@ -177,28 +177,32 @@ class ErrorReportConfigurationTest
     void expectedTokenLengthWithConfigurations()
             throws Exception
     {
+        // [core#1180]: After fix, error location points to token start (position 7 in "{\"key\":aaa...")
+        // not to the end of consumed token, so all cases now report same offset
+        final int tokenStartOffset = 7;
+
         // default
-        _verifyErrorTokenLength(263,
+        _verifyErrorTokenLength(tokenStartOffset,
                 ErrorReportConfiguration.builder().build());
         // default
-        _verifyErrorTokenLength(263,
+        _verifyErrorTokenLength(tokenStartOffset,
                 ErrorReportConfiguration.defaults());
         // shorter
-        _verifyErrorTokenLength(63,
+        _verifyErrorTokenLength(tokenStartOffset,
                 ErrorReportConfiguration.builder()
                         .maxErrorTokenLength(DEFAULT_ERROR_LENGTH - 200).build());
-        // longer 
-        _verifyErrorTokenLength(463,
+        // longer
+        _verifyErrorTokenLength(tokenStartOffset,
                 ErrorReportConfiguration.builder()
                         .maxErrorTokenLength(DEFAULT_ERROR_LENGTH + 200).build());
         // zero
-        _verifyErrorTokenLength(9,
+        _verifyErrorTokenLength(tokenStartOffset,
                 ErrorReportConfiguration.builder()
                         .maxErrorTokenLength(0).build());
 
         // negative value fails
         try {
-            _verifyErrorTokenLength(9,
+            _verifyErrorTokenLength(tokenStartOffset,
                     ErrorReportConfiguration.builder()
                             .maxErrorTokenLength(-1).build());
         } catch (IllegalArgumentException e) {
@@ -208,8 +212,9 @@ class ErrorReportConfigurationTest
         }
         // null is not allowed, throws NPE
         try {
-            _verifyErrorTokenLength(263,
+            _verifyErrorTokenLength(tokenStartOffset,
                     null);
+            fail("Should not reach here as exception is expected");
         } catch (NullPointerException e) {
             // no-op
         }

@@ -247,6 +247,10 @@ com.fasterxml.jackson.core.*;version=${project.version}
                   <pattern>META-INF/versions/21/ch/randelshofer/fastdoubleparser</pattern>
                   <shadedPattern>META-INF/versions/21/com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>META-INF/versions/23/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/23/com/fasterxml/jackson/core/internal/shaded/fdp/v${project.version.underscore}</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>

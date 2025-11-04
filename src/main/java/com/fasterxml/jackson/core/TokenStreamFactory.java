@@ -201,7 +201,8 @@ public abstract class TokenStreamFactory
 
     /**
      * Deprecated factory method: no longer recommended to be used due to implementation
-     * problems like {@href "https://github.com/FasterXML/jackson-core/issues/803"}.
+     * problems like
+     * <a href="https://github.com/FasterXML/jackson-core/issues/803">core#803</a>.
      *
      * @deprecated since 2.20 caller needs to construct {@link InputStream} (or {@link Reader})
      *    from {@link URL} directly and pass that.

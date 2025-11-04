@@ -1262,10 +1262,11 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     protected JsonToken _reportErrorToken(String actualToken) throws IOException
     {
+        // [core#1180]: Report error at token start, not current position
         // !!! TODO: Include non-standard ones if enabled
-        _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
-                _validJsonTokenList());
-        return JsonToken.NOT_AVAILABLE; // never gets here
+        final String fullMsg = String.format("Unrecognized token '%s': was expecting %s",
+                _textBuffer.contentsAsString(), _validJsonTokenList());
+        throw _constructReadException(fullMsg, currentTokenLocation());
     }
 
     /*
@@ -2827,7 +2828,12 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((next & 0xC0) != 0x080) {
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
-        _textBuffer.append((char) ((prev << 6) | (next & 0x3F)));
+        int c = (prev << 6) | (next & 0x3F);
+        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
+        if (c >= 0xD800 && c <= 0xDFFF) {
+            _reportInvalidUTF8Surrogate(c);
+        }
+        _textBuffer.append((char) c);
         return true;
     }
 
@@ -2973,7 +2979,12 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((e & 0xC0) != 0x080) {
             _reportInvalidOther(e & 0xFF, _inputPtr);
         }
-        return (c << 6) | (e & 0x3F);
+        c = (c << 6) | (e & 0x3F);
+        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
+        if (c >= 0xD800 && c <= 0xDFFF) {
+            _reportInvalidUTF8Surrogate(c);
+        }
+        return c;
     }
 
     // @return Character value <b>minus 0x10000</c>; this so that caller

@@ -168,7 +168,8 @@ public abstract class ParserMinimalBase extends JsonParser
     protected long _tokenCount;
 
     /**
-     * Whether or not to track the token count due a {@link StreamReadConstraints} maxTokenCount > 0.
+     * Whether or not to track the token count due a {@link StreamReadConstraints}
+     * {@code maxTokenCount > 0}.
      *
      * @since 2.18
      */
@@ -765,6 +766,22 @@ public abstract class ParserMinimalBase extends JsonParser
     @Deprecated // @since 2.14
     protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
         _reportUnexpectedNumberChar(ch, comment);
+    }
+
+    /**
+     * Method called to throw an exception for invalid UTF-8 surrogate character: case
+     * where a surrogate character (between U+D800 and U+DFFF) is decoded from UTF-8
+     * bytes (but NOT from JSON entity!)
+     *
+     * @param ch Character code (int) that is invalid surrogate
+     *
+     * @throws JsonParseException Exception that describes problem with UTF-8 surrogate
+     *
+     * @since 2.21
+     */
+    protected void _reportInvalidUTF8Surrogate(int ch) throws JsonParseException {
+        throw _constructReadException(
+                "Invalid UTF-8: Illegal surrogate character 0x"+Integer.toHexString(ch));
     }
     
     protected void _throwInvalidSpace(int i) throws JsonParseException {

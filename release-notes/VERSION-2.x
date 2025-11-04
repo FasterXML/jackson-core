@@ -26,6 +26,8 @@ a pure JSON library.
 #1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`
  (contributed by Lars H)
 #1477: Add `JsonGenerator.has(StreamWriteCapability)` convenience method
+#1500: Add checks for surrogate pairing for UTF-8 generation
+(fix by @cowtowncoder, w/ Claude code)
 
 2.20.1 (30-Oct-2025)
 

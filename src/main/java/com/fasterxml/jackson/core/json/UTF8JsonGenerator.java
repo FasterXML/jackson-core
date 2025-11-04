@@ -1528,9 +1528,12 @@ public class UTF8JsonGenerator
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
-                        char lowSurrogate = cbuf[offset++];
-                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                        continue;
+                        char lowSurrogate = cbuf[offset];
+                        if (_isEndOfSurrogatePair(lowSurrogate)) {
+                            offset++;
+                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                            continue;
+                        }
                     }
                 }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
@@ -1576,9 +1579,12 @@ public class UTF8JsonGenerator
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
-                        char lowSurrogate = text.charAt(offset++);
-                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                        continue;
+                        char lowSurrogate = text.charAt(offset);
+                        if (_isEndOfSurrogatePair(lowSurrogate)) {
+                            offset++;
+                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                            continue;
+                        }
                     }
                 }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
@@ -1752,9 +1758,12 @@ public class UTF8JsonGenerator
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
-                        char lowSurrogate = cbuf[offset++];
-                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                        continue;
+                        char lowSurrogate = cbuf[offset];
+                        if (_isEndOfSurrogatePair(lowSurrogate)) {
+                            offset++;
+                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                            continue;
+                        }
                     }
                 }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
@@ -1819,9 +1828,12 @@ public class UTF8JsonGenerator
                     final boolean combineSurrogates = Feature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_features);
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
-                        char lowSurrogate = text.charAt(offset++);
-                        outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                        continue;
+                        char lowSurrogate = text.charAt(offset);
+                        if (_isEndOfSurrogatePair(lowSurrogate)) {
+                            offset++;
+                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
+                            continue;
+                        }
                     }
                 }
                 outputPtr = _outputMultiByteChar(ch, outputPtr);
@@ -2290,6 +2302,12 @@ public class UTF8JsonGenerator
     private static boolean _isStartOfSurrogatePair(final int ch) {
         // In 0xD800 - 0xDBFF range?
         return (ch & 0xFC00) == 0xD800;
+    }
+
+    // @since 2.21
+    private static boolean _isEndOfSurrogatePair(final int ch) {
+        // In 0xDC00 - 0xDFFF range?
+        return (ch & 0xFC00) == 0xDC00;
     }
 }
 

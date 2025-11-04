@@ -27,6 +27,8 @@ JSON library.
  (fix by @cowtowncoder, w/ Claude code)
 #1491: Mismatched property name for byte-backed `JsonParser.nextNameMatch(PropertyNameMatcher)`
  (fix by @cowtowncoder, w/ Claude code)
+#1498: Jackson 3 breaks `FastDoubleParser` - problem with shading
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.0.1 (21-Oct-2025)
 

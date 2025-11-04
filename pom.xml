@@ -221,11 +221,11 @@ tools.jackson.core.*;version=${project.version}
                 </relocation>
                 <relocation>
                   <pattern>ch/randelshofer/fastdoubleparser/bte</pattern>
-                  <shadedPattern>com/fasterxml/jackson/core/internal/shaded/fdp/bte</shadedPattern>
+                  <shadedPattern>tools/jackson/core/internal/shaded/fdp/bte</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>ch/randelshofer/fastdoubleparser/chr</pattern>
-                  <shadedPattern>com/fasterxml/jackson/core/internal/shaded/fdp/chr</shadedPattern>
+                  <shadedPattern>tools/jackson/core/internal/shaded/fdp/chr</shadedPattern>
                 </relocation>
                 <relocation>
                   <pattern>META-INF/LICENSE</pattern>
@@ -254,6 +254,10 @@ tools.jackson.core.*;version=${project.version}
                 <relocation>
                   <pattern>META-INF/versions/22/ch/randelshofer/fastdoubleparser</pattern>
                   <shadedPattern>META-INF/versions/22/tools/jackson/core/internal/shaded/fdp</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/versions/23/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/23/tools/jackson/core/internal/shaded/fdp</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

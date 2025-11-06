@@ -16,7 +16,7 @@ module tools.jackson.core.testutil
     opens tools.jackson.core.testutil;
     opens tools.jackson.core.testutil.failure;
 
-    // Additional test opens for JUnit tests
+    // Additional test opens for Unit tests
 
     opens tools.jackson.core.unittest;
     opens tools.jackson.core.unittest.async;
@@ -39,4 +39,7 @@ module tools.jackson.core.testutil
     opens tools.jackson.core.unittest.type;
     opens tools.jackson.core.unittest.util;
     opens tools.jackson.core.unittest.write;
+
+    // Additional test opens for ITs
+    opens tools.jackson.core.it;
 }

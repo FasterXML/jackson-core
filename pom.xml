@@ -133,6 +133,27 @@ tools.jackson.core.*;version=${project.version}
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
         </configuration>
       </plugin>
+
+      <!-- Integration tests (run after packaging to verify shaded JAR) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${version.plugin.surefire}</version>
+        <configuration>
+          <includes>
+            <include>**/*IT.java</include>
+          </includes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin> <!-- default settings are fine, just need to enable here -->
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>

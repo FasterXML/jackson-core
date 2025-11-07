@@ -11,8 +11,8 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.AsyncReaderWrapper;
 import tools.jackson.core.unittest.async.AsyncTestBase;
+import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -10,9 +10,9 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.ByteOutputStreamForTesting;
-import tools.jackson.core.testutil.StringWriterForTesting;
 import tools.jackson.core.unittest.*;
+import tools.jackson.core.unittest.testutil.ByteOutputStreamForTesting;
+import tools.jackson.core.unittest.testutil.StringWriterForTesting;
 
 import static org.junit.jupiter.api.Assertions.*;
 

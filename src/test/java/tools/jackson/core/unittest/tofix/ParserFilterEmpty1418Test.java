@@ -7,8 +7,8 @@ import tools.jackson.core.filter.FilteringParserDelegate;
 import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
+import tools.jackson.core.unittest.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

@@ -1,4 +1,4 @@
-package tools.jackson.core.testutil.failure;
+package tools.jackson.core.unittest.testutil.failure;
 
 import java.util.List;
 

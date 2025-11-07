@@ -12,8 +12,8 @@ import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.UTF32Reader;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.ThrottledInputStream;
 import tools.jackson.core.unittest.*;
+import tools.jackson.core.unittest.testutil.ThrottledInputStream;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

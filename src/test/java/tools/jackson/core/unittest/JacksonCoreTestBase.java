@@ -10,10 +10,10 @@ import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
-import tools.jackson.core.testutil.JacksonTestUtilBase;
-import tools.jackson.core.testutil.MockDataInput;
-import tools.jackson.core.testutil.ThrottledInputStream;
-import tools.jackson.core.testutil.ThrottledReader;
+import tools.jackson.core.unittest.testutil.JacksonTestUtilBase;
+import tools.jackson.core.unittest.testutil.MockDataInput;
+import tools.jackson.core.unittest.testutil.ThrottledInputStream;
+import tools.jackson.core.unittest.testutil.ThrottledReader;
 
 /**
  * Base class for Jackson-core unit tests, using JUnit 5.

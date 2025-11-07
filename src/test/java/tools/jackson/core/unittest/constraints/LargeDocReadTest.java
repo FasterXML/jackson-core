@@ -8,8 +8,8 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.AsyncReaderWrapper;
 import tools.jackson.core.unittest.async.AsyncTestBase;
+import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

@@ -10,8 +10,8 @@ import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.async.NonBlockingJsonParserBase;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
-import tools.jackson.core.testutil.AsyncReaderWrapper;
 import tools.jackson.core.unittest.async.AsyncTestBase;
+import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -1,4 +1,4 @@
-package tools.jackson.core.testutil;
+package tools.jackson.core.unittest.testutil;
 
 import java.nio.ByteBuffer;
 

@@ -138,7 +138,6 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${version.plugin.surefire}</version>
         <configuration>
           <includes>
             <include>**/*IT.java</include>

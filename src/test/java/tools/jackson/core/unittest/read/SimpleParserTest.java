@@ -15,8 +15,8 @@ import tools.jackson.core.TokenStreamContext;
 import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.MockDataInput;
 import tools.jackson.core.unittest.*;
+import tools.jackson.core.unittest.testutil.MockDataInput;
 import tools.jackson.core.util.JsonParserDelegate;
 
 import static org.junit.jupiter.api.Assertions.*;

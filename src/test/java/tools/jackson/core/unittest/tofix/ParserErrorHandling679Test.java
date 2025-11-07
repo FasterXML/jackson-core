@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
+import tools.jackson.core.unittest.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

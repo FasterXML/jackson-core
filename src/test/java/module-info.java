@@ -6,21 +6,18 @@ module tools.jackson.core.unittest
     requires org.assertj.core;
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
-    requires org.junit.platform.commons; // Needed for JUnit reflection access
+    requires org.junit.platform.commons; // Needed for JUnit reflection access?
 
     // Requires Main jar for tests
     requires tools.jackson.core;
 
-    // Exports/opens a small set of Classes for downstream Jackson components
+    // Exports/opens test utility packages
     exports tools.jackson.core.unittest.testutil;
     exports tools.jackson.core.unittest.testutil.failure;
-
-    // Open to both JUnit Platform and ALL-UNNAMED (for Eclipse and other IDEs)
-    // Note: ALL-UNNAMED cannot be combined with specific modules, so we open to all
     opens tools.jackson.core.unittest.testutil;
     opens tools.jackson.core.unittest.testutil.failure;
 
-    // Additional test opens for Unit tests (opened to all modules for IDE compatibility)
+    // Additional test opens for Unit tests
 
     opens tools.jackson.core.unittest;
     opens tools.jackson.core.unittest.async;

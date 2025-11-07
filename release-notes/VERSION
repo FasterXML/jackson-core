@@ -17,7 +17,9 @@ JSON library.
 
 3.1.0 (not yet released)
 
--
+#1506: Non-blocking parser parses numbers eagerly; does not report error
+  with missing space
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.0.2 (not yet released)
 

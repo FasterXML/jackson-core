@@ -11,7 +11,7 @@ import tools.jackson.core.unittest.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-class AsyncTokenRootErrorTest extends AsyncTestBase
+class AsyncParserNonRootTokenTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -42,24 +42,26 @@ class AsyncTokenRootErrorTest extends AsyncTestBase
     {
         final String EXP_MAIN = "Unrecognized token '"+value+"'";
         final String EXP_ALT = "Unexpected character ('"+value.charAt(0)+"' (code";
-
-        // Try as root-level value as well:
-        String doc = value + " "; // may need space after for DataInput
+        
+        String doc = "{ \"key1\" : "+value+" }";
         try (AsyncReaderWrapper p = _createParser(doc)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             p.nextToken();
             fail("Expected an exception for malformed value keyword");
         } catch (StreamReadException jex) {
             verifyException(jex, EXP_MAIN, EXP_ALT);
         }
     }
-    
+
     @JacksonTestFailureExpected
     @Test
-    void mangledRootInts() throws Exception
+    void mangledNonRootInts() throws Exception
     {
-        try (AsyncReaderWrapper p = _createParser("123true")) {
+        try (AsyncReaderWrapper p = _createParser("[ 123true ]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             JsonToken t = p.nextToken();
-            fail("Should have gotten an exception; instead got token: "+t+"; number: "+p.getNumberValue());
+            fail("Should have gotten an exception; instead got token: "+t);
         } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
@@ -67,12 +69,12 @@ class AsyncTokenRootErrorTest extends AsyncTestBase
 
     @JacksonTestFailureExpected
     @Test
-    void mangledRootFloats() throws Exception
+    void mangledNonRootFloats() throws Exception
     {
-        // Also test with floats
-        try (AsyncReaderWrapper p = _createParser("1.5false")) {
+        try (AsyncReaderWrapper p = _createParser("[ 1.5false ]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             JsonToken t = p.nextToken();
-            fail("Should have gotten an exception; instead got token: "+t+"; number: "+p.getNumberValue());
+            fail("Should have gotten an exception; instead got token: "+t);
         } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }

@@ -1402,14 +1402,14 @@ public class ReaderBasedJsonParser
     private final JsonToken _parseFloat(int ch, int startPtr, int ptr, boolean neg, int intLen)
         throws JacksonException
     {
-        final int inputLen = _inputEnd;
+        final int inputEnd = _inputEnd;
         int fractLen = 0;
 
         // And then see if we get other parts
         if (ch == '.') { // yes, fraction
             fract_loop:
             while (true) {
-                if (ptr >= inputLen) {
+                if (ptr >= inputEnd) {
                     return _parseNumber2(neg, startPtr);
                 }
                 ch = _inputBuffer[ptr++];
@@ -1427,14 +1427,14 @@ public class ReaderBasedJsonParser
         }
         int expLen = 0;
         if ((ch | 0x20) == INT_e) { // ~ 'eE' and/or exponent
-            if (ptr >= inputLen) {
+            if (ptr >= inputEnd) {
                 _inputPtr = startPtr;
                 return _parseNumber2(neg, startPtr);
             }
             // Sign indicator?
             ch = _inputBuffer[ptr++];
             if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
-                if (ptr >= inputLen) {
+                if (ptr >= inputEnd) {
                     _inputPtr = startPtr;
                     return _parseNumber2(neg, startPtr);
                 }
@@ -1442,7 +1442,7 @@ public class ReaderBasedJsonParser
             }
             while (ch <= INT_9 && ch >= INT_0) {
                 ++expLen;
-                if (ptr >= inputLen) {
+                if (ptr >= inputEnd) {
                     _inputPtr = startPtr;
                     return _parseNumber2(neg, startPtr);
                 }
@@ -1540,15 +1540,15 @@ public class ReaderBasedJsonParser
     private final JsonToken _parseNumber2(boolean neg, int startPtr) throws JacksonException
     {
         // Check if there's a sign character at startPtr
-        boolean hasSign = (startPtr < _inputEnd) &&
-                          (_inputBuffer[startPtr] == '-' || _inputBuffer[startPtr] == '+');
+        boolean hasSign = neg || ((startPtr < _inputEnd)
+                && _inputBuffer[startPtr] == '+');
         _inputPtr = hasSign ? (startPtr + 1) : startPtr;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
 
         // Need to prepend sign?
         if (hasSign) {
-            outBuf[outPtr++] = _inputBuffer[startPtr]; // Include actual sign ('+' or '-')
+            outBuf[outPtr++] = neg ? '-' : '+'; // Include actual sign ('+' or '-')
         }
 
         // This is the place to do leading-zero check(s) too:

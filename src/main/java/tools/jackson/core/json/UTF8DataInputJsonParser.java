@@ -988,9 +988,9 @@ public class UTF8DataInputJsonParser
         }
         final char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
-        // 27-Jun-2022, tatu: [core#784] would add plus here too but not yet
-        if (neg) {
-            outBuf[outPtr++] = '-';
+        // [core#784]: Include sign character ('+' or '-') in textual representation
+        if (hasSign) {
+            outBuf[outPtr++] = neg ? '-' : '+';
         }
         return _parseFloat(outBuf, outPtr, INT_PERIOD, neg, 0);
     }
@@ -1080,10 +1080,8 @@ public class UTF8DataInputJsonParser
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
 
-        if (negative) {
-            // Need to prepend sign?
-            outBuf[outPtr++] = '-';
-        }
+        // [core#784]: Include sign character ('+' or '-') in textual representation
+        outBuf[outPtr++] = negative ? '-' : '+';
         int c = _inputData.readUnsignedByte();
         outBuf[outPtr++] = (char) c;
         // Note: must be followed by a digit

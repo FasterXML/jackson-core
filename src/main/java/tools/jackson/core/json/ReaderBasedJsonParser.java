@@ -1317,14 +1317,12 @@ public class ReaderBasedJsonParser
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
             return _handleOddValue('.');
         }
-        // 26-Jun-2022, tatu: At this point it is assumed that the whole input is
-        //    within input buffer so we can "rewind" not just one but two characters
-        //    (leading sign, period) within same buffer. Caller must ensure this is
-        //    the case.
-        //    Little bit suspicious of code paths that would go to "_parseNumber2(...)"
-        // 27-Jun-2022, tatu: [core#784] would add plus here too but not yet
-        int startPtr = _inputPtr - 1;
-        if (neg) {
+        // [core#784]: Include the sign character ('+' or '-') in textual representation.
+        // At this point, _inputPtr points just past the '.', so we rewind to include it.
+        // If there's a sign, we need to rewind one more to include that as well.
+        int startPtr = _inputPtr - 1; // include the '.'
+        // The sign (if present) is at _inputPtr - 2
+        if (neg || (_inputPtr >= 2 && _inputBuffer[_inputPtr - 2] == '+')) {
             --startPtr;
         }
         return _parseFloat(INT_PERIOD, startPtr, _inputPtr, neg, 0);
@@ -1475,9 +1473,8 @@ public class ReaderBasedJsonParser
     private final JsonToken _parseSignedNumber(final boolean negative) throws JacksonException
     {
         int ptr = _inputPtr;
-        // 26-Jun-2022, tatu: We always have a sign; positive should be allowed as deviation
-        //      But unfortunately that won't yet work
-        int startPtr = negative ? ptr-1 : ptr; // to include sign/digit already read
+        // [core#784]: Include sign character ('+' or '-') in textual representation
+        int startPtr = ptr - 1; // to include sign already read
         final int inputEnd = _inputEnd;
 
         if (ptr >= inputEnd) {
@@ -1543,13 +1540,16 @@ public class ReaderBasedJsonParser
      */
     private final JsonToken _parseNumber2(boolean neg, int startPtr) throws JacksonException
     {
-        _inputPtr = neg ? (startPtr+1) : startPtr;
+        // Check if there's a sign character at startPtr
+        boolean hasSign = (startPtr < _inputEnd) &&
+                          (_inputBuffer[startPtr] == '-' || _inputBuffer[startPtr] == '+');
+        _inputPtr = hasSign ? (startPtr + 1) : startPtr;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
 
         // Need to prepend sign?
-        if (neg) {
-            outBuf[outPtr++] = '-';
+        if (hasSign) {
+            outBuf[outPtr++] = _inputBuffer[startPtr]; // Include actual sign ('+' or '-')
         }
 
         // This is the place to do leading-zero check(s) too:

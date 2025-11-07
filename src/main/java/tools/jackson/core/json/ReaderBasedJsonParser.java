@@ -773,7 +773,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod(false);
+            t = _parseFloatThatStartsWithPeriod();
             break;
         case '0':
         case '1':
@@ -974,7 +974,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod(false);
+            t = _parseFloatThatStartsWithPeriod();
             break;
         case '0':
         case '1':
@@ -1053,7 +1053,7 @@ public class ReaderBasedJsonParser
             }
             return;
         case '.': // [core#61]]
-            _nextToken = _parseFloatThatStartsWithPeriod(false);
+            _nextToken = _parseFloatThatStartsWithPeriod();
             return;
         case '0':
         case '1':
@@ -1098,7 +1098,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]
-            t = _parseFloatThatStartsWithPeriod(false);
+            t = _parseFloatThatStartsWithPeriod();
             break;
         case '0':
         case '1':
@@ -1167,7 +1167,7 @@ public class ReaderBasedJsonParser
              * and could be indicated by a more specific error message.
              */
         case '.': // [core#61]]
-            return _updateToken(_parseFloatThatStartsWithPeriod(false));
+            return _updateToken(_parseFloatThatStartsWithPeriod());
         case '0':
         case '1':
         case '2':
@@ -1309,23 +1309,18 @@ public class ReaderBasedJsonParser
     /**********************************************************************
      */
 
-
-    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg)
+    // NOTE: number starts with '.' character WITHOUT leading sign
+    // 
+    // @since 3.1
+    protected final JsonToken _parseFloatThatStartsWithPeriod()
         throws JacksonException
     {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
             return _handleOddValue('.');
         }
-        // [core#784]: Include the sign character ('+' or '-') in textual representation.
-        // At this point, _inputPtr points just past the '.', so we rewind to include it.
-        // If there's a sign, we need to rewind one more to include that as well.
         int startPtr = _inputPtr - 1; // include the '.'
-        // The sign (if present) is at _inputPtr - 2
-        if (neg || (_inputPtr >= 2 && _inputBuffer[_inputPtr - 2] == '+')) {
-            --startPtr;
-        }
-        return _parseFloat(INT_PERIOD, startPtr, _inputPtr, neg, 0);
+        return _parseFloat(INT_PERIOD, startPtr, _inputPtr, false, 0);
     }
 
     /**
@@ -1485,7 +1480,11 @@ public class ReaderBasedJsonParser
         if (ch > INT_9 || ch < INT_0) {
             _inputPtr = ptr;
             if (ch == INT_PERIOD) {
-                return _parseFloatThatStartsWithPeriod(negative);
+                // [core#611]: allow optionally leading decimal point
+                if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
+                    return _handleOddValue('.');
+                }
+                return _parseFloat(INT_PERIOD, startPtr, _inputPtr, negative, 0);
             }
             return _handleInvalidNumberStart(ch, negative, true);
         }

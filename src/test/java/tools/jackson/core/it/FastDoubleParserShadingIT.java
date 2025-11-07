@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration test for issue #1498: FastDoubleParser classes must be properly
+ * Integration test for [core#1498]: FastDoubleParser classes must be properly
  * shaded in the Jackson JAR to prevent {@code NoClassDefFoundError} when
  * Jackson's JAR loads before the FastDoubleParser JAR on the classpath.
  * <p>
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * <li>All FastDoubleParser classes are relocated to {@code tools.jackson.core.internal.shaded.fdp}</li>
  * </ul>
  *
- * @see <a href="https://github.com/FasterXML/jackson-core/issues/1498">Issue #1498</a>
+ * @see <a href="https://github.com/FasterXML/jackson-core/issues/1498">[core#1498]</a>
  */
 public class FastDoubleParserShadingIT
 {
@@ -36,7 +36,7 @@ public class FastDoubleParserShadingIT
      * Jackson JAR, including in multi-version JAR directories.
      */
     @Test
-    public void testNoUnshadedFastDoubleParserClasses() throws Exception
+    public void verifyNoUnshadedFDPClasses() throws Exception
     {
         File jarFile = findJacksonCoreJar();
 

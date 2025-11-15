@@ -58,7 +58,7 @@ public class TokenFilter
 
     /*
     /**********************************************************************
-    /* API, structured values
+    /* API, structured values: parser and generator
     /**********************************************************************
      */
 
@@ -222,6 +222,36 @@ public class TokenFilter
         return this;
     }
 
+    /**
+     * Call made to verify whether leaf-level empty Array value
+     * should be included in filtered input or output or not.
+     *
+     * @param contentsFiltered True if Array had contents but they were
+     *   filtered out (NOT included); false if we had actual empty Array.
+     *
+     * @return True if value is to be included; false if not
+     *
+     * @since 2.14
+     */
+    public boolean includeEmptyArray(boolean contentsFiltered) {
+        return false;
+    }
+
+    /**
+     * Call made to verify whether leaf-level empty Object value
+     * should be included in filtered input or output or not.
+     *
+     * @param contentsFiltered True if Object had contents but they were
+     *   filtered out (NOT included); false if we had actual empty Object.
+     *
+     * @return True if value is to be included; false if not
+     *
+     * @since 2.14
+     */
+    public boolean includeEmptyObject(boolean contentsFiltered) {
+        return false;
+    }
+
     /*
     /**********************************************************************
     /* API, scalar values (being read)
@@ -256,7 +286,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * boolean value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @param value Value to check
      *
@@ -269,7 +299,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * null value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @return True if ({@code null}) value is to be included; false if not
      */
@@ -280,7 +310,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * String value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @param value Value to check
      *
@@ -293,7 +323,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * "streaming" String value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *<p>
      * NOTE: note that any reads from passed in {@code Reader} may lead
      * to actual loss of content to write; typically method should NOT
@@ -313,7 +343,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * <code>int</code> value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * NOTE: also called for `short`, `byte`
      *
@@ -328,7 +358,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * <code>long</code> value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @param value Value to check
      *
@@ -341,7 +371,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * <code>float</code> value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @param value Value to check
      *
@@ -354,7 +384,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * <code>double</code> value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @param value Value to check
      *
@@ -367,7 +397,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * {@link BigDecimal} value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @param value Value to check
      *
@@ -380,7 +410,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * {@link BigInteger} value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @param value Value to check
      *
@@ -393,7 +423,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * Binary value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *<p>
      * NOTE: no binary payload passed; assumption is this won't be of much use.
      *
@@ -406,7 +436,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * raw (pre-encoded, not quoted by generator) value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *<p>
      * NOTE: value itself not passed since it may come on multiple forms
      * and is unlikely to be of much use in determining inclusion
@@ -421,7 +451,7 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level
      * embedded (Opaque) value
-     * should be included in output or not.
+     * should be included in output (written) or not.
      *
      * @param value Value to check
      *
@@ -429,36 +459,6 @@ public class TokenFilter
      */
     public boolean includeEmbeddedValue(Object value) {
         return _includeScalar();
-    }
-
-    /**
-     * Call made to verify whether leaf-level empty Array value
-     * should be included in output or not.
-     *
-     * @param contentsFiltered True if Array had contents but they were
-     *   filtered out (NOT included); false if we had actual empty Array.
-     *
-     * @return True if value is to be included; false if not
-     *
-     * @since 2.14
-     */
-    public boolean includeEmptyArray(boolean contentsFiltered) {
-        return false;
-    }
-
-    /**
-     * Call made to verify whether leaf-level empty Object value
-     * should be included in output or not.
-     *
-     * @param contentsFiltered True if Object had contents but they were
-     *   filtered out (NOT included); false if we had actual empty Object.
-     *
-     * @return True if value is to be included; false if not
-     *
-     * @since 2.14
-     */
-    public boolean includeEmptyObject(boolean contentsFiltered) {
-        return false;
     }
 
     /*

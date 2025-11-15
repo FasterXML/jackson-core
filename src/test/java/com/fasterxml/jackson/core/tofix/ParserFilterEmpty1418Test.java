@@ -30,6 +30,7 @@ class ParserFilterEmpty1418Test extends JUnit5TestBase
         }
     }
 
+    // And then Filter like it was probably intended
     static class OnePropertyFilter1418Fixed extends TokenFilter {
         @Override
         public TokenFilter includeProperty(String name) {

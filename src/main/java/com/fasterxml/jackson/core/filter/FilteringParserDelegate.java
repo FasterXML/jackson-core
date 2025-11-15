@@ -653,10 +653,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     boolean returnEnd = _headContext.isStartHandled();
                     f = _headContext.getFilter();
                     if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
-                        boolean includeEmpty = f.includeEmptyArray(_headContext.hasCurrentIndex());
                         f.filterFinishArray();
-                        if (includeEmpty) {
-                            return _nextBuffered(_headContext);
+                        if (!returnEnd) {
+                            boolean includeEmpty = f.includeEmptyArray(_headContext.hasCurrentIndex());
+                            if (includeEmpty) {
+                                _headContext._needToHandleName = false;
+                                return _nextBuffered(_headContext);
+                            }
                         }
                     }
                     _headContext = _headContext.getParent();
@@ -671,11 +674,15 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     boolean returnEnd = _headContext.isStartHandled();
                     f = _headContext.getFilter();
                     if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
-                        boolean includeEmpty = f.includeEmptyObject(_headContext.hasCurrentName());
                         f.filterFinishObject();
-                        if (includeEmpty) {
-                            return _nextBuffered(_headContext);
-                        }                    }
+                        if (!returnEnd) {
+                            boolean includeEmpty = f.includeEmptyObject(_headContext.hasCurrentName());
+                            if (includeEmpty) {
+                                _headContext._needToHandleName = false;
+                                return _nextBuffered(_headContext);
+                            }
+                        }
+                    }
                     _headContext = _headContext.getParent();
                     _itemFilter = _headContext.getFilter();
                     if (returnEnd) {
@@ -819,15 +826,19 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     // Unlike with other loops, here we know that content was NOT
                     // included (won't get this far otherwise)
                     f = _headContext.getFilter();
-                    if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
-                        boolean includeEmpty = f.includeEmptyArray(_headContext.hasCurrentIndex());
-                        f.filterFinishArray();
-                        if (includeEmpty) {
-                            return _nextBuffered(buffRoot);
-                        }
-                    }
                     boolean gotEnd = (_headContext == buffRoot);
                     boolean returnEnd = gotEnd && _headContext.isStartHandled();
+
+                    if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
+                        f.filterFinishArray();
+                        if (!returnEnd) {
+                            boolean includeEmpty = f.includeEmptyArray(_headContext.hasCurrentIndex());
+                            if (includeEmpty) {
+                                _headContext._needToHandleName = false;
+                                return _nextBuffered(buffRoot);
+                            }
+                        }
+                    }
 
                     _headContext = _headContext.getParent();
                     _itemFilter = _headContext.getFilter();
@@ -845,19 +856,19 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 // Unlike with other loops, here we know that content was NOT
                 // included (won't get this far otherwise)
                 f = _headContext.getFilter();
-                if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
-                    boolean includeEmpty = f.includeEmptyObject(_headContext.hasCurrentName());
-                    f.filterFinishObject();
-                    if (includeEmpty) {
-                        _headContext._currentName = _headContext._parent == null
-                                ? null
-                                : _headContext._parent._currentName;
-                        _headContext._needToHandleName = false;
-                        return _nextBuffered(buffRoot);
-                    }
-                }
                 boolean gotEnd = (_headContext == buffRoot);
                 boolean returnEnd = gotEnd && _headContext.isStartHandled();
+
+                if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
+                    f.filterFinishObject();
+                    if (!returnEnd) {
+                        boolean includeEmpty = f.includeEmptyObject(_headContext.hasCurrentName());
+                        if (includeEmpty) {
+                            _headContext._needToHandleName = false;
+                            return _nextBuffered(buffRoot);
+                        }
+                    }
+                }
 
                 _headContext = _headContext.getParent();
                 _itemFilter = _headContext.getFilter();

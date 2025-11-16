@@ -225,6 +225,9 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level empty Array value
      * should be included in filtered input or output or not.
+     *<p>
+     * The default implementation returns {@code false} to exclude
+     * empty Arrays from input/output.
      *
      * @param contentsFiltered True if Array had contents but they were
      *   filtered out (NOT included); false if we had actual empty Array.
@@ -240,6 +243,9 @@ public class TokenFilter
     /**
      * Call made to verify whether leaf-level empty Object value
      * should be included in filtered input or output or not.
+     *<p>
+     * The default implementation returns {@code false} to exclude
+     * empty Arrays from input/output.
      *
      * @param contentsFiltered True if Object had contents but they were
      *   filtered out (NOT included); false if we had actual empty Object.

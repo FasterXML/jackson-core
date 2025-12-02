@@ -4,6 +4,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.base.DecorableTSFactory.DecorableTSFBuilder;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SerializedString;
+import tools.jackson.core.util.JsonRecyclerPools;
 
 /**
  * {@link tools.jackson.core.TSFBuilder}
@@ -120,7 +121,8 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
     public JsonFactoryBuilder configureForJackson2() {
         return super.configureForJackson2()
                 .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8);
+                .disable(JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8)
+                .recyclerPool(JsonRecyclerPools.threadLocalPool());
     }
 
     // // // Other JSON-specific configuration

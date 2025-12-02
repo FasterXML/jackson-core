@@ -202,7 +202,8 @@ public abstract class TSFBuilder<F extends TokenStreamFactory,
      */
     public B configureForJackson2() {
         return disable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
-                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER);
+                .disable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
+                .enable(TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES);
     }
 
     // // // Other configuration, constraints

@@ -1568,6 +1568,10 @@ public class UTF8StreamJsonParser
         int qlen = 3;
 
         while ((qptr + 4) <= _inputEnd) {
+            // [core#1516]: Need to check buffer space BEFORE any writes in this iteration
+            if (qlen >= _quadBuffer.length) {
+                _quadBuffer = growArrayBy(_quadBuffer, qlen);
+            }
             int i = input[qptr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i != INT_QUOTE) {
@@ -1611,10 +1615,7 @@ public class UTF8StreamJsonParser
                 _quadPtr = qptr;
                 return matcher.matchByQuad(_quadBuffer, qlen);
             }
-            // Nope, no end in sight. Need to grow quad array etc
-            if (qlen >= _quadBuffer.length) {
-                _quadBuffer = growArrayBy(_quadBuffer, qlen);
-            }
+            // Nope, no end in sight.
             _quadBuffer[qlen++] = q;
             q = i;
         }

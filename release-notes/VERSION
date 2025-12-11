@@ -19,6 +19,12 @@ JSON library.
 
 -
 
+3.0.4 (not yet released)
+
+#1516: `UTF8StreamJsonParser` sometimes may cause `ArrayIndexOutOfBoundsException`
+ (reported by @haihai514)
+ (fix by @cowtowncoder, w/ Claude code)
+
 3.0.3 (28-Nov-2025)
 
 #1418: `TokenFilter#includeEmptyArray()` causes an error in some cases where

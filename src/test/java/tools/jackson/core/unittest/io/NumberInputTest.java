@@ -143,4 +143,167 @@ class NumberInputTest
         assertFalse(NumberInput.looksLikeValidNumber("-E"));
         assertFalse(NumberInput.looksLikeValidNumber("+E"));
     }
+
+    @Test
+    void parseIntFromCharArray()
+    {
+        // Test parsing integers from char arrays with various lengths
+        // Single digit
+        char[] ch1 = "5".toCharArray();
+        assertEquals(5, NumberInput.parseInt(ch1, 0, 1));
+
+        // Two digits
+        char[] ch2 = "42".toCharArray();
+        assertEquals(42, NumberInput.parseInt(ch2, 0, 2));
+
+        // Three digits
+        char[] ch3 = "123".toCharArray();
+        assertEquals(123, NumberInput.parseInt(ch3, 0, 3));
+
+        // Four digits
+        char[] ch4 = "1234".toCharArray();
+        assertEquals(1234, NumberInput.parseInt(ch4, 0, 4));
+
+        // Five digits
+        char[] ch5 = "12345".toCharArray();
+        assertEquals(12345, NumberInput.parseInt(ch5, 0, 5));
+
+        // Six digits
+        char[] ch6 = "123456".toCharArray();
+        assertEquals(123456, NumberInput.parseInt(ch6, 0, 6));
+
+        // Seven digits
+        char[] ch7 = "1234567".toCharArray();
+        assertEquals(1234567, NumberInput.parseInt(ch7, 0, 7));
+
+        // Eight digits
+        char[] ch8 = "12345678".toCharArray();
+        assertEquals(12345678, NumberInput.parseInt(ch8, 0, 8));
+
+        // Nine digits (max for fast path)
+        char[] ch9 = "123456789".toCharArray();
+        assertEquals(123456789, NumberInput.parseInt(ch9, 0, 9));
+
+        // Test with offset
+        char[] chOffset = "abc123def".toCharArray();
+        assertEquals(123, NumberInput.parseInt(chOffset, 3, 3));
+
+        // Test with leading plus sign
+        char[] chPlus = "+42".toCharArray();
+        assertEquals(42, NumberInput.parseInt(chPlus, 0, 3));
+    }
+
+    @Test
+    void parseIntFromString()
+    {
+        // Positive numbers
+        assertEquals(0, NumberInput.parseInt("0"));
+        assertEquals(5, NumberInput.parseInt("5"));
+        assertEquals(42, NumberInput.parseInt("42"));
+        assertEquals(123, NumberInput.parseInt("123"));
+        assertEquals(999999999, NumberInput.parseInt("999999999"));
+
+        // Negative numbers
+        assertEquals(-1, NumberInput.parseInt("-1"));
+        assertEquals(-42, NumberInput.parseInt("-42"));
+        assertEquals(-123, NumberInput.parseInt("-123"));
+        assertEquals(-999999999, NumberInput.parseInt("-999999999"));
+
+        // Boundary values
+        assertEquals(Integer.MAX_VALUE, NumberInput.parseInt(String.valueOf(Integer.MAX_VALUE)));
+        assertEquals(Integer.MIN_VALUE, NumberInput.parseInt(String.valueOf(Integer.MIN_VALUE)));
+    }
+
+    @Test
+    void parseLongFromCharArray()
+    {
+        // Test 10 digit number
+        char[] ch10 = "1234567890".toCharArray();
+        assertEquals(1234567890L, NumberInput.parseLong(ch10, 0, 10));
+
+        // Test 15 digit number
+        char[] ch15 = "123456789012345".toCharArray();
+        assertEquals(123456789012345L, NumberInput.parseLong(ch15, 0, 15));
+
+        // Test 18 digit number
+        char[] ch18 = "123456789012345678".toCharArray();
+        assertEquals(123456789012345678L, NumberInput.parseLong(ch18, 0, 18));
+    }
+
+    @Test
+    void parseLong19Digits()
+    {
+        // Test parsing exactly 19 digit numbers
+        char[] ch19 = "1234567890123456789".toCharArray();
+        assertEquals(1234567890123456789L, NumberInput.parseLong19(ch19, 0, false));
+        assertEquals(-1234567890123456789L, NumberInput.parseLong19(ch19, 0, true));
+
+        // Test with offset
+        char[] chOffset = "xxx9223372036854775807".toCharArray();
+        assertEquals(9223372036854775807L, NumberInput.parseLong19(chOffset, 3, false));
+    }
+
+    @Test
+    void parseLongFromString()
+    {
+        // Short values (delegates to parseInt)
+        assertEquals(0L, NumberInput.parseLong("0"));
+        assertEquals(123L, NumberInput.parseLong("123"));
+        assertEquals(-456L, NumberInput.parseLong("-456"));
+
+        // Long values
+        assertEquals(12345678901L, NumberInput.parseLong("12345678901"));
+        assertEquals(-12345678901L, NumberInput.parseLong("-12345678901"));
+
+        // Boundary values
+        assertEquals(Long.MAX_VALUE, NumberInput.parseLong(String.valueOf(Long.MAX_VALUE)));
+        assertEquals(Long.MIN_VALUE, NumberInput.parseLong(String.valueOf(Long.MIN_VALUE)));
+    }
+
+    @Test
+    void inLongRangeFromCharArray()
+    {
+        // Values clearly in range
+        char[] small = "12345".toCharArray();
+        assertTrue(NumberInput.inLongRange(small, 0, 5, false));
+        assertTrue(NumberInput.inLongRange(small, 0, 5, true));
+
+        // Boundary testing - Long.MAX_VALUE = 9223372036854775807 (19 digits)
+        char[] maxLong = "9223372036854775807".toCharArray();
+        assertTrue(NumberInput.inLongRange(maxLong, 0, 19, false));
+
+        // Just above Long.MAX_VALUE
+        char[] aboveMax = "9223372036854775808".toCharArray();
+        assertFalse(NumberInput.inLongRange(aboveMax, 0, 19, false));
+
+        // Long.MIN_VALUE = -9223372036854775808 (19 digits without sign)
+        char[] minLong = "9223372036854775808".toCharArray();
+        assertTrue(NumberInput.inLongRange(minLong, 0, 19, true));
+
+        // Just above Long.MIN_VALUE magnitude
+        char[] aboveMin = "9223372036854775809".toCharArray();
+        assertFalse(NumberInput.inLongRange(aboveMin, 0, 19, true));
+
+        // 20 digits - always too large
+        char[] tooLong = "12345678901234567890".toCharArray();
+        assertFalse(NumberInput.inLongRange(tooLong, 0, 20, false));
+    }
+
+    @Test
+    void inLongRangeFromString()
+    {
+        // Values clearly in range
+        assertTrue(NumberInput.inLongRange("12345", false));
+        assertTrue(NumberInput.inLongRange("12345", true));
+
+        // Boundary testing
+        assertTrue(NumberInput.inLongRange("9223372036854775807", false));
+        assertFalse(NumberInput.inLongRange("9223372036854775808", false));
+
+        assertTrue(NumberInput.inLongRange("9223372036854775808", true));
+        assertFalse(NumberInput.inLongRange("9223372036854775809", true));
+
+        // Too many digits
+        assertFalse(NumberInput.inLongRange("12345678901234567890", false));
+    }
 }

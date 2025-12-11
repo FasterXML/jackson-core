@@ -31,6 +31,7 @@ public class LongName1516Test
     @Test
     void longName65Characters() throws Exception
     {
+        _testLongName65Characters(MODE_READER);
         _testLongName65Characters(MODE_INPUT_STREAM);
         _testLongName65Characters(MODE_INPUT_STREAM_THROTTLED);
         _testLongName65Characters(MODE_DATA_INPUT);
@@ -44,24 +45,23 @@ public class LongName1516Test
 
         String json = "{\"a\": \"123\", \"" + longName + "\": \"value\"}";
 
-        JsonParser p = createParser(mode, json);
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-
-        // First property
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("a", p.currentName());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("123", p.getString());
-
-        // Second property with long name - this triggers the bug in 1516
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals(longName, p.currentName());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("value", p.getString());
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        p.close();
+        try (JsonParser p = createParser(mode, json)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+    
+            // First property
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals("a", p.currentName());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals("123", p.getString());
+    
+            // Second property with long name - this triggers the bug in 1516
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals(longName, p.currentName());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals("value", p.getString());
+    
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
     }
 
     /**
@@ -70,6 +70,7 @@ public class LongName1516Test
     @Test
     void longNamesVariousLengths() throws Exception
     {
+        _testLongNamesVariousLengths(MODE_READER);
         _testLongNamesVariousLengths(MODE_INPUT_STREAM);
         _testLongNamesVariousLengths(MODE_INPUT_STREAM_THROTTLED);
         _testLongNamesVariousLengths(MODE_DATA_INPUT);
@@ -89,17 +90,15 @@ public class LongName1516Test
             String name = nameB.toString();
             String json = "{\"" + name + "\": 42}";
 
-            JsonParser p = createParser(mode, json);
-
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-            assertEquals(name, p.currentName(),
-                "Failed for name length: " + len);
-            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-            assertEquals(42, p.getIntValue());
-            assertToken(JsonToken.END_OBJECT, p.nextToken());
-
-            p.close();
+            try (JsonParser p = createParser(mode, json)) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+                assertEquals(name, p.currentName(),
+                    "Failed for name length: " + len);
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(42, p.getIntValue());
+                assertToken(JsonToken.END_OBJECT, p.nextToken());
+            }
         }
     }
 
@@ -109,6 +108,7 @@ public class LongName1516Test
     @Test
     void multipleLongNames() throws Exception
     {
+        _testMultipleLongNames(MODE_READER);
         _testMultipleLongNames(MODE_INPUT_STREAM);
         _testMultipleLongNames(MODE_INPUT_STREAM_THROTTLED);
         _testMultipleLongNames(MODE_DATA_INPUT);
@@ -152,6 +152,7 @@ public class LongName1516Test
     @Test
     void longNamesWithUTF8() throws Exception
     {
+        _testLongNamesWithUTF8(MODE_READER);
         _testLongNamesWithUTF8(MODE_INPUT_STREAM);
         _testLongNamesWithUTF8(MODE_INPUT_STREAM_THROTTLED);
         _testLongNamesWithUTF8(MODE_DATA_INPUT);
@@ -168,16 +169,14 @@ public class LongName1516Test
         // Convert to UTF-8 bytes
         byte[] jsonBytes = utf8Bytes(json);
 
-        JsonParser p = createParser(mode, jsonBytes);
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals(name, p.currentName());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("test", p.getString());
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-
-        p.close();
+        try (JsonParser p = createParser(mode, jsonBytes)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals(name, p.currentName());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals("test", p.getString());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
     }
 
     /**
@@ -187,6 +186,7 @@ public class LongName1516Test
     @Test
     void longNameWithMatcher65Chars() throws Exception
     {
+        _testLongNameWithMatcher65Chars(MODE_READER);
         _testLongNameWithMatcher65Chars(MODE_INPUT_STREAM);
         _testLongNameWithMatcher65Chars(MODE_INPUT_STREAM_THROTTLED);
         _testLongNameWithMatcher65Chars(MODE_DATA_INPUT);
@@ -207,25 +207,24 @@ public class LongName1516Test
             List.of(Named.fromString("a"), Named.fromString(longName)),
             false);
 
-        JsonParser p = createParser(f, mode, json);
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-
-        assertEquals(0, p.nextNameMatch(matcher));
-        assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
-        assertEquals("a", p.currentName());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("123", p.getString());
-
-        // Second property with long name - this should trigger the bug in _matchLongName()
-        assertEquals(1, p.nextNameMatch(matcher));
-        assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
-        assertEquals(longName, p.currentName());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("value", p.getString());
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        p.close();
+        try (JsonParser p = createParser(f, mode, json)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+    
+            assertEquals(0, p.nextNameMatch(matcher));
+            assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
+            assertEquals("a", p.currentName());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals("123", p.getString());
+    
+            // Second property with long name - this should trigger the bug in _matchLongName()
+            assertEquals(1, p.nextNameMatch(matcher));
+            assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
+            assertEquals(longName, p.currentName());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertEquals("value", p.getString());
+    
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
     }
 
     /**
@@ -234,6 +233,7 @@ public class LongName1516Test
     @Test
     void multipleNamesWithMatcher() throws Exception
     {
+        _testMultipleNamesWithMatcher(MODE_READER);
         _testMultipleNamesWithMatcher(MODE_INPUT_STREAM);
         _testMultipleNamesWithMatcher(MODE_INPUT_STREAM_THROTTLED);
         _testMultipleNamesWithMatcher(MODE_DATA_INPUT);
@@ -257,34 +257,33 @@ public class LongName1516Test
                    Named.fromString(field3), Named.fromString(field4)),
             false);
 
-        JsonParser p = createParser(f, mode, json);
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-
-        assertEquals(0, p.nextNameMatch(matcher));
-        assertEquals(field1, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(1, p.getIntValue());
-
-        // Name 2 (64 chars)
-        assertEquals(1, p.nextNameMatch(matcher));
-        assertEquals(field2, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(2, p.getIntValue());
-
-        // Name 3 (65 chars) - triggers buffer boundary
-        assertEquals(2, p.nextNameMatch(matcher));
-        assertEquals(field3, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(3, p.getIntValue());
-
-        // Name 4 (80 chars) - should also work
-        assertEquals(3, p.nextNameMatch(matcher));
-        assertEquals(field4, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(4, p.getIntValue());
-
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        p.close();
+        try (JsonParser p = createParser(f, mode, json)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+    
+            assertEquals(0, p.nextNameMatch(matcher));
+            assertEquals(field1, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(1, p.getIntValue());
+    
+            // Name 2 (64 chars)
+            assertEquals(1, p.nextNameMatch(matcher));
+            assertEquals(field2, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(2, p.getIntValue());
+    
+            // Name 3 (65 chars) - triggers buffer boundary
+            assertEquals(2, p.nextNameMatch(matcher));
+            assertEquals(field3, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(3, p.getIntValue());
+    
+            // Name 4 (80 chars) - should also work
+            assertEquals(3, p.nextNameMatch(matcher));
+            assertEquals(field4, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(4, p.getIntValue());
+    
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
     }
 }

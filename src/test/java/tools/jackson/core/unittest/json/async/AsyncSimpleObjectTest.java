@@ -12,8 +12,8 @@ import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.AsyncReaderWrapper;
 import tools.jackson.core.unittest.async.AsyncTestBase;
+import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 

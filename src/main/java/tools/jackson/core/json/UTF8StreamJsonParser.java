@@ -1760,9 +1760,9 @@ public class UTF8StreamJsonParser
         }
         final char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
-        // 27-Jun-2022, tatu: [core#784] would add plus here too but not yet
-        if (neg) {
-            outBuf[outPtr++] = '-';
+        // [core#784]: Include sign character ('+' or '-') in textual representation
+        if (hasSign) {
+            outBuf[outPtr++] = neg ? '-' : '+';
         }
         return _parseFloat(outBuf, outPtr, INT_PERIOD, neg, 0);
     }
@@ -1834,10 +1834,8 @@ public class UTF8StreamJsonParser
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
 
-        if (negative) {
-            // Need to prepend sign?
-            outBuf[outPtr++] = '-';
-        }
+        // [core#784]: Include sign character ('+' or '-') in textual representation
+        outBuf[outPtr++] = negative ? '-' : '+';
         // Must have something after sign too
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();

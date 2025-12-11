@@ -17,7 +17,14 @@ JSON library.
 
 3.1.0 (not yet released)
 
--
+#784: Optional leading plus sign not included in textual value of any
+  integral nor all floating-point numbers
+ (fix by @cowtowncoder, w/ Claude code)
+#1506: Non-blocking parser parses numbers eagerly; does not report error
+  with missing space
+ (fix by @cowtowncoder, w/ Claude code)
+#1514: Additional configuration to closer match Jackson 2 behavior
+ (contributed by Nicholas R)
 
 3.0.3 (28-Nov-2025)
 

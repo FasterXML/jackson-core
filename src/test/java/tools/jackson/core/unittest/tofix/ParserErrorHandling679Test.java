@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.testutil.failure.JacksonTestFailureExpected;
+import tools.jackson.core.unittest.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -19,6 +19,12 @@ class ParserErrorHandling679Test
     void nonRootMangledFloats679Bytes() throws Exception {
         _testNonRootMangledFloats679(MODE_INPUT_STREAM);
         _testNonRootMangledFloats679(MODE_INPUT_STREAM_THROTTLED);
+    }
+
+    // [core#679]
+    @JacksonTestFailureExpected
+    @Test
+    void nonRootMangledFloats679DataInput() throws Exception {
         _testNonRootMangledFloats679(MODE_DATA_INPUT);
     }
 
@@ -35,7 +41,19 @@ class ParserErrorHandling679Test
     void nonRootMangledInts679Bytes() throws Exception {
         _testNonRootMangledInts(MODE_INPUT_STREAM);
         _testNonRootMangledInts(MODE_INPUT_STREAM_THROTTLED);
+    }
+
+    // [core#679]
+    @JacksonTestFailureExpected
+    @Test
+    void nonRootMangledInts679DataInput() throws Exception {
         _testNonRootMangledInts(MODE_DATA_INPUT);
+    }
+
+    // [core#679]
+    @JacksonTestFailureExpected
+    @Test
+    void nonRootMangledInts679Chars() throws Exception {
         _testNonRootMangledInts(MODE_READER);
     }
 

@@ -773,7 +773,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod(false);
+            t = _parseFloatThatStartsWithPeriod();
             break;
         case '0':
         case '1':
@@ -974,7 +974,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod(false);
+            t = _parseFloatThatStartsWithPeriod();
             break;
         case '0':
         case '1':
@@ -1053,7 +1053,7 @@ public class ReaderBasedJsonParser
             }
             return;
         case '.': // [core#61]]
-            _nextToken = _parseFloatThatStartsWithPeriod(false);
+            _nextToken = _parseFloatThatStartsWithPeriod();
             return;
         case '0':
         case '1':
@@ -1098,7 +1098,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]
-            t = _parseFloatThatStartsWithPeriod(false);
+            t = _parseFloatThatStartsWithPeriod();
             break;
         case '0':
         case '1':
@@ -1167,7 +1167,7 @@ public class ReaderBasedJsonParser
              * and could be indicated by a more specific error message.
              */
         case '.': // [core#61]]
-            return _updateToken(_parseFloatThatStartsWithPeriod(false));
+            return _updateToken(_parseFloatThatStartsWithPeriod());
         case '0':
         case '1':
         case '2':
@@ -1309,25 +1309,18 @@ public class ReaderBasedJsonParser
     /**********************************************************************
      */
 
-
-    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg)
+    // NOTE: number starts with '.' character WITHOUT leading sign
+    // 
+    // @since 3.1
+    protected final JsonToken _parseFloatThatStartsWithPeriod()
         throws JacksonException
     {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
             return _handleOddValue('.');
         }
-        // 26-Jun-2022, tatu: At this point it is assumed that the whole input is
-        //    within input buffer so we can "rewind" not just one but two characters
-        //    (leading sign, period) within same buffer. Caller must ensure this is
-        //    the case.
-        //    Little bit suspicious of code paths that would go to "_parseNumber2(...)"
-        // 27-Jun-2022, tatu: [core#784] would add plus here too but not yet
-        int startPtr = _inputPtr - 1;
-        if (neg) {
-            --startPtr;
-        }
-        return _parseFloat(INT_PERIOD, startPtr, _inputPtr, neg, 0);
+        int startPtr = _inputPtr - 1; // include the '.'
+        return _parseFloat(INT_PERIOD, startPtr, _inputPtr, false, 0);
     }
 
     /**
@@ -1409,14 +1402,14 @@ public class ReaderBasedJsonParser
     private final JsonToken _parseFloat(int ch, int startPtr, int ptr, boolean neg, int intLen)
         throws JacksonException
     {
-        final int inputLen = _inputEnd;
+        final int inputEnd = _inputEnd;
         int fractLen = 0;
 
         // And then see if we get other parts
         if (ch == '.') { // yes, fraction
             fract_loop:
             while (true) {
-                if (ptr >= inputLen) {
+                if (ptr >= inputEnd) {
                     return _parseNumber2(neg, startPtr);
                 }
                 ch = _inputBuffer[ptr++];
@@ -1434,14 +1427,14 @@ public class ReaderBasedJsonParser
         }
         int expLen = 0;
         if ((ch | 0x20) == INT_e) { // ~ 'eE' and/or exponent
-            if (ptr >= inputLen) {
+            if (ptr >= inputEnd) {
                 _inputPtr = startPtr;
                 return _parseNumber2(neg, startPtr);
             }
             // Sign indicator?
             ch = _inputBuffer[ptr++];
             if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
-                if (ptr >= inputLen) {
+                if (ptr >= inputEnd) {
                     _inputPtr = startPtr;
                     return _parseNumber2(neg, startPtr);
                 }
@@ -1449,7 +1442,7 @@ public class ReaderBasedJsonParser
             }
             while (ch <= INT_9 && ch >= INT_0) {
                 ++expLen;
-                if (ptr >= inputLen) {
+                if (ptr >= inputEnd) {
                     _inputPtr = startPtr;
                     return _parseNumber2(neg, startPtr);
                 }
@@ -1475,9 +1468,8 @@ public class ReaderBasedJsonParser
     private final JsonToken _parseSignedNumber(final boolean negative) throws JacksonException
     {
         int ptr = _inputPtr;
-        // 26-Jun-2022, tatu: We always have a sign; positive should be allowed as deviation
-        //      But unfortunately that won't yet work
-        int startPtr = negative ? ptr-1 : ptr; // to include sign/digit already read
+        // [core#784]: Include sign character ('+' or '-') in textual representation
+        int startPtr = ptr - 1; // to include sign already read
         final int inputEnd = _inputEnd;
 
         if (ptr >= inputEnd) {
@@ -1488,7 +1480,11 @@ public class ReaderBasedJsonParser
         if (ch > INT_9 || ch < INT_0) {
             _inputPtr = ptr;
             if (ch == INT_PERIOD) {
-                return _parseFloatThatStartsWithPeriod(negative);
+                // [core#611]: allow optionally leading decimal point
+                if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
+                    return _handleOddValue('.');
+                }
+                return _parseFloat(INT_PERIOD, startPtr, _inputPtr, negative, 0);
             }
             return _handleInvalidNumberStart(ch, negative, true);
         }
@@ -1543,13 +1539,16 @@ public class ReaderBasedJsonParser
      */
     private final JsonToken _parseNumber2(boolean neg, int startPtr) throws JacksonException
     {
-        _inputPtr = neg ? (startPtr+1) : startPtr;
+        // Check if there's a sign character at startPtr
+        boolean hasSign = neg || ((startPtr < _inputEnd)
+                && _inputBuffer[startPtr] == '+');
+        _inputPtr = hasSign ? (startPtr + 1) : startPtr;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
 
         // Need to prepend sign?
-        if (neg) {
-            outBuf[outPtr++] = '-';
+        if (hasSign) {
+            outBuf[outPtr++] = neg ? '-' : '+'; // Include actual sign ('+' or '-')
         }
 
         // This is the place to do leading-zero check(s) too:

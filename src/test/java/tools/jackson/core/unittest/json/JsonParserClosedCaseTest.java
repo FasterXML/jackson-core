@@ -12,8 +12,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.core.*;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.MockDataInput;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
+import tools.jackson.core.unittest.testutil.MockDataInput;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;

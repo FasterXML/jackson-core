@@ -1706,6 +1706,9 @@ public abstract class JsonParser
      */
     public abstract <T> T readValueAs(TypeReference<T> valueTypeRef) throws JacksonException;
 
+    /**
+     * Similar to {@link #readValueAs(Class)} but takes {@link ResolvedType}.
+     */
     public abstract <T> T readValueAs(ResolvedType type) throws JacksonException;
 
     /**

@@ -1,4 +1,4 @@
-package tools.jackson.core.testutil;
+package tools.jackson.core.unittest.testutil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

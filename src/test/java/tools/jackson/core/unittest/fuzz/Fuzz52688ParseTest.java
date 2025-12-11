@@ -10,8 +10,8 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.testutil.ThrottledInputStream;
 import tools.jackson.core.unittest.*;
+import tools.jackson.core.unittest.testutil.ThrottledInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

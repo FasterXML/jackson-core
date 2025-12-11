@@ -1688,6 +1688,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws JacksonException {
         int negMod = _numberNegative ? -1 : 0;
+        int ch;
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -1695,7 +1696,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _textBuffer.setCurrentLength(outPtr);
                 return _updateTokenToNA();
             }
-            int ch = getByteFromBuffer(_inputPtr) & 0xFF;
+            ch = getByteFromBuffer(_inputPtr) & 0xFF;
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
                     _intLength = outPtr+negMod;
@@ -1722,6 +1723,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _intLength = outPtr+negMod;
         _textBuffer.setCurrentLength(outPtr);
+        // As per #105, need separating space between root values; check here
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace(ch);
+        }
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
@@ -1810,6 +1815,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _expLength = expLen;
+        // As per #105, need separating space between root values; check here
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace(ch);
+        }
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
@@ -1836,6 +1845,12 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 ch = getNextSignedByteFromBuffer();
             } else if ((ch | 0x22) == 'f') { // ~ fFdD
+                // For root level, better to report missing space error
+                if (_streamReadContext.inRoot()) {
+                    ch &= 0xFF;
+                    --_inputPtr; // push back so _verifyRootSpace can handle it
+                    _reportMissingRootWS(ch);
+                }
                 _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
             } else if (ch == INT_PERIOD) {
                 _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
@@ -1871,6 +1886,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _expLength = 0;
+        // As per #105, need separating space between root values; check here
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace(ch);
+        }
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
@@ -1916,6 +1935,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _expLength = expLen;
+        // As per #105, need separating space between root values; check here
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace(ch);
+        }
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
@@ -3002,6 +3025,36 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(f & 0xFF, _inputPtr);
         }
         return ((c << 6) | (f & 0x3F)) - 0x10000;
+    }
+
+    /**
+     * Method called to verify that a root-level value is followed by a space
+     * token (or EOF).
+     *<p>
+     * NOTE: caller MUST ensure there is at least one character available;
+     * and that input pointer is AT given char (not past)
+     *
+     * @param ch Character after number value
+     *
+     * @throws JacksonException for decoding problems (invalid white space)
+     */
+    private final void _verifyRootSpace(int ch) throws JacksonException
+    {
+        // caller had not yet advanced, so advance now
+        ++_inputPtr;
+        switch (ch) {
+        case ' ':
+        case '\t':
+            return;
+        case '\r':
+            --_inputPtr;
+            return;
+        case '\n':
+            ++_currInputRow;
+            _currInputRowStart = _inputPtr;
+            return;
+        }
+        _reportMissingRootWS(ch);
     }
 
     /*

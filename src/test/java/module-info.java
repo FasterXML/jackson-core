@@ -1,22 +1,23 @@
 // jackson-core test Module descriptor: used both for tests and to
 // to produce "test-jar" for other Jackson components to use
-module tools.jackson.core.testutil
+module tools.jackson.core.unittest
 {
     // Additional test lib/framework dependencies
     requires org.assertj.core;
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
+    requires org.junit.platform.commons; // Needed for JUnit reflection access?
 
     // Requires Main jar for tests
     requires tools.jackson.core;
 
-    // Exports/opens a small set of Classes for downstream Jackson components
-    exports tools.jackson.core.testutil;
-    exports tools.jackson.core.testutil.failure;
-    opens tools.jackson.core.testutil;
-    opens tools.jackson.core.testutil.failure;
+    // Exports/opens test utility packages
+    exports tools.jackson.core.unittest.testutil;
+    exports tools.jackson.core.unittest.testutil.failure;
+    opens tools.jackson.core.unittest.testutil;
+    opens tools.jackson.core.unittest.testutil.failure;
 
-    // Additional test opens for JUnit tests
+    // Additional test opens for Unit tests
 
     opens tools.jackson.core.unittest;
     opens tools.jackson.core.unittest.async;
@@ -39,4 +40,7 @@ module tools.jackson.core.testutil
     opens tools.jackson.core.unittest.type;
     opens tools.jackson.core.unittest.util;
     opens tools.jackson.core.unittest.write;
+
+    // Additional test opens for ITs
+    opens tools.jackson.core.it;
 }

@@ -10,6 +10,10 @@ PJ Fanning (pjfanning@github): co-author (2.15+)
 
 ----------------------------------------------------------------------------
 
-Sven Döring (sdoeringNew@github)
+Sven Döring (@sdoeringNew)
  * Contributed #680: Allow use of `java.nio.file.Path` as parser source, generator target
   (3.0.0)
+
+Nicholas Rayburn (@nrayburn-tech)
+ * Contributed #1514: Additional configuration to closer match Jackson 2 behavior
+  (3.1.0)

@@ -1,4 +1,4 @@
-package tools.jackson.core.testutil.failure;
+package tools.jackson.core.unittest.testutil.failure;
 
 /**
  * Exception used to alert that a test is passing, but should be failing.

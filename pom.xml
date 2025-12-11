@@ -133,6 +133,7 @@ tools.jackson.core.*;version=${project.version}
             <id>default-testCompile</id>
             <configuration>
               <compilerArgs>
+                <!-- 11-Dec-2025: [core#1517] Need to open up Schubfach to unit tests -->
                 <arg>--add-exports</arg>
                 <arg>tools.jackson.core/tools.jackson.core.io.schubfach=tools.jackson.core.unittest</arg>
               </compilerArgs>
@@ -146,7 +147,11 @@ tools.jackson.core.*;version=${project.version}
         <version>${version.plugin.surefire}</version>
         <configuration>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
-          <argLine>@{argLine} --add-exports tools.jackson.core/tools.jackson.core.io.schubfach=tools.jackson.core.unittest --add-opens tools.jackson.core/tools.jackson.core.json=tools.jackson.core.unittest</argLine>
+          <!-- 11-Dec-2025: [core#1517] Need to open up Schubfach to unit tests -->
+          <argLine>@{argLine}
+            --add-exports tools.jackson.core/tools.jackson.core.io.schubfach=tools.jackson.core.unittest
+            --add-opens tools.jackson.core/tools.jackson.core.json=tools.jackson.core.unittest
+           </argLine>
         </configuration>
       </plugin>
 

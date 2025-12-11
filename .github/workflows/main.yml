@@ -72,6 +72,16 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./target/site/jacoco/jacoco.xml
         flags: unittests
+    - name: Add coverage delta report to PR
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
+      uses: madrapps/jacoco-report@v1.7.1
+      with:
+        paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 40
+        min-coverage-changed-files: 60
+        title: ':test_tube: Coverage Report'
+        update-comment: true
     - name: Generate coverage summary
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       id: jacoco
@@ -103,14 +113,14 @@ jobs:
           else print "red"
         }')
 
-        COMMENT_BODY="## :test_tube: Code Coverage Report
+        COMMENT_BODY="## :chart_with_upwards_trend: Overall Code Coverage
 
         | Metric | Coverage |
         |--------|----------|
         | **Instructions** | ![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-${COV_COLOR}) **${COVERAGE}%** |
         | **Branches** | ![branches](https://img.shields.io/badge/branches-${BRANCHES}%25-${BR_COLOR}) **${BRANCHES}%** |
 
-        > Coverage data generated from JaCoCo test results
+        > Overall project coverage from JaCoCo test results
 
         <!-- jacoco-coverage-comment -->"
 

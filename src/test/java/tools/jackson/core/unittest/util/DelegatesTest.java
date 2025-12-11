@@ -389,4 +389,372 @@ class DelegatesTest extends JacksonCoreTestBase
         p.close();
         g.close();
     }
+
+    @Test
+    void generatorDelegateWriteString() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        del.writeStartArray();
+
+        // writeString(String)
+        del.writeString("test");
+
+        // writeString(char[], int, int)
+        char[] chars = "hello world".toCharArray();
+        del.writeString(chars, 0, 5);
+
+        // writeString(SerializableString)
+        del.writeString(new tools.jackson.core.io.SerializedString("serialized"));
+
+        del.writeEndArray();
+        del.close();
+
+        assertEquals("[\"test\",\"hello\",\"serialized\"]", sw.toString());
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateWriteBinary() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        del.writeStartArray();
+
+        byte[] data = new byte[] { 1, 2, 3, 4, 5 };
+        del.writeBinary(data, 1, 3);
+
+        del.writeEndArray();
+        del.close();
+
+        // Binary should be base64 encoded
+        assertNotNull(sw.toString());
+        assertTrue(sw.toString().contains("[\""));
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateWriteRaw() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        del.writeStartArray();
+
+        // writeRaw(String)
+        del.writeRaw("123");
+        del.writeRaw(',');
+
+        // writeRaw(String, int, int)
+        del.writeRaw("456789", 0, 3);
+        del.writeRaw(',');
+
+        // writeRaw(char[], int, int)
+        char[] chars = "abc".toCharArray();
+        del.writeRaw(chars, 0, 3);
+
+        del.writeEndArray();
+        del.close();
+
+        assertEquals("[123,456,abc]", sw.toString());
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateWriteName() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        del.writeStartObject();
+
+        // writeName(String)
+        del.writeName("field1");
+        del.writeNumber(1);
+
+        // writeName(SerializableString)
+        del.writeName(new tools.jackson.core.io.SerializedString("field2"));
+        del.writeString("value");
+
+        del.writeEndObject();
+        del.close();
+
+        assertEquals("{\"field1\":1,\"field2\":\"value\"}", sw.toString());
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateConfigure() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        assertFalse(del.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
+
+        JsonGenerator result = del.configure(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        assertSame(del, result, "configure() should return the delegate, not the underlying generator");
+
+        assertTrue(del.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
+        assertTrue(g0.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
+
+        del.close();
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateReturnValues() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        // Verify that all write methods return the delegate (this), not the underlying generator
+        assertSame(del, del.writeStartArray());
+        assertSame(del, del.writeNumber(1));
+        assertSame(del, del.writeString("test"));
+        assertSame(del, del.writeBoolean(true));
+        assertSame(del, del.writeNull());
+        assertSame(del, del.writeEndArray());
+
+        assertSame(del, del.writeStartObject());
+        assertSame(del, del.writeName("field"));
+        assertSame(del, del.writeNumber(2));
+        assertSame(del, del.writeEndObject());
+
+        del.close();
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateCapabilities() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        // Test capability methods
+        assertSame(g0.streamWriteCapabilities(), del.streamWriteCapabilities());
+
+        // Test has() method for various capabilities
+        for (tools.jackson.core.StreamWriteCapability cap : tools.jackson.core.StreamWriteCapability.values()) {
+            assertEquals(g0.has(cap), del.has(cap), "Capability " + cap + " should match");
+        }
+
+        del.close();
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateContexts() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        // streamWriteContext should be delegated
+        assertSame(g0.streamWriteContext(), del.streamWriteContext());
+
+        del.writeStartArray();
+        assertSame(g0.streamWriteContext(), del.streamWriteContext());
+
+        // objectWriteContext should be delegated
+        assertSame(g0.objectWriteContext(), del.objectWriteContext());
+
+        del.close();
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateOutputInfo() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        // streamWriteOutputTarget should be delegated
+        assertSame(g0.streamWriteOutputTarget(), del.streamWriteOutputTarget());
+
+        del.writeStartArray();
+        del.writeNumber(123);
+
+        // streamWriteOutputBuffered should be delegated
+        assertEquals(g0.streamWriteOutputBuffered(), del.streamWriteOutputBuffered());
+
+        del.close();
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateWritePOJOWithDelegation() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0, true); // delegateCopyMethods = true
+
+        del.writeStartArray();
+
+        // null POJO should write null (works regardless of delegateCopyMethods)
+        del.writePOJO(null);
+
+        del.writeEndArray();
+        del.close();
+
+        assertEquals("[null]", sw.toString());
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateWriteTreeWithDelegation() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0, true); // delegateCopyMethods = true
+
+        del.writeStartArray();
+
+        // null tree should write null
+        del.writeTree(null);
+
+        del.writeEndArray();
+        del.close();
+
+        assertEquals("[null]", sw.toString());
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateNumberVariations() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        del.writeStartArray();
+
+        // Test all number writing variations
+        del.writeNumber((short) 1);
+        del.writeNumber(2);
+        del.writeNumber(3L);
+        del.writeNumber(BigInteger.valueOf(4));
+        del.writeNumber(5.0);
+        del.writeNumber(6.0f);
+        del.writeNumber(new BigDecimal("7.5"));
+        del.writeNumber("8");
+
+        // writeNumber(char[], int, int)
+        char[] numChars = "123".toCharArray();
+        del.writeNumber(numChars, 0, 3);
+
+        del.writeEndArray();
+        del.close();
+
+        assertEquals("[1,2,3,4,5.0,6.0,7.5,8,123]", sw.toString());
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateGettersAndSetters() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        // Test various getter methods
+        assertEquals(g0.getHighestNonEscapedChar(), del.getHighestNonEscapedChar());
+        assertEquals(g0.getCharacterEscapes(), del.getCharacterEscapes());
+        assertEquals(g0.getPrettyPrinter(), del.getPrettyPrinter());
+        assertEquals(g0.streamWriteFeatures(), del.streamWriteFeatures());
+
+        del.close();
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateFlushBehavior() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        del.writeStartArray();
+        del.writeNumber(1);
+
+        assertFalse(del.isClosed());
+
+        del.flush();
+        assertFalse(del.isClosed());
+        assertFalse(g0.isClosed());
+
+        // Should be flushed to output
+        assertTrue(sw.toString().startsWith("["));
+
+        del.close();
+        assertTrue(del.isClosed());
+        assertTrue(g0.isClosed());
+
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateUTF8Methods() throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        del.writeStartArray();
+
+        byte[] utf8 = "hello".getBytes("UTF-8");
+        del.writeUTF8String(utf8, 0, utf8.length);
+
+        del.writeEndArray();
+        del.close();
+
+        String result = out.toString("UTF-8");
+        assertEquals("[\"hello\"]", result);
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateAccess() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        // Test delegate() method
+        assertSame(g0, del.delegate());
+
+        del.close();
+        g0.close();
+    }
+
+    @Test
+    void generatorDelegateWriteOmittedProperty() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        del.writeStartObject();
+        del.writeName("visible");
+        del.writeNumber(1);
+
+        // writeOmittedProperty should be delegated
+        assertSame(del, del.writeOmittedProperty("omitted"));
+
+        del.writeEndObject();
+        del.close();
+
+        // Omitted property should not appear in output
+        assertEquals("{\"visible\":1}", sw.toString());
+        g0.close();
+    }
 }

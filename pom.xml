@@ -127,10 +127,26 @@ tools.jackson.core.*;version=${project.version}
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <compilerArgs>
+                <arg>--add-exports</arg>
+                <arg>tools.jackson.core/tools.jackson.core.io.schubfach=tools.jackson.core.unittest</arg>
+              </compilerArgs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${version.plugin.surefire}</version>
         <configuration>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
+          <argLine>@{argLine} --add-exports tools.jackson.core/tools.jackson.core.io.schubfach=tools.jackson.core.unittest --add-opens tools.jackson.core/tools.jackson.core.json=tools.jackson.core.unittest</argLine>
         </configuration>
       </plugin>
 

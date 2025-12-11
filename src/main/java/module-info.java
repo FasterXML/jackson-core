@@ -17,10 +17,6 @@ module tools.jackson.core {
     exports tools.jackson.core.type;
     exports tools.jackson.core.util;
 
-    // But opens only for unit test suite; as well as some extra exports
-    exports tools.jackson.core.io.schubfach to tools.jackson.core.unittest;
-    opens tools.jackson.core.json to tools.jackson.core.unittest;
-
     provides tools.jackson.core.TokenStreamFactory with
         tools.jackson.core.json.JsonFactory;
 }

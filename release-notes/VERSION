@@ -25,6 +25,9 @@ JSON library.
  (fix by @cowtowncoder, w/ Claude code)
 #1514: Additional configuration to closer match Jackson 2 behavior
  (contributed by Nicholas R)
+#1527: `TokenStreamFactory.createNonBlockingByteBufferParser()` return type wrong
+ (reported by Henri B)
+ (fixed by @pjfanning)
 
 3.0.4 (not yet released)
 

@@ -17,3 +17,8 @@ Sven Döring (@sdoeringNew)
 Nicholas Rayburn (@nrayburn-tech)
  * Contributed #1514: Additional configuration to closer match Jackson 2 behavior
   (3.1.0)
+
+Henri Biström (@hb16)
+ * Reported #1527: `TokenStreamFactory.createNonBlockingByteBufferParser()` return type wrong
+  (3.1.0)
+

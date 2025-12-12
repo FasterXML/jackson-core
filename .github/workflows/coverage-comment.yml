@@ -24,17 +24,16 @@ jobs:
     - name: Post coverage comment
       run: |
         PR_NUMBER=$(cat pr-comment/pr-number.txt)
-        COMMENT_BODY=$(cat pr-comment/comment-body.txt)
 
         # Find and delete existing comment
-        COMMENT_ID=$(gh pr view $PR_NUMBER --json comments \
+        COMMENT_ID=$(gh pr view $PR_NUMBER --repo ${{ github.repository }} --json comments \
           --jq '.comments[] | select(.body | contains("<!-- jacoco-coverage-comment -->")) | .id' | head -1)
 
         if [ -n "$COMMENT_ID" ]; then
           gh api -X DELETE "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" || true
         fi
 
-        # Post new comment
-        gh pr comment $PR_NUMBER --body "$COMMENT_BODY"
+        # Post new comment using heredoc to handle special characters
+        gh pr comment $PR_NUMBER --repo ${{ github.repository }} --body-file pr-comment/comment-body.txt
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

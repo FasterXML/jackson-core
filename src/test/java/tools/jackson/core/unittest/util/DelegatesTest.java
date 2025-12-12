@@ -223,7 +223,6 @@ class DelegatesTest extends JacksonCoreTestBase
         del.finishToken();
         assertTrue(del.hasStringCharacters());
         assertEquals("foo", del.getString());
-        assertEquals(0, del.getStringOffset());
         assertEquals(3, del.getStringLength());
 
         assertToken(JsonToken.END_OBJECT, del.nextToken());

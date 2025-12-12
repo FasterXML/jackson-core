@@ -115,7 +115,7 @@ jobs:
           awk -F',' -v m="$col_missed" -v c="$col_covered" \
             'NR>1 && $1=="Jackson-core" {
               missed=$m; covered=$c;
-              if (missed + covered > 0) printf "%.1f", (covered * 100.0) / (missed + covered)
+              if (missed + covered > 0) printf "%.2f", (covered * 100.0) / (missed + covered)
             }' "$csv_file" | head -1
         }
 
@@ -137,9 +137,9 @@ jobs:
           }'
         }
 
-        # Convert decimal to percentage and round to 1 decimal place
-        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.1f", cov * 100 }')
-        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.1f", br * 100 }')
+        # Convert decimal to percentage and round to 2 decimal places
+        COVERAGE=$(awk -v cov="${{ steps.jacoco.outputs.coverage }}" 'BEGIN { printf "%.2f", cov * 100 }')
+        BRANCHES=$(awk -v br="${{ steps.jacoco.outputs.branches }}" 'BEGIN { printf "%.2f", br * 100 }')
 
         # Check if base coverage artifact was downloaded and calculate deltas
         HAS_DELTA=false
@@ -149,8 +149,8 @@ jobs:
           BASE_BRANCHES=$(parse_coverage "base-coverage/jacoco.csv" 6 7)
 
           if [ -n "$BASE_COVERAGE" ] && [ -n "$BASE_BRANCHES" ]; then
-            COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.1f", curr - base }')
-            BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.1f", curr - base }')
+            COV_DELTA=$(awk -v curr="$COVERAGE" -v base="$BASE_COVERAGE" 'BEGIN { printf "%.3f", curr - base }')
+            BR_DELTA=$(awk -v curr="$BRANCHES" -v base="$BASE_BRANCHES" 'BEGIN { printf "%.3f", curr - base }')
 
             IFS='|' read -r COV_DELTA_STR COV_DELTA_EMOJI <<< "$(format_delta "$COV_DELTA")"
             IFS='|' read -r BR_DELTA_STR BR_DELTA_EMOJI <<< "$(format_delta "$BR_DELTA")"

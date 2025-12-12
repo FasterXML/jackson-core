@@ -144,7 +144,7 @@ class DelegatesTest extends JacksonCoreTestBase
                 "[ 1, true, null, { \"a\": \"foo\" }, \"AQI=\" ]");
         JsonParserDelegate del = new JsonParserDelegate(parser);
 
-        final String TOKEN ="foo";
+        final String TOKEN = "foo";
 
         // Basic capabilities for parser:
         assertFalse(del.canParseAsync());
@@ -223,6 +223,8 @@ class DelegatesTest extends JacksonCoreTestBase
         del.finishToken();
         assertTrue(del.hasStringCharacters());
         assertEquals("foo", del.getString());
+        assertEquals(0, del.getStringOffset());
+        assertEquals(3, del.getStringLength());
 
         assertToken(JsonToken.END_OBJECT, del.nextToken());
         assertEquals(TOKEN, del.currentValue());

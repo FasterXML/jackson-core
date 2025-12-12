@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Locale;
 
 import tools.jackson.core.*;
+import tools.jackson.core.async.ByteArrayFeeder;
+import tools.jackson.core.async.ByteBufferFeeder;
 import tools.jackson.core.base.TextualTSFactory;
 import tools.jackson.core.io.*;
 import tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;
@@ -348,7 +350,7 @@ public class JsonFactory
      */
 
     @Override
-    public JsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt)
+    public NonBlockingByteArrayJsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt)
     {
         IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChildOrPlaceholder(_factoryFeatures);
@@ -359,7 +361,7 @@ public class JsonFactory
     }
 
     @Override
-    public JsonParser createNonBlockingByteBufferParser(ObjectReadContext readCtxt)
+    public NonBlockingByteBufferJsonParser createNonBlockingByteBufferParser(ObjectReadContext readCtxt)
     {
         IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChildOrPlaceholder(_factoryFeatures);

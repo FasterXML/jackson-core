@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import tools.jackson.core.async.ByteArrayFeeder;
+import tools.jackson.core.async.ByteBufferFeeder;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.*;
@@ -886,9 +887,8 @@ public abstract class TokenStreamFactory
 
     /**
      * Optional method for constructing parser for non-blocking parsing
-     * via {@link tools.jackson.core.async.ByteArrayFeeder}
-     * interface (accessed using {@link JsonParser#nonBlockingInputFeeder()}
-     * from constructed instance).
+     * via {@link ByteArrayFeeder} interface (accessed using
+     * {@link JsonParser#nonBlockingInputFeeder()} from constructed instance).
      *<p>
      * If this factory does not support non-blocking parsing (either at all,
      * or from byte array),
@@ -912,9 +912,8 @@ public abstract class TokenStreamFactory
 
     /**
      * Optional method for constructing parser for non-blocking parsing
-     * via {@link tools.jackson.core.async.ByteBufferFeeder}
-     * interface (accessed using {@link JsonParser#nonBlockingInputFeeder()}
-     * from constructed instance).
+     * via {@link ByteBufferFeeder} interface (accessed using
+     * {@link JsonParser#nonBlockingInputFeeder()} from constructed instance).
      *<p>
      * If this factory does not support non-blocking parsing (either at all,
      * or from byte array),
@@ -931,7 +930,7 @@ public abstract class TokenStreamFactory
      *
      * @throws JacksonException If parser construction or initialization fails
      */
-    public  <P extends JsonParser & ByteArrayFeeder> P createNonBlockingByteBufferParser(ObjectReadContext readCtxt)
+    public <P extends JsonParser & ByteBufferFeeder> P createNonBlockingByteBufferParser(ObjectReadContext readCtxt)
         throws JacksonException {
         return _unsupported("Non-blocking source not (yet?) supported for this format ("+getFormatName()+")");
     }

@@ -96,16 +96,6 @@ jobs:
         path: base-coverage/
         run-id: ${{ steps.base-run.outputs.run-id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Add coverage delta report to PR
-      if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: madrapps/jacoco-report@v1.7.1
-      with:
-        paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
-        token: ${{ secrets.GITHUB_TOKEN }}
-        min-coverage-overall: 40
-        min-coverage-changed-files: 60
-        title: ':test_tube: Coverage Report'
-        update-comment: true
     - name: Generate coverage summary
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       id: jacoco

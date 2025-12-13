@@ -78,15 +78,24 @@ jobs:
         name: jacoco-report
         path: target/site/jacoco/jacoco.csv
         retention-days: 30
-    - name: Download base branch coverage
+    - name: Find base branch workflow run
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
-      uses: dawidd6/action-download-artifact@v6
+      id: base-run
+      continue-on-error: true
+      run: |
+        RUN_ID=$(gh api "repos/${{ github.repository }}/actions/workflows/main.yml/runs?branch=${{ github.event.pull_request.base.ref }}&status=success&per_page=1" --jq '.workflow_runs[0].id')
+        echo "run-id=$RUN_ID" >> $GITHUB_OUTPUT
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Download base branch coverage
+      if: ${{ matrix.release_build && github.event_name == 'pull_request' && steps.base-run.outputs.run-id != '' }}
+      uses: actions/download-artifact@v4
       continue-on-error: true
       with:
-        workflow: main.yml
-        branch: ${{ github.event.pull_request.base.ref }}
         name: jacoco-report
         path: base-coverage/
+        run-id: ${{ steps.base-run.outputs.run-id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Add coverage delta report to PR
       if: ${{ matrix.release_build && github.event_name == 'pull_request' }}
       uses: madrapps/jacoco-report@v1.7.1

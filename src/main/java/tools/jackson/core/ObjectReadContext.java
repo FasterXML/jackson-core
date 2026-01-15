@@ -74,7 +74,10 @@ public interface ObjectReadContext
 
     // // // Databinding callbacks, tree deserialization
 
-    public <T extends TreeNode> T readTree(JsonParser p) throws JacksonException;
+    /**
+     * NOTE: before 3.1, had generic return type
+     */
+    public TreeNode readTree(JsonParser p) throws JacksonException;
 
     /**
      * Convenience method for traversing over given {@link TreeNode} by exposing
@@ -145,7 +148,7 @@ public interface ObjectReadContext
         // // // Databind integration, trees
 
         @Override
-        public <T extends TreeNode> T readTree(JsonParser p) {
+        public TreeNode readTree(JsonParser p) {
             return _reportUnsupportedOperation();
         }
 

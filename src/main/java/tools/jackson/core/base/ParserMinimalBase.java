@@ -821,10 +821,9 @@ public abstract class ParserMinimalBase extends JsonParser
         return (T) _objectReadContext.readValue(this, type);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends TreeNode> T readValueAsTree() throws JacksonException {
-        return (T) _objectReadContext.readTree(this);
+    public TreeNode readValueAsTree() throws JacksonException {
+        return _objectReadContext.readTree(this);
     }
 
     /*

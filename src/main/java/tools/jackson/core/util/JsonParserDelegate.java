@@ -277,7 +277,7 @@ public class JsonParserDelegate extends JsonParser
     }
 
     @Override
-    public <T extends TreeNode> T readValueAsTree() throws JacksonException {
+    public TreeNode readValueAsTree() throws JacksonException {
         return delegate.readValueAsTree();
     }
 

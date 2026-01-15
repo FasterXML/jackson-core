@@ -6,8 +6,11 @@ import tools.jackson.core.tree.ObjectTreeNode;
 /**
  * Interface that defines objects that can read and write
  * {@link TreeNode} instances using Streaming API.
+ *
+ * @param <N> Type of {@link TreeNode}s this codec exposes/uses
+ *   (added in 3.1)
  */
-public interface TreeCodec
+public interface TreeCodec<N extends TreeNode>
 {
     // // // Factory methods
 
@@ -22,9 +25,9 @@ public interface TreeCodec
 
     // // // Read methods
 
-    public abstract JsonParser treeAsTokens(TreeNode node);
+    public abstract JsonParser treeAsTokens(TreeNode node) throws JacksonException;
 
-    public abstract <T extends TreeNode> T readTree(JsonParser p) throws JacksonException;
+    public abstract N readTree(JsonParser p) throws JacksonException;
 
     // // // Write methods
 

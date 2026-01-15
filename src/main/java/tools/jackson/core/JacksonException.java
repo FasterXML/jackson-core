@@ -363,7 +363,7 @@ public class JacksonException
     public JacksonException prependPath(Reference r)
     {
         if (_path == null) {
-            _path = new LinkedList<Reference>();
+            _path = new LinkedList<>();
         }
         // Also: let's not increase without bounds. Could choose either
         // head or tail; tail is easier (no need to ever remove), as

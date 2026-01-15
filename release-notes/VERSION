@@ -28,6 +28,7 @@ JSON library.
 #1527: `TokenStreamFactory.createNonBlockingByteBufferParser()` return type wrong
  (reported by Henri B)
  (fixed by @pjfanning)
+#1534: Change `TreeCodec` to take type parameter `T extends TreeNode`
 - Updated `JsonGenerator.writeNumber(String)` javadocs with more specific info
   on handling by generators that cannot support the method.
 

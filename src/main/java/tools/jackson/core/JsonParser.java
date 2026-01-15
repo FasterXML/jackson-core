@@ -1724,12 +1724,14 @@ public abstract class JsonParser
      * databinding layer above, or by factory method that takes in
      * context object.
      *
+     * @param <T> Nominal type parameter for result node type (to reduce need for casting)
+     *
      * @return root of the document, or null if empty or whitespace.
      *
      * @throws JacksonException if there is either an underlying I/O problem or decoding
      *    issue at format layer
      */
-    public abstract TreeNode readValueAsTree() throws JacksonException;
+    public abstract <T extends TreeNode> T readValueAsTree() throws JacksonException;
 
     /*
     /**********************************************************************

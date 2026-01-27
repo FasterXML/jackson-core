@@ -57,6 +57,11 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
+(not yet released)
+
+#1512: Number-parsing fix for `UTF8DataInputJsonParser`
+ (reported by @ventusfortis)
+
 2.18.5 (27-Oct-2025)
  (same as 2.18.4.1 on 10-June-2025)
 

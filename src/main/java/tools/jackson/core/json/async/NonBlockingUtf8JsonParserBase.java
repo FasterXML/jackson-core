@@ -2161,11 +2161,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     }
                     ++_inputPtr;
                     int lo = _decodeFastCharEscape();
-                    if (lo < 0xDC00 || lo > 0xDFFF) {
-                        _reportError(String.format(
-                                "Broken surrogate pair in property name: expected low surrogate (DC00-DFFF), got %04X", lo));
-                    }
-                    ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
+                    ch = _decodeSurrogate(ch, lo);
                 } else {
                     // Slow path: save state and return NOT_AVAILABLE
                     _pendingSurrogateInName = ch;
@@ -2179,8 +2175,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _updateTokenToNA();
                 }
             } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
-                _reportError(String.format(
-                        "Unexpected low surrogate in property name (%04X) without preceding high surrogate", ch));
+                _reportUnexpectedLowSurrogate(ch);
             }
 
             // May need to UTF-8 (re-)encode it, if it's beyond
@@ -2418,8 +2413,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                         return _updateTokenToNA();
                     }
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
-                    _reportError(String.format(
-                            "Unexpected low surrogate in property name (%04X) without preceding high surrogate", ch));
+                    _reportUnexpectedLowSurrogate(ch);
                 }
                 if (ch > 127) {
                     // Ok, we'll need room for first byte right away
@@ -2532,11 +2526,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _minorState = MINOR_PROPERTY_NAME_ESCAPE;
                 return JsonToken.NOT_AVAILABLE;
             }
-            if (ch < 0xDC00 || ch > 0xDFFF) {
-                _reportError(String.format(
-                        "Broken surrogate pair in property name: expected low surrogate (DC00-DFFF), got %04X", ch));
-            }
-            ch = 0x10000 + ((_pendingSurrogateInName - 0xD800) << 10) + (ch - 0xDC00);
+            ch = _decodeSurrogate(_pendingSurrogateInName, ch);
             _pendingSurrogateInName = 0;
         } else {
             // Normal path: finish decoding the escape
@@ -2553,8 +2543,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _minorState = MINOR_PROPERTY_NAME_ESCAPE;
                 return _finishPropertyWithEscape(); // recurse to handle the low surrogate
             } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
-                _reportError(String.format(
-                        "Unexpected low surrogate in property name (%04X) without preceding high surrogate", ch));
+                _reportUnexpectedLowSurrogate(ch);
             }
         }
 

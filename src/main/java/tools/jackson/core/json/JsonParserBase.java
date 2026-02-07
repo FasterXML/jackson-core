@@ -410,6 +410,37 @@ public abstract class JsonParserBase
 
     /*
     /**********************************************************************
+    /* Internal/package methods: surrogate handling
+    /**********************************************************************
+     */
+
+    /**
+     * Validate that {@code lo} is a valid low surrogate (DC00-DFFF) and combine
+     * with high surrogate {@code hi} into a supplementary code point.
+     *
+     * @since 3.1
+     */
+    protected int _decodeSurrogate(int hi, int lo) throws StreamReadException {
+        if (lo < 0xDC00 || lo > 0xDFFF) {
+            _reportError(String.format(
+                    "Broken surrogate pair in property name: expected low surrogate (DC00-DFFF), got %04X", lo));
+        }
+        return 0x10000 + ((hi - 0xD800) << 10) + (lo - 0xDC00);
+    }
+
+    /**
+     * Report an error for a lone low surrogate encountered without a preceding
+     * high surrogate.
+     *
+     * @since 3.1
+     */
+    protected <T> T _reportUnexpectedLowSurrogate(int ch) throws StreamReadException {
+        return _reportError(String.format(
+                "Unexpected low surrogate in property name (%04X) without preceding high surrogate", ch));
+    }
+
+    /*
+    /**********************************************************************
     /* Internal/package methods: other
     /**********************************************************************
      */

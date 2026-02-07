@@ -1503,14 +1503,9 @@ public class UTF8DataInputJsonParser
                                 + Integer.toHexString(next));
                     }
                     int lo = _decodeEscaped();
-                    if (lo < 0xDC00 || lo > 0xDFFF) {
-                        _reportError(String.format(
-                                "Broken surrogate pair in property name: expected low surrogate (DC00-DFFF), got %04X", lo));
-                    }
-                    ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
+                    ch = _decodeSurrogate(ch, lo);
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
-                    _reportError(String.format(
-                            "Unexpected low surrogate in property name (%04X) without preceding high surrogate", ch));
+                    _reportUnexpectedLowSurrogate(ch);
                 }
                 // May need to UTF-8 (re-)encode it, if it's beyond
                 // 7-bit ASCII. Gets pretty messy.
@@ -1715,14 +1710,9 @@ public class UTF8DataInputJsonParser
                                 + Integer.toHexString(next));
                     }
                     int lo = _decodeEscaped();
-                    if (lo < 0xDC00 || lo > 0xDFFF) {
-                        _reportError(String.format(
-                                "Broken surrogate pair in property name: expected low surrogate (DC00-DFFF), got %04X", lo));
-                    }
-                    ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
+                    ch = _decodeSurrogate(ch, lo);
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
-                    _reportError(String.format(
-                            "Unexpected low surrogate in property name (%04X) without preceding high surrogate", ch));
+                    _reportUnexpectedLowSurrogate(ch);
                 }
                 // May need to UTF-8 (re-)encode it, if it's beyond
                 // 7-bit ASCII. Gets pretty messy.

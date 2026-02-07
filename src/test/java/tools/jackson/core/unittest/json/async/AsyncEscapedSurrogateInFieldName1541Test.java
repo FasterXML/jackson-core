@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.unittest.async.AsyncTestBase;
 import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
 
@@ -19,11 +20,18 @@ class AsyncEscapedSurrogateInFieldName1541Test extends AsyncTestBase
 {
     private final JsonFactory FACTORY = newStreamFactory();
 
+    private final JsonFactory APOS_FACTORY = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+            .build();
+
     // U+1F44D THUMBS UP SIGN = \ud83d\udc4d
     private static final String THUMBS_UP = "\uD83D\uDC4D";
 
     // JSON with escaped surrogate pair in field name: {"\\ud83d\\udc4d":"value"}
     private static final String DOC_FIELD = "{\"\\ud83d\\udc4d\":\"value\"}";
+
+    // Same but with apostrophe-quoted name: {'\\ud83d\\udc4d':'value'}
+    private static final String DOC_FIELD_APOS = "{'\\ud83d\\udc4d':'value'}";
 
     /*
     /**********************************************************************
@@ -68,6 +76,59 @@ class AsyncEscapedSurrogateInFieldName1541Test extends AsyncTestBase
             assertToken(JsonToken.START_OBJECT, r.nextToken());
             assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
             assertEquals(THUMBS_UP, r.currentName());
+            assertToken(JsonToken.VALUE_STRING, r.nextToken());
+            assertEquals("value", r.currentText());
+            assertToken(JsonToken.END_OBJECT, r.nextToken());
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, apostrophe-quoted field names
+    /**********************************************************************
+     */
+
+    @Test
+    void surrogateInAposFieldNameAsync1Byte() throws Exception
+    {
+        _testSurrogateInAposFieldNameAsync(1);
+    }
+
+    @Test
+    void surrogateInAposFieldNameAsync3Bytes() throws Exception
+    {
+        _testSurrogateInAposFieldNameAsync(3);
+    }
+
+    @Test
+    void surrogateInAposFieldNameAsync100Bytes() throws Exception
+    {
+        _testSurrogateInAposFieldNameAsync(100);
+    }
+
+    private void _testSurrogateInAposFieldNameAsync(int bytesPerRead) throws Exception
+    {
+        byte[] data = _jsonDoc(DOC_FIELD_APOS);
+        try (AsyncReaderWrapper r = asyncForBytes(APOS_FACTORY, bytesPerRead, data, 0)) {
+            assertToken(JsonToken.START_OBJECT, r.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
+            assertEquals(THUMBS_UP, r.currentName());
+            assertToken(JsonToken.VALUE_STRING, r.nextToken());
+            assertEquals("value", r.currentText());
+            assertToken(JsonToken.END_OBJECT, r.nextToken());
+        }
+    }
+
+    @Test
+    void multipleSurrogatePairsInAposFieldNameAsync() throws Exception
+    {
+        String doc = "{'\\ud83d\\udc4d\\ud83d\\udc4d':'value'}";
+        byte[] data = _jsonDoc(doc);
+        String expectedName = THUMBS_UP + THUMBS_UP;
+        try (AsyncReaderWrapper r = asyncForBytes(APOS_FACTORY, 1, data, 0)) {
+            assertToken(JsonToken.START_OBJECT, r.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
+            assertEquals(expectedName, r.currentName());
             assertToken(JsonToken.VALUE_STRING, r.nextToken());
             assertEquals("value", r.currentText());
             assertToken(JsonToken.END_OBJECT, r.nextToken());

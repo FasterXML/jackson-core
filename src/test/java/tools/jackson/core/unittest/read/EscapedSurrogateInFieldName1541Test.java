@@ -6,8 +6,6 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
-import tools.jackson.core.unittest.async.AsyncTestBase;
-import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -15,8 +13,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Tests for [jackson-core#1541]: JSON-escaped surrogate pairs (e.g. {@code \ud83d\udc4d})
  * in field names should work correctly, same as they do in string values.
+ *<p>
+ * See also {@code AsyncEscapedSurrogateInFieldName1541Test} for async parser tests.
  */
-class EscapedSurrogateInFieldName1541Test extends AsyncTestBase
+class EscapedSurrogateInFieldName1541Test extends JacksonCoreTestBase
 {
     private final JsonFactory FACTORY = newStreamFactory();
 
@@ -199,99 +199,6 @@ class EscapedSurrogateInFieldName1541Test extends AsyncTestBase
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             assertEquals("value", p.getString());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
-        }
-    }
-
-    /*
-    /**********************************************************************
-    /* Test methods, async parser with various bytesPerRead
-    /**********************************************************************
-     */
-
-    @Test
-    void surrogateInFieldNameAsync1Byte() throws Exception
-    {
-        _testSurrogateInFieldNameAsync(1);
-    }
-
-    @Test
-    void surrogateInFieldNameAsync2Bytes() throws Exception
-    {
-        _testSurrogateInFieldNameAsync(2);
-    }
-
-    @Test
-    void surrogateInFieldNameAsync3Bytes() throws Exception
-    {
-        _testSurrogateInFieldNameAsync(3);
-    }
-
-    @Test
-    void surrogateInFieldNameAsync7Bytes() throws Exception
-    {
-        _testSurrogateInFieldNameAsync(7);
-    }
-
-    @Test
-    void surrogateInFieldNameAsync100Bytes() throws Exception
-    {
-        _testSurrogateInFieldNameAsync(100);
-    }
-
-    private void _testSurrogateInFieldNameAsync(int bytesPerRead) throws Exception
-    {
-        byte[] data = _jsonDoc(DOC_FIELD);
-        try (AsyncReaderWrapper r = asyncForBytes(FACTORY, bytesPerRead, data, 0)) {
-            assertToken(JsonToken.START_OBJECT, r.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
-            assertEquals(THUMBS_UP, r.currentName());
-            assertToken(JsonToken.VALUE_STRING, r.nextToken());
-            assertEquals("value", r.currentText());
-            assertToken(JsonToken.END_OBJECT, r.nextToken());
-        }
-    }
-
-    @Test
-    void multipleSurrogatePairsAsync1Byte() throws Exception
-    {
-        String doc = "{\"\\ud83d\\udc4d\\ud83d\\udc4d\":\"value\"}";
-        byte[] data = _jsonDoc(doc);
-        String expectedName = THUMBS_UP + THUMBS_UP;
-        try (AsyncReaderWrapper r = asyncForBytes(FACTORY, 1, data, 0)) {
-            assertToken(JsonToken.START_OBJECT, r.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
-            assertEquals(expectedName, r.currentName());
-            assertToken(JsonToken.VALUE_STRING, r.nextToken());
-            assertEquals("value", r.currentText());
-            assertToken(JsonToken.END_OBJECT, r.nextToken());
-        }
-    }
-
-    @Test
-    void loneHighSurrogateInFieldNameAsync() throws Exception
-    {
-        String doc = "{\"\\ud83d\":\"value\"}";
-        byte[] data = _jsonDoc(doc);
-        try (AsyncReaderWrapper r = asyncForBytes(FACTORY, 1, data, 0)) {
-            assertToken(JsonToken.START_OBJECT, r.nextToken());
-            r.nextToken();
-            fail("Should have thrown for lone high surrogate in field name");
-        } catch (StreamReadException e) {
-            verifyException(e, "surrogate");
-        }
-    }
-
-    @Test
-    void loneLowSurrogateInFieldNameAsync() throws Exception
-    {
-        String doc = "{\"\\udc4d\":\"value\"}";
-        byte[] data = _jsonDoc(doc);
-        try (AsyncReaderWrapper r = asyncForBytes(FACTORY, 1, data, 0)) {
-            assertToken(JsonToken.START_OBJECT, r.nextToken());
-            r.nextToken();
-            fail("Should have thrown for lone low surrogate in field name");
-        } catch (StreamReadException e) {
-            verifyException(e, "surrogate");
         }
     }
 }

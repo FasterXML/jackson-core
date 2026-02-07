@@ -2168,7 +2168,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
                 } else {
                     // Slow path: save state and return NOT_AVAILABLE
-                    _pendingSurrogate = ch;
+                    _pendingSurrogateInName = ch;
                     _minorState = MINOR_PROPERTY_NAME_ESCAPE;
                     _minorStateAfterSplit = MINOR_PROPERTY_NAME;
                     _quadLength = qlen;
@@ -2407,7 +2407,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                         ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
                     } else {
                         // Slow path: save state and return NOT_AVAILABLE
-                        _pendingSurrogate = ch;
+                        _pendingSurrogateInName = ch;
                         _minorState = MINOR_PROPERTY_NAME_ESCAPE;
                         _minorStateAfterSplit = MINOR_PROPERTY_APOS_NAME;
                         _quadLength = qlen;
@@ -2511,7 +2511,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         int ch;
 
         // [jackson-core#1541]: Check if we have a pending high surrogate
-        if (_pendingSurrogate != 0) {
+        if (_pendingSurrogateInName != 0) {
             // We have a high surrogate saved, now need to decode the low surrogate escape
             if (_quotedDigits == -2) {
                 // Need to read the backslash first
@@ -2536,8 +2536,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportError(String.format(
                         "Broken surrogate pair in property name: expected low surrogate (DC00-DFFF), got %04X", ch));
             }
-            ch = 0x10000 + ((_pendingSurrogate - 0xD800) << 10) + (ch - 0xDC00);
-            _pendingSurrogate = 0;
+            ch = 0x10000 + ((_pendingSurrogateInName - 0xD800) << 10) + (ch - 0xDC00);
+            _pendingSurrogateInName = 0;
         } else {
             // Normal path: finish decoding the escape
             ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
@@ -2547,7 +2547,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             // [jackson-core#1541]: Check if decoded value is a high surrogate
             if (ch >= 0xD800 && ch <= 0xDBFF) {
-                _pendingSurrogate = ch;
+                _pendingSurrogateInName = ch;
                 _quoted32 = 0;
                 _quotedDigits = -2; // signal: need backslash for low surrogate
                 _minorState = MINOR_PROPERTY_NAME_ESCAPE;

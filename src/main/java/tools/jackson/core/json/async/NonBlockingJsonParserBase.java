@@ -164,9 +164,9 @@ public abstract class NonBlockingJsonParserBase
      * High surrogate code point awaiting matching low surrogate during
      * property name parsing, or 0 if none pending.
      *
-     * @since 3.1.1
+     * @since 3.1
      */
-    protected int _pendingSurrogate;
+    protected int _pendingSurrogateInName;
 
     /*
     /**********************************************************************

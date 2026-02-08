@@ -429,6 +429,12 @@ public abstract class NonBlockingJsonParserBase
         return 0;
     }
 
+    @Override
+    public int readText(Writer writer) throws JacksonException
+    {
+        return getString(writer);
+    }
+
     // // // Let's override default impls for improved performance
 
     @Override

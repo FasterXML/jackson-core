@@ -547,6 +547,12 @@ public abstract class ParserMinimalBase extends JsonParser
         return str.length();
     }
 
+    @Override
+    public int readText(Writer writer) throws JacksonException
+    {
+        return getString(writer);
+    }
+
     /*
     /**********************************************************************
     /* Public API, access to token information, numeric

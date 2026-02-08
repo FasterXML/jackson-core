@@ -338,6 +338,39 @@ public class ReaderBasedJsonParser
         return 0;
     }
 
+    @Override
+    public int readText(Writer writer) throws JacksonException
+    {
+        final JsonToken t = _currToken;
+
+        try {
+            if (t == JsonToken.VALUE_STRING) {
+                if (_tokenIncomplete) {
+                    return _streamString(writer);
+                }
+                int len = _textBuffer.contentsToWriter(writer);
+                _textBuffer.resetWithEmpty();
+                return len;
+            }
+            if (t == JsonToken.PROPERTY_NAME) {
+                String n = _streamReadContext.currentName();
+                writer.write(n);
+                return n.length();
+            }
+            if (t != null) {
+                if (t.isNumeric()) {
+                    return _textBuffer.contentsToWriter(writer);
+                }
+                char[] ch = t.asCharArray();
+                writer.write(ch);
+                return ch.length;
+            }
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return 0;
+    }
+
     // // // Let's override default impls for improved performance
 
     @Override
@@ -2266,6 +2299,52 @@ public class ReaderBasedJsonParser
                 }
             }
         }
+    }
+
+    private int _streamString(Writer writer) throws JacksonException, IOException
+    {
+        _tokenIncomplete = false;
+
+        int count = 0;
+        int inPtr = _inputPtr;
+        int inLen = _inputEnd;
+        char[] inBuf = _inputBuffer;
+
+        while (true) {
+            if (inPtr >= inLen) {
+                _inputPtr = inPtr;
+                if (!_loadMore()) {
+                    _reportInvalidEOF(": was expecting closing quote for a string value",
+                            JsonToken.VALUE_STRING);
+                }
+                inPtr = _inputPtr;
+                inLen = _inputEnd;
+            }
+            char c = inBuf[inPtr++];
+            int i = c;
+            if (i <= INT_BACKSLASH) {
+                if (i == INT_BACKSLASH) {
+                    _inputPtr = inPtr;
+                    c = _decodeEscaped();
+                    inPtr = _inputPtr;
+                    inLen = _inputEnd;
+                } else if (i <= INT_QUOTE) {
+                    if (i == INT_QUOTE) {
+                        _inputPtr = inPtr;
+                        break;
+                    }
+                    if (i < INT_SPACE) {
+                        _inputPtr = inPtr;
+                        _throwUnquotedSpace(i, "string value");
+                    }
+                }
+            }
+            writer.write(c);
+            ++count;
+        }
+
+        _textBuffer.resetWithEmpty();
+        return count;
     }
 
     /*

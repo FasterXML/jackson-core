@@ -897,6 +897,31 @@ public abstract class JsonParser
     public abstract int getString(Writer writer) throws JacksonException;
 
     /**
+     * Method to read the textual representation of the current token in chunks and
+     * pass it to the given Writer, without buffering the whole String value.
+     * Functionally same as calling:
+     *<pre>
+     *  writer.write(parser.getString());
+     *</pre>
+     * but allows implementations to stream the decoded content directly without
+     * storing it in {@link TextBuffer}.
+     *<p>
+     * NOTE: Unlike {@link #getString(Writer)}, this method <b>consumes</b> the
+     * contents of a {@link JsonToken#VALUE_STRING} token, advancing the parser
+     * so that the underlying String value is no longer available via other
+     * {@code getString*} accessors. This method is primarily intended for very
+     * large String values where buffering would be prohibitive.
+     *
+     * @param writer Writer to write String value to
+     *
+     * @return The number of characters written to the Writer
+     *
+     * @throws JacksonIOException for low-level read issues, or failed write using {@link Writer}
+     * @throws tools.jackson.core.exc.StreamReadException for decoding problems
+     */
+    public abstract int readText(Writer writer) throws JacksonException;
+
+    /**
      * Method similar to {@link #getString()}, but that will return
      * underlying (unmodifiable) character array that contains
      * textual value, instead of constructing a String object

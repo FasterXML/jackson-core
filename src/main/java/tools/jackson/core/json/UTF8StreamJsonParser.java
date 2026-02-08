@@ -323,6 +323,38 @@ public class UTF8StreamJsonParser
         return 0;
     }
 
+    @Override
+    public int readText(Writer writer) throws JacksonException
+    {
+        try {
+            JsonToken t = _currToken;
+            if (t == JsonToken.VALUE_STRING) {
+                if (_tokenIncomplete) {
+                    return _streamString(writer);
+                }
+                int len = _textBuffer.contentsToWriter(writer);
+                _textBuffer.resetWithEmpty();
+                return len;
+            }
+            if (t == JsonToken.PROPERTY_NAME) {
+                String n = _streamReadContext.currentName();
+                writer.write(n);
+                return n.length();
+            }
+            if (t != null) {
+                if (t.isNumeric()) {
+                    return _textBuffer.contentsToWriter(writer);
+                }
+                char[] ch = t.asCharArray();
+                writer.write(ch);
+                return ch.length;
+            }
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return 0;
+    }
+
     // // // Let's override default impls for improved performance
 
     @Override
@@ -3025,6 +3057,76 @@ public class UTF8StreamJsonParser
                 }
             }
         }
+    }
+
+    private int _streamString(Writer writer) throws JacksonException, IOException
+    {
+        _tokenIncomplete = false;
+
+        int count = 0;
+        final int[] codes = _icUTF8;
+        final byte[] inputBuffer = _inputBuffer;
+
+        main_loop:
+        while (true) {
+            int c;
+
+            ascii_loop:
+            while (true) {
+                int ptr = _inputPtr;
+                int max = _inputEnd;
+                if (ptr >= max) {
+                    _loadMoreGuaranteed();
+                    ptr = _inputPtr;
+                    max = _inputEnd;
+                }
+                while (ptr < max) {
+                    c = inputBuffer[ptr++] & 0xFF;
+                    if (codes[c] != 0) {
+                        _inputPtr = ptr;
+                        break ascii_loop;
+                    }
+                    writer.write((char) c);
+                    ++count;
+                }
+                _inputPtr = ptr;
+            }
+
+            if (c == INT_QUOTE) {
+                break main_loop;
+            }
+
+            switch (codes[c]) {
+            case 1:
+                writer.write(_decodeEscaped());
+                ++count;
+                break;
+            case 2:
+                writer.write((char) _decodeUtf8_2(c));
+                ++count;
+                break;
+            case 3:
+                writer.write((char) _decodeUtf8_3(c));
+                ++count;
+                break;
+            case 4: {
+                int ch = _decodeUtf8_4(c);
+                writer.write((char) (0xD800 | (ch >> 10)));
+                writer.write((char) (0xDC00 | (ch & 0x3FF)));
+                count += 2;
+                break;
+            }
+            default:
+                if (c < INT_SPACE) {
+                    _throwUnquotedSpace(c, "string value");
+                } else {
+                    _reportInvalidChar(c);
+                }
+            }
+        }
+
+        _textBuffer.resetWithEmpty();
+        return count;
     }
 
     /**

@@ -2150,6 +2150,34 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
             }
 
+            // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
+            if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
+                // Fast path: if we have enough bytes, decode inline
+                int remaining = _inputEnd - _inputPtr;
+                if (remaining >= 6) { // need \\uXXXX = 6 bytes
+                    if (getByteFromBuffer(_inputPtr) != INT_BACKSLASH) {
+                        _reportError("Broken surrogate pair in property name: expected '\\' to start low surrogate, got 0x"
+                                + Integer.toHexString(getByteFromBuffer(_inputPtr) & 0xFF));
+                    }
+                    ++_inputPtr;
+                    int lo = _decodeFastCharEscape();
+                    ch = _decodeSurrogate(ch, lo);
+                } else {
+                    // Slow path: save state and return NOT_AVAILABLE
+                    _pendingSurrogateInName = ch;
+                    _minorState = MINOR_PROPERTY_NAME_ESCAPE;
+                    _minorStateAfterSplit = MINOR_PROPERTY_NAME;
+                    _quadLength = qlen;
+                    _pending32 = currQuad;
+                    _pendingBytes = currQuadBytes;
+                    _quoted32 = 0;
+                    _quotedDigits = -2; // signal: need backslash for low surrogate
+                    return _updateTokenToNA();
+                }
+            } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
+                _reportUnexpectedLowSurrogate(ch);
+            }
+
             // May need to UTF-8 (re-)encode it, if it's beyond
             // 7-bit ASCII. Gets pretty messy. If this happens often, may
             // want to use different name canonicalization to avoid these hits.
@@ -2167,10 +2195,27 @@ public abstract class NonBlockingUtf8JsonParserBase
                     currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                     ++currQuadBytes;
                     // Second byte gets output below:
-                } else { // 3 bytes; no need to worry about surrogates here
+                } else if (ch < 0x10000) { // 3 bytes
                     currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                     ++currQuadBytes;
                     // need room for middle byte?
+                    if (currQuadBytes >= 4) {
+                        quads[qlen++] = currQuad;
+                        currQuad = 0;
+                        currQuadBytes = 0;
+                    }
+                    currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                    ++currQuadBytes;
+                } else { // 4 bytes (supplementary character)
+                    currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                    ++currQuadBytes;
+                    if (currQuadBytes >= 4) {
+                        quads[qlen++] = currQuad;
+                        currQuad = 0;
+                        currQuadBytes = 0;
+                    }
+                    currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
+                    ++currQuadBytes;
                     if (currQuadBytes >= 4) {
                         quads[qlen++] = currQuad;
                         currQuad = 0;
@@ -2340,6 +2385,36 @@ public abstract class NonBlockingUtf8JsonParserBase
                         return _updateTokenToNA();
                     }
                 }
+                // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
+                if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
+                    int remaining = _inputEnd - _inputPtr;
+                    if (remaining >= 6) { // need \\uXXXX = 6 bytes
+                        if (getByteFromBuffer(_inputPtr) != INT_BACKSLASH) {
+                            _reportError("Broken surrogate pair in property name: expected '\\' to start low surrogate, got 0x"
+                                    + Integer.toHexString(getByteFromBuffer(_inputPtr) & 0xFF));
+                        }
+                        ++_inputPtr;
+                        int lo = _decodeFastCharEscape();
+                        if (lo < 0xDC00 || lo > 0xDFFF) {
+                            _reportError(String.format(
+                                    "Broken surrogate pair in property name: expected low surrogate (DC00-DFFF), got %04X", lo));
+                        }
+                        ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
+                    } else {
+                        // Slow path: save state and return NOT_AVAILABLE
+                        _pendingSurrogateInName = ch;
+                        _minorState = MINOR_PROPERTY_NAME_ESCAPE;
+                        _minorStateAfterSplit = MINOR_PROPERTY_APOS_NAME;
+                        _quadLength = qlen;
+                        _pending32 = currQuad;
+                        _pendingBytes = currQuadBytes;
+                        _quoted32 = 0;
+                        _quotedDigits = -2; // signal: need backslash for low surrogate
+                        return _updateTokenToNA();
+                    }
+                } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
+                    _reportUnexpectedLowSurrogate(ch);
+                }
                 if (ch > 127) {
                     // Ok, we'll need room for first byte right away
                     if (currQuadBytes >= 4) {
@@ -2354,10 +2429,33 @@ public abstract class NonBlockingUtf8JsonParserBase
                         currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                         ++currQuadBytes;
                         // Second byte gets output below:
-                    } else { // 3 bytes; no need to worry about surrogates here
+                    } else if (ch < 0x10000) { // 3 bytes
                         currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                         ++currQuadBytes;
                         // need room for middle byte?
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                        ++currQuadBytes;
+                    } else { // 4 bytes (supplementary character)
+                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                        ++currQuadBytes;
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
+                        ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
                                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
@@ -2404,12 +2502,51 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     protected final JsonToken _finishPropertyWithEscape() throws JacksonException
     {
-        // First: try finishing what wasn't yet:
-        int ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
-        if (ch < 0) { // ... if possible
-            _minorState = MINOR_PROPERTY_NAME_ESCAPE;
-            return JsonToken.NOT_AVAILABLE;
+        int ch;
+
+        // [jackson-core#1541]: Check if we have a pending high surrogate
+        if (_pendingSurrogateInName != 0) {
+            // We have a high surrogate saved, now need to decode the low surrogate escape
+            if (_quotedDigits == -2) {
+                // Need to read the backslash first
+                if (_inputPtr >= _inputEnd) {
+                    return JsonToken.NOT_AVAILABLE;
+                }
+                int b = getNextUnsignedByteFromBuffer();
+                if (b != INT_BACKSLASH) {
+                    _reportError("Broken surrogate pair in property name: expected '\\' to start low surrogate, got 0x"
+                            + Integer.toHexString(b));
+                }
+                // Now start decoding the escape sequence
+                _quotedDigits = -1; // signal: expecting char after backslash
+                _quoted32 = 0;
+            }
+            ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
+            if (ch < 0) {
+                _minorState = MINOR_PROPERTY_NAME_ESCAPE;
+                return JsonToken.NOT_AVAILABLE;
+            }
+            ch = _decodeSurrogate(_pendingSurrogateInName, ch);
+            _pendingSurrogateInName = 0;
+        } else {
+            // Normal path: finish decoding the escape
+            ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
+            if (ch < 0) { // ... if possible
+                _minorState = MINOR_PROPERTY_NAME_ESCAPE;
+                return JsonToken.NOT_AVAILABLE;
+            }
+            // [jackson-core#1541]: Check if decoded value is a high surrogate
+            if (ch >= 0xD800 && ch <= 0xDBFF) {
+                _pendingSurrogateInName = ch;
+                _quoted32 = 0;
+                _quotedDigits = -2; // signal: need backslash for low surrogate
+                _minorState = MINOR_PROPERTY_NAME_ESCAPE;
+                return _finishPropertyWithEscape(); // recurse to handle the low surrogate
+            } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
+                _reportUnexpectedLowSurrogate(ch);
+            }
         }
+
         if (_quadLength >= _quadBuffer.length) {
             _quadBuffer = _growNameDecodeBuffer(_quadBuffer, 32);
         }
@@ -2426,9 +2563,24 @@ public abstract class NonBlockingUtf8JsonParserBase
                 currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                 ++currQuadBytes;
                 // Second byte gets output below:
-            } else { // 3 bytes; no need to worry about surrogates here
+            } else if (ch < 0x10000) { // 3 bytes
                 currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                 // need room for middle byte?
+                if (++currQuadBytes >= 4) {
+                    _quadBuffer[_quadLength++] = currQuad;
+                    currQuad = 0;
+                    currQuadBytes = 0;
+                }
+                currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                ++currQuadBytes;
+            } else { // 4 bytes (supplementary character)
+                currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                if (++currQuadBytes >= 4) {
+                    _quadBuffer[_quadLength++] = currQuad;
+                    currQuad = 0;
+                    currQuadBytes = 0;
+                }
+                currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
                 if (++currQuadBytes >= 4) {
                     _quadBuffer[_quadLength++] = currQuad;
                     currQuad = 0;

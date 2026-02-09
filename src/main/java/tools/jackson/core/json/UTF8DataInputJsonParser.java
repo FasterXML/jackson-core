@@ -1526,11 +1526,21 @@ public class UTF8DataInputJsonParser
                     // Nope, escape sequence
                     ch = _decodeEscaped();
                 }
-                /* Oh crap. May need to UTF-8 (re-)encode it, if it's
-                 * beyond 7-bit ascii. Gets pretty messy.
-                 * If this happens often, may want to use different name
-                 * canonicalization to avoid these hits.
-                 */
+                // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
+                if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
+                    // Must be followed by \\uXXXX low surrogate
+                    int next = _inputData.readUnsignedByte();
+                    if (next != INT_BACKSLASH) {
+                        _reportError("Broken surrogate pair in property name: expected '\\' to start low surrogate, got 0x"
+                                + Integer.toHexString(next));
+                    }
+                    int lo = _decodeEscaped();
+                    ch = _decodeSurrogate(ch, lo);
+                } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
+                    _reportUnexpectedLowSurrogate(ch);
+                }
+                // May need to UTF-8 (re-)encode it, if it's beyond
+                // 7-bit ASCII. Gets pretty messy.
                 if (ch > 127) {
                     // Ok, we'll need room for first byte right away
                     if (currQuadBytes >= 4) {
@@ -1545,10 +1555,33 @@ public class UTF8DataInputJsonParser
                         currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                         ++currQuadBytes;
                         // Second byte gets output below:
-                    } else { // 3 bytes; no need to worry about surrogates here
+                    } else if (ch < 0x10000) { // 3 bytes
                         currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                         ++currQuadBytes;
                         // need room for middle byte?
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                        ++currQuadBytes;
+                    } else { // 4 bytes (supplementary character)
+                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                        ++currQuadBytes;
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
+                        ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
                                 _quadBuffer = quads = growArrayBy(quads, quads.length);
@@ -1701,10 +1734,20 @@ public class UTF8DataInputJsonParser
                     // Nope, escape sequence
                     ch = _decodeEscaped();
                 }
-                /* Oh crap. May need to UTF-8 (re-)encode it, if it's  beyond
-                 * 7-bit ASCII. Gets pretty messy. If this happens often, may want
-                 * to use different name canonicalization to avoid these hits.
-                 */
+                // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
+                if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
+                    int next = _inputData.readUnsignedByte();
+                    if (next != INT_BACKSLASH) {
+                        _reportError("Broken surrogate pair in property name: expected '\\' to start low surrogate, got 0x"
+                                + Integer.toHexString(next));
+                    }
+                    int lo = _decodeEscaped();
+                    ch = _decodeSurrogate(ch, lo);
+                } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
+                    _reportUnexpectedLowSurrogate(ch);
+                }
+                // May need to UTF-8 (re-)encode it, if it's beyond
+                // 7-bit ASCII. Gets pretty messy.
                 if (ch > 127) {
                     // Ok, we'll need room for first byte right away
                     if (currQuadBytes >= 4) {
@@ -1719,10 +1762,33 @@ public class UTF8DataInputJsonParser
                         currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                         ++currQuadBytes;
                         // Second byte gets output below:
-                    } else { // 3 bytes; no need to worry about surrogates here
+                    } else if (ch < 0x10000) { // 3 bytes
                         currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                         ++currQuadBytes;
                         // need room for middle byte?
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                        ++currQuadBytes;
+                    } else { // 4 bytes (supplementary character)
+                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                        ++currQuadBytes;
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
+                        ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
                                 _quadBuffer = quads = growArrayBy(quads, quads.length);

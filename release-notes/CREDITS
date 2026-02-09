@@ -22,3 +22,6 @@ Henri Biström (@hb16)
  * Reported #1527: `TokenStreamFactory.createNonBlockingByteBufferParser()` return type wrong
   (3.1.0)
 
+Afzal Najam (@AfzalivE)
+ * Reported #1541: Unexpected Illegal surrogate character when parsing field names
+  (3.1.0)

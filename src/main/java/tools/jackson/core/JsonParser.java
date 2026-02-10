@@ -918,8 +918,10 @@ public abstract class JsonParser
      *
      * @throws JacksonIOException for low-level read issues, or failed write using {@link Writer}
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
+     *
+     * @since 3.1
      */
-    public abstract int readText(Writer writer) throws JacksonException;
+    public abstract long readString(Writer writer) throws JacksonException;
 
     /**
      * Method similar to {@link #getString()}, but that will return

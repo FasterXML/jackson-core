@@ -437,10 +437,21 @@ public abstract class NonBlockingJsonParserBase
         return 0;
     }
 
+    /**
+     * Non-blocking parsers cannot reliably support streaming string reads
+     * since content availability is unpredictable. This method throws
+     * {@link UnsupportedOperationException} to indicate that it should not
+     * be used with non-blocking parsers.
+     *
+     * @throws UnsupportedOperationException always, as this operation is not
+     *         supported for non-blocking parsers
+     */
     @Override
-    public int readText(Writer writer) throws JacksonException
+    public long readString(Writer writer) throws JacksonException
     {
-        return getString(writer);
+        throw new UnsupportedOperationException(
+            "readString(Writer) not supported for non-blocking parsers: " +
+            "content availability is unpredictable");
     }
 
     // // // Let's override default impls for improved performance

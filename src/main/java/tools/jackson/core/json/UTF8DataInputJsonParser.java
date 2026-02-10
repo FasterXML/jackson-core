@@ -200,7 +200,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public int readText(Writer writer) throws JacksonException
+    public long readString(Writer writer) throws JacksonException
     {
         JsonToken t = _currToken;
         try {
@@ -208,7 +208,7 @@ public class UTF8DataInputJsonParser
                 if (_tokenIncomplete) {
                     return _streamString(writer);
                 }
-                int len = _textBuffer.contentsToWriter(writer);
+                long len = _textBuffer.contentsToWriter(writer);
                 _textBuffer.resetWithEmpty();
                 return len;
             }
@@ -2193,12 +2193,13 @@ public class UTF8DataInputJsonParser
         }
     }
 
-    private int _streamString(Writer writer) throws JacksonException, IOException
+    private long _streamString(Writer writer) throws JacksonException, IOException
     {
         _tokenIncomplete = false;
 
-        int count = 0;
+        long count = 0;
         final int[] codes = _icUTF8;
+        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
 
         main_loop:
         while (true) {
@@ -2211,7 +2212,9 @@ public class UTF8DataInputJsonParser
                     break ascii_loop;
                 }
                 writer.write((char) c);
-                ++count;
+                if (++count > maxStringLen) {
+                    _streamReadConstraints.validateStringLength((int) count);
+                }
             }
             if (c == INT_QUOTE) {
                 break main_loop;
@@ -2220,21 +2223,30 @@ public class UTF8DataInputJsonParser
             switch (codes[c]) {
             case 1:
                 writer.write(_decodeEscaped());
-                ++count;
+                if (++count > maxStringLen) {
+                    _streamReadConstraints.validateStringLength((int) count);
+                }
                 break;
             case 2:
                 writer.write((char) _decodeUtf8_2(c));
-                ++count;
+                if (++count > maxStringLen) {
+                    _streamReadConstraints.validateStringLength((int) count);
+                }
                 break;
             case 3:
                 writer.write((char) _decodeUtf8_3(c));
-                ++count;
+                if (++count > maxStringLen) {
+                    _streamReadConstraints.validateStringLength((int) count);
+                }
                 break;
             case 4: {
                 int ch = _decodeUtf8_4(c);
                 writer.write((char) (0xD800 | (ch >> 10)));
                 writer.write((char) (0xDC00 | (ch & 0x3FF)));
                 count += 2;
+                if (count > maxStringLen) {
+                    _streamReadConstraints.validateStringLength((int) count);
+                }
                 break;
             }
             default:

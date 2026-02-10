@@ -339,7 +339,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public int readText(Writer writer) throws JacksonException
+    public long readString(Writer writer) throws JacksonException
     {
         final JsonToken t = _currToken;
 
@@ -348,7 +348,7 @@ public class ReaderBasedJsonParser
                 if (_tokenIncomplete) {
                     return _streamString(writer);
                 }
-                int len = _textBuffer.contentsToWriter(writer);
+                long len = _textBuffer.contentsToWriter(writer);
                 _textBuffer.resetWithEmpty();
                 return len;
             }
@@ -2301,14 +2301,15 @@ public class ReaderBasedJsonParser
         }
     }
 
-    private int _streamString(Writer writer) throws JacksonException, IOException
+    private long _streamString(Writer writer) throws JacksonException, IOException
     {
         _tokenIncomplete = false;
 
-        int count = 0;
+        long count = 0;
         int inPtr = _inputPtr;
         int inLen = _inputEnd;
         char[] inBuf = _inputBuffer;
+        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
 
         while (true) {
             if (inPtr >= inLen) {
@@ -2340,7 +2341,9 @@ public class ReaderBasedJsonParser
                 }
             }
             writer.write(c);
-            ++count;
+            if (++count > maxStringLen) {
+                _streamReadConstraints.validateStringLength((int) count);
+            }
         }
 
         _textBuffer.resetWithEmpty();

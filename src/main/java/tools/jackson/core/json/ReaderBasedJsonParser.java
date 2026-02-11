@@ -2305,14 +2305,39 @@ public class ReaderBasedJsonParser
     {
         _tokenIncomplete = false;
 
-        long count = 0;
+        long totalCount = 0;
         int inPtr = _inputPtr;
         int inLen = _inputEnd;
         char[] inBuf = _inputBuffer;
         final int maxStringLen = _streamReadConstraints.getMaxStringLength();
 
+        // Intermediate buffer for bulk writes to improve performance
+        char[] outBuf = new char[512];
+        int outPtr = 0;
+
         while (true) {
+            // Flush intermediate buffer when full
+            if (outPtr >= outBuf.length) {
+                writer.write(outBuf, 0, outPtr);
+                totalCount += outPtr;
+                // Check constraints only at flush boundaries
+                if (totalCount > maxStringLen) {
+                    _validateStringLength(totalCount);
+                }
+                outPtr = 0;
+            }
+
             if (inPtr >= inLen) {
+                // Flush intermediate buffer before loading more
+                if (outPtr > 0) {
+                    writer.write(outBuf, 0, outPtr);
+                    totalCount += outPtr;
+                    outPtr = 0;
+                }
+                // Check constraints at input buffer boundary
+                if (totalCount > maxStringLen) {
+                    _validateStringLength(totalCount);
+                }
                 _inputPtr = inPtr;
                 if (!_loadMore()) {
                     _reportInvalidEOF(": was expecting closing quote for a string value",
@@ -2340,14 +2365,30 @@ public class ReaderBasedJsonParser
                     }
                 }
             }
-            writer.write(c);
-            if (++count > maxStringLen) {
-                _streamReadConstraints.validateStringLength((int) count);
-            }
+            // Accumulate character in intermediate buffer
+            outBuf[outPtr++] = c;
+        }
+
+    // Final flush of remaining characters
+        if (outPtr > 0) {
+            writer.write(outBuf, 0, outPtr);
+            totalCount += outPtr;
+        }
+
+        // Validate final string length
+        if (totalCount > maxStringLen) {
+            _validateStringLength(totalCount);
         }
 
         _textBuffer.resetWithEmpty();
-        return count;
+        return totalCount;
+    }
+
+    // Helper method to validate string length with overflow protection
+    private void _validateStringLength(long count) throws JacksonException {
+        // Protect against integer overflow when casting to int
+        int len = (int) Math.min(count, Integer.MAX_VALUE);
+        _streamReadConstraints.validateStringLength(len);
     }
 
     /*

@@ -2197,9 +2197,13 @@ public class UTF8DataInputJsonParser
     {
         _tokenIncomplete = false;
 
-        long count = 0;
+        long totalCount = 0;
         final int[] codes = _icUTF8;
         final int maxStringLen = _streamReadConstraints.getMaxStringLength();
+
+        // Intermediate buffer for bulk writes to improve performance
+        char[] outBuf = new char[512];
+        int outPtr = 0;
 
         main_loop:
         while (true) {
@@ -2211,42 +2215,47 @@ public class UTF8DataInputJsonParser
                 if (codes[c] != 0) {
                     break ascii_loop;
                 }
-                writer.write((char) c);
-                if (++count > maxStringLen) {
-                    _streamReadConstraints.validateStringLength((int) count);
+                // Flush intermediate buffer when full
+                if (outPtr >= outBuf.length) {
+                    writer.write(outBuf, 0, outPtr);
+                    totalCount += outPtr;
+                    // Check constraints only at flush boundaries
+                    if (totalCount > maxStringLen) {
+                        _validateStringLength(totalCount);
+                    }
+                    outPtr = 0;
                 }
+                // Accumulate character in intermediate buffer
+                outBuf[outPtr++] = (char) c;
             }
             if (c == INT_QUOTE) {
                 break main_loop;
             }
 
+            // Flush intermediate buffer when full before writing multi-byte chars
+            if (outPtr >= outBuf.length - 1) { // -1 to ensure space for surrogate pairs
+                writer.write(outBuf, 0, outPtr);
+                totalCount += outPtr;
+                if (totalCount > maxStringLen) {
+                    _validateStringLength(totalCount);
+                }
+                outPtr = 0;
+            }
+
             switch (codes[c]) {
             case 1:
-                writer.write(_decodeEscaped());
-                if (++count > maxStringLen) {
-                    _streamReadConstraints.validateStringLength((int) count);
-                }
+                outBuf[outPtr++] = _decodeEscaped();
                 break;
             case 2:
-                writer.write((char) _decodeUtf8_2(c));
-                if (++count > maxStringLen) {
-                    _streamReadConstraints.validateStringLength((int) count);
-                }
+                outBuf[outPtr++] = (char) _decodeUtf8_2(c);
                 break;
             case 3:
-                writer.write((char) _decodeUtf8_3(c));
-                if (++count > maxStringLen) {
-                    _streamReadConstraints.validateStringLength((int) count);
-                }
+                outBuf[outPtr++] = (char) _decodeUtf8_3(c);
                 break;
             case 4: {
                 int ch = _decodeUtf8_4(c);
-                writer.write((char) (0xD800 | (ch >> 10)));
-                writer.write((char) (0xDC00 | (ch & 0x3FF)));
-                count += 2;
-                if (count > maxStringLen) {
-                    _streamReadConstraints.validateStringLength((int) count);
-                }
+                outBuf[outPtr++] = (char) (0xD800 | (ch >> 10));
+                outBuf[outPtr++] = (char) (0xDC00 | (ch & 0x3FF));
                 break;
             }
             default:
@@ -2258,8 +2267,26 @@ public class UTF8DataInputJsonParser
             }
         }
 
+        // Final flush of remaining characters
+        if (outPtr > 0) {
+            writer.write(outBuf, 0, outPtr);
+            totalCount += outPtr;
+        }
+
+        // Validate final string length
+        if (totalCount > maxStringLen) {
+            _validateStringLength(totalCount);
+        }
+
         _textBuffer.resetWithEmpty();
-        return count;
+        return totalCount;
+    }
+
+    // Helper method to validate string length with overflow protection
+    private void _validateStringLength(long count) throws JacksonException {
+        // Protect against integer overflow when casting to int
+        int len = (int) Math.min(count, Integer.MAX_VALUE);
+        _streamReadConstraints.validateStringLength(len);
     }
 
     /**

@@ -550,6 +550,7 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override
     public long readString(Writer writer) throws JacksonException
     {
+        // Default implementation simply buffers it all
         return getString(writer);
     }
 

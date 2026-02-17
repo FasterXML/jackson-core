@@ -71,11 +71,7 @@ public final class MergedStream extends InputStream
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         Objects.requireNonNull(b, "b");
-        // Validate parameters (bounds checking without Java 9 API)
-        if (off < 0 || len < 0 || off > b.length || len > b.length - off) {
-            throw new IndexOutOfBoundsException(String.format(
-                    "read(b,%d,%d), b.length=%d", off, len, b.length));
-        }
+        Objects.checkFromIndexSize(off, len, b.length);
         if (_b != null) {
             int avail = _end - _ptr;
             if (len > avail) {

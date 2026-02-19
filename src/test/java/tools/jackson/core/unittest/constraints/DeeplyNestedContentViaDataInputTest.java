@@ -8,26 +8,23 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
-import tools.jackson.core.unittest.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Nesting Depth Constraint Bypass in UTF8DataInputJsonParser
  */
-class DeeplyNestedContentViaDataInputTest {
-
+class DeeplyNestedContentViaDataInputTest
+{
     private static final int TEST_NESTING_DEPTH = 5000;
 
     private final JsonFactory factory = new JsonFactory();
 
-    // 19-Feb-2026, tatu: Regression; works in 2.x
-    @JacksonTestFailureExpected
+    // [core#1553] Regression; works in 2.x
     @Test
     void dataInputParserBypassesNestingDepth() throws Exception {
         byte[] data = buildNestedArrays(TEST_NESTING_DEPTH);
         DataInput di = new DataInputStream(new ByteArrayInputStream(data));
-
         int maxDepth = 0;
         try (JsonParser p = factory.createParser(ObjectReadContext.empty(), di)) {
             while (p.nextToken() != null) {

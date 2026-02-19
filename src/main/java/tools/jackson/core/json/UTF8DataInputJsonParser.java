@@ -686,10 +686,10 @@ public class UTF8DataInputJsonParser
         }
         switch (i) {
         case '[':
-            _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            createChildArrayContext(_tokenInputRow, _tokenInputCol);
             return _updateToken(JsonToken.START_ARRAY);
         case '{':
-            _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            createChildObjectContext(_tokenInputRow, _tokenInputCol);
             return _updateToken(JsonToken.START_OBJECT);
         case 't':
             _matchToken("true", 1);

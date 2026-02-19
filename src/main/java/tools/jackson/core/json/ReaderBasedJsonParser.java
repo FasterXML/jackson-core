@@ -1262,9 +1262,9 @@ public class ReaderBasedJsonParser
                 return getLongValue();
             }
             if (t == JsonToken.START_ARRAY) {
-                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return defaultValue;
         }

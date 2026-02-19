@@ -33,7 +33,8 @@ class NestingDepthBypassDataInputTest {
             }
             fail("DataInput parser must reject nesting depth " + TEST_NESTING_DEPTH);
         } catch (StreamConstraintsException e) {
-            //expected
+            assertTrue(e.getMessage().contains("Document nesting depth"),
+                    "Unexpected exception message: " + e.getMessage());
         }
     }
 

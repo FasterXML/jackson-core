@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +24,7 @@ class NestingDepthBypassDataInputTest {
         DataInput di = new DataInputStream(new ByteArrayInputStream(data));
 
         //Output to console
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), di)) {
+        try (JsonParser p = factory.createParser(di)) {
             int maxDepth = 0;
             while (p.nextToken() != null) {
                 if (p.currentToken() == JsonToken.START_ARRAY) {

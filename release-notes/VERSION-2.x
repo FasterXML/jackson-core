@@ -14,6 +14,12 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.21.1 (not yet released)
+
+#1548: `StreamReadConstraints.maxDocumentLength` not checked when
+  creating parser with fixed buffer
+ (fix by @cowtowncoder, w/ Claude code)
+
 2.21.0 (18-Jan-2026)
 
 #363: UTF-8 decoding should fail on Surrogate characters (0xD800 - 0xDFFF)

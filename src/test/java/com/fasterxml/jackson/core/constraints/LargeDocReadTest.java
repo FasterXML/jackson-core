@@ -52,6 +52,13 @@ class LargeDocReadTest extends AsyncTestBase
         } catch (StreamConstraintsException e) {
             verifyMaxDocLen(JSON_F_DOC_10K, e);
         }
+        // [core#1548] validate for fixed buffer too
+        try (JsonParser p = JSON_F_DOC_10K.createParser(utf8Bytes(doc))) {
+            consumeTokens(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
     }
 
     @Test
@@ -59,6 +66,13 @@ class LargeDocReadTest extends AsyncTestBase
     {
         final String doc = generateJSON(12_000);
         try (JsonParser p = createParserUsingReader(JSON_F_DOC_10K, doc)) {
+            consumeTokens(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
+        // [core#1548] validate for fixed buffer too
+        try (JsonParser p = JSON_F_DOC_10K.createParser(doc.toCharArray())) {
             consumeTokens(p);
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {

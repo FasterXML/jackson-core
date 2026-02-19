@@ -1944,6 +1944,8 @@ public class JsonFactory
      */
     protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
             boolean recyclable) throws IOException {
+        // [core#1548] Validate doc length upfront for fixed buffers
+        _streamReadConstraints.validateDocumentLength(len);
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
                 _rootCharSymbols.makeChild(),
                         data, offset, offset+len, recyclable);
@@ -1971,6 +1973,8 @@ public class JsonFactory
      */
     protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
     {
+        // [core#1548] Validate doc length upfront for fixed buffers
+        _streamReadConstraints.validateDocumentLength(len);
         return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
                 _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }

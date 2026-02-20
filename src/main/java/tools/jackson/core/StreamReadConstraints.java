@@ -305,7 +305,8 @@ public class StreamReadConstraints
      * @param maxTokenCount Maximum number of tokens to allow
      */
     protected StreamReadConstraints(int maxNestingDepth, long maxDocLen, long maxTokenCount,
-            int maxNumLen, int maxStringLen, int maxNameLen) {
+            int maxNumLen, int maxStringLen, int maxNameLen)
+    {
         _maxNestingDepth = maxNestingDepth;
         _maxDocLen = maxDocLen;
         _maxTokenCount = maxTokenCount;

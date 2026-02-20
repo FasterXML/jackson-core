@@ -547,8 +547,6 @@ public abstract class ParserMinimalBase extends JsonParser
         return str.length();
     }
 
-//    @Override public long readString(Writer writer) throws JacksonException;
-
     /*
     /**********************************************************************
     /* Public API, access to token information, numeric

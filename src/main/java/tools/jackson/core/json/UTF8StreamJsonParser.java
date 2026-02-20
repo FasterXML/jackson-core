@@ -3140,14 +3140,14 @@ public class UTF8StreamJsonParser
         }
     }
 
-    private long _streamString(Writer writer) throws JacksonException, IOException
+    private long _streamString(Writer writer) throws IOException, JacksonException 
     {
         _tokenIncomplete = false;
 
-        long totalCount = 0;
+        long totalLen = 0;
         final int[] codes = _icUTF8;
         final byte[] inputBuffer = _inputBuffer;
-        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
+        final long maxStringLen = _streamReadConstraints.getMaxStringLength();
 
         // Intermediate buffer for bulk writes to improve performance
         char[] outBuf = new char[512];
@@ -3165,12 +3165,12 @@ public class UTF8StreamJsonParser
                     // Flush intermediate buffer before loading more
                     if (outPtr > 0) {
                         writer.write(outBuf, 0, outPtr);
-                        totalCount += outPtr;
+                        totalLen += outPtr;
                         outPtr = 0;
                     }
                     // Check constraints at input buffer boundary
-                    if (totalCount > maxStringLen) {
-                        _streamReadConstraints.validateStringLengthLong(totalCount);
+                    if (totalLen > maxStringLen) {
+                        _streamReadConstraints.validateStringLengthLong(totalLen);
                     }
                     _loadMoreGuaranteed();
                     ptr = _inputPtr;
@@ -3185,10 +3185,10 @@ public class UTF8StreamJsonParser
                     // Flush intermediate buffer when full
                     if (outPtr >= outBuf.length) {
                         writer.write(outBuf, 0, outPtr);
-                        totalCount += outPtr;
+                        totalLen += outPtr;
                         // Check constraints only at flush boundaries
-                        if (totalCount > maxStringLen) {
-                            _streamReadConstraints.validateStringLengthLong(totalCount);
+                        if (totalLen > maxStringLen) {
+                            _streamReadConstraints.validateStringLengthLong(totalLen);
                         }
                         outPtr = 0;
                     }
@@ -3200,16 +3200,6 @@ public class UTF8StreamJsonParser
 
             if (c == INT_QUOTE) {
                 break main_loop;
-            }
-
-            // Flush intermediate buffer when full before writing multi-byte chars
-            if (outPtr >= outBuf.length - 1) { // -1 to ensure space for surrogate pairs
-                writer.write(outBuf, 0, outPtr);
-                totalCount += outPtr;
-                if (totalCount > maxStringLen) {
-                    _streamReadConstraints.validateStringLengthLong(totalCount);
-                }
-                outPtr = 0;
             }
 
             switch (codes[c]) {
@@ -3225,6 +3215,15 @@ public class UTF8StreamJsonParser
             case 4: {
                 int ch = _decodeUtf8_4(c);
                 outBuf[outPtr++] = (char) (0xD800 | (ch >> 10));
+                // Flush intermediate buffer when full before writing multi-byte chars
+                if (outPtr >= outBuf.length) {
+                    writer.write(outBuf, 0, outPtr);
+                    totalLen += outPtr;
+                    if (totalLen > maxStringLen) {
+                        _streamReadConstraints.validateStringLengthLong(totalLen);
+                    }
+                    outPtr = 0;
+                }
                 outBuf[outPtr++] = (char) (0xDC00 | (ch & 0x3FF));
                 break;
             }
@@ -3240,16 +3239,15 @@ public class UTF8StreamJsonParser
         // Final flush of remaining characters
         if (outPtr > 0) {
             writer.write(outBuf, 0, outPtr);
-            totalCount += outPtr;
-        }
-
-        // Validate final string length
-        if (totalCount > maxStringLen) {
-            _streamReadConstraints.validateStringLengthLong(totalCount);
+            totalLen += outPtr;
+            // Validate final string length
+            if (totalLen > maxStringLen) {
+                _streamReadConstraints.validateStringLengthLong(totalLen);
+            }
         }
 
         _textBuffer.resetWithEmpty();
-        return totalCount;
+        return totalLen;
     }
 
     /**

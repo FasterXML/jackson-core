@@ -2193,13 +2193,14 @@ public class UTF8DataInputJsonParser
         }
     }
 
-    private long _streamString(Writer writer) throws JacksonException, IOException
+    // @since 3.1
+    private long _streamString(Writer writer) throws IOException, JacksonException
     {
         _tokenIncomplete = false;
 
-        long totalCount = 0;
+        long totalLen = 0;
         final int[] codes = _icUTF8;
-        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
+        final long maxStringLen = _streamReadConstraints.getMaxStringLength();
 
         // Intermediate buffer for bulk writes to improve performance
         char[] outBuf = new char[512];
@@ -2218,11 +2219,11 @@ public class UTF8DataInputJsonParser
                 // Flush intermediate buffer when full
                 if (outPtr >= outBuf.length) {
                     writer.write(outBuf, 0, outPtr);
-                    totalCount += outPtr;
+                    totalLen += outPtr;
                     outPtr = 0;
                     // Check constraints only at flush boundaries
-                    if (totalCount > maxStringLen) {
-                        _streamReadConstraints.validateStringLengthLong(totalCount);
+                    if (totalLen > maxStringLen) {
+                        _streamReadConstraints.validateStringLengthLong(totalLen);
                     }
                 }
                 // Accumulate character in intermediate buffer
@@ -2248,10 +2249,10 @@ public class UTF8DataInputJsonParser
                 // Flush intermediate buffer when full before writing multi-byte chars
                 if (outPtr >= outBuf.length) {
                     writer.write(outBuf, 0, outPtr);
-                    totalCount += outPtr;
+                    totalLen += outPtr;
                     outPtr = 0;
-                    if (totalCount > maxStringLen) {
-                        _streamReadConstraints.validateStringLengthLong(totalCount);
+                    if (totalLen > maxStringLen) {
+                        _streamReadConstraints.validateStringLengthLong(totalLen);
                     }
                 }
                 outBuf[outPtr++] = (char) (0xDC00 | (ch & 0x3FF));
@@ -2269,15 +2270,15 @@ public class UTF8DataInputJsonParser
         // Final flush of remaining characters
         if (outPtr > 0) {
             writer.write(outBuf, 0, outPtr);
-            totalCount += outPtr;
+            totalLen += outPtr;
             // Validate final string length
-            if (totalCount > maxStringLen) {
-                _streamReadConstraints.validateStringLengthLong(totalCount);
+            if (totalLen > maxStringLen) {
+                _streamReadConstraints.validateStringLengthLong(totalLen);
             }
         }
 
         _textBuffer.resetWithEmpty();
-        return totalCount;
+        return totalLen;
     }
 
     /**

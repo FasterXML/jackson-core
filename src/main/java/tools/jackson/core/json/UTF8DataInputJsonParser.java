@@ -203,32 +203,19 @@ public class UTF8DataInputJsonParser
     public long readString(Writer writer) throws JacksonException
     {
         JsonToken t = _currToken;
-        try {
-            if (t == JsonToken.VALUE_STRING) {
+        if (t == JsonToken.VALUE_STRING) {
+            try {
                 if (_tokenIncomplete) {
                     return _streamString(writer);
                 }
                 long len = _textBuffer.contentsToWriter(writer);
                 _textBuffer.resetWithEmpty();
                 return len;
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
             }
-            if (t == JsonToken.PROPERTY_NAME) {
-                String n = _streamReadContext.currentName();
-                writer.write(n);
-                return n.length();
-            }
-            if (t != null) {
-                if (t.isNumeric()) {
-                    return _textBuffer.contentsToWriter(writer);
-                }
-                char[] ch = t.asCharArray();
-                writer.write(ch);
-                return ch.length;
-            }
-        } catch (IOException e) {
-            throw _wrapIOFailure(e);
         }
-        return 0;
+        return getString(writer);
     }
 
     // // // Let's override default impls for improved performance
@@ -2202,8 +2189,8 @@ public class UTF8DataInputJsonParser
         final int[] codes = _icUTF8;
         final long maxStringLen = _streamReadConstraints.getMaxStringLength();
 
-        // Intermediate buffer for bulk writes to improve performance
-        char[] outBuf = new char[512];
+        // Intermediate buffer for bulk writes to improve performance (reused across calls)
+        char[] outBuf = _bufferForStringStreaming();
         int outPtr = 0;
 
         main_loop:

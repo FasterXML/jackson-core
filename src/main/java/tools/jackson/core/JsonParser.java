@@ -884,8 +884,9 @@ public abstract class JsonParser
      * other {@code getString()} calls (that is, it will not be consumed).
      * So this accessor only avoids construction of {@link java.lang.String}
      * compared to plain {@link #getString()} method.
+     * Note there is method {@link #readString(Writer)} that may avoid buffering.
      *<p>
-     * NOTE: In Jackson 2.x this method was called {@code getString(Writer)}.
+     * NOTE: In Jackson 2.x this method was called {@code getText(Writer)}.
      *
      * @param writer Writer to write String value to
      *

@@ -23,7 +23,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
 
     // Size of the intermediate output buffer used by _streamString
-    private static final int OUT_BUF_SIZE = 512;
+    private static final int OUT_BUF_SIZE = 1024;
 
     /*
     /**********************************************************
@@ -41,7 +41,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
 
     private void _testEmptyString(int mode) throws Exception
     {
-        JsonParser p = createParser(mode, "[\"\"]");
+        JsonParser p = createParser(JSON_FACTORY, mode, "[\"\"]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -64,7 +64,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
 
     private void _testSingleCharString(int mode) throws Exception
     {
-        JsonParser p = createParser(mode, "[\"x\"]");
+        JsonParser p = createParser(JSON_FACTORY, mode, "[\"x\"]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -96,7 +96,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String json = "[\"\\\"  \\\\  \\/  \\b  \\f  \\n  \\r  \\t\"]";
         String expected = "\"  \\  /  \b  \f  \n  \r  \t";
 
-        JsonParser p = createParser(mode, json);
+        JsonParser p = createParser(JSON_FACTORY, mode, json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -122,7 +122,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String json = "[\"caf\\u00e9 \\u4e2d \\u0000\"]";
         String expected = "caf\u00e9 \u4e2d \u0000";
 
-        JsonParser p = createParser(mode, json);
+        JsonParser p = createParser(JSON_FACTORY, mode, json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -151,7 +151,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String json = "[\"" + prefix + "\\n\"]";
         String expected = prefix + "\n";
 
-        JsonParser p = createParser(mode, json);
+        JsonParser p = createParser(JSON_FACTORY, mode, json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -217,7 +217,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     private void _testUtf8Value(int mode, String value) throws Exception
     {
         String json = "[" + q(value) + "]";
-        JsonParser p = createParser(mode, json);
+        JsonParser p = createParser(JSON_FACTORY, mode, json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -265,7 +265,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String value = "a".repeat(length);
         String json = "[" + q(value) + "]";
         for (int mode : ALL_MODES) {
-            JsonParser p = createParser(mode, json);
+            JsonParser p = createParser(JSON_FACTORY, mode, json);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -383,7 +383,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
 
     private void _testReadStringOnPropertyName(int mode) throws Exception
     {
-        JsonParser p = createParser(mode, "{\"myKey\":\"myValue\"}");
+        JsonParser p = createParser(JSON_FACTORY, mode, "{\"myKey\":\"myValue\"}");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
 
@@ -405,7 +405,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
 
     private void _testReadStringOnNumberTokens(int mode) throws Exception
     {
-        JsonParser p = createParser(mode, "[42, 3.14]");
+        JsonParser p = createParser(JSON_FACTORY, mode, "[42, 3.14]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -431,7 +431,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
 
     private void _testReadStringOnNullToken(int mode) throws Exception
     {
-        JsonParser p = createParser(mode, "[null]");
+        JsonParser p = createParser(JSON_FACTORY, mode, "[null]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
 
@@ -454,7 +454,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     private void _testReadStringBeforeFirstToken(int mode) throws Exception
     {
         // No nextToken() called yet: current token is null, should return 0
-        JsonParser p = createParser(mode, "[\"x\"]");
+        JsonParser p = createParser(JSON_FACTORY, mode, "[\"x\"]");
         Writer w = new StringWriter();
         long len = p.readString(w);
         assertEquals(0L, len);
@@ -478,7 +478,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
 
     private void _testConsumingSemantics(int mode) throws Exception
     {
-        JsonParser p = createParser(mode, "[\"hello\",\"world\"]");
+        JsonParser p = createParser(JSON_FACTORY, mode, "[\"hello\",\"world\"]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         // First value
@@ -514,7 +514,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String[] values = {"first", "second", "third"};
         String json = "[\"first\",\"second\",\"third\"]";
 
-        JsonParser p = createParser(mode, json);
+        JsonParser p = createParser(JSON_FACTORY, mode, json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (String expected : values) {
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -542,7 +542,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String json = "[\"Hello \\n\\t\\u00e9 \\u4e2d\\u6587 \\uD83D\\uDE00 end\"]";
 
         for (int mode : ALL_MODES) {
-            JsonParser p = createParser(mode, json);
+            JsonParser p = createParser(JSON_FACTORY, mode, json);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -574,7 +574,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String json = "[" + q(expected) + "]";
 
         for (int mode : ALL_MODES) {
-            JsonParser p = createParser(mode, json);
+            JsonParser p = createParser(JSON_FACTORY, mode, json);
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -603,7 +603,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String expected = "\n\t\r\"\\\u00e9";
 
         // Use throttled stream mode (reads 1 byte at a time)
-        JsonParser p = createParser(MODE_INPUT_STREAM_THROTTLED, json);
+        JsonParser p = createParser(JSON_FACTORY, MODE_INPUT_STREAM_THROTTLED, json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -622,7 +622,7 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String value = "abcdefghij".repeat(200); // 2000 chars
         String json = "[" + q(value) + "]";
 
-        JsonParser p = createParser(MODE_INPUT_STREAM_THROTTLED, json);
+        JsonParser p = createParser(JSON_FACTORY, MODE_INPUT_STREAM_THROTTLED, json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
 

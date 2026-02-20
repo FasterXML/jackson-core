@@ -69,6 +69,15 @@ public abstract class JsonParserBase
      */
     protected boolean _nameCopied;
 
+    /**
+     * Lazily-allocated intermediate buffer used by {@code _streamString()}
+     * implementations to batch writes to the target {@link java.io.Writer}.
+     * Allocated on first call and reused on subsequent calls to avoid
+     * repeated allocation for parsers that call {@code readString(Writer)}
+     * multiple times.
+     */
+    private char[] _streamStringBuffer;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -82,6 +91,27 @@ public abstract class JsonParserBase
         DupDetector dups = StreamReadFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamReadFeatures)
                 ? DupDetector.rootDetector(this) : null;
         _streamReadContext = JsonReadContext.createRootContext(dups);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes
+    /**********************************************************************
+     */
+
+    /**
+     * Returns the lazily-allocated intermediate buffer used by
+     * {@code _streamString()} to batch-write decoded characters to a
+     * {@link java.io.Writer}. The same buffer is reused across calls.
+     *
+     * @since 3.1
+     */
+    protected char[] _bufferForStringStreaming() {
+        char[] buf = _streamStringBuffer;
+        if (buf == null) {
+            _streamStringBuffer = buf = new char[1024];
+        }
+        return buf;
     }
 
     /*

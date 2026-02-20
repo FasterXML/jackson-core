@@ -2325,7 +2325,7 @@ public class ReaderBasedJsonParser
                 outPtr = 0;
                 // Check constraints only at flush boundaries
                 if (totalLen > maxStringLen) {
-                    _validateStringLength(totalLen);
+                    _streamReadConstraints.validateStringLengthLong(totalLen);
                 }
             }
 
@@ -2337,7 +2337,7 @@ public class ReaderBasedJsonParser
                     outPtr = 0;
                     // Check constraints at input buffer boundary
                     if (totalLen > maxStringLen) {
-                        _validateStringLength(totalLen);
+                        _streamReadConstraints.validateStringLengthLong(totalLen);
                     }
                 }
                 _inputPtr = inPtr;
@@ -2377,18 +2377,11 @@ public class ReaderBasedJsonParser
             totalLen += outPtr;
             // Validate final string length
             if (totalLen > maxStringLen) {
-                _validateStringLength(totalLen);
+                _streamReadConstraints.validateStringLengthLong(totalLen);
             }
         }
         _textBuffer.resetWithEmpty();
         return totalLen;
-    }
-
-    // Helper method to validate string length with overflow protection
-    private void _validateStringLength(long count) throws JacksonException {
-        // Protect against integer overflow when casting to int
-        int len = (int) Math.min(count, Integer.MAX_VALUE);
-        _streamReadConstraints.validateStringLength(len);
     }
 
     /*

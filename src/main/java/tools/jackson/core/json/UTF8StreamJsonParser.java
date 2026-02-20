@@ -3170,7 +3170,7 @@ public class UTF8StreamJsonParser
                     }
                     // Check constraints at input buffer boundary
                     if (totalCount > maxStringLen) {
-                        _validateStringLength(totalCount);
+                        _streamReadConstraints.validateStringLengthLong(totalCount);
                     }
                     _loadMoreGuaranteed();
                     ptr = _inputPtr;
@@ -3188,7 +3188,7 @@ public class UTF8StreamJsonParser
                         totalCount += outPtr;
                         // Check constraints only at flush boundaries
                         if (totalCount > maxStringLen) {
-                            _validateStringLength(totalCount);
+                            _streamReadConstraints.validateStringLengthLong(totalCount);
                         }
                         outPtr = 0;
                     }
@@ -3207,7 +3207,7 @@ public class UTF8StreamJsonParser
                 writer.write(outBuf, 0, outPtr);
                 totalCount += outPtr;
                 if (totalCount > maxStringLen) {
-                    _validateStringLength(totalCount);
+                    _streamReadConstraints.validateStringLengthLong(totalCount);
                 }
                 outPtr = 0;
             }
@@ -3245,18 +3245,11 @@ public class UTF8StreamJsonParser
 
         // Validate final string length
         if (totalCount > maxStringLen) {
-            _validateStringLength(totalCount);
+            _streamReadConstraints.validateStringLengthLong(totalCount);
         }
 
         _textBuffer.resetWithEmpty();
         return totalCount;
-    }
-
-    // Helper method to validate string length with overflow protection
-    private void _validateStringLength(long count) throws JacksonException {
-        // Protect against integer overflow when casting to int
-        int len = (int) Math.min(count, Integer.MAX_VALUE);
-        _streamReadConstraints.validateStringLength(len);
     }
 
     /**

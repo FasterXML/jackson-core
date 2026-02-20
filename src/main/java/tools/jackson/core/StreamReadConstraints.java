@@ -226,6 +226,9 @@ public class StreamReadConstraints
          *<p>
          * NOTE: Jackson 2.15.0 initially used a lower setting ({@code 5,000,000}); and versions
          * up to 3.0 {@code 20,000,000}.
+         * Jackson 3.1 further raised this to {@code 100,000,000}.
+         *<p>
+         * NOTE: Setting this to {@link Integer#MAX_VALUE} effectively <b>DISABLES</b> limit.
          *
          * @param maxStringLen the maximum string length (in chars or bytes, depending on input context)
          *
@@ -568,6 +571,27 @@ public class StreamReadConstraints
     public void validateStringLength(int length) throws StreamConstraintsException
     {
         if (length > _maxStringLen) {
+            throw _constructException(
+                    "String value length (%d) exceeds the maximum allowed (%d, from %s)",
+                    length, _maxStringLen,
+                    _constrainRef("getMaxStringLength"));
+        }
+    }
+
+    /**
+     * Variant of {@link #validateStringLength} but takes {@code long} instead
+     * {@code int}.
+     *<p>
+     * NOTE: value of {@link Integer#MAX_VALUE} is considered special value
+     * meaning "no limit".
+     *
+     * @param length Length to validate against limit
+     *
+     * @throws StreamConstraintsException
+     */
+    public void validateStringLengthLong(long length) throws StreamConstraintsException
+    {
+        if (length > _maxStringLen && _maxStringLen != Integer.MAX_VALUE) {
             throw _constructException(
                     "String value length (%d) exceeds the maximum allowed (%d, from %s)",
                     length, _maxStringLen,

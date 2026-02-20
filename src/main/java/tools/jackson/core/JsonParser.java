@@ -919,7 +919,7 @@ public abstract class JsonParser
      * NOTE: This method is primarily intended for very large JSON string values (megabytes
      * or larger) where full buffering would be prohibitive. For typical string sizes, prefer
      * {@link #getString()} or {@link #getString(Writer)} which provide more convenient access.
-     * The implementation uses a 512-character intermediate buffer for efficient bulk writes
+     * The implementation uses an intermediate buffer for efficient bulk writes
      * to the Writer.
      *<p>
      * NOTE: This method <b>does</b> enforce

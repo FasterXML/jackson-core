@@ -2301,15 +2301,17 @@ public class ReaderBasedJsonParser
         }
     }
 
-    private long _streamString(Writer writer) throws JacksonException, IOException
+    // @since 3.1
+    private long _streamString(Writer writer)
+        throws IOException, JacksonException
     {
         _tokenIncomplete = false;
 
-        long totalCount = 0;
+        long totalLen = 0;
         int inPtr = _inputPtr;
         int inLen = _inputEnd;
         char[] inBuf = _inputBuffer;
-        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
+        final long maxStringLen = _streamReadConstraints.getMaxStringLength();
 
         // Intermediate buffer for bulk writes to improve performance
         char[] outBuf = new char[512];
@@ -2319,24 +2321,24 @@ public class ReaderBasedJsonParser
             // Flush intermediate buffer when full
             if (outPtr >= outBuf.length) {
                 writer.write(outBuf, 0, outPtr);
-                totalCount += outPtr;
-                // Check constraints only at flush boundaries
-                if (totalCount > maxStringLen) {
-                    _validateStringLength(totalCount);
-                }
+                totalLen += outPtr;
                 outPtr = 0;
+                // Check constraints only at flush boundaries
+                if (totalLen > maxStringLen) {
+                    _validateStringLength(totalLen);
+                }
             }
 
             if (inPtr >= inLen) {
                 // Flush intermediate buffer before loading more
                 if (outPtr > 0) {
                     writer.write(outBuf, 0, outPtr);
-                    totalCount += outPtr;
+                    totalLen += outPtr;
                     outPtr = 0;
-                }
-                // Check constraints at input buffer boundary
-                if (totalCount > maxStringLen) {
-                    _validateStringLength(totalCount);
+                    // Check constraints at input buffer boundary
+                    if (totalLen > maxStringLen) {
+                        _validateStringLength(totalLen);
+                    }
                 }
                 _inputPtr = inPtr;
                 if (!_loadMore()) {
@@ -2369,19 +2371,17 @@ public class ReaderBasedJsonParser
             outBuf[outPtr++] = c;
         }
 
-    // Final flush of remaining characters
+        // Final flush of remaining characters
         if (outPtr > 0) {
             writer.write(outBuf, 0, outPtr);
-            totalCount += outPtr;
+            totalLen += outPtr;
+            // Validate final string length
+            if (totalLen > maxStringLen) {
+                _validateStringLength(totalLen);
+            }
         }
-
-        // Validate final string length
-        if (totalCount > maxStringLen) {
-            _validateStringLength(totalCount);
-        }
-
         _textBuffer.resetWithEmpty();
-        return totalCount;
+        return totalLen;
     }
 
     // Helper method to validate string length with overflow protection

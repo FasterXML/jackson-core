@@ -450,8 +450,7 @@ public abstract class NonBlockingJsonParserBase
     public long readString(Writer writer) throws JacksonException
     {
         throw new UnsupportedOperationException(
-            "readString(Writer) not supported for non-blocking parsers: " +
-            "content availability is unpredictable");
+"`readString(Writer)` not supported for non-blocking parsers: content availability is unpredictable and `java.io.Writer` itself blocking");
     }
 
     // // // Let's override default impls for improved performance

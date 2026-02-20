@@ -903,8 +903,12 @@ public abstract class JsonParser
      *<pre>
      *  writer.write(parser.getString());
      *</pre>
-     * but streams the decoded content directly without storing it in {@link TextBuffer},
+     * but tries to stream the decoded content directly without storing it in {@link TextBuffer},
      * making it suitable for arbitrarily large strings without memory constraints.
+     *<p>
+     * NOTE: whether streaming happens depends on format-specific implementation of
+     * this method -- the default implementation delegates to
+     * {@link #getString(Writer)} which does not stream content.
      *<p>
      * NOTE: This method <b>consumes</b> the contents of the {@link JsonToken#VALUE_STRING}
      * token, advancing the parser state so that the underlying String value is <b>no longer
@@ -919,7 +923,7 @@ public abstract class JsonParser
      * to the Writer.
      *<p>
      * NOTE: This method <b>does</b> enforce
-     * {@link tools.jackson.core.StreamReadConstraints#maxStringLength()} validation during
+     * {@link tools.jackson.core.StreamReadConstraints#getMaxStringLength()} validation during
      * streaming, checking the string length at buffer boundaries and at completion. Strings
      * exceeding the configured limit will result in a {@link tools.jackson.core.exc.StreamConstraintsException}.
      *<p>
@@ -935,11 +939,14 @@ public abstract class JsonParser
      * @throws JacksonIOException for low-level read issues, or failed write using {@link Writer}
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      * @throws tools.jackson.core.exc.StreamConstraintsException if string length exceeds
-     *         {@link tools.jackson.core.StreamReadConstraints#maxStringLength()}
+     *         {@link tools.jackson.core.StreamReadConstraints#getMaxStringLength()}
      *
      * @since 3.1
      */
-    public abstract long readString(Writer writer) throws JacksonException;
+    public long readString(Writer writer) throws JacksonException {
+        // Default implementation simply buffers it all
+        return getString(writer);
+    }
 
     /**
      * Method similar to {@link #getString()}, but that will return

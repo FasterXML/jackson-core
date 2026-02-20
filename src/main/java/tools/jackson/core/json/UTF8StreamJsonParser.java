@@ -326,8 +326,7 @@ public class UTF8StreamJsonParser
     @Override
     public long readString(Writer writer) throws JacksonException
     {
-        JsonToken t = _currToken;
-        if (t == JsonToken.VALUE_STRING) {
+        if (_currToken == JsonToken.VALUE_STRING) {
             try {
                 if (_tokenIncomplete) {
                     return _streamString(writer);

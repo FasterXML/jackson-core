@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests for {@link JsonParser#readString(Writer)} streaming functionality
  * (added for [core#1288]).
+ *
+ * @since 3.1
  */
 class ReadStringStreamingTest extends JacksonCoreTestBase
 {
@@ -26,9 +28,9 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     private static final int OUT_BUF_SIZE = 1024;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Empty and trivial strings
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -64,22 +66,20 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
 
     private void _testSingleCharString(int mode) throws Exception
     {
-        JsonParser p = createParser(JSON_FACTORY, mode, "[\"x\"]");
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-
-        Writer w = new StringWriter();
-        long len = p.readString(w);
-        assertEquals(1L, len);
-        assertEquals("x", w.toString());
-
-        p.close();
+        try (JsonParser p = createParser(JSON_FACTORY, mode, "[\"x\"]")) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+    
+            Writer w = new StringWriter();
+            assertEquals(1L, p.readString(w));
+            assertEquals("x", w.toString());
+        }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Escape sequences
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -96,16 +96,15 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String json = "[\"\\\"  \\\\  \\/  \\b  \\f  \\n  \\r  \\t\"]";
         String expected = "\"  \\  /  \b  \f  \n  \r  \t";
 
-        JsonParser p = createParser(JSON_FACTORY, mode, json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-
-        Writer w = new StringWriter();
-        long len = p.readString(w);
-        assertEquals(expected, w.toString());
-        assertEquals((long) expected.length(), len);
-
-        p.close();
+        try (JsonParser p = createParser(JSON_FACTORY, mode, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        
+            Writer w = new StringWriter();
+            long len = p.readString(w);
+            assertEquals(expected, w.toString());
+            assertEquals((long) expected.length(), len);
+        }
     }
 
     @Test
@@ -122,16 +121,15 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String json = "[\"caf\\u00e9 \\u4e2d \\u0000\"]";
         String expected = "caf\u00e9 \u4e2d \u0000";
 
-        JsonParser p = createParser(JSON_FACTORY, mode, json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-
-        Writer w = new StringWriter();
-        long len = p.readString(w);
-        assertEquals(expected, w.toString());
-        assertEquals((long) expected.length(), len);
-
-        p.close();
+        try (JsonParser p = createParser(JSON_FACTORY, mode, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+    
+            Writer w = new StringWriter();
+            long len = p.readString(w);
+            assertEquals(expected, w.toString());
+            assertEquals((long) expected.length(), len);
+        }
     }
 
     @Test
@@ -151,22 +149,21 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String json = "[\"" + prefix + "\\n\"]";
         String expected = prefix + "\n";
 
-        JsonParser p = createParser(JSON_FACTORY, mode, json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-
-        Writer w = new StringWriter();
-        long len = p.readString(w);
-        assertEquals(expected, w.toString());
-        assertEquals((long) expected.length(), len);
-
-        p.close();
+        try (JsonParser p = createParser(JSON_FACTORY, mode, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+    
+            Writer w = new StringWriter();
+            long len = p.readString(w);
+            assertEquals(expected, w.toString());
+            assertEquals((long) expected.length(), len);
+        }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Multi-byte UTF-8 (exercises binary-parser code paths)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -230,9 +227,9 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output-buffer boundary sizes
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -279,9 +276,9 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Constraint enforcement at boundaries
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -368,9 +365,9 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other token types
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -463,9 +460,9 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Consuming semantics and sequential calls
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -528,9 +525,9 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Mixed content (ASCII + escapes + multi-byte)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -589,9 +586,9 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Throttled (input buffer boundary) mode
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Test
@@ -603,16 +600,15 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String expected = "\n\t\r\"\\\u00e9";
 
         // Use throttled stream mode (reads 1 byte at a time)
-        JsonParser p = createParser(JSON_FACTORY, MODE_INPUT_STREAM_THROTTLED, json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-
-        Writer w = new StringWriter();
-        long len = p.readString(w);
-        assertEquals(expected, w.toString());
-        assertEquals((long) expected.length(), len);
-
-        p.close();
+        try (JsonParser p = createParser(JSON_FACTORY, MODE_INPUT_STREAM_THROTTLED, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+    
+            Writer w = new StringWriter();
+            long len = p.readString(w);
+            assertEquals(expected, w.toString());
+            assertEquals((long) expected.length(), len);
+        }
     }
 
     @Test
@@ -622,15 +618,14 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String value = "abcdefghij".repeat(200); // 2000 chars
         String json = "[" + q(value) + "]";
 
-        JsonParser p = createParser(JSON_FACTORY, MODE_INPUT_STREAM_THROTTLED, json);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-
-        Writer w = new StringWriter();
-        long len = p.readString(w);
-        assertEquals(value, w.toString());
-        assertEquals(2000L, len);
-
-        p.close();
+        try (JsonParser p = createParser(JSON_FACTORY, MODE_INPUT_STREAM_THROTTLED, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+    
+            Writer w = new StringWriter();
+            long len = p.readString(w);
+            assertEquals(value, w.toString());
+            assertEquals(2000L, len);
+        }
     }
 }

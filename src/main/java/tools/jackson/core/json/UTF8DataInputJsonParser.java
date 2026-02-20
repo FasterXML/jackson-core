@@ -2219,27 +2219,17 @@ public class UTF8DataInputJsonParser
                 if (outPtr >= outBuf.length) {
                     writer.write(outBuf, 0, outPtr);
                     totalCount += outPtr;
+                    outPtr = 0;
                     // Check constraints only at flush boundaries
                     if (totalCount > maxStringLen) {
                         _validateStringLength(totalCount);
                     }
-                    outPtr = 0;
                 }
                 // Accumulate character in intermediate buffer
                 outBuf[outPtr++] = (char) c;
             }
             if (c == INT_QUOTE) {
                 break main_loop;
-            }
-
-            // Flush intermediate buffer when full before writing multi-byte chars
-            if (outPtr >= outBuf.length - 1) { // -1 to ensure space for surrogate pairs
-                writer.write(outBuf, 0, outPtr);
-                totalCount += outPtr;
-                if (totalCount > maxStringLen) {
-                    _validateStringLength(totalCount);
-                }
-                outPtr = 0;
             }
 
             switch (codes[c]) {
@@ -2255,6 +2245,15 @@ public class UTF8DataInputJsonParser
             case 4: {
                 int ch = _decodeUtf8_4(c);
                 outBuf[outPtr++] = (char) (0xD800 | (ch >> 10));
+                // Flush intermediate buffer when full before writing multi-byte chars
+                if (outPtr >= outBuf.length) {
+                    writer.write(outBuf, 0, outPtr);
+                    totalCount += outPtr;
+                    outPtr = 0;
+                    if (totalCount > maxStringLen) {
+                        _validateStringLength(totalCount);
+                    }
+                }
                 outBuf[outPtr++] = (char) (0xDC00 | (ch & 0x3FF));
                 break;
             }
@@ -2271,11 +2270,10 @@ public class UTF8DataInputJsonParser
         if (outPtr > 0) {
             writer.write(outBuf, 0, outPtr);
             totalCount += outPtr;
-        }
-
-        // Validate final string length
-        if (totalCount > maxStringLen) {
-            _validateStringLength(totalCount);
+            // Validate final string length
+            if (totalCount > maxStringLen) {
+                _validateStringLength(totalCount);
+            }
         }
 
         _textBuffer.resetWithEmpty();

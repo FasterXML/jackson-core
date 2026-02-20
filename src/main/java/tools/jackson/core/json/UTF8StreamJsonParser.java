@@ -3140,7 +3140,8 @@ public class UTF8StreamJsonParser
         }
     }
 
-    private long _streamString(Writer writer) throws IOException, JacksonException 
+    // @since 3.1
+    private long _streamString(Writer writer) throws IOException, JacksonException
     {
         _tokenIncomplete = false;
 

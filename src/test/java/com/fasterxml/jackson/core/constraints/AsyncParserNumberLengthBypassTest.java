@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.JsonFactory;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -41,7 +42,7 @@ class AsyncParserNumberLengthBypassTest {
             }
             fail("Async parser must reject a " + TEST_NUMBER_LENGTH + "-digit number");
         } catch (StreamConstraintsException e) {
-            // expected
+            assertThat(e.getMessage()).contains("Number value length");
         }
         p.close();
     }
@@ -67,7 +68,33 @@ class AsyncParserNumberLengthBypassTest {
             }
             fail("Async parser must reject a " + TEST_NUMBER_LENGTH + "-digit number");
         } catch (StreamConstraintsException e) {
-            // expected
+            assertThat(e.getMessage()).contains("Number value length");
+        }
+        p.close();
+    }
+
+    @Test
+    void asyncParserAcceptsLongExponent() throws Exception {
+        byte[] payload = buildPayloadWithLongExponent(TEST_NUMBER_LENGTH);
+
+        JsonParser p = factory.createNonBlockingByteArrayParser();
+        ByteArrayFeeder byteArrayFeeder = (ByteArrayFeeder) p;
+        byteArrayFeeder.feedInput(payload, 0, payload.length);
+        byteArrayFeeder.endOfInput();
+
+        boolean foundNumber = false;
+        try {
+            while (p.nextToken() != null) {
+                if (p.currentToken() == JsonToken.VALUE_NUMBER_FLOAT) {
+                    foundNumber = true;
+                    String numberText = p.getText();
+                    assertEquals(TEST_NUMBER_LENGTH, numberText.length(),
+                            "Async parser silently accepted all " + TEST_NUMBER_LENGTH + " digits");
+                }
+            }
+            fail("Async parser must reject a " + TEST_NUMBER_LENGTH + "-digit number");
+        } catch (StreamConstraintsException e) {
+            assertThat(e.getMessage()).contains("Number value length");
         }
         p.close();
     }
@@ -92,4 +119,13 @@ class AsyncParserNumberLengthBypassTest {
         return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 
+    private byte[] buildPayloadWithLongExponent(int numDigits) {
+        StringBuilder sb = new StringBuilder(numDigits + 10);
+        sb.append("{\"v\":1.1E");
+        for (int i = 0; i < numDigits; i++) {
+            sb.append((char) ('1' + (i % 9)));
+        }
+        sb.append('}');
+        return sb.toString().getBytes(StandardCharsets.UTF_8);
+    }
 }

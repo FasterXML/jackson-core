@@ -20,6 +20,9 @@ a pure JSON library.
  (reported by @ventusfortis)
 #1548: `StreamReadConstraints.maxDocumentLength` not checked when
   creating parser with fixed buffer
+#1555: Enforce `StreamReadConstraints.maxNumberLength` for
+  non-blocking (async) parser
+ (fix by @pjfanning)
 
 2.18.5 (27-Oct-2025)
  (same as 2.18.4.1 on 10-June-2025)

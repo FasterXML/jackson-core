@@ -69,6 +69,17 @@ public abstract class JsonParserBase
      */
     protected boolean _nameCopied;
 
+    /**
+     * Lazily-allocated intermediate buffer used by {@code _streamString()}
+     * implementations to batch writes to the target {@link java.io.Writer}.
+     * Allocated on first call and reused on subsequent calls to avoid
+     * repeated allocation for parsers that call {@code readString(Writer)}
+     * multiple times.
+     *
+     * @since 3.1
+     */
+    private char[] _streamStringBuffer;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -76,7 +87,8 @@ public abstract class JsonParserBase
      */
 
     protected JsonParserBase(ObjectReadContext readCtxt,
-            IOContext ctxt, int streamReadFeatures, int formatReadFeatures) {
+            IOContext ctxt, int streamReadFeatures, int formatReadFeatures)
+    {
         super(readCtxt, ctxt, streamReadFeatures);
         _formatReadFeatures = formatReadFeatures;
         DupDetector dups = StreamReadFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamReadFeatures)
@@ -339,6 +351,21 @@ public abstract class JsonParserBase
         return _nameCopyBuffer;
     }
 
+    /**
+     * Returns the lazily-allocated intermediate buffer used by
+     * {@code _streamString()} to batch-write decoded characters to a
+     * {@link java.io.Writer}. The same buffer is reused across calls.
+     *
+     * @since 3.1
+     */
+    protected char[] _bufferForStringStreaming() {
+        char[] buf = _streamStringBuffer;
+        if (buf == null) {
+            _streamStringBuffer = buf = new char[1024];
+        }
+        return buf;
+    }
+    
     /*
     /**********************************************************************
     /* Internal/package methods: Error reporting

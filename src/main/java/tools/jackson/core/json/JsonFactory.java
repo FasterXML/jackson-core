@@ -422,6 +422,8 @@ public class JsonFactory
             boolean recyclable) throws JacksonException
     {
         _checkRangeBoundsForCharArray(data, offset, len);
+        // [core#1548] Validate doc length up front for fixed buffers
+        _streamReadConstraints.validateDocumentLength(len);
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
                 readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
@@ -436,6 +438,8 @@ public class JsonFactory
         throws JacksonException
     {
         _checkRangeBoundsForByteArray(data, offset, len);
+        // [core#1548] Validate doc length up front for fixed buffers
+        _streamReadConstraints.validateDocumentLength(len);
         return new ByteSourceJsonBootstrapper(ioCtxt, data, offset, len)
                 .constructParser(readCtxt,
                         readCtxt.getStreamReadFeatures(_streamReadFeatures),

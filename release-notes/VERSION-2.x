@@ -14,6 +14,14 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.21.1 (22-Feb-2026)
+
+#1548: `StreamReadConstraints.maxDocumentLength` not checked when
+  creating parser with fixed buffer
+#1555: Enforce `StreamReadConstraints.maxNumberLength` for
+  non-blocking (async) parser
+ (fix by @pjfanning)
+
 2.21.0 (18-Jan-2026)
 
 #363: UTF-8 decoding should fail on Surrogate characters (0xD800 - 0xDFFF)
@@ -35,6 +43,10 @@ a pure JSON library.
 #1512: Number-parsing fix for `UTF8DataInputJsonParser`
  (reported by @ventusfortis)
 - Add shading for FastDoubleParser JDK 23 class overrides
+
+2.20.2 (19-Jan-2026)
+
+No changes since 2.20.1
 
 2.20.1 (30-Oct-2025)
 
@@ -93,10 +105,15 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
-(not yet released)
+2.18.6 (22-Feb-2026)
 
 #1512: Number-parsing fix for `UTF8DataInputJsonParser`
  (reported by @ventusfortis)
+#1548: `StreamReadConstraints.maxDocumentLength` not checked when
+  creating parser with fixed buffer
+#1555: Enforce `StreamReadConstraints.maxNumberLength` for
+  non-blocking (async) parser
+ (fix by @pjfanning)
 
 2.18.5 (27-Oct-2025)
  (same as 2.18.4.1 on 10-June-2025)

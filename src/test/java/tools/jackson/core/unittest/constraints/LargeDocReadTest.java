@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
@@ -54,6 +55,14 @@ class LargeDocReadTest extends AsyncTestBase
         } catch (StreamConstraintsException e) {
             verifyMaxDocLen(JSON_F_DOC_10K, e);
         }
+        // [core#1548] validate for fixed buffer too
+        try (JsonParser p = JSON_F_DOC_10K.createParser(ObjectReadContext.empty(),
+                utf8Bytes(doc))) {
+            consumeTokens(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
     }
 
     @Test
@@ -61,6 +70,14 @@ class LargeDocReadTest extends AsyncTestBase
     {
         final String doc = generateJSON(12_000);
         try (JsonParser p = createParserUsingReader(JSON_F_DOC_10K, doc)) {
+            consumeTokens(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
+        // [core#1548] validate for fixed buffer too
+        try (JsonParser p = JSON_F_DOC_10K.createParser(ObjectReadContext.empty(),
+                doc.toCharArray())) {
             consumeTokens(p);
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {

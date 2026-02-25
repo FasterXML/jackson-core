@@ -47,7 +47,7 @@ public class ReaderBasedJsonParser
     protected char[] _inputBuffer;
 
     /**
-     * Flag that indicates whether the input buffer is recycable (and
+     * Flag that indicates whether the input buffer is recyclable (and
      * needs to be returned to recycler once we are done) or not.
      *<p>
      * If it is not, it also means that parser CANNOT modify underlying
@@ -336,6 +336,24 @@ public class ReaderBasedJsonParser
             throw _wrapIOFailure(e);
         }
         return 0;
+    }
+
+    @Override
+    public long readString(Writer writer) throws JacksonException
+    {
+        if (_currToken == JsonToken.VALUE_STRING) {
+            try {
+                if (_tokenIncomplete) {
+                    return _streamString(writer);
+                }
+                long len = _textBuffer.contentsToWriter(writer);
+                _textBuffer.resetWithEmpty();
+                return len;
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
+        }
+        return getString(writer);
     }
 
     // // // Let's override default impls for improved performance
@@ -1262,9 +1280,9 @@ public class ReaderBasedJsonParser
                 return getLongValue();
             }
             if (t == JsonToken.START_ARRAY) {
-                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return defaultValue;
         }
@@ -2266,6 +2284,89 @@ public class ReaderBasedJsonParser
                 }
             }
         }
+    }
+
+    // @since 3.1
+    private long _streamString(Writer writer)
+        throws IOException, JacksonException
+    {
+        _tokenIncomplete = false;
+
+        long totalLen = 0;
+        int inPtr = _inputPtr;
+        int inLen = _inputEnd;
+        char[] inBuf = _inputBuffer;
+        final long maxStringLen = _streamReadConstraints.getMaxStringLength();
+
+        // Intermediate buffer for bulk writes to improve performance (reused across calls)
+        char[] outBuf = _bufferForStringStreaming();
+        int outPtr = 0;
+
+        while (true) {
+            // Flush intermediate buffer when full
+            if (outPtr >= outBuf.length) {
+                writer.write(outBuf, 0, outPtr);
+                totalLen += outPtr;
+                outPtr = 0;
+                // Check constraints only at flush boundaries
+                if (totalLen > maxStringLen) {
+                    _streamReadConstraints.validateStringLengthLong(totalLen);
+                }
+            }
+
+            if (inPtr >= inLen) {
+                // Flush intermediate buffer before loading more
+                if (outPtr > 0) {
+                    writer.write(outBuf, 0, outPtr);
+                    totalLen += outPtr;
+                    outPtr = 0;
+                    // Check constraints at input buffer boundary
+                    if (totalLen > maxStringLen) {
+                        _streamReadConstraints.validateStringLengthLong(totalLen);
+                    }
+                }
+                _inputPtr = inPtr;
+                if (!_loadMore()) {
+                    _reportInvalidEOF(": was expecting closing quote for a string value",
+                            JsonToken.VALUE_STRING);
+                }
+                inPtr = _inputPtr;
+                inLen = _inputEnd;
+            }
+            char c = inBuf[inPtr++];
+            int i = c;
+            if (i <= INT_BACKSLASH) {
+                if (i == INT_BACKSLASH) {
+                    _inputPtr = inPtr;
+                    c = _decodeEscaped();
+                    inPtr = _inputPtr;
+                    inLen = _inputEnd;
+                } else if (i <= INT_QUOTE) {
+                    if (i == INT_QUOTE) {
+                        _inputPtr = inPtr;
+                        break;
+                    }
+                    if (i < INT_SPACE) {
+                        _inputPtr = inPtr;
+                        _throwUnquotedSpace(i, "string value");
+                    }
+                }
+            }
+            // Accumulate character in intermediate buffer
+            outBuf[outPtr++] = c;
+        }
+
+        // Final flush of remaining characters
+        if (outPtr > 0) {
+            writer.write(outBuf, 0, outPtr);
+            totalLen += outPtr;
+            // Validate final string length
+            if (totalLen > maxStringLen) {
+                _streamReadConstraints.validateStringLengthLong(totalLen);
+            }
+        }
+        _textBuffer.resetWithEmpty();
+        return totalLen;
     }
 
     /*

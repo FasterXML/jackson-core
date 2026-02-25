@@ -18,11 +18,18 @@ JSON library.
 
 #1545: Increase Android baseline from 26 to 34 in Jackson 3.2
 
-3.1.0-rc1 (27-Jan-2026)
+3.2.0 (not yet released)
+
+No changes since 3.1
+
+3.1.0 (23-Feb-2026)
 
 #784: Optional leading plus sign not included in textual value of any
   integral nor all floating-point numbers
  (fix by @cowtowncoder, w/ Claude code)
+#1288: Add new method `JsonParser.readString(Writer)` (and implementation)
+  for truly non-buffering reads
+ (contributed by @sri-adarsh-kumar)
 #1506: Non-blocking parser parses numbers eagerly; does not report error
   with missing space
  (fix by @cowtowncoder, w/ Claude code)
@@ -35,6 +42,13 @@ JSON library.
 #1538: Increase default `StreamReadConstraints.maxStringLength` to 100M (from 20M)
 #1541: Unexpected Illegal surrogate character when parsing field names
  (reported by Afzal N)
+#1548: `StreamReadConstraints.maxDocumentLength` not checked when
+  creating parser with fixed buffer
+#1553: Max Depth validation not working for `DataInput`-backed `JsonParser`s
+  in 3.0
+#1555: Enforce `StreamReadConstraints.maxNumberLength` for
+  non-blocking (async) parser
+ (fix by @pjfanning)
 - Updated `JsonGenerator.writeNumber(String)` javadocs with more specific info
   on handling by generators that cannot support the method.
 

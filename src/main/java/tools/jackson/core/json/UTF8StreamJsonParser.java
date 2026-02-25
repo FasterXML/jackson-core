@@ -323,6 +323,24 @@ public class UTF8StreamJsonParser
         return 0;
     }
 
+    @Override
+    public long readString(Writer writer) throws JacksonException
+    {
+        if (_currToken == JsonToken.VALUE_STRING) {
+            try {
+                if (_tokenIncomplete) {
+                    return _streamString(writer);
+                }
+                long len = _textBuffer.contentsToWriter(writer);
+                _textBuffer.resetWithEmpty();
+                return len;
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
+        }
+        return getString(writer);
+    }
+
     // // // Let's override default impls for improved performance
 
     @Override
@@ -3106,6 +3124,117 @@ public class UTF8StreamJsonParser
                 }
             }
         }
+    }
+
+    // @since 3.1
+    private long _streamString(Writer writer) throws IOException, JacksonException
+    {
+        _tokenIncomplete = false;
+
+        long totalLen = 0;
+        final int[] codes = _icUTF8;
+        final byte[] inputBuffer = _inputBuffer;
+        final long maxStringLen = _streamReadConstraints.getMaxStringLength();
+
+        // Intermediate buffer for bulk writes to improve performance (reused across calls)
+        char[] outBuf = _bufferForStringStreaming();
+        int outPtr = 0;
+
+        main_loop:
+        while (true) {
+            int c;
+
+            ascii_loop:
+            while (true) {
+                int ptr = _inputPtr;
+                int max = _inputEnd;
+                if (ptr >= max) {
+                    // Flush intermediate buffer before loading more
+                    if (outPtr > 0) {
+                        writer.write(outBuf, 0, outPtr);
+                        totalLen += outPtr;
+                        outPtr = 0;
+                    }
+                    // Check constraints at input buffer boundary
+                    if (totalLen > maxStringLen) {
+                        _streamReadConstraints.validateStringLengthLong(totalLen);
+                    }
+                    _loadMoreGuaranteed();
+                    ptr = _inputPtr;
+                    max = _inputEnd;
+                }
+                while (ptr < max) {
+                    c = inputBuffer[ptr++] & 0xFF;
+                    if (codes[c] != 0) {
+                        _inputPtr = ptr;
+                        break ascii_loop;
+                    }
+                    // Flush intermediate buffer when full
+                    if (outPtr >= outBuf.length) {
+                        writer.write(outBuf, 0, outPtr);
+                        totalLen += outPtr;
+                        // Check constraints only at flush boundaries
+                        if (totalLen > maxStringLen) {
+                            _streamReadConstraints.validateStringLengthLong(totalLen);
+                        }
+                        outPtr = 0;
+                    }
+                    // Accumulate character in intermediate buffer
+                    outBuf[outPtr++] = (char) c;
+                }
+                _inputPtr = ptr;
+            }
+
+            if (c == INT_QUOTE) {
+                break main_loop;
+            }
+
+            switch (codes[c]) {
+            case 1:
+                outBuf[outPtr++] = _decodeEscaped();
+                break;
+            case 2:
+                outBuf[outPtr++] = (char) _decodeUtf8_2(c);
+                break;
+            case 3:
+                outBuf[outPtr++] = (char) _decodeUtf8_3(c);
+                break;
+            case 4: {
+                int ch = _decodeUtf8_4(c);
+                outBuf[outPtr++] = (char) (0xD800 | (ch >> 10));
+                // Flush intermediate buffer when full before writing multi-byte chars
+                if (outPtr >= outBuf.length) {
+                    writer.write(outBuf, 0, outPtr);
+                    totalLen += outPtr;
+                    if (totalLen > maxStringLen) {
+                        _streamReadConstraints.validateStringLengthLong(totalLen);
+                    }
+                    outPtr = 0;
+                }
+                outBuf[outPtr++] = (char) (0xDC00 | (ch & 0x3FF));
+                break;
+            }
+            default:
+                if (c < INT_SPACE) {
+                    _throwUnquotedSpace(c, "string value");
+                } else {
+                    _reportInvalidChar(c);
+                }
+            }
+        }
+
+        // Final flush of remaining characters
+        if (outPtr > 0) {
+            writer.write(outBuf, 0, outPtr);
+            totalLen += outPtr;
+            // Validate final string length
+            if (totalLen > maxStringLen) {
+                _streamReadConstraints.validateStringLengthLong(totalLen);
+            }
+        }
+
+        _textBuffer.resetWithEmpty();
+        return totalLen;
     }
 
     /**

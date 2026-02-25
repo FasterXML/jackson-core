@@ -10,20 +10,21 @@ import tools.jackson.core.unittest.testutil.failure.JacksonTestFailureExpected;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Failing tests for non-root-token problem
-class ParserErrorHandlingChars105Test
+class ParserErrorHandlingBytes1557Test
     extends tools.jackson.core.unittest.JacksonCoreTestBase
 {
-    // Tests for [core#105] ("eager number parsing misses errors")
     @JacksonTestFailureExpected
     @Test
-    void mangledIntsChars() throws Exception {
-        _testMangledNonRootInts(MODE_READER);
+    void mangledIntsBytes() throws Exception {
+        _testMangledNonRootInts(MODE_INPUT_STREAM);
+        _testMangledNonRootInts(MODE_INPUT_STREAM_THROTTLED);
     }
 
     @JacksonTestFailureExpected
     @Test
-    void mangledFloatsChars() throws Exception {
-        _testMangledNonRootFloats(MODE_READER);
+    void mangledFloatsBytes() throws Exception {
+        _testMangledNonRootFloats(MODE_INPUT_STREAM);
+        _testMangledNonRootFloats(MODE_INPUT_STREAM_THROTTLED);
     }
 
     /*

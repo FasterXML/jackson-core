@@ -179,6 +179,7 @@ public class JsonParserDelegate extends JsonParser
     @Override public int getStringLength() throws JacksonException { return delegate.getStringLength(); }
     @Override public int getStringOffset() throws JacksonException { return delegate.getStringOffset(); }
     @Override public int getString(Writer writer) throws JacksonException { return delegate.getString(writer);  }
+    @Override public long readString(Writer writer) throws JacksonException { return delegate.readString(writer);  }
 
     /*
     /**********************************************************************

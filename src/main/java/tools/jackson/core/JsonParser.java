@@ -884,8 +884,9 @@ public abstract class JsonParser
      * other {@code getString()} calls (that is, it will not be consumed).
      * So this accessor only avoids construction of {@link java.lang.String}
      * compared to plain {@link #getString()} method.
+     * Note there is method {@link #readString(Writer)} that may avoid buffering.
      *<p>
-     * NOTE: In Jackson 2.x this method was called {@code getString(Writer)}.
+     * NOTE: In Jackson 2.x this method was called {@code getText(Writer)}.
      *
      * @param writer Writer to write String value to
      *
@@ -895,6 +896,58 @@ public abstract class JsonParser
      * @throws tools.jackson.core.exc.StreamReadException for decoding problems
      */
     public abstract int getString(Writer writer) throws JacksonException;
+
+    /**
+     * Method to read the textual representation of the current {@link JsonToken#VALUE_STRING}
+     * token in chunks and stream it directly to the given Writer, without buffering the entire
+     * String value in memory. Functionally same as calling:
+     *<pre>
+     *  writer.write(parser.getString());
+     *</pre>
+     * but tries to stream the decoded content directly without storing it in {@link TextBuffer},
+     * making it suitable for arbitrarily large strings without memory constraints.
+     *<p>
+     * NOTE: whether streaming happens depends on format-specific implementation of
+     * this method -- the default implementation delegates to
+     * {@link #getString(Writer)} which does not stream content.
+     *<p>
+     * NOTE: This method <b>consumes</b> the contents of the {@link JsonToken#VALUE_STRING}
+     * token, advancing the parser state so that the underlying String value is <b>no longer
+     * available</b> via {@link #getString()} or other {@code getString*} accessors after
+     * this method completes. This differs from {@link #getString(Writer)} which preserves
+     * the buffered string for subsequent access.
+     *<p>
+     * NOTE: This method is primarily intended for very large JSON string values (megabytes
+     * or larger) where full buffering would be prohibitive. For typical string sizes, prefer
+     * {@link #getString()} or {@link #getString(Writer)} which provide more convenient access.
+     * The implementation uses an intermediate buffer for efficient bulk writes
+     * to the Writer.
+     *<p>
+     * NOTE: This method <b>does</b> enforce
+     * {@link tools.jackson.core.StreamReadConstraints#getMaxStringLength()} validation during
+     * streaming, checking the string length at buffer boundaries and at completion. Strings
+     * exceeding the configured limit will result in a {@link tools.jackson.core.exc.StreamConstraintsException}.
+     *<p>
+     * NOTE: This method is <b>NOT supported</b> by non-blocking (async) parsers and will
+     * throw {@link UnsupportedOperationException} if called on such parsers, since content
+     * availability is unpredictable in asynchronous parsing mode.
+     *
+     * @param writer Writer to stream the String value to
+     *
+     * @return The number of characters written to the Writer (as {@code long} to support
+     *         strings exceeding {@code Integer.MAX_VALUE})
+     *
+     * @throws JacksonIOException for low-level read issues, or failed write using {@link Writer}
+     * @throws tools.jackson.core.exc.StreamReadException for decoding problems
+     * @throws tools.jackson.core.exc.StreamConstraintsException if string length exceeds
+     *         {@link tools.jackson.core.StreamReadConstraints#getMaxStringLength()}
+     *
+     * @since 3.1
+     */
+    public long readString(Writer writer) throws JacksonException {
+        // Default implementation simply buffers it all
+        return getString(writer);
+    }
 
     /**
      * Method similar to {@link #getString()}, but that will return

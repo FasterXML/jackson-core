@@ -13,6 +13,8 @@ import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.TokenStreamContext;
 import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.unittest.*;
@@ -574,7 +576,7 @@ class SimpleParserTest extends JacksonCoreTestBase
 
     private void _testGetTextViaWriter(int mode)
     {
-        final String INPUT_TEXT = "this is a sample text for json parsing using readText() method";
+        final String INPUT_TEXT = "this is a sample text for json parsing using readString() method";
         final String JSON = "{\"a\":\""+INPUT_TEXT+"\",\"b\":true,\"c\":null,\"d\":\"foobar!\"}";
         JsonParser parser = createParser(mode, JSON);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
@@ -635,6 +637,124 @@ class SimpleParserTest extends JacksonCoreTestBase
         String resultString = writer.toString();
         assertEquals(len, resultString.length());
         assertEquals(longText, resultString);
+        parser.close();
+    }
+
+    @Test
+    void readStringConsumesString() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testReadStringConsumesString(mode);
+        }
+    }
+
+    private void _testReadStringConsumesString(int mode) throws Exception
+    {
+        final String INPUT_TEXT = "this is a sample text for json parsing using readString() method";
+        final String JSON = "{\"a\":\""+INPUT_TEXT+"\",\"b\":true,\"c\":null,\"d\":\"foobar!\"}";
+        JsonParser parser = createParser(mode, JSON);
+
+        assertToken(JsonToken.START_OBJECT, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
+        assertEquals("a", parser.currentName());
+        assertToken(JsonToken.VALUE_STRING, parser.nextToken());
+
+        Writer writer = new StringWriter();
+        long len = parser.readString(writer);
+        String resultString = writer.toString();
+        assertEquals(len, resultString.length());
+        assertEquals(INPUT_TEXT, resultString);
+
+        assertEquals("", parser.getString());
+
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
+        assertEquals("b", parser.currentName());
+        assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
+        writer = new StringWriter();
+        len = parser.readString(writer);
+        assertEquals("true", writer.toString());
+        assertEquals(len, writer.toString().length());
+
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
+        assertEquals("c", parser.currentName());
+        assertToken(JsonToken.VALUE_NULL, parser.nextToken());
+        writer = new StringWriter();
+        len = parser.readString(writer);
+        assertEquals("null", writer.toString());
+        assertEquals(len, writer.toString().length());
+
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
+        assertEquals("d", parser.currentName());
+        assertToken(JsonToken.VALUE_STRING, parser.nextToken());
+        writer = new StringWriter();
+        len = parser.readString(writer);
+        assertEquals("foobar!", writer.toString());
+        assertEquals(len, writer.toString().length());
+
+        parser.close();
+    }
+
+    @Test
+    void readStringEnforcesMaxStringLength() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testReadStringEnforcesMaxStringLength(mode);
+        }
+    }
+
+    private void _testReadStringEnforcesMaxStringLength(int mode) throws Exception
+    {
+        final int maxLen = 1000;
+        final String longText = "x".repeat(100_000);
+        final String JSON = "{\"a\":\""+longText+"\"}";
+
+        JsonFactory factory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxStringLength(maxLen).build())
+                .build();
+
+        JsonParser parser = createParser(factory, mode, JSON);
+        assertToken(JsonToken.START_OBJECT, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
+        assertEquals("a", parser.currentName());
+        assertToken(JsonToken.VALUE_STRING, parser.nextToken());
+
+        Writer writer = new StringWriter();
+        StreamConstraintsException ex = assertThrows(StreamConstraintsException.class,
+                () -> parser.readString(writer));
+        assertTrue(ex.getMessage().contains("String value length"));
+        assertTrue(ex.getMessage().contains("exceeds the maximum allowed"));
+
+        parser.close();
+    }
+
+    @Test
+    void readStringWithIncreasedLimit() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testReadStringWithIncreasedLimit(mode);
+        }
+    }
+
+    private void _testReadStringWithIncreasedLimit(int mode) throws Exception
+    {
+        final String longText = "x".repeat(100_000);
+        final String JSON = "{\"a\":\""+longText+"\"}";
+
+        JsonFactory factory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxStringLength(200_000).build())
+                .build();
+
+        JsonParser parser = createParser(factory, mode, JSON);
+        assertToken(JsonToken.START_OBJECT, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
+        assertEquals("a", parser.currentName());
+        assertToken(JsonToken.VALUE_STRING, parser.nextToken());
+
+        Writer writer = new StringWriter();
+        long len = parser.readString(writer);
+        assertEquals(100_000L, len);
+        assertEquals(longText, writer.toString());
+
         parser.close();
     }
 

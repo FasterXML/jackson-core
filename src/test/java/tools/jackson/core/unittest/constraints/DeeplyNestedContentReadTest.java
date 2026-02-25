@@ -1,5 +1,6 @@
 package tools.jackson.core.unittest.constraints;
 
+import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
@@ -20,6 +21,7 @@ public class DeeplyNestedContentReadTest
 
     private final int MAX_NESTING = StreamReadConstraints.DEFAULT_MAX_DEPTH;
 
+    @Test
     public void testDeepNestingStreaming() throws Exception
     {
         // only needs to be one more
@@ -28,6 +30,15 @@ public class DeeplyNestedContentReadTest
             try (JsonParser p = createParser(JSON_F, mode, DOC)) {
                 _testDeepNesting(p);
             }
+        }
+    }
+
+    @Test
+    public void testDeepNestingDataInput() throws Exception
+    {
+        final String DOC = createDeepNestedDoc(MAX_NESTING + 1);
+        try (JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, DOC)) {
+            _testDeepNesting(p);
         }
     }
 

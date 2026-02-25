@@ -48,13 +48,7 @@
     <javac.src.version>17</javac.src.version>
     <javac.target.version>17</javac.target.version>
 
-    <!-- Baseline Android SDK compatibility:
-
-         * Jackson 3.0 compatible with Android SDK 26 and up
-      -->
-    <version.android.sdk>34</version.android.sdk>
-    <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
-    <version.plugin.animal-sniffer>1.27</version.plugin.animal-sniffer>
+    <!-- Baseline Android SDK compatibility from `jackson-base` -->
 
     <osgi.export>tools.jackson.core;version=${project.version},
 tools.jackson.core.*;version=${project.version}
@@ -369,20 +363,11 @@ tools.jackson.core.*;version=${project.version}
 
       <!-- 16-Nov-2022, tatu: [core#838] add verification of compatibility
            wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
-           To be run from CI, but manually with:
-              mvn clean package animal-sniffer:check
         -->
+      <!-- 24-Feb-2026, tatu [core#1545] Starting with 3.2, use common defaults -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>${version.plugin.animal-sniffer}</version>
-        <configuration>
-          <signature>
-            <groupId>com.toasttab.android</groupId>
-            <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
-            <version>${version.android.sdk.signature}</version>
-          </signature>
-        </configuration>
       </plugin>
     </plugins>
   </build>

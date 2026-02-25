@@ -1441,6 +1441,8 @@ public class ReaderBasedJsonParser
                 if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
                     _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
                 }
+            } else if (ch == INT_PERIOD) {
+                _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
             }
         }
         int expLen = 0;
@@ -1635,6 +1637,8 @@ public class ReaderBasedJsonParser
                 if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
                     _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
                 }
+            } else if (c == INT_PERIOD) {
+                _reportUnexpectedNumberChar(c, "Cannot parse number with more than one decimal point");
             }
         }
 

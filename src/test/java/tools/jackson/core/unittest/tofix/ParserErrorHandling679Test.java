@@ -65,7 +65,6 @@ class ParserErrorHandling679Test
 
     private void _testNonRootMangledFloats679(int mode) throws Exception {
         _testNonRootMangledFloats679(mode, "1.5x");
-        _testNonRootMangledFloats679(mode, "1.5.00");
     }
 
     private void _testNonRootMangledFloats679(int mode, String value) throws Exception

@@ -2016,6 +2016,8 @@ public class UTF8StreamJsonParser
                 if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
                     return _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
                 }
+            } else if (c == INT_PERIOD) {
+                return _reportUnexpectedNumberChar(c, "Cannot parse number with more than one decimal point");
             }
         }
 

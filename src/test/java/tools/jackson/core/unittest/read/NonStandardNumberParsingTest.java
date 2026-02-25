@@ -126,6 +126,21 @@ class NonStandardNumberParsingTest
         }
     }
 
+    // [core#679]: second decimal point must be caught inside containers too
+    @Test
+    void test2DecimalPointsInArray() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, "[ 1.5.00 ]")) {
+                assertEquals(JsonToken.START_ARRAY, p.nextToken());
+                p.nextToken();
+                fail("Should not pass");
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected character ('.'");
+                verifyException(e, "more than one decimal point");
+            }
+        }
+    }
+
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */

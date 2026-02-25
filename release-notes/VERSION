@@ -17,6 +17,8 @@ JSON library.
 
 3.2.0 (not yet released)
 
+#679: Number parsing should fail for trailing dot (period)
+ (fix by @cowtowncoder, w/ Claude code)
 #1544: Validate `read()` parameters in `MergedStream` and `UTF32Reader`
  (implemented by @pjfanning)
 #1545: Increase Android baseline from 26 to 34 in Jackson 3.2

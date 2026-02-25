@@ -1755,6 +1755,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                         if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
                             _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
                         }
+                    } else if (ch == INT_PERIOD) {
+                        _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
                     }
                     break;
                 }

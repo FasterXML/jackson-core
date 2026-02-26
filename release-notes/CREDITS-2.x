@@ -472,3 +472,10 @@ Vincent Biret (@baywet)
   `com.fasterxml.jackson.core:jackson-core` (from `FastDoubleParser`) [Android]
   (2.18.5)
 
+Prabhav Srinath (@sprabhav7)
+ * Reported #1555: Enforce StreamReadConstraints.maxNumberLength for non-blocking (async) parser
+  (2.18.6)
+
+Rohan Nagendra (@rohan-repos)
+ * Reported #1555: Enforce StreamReadConstraints.maxNumberLength for non-blocking (async) parser
+  (2.18.6)

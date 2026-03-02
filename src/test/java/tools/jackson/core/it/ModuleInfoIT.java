@@ -18,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * {@code META-INF/versions/}.
  *
  * @see <a href="https://github.com/FasterXML/jackson-core/issues/1380">[core#1380]</a>
+ *
+ * @since 3.1.1
  */
 public class ModuleInfoIT
 {

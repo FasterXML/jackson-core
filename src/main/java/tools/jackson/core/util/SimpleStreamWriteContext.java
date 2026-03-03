@@ -68,20 +68,6 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
         _currentValue = currentValue;
     }
 
-    // REMOVE as soon as nothing uses this
-    /*
-    @Deprecated
-    protected SimpleStreamWriteContext(int type, SimpleStreamWriteContext parent,
-            DupDetector dups, Object currentValue) {
-        super();
-        _type = type;
-        _parent = parent;
-        _dups = dups;
-        _index = -1;
-        _currentValue = currentValue;
-    }
-    */
-
     private SimpleStreamWriteContext reset(int type, Object currentValue) {
         _type = type;
         // Due to way reuse works, "_parent" and "_nestingDepth" are fine already
@@ -204,7 +190,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
     private final void _checkDup(DupDetector dd, String name) throws StreamWriteException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new StreamWriteException(((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null),
+            throw new StreamWriteException(((src instanceof JsonGenerator jg) ? jg : null),
                     "Duplicate Object property \""+name+"\"");
         }
     }

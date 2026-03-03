@@ -22,6 +22,7 @@ JSON library.
 #1544: Validate `read()` parameters in `MergedStream` and `UTF32Reader`
  (implemented by @pjfanning)
 #1545: Increase Android baseline from 26 to 34 in Jackson 3.2
+#1564: Add `SimpleStreamReadContext.rollbackValueRead()` method
 
 3.1.1 (not yet released)
 

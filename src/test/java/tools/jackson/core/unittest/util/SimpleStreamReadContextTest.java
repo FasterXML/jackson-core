@@ -245,24 +245,6 @@ class SimpleStreamReadContextTest extends JacksonCoreTestBase
     }
 
     @Test
-    void deprecatedConstructor()
-    {
-        // Test the deprecated constructor without nestingDepth parameter
-        @SuppressWarnings("deprecation")
-        SimpleStreamReadContext ctx = new SimpleStreamReadContext(
-                SimpleStreamReadContext.TYPE_OBJECT,
-                null,
-                null,
-                1,
-                0
-        );
-
-        assertTrue(ctx.inObject());
-        assertNull(ctx.getParent());
-        assertEquals(-1, ctx.getNestingDepth()); // Should be -1 when using deprecated constructor
-    }
-
-    @Test
     void contextTypeDescriptions()
     {
         SimpleStreamReadContext root = SimpleStreamReadContext.createRootContext(null);

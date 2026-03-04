@@ -14,6 +14,11 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.21.2 (not yet released)
+
+#1541: Unexpected Illegal surrogate character when parsing field names
+ (fix by @cowtowncoder, w/ Claude code)
+
 2.21.1 (22-Feb-2026)
 
 #1548: `StreamReadConstraints.maxDocumentLength` not checked when

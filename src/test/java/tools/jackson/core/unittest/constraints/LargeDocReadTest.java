@@ -108,17 +108,17 @@ class LargeDocReadTest extends AsyncTestBase
         }
     }
 
-    // [core#1570] Should fail fast when DataInput used with maxDocumentLength set
+    // [core#1570] DataInput with maxDocumentLength should enforce the limit
     @Test
-    void dataInputWithDocLengthLimitFails() throws Exception
+    void dataInputWithDocLengthLimitEnforced() throws Exception
     {
-        final String doc = generateJSON(100);
+        final String doc = generateJSON(12_000);
         try (JsonParser p = JSON_F_DOC_10K.createParser(ObjectReadContext.empty(),
                 new MockDataInput(doc))) {
+            consumeTokens(p);
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
-            verifyException(e, "DataInput");
-            verifyException(e, "maxDocumentLength");
+            verifyMaxDocLen(JSON_F_DOC_10K, e);
         }
     }
 

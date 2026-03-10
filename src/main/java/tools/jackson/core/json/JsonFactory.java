@@ -456,6 +456,12 @@ public class JsonFactory
         // at least handle possible UTF-8 BOM
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChildOrPlaceholder(_factoryFeatures);
+        if (_streamReadConstraints.hasMaxDocumentLength()) {
+            return new UTF8DataInputWithDocLengthJsonParser(readCtxt, ioCtxt,
+                    readCtxt.getStreamReadFeatures(_streamReadFeatures),
+                    readCtxt.getFormatReadFeatures(_formatReadFeatures),
+                    input, can, firstByte);
+        }
         return new UTF8DataInputJsonParser(readCtxt, ioCtxt,
                 readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),

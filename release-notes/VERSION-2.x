@@ -17,7 +17,7 @@ a pure JSON library.
 2.18.7 (not yet released)
 
 #1570: Fail parsing from `DataInput` if
-  `StreamReadConstraints.getMaxDocumentLength()` set
+  `StreamReadConstraints.getMaxDocumentLength()` set [GHSA-2m67-wjpj-xhg9]
  (fix by @cowtowncoder, w/ Claude code)
 
 2.18.6 (22-Feb-2026)

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+import com.fasterxml.jackson.core.testsupport.MockDataInput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -99,6 +100,29 @@ class LargeDocReadTest extends AsyncTestBase
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
             verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
+    }
+
+    // [core#1570] Should fail fast when DataInput used with maxDocumentLength set
+    @Test
+    void dataInputWithDocLengthLimitFails() throws Exception
+    {
+        final String doc = generateJSON(100);
+        try (JsonParser p = JSON_F_DOC_10K.createParser(new MockDataInput(doc))) {
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "DataInput");
+            verifyException(e, "maxDocumentLength");
+        }
+    }
+
+    // [core#1570] DataInput without maxDocumentLength should still work
+    @Test
+    void dataInputWithoutDocLengthLimitWorks() throws Exception
+    {
+        final String doc = generateJSON(100);
+        try (JsonParser p = JSON_F_DEFAULT.createParser(new MockDataInput(doc))) {
+            consumeTokens(p);
         }
     }
 

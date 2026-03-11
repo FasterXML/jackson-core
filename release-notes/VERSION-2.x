@@ -14,6 +14,12 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.18.7 (not yet released)
+
+#1570: Fail parsing from `DataInput` if
+  `StreamReadConstraints.getMaxDocumentLength()` set
+ (fix by @cowtowncoder, w/ Claude code)
+
 2.18.6 (22-Feb-2026)
 
 #1512: Number-parsing fix for `UTF8DataInputJsonParser`

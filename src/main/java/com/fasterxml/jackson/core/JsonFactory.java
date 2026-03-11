@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
@@ -1981,6 +1982,13 @@ public class JsonFactory
         // 13-May-2016, tatu: Need to take care not to accidentally create JSON parser for
         //   non-JSON input.
         _requireJSONFactory("InputData source not (yet?) supported for this format (%s)");
+        // [core#1570] DataInput reads byte-by-byte so we cannot efficiently enforce
+        //   maxDocumentLength. Fail fast if the limit has been configured.
+        if (_streamReadConstraints.hasMaxDocumentLength()) {
+            throw new StreamConstraintsException(
+                    "Can not enforce `StreamReadConstraints.getMaxDocumentLength()` limit with `DataInput`-backed parser: "
+                    +"use other input source types, or remove the max-document-length limit");
+        }
         // Also: while we can't do full bootstrapping (due to read-ahead limitations), should
         // at least handle possible UTF-8 BOM
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);

@@ -23,6 +23,9 @@ No changes since 3.1
 
 #1562: Move `module-info.class` to jar root level (`/module-info.class`)
   from under `META-INF/versions/17`
+#1570: Fail parsing from `DataInput` if
+ `StreamReadConstraints.getMaxDocumentLength()` set
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.1.0 (23-Feb-2026)
 

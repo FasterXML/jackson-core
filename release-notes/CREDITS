@@ -40,3 +40,7 @@ Rohan Nagendra (@rohan-repos)
  * Reported #1553: Max Depth validation not working for `DataInput`-backed `JsonParser`s
    in 3.0
   (3.1.0)
+
+Antonin Janec (@xtonik)
+ * Contributed #1576: Use Java 17 intrinstics for long multiplication
+  (3.2.0)

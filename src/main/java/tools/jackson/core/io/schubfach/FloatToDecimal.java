@@ -26,7 +26,6 @@ import static tools.jackson.core.io.schubfach.MathUtils.flog10pow2;
 import static tools.jackson.core.io.schubfach.MathUtils.flog10threeQuartersPow2;
 import static tools.jackson.core.io.schubfach.MathUtils.flog2pow10;
 import static tools.jackson.core.io.schubfach.MathUtils.g1;
-import static tools.jackson.core.io.schubfach.MathUtils.multiplyHigh;
 import static tools.jackson.core.io.schubfach.MathUtils.pow10;
 
 import static java.lang.Float.floatToRawIntBits;
@@ -398,7 +397,7 @@ final public class FloatToDecimal {
     See appendix and figure 8 of [1].
      */
     private static int rop(long g, long cp) {
-        long x1 = multiplyHigh(g, cp);
+        long x1 = Math.multiplyHigh(g, cp);
         long vbp = x1 >>> 31;
         return (int) (vbp | (x1 & MASK_32) + MASK_32 >>> 32);
     }
@@ -529,7 +528,7 @@ final public class FloatToDecimal {
             (a + 1) 2^n <= 10^8 2^28 < 10^17
         For n = 17, m = 8 the table in section 10 of [1] leads to:
          */
-        return (int) (multiplyHigh(
+        return (int) (Math.multiplyHigh(
                 (long) (a + 1) << 28,
                 193_428_131_138_340_668L) >>> 20) - 1;
     }

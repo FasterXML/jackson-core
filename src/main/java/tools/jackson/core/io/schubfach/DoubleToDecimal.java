@@ -27,7 +27,6 @@ import static tools.jackson.core.io.schubfach.MathUtils.flog10threeQuartersPow2;
 import static tools.jackson.core.io.schubfach.MathUtils.flog2pow10;
 import static tools.jackson.core.io.schubfach.MathUtils.g0;
 import static tools.jackson.core.io.schubfach.MathUtils.g1;
-import static tools.jackson.core.io.schubfach.MathUtils.multiplyHigh;
 import static tools.jackson.core.io.schubfach.MathUtils.pow10;
 
 import static java.lang.Double.doubleToRawLongBits;
@@ -365,7 +364,7 @@ final public class DoubleToDecimal {
             wpin    iff    w' = tp10 10^k in Rv
             See section 9.4 of [1].
              */
-            long sp10 = 10 * multiplyHigh(s, 115_292_150_460_684_698L << 4);
+            long sp10 = 10 * Math.multiplyHigh(s, 115_292_150_460_684_698L << 4);
             long tp10 = sp10 + 10;
             boolean upin = vbl + out <= sp10 << 2;
             boolean wpin = (tp10 << 2) + out <= vbr;
@@ -400,9 +399,9 @@ final public class DoubleToDecimal {
     See section 9.10 and figure 5 of [1].
      */
     private static long rop(long g1, long g0, long cp) {
-        long x1 = multiplyHigh(g0, cp);
+        long x1 = Math.multiplyHigh(g0, cp);
         long y0 = g1 * cp;
-        long y1 = multiplyHigh(g1, cp);
+        long y1 = Math.multiplyHigh(g1, cp);
         long z = (y0 >>> 1) + x1;
         long vbp = y1 + (z >>> 63);
         return vbp | (z & MASK_63) + MASK_63 >>> 63;
@@ -446,7 +445,7 @@ final public class DoubleToDecimal {
         and for n = 9, m = 8
             floor(hm / 10^8) = floor(1_441_151_881 hm / 2^57)
          */
-        long hm = multiplyHigh(f, 193_428_131_138_340_668L) >>> 20;
+        long hm = Math.multiplyHigh(f, 193_428_131_138_340_668L) >>> 20;
         int l = (int) (f - 100_000_000L * hm);
         int h = (int) (hm * 1_441_151_881L >>> 57);
         int m = (int) (hm - 100_000_000 * h);
@@ -547,7 +546,7 @@ final public class DoubleToDecimal {
             (a + 1) 2^n <= 10^8 2^28 < 10^17
         For n = 17, m = 8 the table in section 10 of [1] leads to:
          */
-        return (int) (multiplyHigh(
+        return (int) (Math.multiplyHigh(
                 (long) (a + 1) << 28,
                 193_428_131_138_340_668L) >>> 20) - 1;
     }

@@ -185,18 +185,6 @@ public final class MathUtils { // public only for testing (but not exposed by Mo
         return g[k - K_MIN << 1 | 1];
     }
 
-    //a Java port of https://github.com/plokhotnyuk/jsoniter-scala/blob/c70a293ac802dc2eb44165471d76d7df2d4657b6/jsoniter-scala-core/native/src/main/scala/com/github/plokhotnyuk/jsoniter_scala/core/JsonWriter.scala#L2027
-    static long multiplyHigh(long x, long y) {
-        // Karatsuba technique for two positive ints
-        long x2 = x & 0xFFFFFFFFL;
-        long y2 = y & 0xFFFFFFFFL;
-        long b = x2 * y2;
-        long x1 = x >>> 32;
-        long y1 = y >>> 32;
-        long a = x1 * y1;
-        return (((b >>> 32) + (x1 + x2) * (y1 + y2) - b - a) >>> 32) + a;
-    }
-
     /*
     The precomputed values for g1(int) and g0(int).
     The first entry must be for an exponent of K_MIN or less.

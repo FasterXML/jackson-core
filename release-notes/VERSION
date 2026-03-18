@@ -26,6 +26,8 @@ JSON library.
 #1570: Fail parsing from `DataInput` if
  `StreamReadConstraints.getMaxDocumentLength()` set
  (fix by @cowtowncoder, w/ Claude code)
+#1576: Use Java 17 intrinstics for long multiplication
+ (contributed by @xtonik)
 
 3.1.1 (not yet released)
 

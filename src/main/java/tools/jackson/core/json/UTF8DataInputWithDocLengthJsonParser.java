@@ -14,6 +14,8 @@ import tools.jackson.core.sym.ByteQuadsCanonicalizer;
  * Byte tracking is achieved by overriding {@link #readUnsignedByte()}: every
  * call increments {@link #_bytesRead} so that validation can be performed at
  * token boundaries in {@link #nextToken()} and {@link #nextName()}.
+ *
+ * @since 3.2
  */
 public class UTF8DataInputWithDocLengthJsonParser
     extends UTF8DataInputJsonParser
@@ -21,7 +23,7 @@ public class UTF8DataInputWithDocLengthJsonParser
     /**
      * Running total of bytes read from {@link #_inputData}.
      */
-    private long _bytesRead;
+    protected long _bytesRead;
 
     public UTF8DataInputWithDocLengthJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int stdFeatures, int formatFeatures, DataInput inputData,

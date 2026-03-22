@@ -26,6 +26,9 @@ JSON library.
 #1570: Fail parsing from `DataInput` if
  `StreamReadConstraints.getMaxDocumentLength()` set
  (fix by @cowtowncoder, w/ Claude code)
+#1575: Implement document length tracking for `DataInput`-backed
+  JSON parsers via subclass
+ (implemented by @pjfanning)
 #1576: Use Java 17 intrinstics for long multiplication
  (contributed by @xtonik)
 

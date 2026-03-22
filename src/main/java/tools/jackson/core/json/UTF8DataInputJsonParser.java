@@ -138,6 +138,8 @@ public class UTF8DataInputJsonParser
     /**
      * Read the next unsigned byte from the input.
      * Subclasses may override to track byte counts for document length enforcement.
+     *
+     * @since 3.2
      */
     protected int readUnsignedByte() throws IOException {
         return _inputData.readUnsignedByte();

@@ -108,7 +108,7 @@ class LargeDocReadTest extends AsyncTestBase
         }
     }
 
-    // [core#1570] DataInput with maxDocumentLength should enforce the limit
+    // [core#1575] DataInput with maxDocumentLength should enforce the limit
     @Test
     void dataInputWithDocLengthLimitEnforced() throws Exception
     {
@@ -122,7 +122,7 @@ class LargeDocReadTest extends AsyncTestBase
         }
     }
 
-    // [core#1570] DataInput without maxDocumentLength should still work
+    // [core#1575] DataInput without maxDocumentLength should still work
     @Test
     void dataInputWithoutDocLengthLimitWorks() throws Exception
     {

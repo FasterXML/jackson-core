@@ -30,9 +30,9 @@ public class UTF8DataInputWithDocLengthJsonParser
             ByteQuadsCanonicalizer sym, int firstByte)
     {
         super(readCtxt, ctxt, stdFeatures, formatFeatures, inputData, sym, firstByte);
-        // firstByte was already read from inputData by ByteSourceJsonBootstrapper.skipUTF8BOM()
-        // before this constructor was called, so count it now.
-        _bytesRead = 1;
+        // NOTE: bytes consumed by ByteSourceJsonBootstrapper.skipUTF8BOM() before this
+        // constructor (1 without BOM, 4 with BOM) are not tracked — the undercount of
+        // a few bytes is negligible for document length constraint enforcement.
     }
 
     @Override

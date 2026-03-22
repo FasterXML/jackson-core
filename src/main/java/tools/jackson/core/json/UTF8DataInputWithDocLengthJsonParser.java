@@ -13,7 +13,7 @@ import tools.jackson.core.sym.ByteQuadsCanonicalizer;
  *<p>
  * Byte tracking is achieved by overriding {@link #readUnsignedByte()}: every
  * call increments {@link #_bytesRead} so that validation can be performed at
- * token boundaries in {@link #nextToken()} and {@link #nextName()}.
+ * token boundaries in {@link #nextToken()}.
  *
  * @since 3.2
  */
@@ -48,10 +48,4 @@ public class UTF8DataInputWithDocLengthJsonParser
         return token;
     }
 
-    @Override
-    public String nextName() throws JacksonException {
-        String name = super.nextName();
-        _streamReadConstraints.validateDocumentLength(_bytesRead);
-        return name;
-    }
 }

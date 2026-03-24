@@ -180,6 +180,11 @@ public class ReaderBasedJsonParser
 
     @Override public Object streamReadInputSource() { return _reader; }
 
+    @Override
+    public boolean willInternPropertyNames() {
+        return _symbols.isInternStrings();
+    }
+
     protected char getNextChar(String eofMsg, JsonToken forToken) throws JacksonException {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {

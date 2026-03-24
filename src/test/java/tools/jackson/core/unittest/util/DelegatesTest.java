@@ -148,6 +148,7 @@ class DelegatesTest extends JacksonCoreTestBase
 
         // Basic capabilities for parser:
         assertFalse(del.canParseAsync());
+        assertFalse(del.willInternPropertyNames());
         assertFalse(del.canReadObjectId());
         assertFalse(del.canReadTypeId());
         assertEquals(parser.version(), del.version());

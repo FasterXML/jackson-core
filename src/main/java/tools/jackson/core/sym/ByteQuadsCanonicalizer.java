@@ -468,6 +468,18 @@ public class ByteQuadsCanonicalizer
     }
 
     /**
+     * Accessor for checking whether this symbol table is configured to
+     * intern field names (using {@link String#intern()}) or not.
+     *
+     * @return {@code True} if field names will be interned; {@code false} if not
+     *
+     * @since 3.2
+     */
+    public boolean isInternStrings() {
+        return _interner != null;
+    }
+
+    /**
      * Method mostly needed by unit tests; calculates number of
      * entries that are in the primary slot set. These are
      * "perfect" entries, accessible with a single lookup

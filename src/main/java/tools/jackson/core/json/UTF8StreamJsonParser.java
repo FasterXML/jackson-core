@@ -185,6 +185,11 @@ public class UTF8StreamJsonParser
         return _inputStream;
     }
 
+    @Override
+    public boolean willInternPropertyNames() {
+        return _symbols.isInternStrings();
+    }
+
     /*
     /**********************************************************************
     /* Overrides, low-level reading

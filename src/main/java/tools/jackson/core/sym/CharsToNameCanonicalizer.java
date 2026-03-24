@@ -417,6 +417,18 @@ public final class CharsToNameCanonicalizer
     public int hashSeed() { return _seed; }
 
     /**
+     * Accessor for checking whether this symbol table is configured to
+     * intern field names (using {@link String#intern()}) or not.
+     *
+     * @return {@code True} if field names will be interned; {@code false} if not
+     *
+     * @since 3.2
+     */
+    public boolean isInternStrings() {
+        return JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(_factoryFeatures);
+    }
+
+    /**
      * Method mostly needed by unit tests; calculates number of
      * entries that are in collision list. Value can be at most
      * ({@link #size} - 1), but should usually be much lower, ideally 0.

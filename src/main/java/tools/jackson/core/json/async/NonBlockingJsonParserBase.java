@@ -270,6 +270,11 @@ public abstract class NonBlockingJsonParserBase
     @Override
     public boolean canParseAsync() { return true; }
 
+    @Override
+    public boolean willInternPropertyNames() {
+        return _symbols.isInternStrings();
+    }
+
     /*
     /**********************************************************
     /* Test support

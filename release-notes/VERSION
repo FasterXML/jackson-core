@@ -28,6 +28,8 @@ JSON library.
  (implemented by @pjfanning)
 #1576: Use Java 17 intrinstics for long multiplication
  (contributed by @xtonik)
+#1211: Add `JsonParser.willInternPropertyNames()` to check whether
+  property name interning is enabled
 
 3.1.1 (not yet released)
 

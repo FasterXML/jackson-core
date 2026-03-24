@@ -91,6 +91,8 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public boolean canParseAsync() { return delegate.canParseAsync(); }
 
+    @Override public boolean willInternPropertyNames() { return delegate.willInternPropertyNames(); }
+
     @Override public NonBlockingInputFeeder nonBlockingInputFeeder() { return delegate.nonBlockingInputFeeder(); }
 
     @Override public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() { return delegate.streamReadCapabilities(); }

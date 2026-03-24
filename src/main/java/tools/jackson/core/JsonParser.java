@@ -260,6 +260,20 @@ public abstract class JsonParser
     public boolean canParseAsync() { return false; }
 
     /**
+     * Introspection method that can be called to check whether this parser
+     * is configured to intern parsed field names (property names) using
+     * {@link String#intern()} or not.
+     *<p>
+     * Default implementation returns {@code false}; JSON-backed parsers
+     * override to check the state of the underlying symbol table.
+     *
+     * @return {@code True} if this parser interns field names; {@code false} if not
+     *
+     * @since 3.2
+     */
+    public boolean willInternPropertyNames() { return false; }
+
+    /**
      * Method that will either return a feeder instance (if parser uses
      * non-blocking, aka asynchronous access); or <code>null</code> for
      * parsers that use blocking I/O.

@@ -10,10 +10,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit test(s) for verifying handling of new (in 2.15) StreamReadConstraints
- * wrt maximum nesting depth.
+ * wrt maximum nesting depth, for all streaming (InputStream,
+ * Reader; regular/throttled) inputs and {@link DataInput}.
+ * 
  */
 class DeeplyNestedContentReadTest
-        extends com.fasterxml.jackson.core.JUnit5TestBase
+    extends com.fasterxml.jackson.core.JUnit5TestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
@@ -32,6 +34,15 @@ class DeeplyNestedContentReadTest
         }
     }
 
+    @Test
+    void deepNestingDataInput() throws Exception
+    {
+        final String DOC = createDeepNestedDoc(TESTED_NESTING);
+        try (JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, DOC)) {
+            _testDeepNesting(p);
+        }
+    }
+
     private void _testDeepNesting(JsonParser p) throws Exception
     {
         try {
@@ -44,7 +55,7 @@ class DeeplyNestedContentReadTest
     }
 
     @Test
-    void legacyConstraintSettingTest() throws Exception
+    void legacyConstraintSettingStreaming() throws Exception
     {
         final int LOWER_MAX = 40;
         
@@ -56,6 +67,20 @@ class DeeplyNestedContentReadTest
             try (JsonParser p = createParser(f, mode, DOC)) {
                 _testLegacyConstraintSettingTest(p, LOWER_MAX);
             }
+        }
+    }
+
+    @Test
+    void legacyConstraintSettingDataInput() throws Exception
+    {
+        final int LOWER_MAX = 40;
+        
+        final String DOC = createDeepNestedDoc(LOWER_MAX + 10);
+        JsonFactory f = new JsonFactory();
+        f.setStreamReadConstraints(StreamReadConstraints.builder()
+                .maxNestingDepth(LOWER_MAX).build());
+        try (JsonParser p = createParser(f, MODE_DATA_INPUT, DOC)) {
+            _testLegacyConstraintSettingTest(p, LOWER_MAX);
         }
     }
 

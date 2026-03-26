@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Set of basic unit tests for verifying that "too big" number constraints
  * are caught by various JSON parser backends.
  */
-
 @SuppressWarnings("resource")
 class LargeNumberReadTest
         extends com.fasterxml.jackson.core.JUnit5TestBase

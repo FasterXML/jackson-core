@@ -272,7 +272,7 @@ public abstract class NonBlockingJsonParserBase
 
     @Override
     public boolean willInternPropertyNames() {
-        return _symbols.isInternStrings();
+        return _symbols.willInternStrings();
     }
 
     /*

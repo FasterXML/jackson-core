@@ -182,7 +182,7 @@ public class ReaderBasedJsonParser
 
     @Override
     public boolean willInternPropertyNames() {
-        return _symbols.isInternStrings();
+        return _symbols.willInternStrings();
     }
 
     protected char getNextChar(String eofMsg, JsonToken forToken) throws JacksonException {

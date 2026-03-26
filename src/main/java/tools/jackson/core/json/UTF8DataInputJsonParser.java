@@ -128,7 +128,7 @@ public class UTF8DataInputJsonParser
 
     @Override
     public boolean willInternPropertyNames() {
-        return _symbols.isInternStrings();
+        return _symbols.willInternStrings();
     }
 
     /*

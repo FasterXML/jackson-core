@@ -187,7 +187,7 @@ public class UTF8StreamJsonParser
 
     @Override
     public boolean willInternPropertyNames() {
-        return _symbols.isInternStrings();
+        return _symbols.willInternStrings();
     }
 
     /*

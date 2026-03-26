@@ -19,6 +19,9 @@ JSON library.
 
 #679: Number parsing should fail for trailing dot (period)
  (fix by @cowtowncoder, w/ Claude code)
+#1211: Add `JsonParser.willInternPropertyNames()` to check whether
+  property name interning is enabled
+ (contributed by Max P)
 #1544: Validate `read()` parameters in `MergedStream` and `UTF32Reader`
  (implemented by @pjfanning)
 #1545: Increase Android baseline from 26 to 34 in Jackson 3.2
@@ -28,8 +31,6 @@ JSON library.
  (implemented by @pjfanning)
 #1576: Use Java 17 intrinstics for long multiplication
  (contributed by @xtonik)
-#1211: Add `JsonParser.willInternPropertyNames()` to check whether
-  property name interning is enabled
 
 3.1.1 (not yet released)
 

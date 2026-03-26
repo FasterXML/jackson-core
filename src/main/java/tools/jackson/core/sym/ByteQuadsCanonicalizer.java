@@ -475,7 +475,7 @@ public class ByteQuadsCanonicalizer
      *
      * @since 3.2
      */
-    public boolean isInternStrings() {
+    public boolean willInternStrings() {
         return _interner != null;
     }
 

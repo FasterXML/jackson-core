@@ -41,6 +41,11 @@ Rohan Nagendra (@rohan-repos)
    in 3.0
   (3.1.0)
 
+Max Paulus (@maxpaulus43)
+ * Contributed #1211: Add `JsonParser.willInternPropertyNames()` to check whether
+   property name interning is enabled
+  (3.2.0)
+
 Antonin Janec (@xtonik)
  * Contributed #1576: Use Java 17 intrinstics for long multiplication
   (3.2.0)

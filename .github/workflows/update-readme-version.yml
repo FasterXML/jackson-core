@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   update-readme:
@@ -32,14 +33,20 @@ jobs:
           sed -i -E \
             '/Jackson 3\.x/,/<\/dependency>/ s|<version>[0-9]+\.[0-9]+\.[0-9]+[^<]*</version>|<version>${{ steps.version.outputs.version }}</version>|' \
             README.md
-      - name: Commit and push if changed
+      - name: Create PR if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git diff --quiet README.md && exit 0
+          BRANCH="update-readme-version-${{ steps.version.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
           git add README.md
-          git commit -m "Update README.md Maven version to ${{ steps.version.outputs.version }}
+          git commit -m "Update README.md Maven version to ${{ steps.version.outputs.version }}"
+          git push -u origin "$BRANCH"
+          gh pr create --base 3.x --head "$BRANCH" \
+            --title "Update README.md Maven version to ${{ steps.version.outputs.version }}" \
+            --body "Automated PR to update the Maven dependency version in README.md after release of ${{ steps.version.outputs.version }}.
 
-          Automated update triggered by tag ${GITHUB_REF_NAME}.
           See #1586"
-          git push

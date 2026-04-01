@@ -1,0 +1,44 @@
+# Automatically update the Maven dependency version in README.md when a new
+# release tag is pushed.
+# See https://github.com/FasterXML/jackson-core/issues/1586
+
+name: Update README version
+
+on:
+  push:
+    tags:
+      - "jackson-core-3.*"
+      - "!*.pr*"
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: 3.x
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#jackson-core-}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Update README.md
+        run: |
+          # Update the 3.x version in the Maven dependency snippet
+          sed -i -E \
+            '/Jackson 3\.x/,/<\/dependency>/ s|<version>[0-9]+\.[0-9]+\.[0-9]+[^<]*</version>|<version>${{ steps.version.outputs.version }}</version>|' \
+            README.md
+      - name: Commit and push if changed
+        run: |
+          git diff --quiet README.md && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update README.md Maven version to ${{ steps.version.outputs.version }}
+
+          Automated update triggered by tag ${GITHUB_REF_NAME}.
+          See #1586"
+          git push

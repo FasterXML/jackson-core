@@ -8,6 +8,7 @@ on:
   push:
     tags:
       - "jackson-core-3.*"
+      - "!*-rc*"
       - "!*.pr*"
 
 permissions:

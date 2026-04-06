@@ -7,10 +7,10 @@ import java.util.*;
 import java.util.function.BiFunction;
 
 /**
- * Base class for all Jackson-produced checked exceptions.
+ * Base class for all Jackson-produced exceptions.
  *<p>
- * Note that in Jackson 2.x this exception extended {@link java.io.IOException}
- * but in 3.x {@link RuntimeException}
+ * Note that in Jackson 2.x this exception extended {@link java.io.IOException},
+ * but in 3.x it extends {@link RuntimeException}.
  */
 public class JacksonException
     extends RuntimeException

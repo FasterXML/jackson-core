@@ -1558,7 +1558,8 @@ public abstract class JsonGenerator
      *
      * @param comment Comment text to write; the generator is responsible for
      *   adding any necessary decoration (such as {@code #} prefix in YAML).
-     *   May be {@code null}, in which case no comment is written.
+     *   May be {@code null}, in which case generator will not write a comment
+     *   (but some have special handling: YAML generator writes empty line)
      *
      * @return This generator, to allow call chaining
      *

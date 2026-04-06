@@ -258,6 +258,7 @@ class DelegatesTest extends JacksonCoreTestBase
         assertTrue(del.canOmitProperties());
         assertFalse(del.canWriteObjectId());
         assertFalse(del.canWriteTypeId());
+        assertFalse(del.canWriteComments());
         assertEquals(g0.version(), del.version());
 
         // configuration

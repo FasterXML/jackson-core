@@ -31,6 +31,8 @@ JSON library.
  (implemented by @pjfanning)
 #1576: Use Java 17 intrinstics for long multiplication
  (contributed by @xtonik)
+#1593: Add `JsonGenerator.writeComment(String)`, `JsonGenerator.canWriteComments()`
+ (implemented by @cowtowncoder, w/ Claude code)
 
 3.1.1 (27-Mar-2026)
 

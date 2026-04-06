@@ -923,6 +923,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         return this;
     }
 
+    @Override
+    public JsonGenerator writeComment(String comment) throws JacksonException {
+        if (_itemFilter != null) {
+            delegate.writeComment(comment);
+        }
+        return this;
+    }
+
     /*
     /**********************************************************************
     /* Public API, write methods, serializing Java objects

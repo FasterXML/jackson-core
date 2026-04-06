@@ -81,6 +81,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public boolean canOmitProperties() { return delegate.canOmitProperties(); }
 
     @Override
+    public boolean canWriteComments() { return delegate.canWriteComments(); }
+
+    @Override
     public boolean has(StreamWriteCapability capability) { return delegate.has(capability); }
 
     @Override
@@ -450,6 +453,12 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public JsonGenerator writeEmbeddedObject(Object object) throws JacksonException {
         delegate.writeEmbeddedObject(object);
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeComment(String comment) throws JacksonException {
+        delegate.writeComment(comment);
         return this;
     }
 

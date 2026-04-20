@@ -165,6 +165,7 @@ public class BufferRecycler
     }
 
     public void releaseByteBuffer(int ix, byte[] buffer) {
+        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
         // Use accumulateAndGet to atomically update the slot, avoiding the
         // TOCTOU race of a non-atomic get+conditional-set sequence.
         _byteBuffers.accumulateAndGet(ix, buffer,

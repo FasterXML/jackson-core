@@ -1,7 +1,8 @@
 package tools.jackson.core.util;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * This is a small utility class, whose main functionality is to allow
@@ -18,8 +19,24 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * Rewritten in 2.16 to work with {@link RecyclerPool} abstraction.
  */
 public class BufferRecycler
-    implements RecyclerPool.WithPool<BufferRecycler>
+        implements RecyclerPool.WithPool<BufferRecycler>
 {
+    /**
+     * VarHandle for atomic acquire/release access to Object[] array elements.
+     * Used for the byte and char buffer slot arrays to apply minimal required
+     * memory ordering semantics (acquire on alloc, release on release) rather
+     * than the unconditional volatile barriers that AtomicReferenceArray imposes.
+     */
+    private static final VarHandle BUFFER_VH;
+
+    static {
+        try {
+            BUFFER_VH = MethodHandles.arrayElementVarHandle(Object[].class);
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     /**
      * Tag-on interface to allow various other types to expose {@link BufferRecycler}
      * they are constructed with.
@@ -93,11 +110,13 @@ public class BufferRecycler
     private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 2000 };
     private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };
 
-    // Note: changed from simple array in 2.10:
-    protected final AtomicReferenceArray<byte[]> _byteBuffers;
+    // Note: changed from AtomicReferenceArray in 3.2 to Object[] + VarHandle for
+    // finer-grained memory ordering control (acquire/release instead of full volatile).
+    protected final Object[] _byteBuffers;
 
-    // Note: changed from simple array in 2.10:
-    protected final AtomicReferenceArray<char[]> _charBuffers;
+    // Note: changed from AtomicReferenceArray in 3.2 to Object[] + VarHandle for
+    // finer-grained memory ordering control (acquire/release instead of full volatile).
+    protected final Object[] _charBuffers;
 
     private RecyclerPool<BufferRecycler> _pool;
 
@@ -123,8 +142,8 @@ public class BufferRecycler
      * @param cbCount Number of {@code char[]} buffers to allocate
      */
     protected BufferRecycler(int bbCount, int cbCount) {
-        _byteBuffers = new AtomicReferenceArray<>(bbCount);
-        _charBuffers = new AtomicReferenceArray<>(cbCount);
+        _byteBuffers = new Object[bbCount];
+        _charBuffers = new Object[cbCount];
     }
 
     /**
@@ -157,7 +176,9 @@ public class BufferRecycler
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
-        byte[] buffer = _byteBuffers.getAndSet(ix, null);
+        // getAndSetAcquire: atomically claims the slot and applies acquire semantics so
+        // that all writes made by the thread that stored this buffer are visible to us.
+        byte[] buffer = (byte[]) BUFFER_VH.getAndSetAcquire(_byteBuffers, ix, null);
         if (buffer == null || buffer.length < minSize) {
             buffer = balloc(minSize);
         }
@@ -165,11 +186,20 @@ public class BufferRecycler
     }
 
     public void releaseByteBuffer(int ix, byte[] buffer) {
-        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
-        byte[] oldBuffer = _byteBuffers.get(ix);
-        if ((oldBuffer == null) || buffer.length > oldBuffer.length) {
-            // Could use CAS, but should not really matter
-            _byteBuffers.set(ix, buffer);
+        // CAS loop fixes the TOCTOU race in the original get+set pattern.
+        // compareAndSet with release semantics publishes all our writes to the next
+        // thread that acquires this buffer.
+        // Modified to do a max number of attempts to recycle (hardcoded to 3)
+        for (int i = 0; i < 3; i++) {
+            byte[] current = (byte[]) BUFFER_VH.getAcquire(_byteBuffers, ix);
+            if (current != null && current.length >= buffer.length) {
+                // Slot already holds a buffer at least as large; no benefit in replacing it.
+                return;
+            }
+            if (BUFFER_VH.compareAndSet(_byteBuffers, ix, current, buffer)) {
+                return;
+            }
+            // CAS lost the race; retry with the newly observed value.
         }
     }
 
@@ -188,7 +218,8 @@ public class BufferRecycler
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
-        char[] buffer = _charBuffers.getAndSet(ix, null);
+        // getAndSetAcquire: atomically claims the slot with acquire semantics.
+        char[] buffer = (char[]) BUFFER_VH.getAndSetAcquire(_charBuffers, ix, null);
         if (buffer == null || buffer.length < minSize) {
             buffer = calloc(minSize);
         }
@@ -196,11 +227,16 @@ public class BufferRecycler
     }
 
     public void releaseCharBuffer(int ix, char[] buffer) {
-        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
-        char[] oldBuffer = _charBuffers.get(ix);
-        if ((oldBuffer == null) || buffer.length > oldBuffer.length) {
-            // Could use CAS, but should not really matter
-            _charBuffers.set(ix, buffer);
+        // CAS loop fixes the TOCTOU race in the original get+set pattern.
+        // compareAndSet with release semantics publishes our writes to the next thread.
+        while (true) {
+            char[] current = (char[]) BUFFER_VH.getAcquire(_charBuffers, ix);
+            if (current != null && current.length >= buffer.length) {
+                return;
+            }
+            if (BUFFER_VH.compareAndSet(_charBuffers, ix, current, buffer)) {
+                return;
+            }
         }
     }
 

@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  * Rewritten in 2.16 to work with {@link RecyclerPool} abstraction.
  */
 public class BufferRecycler
-        implements RecyclerPool.WithPool<BufferRecycler>
+    implements RecyclerPool.WithPool<BufferRecycler>
 {
     /**
      * Tag-on interface to allow various other types to expose {@link BufferRecycler}

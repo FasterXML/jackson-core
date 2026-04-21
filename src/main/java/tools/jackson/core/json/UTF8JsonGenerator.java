@@ -1485,6 +1485,7 @@ public class UTF8JsonGenerator
             if (((ch0 | ch1 | ch2 | ch3) > 0x7F)
                     || escCodes[ch0] != 0 || escCodes[ch1] != 0
                     || escCodes[ch2] != 0 || escCodes[ch3] != 0) {
+                // handle the remaining bytes using the one at a time loop below
                 break;
             }
             outputBuffer[outputPtr++] = (byte) ch0;
@@ -1535,6 +1536,7 @@ public class UTF8JsonGenerator
             if (((ch0 | ch1 | ch2 | ch3) > 0x7F)
                     || escCodes[ch0] != 0 || escCodes[ch1] != 0
                     || escCodes[ch2] != 0 || escCodes[ch3] != 0) {
+                // handle the remaining chars using the one at a time loop below
                 break;
             }
             outputBuffer[outputPtr++] = (byte) ch0;

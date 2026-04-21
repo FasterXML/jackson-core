@@ -14,6 +14,13 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.21.3 (not yet released)
+
+#1581: `NonBlockingByteBufferParser`: Unexpected Illegal surrogate
+   character when parsing field names
+ (reported by Mike P)
+ (fix by @pjfanning)
+
 2.21.2 (20-Mar-2026)
 
 #1541: Unexpected Illegal surrogate character when parsing field names

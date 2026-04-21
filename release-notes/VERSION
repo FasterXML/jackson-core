@@ -24,6 +24,8 @@ No changes since 3.1
 #1561: Javadoc for 3.1.0 doesn't work (build with JDK 21)
  (reported by Rob S)
  (fix by @cowtowncoder)
+#1597: Rework 3rd party licenses in jar
+ (fix by @pjfanning)
 
 3.1.1 (27-Mar-2026)
 

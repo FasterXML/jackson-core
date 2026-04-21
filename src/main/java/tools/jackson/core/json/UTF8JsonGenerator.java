@@ -1471,6 +1471,29 @@ public class UTF8JsonGenerator
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
 
+        // Unrolled 4-char inner loop: reduces loop overhead and lets the JIT
+        // see a wider window for optimisation (auto-vectorisation, etc.).
+        // We use bitwise OR of all four char values: if the OR result is > 0x7F
+        // then at least one char needs multi-byte UTF-8 encoding; then we check
+        // the escape table for each char individually.
+        while ((offset + 4) <= len) {
+            int ch0 = cbuf[offset];
+            int ch1 = cbuf[offset + 1];
+            int ch2 = cbuf[offset + 2];
+            int ch3 = cbuf[offset + 3];
+            // Bit-OR: if any ch is > 0x7F the combined result will be too
+            if (((ch0 | ch1 | ch2 | ch3) > 0x7F)
+                    || escCodes[ch0] != 0 || escCodes[ch1] != 0
+                    || escCodes[ch2] != 0 || escCodes[ch3] != 0) {
+                break;
+            }
+            outputBuffer[outputPtr++] = (byte) ch0;
+            outputBuffer[outputPtr++] = (byte) ch1;
+            outputBuffer[outputPtr++] = (byte) ch2;
+            outputBuffer[outputPtr++] = (byte) ch3;
+            offset += 4;
+        }
+        // Handle any remaining chars (< 4) one at a time
         while (offset < len) {
             int ch = cbuf[offset];
             // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
@@ -1503,6 +1526,24 @@ public class UTF8JsonGenerator
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
 
+        // Unrolled 4-char inner loop (same logic as the char[] overload above)
+        while ((offset + 4) <= len) {
+            int ch0 = text.charAt(offset);
+            int ch1 = text.charAt(offset + 1);
+            int ch2 = text.charAt(offset + 2);
+            int ch3 = text.charAt(offset + 3);
+            if (((ch0 | ch1 | ch2 | ch3) > 0x7F)
+                    || escCodes[ch0] != 0 || escCodes[ch1] != 0
+                    || escCodes[ch2] != 0 || escCodes[ch3] != 0) {
+                break;
+            }
+            outputBuffer[outputPtr++] = (byte) ch0;
+            outputBuffer[outputPtr++] = (byte) ch1;
+            outputBuffer[outputPtr++] = (byte) ch2;
+            outputBuffer[outputPtr++] = (byte) ch3;
+            offset += 4;
+        }
+        // Handle any remaining chars (< 4) one at a time
         while (offset < len) {
             int ch = text.charAt(offset);
             // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:

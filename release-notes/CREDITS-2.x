@@ -515,3 +515,8 @@ Vitor Pamplona (@vitorpamplona)
 Lars Hagen (@larshagencognite)
  * Contributed #1470: Add method `copyCurrentStructureExact()` to `JsonGenerator`
   (2.21.0)
+
+Mike Pedersen (@mpdncrwd)
+ * Reported #1581: `NonBlockingByteBufferParser`: Unexpected Illegal surrogate
+   character when parsing field names
+  (2.21.3)

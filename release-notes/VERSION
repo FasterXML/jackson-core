@@ -33,6 +33,8 @@ JSON library.
  (contributed by @xtonik)
 #1593: Add `JsonGenerator.writeComment(String)`, `JsonGenerator.canWriteComments()`
  (implemented by @cowtowncoder, w/ Claude code)
+#1598: Possible TOCTOU timing bug in `BufferRecycler`
+ (implemented by @pjfanning)
 
 3.1.2 (11-Apr-2026)
 

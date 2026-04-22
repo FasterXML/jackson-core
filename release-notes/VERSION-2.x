@@ -73,6 +73,8 @@ No changes since 2.19.1
 #1570: Fail parsing from `DataInput` if
   `StreamReadConstraints.getMaxDocumentLength()` set [GHSA-2m67-wjpj-xhg9]
  (fix by @cowtowncoder, w/ Claude code)
+#1600: Rework 3rd party licenses in jar
+ (fix by @pjfanning)
 
 2.18.6 (22-Feb-2026)
 
@@ -82,7 +84,7 @@ No changes since 2.19.1
   creating parser with fixed buffer
 #1555: Enforce `StreamReadConstraints.maxNumberLength` for
   non-blocking (async) parser
- (reported by Prabhav S, Rohan N)
+ (reported by Prabhav S, Rohan N
  (fix by @pjfanning)
 
 2.18.5 (27-Oct-2025)

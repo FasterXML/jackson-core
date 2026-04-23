@@ -91,6 +91,24 @@ class LargeNameReadTest extends JUnit5TestBase
         }
     }
 
+    // [core#1602]: DataInput-backed parser must also enforce maxNameLength
+    @Test
+    void largeNameWithSmallLimitDataInput() throws Exception {
+        _testLargeNameWithSmallLimitDataInput(JSON_F_NAME_100);
+        _testLargeNameWithSmallLimitDataInput(JSON_F_NAME_100_B);
+    }
+
+    private void _testLargeNameWithSmallLimitDataInput(JsonFactory jf) throws Exception
+    {
+        final String doc = generateJSON(1000);
+        try (JsonParser p = createParser(jf, MODE_DATA_INPUT, doc)) {
+            consumeTokens(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Name length");
+        }
+    }
+
     private void consumeTokens(JsonParser p) throws IOException {
         while (p.nextToken() != null) {
             ;

@@ -21,6 +21,9 @@ a pure JSON library.
  (fix by @cowtowncoder, w/ Claude code)
 #1600: Rework 3rd party licenses in jar
  (fix by @pjfanning)
+#1602: `UTF8DataInputJsonParser` needs to enforce
+  `StreamReadConstraints.maxNameLength` limit
+ (fix by @cowtowncoder, w/ Claude code)
 
 2.18.6 (22-Feb-2026)
 

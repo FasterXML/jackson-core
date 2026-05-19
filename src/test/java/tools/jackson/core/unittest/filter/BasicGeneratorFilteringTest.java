@@ -208,7 +208,7 @@ class BasicGeneratorFilteringTest extends JacksonCoreTestBase
         // 21-Apr-2015, tatu: note that there were plans to actually
         //     allow "immediate parent inclusion" for matches on property
         //    names. This behavior was NOT included in release however, so:
-//        assertEquals(a2q("{'value':3}"), w.toString());
+//        assertEquals("""{"value":3}""", w.toString());
 
         assertEquals("3", w.toString());
     }

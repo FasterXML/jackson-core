@@ -708,7 +708,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
 
 // {'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}
 //      String result = readAndWrite(JSON_F, p);
-//      assertEquals(a2q("{'ob':{'value':3}}"), result);
+//      assertEquals("""{"ob":{"value":3}}""", result);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals(JsonToken.START_OBJECT, p.currentToken());

@@ -243,8 +243,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
                    false // multipleMatches
                 );
         String result = readAndWrite(JSON_F, p);
-        assertEquals("""
-                3""", result);
+        assertEquals("3", result);
         assertEquals(1, p.getMatchCount());
     }
 
@@ -311,8 +310,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
                    false // multipleMatches -false
                 );
         String result = readAndWrite(JSON_F, p);
-        assertEquals("""
-                3""", result);
+        assertEquals("3", result);
         assertEquals(1, p.getMatchCount());
     }
 
@@ -328,8 +326,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
                 false // multipleMatches -false
         );
         String result = readAndWrite(JSON_F, p);
-        assertEquals("""
-                2""", result);
+        assertEquals("2", result);
         assertEquals(1, p.getMatchCount());
     }
 

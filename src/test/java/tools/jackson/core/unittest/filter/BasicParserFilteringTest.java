@@ -977,9 +977,8 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void callbacksFromFilteringParserDelegate1() throws Exception {
         LoggingFilter loggingFilter = new LoggingFilter(new JsonPointerBasedFilter("/parent"));
 
-        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(),
-                """
-                        {"parent":{"child":1}}""");
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), """
+                {"parent":{"child":1}}""");
         JsonParser p = new FilteringParserDelegate(p0,
                 loggingFilter,
                 Inclusion.ONLY_INCLUDE_ALL,

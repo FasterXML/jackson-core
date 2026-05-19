@@ -209,7 +209,8 @@ class AsyncStringObjectTest extends AsyncTestBase
     {
         // Test with a longer string to ensure it's not a length-related issue
         final String longValue = "x".repeat(1000);
-        final String json = "{\"data\":\"" + longValue + "\"}";
+        final String json = """
+            {"data":"%s"}""".formatted(longValue);
         byte[] data = _jsonDoc(json);
 
         try (AsyncReaderWrapper r = asyncForBytes(JSON_F, 100, data, 0)) {

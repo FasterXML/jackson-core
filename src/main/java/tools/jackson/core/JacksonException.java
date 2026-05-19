@@ -105,7 +105,7 @@ public class JacksonException
                 if (_from == null) { // can this ever occur?
                     sb.append("UNKNOWN");
                 } else {
-                    Class<?> cls = (_from instanceof Class<?>) ? (Class<?>)_from : _from.getClass();
+                    Class<?> cls = (_from instanceof Class<?> clz) ? clz : _from.getClass();
                     // Hmmh. Although Class.getName() is mostly ok, it does look
                     // butt-ugly for arrays.
                     // 06-Oct-2016, tatu: as per [databind#1403], `getSimpleName()` not so good
@@ -214,12 +214,12 @@ public class JacksonException
         super(msg);
         _processor = processor;
         TokenStreamLocation loc = null;
-        if (processor instanceof JsonParser) {
+        if (processor instanceof JsonParser jsonParser) {
             // 17-Aug-2015, tatu: Use of token location makes some sense from databinding,
             //   since actual parsing (current) location is typically only needed for low-level
             //   parsing exceptions.
             // 10-Jun-2024, tatu: Used from streaming too, so not 100% sure. But won't change yet
-            loc = ((JsonParser) processor).currentTokenLocation();
+            loc = jsonParser.currentTokenLocation();
         }
         _location = _nonNullLocation(loc);
     }
@@ -229,11 +229,11 @@ public class JacksonException
         super(msg, problem);
         _processor = processor;
         TokenStreamLocation loc = null;
-        if (problem instanceof JacksonException) {
-            loc = ((JacksonException) problem).getLocation();
-        } else if (processor instanceof JsonParser) {
+        if (problem instanceof JacksonException jex) {
+            loc = jex.getLocation();
+        } else if (processor instanceof JsonParser jsonParser) {
             // 10-Jun-2024, tatu: Current vs token location?
-            loc = ((JsonParser) processor).currentTokenLocation();
+            loc = jsonParser.currentTokenLocation();
         }
         _location = _nonNullLocation(loc);
     }
@@ -313,8 +313,8 @@ public class JacksonException
             BiFunction<String, Throwable, JacksonException> ctor)
     {
         JacksonException jme;
-        if (src instanceof JacksonException) {
-            jme = (JacksonException) src;
+        if (src instanceof JacksonException jex) {
+            jme = jex;
         } else {
             // [databind#2128]: try to avoid duplication
             String msg = _exceptionMessage(src);
@@ -329,8 +329,8 @@ public class JacksonException
     }
 
     public static String _exceptionMessage(Throwable t) {
-        if (t instanceof JacksonException) {
-            return ((JacksonException) t).getOriginalMessage();
+        if (t instanceof JacksonException jex) {
+            return jex.getOriginalMessage();
         }
         if (t instanceof InvocationTargetException && t.getCause() != null) {
             return t.getCause().getMessage();

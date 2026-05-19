@@ -36,19 +36,19 @@ class SimpleParserTest extends JacksonCoreTestBase
         JsonParser p = createParser(MODE_READER, "[ ]");
         Object src = p.streamReadInputSource();
         assertNotNull(src);
-        assertTrue(src instanceof Reader);
+        assertInstanceOf(Reader.class, src);
         p.close();
 
         p = createParser(MODE_INPUT_STREAM, "[ ]");
         src = p.streamReadInputSource();
         assertNotNull(src);
-        assertTrue(src instanceof InputStream);
+        assertInstanceOf(InputStream.class, src);
         p.close();
 
         p = createParser(MODE_DATA_INPUT, "[ ]");
         src = p.streamReadInputSource();
         assertNotNull(src);
-        assertTrue(src instanceof DataInput);
+        assertInstanceOf(DataInput.class, src);
         p.close();
     }
 

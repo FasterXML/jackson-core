@@ -225,7 +225,7 @@ public class SimpleStreamReadContext extends TokenStreamContext
     {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new StreamReadException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
+            throw new StreamReadException(((src instanceof JsonParser jsonParser) ? jsonParser : null),
                     "Duplicate Object property \""+name+"\"");
         }
     }

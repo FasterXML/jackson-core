@@ -656,8 +656,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 return false;
             case ID_EMBEDDED_OBJECT:
                 Object value = getEmbeddedObject();
-                if (value instanceof Boolean) {
-                    return (Boolean) value;
+                if (value instanceof Boolean bool) {
+                    return bool;
                 }
                 break;
             default:
@@ -700,8 +700,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 return 0;
             case ID_EMBEDDED_OBJECT:
                 Object value = getEmbeddedObject();
-                if (value instanceof Number) {
-                    return ((Number) value).intValue();
+                if (value instanceof Number num) {
+                    return num.intValue();
                 }
             }
         }
@@ -740,8 +740,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 return 0L;
             case ID_EMBEDDED_OBJECT:
                 Object value = getEmbeddedObject();
-                if (value instanceof Number) {
-                    return ((Number) value).longValue();
+                if (value instanceof Number num) {
+                    return num.longValue();
                 }
             }
         }
@@ -771,8 +771,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 return 0.0;
             case ID_EMBEDDED_OBJECT:
                 Object value = getEmbeddedObject();
-                if (value instanceof Number) {
-                    return ((Number) value).doubleValue();
+                if (value instanceof Number num) {
+                    return num.doubleValue();
                 }
             }
         }

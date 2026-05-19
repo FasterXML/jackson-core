@@ -84,13 +84,13 @@ public class JsonParserSequence extends JsonParserDelegate
                     new JsonParser[] { first, second });
         }
         ArrayList<JsonParser> p = new ArrayList<>(10);
-        if (first instanceof JsonParserSequence) {
-            ((JsonParserSequence) first).addFlattenedActiveParsers(p);
+        if (first instanceof JsonParserSequence jpe) {
+            jpe.addFlattenedActiveParsers(p);
         } else {
             p.add(first);
         }
-        if (second instanceof JsonParserSequence) {
-            ((JsonParserSequence) second).addFlattenedActiveParsers(p);
+        if (second instanceof JsonParserSequence jpe) {
+            jpe.addFlattenedActiveParsers(p);
         } else {
             p.add(second);
         }
@@ -103,8 +103,8 @@ public class JsonParserSequence extends JsonParserDelegate
     {
         for (int i = _nextParserIndex-1, len = _parsers.length; i < len; ++i) {
             JsonParser p = _parsers[i];
-            if (p instanceof JsonParserSequence) {
-                ((JsonParserSequence) p).addFlattenedActiveParsers(listToAddIn);
+            if (p instanceof JsonParserSequence jpe) {
+                jpe.addFlattenedActiveParsers(listToAddIn);
             } else {
                 listToAddIn.add(p);
             }

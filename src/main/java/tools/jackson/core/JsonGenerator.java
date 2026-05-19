@@ -1321,8 +1321,8 @@ public abstract class JsonGenerator
             writeNull();
             return this;
         }
-        if (object instanceof byte[]) {
-            writeBinary((byte[]) object);
+        if (object instanceof byte[] array) {
+            writeBinary(array);
             return this;
         }
         throw _constructWriteException("No native support for writing embedded objects of type %s",
@@ -1521,7 +1521,7 @@ public abstract class JsonGenerator
                 // unusually, need to output AFTER value. And no real wrapper...
                 {
                     Object id = typeIdDef.id;
-                    String idStr = (id instanceof String) ? (String) id : String.valueOf(id);
+                    String idStr = (id instanceof String str) ? str : String.valueOf(id);
                     writeStringProperty(typeIdDef.asProperty, idStr);
                 }
                 break;
@@ -2363,8 +2363,8 @@ public abstract class JsonGenerator
     protected void _copyCurrentFloatValueExact(JsonParser p) throws JacksonException
     {
         Number n = p.getNumberValueExact();
-        if (n instanceof BigDecimal) {
-            writeNumber((BigDecimal) n);
+        if (n instanceof BigDecimal bigDecimal) {
+            writeNumber(bigDecimal);
         } else if (n instanceof Double) {
             writeNumber(n.doubleValue());
         } else {

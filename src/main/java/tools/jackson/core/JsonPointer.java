@@ -664,8 +664,8 @@ public class JsonPointer implements Serializable
     public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof JsonPointer)) return false;
-        JsonPointer other = (JsonPointer) o;
+        if (!(o instanceof JsonPointer jptr)) return false;
+        JsonPointer other = jptr;
         // 07-Oct-2022, tatu: Ugh.... this gets way more complicated as we MUST
         //   compare logical representation so cannot simply compare offset
         //   and String

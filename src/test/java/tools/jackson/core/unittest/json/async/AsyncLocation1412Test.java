@@ -35,13 +35,12 @@ class AsyncLocation1412Test extends AsyncTestBase
 
         @Override
         public boolean equals(Object o) {
-             if (!(o instanceof TokenAndByteOffsets)) {
-                 return false;
+             if (o instanceof TokenAndByteOffsets other) {
+                 return Objects.equals(token, other.token)
+                         && tokenByteOffset == other.tokenByteOffset
+                         && parserByteOffset == other.parserByteOffset;
              }
-             TokenAndByteOffsets other = (TokenAndByteOffsets) o;
-             return Objects.equals(token, other.token)
-                     && tokenByteOffset == other.tokenByteOffset
-                     && parserByteOffset == other.parserByteOffset;
+             return false;
         }
     }
 

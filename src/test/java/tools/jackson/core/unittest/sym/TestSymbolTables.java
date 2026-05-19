@@ -161,12 +161,12 @@ class TestSymbolTables extends JacksonCoreTestBase
     void byteBasedSymbolTable() throws Exception
     {
         // combination of short, medium1/2, long names...
-        final String JSON = "{\"abc\":1, \"abc\\u0000\":2, \"\\u0000abc\":3, "
+        final String JSON = a2q("{'abc':1, 'abc\\u0000':2, '\\u0000abc':3, "
                 // then some medium
-                +"\"abc123\":4,\"abcd1234\":5,"
-                +"\"abcd1234a\":6,\"abcd1234abcd\":7,"
-                +"\"abcd1234abcd1\":8"
-                +"}";
+                +"'abc123':4,'abcd1234':5,"
+                +"'abcd1234a':6,'abcd1234abcd':7,"
+                +"'abcd1234abcd1':8"
+                +"}");
 
         JsonFactory f = new JsonFactory();
         JsonParser p = f.createParser(ObjectReadContext.empty(), JSON.getBytes("UTF-8"));

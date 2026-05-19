@@ -33,10 +33,8 @@ class NextNameParserTest
 
     private void _testBasicNextName(int mode) throws Exception
     {
-        final String DOC = a2q(
-"{ 'data' : { 'primary' : -15, 'vector' : [ 'yes', false ], 'misc' : null, 'name' : 'Bob'  },\n"
-+"  'array' : [ true,   {'message':'hello', 'value' : 42, 'misc' : [1, 2] }, null, 0.25 ]\n"
-+"}");
+        final String DOC = """
+                { "data" : { "primary" : -15, "vector" : [ "yes", false ], "misc" : null, "name" : "Bob"  },\n  "array" : [ true,   {"message":"hello", "value" : 42, "misc" : [1, 2] }, null, 0.25 ]\n}""";
 
         JsonParser p = createParser(mode, DOC);
 

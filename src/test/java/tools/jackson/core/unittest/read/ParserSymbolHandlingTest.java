@@ -90,11 +90,11 @@ class ParserSymbolHandlingTest
         final String NAME_4 = NAME_3 + NAME_1;
         final String QUOTED_NULL = "\\u0000";
 
-        final String INPUT = a2q(String.format("{'%s':1, '%s':2, '%s':3, '%s':4}",
+        final String INPUT = String.format("{\"%s\":1, \"%s\":2, \"%s\":3, \"%s\":4}",
                 QUOTED_NULL, QUOTED_NULL + QUOTED_NULL,
                 QUOTED_NULL + QUOTED_NULL + QUOTED_NULL,
                 QUOTED_NULL + QUOTED_NULL + QUOTED_NULL + QUOTED_NULL
-                ));
+                );
         try (JsonParser p = useBytes ? f.createParser(ObjectReadContext.empty(), INPUT.getBytes("UTF-8"))
                 : f.createParser(ObjectReadContext.empty(), INPUT)) {
 

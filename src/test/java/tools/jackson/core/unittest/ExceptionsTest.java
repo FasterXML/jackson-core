@@ -147,7 +147,8 @@ class ExceptionsTest
                 .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
                 .build();
 
-        final String json = a2q("{'k1':'v1'}\n[broken]\n");
+        final String json = """
+                {"k1":"v1"}\n[broken]\n""";
         final byte[] jsonB = utf8Bytes(json);
         final int lfIndex = json.indexOf("\n");
         final int start = lfIndex+1;

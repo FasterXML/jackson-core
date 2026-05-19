@@ -12,12 +12,7 @@ class NumberParsing1397Test extends JacksonCoreTestBase
     private TokenStreamFactory JSON_F = newStreamFactory();
 
     final String radiusValue = "179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-    final String INPUT_JSON = a2q("{ 'results': [ { " +
-        "'radius': " + radiusValue + ", " +
-        "'type': 'center', " +
-        "'center': { " +
-        "'x': -11.0, " +
-        "'y': -2.0 } } ] }");
+    final String INPUT_JSON = "{ \"results\": [ { " + "\"radius\": " + radiusValue + ", " + "\"type\": \"center\", " + "\"center\": { " + "\"x\": -11.0, " + "\"y\": -2.0 } } ] }";
 
     // [jackson-core#1397]
     @Test

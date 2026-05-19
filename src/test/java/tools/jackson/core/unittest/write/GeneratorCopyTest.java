@@ -110,8 +110,8 @@ class GeneratorCopyTest
     void copyNumericTokensExactly() throws Exception
     {
         JsonFactory jf = JSON_F;
-        final String DOC = a2q("{ 'a':0.123456789123456789123456789, 'b':[" +
-            "{ 'c' : null, 'd' : 0.123456789123456789123456789 }] }");
+        final String DOC = """
+                { "a":0.123456789123456789123456789, "b":[{ "c" : null, "d" : 0.123456789123456789123456789 }] }""";
         try (JsonParser p = jf.createParser(ObjectReadContext.empty(), new StringReader(DOC))) {
             StringWriter sw = new StringWriter();
             try (JsonGenerator gen = jf.createGenerator(ObjectWriteContext.empty(), sw)) {
@@ -122,8 +122,8 @@ class GeneratorCopyTest
             }
 
             assertEquals(
-                a2q("{'a':0.123456789123456789123456789,'b':[" +
-                    "{'c':null,'d':0.123456789123456789123456789}]}"),
+                """
+                        {"a":0.123456789123456789123456789,"b":[{"c":null,"d":0.123456789123456789123456789}]}""",
                 sw.toString()
             );
         }

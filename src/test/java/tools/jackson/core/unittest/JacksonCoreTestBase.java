@@ -248,7 +248,7 @@ public class JacksonCoreTestBase
 
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
     {
-        try (JsonParser p = f.createParser(ObjectReadContext.empty(), a2q(doc))) {
+        try (JsonParser p = f.createParser(ObjectReadContext.empty(), doc.replace('\'', '"'))) {
             while (p.nextToken() != null) {
                 g.copyCurrentStructure(p);
             }

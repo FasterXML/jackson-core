@@ -27,8 +27,8 @@ public class PointerFromContextTest extends JacksonCoreTestBase
 
     public void testViaParser() throws Exception
     {
-        final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
-                +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
+        final String SIMPLE = """
+                {"a":123,"array":[1,2,[3],5,{"obInArray":4}],"ob":{"first":[false,true],"second":{"sub":37}},"b":true}""";
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), SIMPLE);
 
         // by default should just get "empty"
@@ -156,8 +156,8 @@ public class PointerFromContextTest extends JacksonCoreTestBase
 
     public void testParserWithRoot() throws Exception
     {
-        final String JSON = a2q("{'a':1,'b':3}\n"
-                +"{'a':5,'c':[1,2]}\n[1,2]\n");
+        final String JSON = """
+                {"a":1,"b":3}\n{"a":5,"c":[1,2]}\n[1,2]\n""";
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), JSON);
         // before pointing to anything, we have no path to point to
         assertSame(EMPTY_PTR, p.streamReadContext().pathAsPointer(true));

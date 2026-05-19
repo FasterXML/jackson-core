@@ -16,31 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TestSymbolsWithMediaItem extends JacksonCoreTestBase
 {
-    private final String JSON = a2q(
-            "{'media' : {\n"
-            +"      'uri' : 'http://foo.com',"
-            +"      'title' : 'Test title 1',"
-            +"      'width' : 640, 'height' : 480,"
-            +"      'format' : 'video/mpeg4',"
-            +"      'duration' : 18000000,"
-            +"      'size' : 58982400,"
-            +"      'bitrate' : 262144,"
-            +"      'persons' : [ ],"
-            +"      'player' : 'native',"
-            +"      'copyright' : 'None'"
-            +"   },\n"
-            +"   'images' : [ {\n"
-            +"      'uri' : 'http://bar.com',\n"
-            +"      'title' : 'Test title 1',\n"
-            +"      'width' : 1024,'height' : 768,\n"
-            +"      'size' : 'LARGE'\n"
-            +"    }, {\n"
-            +"      'uri' : 'http://foobar.org',\n"
-            +"      'title' : 'Javaone Keynote',\n"
-            +"      'width' : 320, 'height' : 240,\n"
-            +"      'size' : 'SMALL'\n"
-            +"    } ]\n"
-            +"}\n");
+    private final String JSON = """
+            {"media" : {\n      "uri" : "http://foo.com",      "title" : "Test title 1",      "width" : 640, "height" : 480,      "format" : "video/mpeg4",      "duration" : 18000000,      "size" : 58982400,      "bitrate" : 262144,      "persons" : [ ],      "player" : "native",      "copyright" : "None"   },\n   "images" : [ {\n      "uri" : "http://bar.com",\n      "title" : "Test title 1",\n      "width" : 1024,"height" : 768,\n      "size" : "LARGE"\n    }, {\n      "uri" : "http://foobar.org",\n      "title" : "Javaone Keynote",\n      "width" : 320, "height" : 240,\n      "size" : "SMALL"\n    } ]\n}\n""";
 
     @Test
     void smallSymbolSetWithBytes() throws IOException

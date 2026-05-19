@@ -22,8 +22,10 @@ public class TokenCountTest extends JacksonCoreTestBase {
     private final static JsonFactory JSON_FACTORY = JsonFactory.builder()
         .streamReadConstraints(StreamReadConstraints.builder().maxTokenCount(Long.MAX_VALUE).build())
         .build();
-    private final static String ARRAY_DOC = a2q("{ 'nums': [1,2,3,4,5,6,7,8,9,10] }");
-    private final static String SHORT_ARRAY_DOC = a2q("{ 'nums': [1,2,3] }");
+    private final static String ARRAY_DOC = """
+            { "nums": [1,2,3,4,5,6,7,8,9,10] }""";
+    private final static String SHORT_ARRAY_DOC = """
+            { "nums": [1,2,3] }""";
 
     @Test
     void arrayDoc() throws Exception

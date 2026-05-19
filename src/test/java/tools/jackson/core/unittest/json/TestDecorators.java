@@ -185,7 +185,8 @@ class TestDecorators extends tools.jackson.core.unittest.JacksonCoreTestBase
         JsonFactory f = JsonFactory.builder()
                 .addDecorator(new SimpleGeneratorDecorator())
                 .build();
-        final String EXP = a2q("{'password':'***'}");
+        final String EXP = """
+                {"password":"***"}""";
 
         // First, test with newly constructed factory
         StringWriter sw = new StringWriter();

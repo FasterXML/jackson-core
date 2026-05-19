@@ -25,12 +25,11 @@ public class NextNameWithMatcherTest
     private final PropertyNameMatcher MATCHER_CI_1 = JSON_F.constructCINameMatcher(NAMED_LIST_1, true,
             new Locale("en", "US"));
 
-    private final String DOC_1 = a2q(
-            "{ 'a' : 4, 'enabled' : true, 'longerName' : 'Billy-Bob Burger', 'extra' : [ 0], 'otherStuff3' : 0.25 }"
-            );
+    private final String DOC_1 = """
+            { "a" : 4, "enabled" : true, "longerName" : "Billy-Bob Burger", "extra" : [ 0], "otherStuff3" : 0.25 }""";
 
-    private final String DOC_1_CASE_MISMATCH = a2q(
-            "{ 'A' : 4, 'ENABLED' : true, 'LongerName' : 'Billy-Bob Burger', 'extra' : [0 ], 'otherStuff3' : 0.25 }");
+    private final String DOC_1_CASE_MISMATCH = """
+            { "A" : 4, "ENABLED" : true, "LongerName" : "Billy-Bob Burger", "extra" : [0 ], "otherStuff3" : 0.25 }""";
 
     public void testSimpleCaseSensitive() throws Exception
     {

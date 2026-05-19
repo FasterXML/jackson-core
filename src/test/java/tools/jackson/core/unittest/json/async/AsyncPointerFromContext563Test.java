@@ -18,8 +18,8 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
     @Test
     void pointerWithAsyncParser() throws Exception
     {
-        final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
-                +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
+        final String SIMPLE = """
+                {"a":123,"array":[1,2,[3],5,{"obInArray":4}],"ob":{"first":[false,true],"second":{"sub":37}},"b":true}""";
         byte[] SIMPLE_BYTES = SIMPLE.getBytes("UTF-8");
 
         _testPointerWithAsyncParser(SIMPLE_BYTES, 0, 1000);

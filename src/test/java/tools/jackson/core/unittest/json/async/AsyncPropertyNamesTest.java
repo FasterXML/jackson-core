@@ -70,8 +70,8 @@ class AsyncPropertyNamesTest extends AsyncTestBase
         byte[] doc;
         StringWriter w;
 
-        nameEncoded = a2q(nameEncoded);
-        nameExp = a2q(nameExp);
+        nameEncoded = nameEncoded.replace('\'', '"');
+        nameExp = nameExp.replace('\'', '"');
 
         w = new StringWriter();
         w.append("{\"");

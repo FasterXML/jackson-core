@@ -98,7 +98,8 @@ class LocationOfError1173Test extends JacksonCoreTestBase
     private static final List<InvalidJson> INVALID_JSON_CASES = Arrays.asList(
         new InvalidJson(
             "Object property missing colon",
-            a2q("{'invalid' 'json'}"),
+            """
+                    {"invalid" "json"}""",
             11, // byte offset
             11, // char offset
             1,  // line number
@@ -106,7 +107,8 @@ class LocationOfError1173Test extends JacksonCoreTestBase
         ),
         new InvalidJson(
             "Comma after key in object property",
-            a2q("{'invalid', 'json'}"),
+            """
+                    {"invalid", "json"}""",
             10,
             10,
             1,
@@ -114,7 +116,8 @@ class LocationOfError1173Test extends JacksonCoreTestBase
         ),
         new InvalidJson(
             "Missing comma between object properties",
-            a2q("{'key1':'value1' 'key2':'value2'}"),
+            """
+                    {"key1":"value1" "key2":"value2"}""",
             17,
             17,
             1,

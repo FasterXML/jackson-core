@@ -403,7 +403,8 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void allowMultipleMatchesWithoutPath() throws Exception
     {
         String jsonString = """
-                {"a":123,"array":[1,2],"ob":{"value0":2,"value":3,"value2":4,"value":{"value0":2}},"value":\"val\","b":true}""";
+            {"a":123,"array":[1,2],"ob":{"value0":2,"value":3,"value2":4,
+            "value":{"value0":2}},"value":"val","b":true}""";
         JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                new NameMatchFilter("value"),
@@ -412,7 +413,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
                 );
         String result = readAndWrite(JSON_F, p);
         assertEquals("""
-                3 {\"value0\":2} \"val\"""", result);
+                3 {"value0":2} "val\"""", result);
         assertEquals(3, p.getMatchCount());
     }
 
@@ -420,7 +421,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void allowMultipleMatchesWithPath1() throws Exception
     {
         String jsonString = """
-                {"a":123,"array":[1,2],"ob":{"value0":2,"value":3,"value2":4,"value":{"value0":2}},"value":\"val\","b":true}""";
+                {"a":123,"array":[1,2],"ob":{"value0":2,"value":3,"value2":4,"value":{"value0":2}},"value":"val","b":true}""";
         JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
@@ -429,7 +430,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
         );
         String result = readAndWrite(JSON_F, p);
         assertEquals("""
-                {\"ob\":{\"value\":3,\"value\":{\"value0\":2}},\"value\":\"val\"}""", result);
+                {"ob":{"value":3,"value":{"value0":2}},"value":"val"}""", result);
         assertEquals(3, p.getMatchCount());
     }
 
@@ -484,14 +485,14 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void multipleMatchFilteringWithPath3() throws Exception
     {
         final String JSON = """
-                {"root":{"a0":true,"a":{"value":3},"b":{"value":\"foo\"}},"b0":false}""";
+                {"root":{"a0":true,"a":{"value":3},"b":{"value":"foo"}},"b0":false}""";
         JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), JSON);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         String result = readAndWrite(JSON_F, p);
         assertEquals("""
-                {"root":{"a":{"value":3},"b":{"value":\"foo\"}}}""", result);
+                {"root":{"a":{"value":3},"b":{"value":"foo"}}}""", result);
         assertEquals(2, p.getMatchCount());
     }
 

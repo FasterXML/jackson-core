@@ -277,7 +277,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
         );
         String result = readAndWrite(JSON_F, p);
         assertEquals("""
-                {\"ob\":{\"value\":3}}""", result);
+                {"ob":{"value":3}}""", result);
         assertEquals(1, p.getMatchCount());
     }
 
@@ -318,7 +318,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void notAllowMultipleMatchesWithoutPath2() throws Exception
     {
         String jsonString = """
-                {"a":123,"array":[1,2],"array":[3,4],"ob":{"value0":2,"value":3,"value2":4,"value":{"value0":2}},"value":\"val\","b":true}""";
+                {"a":123,"array":[1,2],"array":[3,4],"ob":{"value0":2,"value":3,"value2":4,"value":{"value0":2}},"value":"val","b":true}""";
         JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new IndexMatchFilter(1),
@@ -334,7 +334,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void notAllowMultipleMatchesWithPath1() throws Exception
     {
         String jsonString = """
-                {"a":123,"array":[1,2],"array":[3,4],"ob":{"value":3,"array":[5,6],"value":{"value0":2}},"value":\"val\","b":true}""";
+                {"a":123,"array":[1,2],"array":[3,4],"ob":{"value":3,"array":[5,6],"value":{"value0":2}},"value":"val","b":true}""";
         JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new IndexMatchFilter(1),
@@ -343,7 +343,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
         );
         String result = readAndWrite(JSON_F, p);
         assertEquals("""
-                {\"array\":[2]}""", result);
+                {"array":[2]}""", result);
         assertEquals(1, p.getMatchCount());
     }
 
@@ -361,7 +361,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
         );
         String result = readAndWrite(JSON_F, p);
         assertEquals("""
-                {\"ob\":{\"array\":[2]}}""", result);
+                {"ob":{"array":[2]}}""", result);
         assertEquals(1, p.getMatchCount());
     }
 
@@ -369,7 +369,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void notAllowMultipleMatchesWithPath3() throws Exception
     {
         String jsonString = """
-                {"ob":{"value":3,"ob":{"value":2}},"value":\"val\"}""";
+                {"ob":{"value":3,"ob":{"value":2}},"value":"val"}""";
         JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
@@ -386,7 +386,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void notAllowMultipleMatchesWithPath4() throws Exception
     {
         String jsonString = """
-                {"a":123,"array":[1,2],"ob":{"value1":1},"ob2":{"ob":{"value2":2}},"value":\"val\","b":true}""";
+                {"a":123,"array":[1,2],"ob":{"value1":1},"ob2":{"ob":{"value2":2}},"value":"val","b":true}""";
         JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("ob"),
@@ -438,7 +438,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
     void allowMultipleMatchesWithPath2() throws Exception
     {
         String jsonString = """
-                {"a":123,"array":[1,2],"ob":{"value0":2,"value":3,"array":[3,4],"value":{"value0":2}},"value":\"val\","b":true}""";
+                {"a":123,"array":[1,2],"ob":{"value0":2,"value":3,"array":[3,4],"value":{"value0":2}},"value":"val","b":true}""";
         JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new IndexMatchFilter(1),
@@ -447,7 +447,7 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
         );
         String result = readAndWrite(JSON_F, p);
         assertEquals("""
-                {\"array\":[2],\"ob\":{\"array\":[4]}}""", result);
+                {"array":[2],"ob":{"array":[4]}}""", result);
         assertEquals(2, p.getMatchCount());
     }
 

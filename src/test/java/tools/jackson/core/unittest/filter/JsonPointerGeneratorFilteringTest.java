@@ -142,7 +142,7 @@ class JsonPointerGeneratorFilteringTest extends tools.jackson.core.unittest.Jack
             throw e;
         }
 
-        assertEquals(exp.replace('\'', '"'), w.toString());
+        assertEquals(a2q(exp), w.toString());
     }
 
 

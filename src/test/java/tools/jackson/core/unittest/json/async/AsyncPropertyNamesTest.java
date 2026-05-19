@@ -1,6 +1,7 @@
 package tools.jackson.core.unittest.json.async;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -70,14 +71,14 @@ class AsyncPropertyNamesTest extends AsyncTestBase
         byte[] doc;
         StringWriter w;
 
-        nameEncoded = nameEncoded.replace('\'', '"');
-        nameExp = nameExp.replace('\'', '"');
+        nameEncoded = a2q(nameEncoded);
+        nameExp = a2q(nameExp);
 
         w = new StringWriter();
         w.append("{\"");
         w.append(nameEncoded);
         w.append("\":true}");
-        doc = w.toString().getBytes("UTF-8");
+        doc = w.toString().getBytes(StandardCharsets.UTF_8);
 
         _testEscapedFieldNames(doc, nameExp, 0, 99);
         _testEscapedFieldNames(doc, nameExp, 0, 5);
@@ -93,7 +94,7 @@ class AsyncPropertyNamesTest extends AsyncTestBase
         w.append("{'");
         w.append(nameEncoded);
         w.append("':true}");
-        doc = w.toString().getBytes("UTF-8");
+        doc = w.toString().getBytes(StandardCharsets.UTF_8);
 
         _testEscapedAposFieldNames(doc, nameExp, 0, 99);
         _testEscapedAposFieldNames(doc, nameExp, 0, 5);

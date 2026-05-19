@@ -93,6 +93,6 @@ class JsonPointerParserFilteringTest extends tools.jackson.core.unittest.Jackson
             throw e;
         }
 
-        assertEquals(exp.replace('\'', '"'), w.toString());
+        assertEquals(a2q(exp), w.toString());
     }
 }

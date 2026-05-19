@@ -138,8 +138,9 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     @Test
     void stuffInArray2() throws Exception
     {
-        byte[] data = _jsonDoc(String.format("[{\"%s\":true},{\"%s\":false},{\"%s\":true},{\"%s\":false}]",
-                SHORT_NAME, LONG_NAME, LONG_NAME, SHORT_NAME));
+        byte[] data = _jsonDoc("""
+                [{"%s":true},{"%s":false},{"%s":true},{"%s":false}]""".formatted(
+                        SHORT_NAME, LONG_NAME, LONG_NAME, SHORT_NAME));
         JsonFactory f = JSON_F;
 
         _testStuffInArray2(f, data, 0, 100);
@@ -194,8 +195,7 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     @Test
     void mismatchedArray() throws Exception
     {
-        byte[] data = _jsonDoc("""
-                [  }""");
+        byte[] data = _jsonDoc("[  }");
 
         JsonFactory f = JSON_F;
         _testMismatchedArray(f, data, 0, 99);
@@ -224,8 +224,7 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     @Test
     void mismatchedObject() throws Exception
     {
-        byte[] data = _jsonDoc("""
-                { ]""");
+        byte[] data = _jsonDoc("{ ]");
 
         JsonFactory f = JSON_F;
         _testMismatchedObject(f, data, 0, 99);

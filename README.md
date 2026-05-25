@@ -19,7 +19,7 @@ also build on this base package, implementing the core interfaces,
 making it possible to use standard [data-binding package](https://github.com/FasterXML/jackson-databind) regardless of underlying data format.
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions can be found from
-[Jackson-1](../../../jackson-1) github repo.
+[Jackson-1](https://github.com/FasterXML/jackson-1) github repo.
 
 ## Status
 
@@ -57,14 +57,14 @@ To use the package, you need to use following Maven dependency:
 </dependency>
 ```
 
-or download jars from Maven repository or links on [Wiki](../../wiki).
+or download jars from Maven repository or links on [Wiki](https://github.com/FasterXML/jackson-core/wiki).
 Core jar is a functional OSGi bundle, with proper import/export declarations.
 
 Package has no external dependencies, except for testing (which uses `JUnit`).
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/).
+For non-Maven use cases, you download jars from [Central Maven repository](https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-core/).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
@@ -98,14 +98,14 @@ JsonFactory factory = objectMapper.tokenStreamFactory();
 All reading is by using `JsonParser` (or its sub-classes, in case of data formats other than JSON),
 instance of which is constructed by `JsonFactory`.
 
-An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
+An example can be found from [Reading and Writing Event Streams](https://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 ## Usage, simple writing
 
 All writing is by using `JsonGenerator` (or its sub-classes, in case of data formats other than JSON),
 instance of which is constructed by `JsonFactory`:
 
-An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
+An example can be found from [Reading and Writing Event Streams](https://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 ## Processing limits
 
@@ -209,11 +209,11 @@ script which uses Maven Release plug-in under the hood (earlier release plug-in 
 
 ### Community support
 
-Jackson components are supported by the Jackson community through mailing lists, Gitter forum, Github issues. See [Participation, Contributing](../../../jackson#participation-contributing) for full details.
+Jackson components are supported by the Jackson community through mailing lists, Gitter forum, Github issues. See [Participation, Contributing](https://github.com/FasterXML/jackson#participation-contributing) for full details.
 
 ### Enterprise support
 
-Available as part of the [Tidelift](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind) Subscription.
+Available as part of the [Tidelift](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core) Subscription.
 
 The maintainers of `jackson-core` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
 
@@ -237,6 +237,6 @@ Note that the main differences compared to 1.0 core jar are:
 
 ## Links
 
-* Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
+* Project  [Wiki](https://github.com/FasterXML/jackson-core/wiki) has JavaDocs and links to downloadable artifacts
 * [Jackson (portal)](https://github.com/FasterXML/jackson) has links to all FasterXML-maintained "official" Jackson components
 * [Jackson Docs](https://github.com/FasterXML/jackson-docs) is the portal/hub for all kinds of Jackson documentation

@@ -109,6 +109,17 @@ class NumberInputTest
     }
 
     @Test
+    void bigIntegerWithRadixFromCharArrayInvalid()
+    {
+        // Non-hex characters -> NFE on both paths.
+        char[] bad = "GHIJ".toCharArray();
+        assertThrows(NumberFormatException.class,
+                () -> NumberInput.parseBigIntegerWithRadix(bad, 0, bad.length, 16, true));
+        assertThrows(NumberFormatException.class,
+                () -> NumberInput.parseBigIntegerWithRadix(bad, 0, bad.length, 16, false));
+    }
+
+    @Test
     void parseBigIntegerFailsWithENotation()
     {
         try {

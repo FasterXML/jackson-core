@@ -590,6 +590,30 @@ public final class NumberInput
     }
 
     /**
+     * Parse a {@link BigInteger} from a {@code char[]} slice. When
+     * {@code useFastParser} is {@code true} the slice is handed to
+     * {@code FastDoubleParser} directly so no intermediate {@link String} is
+     * allocated; otherwise the JDK constructor is used (which requires a
+     * temporary String).
+     *
+     * @param ch char array containing the digits to parse
+     * @param offset offset of the first digit in {@code ch}
+     * @param length number of digits to parse
+     * @param radix radix to parse with
+     * @param useFastParser whether to use {@code FastDoubleParser} (true) or the JDK default (false)
+     * @return a BigInteger
+     * @throws NumberFormatException if the char slice cannot be represented by a BigInteger with the given radix
+     * @since 3.2
+     */
+    public static BigInteger parseBigIntegerWithRadix(final char[] ch, final int offset,
+            final int length, final int radix, final boolean useFastParser) throws NumberFormatException {
+        if (useFastParser) {
+            return BigIntegerParser.parseWithFastParser(ch, offset, length, radix);
+        }
+        return new BigInteger(new String(ch, offset, length), radix);
+    }
+
+    /**
      * Method called to check whether given pattern looks like a valid Java
      * Number (which is bit looser definition than valid JSON Number).
      * Used as pre-parsing check when parsing "Stringified numbers".

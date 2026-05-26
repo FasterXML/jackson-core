@@ -361,9 +361,10 @@ public abstract class JsonParserBase
             // else fall through to BigInteger path
         }
         // Larger values -> BigInteger. We must eagerly decode here (the lazy
-        // base-10 path via _numberString would mis-read hex digits).
-        String digits = new String(buf, idx, hexLen);
-        BigInteger bi = new BigInteger(digits, 16);
+        // base-10 path via _numberString would mis-read hex digits). Pass the
+        // char[] slice directly so the fast path avoids an intermediate String.
+        BigInteger bi = NumberInput.parseBigIntegerWithRadix(buf, idx, hexLen, 16,
+                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
         if (_numberNegative) {
             bi = bi.negate();
         }

@@ -65,6 +65,17 @@ class NumberInputTest
     }
 
     @Test
+    void bigIntegerWithRadixFromCharArray()
+    {
+        // Embed the digits inside a larger buffer so offset/length are exercised.
+        char[] buf = ("xx" + "1ABCDEF" + "yy").toCharArray();
+        final int radix = 16;
+        BigInteger expected = new BigInteger("1ABCDEF", radix);
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(buf, 2, 7, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(buf, 2, 7, radix, false));
+    }
+
+    @Test
     void parseBigIntegerFailsWithENotation()
     {
         try {

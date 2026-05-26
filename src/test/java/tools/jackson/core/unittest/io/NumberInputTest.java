@@ -67,12 +67,45 @@ class NumberInputTest
     @Test
     void bigIntegerWithRadixFromCharArray()
     {
-        // Embed the digits inside a larger buffer so offset/length are exercised.
-        char[] buf = ("xx" + "1ABCDEF" + "yy").toCharArray();
         final int radix = 16;
-        BigInteger expected = new BigInteger("1ABCDEF", radix);
-        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(buf, 2, 7, radix, true));
-        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(buf, 2, 7, radix, false));
+        final BigInteger expected = new BigInteger("1ABCDEF", radix);
+
+        // 1) offset=0, length spans the entire array.
+        char[] exact = "1ABCDEF".toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(exact, 0, exact.length, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(exact, 0, exact.length, radix, false));
+
+        // 2) offset=0, length deliberately shorter than the array (ignore trailing chars).
+        char[] trailing = "1ABCDEFzz".toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(trailing, 0, 7, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(trailing, 0, 7, radix, false));
+
+        // 3) offset>0, length skips both leading and trailing chars.
+        char[] padded = ("xx" + "1ABCDEF" + "yy").toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(padded, 2, 7, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(padded, 2, 7, radix, false));
+    }
+
+    @Test
+    void bigIntegerWithRadixFromCharArrayNegative()
+    {
+        final int radix = 16;
+        final BigInteger expected = new BigInteger("-1ABCDEF", radix);
+
+        // offset=0, full array.
+        char[] exact = "-1ABCDEF".toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(exact, 0, exact.length, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(exact, 0, exact.length, radix, false));
+
+        // offset=0, length truncates trailing chars.
+        char[] trailing = "-1ABCDEFzz".toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(trailing, 0, 8, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(trailing, 0, 8, radix, false));
+
+        // offset>0, slice in the middle of a larger buffer.
+        char[] padded = ("xx" + "-1ABCDEF" + "yy").toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(padded, 2, 8, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(padded, 2, 8, radix, false));
     }
 
     @Test

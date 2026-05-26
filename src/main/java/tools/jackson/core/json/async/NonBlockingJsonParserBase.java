@@ -116,6 +116,12 @@ public abstract class NonBlockingJsonParserBase
     // resume correctly retains the leading '+' character.
     protected final static int MINOR_NUMBER_PLUSZERO = 33;
 
+    // [core#707] JSON5 hexadecimal literal states:
+    //  - HEX_PREFIX: textBuffer holds optional sign + '0' + 'x'/'X'; awaiting first hex digit
+    //  - HEX_DIGITS: textBuffer holds sign + '0x'/'0X' + at least one hex digit; awaiting more
+    protected final static int MINOR_NUMBER_HEX_PREFIX = 34;
+    protected final static int MINOR_NUMBER_HEX_DIGITS = 35;
+
     protected final static int MINOR_VALUE_STRING = 40;
     protected final static int MINOR_VALUE_STRING_ESCAPE = 41;
     protected final static int MINOR_VALUE_STRING_UTF8_2 = 42;

@@ -256,6 +256,12 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_NUMBER_EXPONENT_DIGITS:
             return _finishFloatExponent(false, getNextUnsignedByteFromBuffer());
 
+        // [core#707] JSON5 hex resumption
+        case MINOR_NUMBER_HEX_PREFIX:
+            return _finishHexDigits(true);
+        case MINOR_NUMBER_HEX_DIGITS:
+            return _finishHexDigits(false);
+
         case MINOR_VALUE_STRING:
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_2:
@@ -385,6 +391,14 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         case MINOR_NUMBER_EXPONENT_MARKER:
             _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
+
+        // [core#707] JSON5 hex EOF handling
+        case MINOR_NUMBER_HEX_PREFIX:
+            _reportInvalidEOF(": expected at least one hexadecimal digit after '0x'/'0X' prefix",
+                    JsonToken.VALUE_NUMBER_INT);
+        case MINOR_NUMBER_HEX_DIGITS:
+            // Suspended with at least one hex digit accumulated; finalize.
+            return _completeHexNumber();
 
             // How about comments?
             // Inside C-comments; not legal
@@ -1514,6 +1528,12 @@ public abstract class NonBlockingUtf8JsonParserBase
                 outBuf[0] = '0';
                 return _startFloat(outBuf, 1, ch);
             }
+            // [core#707] JSON5 hexadecimal literal?
+            if ((ch == 'x' || ch == 'X')
+                    && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                _inputPtr = ptr; // consume the 'x'/'X'
+                return _startHexNumber(false, (char) ch);
+            }
             // Ok; unfortunately we have closing bracket/curly that are valid so need
             // (colon not possible since this is within value, not after key)
             //
@@ -1611,6 +1631,11 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _intLength = 1;
                     return _startFloat(outBuf, 1, ch);
                 }
+                // [core#707] JSON5 hexadecimal literal?
+                if ((ch == 'x' || ch == 'X')
+                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                    return _startHexNumber(false, (char) ch);
+                }
                 // Ok; unfortunately we have closing bracket/curly that are valid so need
                 // (colon not possible since this is within value, not after key)
                 //
@@ -1674,6 +1699,11 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
                 }
+                // [core#707] JSON5 hexadecimal literal?
+                if ((ch == 'x' || ch == 'X')
+                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                    return _startHexNumberWithSign(negative, (char) ch);
+                }
                 // Ok; unfortunately we have closing bracket/curly that are valid so need
                 // (colon not possible since this is within value, not after key)
                 //
@@ -1700,6 +1730,92 @@ public abstract class NonBlockingUtf8JsonParserBase
             --_inputPtr;
             return _valueCompleteInt(0, "0");
         }
+    }
+
+    // [core#707] JSON5 hex helpers - start collecting digits after detecting
+    // the '0x'/'0X' prefix. Two entry points differ only by whether a sign char
+    // ('-' / '+') needs to be prepended to the buffered literal.
+    //
+    // @since 3.2
+    protected JsonToken _startHexNumber(boolean negative, char prefixChar) throws JacksonException {
+        _numberNegative = negative;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        int outPtr = 0;
+        if (negative) {
+            outBuf[outPtr++] = '-';
+        }
+        outBuf[outPtr++] = '0';
+        outBuf[outPtr++] = prefixChar;
+        _textBuffer.setCurrentLength(outPtr);
+        return _finishHexDigits(true);
+    }
+
+    protected JsonToken _startHexNumberWithSign(boolean negative, char prefixChar) throws JacksonException {
+        _numberNegative = negative;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = negative ? '-' : '+';
+        outBuf[1] = '0';
+        outBuf[2] = prefixChar;
+        _textBuffer.setCurrentLength(3);
+        return _finishHexDigits(true);
+    }
+
+    protected JsonToken _finishHexDigits(boolean requireFirst) throws JacksonException {
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        // Sign-prefixed buffers carry '+'/'-' at index 0, so prefix length is 3;
+        // otherwise it is 2 ("0x"/"0X").
+        final boolean hasSignChar = (outBuf[0] == '-' || outBuf[0] == '+');
+        final int prefixLen = hasSignChar ? 3 : 2;
+
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _minorState = requireFirst ? MINOR_NUMBER_HEX_PREFIX : MINOR_NUMBER_HEX_DIGITS;
+                _textBuffer.setCurrentLength(outPtr);
+                return _updateTokenToNA();
+            }
+            int ch = getByteFromBuffer(_inputPtr) & 0xFF;
+            if (!_isHexDigit(ch)) {
+                if (requireFirst) {
+                    _reportUnexpectedNumberChar(ch,
+                            "Hexadecimal number prefix '0" + outBuf[prefixLen - 1]
+                            + "' must be followed by at least one hex digit (0-9, a-f, A-F)");
+                }
+                break;
+            }
+            ++_inputPtr;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            requireFirst = false;
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        final int hexLen = outPtr - prefixLen;
+        // As per #105, need separating space between root values; check here.
+        // Note: _inputPtr currently points AT the terminator (we did not consume it).
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace(getByteFromBuffer(_inputPtr) & 0xFF);
+        }
+        resetIntHex(_numberNegative, hexLen);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+    }
+
+    // Called from _finishTokenWithEOF when input ends while collecting hex digits.
+    private JsonToken _completeHexNumber() throws JacksonException {
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        final boolean hasSignChar = (outBuf[0] == '-' || outBuf[0] == '+');
+        final int prefixLen = hasSignChar ? 3 : 2;
+        final int hexLen = outPtr - prefixLen;
+        resetIntHex(_numberNegative, hexLen);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+    }
+
+    private static boolean _isHexDigit(int c) {
+        return (c >= INT_0 && c <= INT_9)
+                || (c >= 'a' && c <= 'f')
+                || (c >= 'A' && c <= 'F');
     }
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws JacksonException {

@@ -1,5 +1,7 @@
 package tools.jackson.core.json;
 
+import java.math.BigInteger;
+
 import tools.jackson.core.*;
 import tools.jackson.core.base.ParserBase;
 import tools.jackson.core.exc.InputCoercionException;
@@ -192,6 +194,10 @@ public abstract class JsonParserBase
     {
         // Int or float?
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            if (_numberIsHex) {
+                _parseHexInt(expType);
+                return;
+            }
             int len = _intLength;
             // First: optimization for simple int
             if (len <= 9) {
@@ -250,7 +256,9 @@ public abstract class JsonParserBase
     {
         // Inlined variant of: _parseNumericValue(NR_INT)
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
-            if (_intLength <= 9) {
+            // Hex integers go through the generic path so the base-16 decode is
+            // applied (the base-10 fast path below would mis-read the literal):
+            if (!_numberIsHex && _intLength <= 9) {
                 int i = _textBuffer.contentsAsInt(_numberNegative);
                 _numberInt = i;
                 _numTypesValid = NR_INT;
@@ -295,6 +303,85 @@ public abstract class JsonParserBase
             _numberString = _textBuffer.contentsAsString();
             _numTypesValid = NR_DOUBLE;
         }
+    }
+
+    /**
+     * Decode a JSON5 hexadecimal integer that was buffered as the original
+     * textual literal (sign + {@code 0x}/{@code 0X} prefix + hex digits).
+     * {@link #_intLength} holds the count of hex digits.
+     *
+     * @since 3.2
+     */
+    private void _parseHexInt(int expType) throws JacksonException
+    {
+        final int hexLen = _intLength;
+        final char[] buf = _textBuffer.getTextBuffer();
+        // Locate the first hex digit: skip optional sign and "0x" / "0X" prefix
+        int idx = _textBuffer.getTextOffset();
+        final char first = buf[idx];
+        if (first == '-' || first == '+') {
+            ++idx;
+        }
+        idx += 2; // skip "0x" / "0X"
+
+        // Up to 7 hex digits always fit in a positive signed int (<= 0x0FFFFFFF).
+        // 8 hex digits may overflow signed int (e.g. 0x80000000), so we defer to
+        // the long path which handles range checks uniformly.
+        if (hexLen <= 7) {
+            int v = 0;
+            for (int i = 0; i < hexLen; ++i) {
+                v = (v << 4) | _hexDigit(buf[idx + i]);
+            }
+            _numberInt = _numberNegative ? -v : v;
+            _numTypesValid = NR_INT;
+            return;
+        }
+        // 9..15 hex digits always fit in a positive long (63 bits used at most)
+        if (hexLen <= 15) {
+            long v = 0L;
+            for (int i = 0; i < hexLen; ++i) {
+                v = (v << 4) | _hexDigit(buf[idx + i]);
+            }
+            _numberLong = _numberNegative ? -v : v;
+            _numTypesValid = NR_LONG;
+            return;
+        }
+        // 16 hex digits: may or may not fit in signed long, depending on top bit
+        if (hexLen == 16) {
+            int topNibble = _hexDigit(buf[idx]);
+            if (topNibble < 0x8) { // fits in positive signed long
+                long v = topNibble;
+                for (int i = 1; i < 16; ++i) {
+                    v = (v << 4) | _hexDigit(buf[idx + i]);
+                }
+                _numberLong = _numberNegative ? -v : v;
+                _numTypesValid = NR_LONG;
+                return;
+            }
+            // else fall through to BigInteger path
+        }
+        // Larger values -> BigInteger. We must eagerly decode here (the lazy
+        // base-10 path via _numberString would mis-read hex digits).
+        String digits = new String(buf, idx, hexLen);
+        BigInteger bi = new BigInteger(digits, 16);
+        if (_numberNegative) {
+            bi = bi.negate();
+        }
+        _numberBigInt = bi;
+        _numberString = null;
+        _numTypesValid = NR_BIGINT;
+        if ((expType == NR_INT) || (expType == NR_LONG)) {
+            // Force the overflow path to surface a meaningful error
+            _reportTooLongIntegral(expType, _textBuffer.contentsAsString());
+        }
+    }
+
+    private static int _hexDigit(char c) {
+        if (c <= '9') {
+            return c - '0';
+        }
+        // 'A'..'F' -> 10..15, 'a'..'f' -> 10..15
+        return (c & 0x1F) + 9;
     }
 
     private void _parseSlowInt(int expType) throws JacksonException

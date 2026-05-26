@@ -19,6 +19,9 @@ JSON library.
 
 #679: Number parsing should fail for trailing dot (period)
  (fix by @cowtowncoder, w/ Claude code)
+#707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS` for JSON5-style hexadecimal
+  integer literals (`0x` / `0X`, optional sign)
+ (implementation by @seonwooj0810)
 #1211: Add `JsonParser.willInternPropertyNames()` to check whether
   property name interning is enabled
  (contributed by Max P)

@@ -1064,6 +1064,10 @@ public class UTF8DataInputJsonParser
             if (c <= INT_9 && c >= INT_0) { // skip if followed by digit
                 outPtr = 0;
             } else if (c == 'x' || c == 'X') {
+                // [core#707] JSON5 hexadecimal literal?
+                if (isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                    return _finishHexNumber(false, outBuf, 0, c);
+                }
                 return _handleInvalidNumberStart(c, false);
             } else {
                 outBuf[0] = '0';
@@ -1123,6 +1127,13 @@ public class UTF8DataInputJsonParser
             // One special case: if first char is 0 need to check no leading zeroes
             if (c == INT_0) {
                 c = _handleLeadingZeroes();
+                // [core#707] JSON5 hexadecimal literal with sign?
+                if ((c == 'x' || c == 'X')
+                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                    // outBuf currently holds [sign, '0']; the helper re-appends
+                    // '0' itself, so rewind outPtr to just after the sign.
+                    return _finishHexNumber(negative, outBuf, 1, c);
+                }
             } else if (c == INT_PERIOD) {
                 return _parseFloatThatStartsWithPeriod(negative, true);
             } else {
@@ -1158,6 +1169,56 @@ public class UTF8DataInputJsonParser
         }
         // And there we have it!
         return resetInt(negative, intLen);
+    }
+
+    // [core#707] Finish parsing a JSON5 hexadecimal integer literal. On entry the
+    // optional sign (if any) is already in outBuf at indices [0..outPtr-1] and
+    // the 'x'/'X' has already been consumed from the underlying DataInput.
+    // We append '0' + prefix char + all hex digits.
+    //
+    // @since 3.2
+    private final JsonToken _finishHexNumber(boolean neg, char[] outBuf, int outPtr,
+            int prefixChar) throws IOException
+    {
+        if (outPtr >= outBuf.length) {
+            outBuf = _textBuffer.finishCurrentSegment();
+            outPtr = 0;
+        }
+        outBuf[outPtr++] = '0';
+        if (outPtr >= outBuf.length) {
+            outBuf = _textBuffer.finishCurrentSegment();
+            outPtr = 0;
+        }
+        outBuf[outPtr++] = (char) prefixChar;
+
+        int hexLen = 0;
+        int c = readUnsignedByte();
+        while (_isHexDigit(c)) {
+            ++hexLen;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
+            outBuf[outPtr++] = (char) c;
+            c = readUnsignedByte();
+        }
+        if (hexLen == 0) {
+            return _reportUnexpectedNumberChar(c,
+                    "Hexadecimal number prefix '0" + ((char) prefixChar)
+                    + "' must be followed by at least one hex digit (0-9, a-f, A-F)");
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        _nextByte = c;
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace();
+        }
+        return resetIntHex(neg, hexLen);
+    }
+
+    private static boolean _isHexDigit(int c) {
+        return (c >= INT_0 && c <= INT_9)
+                || (c >= 'a' && c <= 'f')
+                || (c >= 'A' && c <= 'F');
     }
 
     /**

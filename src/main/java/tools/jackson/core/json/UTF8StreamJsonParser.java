@@ -1819,6 +1819,16 @@ public class UTF8StreamJsonParser
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         // One special case: if first char is 0, must not be followed by a digit
         if (c == INT_0) {
+            // [core#707] JSON5 hexadecimal literal ('0x' / '0X')?
+            // Must be checked BEFORE _verifyNoLeadingZeroes(): leading zeros in
+            // hex digits are valid regardless of ALLOW_LEADING_ZEROS_FOR_NUMBERS.
+            if (_inputPtr < _inputEnd || _loadMore()) {
+                int peek = _inputBuffer[_inputPtr] & 0xFF;
+                if ((peek == 'x' || peek == 'X')
+                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                    return _finishHexNumber(false, outBuf, 0, peek);
+                }
+            }
             c = _verifyNoLeadingZeroes();
         }
         // Ok: we can first just add digit we saw first:
@@ -1873,6 +1883,14 @@ public class UTF8StreamJsonParser
                     return _parseFloatThatStartsWithPeriod(negative, true);
                 }
                 return _handleInvalidNumberStart(c, negative, true);
+            }
+            // [core#707] JSON5 hexadecimal literal ('0x' / '0X') with optional sign?
+            if (_inputPtr < _inputEnd || _loadMore()) {
+                int peek = _inputBuffer[_inputPtr] & 0xFF;
+                if ((peek == 'x' || peek == 'X')
+                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                    return _finishHexNumber(negative, outBuf, outPtr, peek);
+                }
             }
             c = _verifyNoLeadingZeroes();
         } else if (c > INT_9) {
@@ -1949,6 +1967,71 @@ public class UTF8StreamJsonParser
         // And there we have it!
         return resetInt(negative, intPartLength);
 
+    }
+
+    // [core#707] Finish parsing a JSON5 hexadecimal integer literal. On entry the
+    // optional sign (if any) is already in outBuf at indices [0..outPtr-1], and
+    // we have seen '0' followed by 'x'/'X' (still un-consumed in the input
+    // buffer). We append '0' then the prefix char then all hex digits.
+    //
+    // @since 3.2
+    private final JsonToken _finishHexNumber(boolean neg, char[] outBuf, int outPtr,
+            int prefixChar) throws JacksonException
+    {
+        if (outPtr >= outBuf.length) {
+            outBuf = _textBuffer.finishCurrentSegment();
+            outPtr = 0;
+        }
+        outBuf[outPtr++] = '0';
+        if (outPtr >= outBuf.length) {
+            outBuf = _textBuffer.finishCurrentSegment();
+            outPtr = 0;
+        }
+        outBuf[outPtr++] = (char) prefixChar;
+        ++_inputPtr; // consume the 'x'/'X' we only peeked at
+
+        int hexLen = 0;
+        int c = 0;
+        boolean eof = false;
+
+        hex_loop:
+        while (true) {
+            if (_inputPtr >= _inputEnd && !_loadMore()) {
+                eof = true;
+                break hex_loop;
+            }
+            c = _inputBuffer[_inputPtr++] & 0xFF;
+            if (!_isHexDigit(c)) {
+                break hex_loop;
+            }
+            ++hexLen;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
+            outBuf[outPtr++] = (char) c;
+        }
+
+        if (hexLen == 0) {
+            return _reportUnexpectedNumberChar(c,
+                    "Hexadecimal number prefix '0" + ((char) prefixChar)
+                    + "' must be followed by at least one hex digit (0-9, a-f, A-F)");
+        }
+
+        if (!eof) {
+            --_inputPtr; // push back the terminating non-hex char
+            if (_streamReadContext.inRoot()) {
+                _verifyRootSpace(c);
+            }
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        return resetIntHex(neg, hexLen);
+    }
+
+    private static boolean _isHexDigit(int c) {
+        return (c >= INT_0 && c <= INT_9)
+                || (c >= 'a' && c <= 'f')
+                || (c >= 'A' && c <= 'F');
     }
 
     // Method called when we have seen one zero, and want to ensure

@@ -438,6 +438,23 @@ public abstract class JsonParserBase
                 + "' must be followed by at least one hex digit (0-9, a-f, A-F)";
     }
 
+    /**
+     * Called after seeing the {@code 'x'} or {@code 'X'} that follows a leading
+     * {@code '0'} in a number literal. Returns silently if
+     * {@link JsonReadFeature#ALLOW_HEXADECIMAL_NUMBERS} is enabled; otherwise
+     * throws a {@link StreamReadException} naming the feature that must be
+     * enabled, so the user gets a specific actionable error instead of a
+     * generic "unexpected character".
+     *
+     * @since 3.2
+     */
+    protected void _checkHexNumbersAllowed(int prefixChar) throws StreamReadException {
+        if (!isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+            _reportUnexpectedChar(prefixChar,
+                    "hexadecimal number literals require enabling `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`");
+        }
+    }
+
     private void _parseSlowInt(int expType) throws JacksonException
     {
         final String numStr = _textBuffer.contentsAsString();

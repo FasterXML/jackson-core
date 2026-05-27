@@ -1529,8 +1529,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _startFloat(outBuf, 1, ch);
             }
             // [core#707] JSON5 hexadecimal literal?
-            if ((ch == 'x' || ch == 'X')
-                    && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+            if (ch == 'x' || ch == 'X') {
+                _checkHexNumbersAllowed(ch);
                 _inputPtr = ptr; // consume the 'x'/'X'
                 return _startHexNumber(false, (char) ch);
             }
@@ -1632,8 +1632,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _startFloat(outBuf, 1, ch);
                 }
                 // [core#707] JSON5 hexadecimal literal?
-                if ((ch == 'x' || ch == 'X')
-                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                if (ch == 'x' || ch == 'X') {
+                    _checkHexNumbersAllowed(ch);
                     return _startHexNumber(false, (char) ch);
                 }
                 // Ok; unfortunately we have closing bracket/curly that are valid so need
@@ -1700,8 +1700,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _startFloat(outBuf, 2, ch);
                 }
                 // [core#707] JSON5 hexadecimal literal?
-                if ((ch == 'x' || ch == 'X')
-                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                if (ch == 'x' || ch == 'X') {
+                    _checkHexNumbersAllowed(ch);
                     return _startHexNumberWithSign(negative, (char) ch);
                 }
                 // Ok; unfortunately we have closing bracket/curly that are valid so need

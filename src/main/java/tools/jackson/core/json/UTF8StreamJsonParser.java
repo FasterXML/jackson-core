@@ -1824,8 +1824,8 @@ public class UTF8StreamJsonParser
             // hex digits are valid regardless of ALLOW_LEADING_ZEROS_FOR_NUMBERS.
             if (_inputPtr < _inputEnd || _loadMore()) {
                 int peek = _inputBuffer[_inputPtr] & 0xFF;
-                if ((peek == 'x' || peek == 'X')
-                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                if (peek == 'x' || peek == 'X') {
+                    _checkHexNumbersAllowed(peek);
                     return _finishHexNumber(false, outBuf, 0, peek);
                 }
             }
@@ -1887,8 +1887,8 @@ public class UTF8StreamJsonParser
             // [core#707] JSON5 hexadecimal literal ('0x' / '0X') with optional sign?
             if (_inputPtr < _inputEnd || _loadMore()) {
                 int peek = _inputBuffer[_inputPtr] & 0xFF;
-                if ((peek == 'x' || peek == 'X')
-                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                if (peek == 'x' || peek == 'X') {
+                    _checkHexNumbersAllowed(peek);
                     return _finishHexNumber(negative, outBuf, outPtr, peek);
                 }
             }

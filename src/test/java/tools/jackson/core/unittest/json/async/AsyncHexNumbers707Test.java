@@ -102,7 +102,9 @@ class AsyncHexNumbers707Test extends AsyncTestBase
             r.nextToken();
             fail("Should not pass when ALLOW_HEXADECIMAL_NUMBERS is disabled");
         } catch (StreamReadException e) {
-            verifyException(e, "expected digit (0-9), decimal point (.) or exponent indicator");
+            // Error now names the feature that must be enabled (see _checkHexNumbersAllowed).
+            verifyException(e, "Unexpected character ('x'");
+            verifyException(e, "ALLOW_HEXADECIMAL_NUMBERS");
         }
     }
 

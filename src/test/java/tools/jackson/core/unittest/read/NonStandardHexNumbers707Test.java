@@ -117,7 +117,8 @@ class NonStandardHexNumbers707Test extends JacksonCoreTestBase
 
     @Test
     void hexRejectedWhenFeatureDisabled() throws Exception {
-        // With the feature OFF, 0x... must still fail like in vanilla JSON
+        // With the feature OFF, 0x... must still fail like in vanilla JSON,
+        // and the error message must point at the feature to enable.
         JsonFactory plainF = new JsonFactory();
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(plainF, mode, " 0xc0ffee ")) {
@@ -125,6 +126,7 @@ class NonStandardHexNumbers707Test extends JacksonCoreTestBase
                 fail("Should not pass when ALLOW_HEXADECIMAL_NUMBERS is disabled");
             } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('x'");
+                verifyException(e, "ALLOW_HEXADECIMAL_NUMBERS");
             }
         }
     }

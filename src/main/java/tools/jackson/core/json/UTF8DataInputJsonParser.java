@@ -1065,10 +1065,8 @@ public class UTF8DataInputJsonParser
                 outPtr = 0;
             } else if (c == 'x' || c == 'X') {
                 // [core#707] JSON5 hexadecimal literal?
-                if (isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
-                    return _finishHexNumber(false, outBuf, 0, c);
-                }
-                return _handleInvalidNumberStart(c, false);
+                _checkHexNumbersAllowed(c);
+                return _finishHexNumber(false, outBuf, 0, c);
             } else {
                 outBuf[0] = '0';
                 outPtr = 1;
@@ -1128,8 +1126,8 @@ public class UTF8DataInputJsonParser
             if (c == INT_0) {
                 c = _handleLeadingZeroes();
                 // [core#707] JSON5 hexadecimal literal with sign?
-                if ((c == 'x' || c == 'X')
-                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                if (c == 'x' || c == 'X') {
+                    _checkHexNumbersAllowed(c);
                     // outBuf currently holds [sign, '0']; the helper re-appends
                     // '0' itself, so rewind outPtr to just after the sign.
                     return _finishHexNumber(negative, outBuf, 1, c);

@@ -1586,8 +1586,8 @@ public class ReaderBasedJsonParser
             // valid in hex regardless of ALLOW_LEADING_ZEROS_FOR_NUMBERS.
             if (_inputPtr < _inputEnd || _loadMore()) {
                 char peek = _inputBuffer[_inputPtr];
-                if ((peek == 'x' || peek == 'X')
-                        && isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+                if (peek == 'x' || peek == 'X') {
+                    _checkHexNumbersAllowed(peek);
                     return _finishHexNumber(neg, outBuf, outPtr, peek);
                 }
             }

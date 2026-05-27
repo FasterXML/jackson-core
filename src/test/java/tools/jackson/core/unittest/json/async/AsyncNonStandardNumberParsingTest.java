@@ -232,7 +232,11 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(0.123, p.getDoubleValue());
             assertEquals("0.123", p.getDecimalValue().toString());
-            assertEquals("0.123", p.currentText());
+            // The async parser now retains the leading '+' here too, matching the
+            // blocking parsers and the sibling leadingPlusSignInDecimalEnabled test
+            // for "+123". Previously the explicit '+' followed by leading zero was
+            // lost on the byte-by-byte resumption path.
+            assertEquals("+0.123", p.currentText());
         } finally {
             p.close();
         }

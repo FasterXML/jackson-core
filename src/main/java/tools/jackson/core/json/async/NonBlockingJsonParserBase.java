@@ -110,6 +110,12 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_NUMBER_EXPONENT_MARKER = 31;
     protected final static int MINOR_NUMBER_EXPONENT_DIGITS = 32;
 
+    // Resumption state for an explicit '+' followed by '0' (and possibly more
+    // zeros). Companion to {@link #MINOR_NUMBER_ZERO} and
+    // {@link #MINOR_NUMBER_MINUSZERO}; needed so that the buffered text on
+    // resume correctly retains the leading '+' character.
+    protected final static int MINOR_NUMBER_PLUSZERO = 33;
+
     protected final static int MINOR_VALUE_STRING = 40;
     protected final static int MINOR_VALUE_STRING_ESCAPE = 41;
     protected final static int MINOR_VALUE_STRING_UTF8_2 = 42;

@@ -244,6 +244,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishNumberLeadingZeroes();
         case MINOR_NUMBER_MINUSZERO:
             return _finishNumberLeadingNegZeroes();
+        case MINOR_NUMBER_PLUSZERO:
+            return _finishNumberLeadingPosZeroes();
         case MINOR_NUMBER_INTEGER_DIGITS:
             return _finishNumberIntegralPart(_textBuffer.getBufferWithoutReset(),
                     _textBuffer.getCurrentSegmentSize());
@@ -355,6 +357,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // Number-parsing states; valid stopping points, more explicit errors
         case MINOR_NUMBER_ZERO:
         case MINOR_NUMBER_MINUSZERO:
+        case MINOR_NUMBER_PLUSZERO:
             // NOTE: does NOT retain possible leading minus-sign (can change if
             // absolutely needs be)
             return _valueCompleteInt(0, "0");
@@ -1643,7 +1646,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_ZERO;
+                // Use MINOR_NUMBER_PLUSZERO for explicit-plus paths so the sign is
+                // preserved on resumption (callers reach here via
+                // _finishNumberLeadingPosZeroes / _finishNumberLeadingNegZeroes only).
+                _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_PLUSZERO;
                 return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();

@@ -1775,7 +1775,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _updateTokenToNA();
             }
             int ch = getByteFromBuffer(_inputPtr) & 0xFF;
-            if (!_isHexDigit(ch)) {
+            if (CharTypes.charToHex(ch) < 0) {
                 if (requireFirst) {
                     _reportUnexpectedNumberChar(ch,
                             _hexPrefixNotFollowedMessage(outBuf[prefixLen - 1]));

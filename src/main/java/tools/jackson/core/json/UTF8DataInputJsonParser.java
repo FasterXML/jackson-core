@@ -1193,7 +1193,7 @@ public class UTF8DataInputJsonParser
 
         int hexLen = 0;
         int c = readUnsignedByte();
-        while (_isHexDigit(c)) {
+        while (CharTypes.charToHex(c) >= 0) {
             ++hexLen;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();

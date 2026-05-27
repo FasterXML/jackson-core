@@ -1751,7 +1751,7 @@ public class ReaderBasedJsonParser
                 break hex_loop;
             }
             c = _inputBuffer[_inputPtr++];
-            if (!_isHexDigit(c)) {
+            if (CharTypes.charToHex(c) < 0) {
                 break hex_loop;
             }
             ++hexLen;

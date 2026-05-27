@@ -2001,7 +2001,7 @@ public class UTF8StreamJsonParser
                 break hex_loop;
             }
             c = _inputBuffer[_inputPtr++] & 0xFF;
-            if (!_isHexDigit(c)) {
+            if (CharTypes.charToHex(c) < 0) {
                 break hex_loop;
             }
             ++hexLen;

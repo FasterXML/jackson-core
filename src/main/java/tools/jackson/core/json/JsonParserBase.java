@@ -6,6 +6,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.base.ParserBase;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.util.JacksonFeatureSet;
@@ -379,7 +380,7 @@ public abstract class JsonParserBase
         if (hexLen <= 7) {
             int v = 0;
             for (int i = 0; i < hexLen; ++i) {
-                v = (v << 4) | _hexDigit(buf[idx + i]);
+                v = (v << 4) | CharTypes.charToHex(buf[idx + i]);
             }
             _numberInt = _numberNegative ? -v : v;
             _numTypesValid = NR_INT;
@@ -389,7 +390,7 @@ public abstract class JsonParserBase
         if (hexLen <= 15) {
             long v = 0L;
             for (int i = 0; i < hexLen; ++i) {
-                v = (v << 4) | _hexDigit(buf[idx + i]);
+                v = (v << 4) | CharTypes.charToHex(buf[idx + i]);
             }
             _numberLong = _numberNegative ? -v : v;
             _numTypesValid = NR_LONG;
@@ -397,11 +398,11 @@ public abstract class JsonParserBase
         }
         // 16 hex digits: may or may not fit in signed long, depending on top bit
         if (hexLen == 16) {
-            int topNibble = _hexDigit(buf[idx]);
+            int topNibble = CharTypes.charToHex(buf[idx]);
             if (topNibble < 0x8) { // fits in positive signed long
                 long v = topNibble;
                 for (int i = 1; i < 16; ++i) {
-                    v = (v << 4) | _hexDigit(buf[idx + i]);
+                    v = (v << 4) | CharTypes.charToHex(buf[idx + i]);
                 }
                 _numberLong = _numberNegative ? -v : v;
                 _numTypesValid = NR_LONG;
@@ -424,28 +425,6 @@ public abstract class JsonParserBase
             // Force the overflow path to surface a meaningful error
             _reportTooLongIntegral(expType, _textBuffer.contentsAsString());
         }
-    }
-
-    private static int _hexDigit(char c) {
-        if (c <= '9') {
-            return c - '0';
-        }
-        // 'A'..'F' -> 10..15, 'a'..'f' -> 10..15
-        return (c & 0x1F) + 9;
-    }
-
-    /**
-     * Shared digit predicate for JSON5 hex literal scanning. Accepts {@code int}
-     * so byte-stream parsers (which read {@code byte & 0xFF}) and char-stream
-     * parsers (where a {@code char} value widens to {@code int}) can use the
-     * same helper.
-     *
-     * @since 3.2
-     */
-    protected static boolean _isHexDigit(int c) {
-        return (c >= '0' && c <= '9')
-                || (c >= 'a' && c <= 'f')
-                || (c >= 'A' && c <= 'F');
     }
 
     /**

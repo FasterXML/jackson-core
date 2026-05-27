@@ -1203,9 +1203,7 @@ public class UTF8DataInputJsonParser
             c = readUnsignedByte();
         }
         if (hexLen == 0) {
-            return _reportUnexpectedNumberChar(c,
-                    "Hexadecimal number prefix '0" + ((char) prefixChar)
-                    + "' must be followed by at least one hex digit (0-9, a-f, A-F)");
+            return _reportUnexpectedNumberChar(c, _hexPrefixNotFollowedMessage((char) prefixChar));
         }
         _textBuffer.setCurrentLength(outPtr);
         _nextByte = c;
@@ -1213,12 +1211,6 @@ public class UTF8DataInputJsonParser
             _verifyRootSpace();
         }
         return resetIntHex(neg, hexLen);
-    }
-
-    private static boolean _isHexDigit(int c) {
-        return (c >= INT_0 && c <= INT_9)
-                || (c >= 'a' && c <= 'f')
-                || (c >= 'A' && c <= 'F');
     }
 
     /**

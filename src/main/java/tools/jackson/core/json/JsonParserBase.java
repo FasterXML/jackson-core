@@ -51,6 +51,19 @@ public abstract class JsonParserBase
      */
     protected JsonToken _nextToken;
 
+    /**
+     * Marker for integer values read using JSON5 hexadecimal notation
+     * ({@code 0x} / {@code 0X} prefix), enabled via
+     * {@link JsonReadFeature#ALLOW_HEXADECIMAL_NUMBERS}.
+     * When {@code true}, the textual representation buffered for the current
+     * token is the original hex literal (including any sign and the
+     * {@code 0x}/{@code 0X} prefix) and {@link #_intLength} records the
+     * number of hexadecimal digits (excluding sign and prefix).
+     *
+     * @since 3.2
+     */
+    protected boolean _numberIsHex;
+
     /*
     /**********************************************************************
     /* Helper buffer recycling
@@ -187,6 +200,42 @@ public abstract class JsonParserBase
     /* Numeric parsing method implementations
     /**********************************************************************
      */
+
+    // Overridden to also clear the JSON-only `_numberIsHex` flag, so a
+    // subsequent regular integer is not mis-decoded as hex. Hex literals go
+    // through `resetIntHex` instead, which sets the flag.
+    @Override
+    protected JsonToken resetInt(boolean negative, int intLen)
+        throws JacksonException
+    {
+        _numberIsHex = false;
+        return super.resetInt(negative, intLen);
+    }
+
+    /**
+     * Variant of {@link #resetInt} used for integer values read in JSON5
+     * hexadecimal notation ({@code 0x...}). {@code hexDigitLen} is the
+     * number of hexadecimal digits (excluding sign and {@code 0x}/{@code 0X}
+     * prefix); the textual representation buffered by the caller is expected
+     * to contain the original literal including sign and prefix.
+     *
+     * @since 3.2
+     */
+    protected final JsonToken resetIntHex(boolean negative, int hexDigitLen)
+        throws JacksonException
+    {
+        // May throw StreamConstraintsException:
+        _streamReadConstraints.validateIntegerLength(hexDigitLen);
+        _numberNegative = negative;
+        _numberIsNaN = false;
+        _numberIsHex = true;
+        _intLength = hexDigitLen;
+        _fractLength = 0;
+        _expLength = 0;
+        _numTypesValid = NR_UNKNOWN; // to force decoding
+        _numberString = null;
+        return JsonToken.VALUE_NUMBER_INT;
+    }
 
     @Override
     protected void _parseNumericValue(int expType)
@@ -383,6 +432,31 @@ public abstract class JsonParserBase
         }
         // 'A'..'F' -> 10..15, 'a'..'f' -> 10..15
         return (c & 0x1F) + 9;
+    }
+
+    /**
+     * Shared digit predicate for JSON5 hex literal scanning. Accepts {@code int}
+     * so byte-stream parsers (which read {@code byte & 0xFF}) and char-stream
+     * parsers (where a {@code char} value widens to {@code int}) can use the
+     * same helper.
+     *
+     * @since 3.2
+     */
+    protected static boolean _isHexDigit(int c) {
+        return (c >= '0' && c <= '9')
+                || (c >= 'a' && c <= 'f')
+                || (c >= 'A' && c <= 'F');
+    }
+
+    /**
+     * Standard error message used by all JSON parser variants when a
+     * {@code 0x}/{@code 0X} hex prefix is not followed by any hex digit.
+     *
+     * @since 3.2
+     */
+    protected static String _hexPrefixNotFollowedMessage(char prefixChar) {
+        return "Hexadecimal number prefix '0" + prefixChar
+                + "' must be followed by at least one hex digit (0-9, a-f, A-F)";
     }
 
     private void _parseSlowInt(int expType) throws JacksonException

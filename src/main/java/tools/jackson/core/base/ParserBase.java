@@ -169,19 +169,6 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected boolean _numberIsNaN;
 
-    /**
-     * Marker for integer values read using JSON5 hexadecimal notation
-     * ({@code 0x} / {@code 0X} prefix), enabled via
-     * {@link tools.jackson.core.json.JsonReadFeature#ALLOW_HEXADECIMAL_NUMBERS}.
-     * When {@code true}, the textual representation buffered for the current
-     * token is the original hex literal (including any sign and the
-     * {@code 0x}/{@code 0X} prefix) and {@link #_intLength} records the
-     * number of hexadecimal digits (excluding sign and prefix).
-     *
-     * @since 3.2
-     */
-    protected boolean _numberIsHex;
-
     // And then other information about value itself
 
     /**
@@ -411,40 +398,14 @@ public abstract class ParserBase extends ParserMinimalBase
         return resetFloat(negative, intLen, fractLen, expLen);
     }
 
-    protected final JsonToken resetInt(boolean negative, int intLen)
+    protected JsonToken resetInt(boolean negative, int intLen)
         throws JacksonException
     {
         // May throw StreamConstraintsException:
         _streamReadConstraints.validateIntegerLength(intLen);
         _numberNegative = negative;
         _numberIsNaN = false;
-        _numberIsHex = false;
         _intLength = intLen;
-        _fractLength = 0;
-        _expLength = 0;
-        _numTypesValid = NR_UNKNOWN; // to force decoding
-        _numberString = null;
-        return JsonToken.VALUE_NUMBER_INT;
-    }
-
-    /**
-     * Variant of {@link #resetInt} used for integer values read in JSON5
-     * hexadecimal notation ({@code 0x...}). {@code hexDigitLen} is the
-     * number of hexadecimal digits (excluding sign and {@code 0x}/{@code 0X}
-     * prefix); the textual representation buffered by the caller is expected
-     * to contain the original literal including sign and prefix.
-     *
-     * @since 3.2
-     */
-    protected final JsonToken resetIntHex(boolean negative, int hexDigitLen)
-        throws JacksonException
-    {
-        // May throw StreamConstraintsException:
-        _streamReadConstraints.validateIntegerLength(hexDigitLen);
-        _numberNegative = negative;
-        _numberIsNaN = false;
-        _numberIsHex = true;
-        _intLength = hexDigitLen;
         _fractLength = 0;
         _expLength = 0;
         _numTypesValid = NR_UNKNOWN; // to force decoding
@@ -459,7 +420,6 @@ public abstract class ParserBase extends ParserMinimalBase
         _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
         _numberNegative = negative;
         _numberIsNaN = false;
-        _numberIsHex = false;
         _intLength = intLen;
         _fractLength = fractLen;
         _expLength = expLen;
@@ -474,7 +434,6 @@ public abstract class ParserBase extends ParserMinimalBase
         _numberDouble = value;
         _numTypesValid = NR_DOUBLE;
         _numberIsNaN = true;
-        _numberIsHex = false;
         _numberString = null;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }

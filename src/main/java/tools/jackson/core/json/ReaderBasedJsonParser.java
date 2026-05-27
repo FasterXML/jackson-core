@@ -1763,8 +1763,7 @@ public class ReaderBasedJsonParser
         }
 
         if (hexLen == 0) {
-            _reportUnexpectedNumberChar(c,
-                    "Hexadecimal number prefix '0" + prefixChar + "' must be followed by at least one hex digit (0-9, a-f, A-F)");
+            _reportUnexpectedNumberChar(c, _hexPrefixNotFollowedMessage(prefixChar));
         }
 
         if (!eof) {
@@ -1775,12 +1774,6 @@ public class ReaderBasedJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         return resetIntHex(neg, hexLen);
-    }
-
-    private static boolean _isHexDigit(char c) {
-        return (c >= '0' && c <= '9')
-                || (c >= 'a' && c <= 'f')
-                || (c >= 'A' && c <= 'F');
     }
 
     // Method called when we have seen one zero, and want to ensure

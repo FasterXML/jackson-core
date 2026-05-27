@@ -1778,8 +1778,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (!_isHexDigit(ch)) {
                 if (requireFirst) {
                     _reportUnexpectedNumberChar(ch,
-                            "Hexadecimal number prefix '0" + outBuf[prefixLen - 1]
-                            + "' must be followed by at least one hex digit (0-9, a-f, A-F)");
+                            _hexPrefixNotFollowedMessage(outBuf[prefixLen - 1]));
                 }
                 break;
             }
@@ -1810,12 +1809,6 @@ public abstract class NonBlockingUtf8JsonParserBase
         final int hexLen = outPtr - prefixLen;
         resetIntHex(_numberNegative, hexLen);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
-    }
-
-    private static boolean _isHexDigit(int c) {
-        return (c >= INT_0 && c <= INT_9)
-                || (c >= 'a' && c <= 'f')
-                || (c >= 'A' && c <= 'F');
     }
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws JacksonException {

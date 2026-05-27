@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
@@ -139,6 +141,30 @@ class NonStandardHexNumbers707Test extends JacksonCoreTestBase
                 fail("Should not pass: prefix without any hex digit");
             } catch (StreamReadException e) {
                 verifyException(e, "hex digit");
+            }
+        }
+    }
+
+    @Test
+    void hexNumberLengthConstraint() throws Exception {
+        // Build a hex literal long enough to cross several TextBuffer segment
+        // boundaries (default first segment is 500 chars; using 8000 digits to
+        // ensure we definitely span at least one boundary on every backend).
+        StringBuilder sb = new StringBuilder("0x");
+        for (int i = 0; i < 8000; i++) {
+            sb.append('f');
+        }
+        final String hugeHex = sb.toString();
+        JsonFactory cappedF = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)
+                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(100).build())
+                .build();
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(cappedF, mode, " " + hugeHex + " ")) {
+                p.nextToken();
+                fail("Should not pass: hex literal exceeds maxNumberLength (mode " + mode + ")");
+            } catch (StreamConstraintsException e) {
+                verifyException(e, "exceeds the maximum");
             }
         }
     }

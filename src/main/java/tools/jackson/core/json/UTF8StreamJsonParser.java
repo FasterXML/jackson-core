@@ -2006,6 +2006,10 @@ public class UTF8StreamJsonParser
             }
             ++hexLen;
             if (outPtr >= outBuf.length) {
+                // Validate accumulated length at every segment boundary so that a
+                // pathological hex literal (e.g. millions of digits) is rejected
+                // early rather than after full buffering.
+                _streamReadConstraints.validateIntegerLength(hexLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }

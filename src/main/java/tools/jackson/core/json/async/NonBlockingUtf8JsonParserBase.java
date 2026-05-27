@@ -1784,6 +1784,10 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             ++_inputPtr;
             if (outPtr >= outBuf.length) {
+                // Validate accumulated digit length at every segment boundary so
+                // that a pathological hex literal (e.g. millions of digits) is
+                // rejected early rather than after full buffering.
+                _streamReadConstraints.validateIntegerLength(outPtr - prefixLen);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;

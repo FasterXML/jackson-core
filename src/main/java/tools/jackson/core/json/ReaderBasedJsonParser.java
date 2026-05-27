@@ -1767,7 +1767,7 @@ public class ReaderBasedJsonParser
         }
 
         if (hexLen == 0) {
-            _reportUnexpectedNumberChar(c, _hexPrefixNotFollowedMessage(prefixChar));
+            return _reportUnexpectedNumberChar(c, _hexPrefixNotFollowedMessage(prefixChar));
         }
 
         if (!eof) {

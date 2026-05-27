@@ -1777,7 +1777,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             int ch = getByteFromBuffer(_inputPtr) & 0xFF;
             if (CharTypes.charToHex(ch) < 0) {
                 if (requireFirst) {
-                    _reportUnexpectedNumberChar(ch,
+                    return _reportUnexpectedNumberChar(ch,
                             _hexPrefixNotFollowedMessage(outBuf[prefixLen - 1]));
                 }
                 break;

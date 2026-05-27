@@ -1530,8 +1530,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             // [core#707] JSON5 hexadecimal literal?
             if (ch == 'x' || ch == 'X') {
-                _checkHexNumbersAllowed(ch);
                 _inputPtr = ptr; // consume the 'x'/'X'
+                _checkHexNumbersAllowed(ch);
                 return _startHexNumber(false, (char) ch);
             }
             // Ok; unfortunately we have closing bracket/curly that are valid so need

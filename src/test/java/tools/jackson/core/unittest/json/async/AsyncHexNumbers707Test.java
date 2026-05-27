@@ -96,6 +96,52 @@ class AsyncHexNumbers707Test extends AsyncTestBase
     }
 
     @Test
+    void hexNegativeBigIntegerRange() throws Exception {
+        // 17 hex digits with sign -> must promote to (negative) BigInteger via async resumption
+        final String literal = "-0x1ffffffffffffffff";
+        final BigInteger expected = new BigInteger("-1ffffffffffffffff", 16);
+        for (int readSize : new int[] {1, 5, 1000}) {
+            try (AsyncReaderWrapper r = asyncForBytes(HEX_F, readSize,
+                    _jsonDoc(" " + literal + " "), 1)) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
+                assertEquals(literal, r.currentText());
+                assertEquals(expected, r.getBigIntegerValue());
+            }
+        }
+    }
+
+    @Test
+    void hex16DigitsLongMax() throws Exception {
+        // 16 digits, top nibble == 7 -> stays on the long fast path (Long.MAX_VALUE).
+        // Boundary case in _parseHexInt: hexLen == 16 && topNibble < 0x8.
+        final String literal = "0x7fffffffffffffff";
+        for (int readSize : new int[] {1, 5, 1000}) {
+            try (AsyncReaderWrapper r = asyncForBytes(HEX_F, readSize,
+                    _jsonDoc(" " + literal + " "), 1)) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
+                assertEquals(literal, r.currentText());
+                assertEquals(Long.MAX_VALUE, r.getLongValue());
+            }
+        }
+    }
+
+    @Test
+    void hex16DigitsOverflowsToBigInteger() throws Exception {
+        // 16 digits, top nibble == 8 -> falls off the long fast path into the
+        // BigInteger arm of _parseHexInt (value is 2^63, just past Long.MAX_VALUE).
+        final String literal = "0x8000000000000000";
+        final BigInteger expected = BigInteger.ONE.shiftLeft(63);
+        for (int readSize : new int[] {1, 5, 1000}) {
+            try (AsyncReaderWrapper r = asyncForBytes(HEX_F, readSize,
+                    _jsonDoc(" " + literal + " "), 1)) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
+                assertEquals(literal, r.currentText());
+                assertEquals(expected, r.getBigIntegerValue());
+            }
+        }
+    }
+
+    @Test
     void hexRejectedWhenFeatureDisabled() throws Exception {
         JsonFactory plain = new JsonFactory();
         try (AsyncReaderWrapper r = asyncForBytes(plain, 1, _jsonDoc(" 0xff "), 1)) {

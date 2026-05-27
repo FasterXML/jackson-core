@@ -308,7 +308,7 @@ public abstract class JsonParserBase
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
             // Hex integers go through the generic path so the base-16 decode is
             // applied (the base-10 fast path below would mis-read the literal):
-            if (!_numberIsHex && _intLength <= 9) {
+            if (_intLength <= 9 && !_numberIsHex) {
                 int i = _textBuffer.contentsAsInt(_numberNegative);
                 _numberInt = i;
                 _numTypesValid = NR_INT;

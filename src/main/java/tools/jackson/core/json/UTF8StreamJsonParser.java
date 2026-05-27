@@ -1825,6 +1825,7 @@ public class UTF8StreamJsonParser
             if (_inputPtr < _inputEnd || _loadMore()) {
                 int peek = _inputBuffer[_inputPtr] & 0xFF;
                 if (peek == 'x' || peek == 'X') {
+                    ++_inputPtr;
                     _checkHexNumbersAllowed(peek);
                     return _finishHexNumber(false, outBuf, 0, peek);
                 }
@@ -1888,6 +1889,7 @@ public class UTF8StreamJsonParser
             if (_inputPtr < _inputEnd || _loadMore()) {
                 int peek = _inputBuffer[_inputPtr] & 0xFF;
                 if (peek == 'x' || peek == 'X') {
+                    ++_inputPtr;
                     _checkHexNumbersAllowed(peek);
                     return _finishHexNumber(negative, outBuf, outPtr, peek);
                 }
@@ -1971,13 +1973,15 @@ public class UTF8StreamJsonParser
 
     // [core#707] Finish parsing a JSON5 hexadecimal integer literal. On entry the
     // optional sign (if any) is already in outBuf at indices [0..outPtr-1], and
-    // we have seen '0' followed by 'x'/'X' (still un-consumed in the input
-    // buffer). We append '0' then the prefix char then all hex digits.
+    // we have seen '0' followed by 'x'/'X' .
+    // We append '0' then the prefix char then all hex digits.
     //
     // @since 3.2
     private final JsonToken _finishHexNumber(boolean neg, char[] outBuf, int outPtr,
-            int prefixChar) throws JacksonException
+            int prefixChar)
+        throws JacksonException
     {
+        // Prepend "0x" prefix
         if (outPtr >= outBuf.length) {
             outBuf = _textBuffer.finishCurrentSegment();
             outPtr = 0;
@@ -1988,7 +1992,6 @@ public class UTF8StreamJsonParser
             outPtr = 0;
         }
         outBuf[outPtr++] = (char) prefixChar;
-        ++_inputPtr; // consume the 'x'/'X' we only peeked at
 
         int hexLen = 0;
         int c = 0;

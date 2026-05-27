@@ -1587,6 +1587,7 @@ public class ReaderBasedJsonParser
             if (_inputPtr < _inputEnd || _loadMore()) {
                 char peek = _inputBuffer[_inputPtr];
                 if (peek == 'x' || peek == 'X') {
+                    ++_inputPtr;
                     _checkHexNumbersAllowed(peek);
                     return _finishHexNumber(neg, outBuf, outPtr, peek);
                 }
@@ -1725,9 +1726,10 @@ public class ReaderBasedJsonParser
     //
     // @since 3.2
     private final JsonToken _finishHexNumber(boolean neg,
-            char[] outBuf, int outPtr, char prefixChar) throws JacksonException
+            char[] outBuf, int outPtr, char prefixChar)
+        throws JacksonException
     {
-        // Append the '0' (already consumed by _parseNumber2) and the 'x'/'X'
+        // Append the '0' and the 'x'/'X'
         if (outPtr >= outBuf.length) {
             outBuf = _textBuffer.finishCurrentSegment();
             outPtr = 0;
@@ -1738,7 +1740,6 @@ public class ReaderBasedJsonParser
             outPtr = 0;
         }
         outBuf[outPtr++] = prefixChar;
-        ++_inputPtr; // consume the 'x'/'X' that we only peeked at
 
         int hexLen = 0;
         boolean eof = false;

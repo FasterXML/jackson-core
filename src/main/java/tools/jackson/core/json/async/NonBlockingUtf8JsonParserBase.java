@@ -351,16 +351,21 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishKeywordTokenWithEOF("false", _pending32, JsonToken.VALUE_FALSE);
         case MINOR_VALUE_TOKEN_NON_STD:
             return _finishNonStdTokenWithEOF(_nonStdTokenType, _pending32);
-        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
+        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need to tokenize for error
             return _finishErrorTokenWithEOF();
 
         // Number-parsing states; valid stopping points, more explicit errors
         case MINOR_NUMBER_ZERO:
-        case MINOR_NUMBER_MINUSZERO:
-        case MINOR_NUMBER_PLUSZERO:
-            // NOTE: does NOT retain possible leading minus-sign (can change if
-            // absolutely needs be)
             return _valueCompleteInt(0, "0");
+        case MINOR_NUMBER_MINUSZERO:
+            _numberNegative = true;
+            _valueCompleteInt(0, "-0");
+            _intLength = 1;
+            return _currToken;
+        case MINOR_NUMBER_PLUSZERO:
+            _valueCompleteInt(0, "+0");
+            _intLength = 1;
+            return _currToken;
         case MINOR_NUMBER_INTEGER_DIGITS:
             // Fine: just need to ensure we have value fully defined
             {

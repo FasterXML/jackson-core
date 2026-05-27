@@ -260,6 +260,48 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
+    // Root-level "+0" / "-0" / "0" terminated by end-of-input: exercises the
+    // MINOR_NUMBER_PLUSZERO / MINOR_NUMBER_MINUSZERO / MINOR_NUMBER_ZERO branches
+    // of `_finishTokenWithEOF`. Previously the sign was discarded here even when
+    // the byte-by-byte resumption path preserved it.
+    @Test
+    void rootPlusZeroAtEOF() throws Exception {
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS).build();
+        AsyncReaderWrapper p = createParser(jsonFactory, "+0", 1);
+        try {
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(0, p.getIntValue());
+            assertEquals("+0", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
+    @Test
+    void rootMinusZeroAtEOF() throws Exception {
+        AsyncReaderWrapper p = createParser(DEFAULT_F, "-0", 1);
+        try {
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(0, p.getIntValue());
+            assertEquals("-0", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
+    @Test
+    void rootPlainZeroAtEOF() throws Exception {
+        AsyncReaderWrapper p = createParser(DEFAULT_F, "0", 1);
+        try {
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(0, p.getIntValue());
+            assertEquals("0", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
     @Test
     void leadingPlusSignNoLeadingZeroDisabled() throws Exception {
         final String JSON = "[ +.123 ]";

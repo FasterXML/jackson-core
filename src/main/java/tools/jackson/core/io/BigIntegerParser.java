@@ -37,6 +37,9 @@ public final class BigIntegerParser
         }
     }
 
+    /**
+     * @since 3.2
+     */
     public static BigInteger parseWithFastParser(final char[] ch, final int offset,
             final int length, final int radix) {
         try {

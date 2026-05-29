@@ -1856,10 +1856,8 @@ public class UTF8StreamJsonParser
         }
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);
-        // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(c);
-        }
+        // [core#105]/[core#1557]: verify number is properly terminated/separated
+        _verifyNumberSeparator(c);
         // And there we have it!
         return resetInt(false, intLen);
     }
@@ -1925,10 +1923,8 @@ public class UTF8StreamJsonParser
 
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);
-        // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(c);
-        }
+        // [core#105]/[core#1557]: verify number is properly terminated/separated
+        _verifyNumberSeparator(c);
 
         // And there we have it!
         return resetInt(negative, intLen);
@@ -1961,10 +1957,8 @@ public class UTF8StreamJsonParser
         }
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);
-        // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(_inputBuffer[_inputPtr] & 0xFF);
-        }
+        // [core#105]/[core#1557]: verify number is properly terminated/separated
+        _verifyNumberSeparator(_inputBuffer[_inputPtr] & 0xFF);
 
         // And there we have it!
         return resetInt(negative, intPartLength);
@@ -2025,9 +2019,7 @@ public class UTF8StreamJsonParser
 
         if (!eof) {
             --_inputPtr; // push back the terminating non-hex char
-            if (_streamReadContext.inRoot()) {
-                _verifyRootSpace(c);
-            }
+            _verifyNumberSeparator(c);
         }
         _textBuffer.setCurrentLength(outPtr);
         return resetIntHex(neg, hexLen);
@@ -2157,10 +2149,8 @@ public class UTF8StreamJsonParser
         // Ok; unless we hit end-of-input, need to push last char read back
         if (!eof) {
             --_inputPtr;
-            // As per [core#105], need separating space between root values; check here
-            if (_streamReadContext.inRoot()) {
-                _verifyRootSpace(c);
-            }
+            // [core#105]/[core#1557]: verify number is properly terminated/separated
+            _verifyNumberSeparator(c);
         }
         _textBuffer.setCurrentLength(outPtr);
 
@@ -2201,6 +2191,54 @@ public class UTF8StreamJsonParser
             return;
         }
         _reportMissingRootWS(ch);
+    }
+
+    /**
+     * Method called to verify that a just-decoded number value is followed by a
+     * valid separator or terminator character. For root-level values this means
+     * white space (as per [core#105], see {@link #_verifyRootSpace}); for non-root
+     * values ([core#1557]) the number must be followed by white space, a value
+     * separator ({@code ','}), an enclosing-structure end ({@code ']'} or
+     * {@code '}'}), a comment start (when enabled) or end-of-input. Without this,
+     * malformed content such as {@code [ 123true ]} would only fail lazily when
+     * accessing the following token.
+     *<p>
+     * On entry the caller has pushed the trailing character back, so {@code _inputPtr}
+     * points <i>at</i> it; for accepted separators this method leaves {@code _inputPtr}
+     * untouched so the next {@code nextToken()} call can consume them normally.
+     */
+    private final void _verifyNumberSeparator(int ch) throws JacksonException
+    {
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace(ch);
+            return;
+        }
+        switch (ch) {
+        case ' ':
+        case '\t':
+        case '\n':
+        case '\r':
+        case ',':
+        case ']':
+        case '}':
+            return;
+        case '/': // possible Java/C++ style comment
+            if (isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
+                return;
+            }
+            break;
+        case '#': // possible YAML/shell style comment
+            if (isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
+                return;
+            }
+            break;
+        }
+        // Align `_inputPtr` with what `_reportUnexpectedNumberChar` ->
+        // `_currentLocationMinusOne()` expects (one past the offending char),
+        // matching `_verifyRootSpace` which advances up front.
+        ++_inputPtr;
+        _reportUnexpectedNumberChar(ch,
+                "expected space, comma, or closing bracket/brace to separate or terminate numeric value");
     }
 
     /*

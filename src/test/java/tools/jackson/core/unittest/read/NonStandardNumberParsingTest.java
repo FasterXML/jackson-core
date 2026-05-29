@@ -26,6 +26,11 @@ class NonStandardNumberParsingTest
             .enable(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)
             .build();
 
+    private final JsonFactory COMMENTS_F = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+            .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
+            .build();
+
     protected JsonFactory jsonFactory() {
         return JSON_F;
     }
@@ -138,6 +143,63 @@ class NonStandardNumberParsingTest
                 verifyException(e, "Unexpected character ('.'");
                 verifyException(e, "more than one decimal point");
             }
+        }
+    }
+
+    // [core#1557]: number values inside containers (non-root) must be properly
+    // terminated/separated too, not only at root level (cf. [core#105]); without
+    // this such content would only fail lazily when accessing the following token.
+    // NOTE: async (non-blocking) parser still handled lazily; see follow-up.
+    @Test
+    void nonRootMangledIntegers1557() throws Exception {
+        for (int mode : ALL_MODES) {
+            _verifyMangledNonRootNumber(mode, "[ 123true ]");
+            _verifyMangledNonRootNumber(mode, "[ 100k ]");
+            _verifyMangledNonRootNumber(mode, "[ 100/ ]");
+        }
+    }
+
+    @Test
+    void nonRootMangledFloats1557() throws Exception {
+        for (int mode : ALL_MODES) {
+            _verifyMangledNonRootNumber(mode, "[ 1.5false ]");
+            _verifyMangledNonRootNumber(mode, "[ 1.5x ]");
+        }
+    }
+
+    // [core#1557]: a number immediately followed by a comment (no separating
+    // white space) must still parse when comments are enabled; this exercises the
+    // '/' and '#' branches of the separator check that the plain cases never reach.
+    @Test
+    void nonRootNumberFollowedByComment1557() throws Exception {
+        for (int mode : ALL_MODES) {
+            _verifyTwoIntsAcrossComment(mode, "[1/* c */,2]"); // Java block comment
+            _verifyTwoIntsAcrossComment(mode, "[1// c\n,2]");  // Java line comment
+            _verifyTwoIntsAcrossComment(mode, "[1#c\n,2]");    // YAML/shell comment
+        }
+    }
+
+    private void _verifyTwoIntsAcrossComment(int mode, String doc) throws Exception {
+        try (JsonParser p = createParser(COMMENTS_F, mode, doc)) {
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(1, p.getIntValue());
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(2, p.getIntValue());
+            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        }
+    }
+
+    private void _verifyMangledNonRootNumber(int mode, String doc) throws Exception {
+        try (JsonParser p = createParser(mode, doc)) {
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
+            // Should fail eagerly when decoding the number token (and, at the
+            // latest, when forcing numeric value access); must NOT silently pass.
+            JsonToken t = p.nextToken();
+            p.getDoubleValue();
+            fail("Should have failed for '"+doc+"', instead got token "+t);
+        } catch (StreamReadException e) {
+            verifyException(e, "expected space");
         }
     }
 

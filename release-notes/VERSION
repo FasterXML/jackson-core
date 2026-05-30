@@ -41,7 +41,7 @@ JSON library.
 #1598: Possible TOCTOU timing bug in `BufferRecycler`
  (implemented by @pjfanning)
 
-3.1.4 (not yet released)
+3.1.4 (29-May-2029)
 
 #1611: Apply number-length validator on streaming integer path of async parser
  (fix by @tonghuaroot)

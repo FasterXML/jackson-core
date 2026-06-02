@@ -10,8 +10,9 @@ import tools.jackson.core.sym.PropertyNameMatcher;
  * {@link JsonParser}s to create a single logical sequence of
  * tokens, as a single {@link JsonParser}.
  *<p>
- * Fairly simple use of {@link JsonParserDelegate}: only need
- * to override {@link #nextToken} to handle transition
+ * Fairly simple use of {@link JsonParserDelegate}: mostly need
+ * to override {@link #nextToken} to handle transition, but there
+ * are a few other things that require care (and overriding).
  */
 public class JsonParserSequence extends JsonParserDelegate
 {
@@ -46,9 +47,9 @@ public class JsonParserSequence extends JsonParserDelegate
     protected boolean _hasToken;
 
     /*
-     *******************************************************
-     * Construction
-     *******************************************************
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
      */
 
     protected JsonParserSequence(boolean checkForExistingToken, JsonParser[] parsers)
@@ -84,13 +85,13 @@ public class JsonParserSequence extends JsonParserDelegate
                     new JsonParser[] { first, second });
         }
         ArrayList<JsonParser> p = new ArrayList<>(10);
-        if (first instanceof JsonParserSequence) {
-            ((JsonParserSequence) first).addFlattenedActiveParsers(p);
+        if (first instanceof JsonParserSequence jps) {
+            jps.addFlattenedActiveParsers(p);
         } else {
             p.add(first);
         }
-        if (second instanceof JsonParserSequence) {
-            ((JsonParserSequence) second).addFlattenedActiveParsers(p);
+        if (second instanceof JsonParserSequence jps) {
+            jps.addFlattenedActiveParsers(p);
         } else {
             p.add(second);
         }
@@ -103,8 +104,8 @@ public class JsonParserSequence extends JsonParserDelegate
     {
         for (int i = _nextParserIndex-1, len = _parsers.length; i < len; ++i) {
             JsonParser p = _parsers[i];
-            if (p instanceof JsonParserSequence) {
-                ((JsonParserSequence) p).addFlattenedActiveParsers(listToAddIn);
+            if (p instanceof JsonParserSequence jps) {
+                jps.addFlattenedActiveParsers(listToAddIn);
             } else {
                 listToAddIn.add(p);
             }
@@ -112,10 +113,10 @@ public class JsonParserSequence extends JsonParserDelegate
     }
 
     /*
-    /*******************************************************
+    /**********************************************************************
     /* Overridden methods, needed: cases where default
     /* delegation does not work
-    /*******************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -172,10 +173,10 @@ public class JsonParserSequence extends JsonParserDelegate
     }
 
     /*
-    /*******************************************************
+    /**********************************************************************
     /* And some more methods where default delegation would
     /* cause problems with state handling here
-    /*******************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -206,9 +207,9 @@ public class JsonParserSequence extends JsonParserDelegate
     }
 
     /*
-    /*******************************************************
+    /**********************************************************************
     /* Additional extended API
-    /*******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -223,9 +224,9 @@ public class JsonParserSequence extends JsonParserDelegate
     }
 
     /*
-    /*******************************************************
+    /**********************************************************************
     /* Helper methods
-    /*******************************************************
+    /**********************************************************************
      */
 
     /**

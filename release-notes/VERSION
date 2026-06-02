@@ -19,7 +19,13 @@ JSON library.
 
 No changes since 3.1
 
-3.1.4 (29-May-2029)
+3.1.5 (not yet released)
+
+#1616: `JsonParserSequence` read methods no longer use Parsers beyond the first
+ (reported by @stefnoten-aca)
+ (fix by @cowtowncoder, w/ Claude code)
+
+3.1.4 (29-May-2026)
 
 #1611: Apply number-length validator on streaming integer path of async parser
  (fix by @tonghuaroot)

@@ -128,4 +128,38 @@ class ParserSequenceTest
         assertNull(seq.nextToken());
         seq.close();
     }
+
+    // [jackson-core#1616]: read methods (readValueAsTree / readValueAs) must
+    // drive databind through the sequence's own token stream, so that parsers
+    // beyond the first one are actually used.
+    @Test
+    void readValueAsTreeUsesAllParsers() throws Exception
+    {
+        CountingReadContext ctxt = new CountingReadContext();
+        // First parser yields 3 tokens, second yields 2: 5 total
+        JsonParser p1 = JSON_FACTORY.createParser(ctxt, "1 2 3");
+        JsonParser p2 = JSON_FACTORY.createParser(ctxt, "4 5");
+        JsonParserSequence seq = JsonParserSequence.createFlattened(false, p1, p2);
+
+        seq.readValueAsTree();
+        assertEquals(5, ctxt.tokenCount,
+                "readValueAsTree() must consume tokens from all parsers in sequence");
+        seq.close();
+    }
+
+    // Helper context whose databind callbacks drain (and count) every token of
+    // the parser handed to them; mimics how real databind drives the parser.
+    static class CountingReadContext extends ObjectReadContext.Base {
+        int tokenCount;
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T extends tools.jackson.core.TreeNode> T readTree(JsonParser p) {
+            tokenCount = (p.currentToken() != null) ? 1 : 0;
+            while (p.nextToken() != null) {
+                ++tokenCount;
+            }
+            return null;
+        }
+    }
 }

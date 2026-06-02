@@ -262,24 +262,29 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
+    // 31-May-2026, tatu: [core#1616] Must drive databind read through `this`
+    //    (delegate's own logical token stream), NOT the raw `delegate`: otherwise
+    //    delegates that alter the token sequence (e.g. `JsonParserSequence`,
+    //    `FilteringParserDelegate`) would have only the underlying parser read,
+    //    skipping the rest of the sequence (or bypassing filtering).
     @Override
     public <T> T readValueAs(Class<T> valueType) throws JacksonException {
-        return delegate.readValueAs(valueType);
+        return objectReadContext().readValue(this, valueType);
     }
 
     @Override
     public <T> T readValueAs(TypeReference<T> valueTypeRef) throws JacksonException {
-        return delegate.readValueAs(valueTypeRef);
+        return objectReadContext().readValue(this, valueTypeRef);
     }
 
     @Override
     public <T> T readValueAs(ResolvedType type) throws JacksonException {
-        return delegate.readValueAs(type);
+        return objectReadContext().readValue(this, type);
     }
 
     @Override
     public <T extends TreeNode> T readValueAsTree() throws JacksonException {
-        return delegate.readValueAsTree();
+        return objectReadContext().readTree(this);
     }
 
     /*

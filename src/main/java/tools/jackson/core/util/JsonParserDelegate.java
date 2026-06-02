@@ -262,7 +262,7 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
-    // 31-May-2026, tatu: [core#1616] Must drive databind read through `this`
+    // 01-Jun-2026, tatu: [core#1616] Must drive databind read through `this`
     //    (delegate's own logical token stream), NOT the raw `delegate`: otherwise
     //    delegates that alter the token sequence (e.g. `JsonParserSequence`,
     //    `FilteringParserDelegate`) would have only the underlying parser read,

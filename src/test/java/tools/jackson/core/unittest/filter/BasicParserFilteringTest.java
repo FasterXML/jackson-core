@@ -13,6 +13,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.JsonTokenId;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.TreeNode;
 import tools.jackson.core.filter.FilteringParserDelegate;
 import tools.jackson.core.filter.JsonPointerBasedFilter;
 import tools.jackson.core.filter.TokenFilter;
@@ -924,5 +925,41 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
         assertEquals(
                 Arrays.asList("filterStartObject", "includeProperty: parent", "filterFinishObject"),
                 loggingFilter._log);
+    }
+
+    // [jackson-core#1616]: `readValueAsTree()` (and other read methods) must drive
+    // databind through the delegate's own (filtered) token stream, NOT the raw
+    // underlying parser -- otherwise filtering is silently bypassed.
+    @Test
+    void readValueAsTreeRespectsFiltering() throws Exception
+    {
+        CountingReadContext ctxt = new CountingReadContext();
+        // Raw input is 6 tokens; filtered down to `{'b':2}` it is 4
+        JsonParser p0 = JSON_F.createParser(ctxt, a2q("{'a':1,'b':2}"));
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+                new NameMatchFilter("b"),
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+
+        p.readValueAsTree();
+        assertEquals(4, ctxt.tokenCount,
+                "readValueAsTree() must read the filtered token stream, not the raw parser");
+        p.close();
+    }
+
+    // Helper context whose databind callback drains (and counts) every token of
+    // the parser handed to it; mimics how real databind drives the parser.
+    static class CountingReadContext extends ObjectReadContext.Base {
+        int tokenCount;
+
+        @Override
+        public <T extends TreeNode> T readTree(JsonParser p) {
+            tokenCount = 0;
+            while (p.nextToken() != null) {
+                ++tokenCount;
+            }
+            return null;
+        }
     }
 }

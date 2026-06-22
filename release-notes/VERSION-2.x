@@ -16,7 +16,9 @@ a pure JSON library.
 
 2.23.0 (not yet released)
 
-No changes since 2.22
+#1622: `UTF8JsonGenerator.writeBinary()` could allocate encoding buffer
+  based on supplied length
+ (requested by @kilink)
 
 2.22.0 (03-Jun-2026)
 

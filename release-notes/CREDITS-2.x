@@ -530,4 +530,3 @@ Patrick Strawderman (@kilink)
  * Contributed #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
   based on supplied length
   (2.23.0)
- 

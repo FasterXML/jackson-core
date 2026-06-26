@@ -92,10 +92,10 @@ public class BufferRecycler
 
     // Buffer lengths
     // 22-Jun-2026, [core#1622]: bumped default base64 codec buffer (index
-    //   BYTE_BASE64_CODEC_BUFFER) from 2000 to 16000 to reduce InputStream
+    //   BYTE_BASE64_CODEC_BUFFER) from 2000 to 4000 to reduce InputStream
     //   reads when encoding binary content of unknown/large length.
 
-    private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 16000 };
+    private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 4000 };
     private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };
 
     // Note: changed from simple array in 2.10:

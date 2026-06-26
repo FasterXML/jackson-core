@@ -738,7 +738,11 @@ public class WriterBasedJsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
-        byte[] encodingBuffer = _ioContext.allocBase64Buffer();
+        // [core#1622]: when length is known, size the read buffer accordingly
+        //   (capped) so large content needs fewer InputStream reads
+        byte[] encodingBuffer = (dataLength > 0)
+                ? _ioContext.allocBase64Buffer(Math.min(dataLength, MAX_BASE64_ENCODE_BUFFER_LENGTH))
+                : _ioContext.allocBase64Buffer();
         int bytes;
         try {
             if (dataLength < 0) { // length unknown

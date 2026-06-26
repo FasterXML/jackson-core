@@ -520,3 +520,13 @@ Mike Pedersen (@mpdncrwd)
  * Reported #1581: `NonBlockingByteBufferParser`: Unexpected Illegal surrogate
    character when parsing field names
   (2.21.3)
+
+Patrick Strawderman (@kilink)
+ * Requested #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
+  based on supplied length
+  (2.23.0)
+
+@seonwooj0810
+ * Contributed #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
+  based on supplied length
+  (2.23.0)

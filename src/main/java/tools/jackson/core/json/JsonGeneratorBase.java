@@ -20,6 +20,18 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
     /**
+     * Maximum size, in bytes, of the recyclable base64 encoding buffer to
+     * allocate when a binary content length hint is available (see
+     * {@code writeBinary(Base64Variant, InputStream, int)}). Allocating a
+     * larger buffer for big content reduces the number of
+     * {@link java.io.InputStream} reads required, but the size is capped to
+     * limit retention of large {@code ThreadLocal}-recycled buffers.
+     *
+     * @since 2.23
+     */
+    protected final static int MAX_BASE64_ENCODE_BUFFER_LENGTH = 64 * 1024;
+
+    /**
      * This is the default set of escape codes, over 7-bit ASCII range
      * (first 128 character codes), used for single-byte UTF-8 characters.
      */

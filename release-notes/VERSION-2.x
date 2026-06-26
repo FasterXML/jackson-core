@@ -16,9 +16,10 @@ a pure JSON library.
 
 2.23.0 (not yet released)
 
-#1622: `UTF8JsonGenerator.writeBinary()` could allocate encoding buffer
+#1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
   based on supplied length
  (requested by @kilink)
+ (contributed by @seonwooj0810)
 
 2.22.0 (03-Jun-2026)
 

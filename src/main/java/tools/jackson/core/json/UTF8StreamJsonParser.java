@@ -983,6 +983,9 @@ public class UTF8StreamJsonParser
                 t = _handleUnexpectedValue(i);
             }
             break;
+        case '.': // [core#611]:
+            t = _parseFloatThatStartsWithPeriod(false, false);
+            break;
         case '0':
         case '1':
         case '2':

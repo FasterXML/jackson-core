@@ -246,6 +246,11 @@ class NonStandardNumberParsingTest
     }
 
     @Test
+    void leadingDotAsFieldValueDataInput() throws Exception {
+        _testLeadingDotAsFieldValue(jsonFactory(), MODE_DATA_INPUT);
+    }
+
+    @Test
     void leadingDotInNegativeDecimalAllowedAsync() throws Exception {
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }

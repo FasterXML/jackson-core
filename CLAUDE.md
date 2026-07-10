@@ -66,6 +66,10 @@ Each of parser, generator, and factory has the same shape: **format-neutral abst
 | JSON partial | `json/JsonParserBase` | `json/JsonGeneratorImpl` | — |
 | JSON impl | `json/ReaderBasedJsonParser`, `json/UTF8StreamJsonParser`, `json/UTF8DataInputJsonParser` | `json/WriterBasedJsonGenerator`, `json/UTF8JsonGenerator` | `JsonFactory` |
 
+The non-blocking parsers sit under the same `json/JsonParserBase` node:
+`NonBlockingJsonParserBase` → `NonBlockingUtf8JsonParserBase` → `NonBlockingJsonParser` /
+`NonBlockingByteBufferJsonParser`.
+
 Despite the `Json` prefix, only classes in packages containing `json` are JSON-specific. Everything
 else is format-neutral and is subclassed by the binary/text format backends in other repos.
 
@@ -124,9 +128,16 @@ for `JsonFactory.Feature` — and must keep working.
 
 ### Processing limits (security-relevant)
 
-`StreamReadConstraints` / `StreamWriteConstraints` / `ErrorReportConfiguration` are per-factory and
-bound number length, string length, property-name length, document length, and nesting depth.
-Violations throw `exc/StreamConstraintsException`. This module is continuously fuzzed by OSS-Fuzz;
+Three per-factory config objects, with quite different scopes — don't conflate them:
+
+- **`StreamReadConstraints`** does the heavy lifting. `validateNestingDepth`, `validateDocumentLength`,
+  `validateTokenCount`, `validateFPLength`, `validateIntegerLength`, `validateStringLength`,
+  `validateNameLength`, `validateBigIntegerScale`.
+- **`StreamWriteConstraints`** bounds exactly one thing: output nesting depth.
+- **`ErrorReportConfiguration`** is *not* an input limit — it caps how much content
+  (`maxErrorTokenLength`, `maxRawContentLength`) gets embedded in exception messages.
+
+Constraint violations throw `exc/StreamConstraintsException`. This module is continuously fuzzed by OSS-Fuzz;
 `src/test/java/com/fasterxml/jackson/core/fuzz/` and `.../dos/` hold regression tests from those
 findings, and `.../constraints/` tests the limits themselves. New parsing code paths that can
 accumulate unbounded input must consult the relevant constraint.
@@ -143,8 +154,8 @@ START_OBJECT been emitted yet?" bookkeeping that makes this work.
 - Non-public instance/static fields are prefixed with `_` (`_currToken`, `_inputBuffer`). Public API
   never exposes fields.
 - Every new public method/class carries an `@since 2.NN` Javadoc tag for the version it lands in.
-- Long-lived comments are dated and attributed: `// 04-May-2024, tatu: [core#1264] ...`, referencing
-  the GitHub issue number. Follow this format when leaving a non-obvious note.
+- Long-lived comments are dated and attributed — `// 11-May-2020, tatu: ...` — with a
+  `[core#1264]` issue reference when one applies. Follow this format when leaving a non-obvious note.
 - Tests for a specific GitHub issue are named after it: `GeneratorFiltering890Test`,
   `Base64Padding912Test`, `Fuzz34435ParseTest`.
 - Most tests extend `JUnit5TestBase`, which supplies the `MODE_*` constants

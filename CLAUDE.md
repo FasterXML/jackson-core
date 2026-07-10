@@ -4,8 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`jackson-core` is the streaming (incremental) parser/generator layer of Jackson, plus the reference JSON implementation of those abstractions. It has **no runtime dependencies** other than `fastdoubleparser`, which is shaded and relocated into
-`com.fasterxml.jackson.core.internal.shaded.fdp.v<version>` at package time.
+`jackson-core` is the streaming (incremental) parser/generator layer of Jackson, plus the reference JSON implementation of those abstractions. Its one compile dependency, `fastdoubleparser`, is shaded and
+relocated into `com.fasterxml.jackson.core.internal.shaded.fdp.v<version>` at package time and
+stripped from the published POM — so **consumers see zero external dependencies**.
 
 Everything else in Jackson (`jackson-databind`, and every data format backend: Smile, CBOR, XML,
 CSV, YAML, Protobuf...) builds on the abstractions here. That means **public API changes here ripple
@@ -19,7 +20,7 @@ Use the Maven wrapper (`./mvnw`), not a system `mvn`.
 ```bash
 ./mvnw verify                       # full build: compile, test, JaCoCo report (what CI runs)
 ./mvnw test                         # tests only
-./mvnw -q -ff -ntp verify           # quiet, fail-fast — matches CI invocation
+./mvnw -B -q -ff -ntp verify        # exactly what CI runs (batch, quiet, fail-fast, no transfer log)
 
 ./mvnw test -Dtest=UTF8StreamJsonParserTest              # single test class
 ./mvnw test -Dtest=UTF8StreamJsonParserTest#testFoo      # single test method
@@ -40,9 +41,11 @@ This repo maintains many live branches. Fixes go to the **oldest branch that sho
 then get merged forward:
 
 ```
-2.21  →  2.22  →  2.x        (2.x is the current 2.x development branch, version 2.23.0-SNAPSHOT)
-3.0   →  3.x                 (separate, breaking-change line)
+2.21  →  2.22  →  2.x  →  3.x        (2.x is the current 2.x dev branch, version 2.23.0-SNAPSHOT)
 ```
+
+The chain does not stop at `2.x`: the history shows `Merge branch '2.x' into 3.x`, so fixes flow all
+the way into the 3.x (breaking-change) line.
 
 Don't commit a fix only to `2.x` if it belongs in a patch branch. Propagate with forward merges
 (`git merge 2.21` into `2.22`, then `2.22` into `2.x`) rather than cherry-picks — that is the
@@ -110,7 +113,13 @@ scanning code with `UTF8StreamJsonParser`, so parser fixes typically must be app
 
 ### Configuration model
 
-Features are enums implementing `util/JacksonFeature`, collected into bitmask `JacksonFeatureSet`s.
+Feature *state* is held as plain `int` bitmask fields (`_factoryFeatures`, `_parserFeatures`,
+`_generatorFeatures`) — not as `JacksonFeatureSet`. `util/JacksonFeatureSet` is a separate, immutable
+holder used for the **capability** enums, reached via `getReadCapabilities()` /
+`getWriteCapabilities()`. Only some of the enums below implement `util/JacksonFeature`
+(`StreamReadFeature`, `StreamWriteFeature`, the two capability enums, and `JsonFactory.Feature`);
+the legacy `JsonParser.Feature` / `JsonGenerator.Feature` do not.
+
 There are several distinct axes, and putting a feature on the wrong one is an API mistake that can't
 be undone:
 

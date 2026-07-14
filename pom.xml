@@ -410,4 +410,41 @@ tools.jackson.core.*;version=${project.version}
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <!-- 26-Jun-2026, tatu: [core#1625] (regression of [core#1561]) Javadoc generation
+         is broken when built with JDK 17 (the produced `-javadoc.jar` is missing the
+         index/search/overview files, so javadoc.io cannot render it). JDK 21+ is needed
+         to produce a complete Javadoc jar. Releases run via `release:perform` with
+         `-Prelease` (see maven-release-plugin config in parent), and the `release`
+         profile is where the Javadoc jar gets attached, so guard exactly that build
+         and fail fast if it is not run on JDK 21 or higher. Normal development on JDK 17
+         is unaffected.
+      -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>enforce-jdk21-for-release</id>
+                <phase>validate</phase>
+                <goals><goal>enforce</goal></goals>
+                <configuration>
+                  <rules>
+                    <requireJavaVersion>
+                      <version>[21,)</version>
+                      <message>[ERROR] Releases must be built with JDK 21 or higher so that the Javadoc jar is complete (see jackson-core#1561 / #1625).</message>
+                    </requireJavaVersion>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

@@ -1,6 +1,7 @@
 package tools.jackson.core.unittest.read;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.junit.jupiter.api.Test;
@@ -9,9 +10,12 @@ import org.junit.jupiter.api.TestMethodOrder;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.unittest.*;
+import tools.jackson.core.util.Named;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -307,6 +311,59 @@ class NonStandardNumberParsingTest
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
+    // [core#1630]: nextName() value-peeking must also honor
+    // ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS (as nextToken() does)
+    @Test
+    void leadingDotAsFieldValueBytes() throws Exception {
+        _testLeadingDotAsFieldValue(jsonFactory(), MODE_INPUT_STREAM);
+        _testLeadingDotAsFieldValue(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
+    }
+
+    @Test
+    void leadingDotAsFieldValueReader() throws Exception {
+        _testLeadingDotAsFieldValue(jsonFactory(), MODE_READER);
+        _testLeadingDotAsFieldValue(jsonFactory(), MODE_READER_THROTTLED);
+    }
+
+    @Test
+    void leadingDotAsFieldValueDataInput() throws Exception {
+        _testLeadingDotAsFieldValue(jsonFactory(), MODE_DATA_INPUT);
+    }
+
+    @Test
+    void signedLeadingDotAsFieldValueBytes() throws Exception {
+        _testSignedLeadingDotAsFieldValue(jsonFactory(), MODE_INPUT_STREAM);
+        _testSignedLeadingDotAsFieldValue(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
+    }
+
+    @Test
+    void signedLeadingDotAsFieldValueReader() throws Exception {
+        _testSignedLeadingDotAsFieldValue(jsonFactory(), MODE_READER);
+        _testSignedLeadingDotAsFieldValue(jsonFactory(), MODE_READER_THROTTLED);
+    }
+
+    @Test
+    void signedLeadingDotAsFieldValueDataInput() throws Exception {
+        _testSignedLeadingDotAsFieldValue(jsonFactory(), MODE_DATA_INPUT);
+    }
+
+    @Test
+    void leadingDotAsFieldValueFailsWhenDisabledBytes() throws Exception {
+        _testLeadingDotAsFieldValueFails(newStreamFactory(), MODE_INPUT_STREAM);
+        _testLeadingDotAsFieldValueFails(newStreamFactory(), MODE_INPUT_STREAM_THROTTLED);
+    }
+
+    @Test
+    void leadingDotAsFieldValueFailsWhenDisabledReader() throws Exception {
+        _testLeadingDotAsFieldValueFails(newStreamFactory(), MODE_READER);
+        _testLeadingDotAsFieldValueFails(newStreamFactory(), MODE_READER_THROTTLED);
+    }
+
+    @Test
+    void leadingDotAsFieldValueFailsWhenDisabledDataInput() throws Exception {
+        _testLeadingDotAsFieldValueFails(newStreamFactory(), MODE_DATA_INPUT);
+    }
+
     @Test
     void leadingDotInNegativeDecimalAllowedAsync() throws Exception {
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
@@ -366,6 +423,88 @@ class NonStandardNumberParsingTest
             assertEquals(125.0, p.getValueAsDouble());
             assertEquals("125", p.getDecimalValue().toString());
             assertEquals("125.", p.getString());
+        }
+    }
+
+    // [core#1630]: leading decimal point in value peeked by nextName()
+    private void _testLeadingDotAsFieldValue(JsonFactory f, int mode)
+    {
+        final String DOC = "{\"a\": .125}";
+
+        // 1) nextName() (no-arg) peeks the value after resolving name
+        try (JsonParser p = createParser(f, mode, DOC)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertEquals("a", p.nextName());
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.125, p.getValueAsDouble());
+            assertEquals(".125", p.getString());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+
+        // 2) nextName(SerializableString), matching name (the "Yes" fast path)
+        try (JsonParser p = createParser(f, mode, DOC)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertTrue(p.nextName(new SerializedString("a")));
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.125, p.getValueAsDouble());
+            assertEquals(".125", p.getString());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+
+        // 3) nextName(SerializableString), non-matching name (the "Maybe" path)
+        try (JsonParser p = createParser(f, mode, DOC)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertFalse(p.nextName(new SerializedString("b")));
+            assertEquals("a", p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.125, p.getValueAsDouble());
+            assertEquals(".125", p.getString());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+
+        // 4) nextNameMatch(), which peeks the value too
+        final PropertyNameMatcher matcher = f.constructNameMatcher(List.of(Named.fromString("a")), false);
+        try (JsonParser p = createParser(f, mode, DOC)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertEquals(0, p.nextNameMatch(matcher));
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.125, p.getValueAsDouble());
+            assertEquals(".125", p.getString());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+    }
+
+    // [core#1630]: signed variants of leading decimal point, as peeked property value
+    private void _testSignedLeadingDotAsFieldValue(JsonFactory f, int mode)
+    {
+        try (JsonParser p = createParser(f, mode, "{\"a\": -.125}")) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertEquals("a", p.nextName());
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(-0.125, p.getValueAsDouble());
+            assertEquals("-.125", p.getString());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+        try (JsonParser p = createParser(f, mode, "{\"a\": +.125}")) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertEquals("a", p.nextName());
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.125, p.getValueAsDouble());
+            assertEquals("+.125", p.getString());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+    }
+
+    // [core#1630]: with feature disabled, nextName() must still report the same
+    // failure that nextToken() does -- the peek path must not silently allow it
+    private void _testLeadingDotAsFieldValueFails(JsonFactory f, int mode)
+    {
+        try (JsonParser p = createParser(f, mode, "{\"a\": .125}")) {
+            p.nextToken();
+            p.nextName();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, "Unexpected character ('.'");
         }
     }
 

@@ -21,9 +21,14 @@ a pure JSON library.
  (requested by @kilink)
  (contributed by @seonwooj0810)
 
+2.22.1 (07-Jul-2026)
 2.22.0 (03-Jun-2026)
 
 No changes since 2.21
+
+2.21.5 (06-Jul-2026)
+
+No changes since 2.21.4
 
 2.21.4 (28-May-2026)
 
@@ -151,6 +156,10 @@ No changes since 2.19.1
 #1421: Make `JsonReadContext` non-final
  (requested by Ilenia S)
  (fixed by @pjfanning)
+
+2.18.9 (07-Jul-2026)
+
+No changes since 2.18.8
 
 2.18.8 (28-May-2026)
 

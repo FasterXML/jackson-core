@@ -103,6 +103,56 @@ class LargeDocReadTest extends AsyncTestBase
         }
     }
 
+    // [core#XXXX] maxDocumentLength must also be enforced when the caller feeds
+    // the whole document via a single feedInput() call (e.g. pre-buffered input),
+    // not just when input arrives split across multiple feedInput() calls.
+    @Test
+    void largeNameWithSmallLimitAsyncSingleFeed() throws Exception
+    {
+        final byte[] doc = utf8Bytes(generateJSON(12_000));
+
+        // first with byte[] backend: bytesPerRead >= doc.length so the whole
+        // document goes through in exactly one feedInput() call
+        try (AsyncReaderWrapper p = asyncForBytes(JSON_F_DOC_10K, doc.length, doc, 1)) {
+            consumeAsync(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
+
+        // then with byte buffer backend, same single-call condition
+        try (AsyncReaderWrapper p = asyncForByteBuffer(JSON_F_DOC_10K, doc.length, doc, 1)) {
+            consumeAsync(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyMaxDocLen(JSON_F_DOC_10K, e);
+        }
+    }
+
+    // [core#XXXX] Boundary check: a single feedInput() call carrying EXACTLY
+    // maxDocumentLength bytes must still parse successfully -- validateDocumentLength()
+    // rejects only len > maxDocumentLength, so the limit itself is inclusive.
+    // This pins down "bytes fed, not consumed" semantics and guards against a
+    // future off-by-one in the single-feed fix.
+    @Test
+    void largeNameWithSmallLimitAsyncSingleFeedAtBoundary() throws Exception
+    {
+        final long limit = JSON_F_DOC_10K.streamReadConstraints().getMaxDocumentLength();
+        final byte[] doc = utf8Bytes(generateExactLengthJSON((int) limit));
+        assertEquals(limit, doc.length);
+
+        // first with byte[] backend: bytesPerRead >= doc.length so the whole
+        // document goes through in exactly one feedInput() call
+        try (AsyncReaderWrapper p = asyncForBytes(JSON_F_DOC_10K, doc.length, doc, 1)) {
+            consumeAsync(p);
+        }
+
+        // then with byte buffer backend, same single-call condition
+        try (AsyncReaderWrapper p = asyncForByteBuffer(JSON_F_DOC_10K, doc.length, doc, 1)) {
+            consumeAsync(p);
+        }
+    }
+
     // [core#1570] Should fail fast when DataInput used with maxDocumentLength set
     @Test
     void dataInputWithDocLengthLimitFails() throws Exception
@@ -148,6 +198,23 @@ class LargeDocReadTest extends AsyncTestBase
         while (w.nextToken() != null) {
             ;
         }
+    }
+
+    // Builds a valid JSON array whose UTF-8 byte length is exactly {@code exactLen},
+    // using trailing whitespace padding before the closing bracket (all-ASCII content,
+    // so char length == byte length).
+    private String generateExactLengthJSON(final int exactLen) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        while (sb.length() < exactLen - 10) {
+            sb.append("1,");
+        }
+        sb.append('1');
+        while (sb.length() < exactLen - 1) {
+            sb.append(' ');
+        }
+        sb.append(']');
+        return sb.toString();
     }
 
     private String generateJSON(final int docLen) {

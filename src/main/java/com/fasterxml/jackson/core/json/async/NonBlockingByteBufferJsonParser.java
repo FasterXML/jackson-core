@@ -57,7 +57,10 @@ public class NonBlockingByteBufferJsonParser
         _currInputProcessed += _origBufferLen;
 
         // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
-        _streamReadConstraints.validateDocumentLength(_currInputProcessed);
+        // 17-Jul-2026: validate against the buffer just supplied (not the previous
+        // one) so a single feedInput() call carrying the whole document is checked
+        // against its real length instead of trivially passing on the first call
+        _streamReadConstraints.validateDocumentLength(_currInputProcessed + (end - start));
 
         // Also need to adjust row start, to work as if it extended into the past wrt new buffer
         _currInputRowStart = start - (_inputEnd - _currInputRowStart);

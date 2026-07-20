@@ -691,6 +691,50 @@ public class JsonPointer implements Serializable
         return true;
     }
 
+    /**
+     * Method added to check whether this pointer starts with the given other pointer.
+     *
+     * This implementation compares logical segments rather than raw string prefix:
+     * it iterates through segments of 'other' and ensures corresponding segments
+     * of 'this' match exactly (either same property name or same element index).
+     *
+     * @param other Pointer to check as prefix
+     * @return true if this pointer starts with the given other pointer
+     */
+    public boolean startsWith(JsonPointer other) {
+        if (other == null) {
+            return false;
+        }
+        if (other == EMPTY) {
+            return true;
+        }
+        JsonPointer a = this;
+        JsonPointer b = other;
+        while (b != EMPTY) {
+            if (a == EMPTY) {
+                // 'other' has more segments than 'this'
+                return false;
+            }
+            // Compare element index if present in 'b'
+            if (b._matchingElementIndex >= 0) {
+                if (a._matchingElementIndex != b._matchingElementIndex) {
+                    return false;
+                }
+            } else {
+                // Compare property names (may be empty string)
+                if (a._matchingPropertyName == null) {
+                    return false;
+                }
+                if (!a._matchingPropertyName.equals(b._matchingPropertyName)) {
+                    return false;
+                }
+            }
+            a = a._nextSegment;
+            b = b._nextSegment;
+        }
+        return true;
+    }
+
     /*
     /**********************************************************************
     /* Internal methods

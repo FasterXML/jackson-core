@@ -1380,8 +1380,8 @@ public class UTF8DataInputJsonParser
             }
             break;
         }
-        _reportUnexpectedNumberChar(ch,
-                "expected space, comma, or closing bracket/brace to separate or terminate numeric value");
+        _reportUnexpectedChar(ch,
+                "Expected space, comma or closing bracket/brace after numeric value");
     }
 
     /*

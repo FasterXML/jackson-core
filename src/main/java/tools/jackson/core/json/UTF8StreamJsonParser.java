@@ -2236,12 +2236,12 @@ public class UTF8StreamJsonParser
             }
             break;
         }
-        // Align `_inputPtr` with what `_reportUnexpectedNumberChar` ->
+        // Align `_inputPtr` with what `_reportUnexpectedChar` ->
         // `_currentLocationMinusOne()` expects (one past the offending char),
         // matching `_verifyRootSpace` which advances up front.
         ++_inputPtr;
-        _reportUnexpectedNumberChar(ch,
-                "expected space, comma, or closing bracket/brace to separate or terminate numeric value");
+        _reportUnexpectedChar(ch,
+                "Expected space, comma or closing bracket/brace after numeric value");
     }
 
     /*

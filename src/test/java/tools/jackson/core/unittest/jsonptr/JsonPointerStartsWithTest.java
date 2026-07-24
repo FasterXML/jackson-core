@@ -6,10 +6,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import tools.jackson.core.JsonPointer;
+import tools.jackson.core.unittest.JacksonCoreTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JsonPointerStartsWithTest {
+public class JsonPointerStartsWithTest extends JacksonCoreTestBase {
 
     @Test
     @DisplayName("Should return true when comparing against the EMPTY pointer")
@@ -95,5 +96,23 @@ public class JsonPointerStartsWithTest {
         JsonPointer ptr = JsonPointer.compile("/a/b");
         JsonPointer longer = JsonPointer.compile("/a/b/c");
         assertFalse(ptr.startsWith(longer), "Pointer should not start with a longer pointer");
+    }
+
+    // [core#788]: empty String ("") is a valid property name, distinct from EMPTY pointer
+    @Test
+    @DisplayName("Should handle empty-String property segments")
+    public void testStartsWithEmptyStringProperty() {
+        // "/" is a single segment matching property with empty-String name
+        JsonPointer emptyProp = JsonPointer.compile("/");
+        JsonPointer emptyPropChild = JsonPointer.compile("//leaf");
+
+        assertTrue(emptyProp.startsWith(JsonPointer.compile("/")));
+        assertTrue(emptyPropChild.startsWith(JsonPointer.compile("/")));
+        assertTrue(emptyPropChild.startsWith(JsonPointer.compile("//leaf")));
+
+        // empty-String property "/" is NOT the same as the EMPTY (root) pointer as a prefix source:
+        assertFalse(JsonPointer.empty().startsWith(emptyProp));
+        // ...but every pointer (incl. "/") starts with the EMPTY pointer
+        assertTrue(emptyProp.startsWith(JsonPointer.empty()));
     }
 }

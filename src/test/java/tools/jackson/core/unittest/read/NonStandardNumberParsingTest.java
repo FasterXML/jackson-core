@@ -159,7 +159,9 @@ class NonStandardNumberParsingTest
         for (int mode : ALL_MODES) {
             _verifyMangledNonRootNumber(mode, "[ 123true ]");
             _verifyMangledNonRootNumber(mode, "[ 100k ]");
-            _verifyMangledNonRootNumber(mode, "[ 100/ ]");
+            // Comment start marker fails eagerly too, but keeps the more specific
+            // "did you mean a comment?" message the comment-skipping code gives
+            _verifyMangledNonRootNumber(mode, "[ 100/ ]", "maybe a (non-standard) comment?");
         }
     }
 
@@ -195,6 +197,10 @@ class NonStandardNumberParsingTest
     }
 
     private void _verifyMangledNonRootNumber(int mode, String doc) throws Exception {
+        _verifyMangledNonRootNumber(mode, doc, "expected space");
+    }
+
+    private void _verifyMangledNonRootNumber(int mode, String doc, String expMsg) throws Exception {
         try (JsonParser p = createParser(mode, doc)) {
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
             // Should fail eagerly when decoding the number token (and, at the
@@ -203,7 +209,7 @@ class NonStandardNumberParsingTest
             p.getDoubleValue();
             fail("Should have failed for '"+doc+"', instead got token "+t);
         } catch (StreamReadException e) {
-            verifyException(e, "expected space");
+            verifyException(e, expMsg);
         }
     }
 

@@ -1342,9 +1342,9 @@ public class UTF8DataInputJsonParser
      * valid separator or terminator. For root-level values this means white space
      * (as per [core#105], see {@link #_verifyRootSpace}); for non-root values
      * ([core#1557]) the number must be followed by white space, a value separator
-     * ({@code ','}), an enclosing-structure end ({@code ']'} or {@code '}'}), a
-     * comment start (when enabled) or end-of-input. Without this, malformed content
-     * such as {@code [ 123true ]} would only fail lazily when accessing the
+     * ({@code ','}), an enclosing-structure end ({@code ']'} or {@code '}'}) or a
+     * comment start marker (when comments are enabled). Without this, malformed
+     * content such as {@code [ 123true ]} would only fail lazily when accessing the
      * following token.
      *<p>
      * The trailing character is held in {@code _nextByte}; for accepted separators
@@ -1357,9 +1357,6 @@ public class UTF8DataInputJsonParser
             return;
         }
         final int ch = _nextByte;
-        if (ch < 0) { // end-of-input: number itself is complete
-            return;
-        }
         switch (ch) {
         case ' ':
         case '\t':
@@ -1380,8 +1377,18 @@ public class UTF8DataInputJsonParser
             }
             break;
         }
+        if (ch == '/') {
+            // 23-Jul-2026, tatu: [core#1557] Still fail here rather than lazily, but
+            //   with the more useful message comment-skipping would have given.
+            _reportUnrecognizedComment();
+        }
         _reportUnexpectedChar(ch,
                 "Expected space, comma or closing bracket/brace after numeric value");
+    }
+
+    // @since 3.3
+    private final void _reportUnrecognizedComment() throws JacksonException {
+        _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
     }
 
     /*
@@ -2766,7 +2773,7 @@ public class UTF8DataInputJsonParser
     private final void _skipComment() throws IOException
     {
         if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
-            _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
+            _reportUnrecognizedComment();
         }
         int c = readUnsignedByte();
         if (c == '/') {

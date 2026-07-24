@@ -49,6 +49,8 @@ seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
    for JSON5-style hexadecimal integer literals
   (3.2.0)
+ * Fixed #1557: Parsing for non-root number values fails lazily
+  (3.3.0)
 
 Max Paulus (@maxpaulus43)
  * Contributed #1211: Add `JsonParser.willInternPropertyNames()` to check whether

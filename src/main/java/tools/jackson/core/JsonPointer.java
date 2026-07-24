@@ -692,14 +692,23 @@ public class JsonPointer implements Serializable
     }
 
     /**
-     * Method added to check whether this pointer starts with the given other pointer.
+     * Method for checking whether this pointer starts with (that is, is prefixed by)
+     * the given other pointer. Every pointer starts with the "empty" pointer, and
+     * with itself.
+     *<p>
+     * Matching is done on decoded logical segments -- each segment must match either
+     * as same property name or as same element index -- and not as a raw String prefix.
+     * Note that this means results may differ from {@link #equals}, which compares the
+     * String representation: two pointers that differ only by escaping of an invalid
+     * escape sequence (like {@code "/a~0b"} vs {@code "/a~b"}) decode to the same
+     * segment and hence match here, but are not {@code equals}.
      *
-     * This implementation compares logical segments rather than raw string prefix:
-     * it iterates through segments of 'other' and ensures corresponding segments
-     * of 'this' match exactly (either same property name or same element index).
+     * @param other Pointer to check as prefix; {@code null} results in {@code false}
      *
-     * @param other Pointer to check as prefix
-     * @return true if this pointer starts with the given other pointer
+     * @return {@code True} if this pointer starts with the given other pointer;
+     *    {@code false} otherwise (including case of {@code null} argument)
+     *
+     * @since 3.3
      */
     public boolean startsWith(JsonPointer other) {
         if (other == null) {

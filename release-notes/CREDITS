@@ -58,3 +58,8 @@ Max Paulus (@maxpaulus43)
 Antonin Janec (@xtonik)
  * Contributed #1576: Use Java 17 intrinstics for long multiplication
   (3.2.0)
+
+Scott Lewis (@scottslewis)
+ * Contributed #1637: Add `JsonPointer.startsWith(JsonPointer)` to check
+   prefix match
+  (3.3.0)

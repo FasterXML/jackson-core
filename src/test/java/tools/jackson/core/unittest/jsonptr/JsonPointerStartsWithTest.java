@@ -40,7 +40,7 @@ public class JsonPointerStartsWithTest {
     public void testStartsWithValidPrefix(String full, String prefix) {
         JsonPointer fullPtr = JsonPointer.compile(full);
         JsonPointer prefixPtr = JsonPointer.compile(prefix);
-        assertTrue(fullPtr.startsWith(prefixPtr), 
+        assertTrue(fullPtr.startsWith(prefixPtr),
             String.format("Pointer '%s' should start with '%s'", full, prefix));
     }
 
@@ -59,7 +59,7 @@ public class JsonPointerStartsWithTest {
     public void testStartsWithInvalidPrefix(String full, String prefix) {
         JsonPointer fullPtr = JsonPointer.compile(full);
         JsonPointer prefixPtr = JsonPointer.compile(prefix);
-        assertFalse(fullPtr.startsWith(prefixPtr), 
+        assertFalse(fullPtr.startsWith(prefixPtr),
             String.format("Pointer '%s' should NOT start with '%s'", full, prefix));
     }
 
@@ -67,10 +67,10 @@ public class JsonPointerStartsWithTest {
     @DisplayName("Should handle complex escaped characters correctly")
     public void testStartsWithEscaped() {
         JsonPointer fullPtr = JsonPointer.compile("/~1part1/~0part2/end");
-        
+
         assertTrue(fullPtr.startsWith(JsonPointer.compile("/~1part1")));
         assertTrue(fullPtr.startsWith(JsonPointer.compile("/~1part1/~0part2")));
-        
+
         // Mismatch in escaping
         assertFalse(fullPtr.startsWith(JsonPointer.compile("/part1")));
     }
@@ -84,7 +84,7 @@ public class JsonPointerStartsWithTest {
 
         assertTrue(indexPtr.startsWith(JsonPointer.compile("/0")));
         assertFalse(indexPtr.startsWith(JsonPointer.compile("/00")));
-        
+
         assertTrue(propPtr.startsWith(JsonPointer.compile("/00")));
         assertFalse(propPtr.startsWith(JsonPointer.compile("/0")));
     }

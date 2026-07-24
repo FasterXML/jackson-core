@@ -17,7 +17,8 @@ JSON library.
 
 3.3.0 (not yet released)
 
-No changes since 3.2
+#1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match
+ (contributed by @scottslewis)
 
 3.2.1 (10-Jul-2026)
 

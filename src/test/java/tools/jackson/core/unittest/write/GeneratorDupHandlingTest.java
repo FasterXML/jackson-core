@@ -2,6 +2,8 @@ package tools.jackson.core.unittest.write;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.StreamWriteFeature;
@@ -14,10 +16,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class GeneratorDupHandlingTest
     extends JacksonCoreTestBase
 {
-    public void testSimpleDupsEagerlyBytes() {
+    @Test
+    void testSimpleDupsEagerlyBytes() {
         _testSimpleDups(true, newStreamFactory());
     }
-    public void testSimpleDupsEagerlyChars() {
+    @Test
+    void testSimpleDupsEagerlyChars() {
         _testSimpleDups(false, newStreamFactory());
     }
 

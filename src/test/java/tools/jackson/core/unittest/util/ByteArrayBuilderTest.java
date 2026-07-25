@@ -2,6 +2,8 @@ package tools.jackson.core.unittest.util;
 
 import java.nio.charset.StandardCharsets;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.base.GeneratorBase;
@@ -16,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ByteArrayBuilderTest extends JacksonCoreTestBase
 {
-    public void testSimple() throws Exception
+    @Test
+    void testSimple() throws Exception
     {
         ByteArrayBuilder b = new ByteArrayBuilder(null, 20);
         assertArrayEquals(new byte[0], b.toByteArray());
@@ -39,7 +42,8 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
         b.close();
     }
 
-    public void testAppendFourBytesWithPositive() {
+    @Test
+    void testAppendFourBytesWithPositive() {
         BufferRecycler bufferRecycler = new BufferRecycler();
         ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder(bufferRecycler);
 
@@ -55,7 +59,8 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
         byteArrayBuilder.close();
     }
 
-    public void testAppendTwoBytesWithZero() {
+    @Test
+    void testAppendTwoBytesWithZero() {
         ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder(0);
 
         assertEquals(0, byteArrayBuilder.size());
@@ -67,7 +72,8 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
         byteArrayBuilder.close();
     }
 
-    public void testFinishCurrentSegment() {
+    @Test
+    void testFinishCurrentSegment() {
         BufferRecycler bufferRecycler = new BufferRecycler();
         ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder(bufferRecycler, 2);
         byteArrayBuilder.appendThreeBytes(2);
@@ -81,7 +87,8 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
     }
 
     // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
-    public void testBufferRecyclerReuse() throws Exception
+    @Test
+    void testBufferRecyclerReuse() throws Exception
     {
         JsonFactory f = new JsonFactory();
         BufferRecycler br = new BufferRecycler()

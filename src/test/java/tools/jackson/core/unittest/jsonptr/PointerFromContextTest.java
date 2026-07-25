@@ -2,6 +2,8 @@ package tools.jackson.core.unittest.jsonptr;
 
 import java.io.StringWriter;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonPointer;
@@ -25,7 +27,8 @@ public class PointerFromContextTest extends JacksonCoreTestBase
 
     private final JsonPointer EMPTY_PTR = JsonPointer.empty();
 
-    public void testViaParser() throws Exception
+    @Test
+    void testViaParser() throws Exception
     {
         final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
                 +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
@@ -110,7 +113,8 @@ public class PointerFromContextTest extends JacksonCoreTestBase
         p.close();
     }
 
-    public void testViaGenerator() throws Exception
+    @Test
+    void testViaGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
@@ -154,7 +158,8 @@ public class PointerFromContextTest extends JacksonCoreTestBase
     /**********************************************************
      */
 
-    public void testParserWithRoot() throws Exception
+    @Test
+    void testParserWithRoot() throws Exception
     {
         final String JSON = a2q("{'a':1,'b':3}\n"
                 +"{'a':5,'c':[1,2]}\n[1,2]\n");
@@ -217,7 +222,8 @@ public class PointerFromContextTest extends JacksonCoreTestBase
         p.close();
     }
 
-    public void testGeneratorWithRoot() throws Exception
+    @Test
+    void testGeneratorWithRoot() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);

@@ -2,6 +2,8 @@ package tools.jackson.core.unittest.base;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.ErrorReportConfiguration;
 import tools.jackson.core.FormatSchema;
 import tools.jackson.core.JacksonException;
@@ -151,7 +153,8 @@ class FactoryBaseImplsTest extends JacksonCoreTestBase
         public Version version() { return Version.unknownVersion(); }
 }
 
-    public void testBogus() {
+    @Test
+    void testBogus() {
         // no real tests but need one "test" method to avoid junit fail
 
         assertNotNull(new ToyBinaryFormatFactory());

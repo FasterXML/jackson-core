@@ -4,6 +4,8 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -28,7 +30,8 @@ public class ObjectWriteTest
         return JSON_F;
     }
 
-    public void testEmptyObjectWrite()
+    @Test
+    void testEmptyObjectWrite()
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
@@ -69,7 +72,8 @@ public class ObjectWriteTest
         p.close();
     }
 
-    public void testInvalidObjectWrite()
+    @Test
+    void testInvalidObjectWrite()
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
@@ -84,7 +88,8 @@ public class ObjectWriteTest
         gen.close();
     }
 
-    public void testSimpleObjectWrite()
+    @Test
+    void testSimpleObjectWrite()
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
@@ -116,7 +121,8 @@ public class ObjectWriteTest
         p.close();
     }
 
-    public void testConvenienceMethods()
+    @Test
+    void testConvenienceMethods()
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
@@ -220,7 +226,8 @@ public class ObjectWriteTest
         p.close();
     }
 
-    public void testConvenienceMethodsWithNulls()
+    @Test
+    void testConvenienceMethodsWithNulls()
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);

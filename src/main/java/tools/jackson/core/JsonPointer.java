@@ -730,10 +730,8 @@ public class JsonPointer implements Serializable
                     return false;
                 }
             } else {
-                // Compare property names (may be empty string)
-                if (a._matchingPropertyName == null) {
-                    return false;
-                }
+                // Compare property names (may be empty string; only EMPTY has `null`
+                // name and that case was already handled above)
                 if (!a._matchingPropertyName.equals(b._matchingPropertyName)) {
                     return false;
                 }

@@ -691,6 +691,57 @@ public class JsonPointer implements Serializable
         return true;
     }
 
+    /**
+     * Method for checking whether this pointer starts with (that is, is prefixed by)
+     * the given other pointer. Every pointer starts with the "empty" pointer, and
+     * with itself.
+     *<p>
+     * Matching is done on decoded logical segments -- each segment must match either
+     * as same property name or as same element index -- and not as a raw String prefix.
+     * Note that this means results may differ from {@link #equals}, which compares the
+     * String representation: two pointers that differ only by escaping of an invalid
+     * escape sequence (like {@code "/a~0b"} vs {@code "/a~b"}) decode to the same
+     * segment and hence match here, but are not {@code equals}.
+     *
+     * @param other Pointer to check as prefix; {@code null} results in {@code false}
+     *
+     * @return {@code True} if this pointer starts with the given other pointer;
+     *    {@code false} otherwise (including case of {@code null} argument)
+     *
+     * @since 3.3
+     */
+    public boolean startsWith(JsonPointer other) {
+        if (other == null) {
+            return false;
+        }
+        if (other == EMPTY) {
+            return true;
+        }
+        JsonPointer a = this;
+        JsonPointer b = other;
+        while (b != EMPTY) {
+            if (a == EMPTY) {
+                // 'other' has more segments than 'this'
+                return false;
+            }
+            // Compare element index if present in 'b'
+            if (b._matchingElementIndex >= 0) {
+                if (a._matchingElementIndex != b._matchingElementIndex) {
+                    return false;
+                }
+            } else {
+                // Compare property names (may be empty string; only EMPTY has `null`
+                // name and that case was already handled above)
+                if (!a._matchingPropertyName.equals(b._matchingPropertyName)) {
+                    return false;
+                }
+            }
+            a = a._nextSegment;
+            b = b._nextSegment;
+        }
+        return true;
+    }
+
     /*
     /**********************************************************************
     /* Internal methods

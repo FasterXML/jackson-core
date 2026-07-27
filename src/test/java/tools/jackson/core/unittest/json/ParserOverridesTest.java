@@ -3,6 +3,8 @@ package tools.jackson.core.unittest.json;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
@@ -19,14 +21,16 @@ public class ParserOverridesTest extends JacksonCoreTestBase
     /**********************************************************
      */
 
-    public void testTokenAccess() throws Exception
+    @Test
+    void testTokenAccess() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         _testTokenAccess(jf, false);
         _testTokenAccess(jf, true);
     }
 
-    public void testCurrentName() throws Exception
+    @Test
+    void testCurrentName() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         _testCurrentName(jf, false);

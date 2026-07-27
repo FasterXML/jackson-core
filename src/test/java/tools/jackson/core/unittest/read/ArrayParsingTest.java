@@ -1,5 +1,7 @@
 package tools.jackson.core.unittest.read;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
@@ -16,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ArrayParsingTest
     extends JacksonCoreTestBase
 {
-    public void testValidEmpty() throws Exception
+    @Test
+    void testValidEmpty() throws Exception
     {
         final String DOC = "[   \n  ]";
 
@@ -27,7 +30,8 @@ public class ArrayParsingTest
         p.close();
     }
 
-    public void testInvalidEmptyMissingClose() throws Exception
+    @Test
+    void testInvalidEmptyMissingClose() throws Exception
     {
         final String DOC = "[ ";
 
@@ -43,7 +47,8 @@ public class ArrayParsingTest
         p.close();
     }
 
-    public void testInvalidMissingFieldName() throws Exception
+    @Test
+    void testInvalidMissingFieldName() throws Exception
     {
         final String DOC = "[  : 3 ] ";
 
@@ -59,7 +64,8 @@ public class ArrayParsingTest
         p.close();
     }
 
-    public void testInvalidExtraComma() throws Exception
+    @Test
+    void testInvalidExtraComma() throws Exception
     {
         final String DOC = "[ 24, ] ";
 
@@ -83,7 +89,8 @@ public class ArrayParsingTest
      * This tests both Stream based parsing and the Reader based parsing
      * @throws Exception
      */
-    public void testMissingValueAsNullByEnablingFeature() throws Exception
+    @Test
+    void testMissingValueAsNullByEnablingFeature() throws Exception
     {
     	_testMissingValueByEnablingFeature(true);
     	_testMissingValueByEnablingFeature(false);
@@ -94,7 +101,8 @@ public class ArrayParsingTest
      * the Feature.ALLOW_MISSING_VALUES
      * @throws Exception
      */
-    public void testMissingValueAsNullByNotEnablingFeature() throws Exception
+    @Test
+    void testMissingValueAsNullByNotEnablingFeature() throws Exception
     {
     	_testMissingValueNotEnablingFeature(true);
     	_testMissingValueNotEnablingFeature(false);
@@ -106,7 +114,8 @@ public class ArrayParsingTest
      * This tests both Stream based parsing and the Reader based parsing for not missing any value
      * @throws Exception
      */
-    public void testNotMissingValueByEnablingFeature() throws Exception
+    @Test
+    void testNotMissingValueByEnablingFeature() throws Exception
     {
         _testNotMissingValueByEnablingFeature(true);
         _testNotMissingValueByEnablingFeature(false);

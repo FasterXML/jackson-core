@@ -1,5 +1,7 @@
 package tools.jackson.core.unittest;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.ErrorReportConfiguration;
 import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.core.io.ContentReference;
@@ -18,7 +20,8 @@ public class ErrorReportConfigurationMaxRawContentLengthTest
     /**********************************************************
      */
 
-    public void testBasicToStringErrorConfig() throws Exception {
+    @Test
+    void testBasicToStringErrorConfig() throws Exception {
         // Truncated result
         _verifyToString("abc", 2,
                 "[Source: (String)\"ab\"[truncated 1 chars]; line: 1, column: 1]");

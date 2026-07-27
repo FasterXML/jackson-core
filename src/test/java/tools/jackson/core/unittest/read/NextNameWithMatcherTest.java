@@ -2,6 +2,8 @@ package tools.jackson.core.unittest.read;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.json.JsonFactory;
@@ -31,7 +33,8 @@ public class NextNameWithMatcherTest
     private final String DOC_1_CASE_MISMATCH = """
             { "A" : 4, "ENABLED" : true, "LongerName" : "Billy-Bob Burger", "extra" : [0 ], "otherStuff3" : 0.25 }""";
 
-    public void testSimpleCaseSensitive() throws Exception
+    @Test
+    void testSimpleCaseSensitive() throws Exception
     {
         _testSimpleCaseSensitive(MODE_INPUT_STREAM);
         _testSimpleCaseSensitive(MODE_INPUT_STREAM_THROTTLED);
@@ -44,7 +47,8 @@ public class NextNameWithMatcherTest
         _verifyDoc1(createParser(mode, DOC_1), MATCHER_CS_1, NAMES_1);
     }
 
-    public void testSimpleCaseInsensitive() throws Exception
+    @Test
+    void testSimpleCaseInsensitive() throws Exception
     {
         _testSimpleCaseInsensitive(MODE_INPUT_STREAM);
         _testSimpleCaseInsensitive(MODE_INPUT_STREAM_THROTTLED);

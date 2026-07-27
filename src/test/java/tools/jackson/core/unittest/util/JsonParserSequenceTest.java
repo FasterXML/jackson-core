@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.io.IOContext;
@@ -26,7 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("resource")
 public class JsonParserSequenceTest extends JacksonCoreTestBase
 {
-    public void testClose() throws IOException {
+    @Test
+    void testClose() throws IOException {
         IOContext ioContext = testIOContext();
         ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(
                 ObjectReadContext.empty(),
@@ -42,7 +45,8 @@ public class JsonParserSequenceTest extends JacksonCoreTestBase
         assertNull(jsonParserSequence.nextToken());
     }
 
-    public void testSkipChildren() throws IOException {
+    @Test
+    void testSkipChildren() throws IOException {
         JsonParser[] jsonParserArray = new JsonParser[3];
         IOContext ioContext = testIOContext();
         byte[] byteArray = new byte[8];

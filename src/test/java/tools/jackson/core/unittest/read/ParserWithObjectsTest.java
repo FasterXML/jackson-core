@@ -2,6 +2,8 @@ package tools.jackson.core.unittest.read;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
@@ -23,7 +25,8 @@ public class ParserWithObjectsTest
     /**********************************************************
      */
 
-    public void testNextValue() throws IOException
+    @Test
+    void testNextValue() throws IOException
     {
         // Let's test both byte-backed and Reader-based one
         _testNextValueBasic(false);
@@ -31,7 +34,8 @@ public class ParserWithObjectsTest
     }
 
     // [JACKSON-395]
-    public void testNextValueNested() throws IOException
+    @Test
+    void testNextValueNested() throws IOException
     {
         // Let's test both byte-backed and Reader-based one
         _testNextValueNested(false);
@@ -39,7 +43,8 @@ public class ParserWithObjectsTest
     }
 
     @SuppressWarnings("resource")
-    public void testIsClosed() throws IOException
+    @Test
+    void testIsClosed() throws IOException
     {
         for (int i = 0; i < 4; ++i) {
             String JSON = "[ 1, 2, 3 ]";

@@ -19,8 +19,6 @@ import tools.jackson.core.base.TextualTSFactory;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.unittest.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 // Bit different "test" class, used to check that intermediate base types
 // (textual, binary format bases) are complete enough. This is not done
 // via test methods but just by having minimal definitions present.
@@ -150,11 +148,4 @@ class FactoryBaseImplsTest extends JacksonCoreTestBase
         @Override
         public Version version() { return Version.unknownVersion(); }
 }
-
-    public void testBogus() {
-        // no real tests but need one "test" method to avoid junit fail
-
-        assertNotNull(new ToyBinaryFormatFactory());
-        assertNotNull(new ToyTextualFormatFactory());
-    }
 }

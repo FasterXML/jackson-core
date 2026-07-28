@@ -77,6 +77,32 @@ class LargeNameReadTest extends JUnit5TestBase
         }
     }
 
+    // [core#XXXX]: Reader-based parser (String/Reader/char[] input) must reject an
+    // over-limit name promptly, the same way byte-based input already does -- not
+    // only once the entire (possibly huge) name has already been buffered.
+    @Test
+    void largeNameWithSmallLimitCharsFailsFast() throws Exception {
+        // Name far larger than the configured limit needs to be to prove the point;
+        // "buffer the whole name, then check" would require multi-megabyte
+        // accumulation before failing, whereas the fix should reject within one
+        // TextBuffer segment fill.
+        final String doc = generateJSON(5_000_000);
+        try (JsonParser p = createParserUsingReader(JSON_F_NAME_100, doc)) {
+            consumeTokens(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Name length");
+            String msg = e.getMessage();
+            int start = msg.indexOf('(') + 1;
+            int end = msg.indexOf(')', start);
+            int reportedLen = Integer.parseInt(msg.substring(start, end));
+            if (reportedLen > 100_000) {
+                fail("Expected name-length check to fire well before 100,000 chars "
+                        +"were buffered (limit is 100), but got reported length: "+reportedLen);
+            }
+        }
+    }
+
     @Test
     void largeNameWithSmallLimitAsync() throws Exception
     {

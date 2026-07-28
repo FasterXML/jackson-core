@@ -1841,6 +1841,13 @@ public class ReaderBasedJsonParser
          */
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
+        // 23-Jul-2026, tatu: [core#XXXX] Track total length accumulated so far so we
+        //   can validate against `maxNameLength` incrementally, same as byte-based
+        //   parsers already do via `ParserBase._growNameDecodeBuffer()`. Without this,
+        //   only the much larger `maxStringLength` bound (enforced inside
+        //   `TextBuffer.finishCurrentSegment()`) applies until the whole name has
+        //   already been buffered.
+        int totalLen = outPtr;
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -1869,9 +1876,11 @@ public class ReaderBasedJsonParser
             hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + c;
             // Ok, let's add char to output:
             outBuf[outPtr++] = c;
+            ++totalLen;
 
             // Need more room?
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateNameLength(totalLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }

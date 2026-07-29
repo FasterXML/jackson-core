@@ -33,11 +33,8 @@ public class NonBlockingJsonParser
     }
 
     @Override
-    public void feedInput(final byte[] buf, final int start, final int end) throws IOException {
-        // Must not have remaining input
-        if (_inputPtr < _inputEnd) {
-            _reportError("Still have %d undecoded bytes, should not call 'feedInput'", _inputEnd - _inputPtr);
-        }
+    public void feedInput(final byte[] buf, final int start, final int end) throws IOException
+    {
         if (end < start) {
             _reportError("Input end (%d) may not be before start (%d)", end, start);
         }
@@ -45,11 +42,20 @@ public class NonBlockingJsonParser
         if (_endOfInput) {
             _reportError("Already closed, can not feed more input");
         }
+        // Must not have remaining input
+        if (_inputPtr < _inputEnd) {
+            _reportError("Still have %d undecoded bytes, should not call 'feedInput'", _inputEnd - _inputPtr);
+        }
+        // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
+        // 17-Jul-2026, revanthm: [core#1642] Must include buffer being fed, not just
+        //    previously fed ones, so that a single feedInput() call carrying the
+        //    whole document is checked against its real length. Also: validate
+        //    before updating any state, to leave parser untouched if this throws
+        _streamReadConstraints.validateDocumentLength(
+                _currInputProcessed + _origBufferLen + (end - start));
+
         // Time to update pointers first
         _currInputProcessed += _origBufferLen;
-
-        // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
-        _streamReadConstraints.validateDocumentLength(_currInputProcessed);
 
         // Also need to adjust row start, to work as if it extended into the past wrt new buffer
         _currInputRowStart = start - (_inputEnd - _currInputRowStart);

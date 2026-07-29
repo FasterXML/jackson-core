@@ -530,3 +530,8 @@ Patrick Strawderman (@kilink)
  * Contributed #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
   based on supplied length
   (2.23.0)
+
+Revanth Meesala (@revanthmeesala)
+ * Contributed #1642: Fix maxDocumentLength bypass in async parser single-feedInput()
+   case [GHSA-2c4j-63jj-9fqr]
+  (2.18.10)

@@ -45,6 +45,12 @@ Rob Spoor (@robtimus)
  * Reported #1561: Javadoc for 3.1.0 doesn't work (build with JDK 21)
   (3.1.2)
 
+
+Revanth Meesala (@revanthmeesala)
+ * Contributed #1642: Fix maxDocumentLength bypass in async parser single-feedInput()
+   case [GHSA-2c4j-63jj-9fqr]
+  (3.1.6)
+
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
    for JSON5-style hexadecimal integer literals

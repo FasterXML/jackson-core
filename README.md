@@ -23,6 +23,7 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 
 ## Status
 
+
 | Type | Status |
 | ---- | ------ |
 | Build (CI) | [![Build (github)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml) |

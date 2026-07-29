@@ -45,10 +45,14 @@ Rob Spoor (@robtimus)
  * Reported #1561: Javadoc for 3.1.0 doesn't work (build with JDK 21)
   (3.1.2)
 
-
 Revanth Meesala (@revanthmeesala)
  * Contributed #1642: Fix maxDocumentLength bypass in async parser single-feedInput()
    case [GHSA-2c4j-63jj-9fqr]
+  (3.1.6)
+
+@tinyb0y
+ * Contributed #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser
+   [GHSA-649p-m576-vr99]
   (3.1.6)
 
 seonwoojung (@seonwooj0810)

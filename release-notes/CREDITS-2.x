@@ -535,3 +535,8 @@ Revanth Meesala (@revanthmeesala)
  * Contributed #1642: Fix maxDocumentLength bypass in async parser single-feedInput()
    case [GHSA-2c4j-63jj-9fqr]
   (2.18.10)
+
+@tinyb0y
+ * Contributed #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser
+   [GHSA-649p-m576-vr99]
+  (2.18.10)

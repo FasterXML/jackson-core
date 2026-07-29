@@ -103,7 +103,7 @@ class LargeDocReadTest extends AsyncTestBase
         }
     }
 
-    // [core#XXXX] maxDocumentLength must also be enforced when the caller feeds
+    // [core#1642] maxDocumentLength must also be enforced when the caller feeds
     // the whole document via a single feedInput() call (e.g. pre-buffered input),
     // not just when input arrives split across multiple feedInput() calls.
     @Test
@@ -129,7 +129,7 @@ class LargeDocReadTest extends AsyncTestBase
         }
     }
 
-    // [core#XXXX] Boundary check: a single feedInput() call carrying EXACTLY
+    // [core#1642] Boundary check: a single feedInput() call carrying EXACTLY
     // maxDocumentLength bytes must still parse successfully -- validateDocumentLength()
     // rejects only len > maxDocumentLength, so the limit itself is inclusive.
     // This pins down "bytes fed, not consumed" semantics and guards against a

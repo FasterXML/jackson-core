@@ -1847,7 +1847,9 @@ public class ReaderBasedJsonParser
         //   only the much larger `maxStringLength` bound (enforced inside
         //   `TextBuffer.finishCurrentSegment()`) applies until the whole name has
         //   already been buffered.
-        int totalLen = outPtr;
+        //   Note: only updated when segment gets full (at which point `outPtr` is
+        //   always exactly `outBuf.length`), to keep the per-character loop tight.
+        int totalLen = 0;
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -1876,10 +1878,10 @@ public class ReaderBasedJsonParser
             hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + c;
             // Ok, let's add char to output:
             outBuf[outPtr++] = c;
-            ++totalLen;
 
             // Need more room?
             if (outPtr >= outBuf.length) {
+                totalLen += outBuf.length;
                 _streamReadConstraints.validateNameLength(totalLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -2113,7 +2115,7 @@ public class ReaderBasedJsonParser
         final int maxCode = codes.length;
         // 28-Jul-2026, tinyb0y: [core#1643] Same incremental `maxNameLength` check as
         //   `_parseName2()` needs to apply to unquoted ("odd") names as well
-        int totalLen = outPtr;
+        int totalLen = 0;
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -2134,10 +2136,10 @@ public class ReaderBasedJsonParser
             hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + i;
             // Ok, let's add char to output:
             outBuf[outPtr++] = c;
-            ++totalLen;
 
             // Need more room?
             if (outPtr >= outBuf.length) {
+                totalLen += outBuf.length;
                 _streamReadConstraints.validateNameLength(totalLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;

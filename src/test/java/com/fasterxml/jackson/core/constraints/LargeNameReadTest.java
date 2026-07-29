@@ -87,9 +87,11 @@ class LargeNameReadTest extends JUnit5TestBase
         }
     }
 
-    // [core#1643]: Reader-based parser (String/Reader/char[] input) must reject an
-    // over-limit name promptly, the same way byte-based input already does -- not
-    // only once the entire (possibly huge) name has already been buffered.
+    // [core#1643]: Reader-backed parser must reject an over-limit name promptly, the
+    // same way byte-based input already does -- not only once the entire (possibly
+    // huge) name has already been buffered.
+    // (note: `String` / `char[]` input is not affected the same way, since the whole
+    // document is already in memory and gets scanned in-place, without buffering)
     @Test
     void largeNameWithSmallLimitCharsFailsFast() throws Exception {
         // Name much larger than the configured limit: without incremental checking

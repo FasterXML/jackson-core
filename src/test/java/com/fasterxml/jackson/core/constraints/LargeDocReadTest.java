@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.core.constraints;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 
 import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.async.ByteArrayFeeder;
+import com.fasterxml.jackson.core.async.ByteBufferFeeder;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
@@ -153,6 +157,90 @@ class LargeDocReadTest extends AsyncTestBase
         }
     }
 
+    // [core#1642] Same boundary, but reached across MANY feedInput() calls: bytes
+    // fed must accumulate to exactly maxDocumentLength and still parse, verifying
+    // the single-feed fix did not start double-counting incrementally fed buffers.
+    @Test
+    void largeNameWithSmallLimitAsyncMultiFeedAtBoundary() throws Exception
+    {
+        final long limit = JSON_F_DOC_10K.streamReadConstraints().getMaxDocumentLength();
+        final byte[] doc = utf8Bytes(generateExactLengthJSON((int) limit));
+        assertEquals(limit, doc.length);
+
+        // 1000 bytes per call, so exactly 10 feedInput() calls totalling the limit
+        try (AsyncReaderWrapper p = asyncForBytes(JSON_F_DOC_10K, 1000, doc, 1)) {
+            consumeAsync(p);
+        }
+        try (AsyncReaderWrapper p = asyncForByteBuffer(JSON_F_DOC_10K, 1000, doc, 1)) {
+            consumeAsync(p);
+        }
+    }
+
+    // [core#1642] A rejected feedInput() must not corrupt the running byte count:
+    // validation happens BEFORE any state is updated, so a caller that catches the
+    // StreamConstraintsException and keeps feeding still gets an accurate total
+    // (the rejected call's predecessor must not be counted twice).
+    @Test
+    void docLengthCountIntactAfterRejectedFeedBytes() throws Exception
+    {
+        try (JsonParser p = JSON_F_DOC_10K.createNonBlockingByteArrayParser()) {
+            final ByteArrayFeeder feeder = (ByteArrayFeeder) p.getNonBlockingInputFeeder();
+
+            // 5000 fed, well under the 10000 limit
+            feeder.feedInput(whitespace(5000), 0, 5000);
+            assertToken(JsonToken.NOT_AVAILABLE, p.nextToken());
+
+            // would reach 11000: rejected, and must leave the count at 5000
+            try {
+                feeder.feedInput(whitespace(6000), 0, 6000);
+                fail("expected StreamConstraintsException");
+            } catch (StreamConstraintsException e) {
+                verifyMaxDocLen(JSON_F_DOC_10K, e);
+            }
+
+            // 5000 more == 10000 total: at the limit, so must still be accepted
+            feeder.feedInput(whitespace(5000), 0, 5000);
+            assertToken(JsonToken.NOT_AVAILABLE, p.nextToken());
+
+            // and one byte past it must report the true total, not an inflated one
+            try {
+                feeder.feedInput(whitespace(1), 0, 1);
+                fail("expected StreamConstraintsException");
+            } catch (StreamConstraintsException e) {
+                verifyException(e, "Document length (10001)");
+            }
+        }
+    }
+
+    // [core#1642] as above, for the ByteBuffer-backed parser
+    @Test
+    void docLengthCountIntactAfterRejectedFeedByteBuffer() throws Exception
+    {
+        try (JsonParser p = JSON_F_DOC_10K.createNonBlockingByteBufferParser()) {
+            final ByteBufferFeeder feeder = (ByteBufferFeeder) p.getNonBlockingInputFeeder();
+
+            feeder.feedInput(ByteBuffer.wrap(whitespace(5000)));
+            assertToken(JsonToken.NOT_AVAILABLE, p.nextToken());
+
+            try {
+                feeder.feedInput(ByteBuffer.wrap(whitespace(6000)));
+                fail("expected StreamConstraintsException");
+            } catch (StreamConstraintsException e) {
+                verifyMaxDocLen(JSON_F_DOC_10K, e);
+            }
+
+            feeder.feedInput(ByteBuffer.wrap(whitespace(5000)));
+            assertToken(JsonToken.NOT_AVAILABLE, p.nextToken());
+
+            try {
+                feeder.feedInput(ByteBuffer.wrap(whitespace(1)));
+                fail("expected StreamConstraintsException");
+            } catch (StreamConstraintsException e) {
+                verifyException(e, "Document length (10001)");
+            }
+        }
+    }
+
     // [core#1570] Should fail fast when DataInput used with maxDocumentLength set
     @Test
     void dataInputWithDocLengthLimitFails() throws Exception
@@ -215,6 +303,14 @@ class LargeDocReadTest extends AsyncTestBase
         }
         sb.append(']');
         return sb.toString();
+    }
+
+    // Content that is valid-but-tokenless, so buffers can be fed and fully consumed
+    // without producing tokens: lets tests exercise feedInput() accounting directly.
+    private byte[] whitespace(final int len) {
+        final byte[] b = new byte[len];
+        Arrays.fill(b, (byte) ' ');
+        return b;
     }
 
     private String generateJSON(final int docLen) {

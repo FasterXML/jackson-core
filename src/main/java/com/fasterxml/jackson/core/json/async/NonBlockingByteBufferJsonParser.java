@@ -37,12 +37,8 @@ public class NonBlockingByteBufferJsonParser
     }
 
     @Override
-    public void feedInput(final ByteBuffer byteBuffer) throws IOException {
-        // Must not have remaining input
-        if (_inputPtr < _inputEnd) {
-            _reportError("Still have %d undecoded bytes, should not call 'feedInput'", _inputEnd - _inputPtr);
-        }
-
+    public void feedInput(final ByteBuffer byteBuffer) throws IOException
+    {
         final int start = byteBuffer.position();
         final int end = byteBuffer.limit();
 
@@ -52,6 +48,10 @@ public class NonBlockingByteBufferJsonParser
         // and shouldn't have been marked as end-of-input
         if (_endOfInput) {
             _reportError("Already closed, can not feed more input");
+        }
+        // Must not have remaining input
+        if (_inputPtr < _inputEnd) {
+            _reportError("Still have %d undecoded bytes, should not call 'feedInput'", _inputEnd - _inputPtr);
         }
         // 06-Sep-2023, tatu: [core#1046] Enforce max doc length limit
         // 17-Jul-2026, revanthm: [core#1642] Must include buffer being fed, not just

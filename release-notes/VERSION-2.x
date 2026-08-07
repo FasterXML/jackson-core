@@ -26,7 +26,7 @@ a pure JSON library.
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case
   [GHSA-2c4j-63jj-9fqr]
  (fix by Revanth M)
-#1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [GHSA-649p-m576-vr99]
+#1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
 
 2.22.1 (07-Jul-2026)
@@ -39,7 +39,7 @@ No changes since 2.21
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case
   [GHSA-2c4j-63jj-9fqr]
  (fix by Revanth M)
-#1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [GHSA-649p-m576-vr99]
+#1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
 
 2.21.5 (06-Jul-2026)
@@ -178,7 +178,7 @@ No changes since 2.19.1
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case
   [GHSA-2c4j-63jj-9fqr]
  (fix by Revanth M)
-#1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [GHSA-649p-m576-vr99]
+#1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
 
 2.18.9 (07-Jul-2026)

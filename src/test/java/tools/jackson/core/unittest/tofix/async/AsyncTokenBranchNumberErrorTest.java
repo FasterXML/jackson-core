@@ -17,7 +17,6 @@ class AsyncTokenBranchNumberErrorTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
-    @JacksonTestFailureExpected
     @Test
     void mangledNonRootInts() throws Exception
     {

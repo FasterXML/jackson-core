@@ -26,6 +26,8 @@ JSON library.
  (fix by Revanth M)
 #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
+#1649: Optimize `NumberInput.looksLikeValidNumber`
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.1 (10-Jul-2026)
 

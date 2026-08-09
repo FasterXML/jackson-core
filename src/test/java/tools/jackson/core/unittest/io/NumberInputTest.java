@@ -1,6 +1,7 @@
 package tools.jackson.core.unittest.io;
 
 import java.math.BigInteger;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
@@ -197,6 +198,46 @@ class NumberInputTest
         assertFalse(NumberInput.looksLikeValidNumber("+."));
         assertFalse(NumberInput.looksLikeValidNumber("-E"));
         assertFalse(NumberInput.looksLikeValidNumber("+E"));
+
+        assertFalse(NumberInput.looksLikeValidNumber("1.2.3"));
+        assertFalse(NumberInput.looksLikeValidNumber("1.e5"));
+        assertFalse(NumberInput.looksLikeValidNumber("1e"));
+        assertFalse(NumberInput.looksLikeValidNumber("1e+"));
+        assertFalse(NumberInput.looksLikeValidNumber("1e5x"));
+        assertFalse(NumberInput.looksLikeValidNumber("1e5.0"));
+        assertFalse(NumberInput.looksLikeValidNumber("--1"));
+        assertFalse(NumberInput.looksLikeValidNumber("1 "));
+        assertFalse(NumberInput.looksLikeValidNumber(" 1"));
+        assertFalse(NumberInput.looksLikeValidNumber("0x1F"));
+    }
+
+    // [core#1649]: hand-rolled implementation must accept exactly what the
+    // original Regexp-based one did
+    @Test
+    void looksLikeValidNumberMatchesLegacyRegexps()
+    {
+        final Pattern patternFloat = Pattern.compile("[+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?");
+        final Pattern patternTrailingDot = Pattern.compile("[+-]?[0-9]+[\\.]");
+        final char[] alphabet = new char[] { '0', '1', '9', '+', '-', '.', 'e', 'E', 'x' };
+
+        _verifyAgainstRegexps(patternFloat, patternTrailingDot, alphabet, "", 4);
+    }
+
+    private void _verifyAgainstRegexps(Pattern patternFloat, Pattern patternTrailingDot,
+            char[] alphabet, String prefix, int remainingLength)
+    {
+        if (!prefix.isEmpty()) {
+            boolean exp = patternFloat.matcher(prefix).matches()
+                    || patternTrailingDot.matcher(prefix).matches();
+            assertEquals(exp, NumberInput.looksLikeValidNumber(prefix),
+                    "Mismatch for input '"+prefix+"'");
+        }
+        if (remainingLength > 0) {
+            for (char c : alphabet) {
+                _verifyAgainstRegexps(patternFloat, patternTrailingDot, alphabet,
+                        prefix + c, remainingLength - 1);
+            }
+        }
     }
 
     @Test

@@ -611,12 +611,14 @@ public final class NumberInput
      *<p>
      * Note: this method returning {@code true} DOES NOT GUARANTEE String is valid
      * number but just that it looks close enough.
+     *<p>
+     * Note: method rewritten in 3.2.2 to avoid use of JDK regexp functionality.
      *
      * @param s String to validate
      *
      * @return True if String looks like valid Java number; false otherwise.
      *
-     * @since 2.17
+     * @since 2.17 (rewritten in 3.2.2)
      */
     public static boolean looksLikeValidNumber(final String s) {
         // 08-Aug-2026, tatu: [core#1649] Hand-rolled scan; matches (union of)

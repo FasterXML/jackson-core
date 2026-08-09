@@ -164,6 +164,10 @@ class NumberInputTest
         assertTrue(NumberInput.looksLikeValidNumber("1.4E-45"));
         assertTrue(NumberInput.looksLikeValidNumber("1.4e+45"));
 
+        // Fully populated form: sign, integer part, fraction, signed exponent
+        assertTrue(NumberInput.looksLikeValidNumber("+1.2e+3"));
+        assertTrue(NumberInput.looksLikeValidNumber("-12.34E-56"));
+
         // https://github.com/FasterXML/jackson-core/issues/1308
         assertTrue(NumberInput.looksLikeValidNumber("0."));
         assertTrue(NumberInput.looksLikeValidNumber("6."));
@@ -218,9 +222,13 @@ class NumberInputTest
     {
         final Pattern patternFloat = Pattern.compile("[+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?");
         final Pattern patternTrailingDot = Pattern.compile("[+-]?[0-9]+[\\.]");
-        final char[] alphabet = new char[] { '0', '1', '9', '+', '-', '.', 'e', 'E', 'x' };
+        // Digit-class bounds ('0', '9') plus the chars just outside it ('/', ':')
+        // to catch off-by-one in digit checks; rest are the structural characters
+        final char[] alphabet = new char[] { '0', '9', '/', ':', '+', '-', '.', 'e', 'E' };
 
-        _verifyAgainstRegexps(patternFloat, patternTrailingDot, alphabet, "", 4);
+        // Length 5 needed to reach forms combining both signs ("+1e+1") or
+        // integer + fraction + exponent ("1.2e3"); ~66k inputs, runs in ~50 msec
+        _verifyAgainstRegexps(patternFloat, patternTrailingDot, alphabet, "", 5);
     }
 
     private void _verifyAgainstRegexps(Pattern patternFloat, Pattern patternTrailingDot,

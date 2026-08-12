@@ -59,7 +59,7 @@ public final class NumberOutput
 
     /**
      * Method for appending value of given {@code int} value into
-     * specified {@code char[]}.
+     * specified {@code char[]} buffer.
      *<p>
      * NOTE: caller must guarantee that the output buffer has enough room
      * for String representation of the value.
@@ -123,6 +123,19 @@ public final class NumberOutput
         return _full3(ones, b, off);
     }
 
+    /**
+     * Method for appending value of given {@code int} value into
+     * specified {@code byte[]} buffer.
+     *<p>
+     * NOTE: caller must guarantee that the output buffer has enough room
+     * for String representation of the value.
+     *
+     * @param v Value to append to buffer
+     * @param b Buffer to append value to: caller must guarantee there is enough room
+     * @param off Offset within output buffer ({@code b}) to append number at
+     *
+     * @return Offset within buffer after outputting {@code int}
+     */
     public static int outputInt(int v, byte[] b, int off)
     {
         if (v < 0) {
@@ -170,7 +183,7 @@ public final class NumberOutput
 
     /**
      * Method for appending value of given {@code long} value into
-     * specified {@code char[]}.
+     * specified {@code char[]} buffer.
      *<p>
      * NOTE: caller must guarantee that the output buffer has enough room
      * for String representation of the value.
@@ -216,6 +229,19 @@ public final class NumberOutput
         return _outputFullBillion((int) v, b, off);
     }
 
+    /**
+     * Method for appending value of given {@code long} value into
+     * specified {@code byte[]} buffer.
+     *<p>
+     * NOTE: caller must guarantee that the output buffer has enough room
+     * for String representation of the value.
+     *
+     * @param v Value to append to buffer
+     * @param b Buffer to append value to: caller must guarantee there is enough room
+     * @param off Offset within output buffer ({@code b}) to append number at
+     *
+     * @return Offset within buffer after outputting {@code long}
+     */
     public static int outputLong(long v, byte[] b, int off)
     {
         if (v < 0L) {

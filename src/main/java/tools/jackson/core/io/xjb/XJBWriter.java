@@ -1,5 +1,8 @@
 package tools.jackson.core.io.xjb;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -369,41 +372,30 @@ public final class XJBWriter {
     }
 
     // ------------------------------------------------------------------
-    // Little-endian byte array access (equivalent of jsoniter-scala's ByteArrayAccess)
+    // Little-endian byte array access via VarHandle (Java 9+)
     // ------------------------------------------------------------------
 
+    private static final VarHandle INT_LE =
+            MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
+    private static final VarHandle SHORT_LE =
+            MethodHandles.byteArrayViewVarHandle(short[].class, ByteOrder.LITTLE_ENDIAN);
+    private static final VarHandle LONG_LE =
+            MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
+
     private static void setInt(byte[] buf, int pos, int v) {
-        buf[pos] = (byte) v;
-        buf[pos + 1] = (byte) (v >> 8);
-        buf[pos + 2] = (byte) (v >> 16);
-        buf[pos + 3] = (byte) (v >> 24);
+        INT_LE.set(buf, pos, v);
     }
 
     private static void setShort(byte[] buf, int pos, short v) {
-        buf[pos] = (byte) v;
-        buf[pos + 1] = (byte) (v >> 8);
+        SHORT_LE.set(buf, pos, v);
     }
 
     private static void setLong(byte[] buf, int pos, long v) {
-        buf[pos] = (byte) v;
-        buf[pos + 1] = (byte) (v >> 8);
-        buf[pos + 2] = (byte) (v >> 16);
-        buf[pos + 3] = (byte) (v >> 24);
-        buf[pos + 4] = (byte) (v >> 32);
-        buf[pos + 5] = (byte) (v >> 40);
-        buf[pos + 6] = (byte) (v >> 48);
-        buf[pos + 7] = (byte) (v >> 56);
+        LONG_LE.set(buf, pos, v);
     }
 
     private static long getLong(byte[] buf, int pos) {
-        return (buf[pos] & 0xFFL)
-                | ((buf[pos + 1] & 0xFFL) << 8)
-                | ((buf[pos + 2] & 0xFFL) << 16)
-                | ((buf[pos + 3] & 0xFFL) << 24)
-                | ((buf[pos + 4] & 0xFFL) << 32)
-                | ((buf[pos + 5] & 0xFFL) << 40)
-                | ((buf[pos + 6] & 0xFFL) << 48)
-                | ((buf[pos + 7] & 0xFFL) << 56);
+        return (long) LONG_LE.get(buf, pos);
     }
 
     // ------------------------------------------------------------------

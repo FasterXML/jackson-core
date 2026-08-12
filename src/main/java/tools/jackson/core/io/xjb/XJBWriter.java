@@ -413,10 +413,7 @@ public final class XJBWriter {
                 return;
             } catch (Throwable t) { /* fall through */ }
         }
-        buf[pos]     = (byte) v;
-        buf[pos + 1] = (byte) (v >> 8);
-        buf[pos + 2] = (byte) (v >> 16);
-        buf[pos + 3] = (byte) (v >> 24);
+        setIntFallback(buf, pos, v);
     }
 
     private static void setShort(byte[] buf, int pos, short v) {
@@ -426,8 +423,7 @@ public final class XJBWriter {
                 return;
             } catch (Throwable t) { /* fall through */ }
         }
-        buf[pos]     = (byte) v;
-        buf[pos + 1] = (byte) (v >> 8);
+        setShortFallback(buf, pos, v);
     }
 
     private static void setLong(byte[] buf, int pos, long v) {
@@ -437,6 +433,36 @@ public final class XJBWriter {
                 return;
             } catch (Throwable t) { /* fall through */ }
         }
+        setLongFallback(buf, pos, v);
+    }
+
+    private static long getLong(byte[] buf, int pos) {
+        if (MH_GET_LONG != null) {
+            try {
+                return (long) MH_GET_LONG.invokeExact(buf, pos);
+            } catch (Throwable t) { /* fall through */ }
+        }
+        return getLongFallback(buf, pos);
+    }
+
+    // ------------------------------------------------------------------
+    // Fallback byte-level implementations (used on Android / without VarHandle)
+    // Package-private so tests can exercise them directly.
+    // ------------------------------------------------------------------
+
+    static void setIntFallback(byte[] buf, int pos, int v) {
+        buf[pos]     = (byte) v;
+        buf[pos + 1] = (byte) (v >> 8);
+        buf[pos + 2] = (byte) (v >> 16);
+        buf[pos + 3] = (byte) (v >> 24);
+    }
+
+    static void setShortFallback(byte[] buf, int pos, short v) {
+        buf[pos]     = (byte) v;
+        buf[pos + 1] = (byte) (v >> 8);
+    }
+
+    static void setLongFallback(byte[] buf, int pos, long v) {
         buf[pos]     = (byte) v;
         buf[pos + 1] = (byte) (v >> 8);
         buf[pos + 2] = (byte) (v >> 16);
@@ -447,12 +473,7 @@ public final class XJBWriter {
         buf[pos + 7] = (byte) (v >> 56);
     }
 
-    private static long getLong(byte[] buf, int pos) {
-        if (MH_GET_LONG != null) {
-            try {
-                return (long) MH_GET_LONG.invokeExact(buf, pos);
-            } catch (Throwable t) { /* fall through */ }
-        }
+    static long getLongFallback(byte[] buf, int pos) {
         return (buf[pos] & 0xFFL)
                 | ((buf[pos + 1] & 0xFFL) << 8)
                 | ((buf[pos + 2] & 0xFFL) << 16)

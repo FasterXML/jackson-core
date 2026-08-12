@@ -1,7 +1,6 @@
 package tools.jackson.core.io;
 
-import tools.jackson.core.io.schubfach.DoubleToDecimal;
-import tools.jackson.core.io.schubfach.FloatToDecimal;
+import tools.jackson.core.io.xjb.XJBWriter;
 
 public final class NumberOutput
 {
@@ -302,11 +301,11 @@ public final class NumberOutput
 
     /**
      * @param v double
-     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @param useFastWriter whether to use XJB algorithm to write output (default false)
      * @return double as a string
      */
     public static String toString(final double v, final boolean useFastWriter) {
-        return useFastWriter ? DoubleToDecimal.toString(v) : Double.toString(v);
+        return useFastWriter ? XJBWriter.toString(v) : Double.toString(v);
     }
 
     /**
@@ -319,11 +318,11 @@ public final class NumberOutput
 
     /**
      * @param v float
-     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @param useFastWriter whether to use XJB algorithm to write output (default false)
      * @return float as a string
      */
     public static String toString(final float v, final boolean useFastWriter) {
-        return useFastWriter ? FloatToDecimal.toString(v) : Float.toString(v);
+        return useFastWriter ? XJBWriter.toString(v) : Float.toString(v);
     }
 
     /**

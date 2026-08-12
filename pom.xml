@@ -383,6 +383,10 @@ tools.jackson.core.*;version=${project.version}
             <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
             <version>${version.android.sdk.signature}</version>
           </signature>
+          <excludes>
+            <!-- VarHandle (Java 9+) — loaded via reflection by XJBWriter, excluded from Android check -->
+            <exclude>**/XJBVarHandleAccess*</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>

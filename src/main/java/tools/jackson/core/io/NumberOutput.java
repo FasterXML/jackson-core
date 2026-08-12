@@ -286,6 +286,40 @@ public final class NumberOutput
         return useFastWriter ? FloatToDecimal.toString(v) : Float.toString(v);
     }
 
+    /**
+     * Direct-to-buffer write for {@code float} values, bypassing String allocation.
+     * Writes UTF-8 bytes directly into the provided buffer.
+     * Only intended for use when FAST_FLOAT_WRITER is enabled, as it uses the Schubfach
+     * algorithm for writing floating point numbers.
+     *
+     * @param v float value to write
+     * @param buf target byte buffer (caller must ensure at least 16 bytes available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return offset within buffer after the last byte written
+     * @since 3.3
+     */
+    public static int writeFloat(float v, byte[] buf, int off) {
+        return FloatToDecimal.writeFloat(v, buf, off);
+    }
+
+    /**
+     * Direct-to-buffer write for {@code double} values, bypassing String allocation.
+     * Writes UTF-8 bytes directly into the provided buffer.
+     * Only intended for use when FAST_FLOAT_WRITER is enabled, as it uses the Schubfach
+     * algorithm for writing floating point numbers.
+     *
+     * @param v double value to write
+     * @param buf target byte buffer (caller must ensure at least 25 bytes available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return offset within buffer after the last byte written
+     * @since 3.3
+     */
+    public static int writeDouble(double v, byte[] buf, int off) {
+        return DoubleToDecimal.writeDouble(v, buf, off);
+    }
+
     /*
     /**********************************************************************
     /* Other convenience methods

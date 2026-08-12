@@ -1075,9 +1075,16 @@ public class UTF8JsonGenerator
             writeString(NumberOutput.toString(d, useFast));
             return this;
         }
-        // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
-        return writeRaw(NumberOutput.toString(d, useFast));
+        if (useFast) {
+            // Direct-to-buffer write: schubfach outputs at most 25 bytes for doubles
+            if ((_outputTail + 25) > _outputEnd) {
+                _flushBuffer();
+            }
+            _outputTail = NumberOutput.writeDouble(d, _outputBuffer, _outputTail);
+            return this;
+        }
+        return writeRaw(NumberOutput.toString(d, false));
     }
 
     @Override
@@ -1090,9 +1097,16 @@ public class UTF8JsonGenerator
             writeString(NumberOutput.toString(f, useFast));
             return this;
         }
-        // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
-        return writeRaw(NumberOutput.toString(f, useFast));
+        if (useFast) {
+            // Direct-to-buffer write: schubfach outputs at most 16 bytes for floats
+            if ((_outputTail + 16) > _outputEnd) {
+                _flushBuffer();
+            }
+            _outputTail = NumberOutput.writeFloat(f, _outputBuffer, _outputTail);
+            return this;
+        }
+        return writeRaw(NumberOutput.toString(f, false));
     }
 
     @Override

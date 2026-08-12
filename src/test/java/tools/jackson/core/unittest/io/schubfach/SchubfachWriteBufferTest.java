@@ -9,7 +9,7 @@ import tools.jackson.core.io.NumberOutput;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link NumberOutput#writeFloat} and {@link NumberOutput#writeDouble}
+ * Tests for {@link NumberOutput#outputFloat} and {@link NumberOutput#outputDouble}
  * which write directly to a byte buffer, avoiding String allocation.
  */
 public class SchubfachWriteBufferTest
@@ -26,7 +26,7 @@ public class SchubfachWriteBufferTest
         for (float v : values) {
             String expected = NumberOutput.toString(v, true);
             byte[] buf = new byte[32];
-            int end = NumberOutput.writeFloat(v, buf, 0);
+            int end = NumberOutput.outputFloat(v, buf, 0);
             String actual = new String(buf, 0, end, StandardCharsets.ISO_8859_1);
             assertEquals(expected, actual, "mismatch for float " + v);
         }
@@ -44,7 +44,7 @@ public class SchubfachWriteBufferTest
         for (double v : values) {
             String expected = NumberOutput.toString(v, true);
             byte[] buf = new byte[48];
-            int end = NumberOutput.writeDouble(v, buf, 0);
+            int end = NumberOutput.outputDouble(v, buf, 0);
             String actual = new String(buf, 0, end, StandardCharsets.ISO_8859_1);
             assertEquals(expected, actual, "mismatch for double " + v);
         }
@@ -55,7 +55,7 @@ public class SchubfachWriteBufferTest
     {
         byte[] buf = new byte[32];
         buf[0] = (byte) ',';
-        int end = NumberOutput.writeFloat(1.5f, buf, 1);
+        int end = NumberOutput.outputFloat(1.5f, buf, 1);
         String result = new String(buf, 1, end - 1, StandardCharsets.ISO_8859_1);
         assertEquals("1.5", result);
     }
@@ -65,7 +65,7 @@ public class SchubfachWriteBufferTest
     {
         byte[] buf = new byte[48];
         buf[0] = (byte) ',';
-        int end = NumberOutput.writeDouble(1.5, buf, 1);
+        int end = NumberOutput.outputDouble(1.5, buf, 1);
         String result = new String(buf, 1, end - 1, StandardCharsets.ISO_8859_1);
         assertEquals("1.5", result);
     }

@@ -79,7 +79,7 @@ public class FastDoubleWriteNumberTest extends JacksonCoreTestBase
             gen.writeNumber(1.5);
             gen.writeEndObject();
         }
-        assertEquals("{\"value\":1.5}", sw.toString());
+        assertEquals(a2q("{'value':1.5}"), sw.toString());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class FastDoubleWriteNumberTest extends JacksonCoreTestBase
             gen.writeNumber(1.5f);
             gen.writeEndObject();
         }
-        assertEquals("{\"value\":1.5}", sw.toString());
+        assertEquals(a2q("{'value':1.5}"), sw.toString());
     }
 
     @Test
@@ -199,7 +199,7 @@ public class FastDoubleWriteNumberTest extends JacksonCoreTestBase
             gen.writeNumber(v);
         }
         // Special values are written as strings (quoted)
-        assertEquals("\"" + expected + "\"", sw.toString());
+        assertEquals(q(expected), sw.toString());
     }
 
     private void _verifyFloatSpecial(float v, String expected) throws Exception
@@ -208,6 +208,6 @@ public class FastDoubleWriteNumberTest extends JacksonCoreTestBase
         try (JsonGenerator gen = FAST_FACTORY.createGenerator(ObjectWriteContext.empty(), sw)) {
             gen.writeNumber(v);
         }
-        assertEquals("\"" + expected + "\"", sw.toString());
+        assertEquals(q(expected), sw.toString());
     }
 }

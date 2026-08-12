@@ -1,8 +1,8 @@
 package tools.jackson.core.io.xjb;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
-import java.nio.ByteOrder;
+import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -374,30 +374,93 @@ public final class XJBWriter {
     }
 
     // ------------------------------------------------------------------
-    // Little-endian byte array access via VarHandle (Java 9+)
+    // Little-endian byte array access — VarHandle via XJBVarHandleAccess on Java 9+,
+    // manual fallback for Android (where XJBVarHandleAccess fails to load)
     // ------------------------------------------------------------------
 
-    private static final VarHandle INT_LE =
-            MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
-    private static final VarHandle SHORT_LE =
-            MethodHandles.byteArrayViewVarHandle(short[].class, ByteOrder.LITTLE_ENDIAN);
-    private static final VarHandle LONG_LE =
-            MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
+    // MethodHandles bound to XJBVarHandleAccess static methods; null on Android
+    private static final MethodHandle MH_SET_INT;
+    private static final MethodHandle MH_SET_SHORT;
+    private static final MethodHandle MH_SET_LONG;
+    private static final MethodHandle MH_GET_LONG;
+
+    static {
+        MethodHandle setInt = null, setShort = null, setLong = null, getLong = null;
+        try {
+            Class<?> vhAccess = Class.forName("tools.jackson.core.io.xjb.XJBVarHandleAccess");
+            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            setInt = lookup.findStatic(vhAccess, "setInt",
+                    MethodType.methodType(void.class, byte[].class, int.class, int.class));
+            setShort = lookup.findStatic(vhAccess, "setShort",
+                    MethodType.methodType(void.class, byte[].class, int.class, short.class));
+            setLong = lookup.findStatic(vhAccess, "setLong",
+                    MethodType.methodType(void.class, byte[].class, int.class, long.class));
+            getLong = lookup.findStatic(vhAccess, "getLong",
+                    MethodType.methodType(long.class, byte[].class, int.class));
+        } catch (Throwable t) {
+            // Android SDK or older JDK without VarHandle — fall back to manual byte access
+        }
+        MH_SET_INT = setInt;
+        MH_SET_SHORT = setShort;
+        MH_SET_LONG = setLong;
+        MH_GET_LONG = getLong;
+    }
 
     private static void setInt(byte[] buf, int pos, int v) {
-        INT_LE.set(buf, pos, v);
+        if (MH_SET_INT != null) {
+            try {
+                MH_SET_INT.invokeExact(buf, pos, v);
+                return;
+            } catch (Throwable t) { /* fall through */ }
+        }
+        buf[pos]     = (byte) v;
+        buf[pos + 1] = (byte) (v >> 8);
+        buf[pos + 2] = (byte) (v >> 16);
+        buf[pos + 3] = (byte) (v >> 24);
     }
 
     private static void setShort(byte[] buf, int pos, short v) {
-        SHORT_LE.set(buf, pos, v);
+        if (MH_SET_SHORT != null) {
+            try {
+                MH_SET_SHORT.invokeExact(buf, pos, v);
+                return;
+            } catch (Throwable t) { /* fall through */ }
+        }
+        buf[pos]     = (byte) v;
+        buf[pos + 1] = (byte) (v >> 8);
     }
 
     private static void setLong(byte[] buf, int pos, long v) {
-        LONG_LE.set(buf, pos, v);
+        if (MH_SET_LONG != null) {
+            try {
+                MH_SET_LONG.invokeExact(buf, pos, v);
+                return;
+            } catch (Throwable t) { /* fall through */ }
+        }
+        buf[pos]     = (byte) v;
+        buf[pos + 1] = (byte) (v >> 8);
+        buf[pos + 2] = (byte) (v >> 16);
+        buf[pos + 3] = (byte) (v >> 24);
+        buf[pos + 4] = (byte) (v >> 32);
+        buf[pos + 5] = (byte) (v >> 40);
+        buf[pos + 6] = (byte) (v >> 48);
+        buf[pos + 7] = (byte) (v >> 56);
     }
 
     private static long getLong(byte[] buf, int pos) {
-        return (long) LONG_LE.get(buf, pos);
+        if (MH_GET_LONG != null) {
+            try {
+                return (long) MH_GET_LONG.invokeExact(buf, pos);
+            } catch (Throwable t) { /* fall through */ }
+        }
+        return (buf[pos] & 0xFFL)
+                | ((buf[pos + 1] & 0xFFL) << 8)
+                | ((buf[pos + 2] & 0xFFL) << 16)
+                | ((buf[pos + 3] & 0xFFL) << 24)
+                | ((buf[pos + 4] & 0xFFL) << 32)
+                | ((buf[pos + 5] & 0xFFL) << 40)
+                | ((buf[pos + 6] & 0xFFL) << 48)
+                | ((buf[pos + 7] & 0xFFL) << 56);
     }
 
     // ------------------------------------------------------------------

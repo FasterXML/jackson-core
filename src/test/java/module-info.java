@@ -29,6 +29,7 @@ module tools.jackson.core.unittest
     opens tools.jackson.core.unittest.fuzz;
     opens tools.jackson.core.unittest.io;
     opens tools.jackson.core.unittest.io.schubfach;
+    opens tools.jackson.core.unittest.io.xjb;
     opens tools.jackson.core.unittest.json;
     opens tools.jackson.core.unittest.json.async;
     opens tools.jackson.core.unittest.jsonptr;

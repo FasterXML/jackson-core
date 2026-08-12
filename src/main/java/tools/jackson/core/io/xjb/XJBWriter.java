@@ -16,9 +16,9 @@ import java.nio.charset.StandardCharsets;
  * (shortest round-tripping decimal, same switch to scientific notation thresholds as
  * used by jsoniter-scala, i.e. decimal exponent &lt; -3 or &gt;= 7 for float/double).
  */
-public final class XjbDtoa {
+public final class XJBWriter {
 
-    private XjbDtoa() {
+    private XJBWriter() {
     }
 
     // ------------------------------------------------------------------
@@ -26,12 +26,16 @@ public final class XjbDtoa {
     // ------------------------------------------------------------------
 
     public static String toString(float x) {
+        if (Float.isNaN(x)) return "NaN";
+        if (Float.isInfinite(x)) return x < 0 ? "-Infinity" : "Infinity";
         byte[] buf = new byte[32];
         int pos = writeFloat(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);
     }
 
     public static String toString(double x) {
+        if (Double.isNaN(x)) return "NaN";
+        if (Double.isInfinite(x)) return x < 0 ? "-Infinity" : "Infinity";
         byte[] buf = new byte[48];
         int pos = writeDouble(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);

@@ -1077,8 +1077,8 @@ public class UTF8JsonGenerator
         }
         _verifyValueWrite(WRITE_NUMBER);
         if (useFast) {
-            // Direct-to-buffer write: schubfach outputs at most 25 bytes for doubles
-            if ((_outputTail + 25) > _outputEnd) {
+            // Direct-to-buffer write: schubfach outputs at most 24 bytes for doubles (H+7, H=17)
+            if ((_outputTail + 24) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.writeDouble(d, _outputBuffer, _outputTail);
@@ -1099,8 +1099,8 @@ public class UTF8JsonGenerator
         }
         _verifyValueWrite(WRITE_NUMBER);
         if (useFast) {
-            // Direct-to-buffer write: schubfach outputs at most 16 bytes for floats
-            if ((_outputTail + 16) > _outputEnd) {
+            // Direct-to-buffer write: schubfach outputs at most 15 bytes for floats (H+6, H=9)
+            if ((_outputTail + 15) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.writeFloat(f, _outputBuffer, _outputTail);

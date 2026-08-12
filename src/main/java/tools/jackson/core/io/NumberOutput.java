@@ -293,7 +293,7 @@ public final class NumberOutput
      * the Schubfach algorithm for writing floating point numbers.
      *
      * @param v float value to write
-     * @param buf target byte buffer (caller must ensure at least 16 bytes available from {@code off})
+     * @param buf target byte buffer (caller must ensure at least 15 bytes available from {@code off})
      * @param off offset within buffer to start writing
      *
      * @return offset within buffer after the last byte written
@@ -310,7 +310,7 @@ public final class NumberOutput
      * the Schubfach algorithm for writing floating point numbers.
      *
      * @param v double value to write
-     * @param buf target byte buffer (caller must ensure at least 25 bytes available from {@code off})
+     * @param buf target byte buffer (caller must ensure at least 24 bytes available from {@code off})
      * @param off offset within buffer to start writing
      *
      * @return offset within buffer after the last byte written

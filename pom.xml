@@ -154,6 +154,7 @@ tools.jackson.core.*;version=${project.version}
           <argLine>@{argLine}
             --add-exports tools.jackson.core/tools.jackson.core.io.schubfach=tools.jackson.core.unittest
             --add-exports tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
+            --add-opens tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
             --add-opens tools.jackson.core/tools.jackson.core.json=tools.jackson.core.unittest
            </argLine>
         </configuration>

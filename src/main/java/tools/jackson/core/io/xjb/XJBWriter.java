@@ -18,6 +18,8 @@ import java.nio.charset.StandardCharsets;
  * Output matches {@code Float.toString}/{@code Double.toString} formatting conventions
  * (shortest round-tripping decimal, same switch to scientific notation thresholds as
  * used by jsoniter-scala, i.e. decimal exponent &lt; -3 or &gt;= 7 for float/double).
+ *
+ * @since 3.3
  */
 public final class XJBWriter {
 

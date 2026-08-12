@@ -16,6 +16,20 @@ public final class NumberOutput
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
 
     /**
+     * Maximum number of bytes the Schubfach algorithm may produce for a {@code float}.
+     * Equals {@code H + 6} where {@code H = 9} (digit count).
+     * @since 3.3
+     */
+    public static final int MAX_FLOAT_BYTES = 15;
+
+    /**
+     * Maximum number of bytes the Schubfach algorithm may produce for a {@code double}.
+     * Equals {@code H + 7} where {@code H = 17} (digit count).
+     * @since 3.3
+     */
+    public static final int MAX_DOUBLE_BYTES = 24;
+
+    /**
      * Encoded representations of 3-decimal-digit indexed values, where
      * 3 LSB are ascii characters
      */

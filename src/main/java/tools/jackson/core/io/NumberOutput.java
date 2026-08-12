@@ -289,8 +289,8 @@ public final class NumberOutput
     /**
      * Direct-to-buffer write for {@code float} values, bypassing String allocation.
      * Writes UTF-8 bytes directly into the provided buffer.
-     * Only intended for use when FAST_FLOAT_WRITER is enabled, as it uses the Schubfach
-     * algorithm for writing floating point numbers.
+     * Only intended for use when <code>USE_FAST_DOUBLE_WRITER</code> is enabled, as it uses
+     * the Schubfach algorithm for writing floating point numbers.
      *
      * @param v float value to write
      * @param buf target byte buffer (caller must ensure at least 16 bytes available from {@code off})
@@ -306,8 +306,8 @@ public final class NumberOutput
     /**
      * Direct-to-buffer write for {@code double} values, bypassing String allocation.
      * Writes UTF-8 bytes directly into the provided buffer.
-     * Only intended for use when FAST_FLOAT_WRITER is enabled, as it uses the Schubfach
-     * algorithm for writing floating point numbers.
+     * Only intended for use when <code>USE_FAST_DOUBLE_WRITER</code> is enabled, as it uses
+     * the Schubfach algorithm for writing floating point numbers.
      *
      * @param v double value to write
      * @param buf target byte buffer (caller must ensure at least 25 bytes available from {@code off})

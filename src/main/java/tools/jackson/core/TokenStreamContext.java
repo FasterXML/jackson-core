@@ -147,12 +147,12 @@ public abstract class TokenStreamContext
      * @return Type description String
      */
     public String typeDesc() {
-        switch (_type) {
-        case TYPE_ROOT: return "root";
-        case TYPE_ARRAY: return "Array";
-        case TYPE_OBJECT: return "Object";
-        }
-        return "?";
+        return switch (_type) {
+        case TYPE_ROOT -> "root";
+        case TYPE_ARRAY -> "Array";
+        case TYPE_OBJECT -> "Object";
+        default -> "?";
+        };
     }
 
     /**

@@ -332,8 +332,8 @@ public class JacksonException
         if (t instanceof JacksonException jex) {
             return jex.getOriginalMessage();
         }
-        if (t instanceof InvocationTargetException ite && ite.getCause() != null) {
-            return ite.getCause().getMessage();
+        if (t instanceof InvocationTargetException && t.getCause() != null) {
+            return t.getCause().getMessage();
         }
         return t.getMessage();
     }
@@ -387,7 +387,7 @@ public class JacksonException
     public List<Reference> getPath()
     {
         if (_path == null) {
-            return List.of();
+            return Collections.emptyList();
         }
         return Collections.unmodifiableList(_path);
     }

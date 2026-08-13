@@ -2365,8 +2365,8 @@ public abstract class JsonGenerator
         Number n = p.getNumberValueExact();
         if (n instanceof BigDecimal bigDecimal) {
             writeNumber(bigDecimal);
-        } else if (n instanceof Double d) {
-            writeNumber(d.doubleValue());
+        } else if (n instanceof Double) {
+            writeNumber(n.doubleValue());
         } else {
             writeNumber(n.floatValue());
         }

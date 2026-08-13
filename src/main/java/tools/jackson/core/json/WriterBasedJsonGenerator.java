@@ -1840,12 +1840,12 @@ public class WriterBasedJsonGenerator
             int maxRead) throws JacksonException
     {
         // anything to shift to front?
-        int i = 0;
-        while (inputPtr < inputEnd) {
-            readBuffer[i++]  = readBuffer[inputPtr++];
+        int available = inputEnd - inputPtr;
+        if (inputPtr > 0 && available > 0) {
+            System.arraycopy(readBuffer, inputPtr, readBuffer, 0, available);
         }
         inputPtr = 0;
-        inputEnd = i;
+        inputEnd = available;
         maxRead = Math.min(maxRead, readBuffer.length);
 
         do {

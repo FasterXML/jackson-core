@@ -6,6 +6,7 @@
  *
  * <p>Based on the work of Xiang JunBo and Wang TieJun:
  * <a href="https://github.com/xjb714/xjb/blob/main/xjb.pdf">xjb: Fast Float to String Algorithm</a>
+ * (Apache License, Version 2.0, Copyright 2026 xjb714 and contributors) 
  *
  * @since 3.3
  */

@@ -59,7 +59,10 @@ class GeneratorFeaturesTest
     @Test
     void nonNumericQuoting() throws IOException
     {
-        _testNonNumericQuoting(new JsonFactory());
+        JsonFactory f = JsonFactory.builder()
+                .disable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
+                .build();
+        _testNonNumericQuoting(f);
     }
 
     @Test

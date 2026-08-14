@@ -331,7 +331,11 @@ public final class NumberOutput
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
      * the XJB algorithm for writing floating point numbers.
      *
-     * @param v float value to write
+     * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
+     * Callers must check with {@link #notFinite(float)} and handle those cases before
+     * calling this method.
+     *
+     * @param v float value to write; must be finite
      * @param b target byte buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} bytes available from {@code off})
      * @param off offset within buffer to start writing
      *
@@ -348,7 +352,11 @@ public final class NumberOutput
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
      * the XJB algorithm for writing floating point numbers.
      *
-     * @param v double value to write
+     * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
+     * Callers must check with {@link #notFinite(double)} and handle those cases before
+     * calling this method.
+     *
+     * @param v double value to write; must be finite
      * @param b target byte buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} bytes available from {@code off})
      * @param off offset within buffer to start writing
      *

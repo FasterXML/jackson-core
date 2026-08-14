@@ -1,4 +1,4 @@
-package tools.jackson.core.unittest.io.schubfach;
+package tools.jackson.core.unittest.io;
 
 import java.nio.charset.StandardCharsets;
 
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for {@link NumberOutput#outputFloat} and {@link NumberOutput#outputDouble}
  * which write directly to a byte buffer, avoiding String allocation.
  */
-public class SchubfachWriteBufferTest
+public class NumberOutputBufferTest
 {
     @Test
     public void testWriteFloatBasic()

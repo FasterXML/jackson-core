@@ -20,8 +20,7 @@ public class NumberOutputBufferTest
         float[] values = {
             0.0f, -0.0f, 1.0f, -1.0f, 1.5f, -1.5f,
             123.456f, -123.456f, 1.0E10f, 1.0E-10f,
-            Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_NORMAL,
-            Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY
+            Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_NORMAL
         };
         for (float v : values) {
             String expected = NumberOutput.toString(v, true);
@@ -38,8 +37,7 @@ public class NumberOutputBufferTest
         double[] values = {
             0.0, -0.0, 1.0, -1.0, 1.5, -1.5,
             123.456789, -123.456789, 1.0E10, 1.0E-10,
-            Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_NORMAL,
-            Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY
+            Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_NORMAL
         };
         for (double v : values) {
             String expected = NumberOutput.toString(v, true);

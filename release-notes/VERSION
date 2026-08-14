@@ -28,6 +28,8 @@ JSON library.
  (fix by @tinyb0y)
 #1649: Optimize `NumberInput.looksLikeValidNumber`
  (fix by @cowtowncoder, w/ Claude code)
+#1657: UTF8JsonGenerator: writeNumber fast path that avoids extra String allocation
+ (implemented by @pjfanning)
 
 3.2.1 (10-Jul-2026)
 

@@ -21,6 +21,8 @@ a pure JSON library.
  (fix by Revanth M)
 #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
+#1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
+ (contributed by @Dongnyoung)
 
 2.21.5 (06-Jul-2026)
 

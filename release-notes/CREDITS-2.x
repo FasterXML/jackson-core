@@ -530,3 +530,7 @@ Mike Pedersen (@mpdncrwd)
  * Reported #1581: `NonBlockingByteBufferParser`: Unexpected Illegal surrogate
    character when parsing field names
   (2.21.3)
+
+DongNyoung Lee (@Dongnyoung)
+ * Contributed #1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
+  (2.21.6)

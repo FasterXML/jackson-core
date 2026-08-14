@@ -793,8 +793,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
             case ID_START_OBJECT:
                 f = _itemFilter;
                 if (f == TokenFilter.INCLUDE_ALL) {
+                    // 14-Aug-2026, tatu: [core#1651] Must replay buffered tokens
+                    //    (like enclosing Field name), not just return START_OBJECT
                     _headContext = _headContext.createChildObjectContext(f, true);
-                    return t;
+                    return _nextBuffered(buffRoot);
                 }
                 if (f == null) { // does this occur?
                     delegate.skipChildren();
@@ -815,7 +817,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     return _nextBuffered(buffRoot);
                 } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
                     // TODO don't count as match?
-                    _headContext = _headContext.createChildArrayContext(f, true);
+                    _headContext = _headContext.createChildObjectContext(f, true);
                     return _nextBuffered(buffRoot);
                 }
                 _headContext = _headContext.createChildObjectContext(f, false);

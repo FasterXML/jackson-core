@@ -1,4 +1,4 @@
-package tools.jackson.core.unittest.io.schubfach;
+package tools.jackson.core.unittest.io;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * {@link NumberOutput#outputDouble(double, char[], int)} which write directly
  * to a char buffer, avoiding String allocation.
  */
-public class SchubfachWriteCharBufferTest
+public class NumberOutputCharBufferTest
 {
     @Test
     public void testWriteFloatBasic()

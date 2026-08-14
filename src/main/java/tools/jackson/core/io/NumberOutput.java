@@ -15,14 +15,14 @@ public final class NumberOutput
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
 
     /**
-     * Maximum number of bytes the Schubfach algorithm may produce for a {@code float}.
+     * Maximum number of bytes the XJB algorithm may produce for a {@code float}.
      * Equals {@code H + 6} where {@code H = 9} (digit count).
      * @since 3.2.2
      */
     public static final int MAX_FLOAT_BYTES = 15;
 
     /**
-     * Maximum number of bytes the Schubfach algorithm may produce for a {@code double}.
+     * Maximum number of bytes the XJB algorithm may produce for a {@code double}.
      * Equals {@code H + 7} where {@code H = 17} (digit count).
      * @since 3.2.2
      */
@@ -329,7 +329,7 @@ public final class NumberOutput
      * Direct-to-buffer write for {@code float} values, bypassing String allocation.
      * Writes UTF-8 bytes directly into the provided byte buffer.
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
-     * the Schubfach algorithm for writing floating point numbers.
+     * the XJB algorithm for writing floating point numbers.
      *
      * @param v float value to write
      * @param b target byte buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} bytes available from {@code off})
@@ -339,14 +339,14 @@ public final class NumberOutput
      * @since 3.2.2
      */
     public static int outputFloat(float v, byte[] b, int off) {
-        return FloatToDecimal.writeFloat(v, b, off);
+        return XJBWriter.writeFloat(v, b, off);
     }
 
     /**
      * Direct-to-buffer write for {@code double} values, bypassing String allocation.
      * Writes UTF-8 bytes directly into the provided byte buffer.
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
-     * the Schubfach algorithm for writing floating point numbers.
+     * the XJB algorithm for writing floating point numbers.
      *
      * @param v double value to write
      * @param b target byte buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} bytes available from {@code off})
@@ -356,7 +356,7 @@ public final class NumberOutput
      * @since 3.2.2
      */
     public static int outputDouble(double v, byte[] b, int off) {
-        return DoubleToDecimal.writeDouble(v, b, off);
+        return XJBWriter.writeDouble(v, b, off);
     }
 
     /*

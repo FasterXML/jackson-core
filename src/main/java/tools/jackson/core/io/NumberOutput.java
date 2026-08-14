@@ -18,14 +18,14 @@ public final class NumberOutput
     /**
      * Maximum number of bytes the Schubfach algorithm may produce for a {@code float}.
      * Equals {@code H + 6} where {@code H = 9} (digit count).
-     * @since 3.3
+     * @since 3.2.2
      */
     public static final int MAX_FLOAT_BYTES = 15;
 
     /**
      * Maximum number of bytes the Schubfach algorithm may produce for a {@code double}.
      * Equals {@code H + 7} where {@code H = 17} (digit count).
-     * @since 3.3
+     * @since 3.2.2
      */
     public static final int MAX_DOUBLE_BYTES = 24;
 
@@ -337,7 +337,7 @@ public final class NumberOutput
      * @param off offset within buffer to start writing
      *
      * @return offset within buffer after the last byte written
-     * @since 3.3
+     * @since 3.2.2
      */
     public static int outputFloat(float v, byte[] b, int off) {
         return FloatToDecimal.writeFloat(v, b, off);
@@ -354,7 +354,7 @@ public final class NumberOutput
      * @param off offset within buffer to start writing
      *
      * @return offset within buffer after the last byte written
-     * @since 3.3
+     * @since 3.2.2
      */
     public static int outputDouble(double v, byte[] b, int off) {
         return DoubleToDecimal.writeDouble(v, b, off);

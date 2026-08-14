@@ -602,7 +602,7 @@ final public class DoubleToDecimal {
      * @param buf the target byte buffer
      * @param off the offset within {@code buf} to start writing
      * @return the offset within {@code buf} after the last byte written
-     * @since 3.3
+     * @since 3.2.2
      */
     public static int writeDouble(double v, byte[] buf, int off) {
         return new DoubleToDecimal().toBuffer(v, buf, off);

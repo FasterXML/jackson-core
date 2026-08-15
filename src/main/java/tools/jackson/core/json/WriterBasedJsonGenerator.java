@@ -871,9 +871,20 @@ public class WriterBasedJsonGenerator
             writeString(NumberOutput.toString(d, useFast));
             return this;
         }
-        // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(NumberOutput.toString(d, useFast));
+        if (useFast) {
+            // Direct write to output buffer when there's room
+            int room = _outputEnd - _outputTail;
+            if (room >= NumberOutput.MAX_DOUBLE_CHARS) {
+                _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
+            } else {
+                char[] tmp = new char[NumberOutput.MAX_DOUBLE_CHARS];
+                int pos = NumberOutput.outputDouble(d, tmp, 0);
+                writeRaw(tmp, 0, pos);
+            }
+        } else {
+            writeRaw(NumberOutput.toString(d, false));
+        }
         return this;
     }
 
@@ -886,9 +897,20 @@ public class WriterBasedJsonGenerator
             writeString(NumberOutput.toString(f, useFast));
             return this;
         }
-        // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(NumberOutput.toString(f, useFast));
+        if (useFast) {
+            // Direct write to output buffer when there's room
+            int room = _outputEnd - _outputTail;
+            if (room >= NumberOutput.MAX_FLOAT_CHARS) {
+                _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
+            } else {
+                char[] tmp = new char[NumberOutput.MAX_FLOAT_CHARS];
+                int pos = NumberOutput.outputFloat(f, tmp, 0);
+                writeRaw(tmp, 0, pos);
+            }
+        } else {
+            writeRaw(NumberOutput.toString(f, false));
+        }
         return this;
     }
 

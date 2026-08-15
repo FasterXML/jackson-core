@@ -29,6 +29,22 @@ public final class NumberOutput
     public static final int MAX_DOUBLE_BYTES = 24;
 
     /**
+     * Safe buffer size (in chars) for {@link #outputDouble}, matching the
+     * allocation in {@link XJBWriter#toString(double)}.
+     *
+     * @since 3.3
+     */
+    public static final int MAX_DOUBLE_CHARS = 48;
+
+    /**
+     * Safe buffer size (in chars) for {@link #outputFloat}, matching the
+     * allocation in {@link XJBWriter#toString(float)}.
+     *
+     * @since 3.3
+     */
+    public static final int MAX_FLOAT_CHARS = 32;
+
+    /**
      * Encoded representations of 3-decimal-digit indexed values, where
      * 3 LSB are ascii characters
      */
@@ -365,6 +381,32 @@ public final class NumberOutput
      */
     public static int outputDouble(double v, byte[] b, int off) {
         return XJBWriter.writeDouble(v, b, off);
+    }
+
+    /**
+     * Writes the decimal string representation of {@code v} directly into {@code b}
+     * starting at {@code off}, using the XJB algorithm. The buffer must have at least
+     * {@link #MAX_DOUBLE_CHARS} chars of free space from {@code off}.
+     *
+     * @return the position just after the last char written
+     *
+     * @since 3.3
+     */
+    public static int outputDouble(double v, char[] b, int off) {
+        return XJBWriter.writeDouble(v, b, off);
+    }
+
+    /**
+     * Writes the decimal string representation of {@code v} directly into {@code b}
+     * starting at {@code off}, using the XJB algorithm. The buffer must have at least
+     * {@link #MAX_FLOAT_CHARS} chars of free space from {@code off}.
+     *
+     * @return the position just after the last char written
+     *
+     * @since 3.3
+     */
+    public static int outputFloat(float v, char[] b, int off) {
+        return XJBWriter.writeFloat(v, b, off);
     }
 
     /*

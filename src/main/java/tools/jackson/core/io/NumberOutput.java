@@ -350,6 +350,7 @@ public final class NumberOutput
      * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
      * Callers must check with {@link #notFinite(float)} and handle those cases before
      * calling this method.
+     * </p>
      *
      * @param v float value to write; must be finite
      * @param b target byte buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} bytes available from {@code off})
@@ -363,14 +364,38 @@ public final class NumberOutput
     }
 
     /**
+     * Writes the decimal string representation of {@code v} directly into {@code b}
+     * starting at {@code off}, using the XJB algorithm. The buffer must have at least
+     * {@link #MAX_FLOAT_CHARS} chars of free space from {@code off}.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the XJB algorithm for writing floating point numbers.
+     *
+     * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
+     * Callers must check with {@link #notFinite(float)} and handle those cases before
+     * calling this method.
+     * </p>
+     *
+     * @param v double value to write; must be finite
+     * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_CHARS} chars available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return the position just after the last char written
+     * @since 3.3
+     */
+    public static int outputFloat(float v, char[] b, int off) {
+        return XJBWriter.writeFloat(v, b, off);
+    }
+
+    /**
      * Direct-to-buffer write for {@code double} values, bypassing String allocation.
      * Writes UTF-8 bytes directly into the provided byte buffer.
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
      * the XJB algorithm for writing floating point numbers.
      *
      * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
-     * Callers must check with {@link #notFinite(double)} and handle those cases before
+     * Callers must check with {@link #notFinite(float)} and handle those cases before
      * calling this method.
+     * </p>
      *
      * @param v double value to write; must be finite
      * @param b target byte buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} bytes available from {@code off})
@@ -387,6 +412,17 @@ public final class NumberOutput
      * Writes the decimal string representation of {@code v} directly into {@code b}
      * starting at {@code off}, using the XJB algorithm. The buffer must have at least
      * {@link #MAX_DOUBLE_CHARS} chars of free space from {@code off}.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the XJB algorithm for writing floating point numbers.
+     *
+     * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
+     * Callers must check with {@link #notFinite(float)} and handle those cases before
+     * calling this method.
+     * </p>
+     *
+     * @param v double value to write; must be finite
+     * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_CHARS} chars available from {@code off})
+     * @param off offset within buffer to start writing
      *
      * @return the position just after the last char written
      *
@@ -394,19 +430,6 @@ public final class NumberOutput
      */
     public static int outputDouble(double v, char[] b, int off) {
         return XJBWriter.writeDouble(v, b, off);
-    }
-
-    /**
-     * Writes the decimal string representation of {@code v} directly into {@code b}
-     * starting at {@code off}, using the XJB algorithm. The buffer must have at least
-     * {@link #MAX_FLOAT_CHARS} chars of free space from {@code off}.
-     *
-     * @return the position just after the last char written
-     *
-     * @since 3.3
-     */
-    public static int outputFloat(float v, char[] b, int off) {
-        return XJBWriter.writeFloat(v, b, off);
     }
 
     /*

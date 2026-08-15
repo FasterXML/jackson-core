@@ -872,8 +872,7 @@ public class WriterBasedJsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
-        if (useFast && Double.isFinite(d)) {
+        if (useFast) {
             // Direct write to output buffer when there's room
             int room = _outputEnd - _outputTail;
             if (room >= NumberOutput.MAX_DOUBLE_CHARS) {
@@ -899,8 +898,7 @@ public class WriterBasedJsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
-        if (useFast && Float.isFinite(f)) {
+        if (useFast) {
             // Direct write to output buffer when there's room
             int room = _outputEnd - _outputTail;
             if (room >= NumberOutput.MAX_FLOAT_CHARS) {

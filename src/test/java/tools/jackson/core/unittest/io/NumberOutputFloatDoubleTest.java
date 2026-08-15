@@ -28,11 +28,10 @@ public class NumberOutputFloatDoubleTest
         assertFloatOutputMatchesToString(-0f);
         assertFloatOutputMatchesToString(1f);
         assertFloatOutputMatchesToString(-1f);
-        // NaN and Infinity throw ArithmeticException in write methods;
-        // they are handled by toString() via XJBWriter.toString()
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputFloat(Float.NaN, new char[48], 0));
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputFloat(Float.POSITIVE_INFINITY, new char[48], 0));
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputFloat(Float.NEGATIVE_INFINITY, new char[48], 0));
+        // NaN and Infinity are now handled directly
+        assertFloatOutputMatchesToString(Float.NaN);
+        assertFloatOutputMatchesToString(Float.POSITIVE_INFINITY);
+        assertFloatOutputMatchesToString(Float.NEGATIVE_INFINITY);
     }
 
     @Test
@@ -117,9 +116,10 @@ public class NumberOutputFloatDoubleTest
                 assertFloatOutputWithOffset(f, offset);
             }
         }
-        // NaN and Infinity throw in write methods
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputFloat(Float.NaN, new char[52], 4));
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputFloat(Float.POSITIVE_INFINITY, new char[52], 4));
+        // NaN and Infinity are now handled directly
+        assertFloatOutputWithOffset(Float.NaN, 4);
+        assertFloatOutputWithOffset(Float.POSITIVE_INFINITY, 4);
+        assertFloatOutputWithOffset(Float.NEGATIVE_INFINITY, 4);
     }
 
     @Test
@@ -160,10 +160,10 @@ public class NumberOutputFloatDoubleTest
         assertDoubleOutputMatchesToString(-0d);
         assertDoubleOutputMatchesToString(1d);
         assertDoubleOutputMatchesToString(-1d);
-        // NaN and Infinity throw ArithmeticException in write methods
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputDouble(Double.NaN, new char[48], 0));
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputDouble(Double.POSITIVE_INFINITY, new char[48], 0));
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputDouble(Double.NEGATIVE_INFINITY, new char[48], 0));
+        // NaN and Infinity are now handled directly
+        assertDoubleOutputMatchesToString(Double.NaN);
+        assertDoubleOutputMatchesToString(Double.POSITIVE_INFINITY);
+        assertDoubleOutputMatchesToString(Double.NEGATIVE_INFINITY);
     }
 
     @Test
@@ -220,9 +220,10 @@ public class NumberOutputFloatDoubleTest
                 assertDoubleOutputWithOffset(d, offset);
             }
         }
-        // NaN and Infinity throw in write methods
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputDouble(Double.NaN, new char[52], 4));
-        assertThrows(ArithmeticException.class, () -> NumberOutput.outputDouble(Double.POSITIVE_INFINITY, new char[52], 4));
+        // NaN and Infinity are now handled directly
+        assertDoubleOutputWithOffset(Double.NaN, 4);
+        assertDoubleOutputWithOffset(Double.POSITIVE_INFINITY, 4);
+        assertDoubleOutputWithOffset(Double.NEGATIVE_INFINITY, 4);
     }
 
     @Test

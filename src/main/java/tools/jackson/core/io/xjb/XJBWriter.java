@@ -59,6 +59,23 @@ public final class XJBWriter {
     public static int writeFloat(float x, byte[] buf, int from) {
         int bits = Float.floatToRawIntBits(x);
         int pos = from;
+        // Check for non-finite (NaN, Infinity) before sign — NaN ignores sign bit
+        int e2IEEE = (bits >> 23) & 0xFF;
+        if (e2IEEE == 0xFF) {
+            if ((bits & 0x7FFFFF) != 0) {
+                // NaN
+                buf[pos] = 'N'; buf[pos + 1] = 'a'; buf[pos + 2] = 'N';
+                return pos + 3;
+            }
+            // Infinity
+            if (bits < 0) {
+                buf[pos] = '-';
+                pos++;
+            }
+            buf[pos]     = 'I'; buf[pos + 1] = 'n'; buf[pos + 2] = 'f'; buf[pos + 3] = 'i';
+            buf[pos + 4] = 'n'; buf[pos + 5] = 'i'; buf[pos + 6] = 't'; buf[pos + 7] = 'y';
+            return pos + 8;
+        }
         if (bits < 0) {
             buf[pos] = '-';
             pos += 1;
@@ -67,7 +84,6 @@ public final class XJBWriter {
             setInt(buf, pos, 0x302E30);
             pos += 3;
         } else {
-            int e2IEEE = (bits >> 23) & 0xFF;
             int m2IEEE = bits & 0x7FFFFF;
             int e2 = e2IEEE - 150;
             int m2 = m2IEEE | 0x800000;
@@ -80,8 +96,6 @@ public final class XJBWriter {
                 if (e2IEEE == 0) {
                     m2 = m2IEEE;
                     e2 = -149;
-                } else if (e2 == 105) {
-                    throw illegalNumberError(x);
                 }
                 if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
                 else e10 = (e2 * 315653) >> 20;
@@ -172,6 +186,23 @@ public final class XJBWriter {
     public static int writeDouble(double x, byte[] buf, int from) {
         long bits = Double.doubleToRawLongBits(x);
         int pos = from;
+        // Check for non-finite (NaN, Infinity) before sign — NaN ignores sign bit
+        int e2IEEE = (int) (bits >> 52) & 0x7FF;
+        if (e2IEEE == 0x7FF) {
+            if ((bits & 0xFFFFFFFFFFFFFL) != 0) {
+                // NaN
+                buf[pos] = 'N'; buf[pos + 1] = 'a'; buf[pos + 2] = 'N';
+                return pos + 3;
+            }
+            // Infinity
+            if (bits < 0L) {
+                buf[pos] = '-';
+                pos++;
+            }
+            buf[pos]     = 'I'; buf[pos + 1] = 'n'; buf[pos + 2] = 'f'; buf[pos + 3] = 'i';
+            buf[pos + 4] = 'n'; buf[pos + 5] = 'i'; buf[pos + 6] = 't'; buf[pos + 7] = 'y';
+            return pos + 8;
+        }
         if (bits < 0L) {
             buf[pos] = '-';
             pos += 1;
@@ -180,7 +211,6 @@ public final class XJBWriter {
             setInt(buf, pos, 0x302E30);
             pos += 3;
         } else {
-            int e2IEEE = (int) (bits >> 52) & 0x7FF;
             long m2IEEE = bits & 0xFFFFFFFFFFFFFL;
             int e2 = e2IEEE - 1075;
             long m2 = m2IEEE | 0x10000000000000L;
@@ -194,8 +224,6 @@ public final class XJBWriter {
                 if (e2IEEE == 0) {
                     m2 = m2IEEE;
                     e2 = -1074;
-                } else if (e2 == 972) {
-                    throw illegalNumberError(x);
                 }
                 if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
                 else e10 = (e2 * 315653) >> 20;
@@ -310,6 +338,23 @@ public final class XJBWriter {
     public static int writeFloat(float x, char[] buf, int from) {
         int bits = Float.floatToRawIntBits(x);
         int pos = from;
+        // Check for non-finite (NaN, Infinity) before sign — NaN ignores sign bit
+        int e2IEEE = (bits >> 23) & 0xFF;
+        if (e2IEEE == 0xFF) {
+            if ((bits & 0x7FFFFF) != 0) {
+                // NaN
+                buf[pos] = 'N'; buf[pos + 1] = 'a'; buf[pos + 2] = 'N';
+                return pos + 3;
+            }
+            // Infinity
+            if (bits < 0) {
+                buf[pos] = '-';
+                pos++;
+            }
+            buf[pos]     = 'I'; buf[pos + 1] = 'n'; buf[pos + 2] = 'f'; buf[pos + 3] = 'i';
+            buf[pos + 4] = 'n'; buf[pos + 5] = 'i'; buf[pos + 6] = 't'; buf[pos + 7] = 'y';
+            return pos + 8;
+        }
         if (bits < 0) {
             buf[pos] = '-';
             pos += 1;
@@ -318,7 +363,6 @@ public final class XJBWriter {
             buf[pos] = '0'; buf[pos + 1] = '.'; buf[pos + 2] = '0';
             pos += 3;
         } else {
-            int e2IEEE = (bits >> 23) & 0xFF;
             int m2IEEE = bits & 0x7FFFFF;
             int e2 = e2IEEE - 150;
             int m2 = m2IEEE | 0x800000;
@@ -331,8 +375,6 @@ public final class XJBWriter {
                 if (e2IEEE == 0) {
                     m2 = m2IEEE;
                     e2 = -149;
-                } else if (e2 == 105) {
-                    throw illegalNumberError(x);
                 }
                 if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
                 else e10 = (e2 * 315653) >> 20;
@@ -436,6 +478,23 @@ public final class XJBWriter {
     public static int writeDouble(double x, char[] buf, int from) {
         long bits = Double.doubleToRawLongBits(x);
         int pos = from;
+        // Check for non-finite (NaN, Infinity) before sign — NaN ignores sign bit
+        int e2IEEE = (int) (bits >> 52) & 0x7FF;
+        if (e2IEEE == 0x7FF) {
+            if ((bits & 0xFFFFFFFFFFFFFL) != 0) {
+                // NaN
+                buf[pos] = 'N'; buf[pos + 1] = 'a'; buf[pos + 2] = 'N';
+                return pos + 3;
+            }
+            // Infinity
+            if (bits < 0L) {
+                buf[pos] = '-';
+                pos++;
+            }
+            buf[pos]     = 'I'; buf[pos + 1] = 'n'; buf[pos + 2] = 'f'; buf[pos + 3] = 'i';
+            buf[pos + 4] = 'n'; buf[pos + 5] = 'i'; buf[pos + 6] = 't'; buf[pos + 7] = 'y';
+            return pos + 8;
+        }
         if (bits < 0L) {
             buf[pos] = '-';
             pos += 1;
@@ -444,7 +503,6 @@ public final class XJBWriter {
             buf[pos] = '0'; buf[pos + 1] = '.'; buf[pos + 2] = '0';
             pos += 3;
         } else {
-            int e2IEEE = (int) (bits >> 52) & 0x7FF;
             long m2IEEE = bits & 0xFFFFFFFFFFFFFL;
             int e2 = e2IEEE - 1075;
             long m2 = m2IEEE | 0x10000000000000L;
@@ -458,8 +516,6 @@ public final class XJBWriter {
                 if (e2IEEE == 0) {
                     m2 = m2IEEE;
                     e2 = -1074;
-                } else if (e2 == 972) {
-                    throw illegalNumberError(x);
                 }
                 if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
                 else e10 = (e2 * 315653) >> 20;
@@ -706,14 +762,6 @@ public final class XJBWriter {
         buf[pos + 1] = (char) (d & 0xFF);
         buf[pos + 2] = (char) ((d >> 8) & 0xFF);
         return pos + 3;
-    }
-
-    private static ArithmeticException illegalNumberError(float x) {
-        return new ArithmeticException("illegal number: " + x);
-    }
-
-    private static ArithmeticException illegalNumberError(double x) {
-        return new ArithmeticException("illegal number: " + x);
     }
 
     // ------------------------------------------------------------------

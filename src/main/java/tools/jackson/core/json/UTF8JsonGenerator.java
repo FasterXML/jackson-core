@@ -1076,8 +1076,7 @@ public class UTF8JsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
-        if (useFast && Double.isFinite(d)) {
+        if (useFast) {
             if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES) > _outputEnd) {
                 _flushBuffer();
             }
@@ -1094,7 +1093,7 @@ public class UTF8JsonGenerator
     private final void _writeQuotedDouble(double d, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
-        if (!useFast || !Double.isFinite(d)) {
+        if (!useFast) {
             _writeQuotedAscii(NumberOutput.toString(d, useFast));
             return;
         }
@@ -1117,8 +1116,7 @@ public class UTF8JsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
-        if (useFast && Float.isFinite(f)) {
+        if (useFast) {
             if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES) > _outputEnd) {
                 _flushBuffer();
             }
@@ -1132,7 +1130,7 @@ public class UTF8JsonGenerator
     private final void _writeQuotedFloat(float f, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
-        if (!useFast || !Float.isFinite(f)) {
+        if (!useFast) {
             _writeQuotedAscii(NumberOutput.toString(f, useFast));
             return;
         }

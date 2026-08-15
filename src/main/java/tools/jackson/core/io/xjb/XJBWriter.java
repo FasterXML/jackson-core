@@ -1,5 +1,7 @@
 package tools.jackson.core.io.xjb;
 
+import tools.jackson.core.io.NumberOutput;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -33,7 +35,7 @@ public final class XJBWriter {
     public static String toString(float x) {
         if (Float.isNaN(x)) return "NaN";
         if (Float.isInfinite(x)) return x < 0 ? "-Infinity" : "Infinity";
-        byte[] buf = new byte[32];
+        byte[] buf = new byte[NumberOutput.MAX_FLOAT_CHARS];
         int pos = writeFloat(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);
     }
@@ -41,14 +43,16 @@ public final class XJBWriter {
     public static String toString(double x) {
         if (Double.isNaN(x)) return "NaN";
         if (Double.isInfinite(x)) return x < 0 ? "-Infinity" : "Infinity";
-        byte[] buf = new byte[48];
+        byte[] buf = new byte[NumberOutput.MAX_DOUBLE_CHARS];
         int pos = writeDouble(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);
     }
 
     /**
      * Writes the decimal string representation of {@code x} into {@code buf} starting at
-     * {@code from}. The buffer must have at least 16 bytes of free space from {@code from}.
+     * {@code from}. The buffer must have at least
+     * {@link tools.jackson.core.io.NumberOutput#MAX_FLOAT_CHARS} bytes of free space
+     * from {@code from}.
      *
      * @return the position just after the last byte written
      */
@@ -159,7 +163,9 @@ public final class XJBWriter {
 
     /**
      * Writes the decimal string representation of {@code x} into {@code buf} starting at
-     * {@code from}. The buffer must have at least 26 bytes of free space from {@code from}.
+     * {@code from}. The buffer must have at least
+     * {@link tools.jackson.core.io.NumberOutput#MAX_DOUBLE_CHARS} bytes of free space
+     * from {@code from}.
      *
      * @return the position just after the last byte written
      */
@@ -291,6 +297,281 @@ public final class XJBWriter {
         return pos;
     }
 
+    /**
+     * Writes the decimal string representation of {@code x} into {@code buf} starting at
+     * {@code from}. The buffer must have at least
+     * {@link tools.jackson.core.io.NumberOutput#MAX_FLOAT_CHARS} chars of free space
+     * from {@code from}.
+     *
+     * @return the position just after the last char written
+     *
+     * @since 3.3
+     */
+    public static int writeFloat(float x, char[] buf, int from) {
+        int bits = Float.floatToRawIntBits(x);
+        int pos = from;
+        if (bits < 0) {
+            buf[pos] = '-';
+            pos += 1;
+        }
+        if (bits << 1 == 0) {
+            buf[pos] = '0'; buf[pos + 1] = '.'; buf[pos + 2] = '0';
+            pos += 3;
+        } else {
+            int e2IEEE = (bits >> 23) & 0xFF;
+            int m2IEEE = bits & 0x7FFFFF;
+            int e2 = e2IEEE - 150;
+            int m2 = m2IEEE | 0x800000;
+            int m10 = 0, e10 = 0;
+            if (e2 == 0) {
+                m10 = m2;
+            } else if ((e2 >= -23 && e2 < 0) && (m2 << e2) == 0) {
+                m10 = m2 >> -e2;
+            } else {
+                if (e2IEEE == 0) {
+                    m2 = m2IEEE;
+                    e2 = -149;
+                } else if (e2 == 105) {
+                    throw illegalNumberError(x);
+                }
+                if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
+                else e10 = (e2 * 315653) >> 20;
+                int h = (((e10 + 1) * -217707) >> 16) + e2;
+                long pow10 = FLOAT_POW10S[31 - e10];
+                long halfUlpPlusEven = (pow10 >>> (28 - h)) + ((m2IEEE + 1) & 1);
+                long hi64 = unsignedMultiplyHigh1(pow10, ((long) m2) << (h + 37));
+                long dotOne = hi64 & 0xFFFFFFFFFL;
+                m10 = (int) (hi64 >>> 36) * 10;
+                long cmp = (m2IEEE == 0) ? (halfUlpPlusEven >>> 1) : halfUlpPlusEven;
+                if (Long.compareUnsigned(cmp, dotOne) <= 0) {
+                    if (Long.compareUnsigned(halfUlpPlusEven, 0xFFFFFFFFFL - dotOne) > 0) {
+                        m10 += 10;
+                    } else {
+                        m10 += (int) ((dotOne * 20 + ((int) (hi64 >>> 32) & 0xF) + 0xFFFFFFFF9L) >>> 37);
+                    }
+                }
+                if (m2IEEE == 0 && ((e2 == -119) || (e2 == 64) || (e2 == 67))) m10 += 1;
+            }
+            int len = digitCount(m10);
+            e10 += len - 1;
+            short[] ds = DIGITS;
+            if (e10 < -3 || e10 >= 7) {
+                int lastPos = writeSignificantFractionDigitsChar(m10, pos + len, pos, buf, ds);
+                // Equivalent of setShort(buf, pos, (short)(buf[pos + 1] | 0x2E00)):
+                // move second digit to first position, insert '.' after it
+                buf[pos] = buf[pos + 1];
+                buf[pos + 1] = '.';
+                if (lastPos - 3 < pos) {
+                    buf[lastPos] = '0';
+                    pos = lastPos + 1;
+                } else {
+                    pos = lastPos;
+                }
+                buf[pos] = 'E';
+                buf[pos + 1] = '-';
+                pos += 1;
+                if (e10 < 0) {
+                    e10 = -e10;
+                    pos += 1;
+                }
+                if (e10 < 10) {
+                    buf[pos] = (char) (e10 + '0');
+                    pos += 1;
+                } else {
+                    short d = ds[e10];
+                    buf[pos] = (char) (d & 0xFF);
+                    buf[pos + 1] = (char) ((d >> 8) & 0xFF);
+                    pos += 2;
+                }
+            } else if (e10 < 0) {
+                int dotPos = pos + 1;
+                buf[pos] = '0'; buf[pos + 1] = '0'; buf[pos + 2] = '0'; buf[pos + 3] = '0';
+                pos -= e10;
+                pos = writeSignificantFractionDigitsChar(m10, pos + len, pos, buf, ds);
+                buf[dotPos] = '.';
+            } else if (e10 < len - 1) {
+                int lastPos = writeSignificantFractionDigitsChar(m10, pos + len, pos, buf, ds);
+                // The pair-based digit writer may have written a padding char at pos.
+                // Shift the integer-part digits left by 1 to remove it, then insert '.'
+                System.arraycopy(buf, pos + 1, buf, pos, e10 + 1);
+                buf[pos + e10 + 1] = '.';
+                pos = lastPos;
+            } else {
+                pos += len;
+                buf[pos] = '.';
+                buf[pos + 1] = '0';
+                int lastPos = pos;
+                pos -= 2;
+                while (true) {
+                    if (m10 < 100) break;
+                    int q1 = (int) ((m10 * 1374389535L) >> 37);
+                    short d = ds[m10 - q1 * 100];
+                    buf[pos] = (char) (d & 0xFF);
+                    buf[pos + 1] = (char) ((d >> 8) & 0xFF);
+                    m10 = q1;
+                    pos -= 2;
+                }
+                if (m10 < 10) buf[pos + 1] = (char) (m10 + '0');
+                else {
+                    short d = ds[m10];
+                    buf[pos] = (char) (d & 0xFF);
+                    buf[pos + 1] = (char) ((d >> 8) & 0xFF);
+                }
+                pos = lastPos + 2;
+            }
+        }
+        return pos;
+    }
+
+    /**
+     * Writes the decimal string representation of {@code x} into {@code buf} starting at
+     * {@code from}. The buffer must have at least
+     * {@link tools.jackson.core.io.NumberOutput#MAX_DOUBLE_CHARS} chars of free space
+     * from {@code from}.
+     *
+     * @return the position just after the last char written
+     *
+     * @since 3.3
+     */
+    public static int writeDouble(double x, char[] buf, int from) {
+        long bits = Double.doubleToRawLongBits(x);
+        int pos = from;
+        if (bits < 0L) {
+            buf[pos] = '-';
+            pos += 1;
+        }
+        if (bits << 1 == 0L) {
+            buf[pos] = '0'; buf[pos + 1] = '.'; buf[pos + 2] = '0';
+            pos += 3;
+        } else {
+            int e2IEEE = (int) (bits >> 52) & 0x7FF;
+            long m2IEEE = bits & 0xFFFFFFFFFFFFFL;
+            int e2 = e2IEEE - 1075;
+            long m2 = m2IEEE | 0x10000000000000L;
+            long m10 = 0L;
+            int e10 = 0;
+            if (e2 == 0) {
+                m10 = m2;
+            } else if ((e2 >= -52 && e2 < 0) && (m2 << e2) == 0) {
+                m10 = m2 >> -e2;
+            } else {
+                if (e2IEEE == 0) {
+                    m2 = m2IEEE;
+                    e2 = -1074;
+                } else if (e2 == 972) {
+                    throw illegalNumberError(x);
+                }
+                if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
+                else e10 = (e2 * 315653) >> 20;
+                int h = (((e10 + 1) * -217707) >> 16) + e2;
+                int i = (292 - e10) << 1;
+                long pow10_1 = DOUBLE_POW10S[i];
+                long pow10_2 = DOUBLE_POW10S[i + 1];
+                long halfUlpPlusEven = (pow10_1 >>> -h) + (((int) m2 + 1) & 1);
+                long cb = m2 << (h + 7);
+                long lo64_1 = unsignedMultiplyHigh2(pow10_2, cb);
+                long lo64_2 = pow10_1 * cb;
+                long hi64 = unsignedMultiplyHigh1(pow10_1, cb);
+                long lo64 = lo64_1 + lo64_2;
+                hi64 += Long.compareUnsigned(lo64, lo64_1) >>> 31;
+                long dotOne = (hi64 << 58) | (lo64 >>> 6);
+                int mCorr = 0;
+                boolean roundUp;
+                if (Long.compareUnsigned(-1L - dotOne, halfUlpPlusEven) < 0) {
+                    mCorr = 10;
+                    roundUp = false;
+                } else if (m2IEEE != 0) {
+                    roundUp = Long.compareUnsigned(halfUlpPlusEven, dotOne) <= 0;
+                } else {
+                    long tmp = (dotOne >>> 4) * 10L;
+                    if (Long.compareUnsigned(tmp & 0x0FFFFFFFFFFFFFFFL, (halfUlpPlusEven >>> 4) * 5L) > 0) {
+                        mCorr = (int) (tmp >>> 60) + 1;
+                        roundUp = false;
+                    } else {
+                        roundUp = Long.compareUnsigned(halfUlpPlusEven >>> 1, dotOne) <= 0;
+                    }
+                }
+                if (roundUp) {
+                    m10 = (hi64 * 10L + unsignedMultiplyHigh2(lo64, 10L)
+                            + (dotOne == 0x4000000000000000L ? 0x1FL : 0x20L)) >>> 6;
+                } else {
+                    m10 = (hi64 >>> 6) * 10L + mCorr;
+                }
+            }
+            int len = digitCount(m10);
+            e10 += len - 1;
+            short[] ds = DIGITS;
+            if (e10 < -3 || e10 >= 7) {
+                int lastPos = writeSignificantFractionDigitsLongChar(m10, pos + len, pos, buf, ds);
+                // Equivalent of setShort(buf, pos, (short)(buf[pos + 1] | 0x2E00)):
+                // move second digit to first position, insert '.' after it
+                buf[pos] = buf[pos + 1];
+                buf[pos + 1] = '.';
+                if (lastPos - 3 < pos) {
+                    buf[lastPos] = '0';
+                    pos = lastPos + 1;
+                } else {
+                    pos = lastPos;
+                }
+                buf[pos] = 'E';
+                buf[pos + 1] = '-';
+                pos += 1;
+                if (e10 < 0) {
+                    e10 = -e10;
+                    pos += 1;
+                }
+                if (e10 < 10) {
+                    buf[pos] = (char) (e10 + '0');
+                    pos += 1;
+                } else if (e10 < 100) {
+                    short d = ds[e10];
+                    buf[pos] = (char) (d & 0xFF);
+                    buf[pos + 1] = (char) ((d >> 8) & 0xFF);
+                    pos += 2;
+                } else {
+                    pos = write3DigitsChar(e10, pos, buf, ds);
+                }
+            } else if (e10 < 0) {
+                int dotPos = pos + 1;
+                buf[pos] = '0'; buf[pos + 1] = '0'; buf[pos + 2] = '0'; buf[pos + 3] = '0';
+                pos -= e10;
+                pos = writeSignificantFractionDigitsLongChar(m10, pos + len, pos, buf, ds);
+                buf[dotPos] = '.';
+            } else if (e10 < len - 1) {
+                int lastPos = writeSignificantFractionDigitsLongChar(m10, pos + len, pos, buf, ds);
+                // The pair-based digit writer may have written a padding char at pos.
+                // Shift the integer-part digits left by 1 to remove it, then insert '.'
+                System.arraycopy(buf, pos + 1, buf, pos, e10 + 1);
+                buf[pos + e10 + 1] = '.';
+                pos = lastPos;
+            } else {
+                pos += len;
+                buf[pos] = '.';
+                buf[pos + 1] = '0';
+                int q0 = (int) m10;
+                int lastPos = pos;
+                pos -= 2;
+                while (true) {
+                    if (q0 < 100) break;
+                    int q1 = (int) ((q0 * 1374389535L) >> 37);
+                    short d = ds[q0 - q1 * 100];
+                    buf[pos] = (char) (d & 0xFF);
+                    buf[pos + 1] = (char) ((d >> 8) & 0xFF);
+                    q0 = q1;
+                    pos -= 2;
+                }
+                if (q0 < 10) buf[pos + 1] = (char) (q0 + '0');
+                else {
+                    short d = ds[q0];
+                    buf[pos] = (char) (d & 0xFF);
+                    buf[pos + 1] = (char) ((d >> 8) & 0xFF);
+                }
+                pos = lastPos + 2;
+            }
+        }
+        return pos;
+    }
+
     // ------------------------------------------------------------------
     // Helpers
     // ------------------------------------------------------------------
@@ -362,6 +643,68 @@ public final class XJBWriter {
     private static int write3Digits(int x, int pos, byte[] buf, short[] ds) {
         int q1 = (x * 1311) >> 17; // divide a small positive int by 100
         setInt(buf, pos, (ds[x - q1 * 100] << 8) | q1 | '0');
+        return pos + 3;
+    }
+
+    // char[] variants of the digit-writing helpers
+
+    private static int writeSignificantFractionDigitsLongChar(long x, int p, int pl, char[] buf, short[] ds) {
+        int q0 = (int) x;
+        int pos = p;
+        int posLim = pl;
+        if (q0 != x) {
+            long q1 = Math.multiplyHigh(x, 6189700196426901375L) >>> 25; // divide a positive long by 100000000
+            int r1 = (int) (x - q1 * 100000000L);
+            int posm8 = pos - 8;
+            if (r1 == 0) {
+                q0 = (int) q1;
+                pos = posm8;
+            } else {
+                writeFractionDigitsChar((int) q1, posm8, posLim, buf, ds);
+                q0 = r1;
+                posLim = posm8;
+            }
+        }
+        return writeSignificantFractionDigitsChar(q0, pos, posLim, buf, ds);
+    }
+
+    private static int writeSignificantFractionDigitsChar(int x, int p, int posLim, char[] buf, short[] ds) {
+        int q0 = x;
+        int q1 = 0;
+        int pos = p;
+        while (true) {
+            long qp = q0 * 1374389535L;
+            q1 = (int) (qp >> 37); // divide a positive int by 100
+            if ((qp & 0x1FC0000000L) != 0) break; // check if q is divisible by 100
+            q0 = q1;
+            pos -= 2;
+        }
+        short d = ds[q0 - q1 * 100];
+        buf[pos - 1] = (char) (d & 0xFF);
+        buf[pos] = (char) ((d >> 8) & 0xFF);
+        writeFractionDigitsChar(q1, pos - 2, posLim, buf, ds);
+        return pos + ((0x3039 - d) >>> 31);
+    }
+
+    private static void writeFractionDigitsChar(int x, int p, int posLim, char[] buf, short[] ds) {
+        int q0 = x;
+        int pos = p;
+        while (pos > posLim) {
+            int q1 = (int) ((q0 * 1374389535L) >> 37); // divide a positive int by 100
+            short d = ds[q0 - q1 * 100];
+            buf[pos - 1] = (char) (d & 0xFF);
+            buf[pos] = (char) ((d >> 8) & 0xFF);
+            q0 = q1;
+            pos -= 2;
+        }
+    }
+
+    private static int write3DigitsChar(int x, int pos, char[] buf, short[] ds) {
+        int q1 = (x * 1311) >> 17; // divide a small positive int by 100
+        short d = ds[x - q1 * 100];
+        buf[pos] = (char) (q1 + '0');
+        buf[pos + 1] = (char) (d & 0xFF);
+        buf[pos + 2] = (char) ((d >> 8) & 0xFF);
         return pos + 3;
     }
 

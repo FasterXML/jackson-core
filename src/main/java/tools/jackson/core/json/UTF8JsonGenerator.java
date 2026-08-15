@@ -1076,14 +1076,15 @@ public class UTF8JsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        if (useFast) {
+        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
+        if (useFast && Double.isFinite(d)) {
             if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
             return this;
         }
-        _writeRawAscii(NumberOutput.toString(d, false));
+        _writeRawAscii(NumberOutput.toString(d, useFast));
         return this;
     }
 
@@ -1093,8 +1094,8 @@ public class UTF8JsonGenerator
     private final void _writeQuotedDouble(double d, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
-        if (!useFast) {
-            _writeQuotedAscii(NumberOutput.toString(d, false));
+        if (!useFast || !Double.isFinite(d)) {
+            _writeQuotedAscii(NumberOutput.toString(d, useFast));
             return;
         }
         if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES + 2) > _outputEnd) {
@@ -1116,22 +1117,23 @@ public class UTF8JsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        if (useFast) {
+        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
+        if (useFast && Float.isFinite(f)) {
             if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
             return this;
         }
-        _writeRawAscii(NumberOutput.toString(f, false));
+        _writeRawAscii(NumberOutput.toString(f, useFast));
         return this;
     }
 
     private final void _writeQuotedFloat(float f, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
-        if (!useFast) {
-            _writeQuotedAscii(NumberOutput.toString(f, false));
+        if (!useFast || !Float.isFinite(f)) {
+            _writeQuotedAscii(NumberOutput.toString(f, useFast));
             return;
         }
         if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES + 2) > _outputEnd) {

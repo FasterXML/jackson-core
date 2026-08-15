@@ -872,14 +872,15 @@ public class WriterBasedJsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        if (useFast) {
+        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
+        if (useFast && Double.isFinite(d)) {
             if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
             return this;
         }
-        return writeRaw(NumberOutput.toString(d, false));
+        return writeRaw(NumberOutput.toString(d, useFast));
     }
 
     // Number text is all ASCII and needs no escaping, so write it out raw, same as
@@ -888,8 +889,8 @@ public class WriterBasedJsonGenerator
     private void _writeQuotedDouble(double d, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
-        if (!useFast) {
-            _writeQuotedRaw(NumberOutput.toString(d, false));
+        if (!useFast || !Double.isFinite(d)) {
+            _writeQuotedRaw(NumberOutput.toString(d, useFast));
             return;
         }
         if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES + 2) > _outputEnd) {
@@ -910,21 +911,22 @@ public class WriterBasedJsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        if (useFast) {
+        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
+        if (useFast && Float.isFinite(f)) {
             if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
             return this;
         }
-        return writeRaw(NumberOutput.toString(f, false));
+        return writeRaw(NumberOutput.toString(f, useFast));
     }
 
     private void _writeQuotedFloat(float f, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
-        if (!useFast) {
-            _writeQuotedRaw(NumberOutput.toString(f, false));
+        if (!useFast || !Float.isFinite(f)) {
+            _writeQuotedRaw(NumberOutput.toString(f, useFast));
             return;
         }
         if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES + 2) > _outputEnd) {

@@ -1076,14 +1076,15 @@ public class UTF8JsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        if (useFast) {
+        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
+        if (useFast && Double.isFinite(d)) {
             if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
             return this;
         }
-        return writeRaw(NumberOutput.toString(d, false));
+        return writeRaw(NumberOutput.toString(d, useFast));
     }
 
     @Override
@@ -1097,14 +1098,15 @@ public class UTF8JsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        if (useFast) {
+        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
+        if (useFast && Float.isFinite(f)) {
             if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
             return this;
         }
-        return writeRaw(NumberOutput.toString(f, false));
+        return writeRaw(NumberOutput.toString(f, useFast));
     }
 
     @Override

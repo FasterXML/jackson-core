@@ -872,7 +872,8 @@ public class WriterBasedJsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        if (useFast) {
+        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
+        if (useFast && Double.isFinite(d)) {
             // Direct write to output buffer when there's room
             int room = _outputEnd - _outputTail;
             if (room >= NumberOutput.MAX_DOUBLE_CHARS) {
@@ -883,7 +884,7 @@ public class WriterBasedJsonGenerator
                 writeRaw(tmp, 0, pos);
             }
         } else {
-            writeRaw(NumberOutput.toString(d, false));
+            writeRaw(NumberOutput.toString(d, useFast));
         }
         return this;
     }
@@ -898,7 +899,8 @@ public class WriterBasedJsonGenerator
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
-        if (useFast) {
+        // XJBWriter throws ArithmeticException for non-finite values, so handle them via toString
+        if (useFast && Float.isFinite(f)) {
             // Direct write to output buffer when there's room
             int room = _outputEnd - _outputTail;
             if (room >= NumberOutput.MAX_FLOAT_CHARS) {
@@ -909,7 +911,7 @@ public class WriterBasedJsonGenerator
                 writeRaw(tmp, 0, pos);
             }
         } else {
-            writeRaw(NumberOutput.toString(f, false));
+            writeRaw(NumberOutput.toString(f, useFast));
         }
         return this;
     }

@@ -33,16 +33,12 @@ public final class XJBWriter {
     // ------------------------------------------------------------------
 
     public static String toString(float x) {
-        if (Float.isNaN(x)) return "NaN";
-        if (Float.isInfinite(x)) return x < 0 ? "-Infinity" : "Infinity";
         byte[] buf = new byte[NumberOutput.MAX_FLOAT_CHARS];
         int pos = writeFloat(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);
     }
 
     public static String toString(double x) {
-        if (Double.isNaN(x)) return "NaN";
-        if (Double.isInfinite(x)) return x < 0 ? "-Infinity" : "Infinity";
         byte[] buf = new byte[NumberOutput.MAX_DOUBLE_CHARS];
         int pos = writeDouble(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);

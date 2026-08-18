@@ -82,3 +82,13 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
    already-consumed bytes
   (3.3.0)
+
+@hdimitrieski
+ * Reported #1668: WriterBasedJsonGenerator AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (3.3.0)
+
+Burak KALAYCI (@kalayciburak)
+ * Contributed #1668: WriterBasedJsonGenerator AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (3.3.0)

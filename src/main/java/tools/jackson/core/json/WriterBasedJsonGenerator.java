@@ -1552,6 +1552,11 @@ public class WriterBasedJsonGenerator
             ++_outputTail;
             _prependOrWriteCharacterEscape(c, escCode);
         }
+        // [core#1668] empty custom escape can leave head==tail at the buffer
+        // end. Recycle after the scan so the next write does not call flush.
+        if (_outputHead == _outputTail && _outputTail >= _outputEnd) {
+            _outputHead = _outputTail = 0;
+        }
     }
 
     private void _writeSegmentCustom(int end)
@@ -1980,6 +1985,13 @@ public class WriterBasedJsonGenerator
             _currentEscape = null;
         }
         int len = escape.length();
+        // 18-Aug-2026, [core#1668]: empty custom escape appends nothing.
+        // Prefix is already flushed; drop the source char. Do not recycle
+        // the buffer here: callers still walk toward a precomputed end.
+        if (len == 0) {
+            _outputHead = _outputTail;
+            return;
+        }
         if (_outputTail >= len) { // fits in, prepend
             int ptr = _outputTail - len;
             _outputHead = ptr;
@@ -2079,6 +2091,9 @@ public class WriterBasedJsonGenerator
             _currentEscape = null;
         }
         int len = escape.length();
+        if (len == 0) { // [core#1668] empty custom escape: append nothing
+            return ptr;
+        }
         if (ptr >= len && ptr < end) { // fits in, prepend
             ptr -= len;
             escape.getChars(0, len, buffer, ptr);
@@ -2139,6 +2154,9 @@ public class WriterBasedJsonGenerator
             _currentEscape = null;
         }
         int len = escape.length();
+        if (len == 0) { // [core#1668] empty custom escape: append nothing
+            return;
+        }
         if ((_outputTail + len) > _outputEnd) {
             _flushBuffer();
             if (len > _outputEnd) { // very very long escape; unlikely but theoretically possible

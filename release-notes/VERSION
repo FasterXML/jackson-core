@@ -22,6 +22,10 @@ JSON library.
 #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
   already-consumed bytes
  (reported, fix by DongNyoung L)
+#1668: WriterBasedJsonGenerator AIOOBE when a zero-length custom escape
+  lands at the output buffer boundary
+ (reported by @hdimitrieski)
+ (fix by @kalayciburak)
 
 3.2.2 (14-Aug-2026)
 

@@ -425,7 +425,7 @@ public final class CharsToNameCanonicalizer
      * @since 3.2
      */
     public boolean willInternStrings() {
-        return JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(_factoryFeatures);
+        return _canonicalize && JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(_factoryFeatures);
     }
 
     /**

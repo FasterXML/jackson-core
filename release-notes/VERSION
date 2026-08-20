@@ -15,6 +15,12 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.2.3 (not yet released)
+
+#1667: `JsonParser.willInternPropertyNames()` returns `true` even when
+  `CANONICALIZE_PROPERTY_NAMES` is disabled
+ (contributed by @Dongnyoung)
+
 3.2.2 (14-Aug-2026)
 
 #1630: `UTF8StreamJsonParser.nextName()` ignores

@@ -58,6 +58,9 @@ Revanth Meesala (@revanthmeesala)
 Lee Dongnyoung (@DongNyoung)
  * Contributed #1651: Fix object context handling for buffered `INCLUDE_NON_NULL` tokens
   (3.1.6)
+ * Contributed #1667: `JsonParser.willInternPropertyNames()` returns `true` even when
+   `CANONICALIZE_PROPERTY_NAMES` is disabled
+  (3.2.3)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

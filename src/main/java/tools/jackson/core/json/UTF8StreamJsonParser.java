@@ -5,6 +5,7 @@ import java.io.*;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -2187,7 +2188,6 @@ public class UTF8StreamJsonParser
     {
         // caller had pushed it back, before calling; reset
         ++_inputPtr;
-        // TODO? Handle UTF-8 char decoding for error reporting
         switch (ch) {
         case ' ':
         case '\t':
@@ -2202,6 +2202,15 @@ public class UTF8StreamJsonParser
             ++_currInputRow;
             _currInputRowStart = _inputPtr;
             return;
+        }
+
+        if (ch > 0x7F) {
+            // 19-Aug-2026, tatu: [core#1664] Decode multi-byte character for better
+            //   error message; but if input ends mid-sequence, report lead byte as-is
+            //   (content is malformed here regardless of what would follow)
+            try {
+                ch = _decodeCharForError(ch);
+            } catch (UnexpectedEndOfInputException e) { }
         }
         _reportMissingRootWS(ch);
     }

@@ -5,6 +5,7 @@ import java.io.*;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.TokenStreamFactory;
 import tools.jackson.core.json.JsonFactory;
@@ -89,19 +90,26 @@ class InternPropertyNamesTest extends JacksonCoreTestBase
         }
     }
 
-    // When CANONICALIZE is disabled for byte-based input, the bootstrapper falls back
-    // to a ReaderBasedJsonParser. Its CharsToNameCanonicalizer still honours the
-    // INTERN_PROPERTY_NAMES flag, so interning is reported as enabled when that flag is set.
+    // INTERN_PROPERTY_NAMES only takes effect when canonicalization is enabled.
     @Test
-    void interningWhenCanonicalizationDisabled() throws Exception {
+    void interningDisabledWhenCanonicalizationDisabled() throws Exception {
         JsonFactory f = _factoryWith(true, false);
         try (JsonParser p = createParserUsingStream(f, DOC, "UTF-8")) {
-            assertTrue(p.willInternPropertyNames());
+            _verifyNonInternedName(p);
         }
-        // But when INTERN is also disabled, should be false
+        try (JsonParser p = createParserUsingReader(f, DOC)) {
+            _verifyNonInternedName(p);
+        }
+        try (JsonParser p = createParserForDataInput(f, new MockDataInput(DOC))) {
+            _verifyNonInternedName(p);
+        }
+        try (JsonParser p = f.createNonBlockingByteArrayParser(ObjectReadContext.empty())) {
+            assertFalse(p.willInternPropertyNames());
+        }
+
         JsonFactory f2 = _factoryWith(false, false);
         try (JsonParser p = createParserUsingStream(f2, DOC, "UTF-8")) {
-            assertFalse(p.willInternPropertyNames());
+            _verifyNonInternedName(p);
         }
     }
 
@@ -138,6 +146,15 @@ class InternPropertyNamesTest extends JacksonCoreTestBase
                 .configure(TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES, intern)
                 .configure(TokenStreamFactory.Feature.CANONICALIZE_PROPERTY_NAMES, canonicalize)
                 .build();
+    }
+
+    private void _verifyNonInternedName(JsonParser p) throws Exception {
+        assertFalse(p.willInternPropertyNames());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        String name = p.currentName();
+        assertEquals("a", name);
+        assertNotSame("a", name);
     }
 
 }

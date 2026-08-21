@@ -14,6 +14,13 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.21.7 (not yet released)
+
+#1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
+  lands at the output buffer boundary
+ (reported by @hdimitrieski)
+ (fix by @kalayciburak)
+
 2.21.6 (14-Aug-2026)
 
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case

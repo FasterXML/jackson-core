@@ -2058,10 +2058,13 @@ public class WriterBasedJsonGenerator
 
     protected void _flushBuffer() throws IOException
     {
-        int len = _outputTail - _outputHead;
+        final int len = _outputTail - _outputHead;
+        final int offset = _outputHead;
+        // 21-Aug-2026, tatu: [core#1668] Must reset pointers even if nothing to
+        //   write: zero-length custom escape can leave head == tail == end, and
+        //   without reset there would be no room for content that follows
+        _outputTail = _outputHead = 0;
         if (len > 0) {
-            int offset = _outputHead;
-            _outputTail = _outputHead = 0;
             _writer.write(_outputBuffer, offset, len);
         }
     }

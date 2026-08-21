@@ -534,3 +534,13 @@ Mike Pedersen (@mpdncrwd)
 DongNyoung Lee (@Dongnyoung)
  * Contributed #1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
   (2.21.6)
+
+@hdimitrieski
+ * Reported #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (2.21.7)
+
+Burak KALAYCI (@kalayciburak)
+ * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (2.21.7)

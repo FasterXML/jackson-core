@@ -2220,6 +2220,18 @@ public class UTF8DataInputJsonParser
                 break main_loop;
             }
 
+            // 23-Aug-2026, pjfanning: Buffer may be exactly full when we exit the
+            //   ASCII loop (it only flushes before appending), and every branch
+            //   below appends at least one char: need to make room first.
+            if (outPtr >= outBuf.length) {
+                writer.write(outBuf, 0, outPtr);
+                totalLen += outPtr;
+                if (totalLen > maxStringLen) {
+                    _streamReadConstraints.validateStringLengthLong(totalLen);
+                }
+                outPtr = 0;
+            }
+
             switch (codes[c]) {
             case 1:
                 outBuf[outPtr++] = _decodeEscaped();

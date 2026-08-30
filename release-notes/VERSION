@@ -17,8 +17,6 @@ JSON library.
 
 3.3.0 (not yet released)
 
-#1675: Allocate ByteArrayBuilder past-block list lazily
- (contributed by @pjfanning, w/ Claude code)
 #1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match
  (contributed by @scottslewis)
 #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
@@ -27,6 +25,8 @@ JSON library.
 #1664: UTF-8 byte-backed parsers report raw byte instead of decoded character
   for invalid root-value separator
  (reported, fix by DongNyoung L)
+#1675: Allocate ByteArrayBuilder past-block list lazily
+ (contributed by @pjfanning, w/ Claude code)
 
 3.2.3 (not yet released)
 

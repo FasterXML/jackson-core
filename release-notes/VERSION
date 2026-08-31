@@ -21,6 +21,9 @@ JSON library.
   lands at the output buffer boundary
  (reported by @hdimitrieski)
  (fix by @kalayciburak)
+#1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
+  lands at the output buffer boundary
+ (fix by @pjfanning)
 
 3.1.6 (14-Aug-2026)
 

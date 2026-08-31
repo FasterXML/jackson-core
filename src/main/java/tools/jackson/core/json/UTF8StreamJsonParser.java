@@ -3167,12 +3167,9 @@ public class UTF8StreamJsonParser
                     max = _inputEnd;
                 }
                 while (ptr < max) {
-                    c = inputBuffer[ptr++] & 0xFF;
-                    if (codes[c] != 0) {
-                        _inputPtr = ptr;
-                        break ascii_loop;
-                    }
-                    // Flush intermediate buffer when full
+                    // 30-Aug-2026, pjfanning: Flush before decoding, not before
+                    //   appending: guarantees room is left when we exit the loop
+                    //   for an escape or multi-byte char, which append unchecked
                     if (outPtr >= outBuf.length) {
                         writer.write(outBuf, 0, outPtr);
                         totalLen += outPtr;
@@ -3182,6 +3179,11 @@ public class UTF8StreamJsonParser
                         }
                         outPtr = 0;
                     }
+                    c = inputBuffer[ptr++] & 0xFF;
+                    if (codes[c] != 0) {
+                        _inputPtr = ptr;
+                        break ascii_loop;
+                    }
                     // Accumulate character in intermediate buffer
                     outBuf[outPtr++] = (char) c;
                 }
@@ -3190,18 +3192,6 @@ public class UTF8StreamJsonParser
 
             if (c == INT_QUOTE) {
                 break main_loop;
-            }
-
-            // 23-Aug-2026, pjfanning: Buffer may be exactly full when we exit the
-            //   ASCII loop (it only flushes before appending), and every branch
-            //   below appends at least one char: need to make room first.
-            if (outPtr >= outBuf.length) {
-                writer.write(outBuf, 0, outPtr);
-                totalLen += outPtr;
-                if (totalLen > maxStringLen) {
-                    _streamReadConstraints.validateStringLengthLong(totalLen);
-                }
-                outPtr = 0;
             }
 
             switch (codes[c]) {

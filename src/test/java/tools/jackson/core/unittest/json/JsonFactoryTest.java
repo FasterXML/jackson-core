@@ -135,8 +135,8 @@ public class JsonFactoryTest
 
         JsonFactory jf2 = f.copy();
         assertTrue(jf2.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
-        assertTrue(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertTrue(jf2.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        assertTrue(jf2.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
     }
 
     @Test
@@ -157,6 +157,21 @@ public class JsonFactoryTest
         g.writeNumber(3);
         g.close();
         assertEquals("1/2/3", w.toString());
+
+        b = JsonFactory.builder()
+                .rootValueSeparator((String)null);
+        assertNull(b.rootValueSeparator());
+
+        f = b.build();
+        assertNull(f.getRootValueSeparator());
+
+        w = new StringWriter();
+        g = f.createGenerator(ObjectWriteContext.empty(), w);
+        g.writeNumber(1);
+        g.writeNumber(2);
+        g.writeNumber(3);
+        g.close();
+        assertEquals("123",w.toString());
     }
 
     @Test
@@ -319,7 +334,7 @@ public class JsonFactoryTest
 
     @Test
     public void testCanonicalizationEnabled() throws Exception {
-        doCanonicalizationTest(false);
+        doCanonicalizationTest(true);
     }
 
     @Test

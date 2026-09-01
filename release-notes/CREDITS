@@ -131,3 +131,8 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #1724: Use target exception's original message and type when wrapping
    `InvocationTargetException` with path information
   (3.1.8)
+
+Francesco Nigro (@franz1981)
+ * Suggested #1680: Avoid per-character escape-table load in JSON String value
+   serialization fast path
+  (3.3.0)

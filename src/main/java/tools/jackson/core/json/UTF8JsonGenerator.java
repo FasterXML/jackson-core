@@ -1516,20 +1516,9 @@ public class UTF8JsonGenerator
         // Fast+tight loop for ASCII-only, no-escaping-needed output
         len += offset; // becomes end marker, then
 
-        int outputPtr = _outputTail;
-        final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
-
-        while (offset < len) {
-            int ch = cbuf[offset];
-            // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
-                break;
-            }
-            outputBuffer[outputPtr++] = (byte) ch;
-            ++offset;
-        }
-        _outputTail = outputPtr;
+        final int start = offset;
+        offset = _writeUnescapedAscii(cbuf, offset, len, _outputBuffer, _outputTail);
+        _outputTail += (offset - start);
         if (offset < len) {
             if (_characterEscapes != null) {
                 _writeCustomStringSegment2(cbuf, offset, len);
@@ -1548,20 +1537,9 @@ public class UTF8JsonGenerator
         // Fast+tight loop for ASCII-only, no-escaping-needed output
         len += offset; // becomes end marker, then
 
-        int outputPtr = _outputTail;
-        final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
-
-        while (offset < len) {
-            int ch = text.charAt(offset);
-            // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
-                break;
-            }
-            outputBuffer[outputPtr++] = (byte) ch;
-            ++offset;
-        }
-        _outputTail = outputPtr;
+        final int start = offset;
+        offset = _writeUnescapedAscii(text, offset, len, _outputBuffer, _outputTail);
+        _outputTail += (offset - start);
         if (offset < len) {
             if (_characterEscapes != null) {
                 _writeCustomStringSegment2(text, offset, len);
@@ -1571,6 +1549,92 @@ public class UTF8JsonGenerator
                 _writeStringSegmentASCII2(text, offset, len);
             }
         }
+    }
+
+    /**
+     * Method that copies as many characters as possible from given text segment
+     * into output buffer (one byte per character), stopping at the first character
+     * that is either non-ASCII (code above 0x7F) or needs escaping as per
+     * {@link #_outputEscapes}.
+     *<p>
+     * Default implementation checks characters against {@link #_outputEscapes},
+     * with a specialization for the standard JSON escape settings; sub-classes
+     * with statically known escaping rules may override this method to use a
+     * simple comparison-based check instead of a per-character table lookup.
+     *
+     * @param cbuf Buffer that contains characters to copy
+     * @param offset Offset of the first character to copy
+     * @param end Offset after the last character that may be copied
+     * @param outputBuffer Output buffer to copy characters into
+     * @param outputPtr Offset in {@code outputBuffer} to start copying at
+     *
+     * @return Offset of the first character NOT copied ({@code end} if all were):
+     *   the output pointer will have advanced by same amount as the offset
+     *
+     * @since 3.3
+     */
+    protected int _writeUnescapedAscii(final char[] cbuf, int offset, final int end,
+            final byte[] outputBuffer, int outputPtr)
+    {
+        final int[] escCodes = _outputEscapes;
+        // [core#1680]: With standard escape settings can check the (few) escapable
+        // characters directly, avoiding per-character escape table load
+        if (escCodes == CharTypes.get7BitOutputEscapes()) {
+            while (offset < end) {
+                final int ch = cbuf[offset];
+                if (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\') {
+                    break;
+                }
+                outputBuffer[outputPtr++] = (byte) ch;
+                ++offset;
+            }
+            return offset;
+        }
+        while (offset < end) {
+            final int ch = cbuf[offset];
+            // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
+            if (ch > 0x7F || escCodes[ch] != 0) {
+                break;
+            }
+            outputBuffer[outputPtr++] = (byte) ch;
+            ++offset;
+        }
+        return offset;
+    }
+
+    /**
+     * Alternative to {@link #_writeUnescapedAscii(char[], int, int, byte[], int)}
+     * used when content to copy comes as a {@link String}.
+     *
+     * @since 3.3
+     */
+    protected int _writeUnescapedAscii(final String text, int offset, final int end,
+            final byte[] outputBuffer, int outputPtr)
+    {
+        final int[] escCodes = _outputEscapes;
+        // [core#1680]: With standard escape settings can check the (few) escapable
+        // characters directly, avoiding per-character escape table load
+        if (escCodes == CharTypes.get7BitOutputEscapes()) {
+            while (offset < end) {
+                final int ch = text.charAt(offset);
+                if (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\') {
+                    break;
+                }
+                outputBuffer[outputPtr++] = (byte) ch;
+                ++offset;
+            }
+            return offset;
+        }
+        while (offset < end) {
+            final int ch = text.charAt(offset);
+            // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
+            if (ch > 0x7F || escCodes[ch] != 0) {
+                break;
+            }
+            outputBuffer[outputPtr++] = (byte) ch;
+            ++offset;
+        }
+        return offset;
     }
 
     /**

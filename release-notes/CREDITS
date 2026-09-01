@@ -68,3 +68,8 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
    escape lands at the output buffer boundary
   (3.1.7)
+
+Francesco Nigro (@franz1981)
+ * Reported, contributed fix for #1680: Avoid per-character escape-table load in
+   `_writeStringSegment` ASCII loop
+  (3.1.7)

@@ -15,30 +15,32 @@ public final class NumberOutput
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
 
     /**
-     * Maximum number of bytes the XJB algorithm may produce for a {@code float}.
+     * Maximum number of bytes {@link #outputFloat(float, byte[], int)} may touch,
+     * including padding written by the algorithm's wide (2/4/8-byte) stores.
      * Equals {@code H + 6} where {@code H = 9} (digit count).
      * @since 3.2.2
      */
     public static final int MAX_FLOAT_BYTES = 15;
 
     /**
-     * Maximum number of bytes the XJB algorithm may produce for a {@code double}.
+     * Maximum number of bytes {@link #outputDouble(double, byte[], int)} may touch,
+     * including padding written by the algorithm's wide (2/4/8-byte) stores.
      * Equals {@code H + 7} where {@code H = 17} (digit count).
      * @since 3.2.2
      */
     public static final int MAX_DOUBLE_BYTES = 24;
 
     /**
-     * Safe buffer size (in chars) for {@link #outputDouble}, matching the
-     * allocation in {@link XJBWriter#toString(double)}.
+     * Safe buffer size (in chars) for {@link #outputDouble(double, char[], int)};
+     * conservative, as the char[] writer uses no wide stores.
      *
      * @since 3.3
      */
     public static final int MAX_DOUBLE_CHARS = 48;
 
     /**
-     * Safe buffer size (in chars) for {@link #outputFloat}, matching the
-     * allocation in {@link XJBWriter#toString(float)}.
+     * Safe buffer size (in chars) for {@link #outputFloat(float, char[], int)};
+     * conservative, as the char[] writer uses no wide stores.
      *
      * @since 3.3
      */
@@ -347,12 +349,12 @@ public final class NumberOutput
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
      * the XJB algorithm for writing floating point numbers.
      *
-     * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
-     * Callers must check with {@link #notFinite(float)} and handle those cases before
-     * calling this method.
+     * <p>Non-finite values are written as {@code NaN} / {@code Infinity} /
+     * {@code -Infinity}, which is not valid JSON: callers that need JSON-legal output
+     * must check with {@link #notFinite(float)} first.
      * </p>
      *
-     * @param v float value to write; must be finite
+     * @param v float value to write
      * @param b target byte buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} bytes available from {@code off})
      * @param off offset within buffer to start writing
      *
@@ -370,13 +372,13 @@ public final class NumberOutput
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
      * the XJB algorithm for writing floating point numbers.
      *
-     * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
-     * Callers must check with {@link #notFinite(float)} and handle those cases before
-     * calling this method.
+     * <p>Non-finite values are written as {@code NaN} / {@code Infinity} /
+     * {@code -Infinity}, which is not valid JSON: callers that need JSON-legal output
+     * must check with {@link #notFinite(float)} first.
      * </p>
      *
-     * @param v double value to write; must be finite
-     * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_CHARS} chars available from {@code off})
+     * @param v float value to write
+     * @param b target char buffer (caller must ensure at least {@link #MAX_FLOAT_CHARS} chars available from {@code off})
      * @param off offset within buffer to start writing
      *
      * @return the position just after the last char written
@@ -392,12 +394,12 @@ public final class NumberOutput
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
      * the XJB algorithm for writing floating point numbers.
      *
-     * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
-     * Callers must check with {@link #notFinite(float)} and handle those cases before
-     * calling this method.
+     * <p>Non-finite values are written as {@code NaN} / {@code Infinity} /
+     * {@code -Infinity}, which is not valid JSON: callers that need JSON-legal output
+     * must check with {@link #notFinite(double)} first.
      * </p>
      *
-     * @param v double value to write; must be finite
+     * @param v double value to write
      * @param b target byte buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} bytes available from {@code off})
      * @param off offset within buffer to start writing
      *
@@ -415,12 +417,12 @@ public final class NumberOutput
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
      * the XJB algorithm for writing floating point numbers.
      *
-     * <p><b>NOTE:</b> Does not handle non-finite values ({@code NaN}, {@code Infinity}).
-     * Callers must check with {@link #notFinite(float)} and handle those cases before
-     * calling this method.
+     * <p>Non-finite values are written as {@code NaN} / {@code Infinity} /
+     * {@code -Infinity}, which is not valid JSON: callers that need JSON-legal output
+     * must check with {@link #notFinite(double)} first.
      * </p>
      *
-     * @param v double value to write; must be finite
+     * @param v double value to write
      * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_CHARS} chars available from {@code off})
      * @param off offset within buffer to start writing
      *

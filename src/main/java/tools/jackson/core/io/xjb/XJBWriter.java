@@ -33,13 +33,13 @@ public final class XJBWriter {
     // ------------------------------------------------------------------
 
     public static String toString(float x) {
-        byte[] buf = new byte[NumberOutput.MAX_FLOAT_CHARS];
+        byte[] buf = new byte[NumberOutput.MAX_FLOAT_BYTES];
         int pos = writeFloat(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);
     }
 
     public static String toString(double x) {
-        byte[] buf = new byte[NumberOutput.MAX_DOUBLE_CHARS];
+        byte[] buf = new byte[NumberOutput.MAX_DOUBLE_BYTES];
         int pos = writeDouble(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);
     }
@@ -47,7 +47,7 @@ public final class XJBWriter {
     /**
      * Writes the decimal string representation of {@code x} into {@code buf} starting at
      * {@code from}. The buffer must have at least
-     * {@link tools.jackson.core.io.NumberOutput#MAX_FLOAT_CHARS} bytes of free space
+     * {@link tools.jackson.core.io.NumberOutput#MAX_FLOAT_BYTES} bytes of free space
      * from {@code from}.
      *
      * @return the position just after the last byte written
@@ -174,7 +174,7 @@ public final class XJBWriter {
     /**
      * Writes the decimal string representation of {@code x} into {@code buf} starting at
      * {@code from}. The buffer must have at least
-     * {@link tools.jackson.core.io.NumberOutput#MAX_DOUBLE_CHARS} bytes of free space
+     * {@link tools.jackson.core.io.NumberOutput#MAX_DOUBLE_BYTES} bytes of free space
      * from {@code from}.
      *
      * @return the position just after the last byte written
@@ -694,7 +694,11 @@ public final class XJBWriter {
 
     private static int write3Digits(int x, int pos, byte[] buf, short[] ds) {
         int q1 = (x * 1311) >> 17; // divide a small positive int by 100
-        setInt(buf, pos, (ds[x - q1 * 100] << 8) | q1 | '0');
+        // 05-Sep-2026, pjfanning: must not use a 4-byte store here: this is the last
+        //   write of the longest possible output, so overshooting by one byte would
+        //   exceed NumberOutput.MAX_DOUBLE_BYTES
+        buf[pos] = (byte) (q1 | '0');
+        setShort(buf, pos + 1, ds[x - q1 * 100]);
         return pos + 3;
     }
 

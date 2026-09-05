@@ -868,24 +868,36 @@ public class WriterBasedJsonGenerator
         final boolean useFast = isEnabled(StreamWriteFeature.USE_FAST_DOUBLE_WRITER);
         if (_cfgNumbersAsStrings ||
                 (NumberOutput.notFinite(d) && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            writeString(NumberOutput.toString(d, useFast));
+            if (useFast) {
+                _writeQuotedDouble(d);
+                return this;
+            }
+            writeString(NumberOutput.toString(d, false));
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
         if (useFast) {
-            // Direct write to output buffer when there's room
-            int room = _outputEnd - _outputTail;
-            if (room >= NumberOutput.MAX_DOUBLE_CHARS) {
-                _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
-            } else {
-                char[] tmp = new char[NumberOutput.MAX_DOUBLE_CHARS];
-                int pos = NumberOutput.outputDouble(d, tmp, 0);
-                writeRaw(tmp, 0, pos);
+            if ((_outputTail + NumberOutput.MAX_DOUBLE_CHARS) > _outputEnd) {
+                _flushBuffer();
             }
+            _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
         } else {
-            writeRaw(NumberOutput.toString(d, useFast));
+            writeRaw(NumberOutput.toString(d, false));
         }
         return this;
+    }
+
+    // Quoted equivalent of the fast path: number text is all ASCII and needs no
+    // escaping, so write it straight into the output buffer.
+    private final void _writeQuotedDouble(double d) throws JacksonException
+    {
+        _verifyValueWrite(WRITE_STRING);
+        if ((_outputTail + NumberOutput.MAX_DOUBLE_CHARS + 2) > _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
+        _outputBuffer[_outputTail++] = _quoteChar;
     }
 
     @Override
@@ -894,24 +906,34 @@ public class WriterBasedJsonGenerator
         final boolean useFast = isEnabled(StreamWriteFeature.USE_FAST_DOUBLE_WRITER);
         if (_cfgNumbersAsStrings ||
                 (NumberOutput.notFinite(f) && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            writeString(NumberOutput.toString(f, useFast));
+            if (useFast) {
+                _writeQuotedFloat(f);
+                return this;
+            }
+            writeString(NumberOutput.toString(f, false));
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
         if (useFast) {
-            // Direct write to output buffer when there's room
-            int room = _outputEnd - _outputTail;
-            if (room >= NumberOutput.MAX_FLOAT_CHARS) {
-                _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
-            } else {
-                char[] tmp = new char[NumberOutput.MAX_FLOAT_CHARS];
-                int pos = NumberOutput.outputFloat(f, tmp, 0);
-                writeRaw(tmp, 0, pos);
+            if ((_outputTail + NumberOutput.MAX_FLOAT_CHARS) > _outputEnd) {
+                _flushBuffer();
             }
+            _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
         } else {
-            writeRaw(NumberOutput.toString(f, useFast));
+            writeRaw(NumberOutput.toString(f, false));
         }
         return this;
+    }
+
+    private final void _writeQuotedFloat(float f) throws JacksonException
+    {
+        _verifyValueWrite(WRITE_STRING);
+        if ((_outputTail + NumberOutput.MAX_FLOAT_CHARS + 2) > _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
+        _outputBuffer[_outputTail++] = _quoteChar;
     }
 
     @Override

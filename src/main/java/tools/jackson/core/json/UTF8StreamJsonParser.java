@@ -1119,6 +1119,20 @@ public class UTF8StreamJsonParser
     @Override
     public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException
     {
+        return _nextNameMatch(matcher, false);
+    }
+
+    @Override
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException
+    {
+        return _nextNameMatch(matcher, true);
+    }
+
+    // On a non-negative match with `fused`, commits the value token directly
+    // (the work _nextAfterName() would otherwise do on the following
+    // nextToken() call); everything else is nextNameMatch() unchanged.
+    private int _nextNameMatch(PropertyNameMatcher matcher, boolean fused) throws JacksonException
+    {
         // // // Note: this is almost a verbatim copy of nextToken()
         _numTypesValid = NR_UNKNOWN;
         if (_currToken == JsonToken.PROPERTY_NAME) {
@@ -1196,7 +1210,12 @@ public class UTF8StreamJsonParser
         _updateLocation();
         if (i == INT_QUOTE) { // optimize commonest case, String value
             _tokenIncomplete = true;
-            _nextToken = JsonToken.VALUE_STRING;
+            if (fused && match >= 0) {
+                _nameCopied = false;
+                _updateToken(JsonToken.VALUE_STRING);
+            } else {
+                _nextToken = JsonToken.VALUE_STRING;
+            }
             return match;
         }
         JsonToken t;
@@ -1248,7 +1267,17 @@ public class UTF8StreamJsonParser
         default:
             t = _handleUnexpectedValue(i);
         }
-        _nextToken = t;
+        if (fused && match >= 0) {
+            _nameCopied = false;
+            if (t == JsonToken.START_ARRAY) {
+                createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            } else if (t == JsonToken.START_OBJECT) {
+                createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            }
+            _updateToken(t);
+        } else {
+            _nextToken = t;
+        }
         return match;
     }
 

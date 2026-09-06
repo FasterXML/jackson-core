@@ -557,6 +557,36 @@ public abstract class JsonParser
     public abstract int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException;
 
     /**
+     * Combined form of {@link #nextNameMatch(PropertyNameMatcher)} and
+     * {@link #nextToken()}: matches the next Object property name against the
+     * given matcher and, when the match succeeds (non-negative index), also
+     * advances the stream so that the current token is the property's value
+     * token. On a negative result the stream is left exactly as
+     * {@link #nextNameMatch(PropertyNameMatcher)} leaves it.
+     *<p>
+     * Callers that dispatch on the returned index and then read the value can
+     * use this instead of the two-call sequence: format backends may implement
+     * it as a single fused scan.
+     *
+     * @param matcher Matcher that will handle actual matching
+     *
+     * @return Index of the matched property name, if non-negative, or a negative error
+     *   code otherwise (see {@link PropertyNameMatcher} for details)
+     *
+     * @throws JacksonIOException for low-level read issues
+     * @throws tools.jackson.core.exc.StreamReadException for decoding problems
+     *
+     * @since 3.3
+     */
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException {
+        int match = nextNameMatch(matcher);
+        if (match >= 0) {
+            nextToken();
+        }
+        return match;
+    }
+
+    /**
      * Method that verifies that the current token (see {@link #currentToken}) is
      * {@link JsonToken#PROPERTY_NAME} and if so, further match that associated name
      * (see {@link #currentName}) to one of pre-specified (property) names.

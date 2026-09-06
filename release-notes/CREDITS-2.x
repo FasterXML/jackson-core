@@ -554,3 +554,9 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
    escape lands at the output buffer boundary
   (2.21.7)
+
+Elankumaran Srinivasan (@elang2)
+ * Contributed #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
+   surrogates in field names and string values (mirror of #1541 fix in
+   `UTF8StreamJsonParser`)
+  (2.23.0)

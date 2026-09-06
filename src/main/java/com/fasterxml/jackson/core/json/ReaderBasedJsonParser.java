@@ -1866,6 +1866,46 @@ public class ReaderBasedJsonParser
                      * For now let's assume it does not.
                      */
                     c = _decodeEscaped();
+                    // [jackson-core#1683]: Validate JSON-escaped surrogates in
+                    //   field name. Mirror of [jackson-core#1541] fix in
+                    //   UTF8StreamJsonParser.
+                    if (c >= 0xD800 && c <= 0xDFFF) {
+                        if (c < 0xDC00) { // high surrogate: must be followed by low surrogate escape
+                            char hi = c;
+                            if (_inputPtr >= _inputEnd) {
+                                if (!_loadMore()) {
+                                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                                }
+                            }
+                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr] & 0xFFFF, "field name");
+                            }
+                            ++_inputPtr;
+                            char lo = _decodeEscaped();
+                            if (lo < 0xDC00 || lo > 0xDFFF) {
+                                _reportBrokenSurrogatePair(lo, "field name");
+                            }
+                            // Store as two UTF-16 code units. Hash includes the low
+                            // surrogate below; add high surrogate here.
+                            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + hi;
+                            if (outPtr >= outBuf.length) {
+                                totalLen += outBuf.length;
+                                _streamReadConstraints.validateNameLength(totalLen);
+                                outBuf = _textBuffer.finishCurrentSegment();
+                                outPtr = 0;
+                            }
+                            outBuf[outPtr++] = hi;
+                            if (outPtr >= outBuf.length) {
+                                totalLen += outBuf.length;
+                                _streamReadConstraints.validateNameLength(totalLen);
+                                outBuf = _textBuffer.finishCurrentSegment();
+                                outPtr = 0;
+                            }
+                            c = lo;
+                        } else { // lone low surrogate
+                            _reportUnexpectedLowSurrogate(c, "field name");
+                        }
+                    }
                 } else if (i <= endChar) {
                     if (i == endChar) {
                         break;
@@ -2086,6 +2126,36 @@ public class ReaderBasedJsonParser
                     // an UTF-16 surrogate pair, does that affect decoding?
                     // For now let's assume it does not.
                     c = _decodeEscaped();
+                    // [jackson-core#1683]: Validate JSON-escaped surrogates in
+                    //   apostrophe-quoted string value.
+                    if (c >= 0xD800 && c <= 0xDFFF) {
+                        if (c < 0xDC00) { // high surrogate
+                            char hi = c;
+                            if (_inputPtr >= _inputEnd) {
+                                if (!_loadMore()) {
+                                    _reportInvalidEOF(
+                                            ": was expecting closing quote for a string value",
+                                            JsonToken.VALUE_STRING);
+                                }
+                            }
+                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr] & 0xFFFF, "string value");
+                            }
+                            ++_inputPtr;
+                            char lo = _decodeEscaped();
+                            if (lo < 0xDC00 || lo > 0xDFFF) {
+                                _reportBrokenSurrogatePair(lo, "string value");
+                            }
+                            if (outPtr >= outBuf.length) {
+                                outBuf = _textBuffer.finishCurrentSegment();
+                                outPtr = 0;
+                            }
+                            outBuf[outPtr++] = hi;
+                            c = lo;
+                        } else { // lone low surrogate
+                            _reportUnexpectedLowSurrogate(c, "string value");
+                        }
+                    }
                 } else if (i <= '\'') {
                     if (i == '\'') {
                         break;
@@ -2214,6 +2284,39 @@ public class ReaderBasedJsonParser
                      * For now let's assume it does not.
                      */
                     c = _decodeEscaped();
+                    // [jackson-core#1683]: Validate JSON-escaped surrogates in
+                    //   string value. Mirror of [jackson-core#1541] fix in
+                    //   UTF8StreamJsonParser, applied to the Reader-based path.
+                    if (c >= 0xD800 && c <= 0xDFFF) {
+                        if (c < 0xDC00) { // high surrogate: must be followed by low surrogate escape
+                            char hi = c;
+                            if (_inputPtr >= _inputEnd) {
+                                if (!_loadMore()) {
+                                    _reportInvalidEOF(
+                                            ": was expecting closing quote for a string value",
+                                            JsonToken.VALUE_STRING);
+                                }
+                            }
+                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr] & 0xFFFF, "string value");
+                            }
+                            ++_inputPtr;
+                            char lo = _decodeEscaped();
+                            if (lo < 0xDC00 || lo > 0xDFFF) {
+                                _reportBrokenSurrogatePair(lo, "string value");
+                            }
+                            // Emit high surrogate first, then fall through so the
+                            // low surrogate is appended by the normal path below.
+                            if (outPtr >= outBuf.length) {
+                                outBuf = _textBuffer.finishCurrentSegment();
+                                outPtr = 0;
+                            }
+                            outBuf[outPtr++] = hi;
+                            c = lo;
+                        } else { // lone low surrogate
+                            _reportUnexpectedLowSurrogate(c, "string value");
+                        }
+                    }
                 } else if (i < INT_SPACE) {
                     _throwUnquotedSpace(i, "string value");
                 } // anything else?
@@ -2262,7 +2365,33 @@ public class ReaderBasedJsonParser
                     // Although chars outside of BMP are to be escaped as an UTF-16 surrogate pair,
                     // does that affect decoding? For now let's assume it does not.
                     _inputPtr = inPtr;
-                    /*c = */ _decodeEscaped();
+                    char decoded = _decodeEscaped();
+                    // [jackson-core#1683]: Validate JSON-escaped surrogates even when
+                    //   the string content is being skipped, so callers that stream
+                    //   over content with `skipChildren()` still see malformed input.
+                    if (decoded >= 0xD800 && decoded <= 0xDFFF) {
+                        if (decoded < 0xDC00) { // high surrogate: must be followed by low surrogate escape
+                            char hi = decoded;
+                            if (_inputPtr >= _inputEnd) {
+                                if (!_loadMore()) {
+                                    _reportInvalidEOF(
+                                            ": was expecting closing quote for a string value",
+                                            JsonToken.VALUE_STRING);
+                                }
+                            }
+                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr] & 0xFFFF, "string value");
+                            }
+                            ++_inputPtr;
+                            char lo = _decodeEscaped();
+                            if (lo < 0xDC00 || lo > 0xDFFF) {
+                                _reportBrokenSurrogatePair(lo, "string value");
+                            }
+                        } else { // lone low surrogate
+                            _reportUnexpectedLowSurrogate(decoded, "string value");
+                        }
+                    }
+                    inBuf = _inputBuffer;
                     inPtr = _inputPtr;
                     inLen = _inputEnd;
                 } else if (i <= INT_QUOTE) {
@@ -3039,6 +3168,24 @@ public class ReaderBasedJsonParser
         }
         final String fullMsg = String.format("Unrecognized token '%s': was expecting %s", sb, msg);
         throw _constructReadException(fullMsg, loc);
+    }
+
+    // [jackson-core#1683]: helpers for reporting malformed JSON-escaped surrogate
+    //   sequences. Wording mirrors the messages introduced for UTF8StreamJsonParser
+    //   by the [jackson-core#1541] fix, extended to name the offending context.
+    private void _reportUnexpectedLowSurrogate(int lo, String ctx) throws IOException {
+        _reportError("Unexpected low surrogate in " + ctx + ": 0x" + Integer.toHexString(lo));
+    }
+
+    private void _reportUnexpectedCharAfterHighSurrogate(int next, String ctx)
+            throws IOException {
+        _reportError("Broken surrogate pair in " + ctx
+                + ": expected '\\' to start low surrogate, got 0x" + Integer.toHexString(next));
+    }
+
+    private void _reportBrokenSurrogatePair(int lo, String ctx) throws IOException {
+        _reportError(String.format(
+                "Broken surrogate pair in %s: expected low surrogate, got 0x%04X", ctx, lo));
     }
 
     /*

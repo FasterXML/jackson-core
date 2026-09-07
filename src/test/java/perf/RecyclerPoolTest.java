@@ -169,6 +169,14 @@ public class RecyclerPoolTest
             test.testPool(JsonFactory.builder()
                     .recyclerPool(JsonRecyclerPools.newBoundedPool(THREAD_COUNT - 5))
                     .build(),
+                RUNTIME_SECS),
+            test.testPool(JsonFactory.builder()
+                    .recyclerPool(JsonRecyclerPools.newStripedArrayPool())
+                    .build(),
+                RUNTIME_SECS),
+            test.testPool(JsonFactory.builder()
+                    .recyclerPool(JsonRecyclerPools.newHybridPool())
+                    .build(),
                 RUNTIME_SECS)
         );
 

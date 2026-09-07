@@ -1,10 +1,15 @@
 package tools.jackson.core.util;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.ref.SoftReference;
 import java.util.Deque;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * API for object pools that control creation and possible reuse of
@@ -24,6 +29,13 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * <li>{@link BoundedPoolBase} is "bounded pool" and retains at most N objects (default value being
  *  {@link BoundedPoolBase#DEFAULT_CAPACITY}) at any given time.
  *  </li>
+ * <li>{@link StripedArrayPoolBase} retains at most N objects in a fixed array of
+ *  atomic slots, allocation-free on both acquire and release (default slot count
+ *  being {@link StripedArrayPoolBase#DEFAULT_CAPACITY}).
+ * </li>
+ * <li>{@link HybridPoolBase} gives platform threads the {@link ThreadLocalPoolBase}
+ *  behavior and routes virtual threads to shared {@link StripedArrayPoolBase} slots.
+ * </li>
  *</ul>
  *
  *<p>
@@ -293,6 +305,233 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         public boolean clear() {
             pool.clear();
             return true;
+        }
+    }
+
+    /**
+     * {@link RecyclerPool} implementation that uses a fixed-size array of
+     * atomic slots for recycling instances: acquire takes a slot with an
+     * atomic get-and-clear (so an instance can never be handed to two
+     * acquirers), release stores into the first empty slot with compare-and-set,
+     * and both scans start from a slot indexed off the current thread id, which
+     * keeps contention and buffer reuse thread-local. Unlike
+     * {@link ConcurrentDequePoolBase} no queue node is allocated on release,
+     * and unlike {@link BoundedPoolBase} there is no lock on either path.
+     *<p>
+     * This is a "bounded" pool: it will never hold on to more pooled instances
+     * than its slot count (default {@link StripedArrayPoolBase#DEFAULT_CAPACITY});
+     * an instance released when every slot is occupied is dropped.
+     *
+     * @since 3.3
+     */
+    abstract class StripedArrayPoolBase<P extends WithPool<P>>
+        extends StatefulImplBase<P>
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Default number of slots, and so the maximum number of instances
+         * ever retained for reuse.
+         */
+        public final static int DEFAULT_CAPACITY = 16;
+
+        private final transient AtomicReferenceArray<P> _slots;
+
+        /**
+         * Bit mask for mapping a scan index onto the slot array; the slot
+         * count is always a power of two.
+         */
+        private final transient int _mask;
+
+        // // // Life-cycle (constructors, factory methods)
+
+        protected StripedArrayPoolBase(int capacityAsId) {
+            super(capacityAsId);
+            final int capacity = _powerOfTwoCapacity(capacityAsId);
+            _slots = new AtomicReferenceArray<>(capacity);
+            _mask = capacity - 1;
+        }
+
+        private static int _powerOfTwoCapacity(int capacityAsId) {
+            if (capacityAsId <= 0) {
+                return DEFAULT_CAPACITY;
+            }
+            // Round up so any positive requested size works; the mask-based
+            // slot indexing requires a power of two.
+            int capacity = Integer.highestOneBit(capacityAsId);
+            return (capacity == capacityAsId) ? capacity : (capacity << 1);
+        }
+
+        /**
+         * Slot index to start acquire/release scans from, derived from the
+         * current thread id. Different threads start at different slots, so
+         * under contention they mostly touch disjoint slots, and a thread
+         * tends to get back the instance (and so the warmed buffers) it
+         * released last.
+         */
+        private int _startingSlot() {
+            final long id = Thread.currentThread().getId();
+            final int h = (int) (id * 0x9E3779B97F4A7C15L >>> 32);
+            return h & _mask;
+        }
+
+        // // // Actual API implementation
+
+        @Override
+        public P acquirePooled() {
+            final int end = _mask;
+            final int start = _startingSlot();
+            for (int i = 0; i <= end; ++i) {
+                final int slot = (start + i) & _mask;
+                if (_slots.get(slot) != null) {
+                    P pooled = _slots.getAndSet(slot, null);
+                    if (pooled != null) {
+                        return pooled;
+                    }
+                }
+            }
+            return createPooled();
+        }
+
+        @Override
+        public void releasePooled(P pooled) {
+            final int end = _mask;
+            final int start = _startingSlot();
+            for (int i = 0; i <= end; ++i) {
+                final int slot = (start + i) & _mask;
+                if ((_slots.get(slot) == null)
+                        && _slots.compareAndSet(slot, null, pooled)) {
+                    return;
+                }
+            }
+            // All slots occupied: drop the instance. This is the retention
+            // bound that keeps the pool from growing without limit.
+        }
+
+        @Override
+        public int pooledCount() {
+            int count = 0;
+            for (int i = 0; i <= _mask; ++i) {
+                if (_slots.get(i) != null) {
+                    ++count;
+                }
+            }
+            return count;
+        }
+
+        @Override
+        public boolean clear() {
+            for (int i = 0; i <= _mask; ++i) {
+                _slots.set(i, null);
+            }
+            return true;
+        }
+
+        // // // Other methods
+
+        public int capacity() {
+            return _mask + 1;
+        }
+    }
+
+    /**
+     * {@link RecyclerPool} implementation that gives platform threads the
+     * {@link ThreadLocalPoolBase} behavior (one leave-in instance per thread,
+     * held through a {@link java.lang.ref.SoftReference}, released by doing
+     * nothing) and routes virtual threads to the {@link StripedArrayPoolBase}
+     * slots it extends. Virtual threads are typically created per task, so a
+     * per-thread instance would be abandoned after a single use; the shared
+     * slots let their instances recycle across threads.
+     *<p>
+     * On runtimes without virtual threads (JDK before 21, Android) every
+     * thread takes the platform path, which makes this pool behave exactly
+     * like {@link ThreadLocalPoolBase}. The virtual-thread check goes through
+     * a {@link MethodHandle} resolved once per JVM, so it does not require
+     * {@code Thread.isVirtual()} to exist at run time (and this class does
+     * not reference it at compile time).
+     *
+     * @since 3.3
+     */
+    abstract class HybridPoolBase<P extends WithPool<P>>
+        extends StripedArrayPoolBase<P>
+    {
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * {@code Thread#isVirtual()} when the runtime has it, {@code null}
+         * when it does not (JDK before 21, Android).
+         */
+        private static final MethodHandle IS_VIRTUAL = _findIsVirtual();
+
+        private static MethodHandle _findIsVirtual() {
+            try {
+                return MethodHandles.publicLookup().findVirtual(Thread.class,
+                        "isVirtual", MethodType.methodType(boolean.class));
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return null;
+            }
+        }
+
+        protected static boolean _isVirtual(Thread thread) {
+            if (IS_VIRTUAL != null) {
+                try {
+                    return (boolean) IS_VIRTUAL.invokeExact(thread);
+                } catch (Throwable t) {
+                    // Cannot happen: the handle is exact and isVirtual does
+                    // not throw. Treat as platform thread if it somehow does.
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Per-platform-thread leave-in instance, exactly as
+         * {@link ThreadLocalPoolBase} keeps it. Rebuilt via
+         * {@code readResolve} on deserialization, like the slot array.
+         */
+        private final transient ThreadLocal<SoftReference<P>> _perThread = new ThreadLocal<>();
+
+        protected HybridPoolBase(int capacityAsId) {
+            super(capacityAsId);
+        }
+
+        // // // Actual API implementation
+
+        @Override
+        public P acquireAndLinkPooled() {
+            if (_isVirtual(Thread.currentThread())) {
+                return acquirePooled().withPool(this);
+            }
+            SoftReference<P> ref = _perThread.get();
+            P pooled = (ref == null) ? null : ref.get();
+            if (pooled == null) {
+                pooled = createPooled();
+                _perThread.set(new SoftReference<>(pooled));
+            }
+            // Not linked: releaseToPool() is then a no-op, the instance stays
+            // in the ThreadLocal, and no other thread ever sees it.
+            return pooled;
+        }
+
+        /**
+         * Counts the shared (virtual-thread) slots only; per-thread leave-in
+         * instances are not tracked, as with {@link ThreadLocalPoolBase}.
+         */
+        @Override
+        public int pooledCount() {
+            return super.pooledCount();
+        }
+
+        /**
+         * Drops the contents of the shared (virtual-thread) slots, but
+         * returns {@code false} because the per-thread leave-in instances are
+         * not tracked and cannot be dropped, as with
+         * {@link ThreadLocalPoolBase}.
+         */
+        @Override
+        public boolean clear() {
+            super.clear();
+            return false;
         }
     }
 

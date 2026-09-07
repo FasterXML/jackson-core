@@ -9,8 +9,13 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.util.JsonRecyclerPools;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -21,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 class LargeNumberReadTest
     extends tools.jackson.core.unittest.JacksonCoreTestBase
 {
+    private final static int STRICT_MAX_NUM_LEN = 1_000;
+    private final static int OVERSIZED_INT_LEN = 100_000;
+
     private final JsonFactory JSON_F = newStreamFactory();
 
     /*
@@ -87,6 +95,29 @@ class LargeNumberReadTest
         _testBigBigDecimals(MODE_DATA_INPUT, true);
     }
 
+    @Test
+    void tooLongDecimalIntegerFailsBeforeFullBuffering() throws Exception
+    {
+        assertAll(
+                () -> _testTooLongDecimalIntegerFailsBeforeFullBuffering("InputStream", MODE_INPUT_STREAM),
+                () -> _testTooLongDecimalIntegerFailsBeforeFullBuffering("Reader", MODE_READER),
+                () -> _testTooLongDecimalIntegerFailsBeforeFullBuffering("DataInput", MODE_DATA_INPUT)
+        );
+    }
+
+    @Test
+    void decimalIntegerAtMaxLengthStillPasses() throws Exception
+    {
+        assertAll(
+                () -> _testDecimalIntegerAtMaxLengthStillPasses(MODE_INPUT_STREAM, false),
+                () -> _testDecimalIntegerAtMaxLengthStillPasses(MODE_INPUT_STREAM, true),
+                () -> _testDecimalIntegerAtMaxLengthStillPasses(MODE_READER, false),
+                () -> _testDecimalIntegerAtMaxLengthStillPasses(MODE_READER, true),
+                () -> _testDecimalIntegerAtMaxLengthStillPasses(MODE_DATA_INPUT, false),
+                () -> _testDecimalIntegerAtMaxLengthStillPasses(MODE_DATA_INPUT, true)
+        );
+    }
+
     private void _testBigBigDecimals(final int mode, final boolean enableUnlimitedNumberLen) throws Exception
     {
         final String BASE_FRACTION =
@@ -136,6 +167,91 @@ class LargeNumberReadTest
                 final BigDecimal exp = new BigDecimal(asText);
                 assertEquals(exp, p.getDecimalValue());
             }
+        }
+    }
+
+    private void _testTooLongDecimalIntegerFailsBeforeFullBuffering(String modeDesc, final int mode)
+        throws Exception
+    {
+        RecordingStreamReadConstraints constraints =
+                new RecordingStreamReadConstraints(STRICT_MAX_NUM_LEN);
+
+        try (JsonParser p = createParserForLongDecimalInteger(mode, constraints)) {
+            StreamConstraintsException e = assertThrows(StreamConstraintsException.class,
+                    () -> p.nextToken());
+            verifyException(e, "Number value length (");
+            verifyException(e, "exceeds the maximum allowed");
+        }
+
+        int failingIntegerLength = constraints.failingIntegerLength();
+        assertTrue(failingIntegerLength > 0,
+                modeDesc + " did not record failing integer length validation");
+        assertTrue(failingIntegerLength < (OVERSIZED_INT_LEN / 10),
+                modeDesc + " integer length validation occurred too late: "
+                        + failingIntegerLength + " digits for "
+                        + OVERSIZED_INT_LEN + "-digit input");
+    }
+
+    private void _testDecimalIntegerAtMaxLengthStillPasses(final int mode, boolean negative)
+        throws Exception
+    {
+        final String digits = repeatDigit('7', STRICT_MAX_NUM_LEN);
+        final String value = negative ? ("-" + digits) : digits;
+        JsonFactory f = JsonFactory.builder()
+                .recyclerPool(JsonRecyclerPools.nonRecyclingPool())
+                .streamReadConstraints(StreamReadConstraints.builder()
+                        .maxNumberLength(STRICT_MAX_NUM_LEN)
+                        .build())
+                .build();
+
+        try (JsonParser p = createParser(f, mode, value + " ")) {
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(value, p.getString());
+            assertNull(p.nextToken());
+        }
+    }
+
+    private JsonParser createParserForLongDecimalInteger(final int mode,
+            RecordingStreamReadConstraints constraints)
+    {
+        final String doc = repeatDigit('1', OVERSIZED_INT_LEN) + " ";
+        final JsonFactory f = JsonFactory.builder()
+                .recyclerPool(JsonRecyclerPools.nonRecyclingPool())
+                .streamReadConstraints(constraints)
+                .build();
+        return createParser(f, mode, doc);
+    }
+
+    private static String repeatDigit(char digit, int count) {
+        char[] chars = new char[count];
+        for (int i = 0; i < count; ++i) {
+            chars[i] = digit;
+        }
+        return new String(chars);
+    }
+
+    private static final class RecordingStreamReadConstraints
+        extends StreamReadConstraints
+    {
+        private int _failingIntegerLength;
+
+        RecordingStreamReadConstraints(int maxNumLen) {
+            super(DEFAULT_MAX_DEPTH, DEFAULT_MAX_DOC_LEN, DEFAULT_MAX_TOKEN_COUNT,
+                    maxNumLen, DEFAULT_MAX_STRING_LEN, DEFAULT_MAX_NAME_LEN);
+        }
+
+        @Override
+        public void validateIntegerLength(int length) throws StreamConstraintsException {
+            try {
+                super.validateIntegerLength(length);
+            } catch (StreamConstraintsException e) {
+                _failingIntegerLength = length;
+                throw e;
+            }
+        }
+
+        int failingIntegerLength() {
+            return _failingIntegerLength;
         }
     }
 }

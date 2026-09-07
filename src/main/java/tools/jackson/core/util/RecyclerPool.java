@@ -457,31 +457,43 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
     {
         private static final long serialVersionUID = 1L;
 
-        /**
-         * {@code Thread#isVirtual()} when the runtime has it, {@code null}
-         * when it does not (JDK before 21, Android).
-         */
-        private static final MethodHandle IS_VIRTUAL = _findIsVirtual();
+        // 07-Sep-2026, steven: [core#1687] every java.lang.invoke reference
+        //   lives in this nested holder, and the one call site catches
+        //   Throwable, so a runtime without method-handle support (Android
+        //   before API 26) degrades to the platform path instead of failing:
+        //   loading, initializing, or executing the holder can throw
+        //   LinkageError there, and all of it lands in the same handler.
+        private static final class VirtualProbe {
+            /**
+             * {@code Thread#isVirtual()} when the runtime has it,
+             * {@code null} when it does not (JDK before 21, Android).
+             */
+            static final MethodHandle IS_VIRTUAL = _findIsVirtual();
 
-        private static MethodHandle _findIsVirtual() {
-            try {
-                return MethodHandles.publicLookup().findVirtual(Thread.class,
-                        "isVirtual", MethodType.methodType(boolean.class));
-            } catch (ReflectiveOperationException | RuntimeException e) {
-                return null;
+            private VirtualProbe() {}
+
+            private static MethodHandle _findIsVirtual() {
+                try {
+                    return MethodHandles.publicLookup().findVirtual(Thread.class,
+                            "isVirtual", MethodType.methodType(boolean.class));
+                } catch (Throwable t) {
+                    return null;
+                }
+            }
+
+            static boolean isVirtual(Thread thread) throws Throwable {
+                return (IS_VIRTUAL != null) && (boolean) IS_VIRTUAL.invokeExact(thread);
             }
         }
 
         protected static boolean _isVirtual(Thread thread) {
-            if (IS_VIRTUAL != null) {
-                try {
-                    return (boolean) IS_VIRTUAL.invokeExact(thread);
-                } catch (Throwable t) {
-                    // Cannot happen: the handle is exact and isVirtual does
-                    // not throw. Treat as platform thread if it somehow does.
-                }
+            try {
+                return VirtualProbe.isVirtual(thread);
+            } catch (Throwable t) {
+                // No method-handle support (or, in principle, an exact-handle
+                // invocation failure): treat as a platform thread.
+                return false;
             }
-            return false;
         }
 
         /**

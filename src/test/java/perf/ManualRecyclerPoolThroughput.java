@@ -24,21 +24,49 @@ import tools.jackson.core.util.RecyclerPool;
 /**
  * Manually-run throughput comparison of the {@link RecyclerPool}
  * implementations under contention: N platform threads (and, on JDK 21+,
- * N virtual threads in a second pass) do small write+read cycles for a fixed
+ * virtual threads in two more passes) do small write+read cycles for a fixed
  * time per pool, and the harness prints operations per second.
+ *<p>
+ * The two virtual-thread passes cover different lifecycles. The long-lived
+ * pass keeps N virtual threads looping, so per-thread state survives across
+ * cycles. The per-task pass starts a fresh virtual thread for every cycle
+ * (N in flight at a time) - the thread-per-task lifecycle that abandons any
+ * per-thread pool state after a single use, which is the case a shared
+ * structure for virtual threads exists for.
+ *<p>
+ * Usage: {@code ManualRecyclerPoolThroughput [threads [warmupSecs [measureSecs]]]}
+ * (defaults: 4, 5, 10).
  *<p>
  * Indicative numbers only: single fork, no statistical protocol. For
  * publishable comparisons use a paired JMH setup.
  */
 public class ManualRecyclerPoolThroughput
 {
-    final static int THREAD_COUNT = 4;
+    private enum Lifecycle {
+        PLATFORM,
+        VIRTUAL_LONG_LIVED,
+        VIRTUAL_PER_TASK
+    }
 
-    final static int WARMUP_SECS = 5;
+    final int _threadCount;
+    final int _warmupSecs;
+    final int _measureSecs;
 
-    final static int MEASURE_SECS = 10;
+    ManualRecyclerPoolThroughput(int threadCount, int warmupSecs, int measureSecs) {
+        _threadCount = threadCount;
+        _warmupSecs = warmupSecs;
+        _measureSecs = measureSecs;
+    }
 
     public static void main(String[] args) throws Exception
+    {
+        final int threads = (args.length > 0) ? Integer.parseInt(args[0]) : 4;
+        final int warmupSecs = (args.length > 1) ? Integer.parseInt(args[1]) : 5;
+        final int measureSecs = (args.length > 2) ? Integer.parseInt(args[2]) : 10;
+        new ManualRecyclerPoolThroughput(threads, warmupSecs, measureSecs).run();
+    }
+
+    void run() throws Exception
     {
         Map<String, RecyclerPool<BufferRecycler>> pools = new LinkedHashMap<>();
         pools.put("nonRecycling", JsonRecyclerPools.nonRecyclingPool());
@@ -48,55 +76,80 @@ public class ManualRecyclerPoolThroughput
         pools.put("stripedArray", JsonRecyclerPools.newStripedArrayPool());
         pools.put("hybrid", JsonRecyclerPools.newHybridPool());
 
-        System.out.printf("Platform threads (%d):%n", THREAD_COUNT);
-        for (Map.Entry<String, RecyclerPool<BufferRecycler>> e : pools.entrySet()) {
-            long opsPerSec = runPass(e.getValue(), false);
-            System.out.printf(" * %-16s %,12d ops/s%n", e.getKey(), opsPerSec);
-        }
+        System.out.printf("Platform threads (%d):%n", _threadCount);
+        runPools(pools, Lifecycle.PLATFORM);
 
         if (virtualThreadsAvailable()) {
-            System.out.printf("%nVirtual threads (%d):%n", THREAD_COUNT);
-            for (Map.Entry<String, RecyclerPool<BufferRecycler>> e : pools.entrySet()) {
-                long opsPerSec = runPass(e.getValue(), true);
-                System.out.printf(" * %-16s %,12d ops/s%n", e.getKey(), opsPerSec);
-            }
+            System.out.printf("%nVirtual threads, long-lived (%d):%n", _threadCount);
+            runPools(pools, Lifecycle.VIRTUAL_LONG_LIVED);
+            System.out.printf("%nVirtual threads, per-task (%d in flight):%n", _threadCount);
+            runPools(pools, Lifecycle.VIRTUAL_PER_TASK);
         } else {
             System.out.println("\n(virtual threads unavailable; platform pass only)");
         }
     }
 
-    private static long runPass(RecyclerPool<BufferRecycler> pool, boolean virtual)
+    private void runPools(Map<String, RecyclerPool<BufferRecycler>> pools,
+            Lifecycle lifecycle)
+        throws Exception
+    {
+        for (Map.Entry<String, RecyclerPool<BufferRecycler>> e : pools.entrySet()) {
+            long opsPerSec = runPass(e.getValue(), lifecycle);
+            System.out.printf(" * %-16s %,12d ops/s%n", e.getKey(), opsPerSec);
+        }
+    }
+
+    private long runPass(RecyclerPool<BufferRecycler> pool, Lifecycle lifecycle)
         throws Exception
     {
         JsonFactory jsonF = JsonFactory.builder().recyclerPool(pool).build();
-        runThreads(jsonF, virtual, WARMUP_SECS, new AtomicLong());
+        runThreads(jsonF, lifecycle, _warmupSecs, new AtomicLong());
         AtomicLong ops = new AtomicLong();
-        runThreads(jsonF, virtual, MEASURE_SECS, ops);
-        return ops.get() / MEASURE_SECS;
+        runThreads(jsonF, lifecycle, _measureSecs, ops);
+        return ops.get() / _measureSecs;
     }
 
-    private static void runThreads(JsonFactory jsonF, boolean virtual,
+    private void runThreads(JsonFactory jsonF, Lifecycle lifecycle,
             int seconds, AtomicLong ops)
         throws Exception
     {
         final long endMsecs = System.currentTimeMillis()
                 + TimeUnit.SECONDS.toMillis(seconds);
-        final CountDownLatch done = new CountDownLatch(THREAD_COUNT);
+        final CountDownLatch done = new CountDownLatch(_threadCount);
         List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < THREAD_COUNT; ++i) {
+        for (int i = 0; i < _threadCount; ++i) {
             Runnable work = () -> {
                 try {
-                    while (System.currentTimeMillis() < endMsecs) {
-                        oneCycle(jsonF);
-                        ops.incrementAndGet();
+                    if (lifecycle == Lifecycle.VIRTUAL_PER_TASK) {
+                        // Fresh virtual thread per cycle: pool interactions
+                        // happen on a thread that dies after one use.
+                        while (System.currentTimeMillis() < endMsecs) {
+                            Thread vt = startVirtualThread(() -> {
+                                try {
+                                    oneCycle(jsonF);
+                                } catch (Exception e) {
+                                    System.err.println("ERROR: worker failed: "+e);
+                                }
+                            });
+                            vt.join();
+                            ops.incrementAndGet();
+                        }
+                    } else {
+                        while (System.currentTimeMillis() < endMsecs) {
+                            oneCycle(jsonF);
+                            ops.incrementAndGet();
+                        }
                     }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 } catch (Exception e) {
                     System.err.println("ERROR: worker failed: "+e);
                 } finally {
                     done.countDown();
                 }
             };
-            threads.add(virtual ? startVirtualThread(work) : startPlatformThread(work));
+            threads.add((lifecycle == Lifecycle.VIRTUAL_LONG_LIVED)
+                    ? startVirtualThread(work) : startPlatformThread(work));
         }
         done.await();
         for (Thread t : threads) {

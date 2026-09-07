@@ -1601,6 +1601,7 @@ public class ReaderBasedJsonParser
         while (c >= '0' && c <= '9') {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }

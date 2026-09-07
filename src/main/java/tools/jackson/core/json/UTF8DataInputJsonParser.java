@@ -1082,6 +1082,7 @@ public class UTF8DataInputJsonParser
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1150,6 +1151,7 @@ public class UTF8DataInputJsonParser
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }

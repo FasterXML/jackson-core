@@ -1956,12 +1956,13 @@ public class UTF8StreamJsonParser
                 }
                 break;
             }
+            ++intPartLength;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intPartLength);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
             outBuf[outPtr++] = (char) c;
-            ++intPartLength;
         }
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);

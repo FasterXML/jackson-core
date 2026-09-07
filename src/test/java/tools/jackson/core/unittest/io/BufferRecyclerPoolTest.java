@@ -46,6 +46,18 @@ class BufferRecyclerPoolTest extends JacksonCoreTestBase
     }
 
     @Test
+    void stripedArray() throws Exception {
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newStripedArrayPool(), true, true);
+    }
+
+    @Test
+    void hybrid() throws Exception {
+        // clear() returns false: the platform-thread leave-in instances cannot
+        // be dropped (same as the ThreadLocal pool)
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newHybridPool(), true, false);
+    }
+
+    @Test
     void boundedPoolDoesNotExceedCapacity() {
         RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newBoundedPool(2);
 

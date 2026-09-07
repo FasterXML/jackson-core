@@ -6,7 +6,7 @@ import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
 
 /**
  * Internal Jackson Helper class used to implement more optimized parsing of
- * {@link BigDecimal} for REALLY big values (over 500 characters).
+ * {@link BigDecimal} for REALLY big values (200 characters or longer).
  *<p>
  * This class is not meant to be used directly. It is designed to be used by Jackson JSON parsers (and parsers
  * for other Jackson supported data formats). The parsers check for invalid characters and the length of the number.
@@ -22,7 +22,7 @@ import ch.randelshofer.fastdoubleparser.JavaBigDecimalParser;
 public final class BigDecimalParser
 {
     final static int MAX_CHARS_TO_REPORT = 1000;
-    private final static int SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER = 500;
+    private final static int SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER = 200;
 
     private BigDecimalParser() {}
 

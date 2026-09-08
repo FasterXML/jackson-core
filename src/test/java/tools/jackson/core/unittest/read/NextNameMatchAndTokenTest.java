@@ -7,8 +7,14 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.filter.FilteringParserDelegate;
+import tools.jackson.core.filter.JsonPointerBasedFilter;
+import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.sym.PropertyNameMatcher;
+import tools.jackson.core.util.JsonParserDelegate;
+import tools.jackson.core.util.JsonParserSequence;
 import tools.jackson.core.util.Named;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
 
@@ -108,6 +114,79 @@ class NextNameMatchAndTokenTest extends JacksonCoreTestBase
                     twoCall.skipChildren();
                 }
             }
+        }
+    }
+
+    // [core#1688]: delegating parsers must not lose state via default delegation
+
+    @Test
+    void fusedMatchViaParserDelegate() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            PropertyNameMatcher m = matcher();
+            try (JsonParser p = new JsonParserDelegate(createParser(JSON_F, mode, DOC))) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+                assertEquals(0, p.nextNameMatchAndToken(m));
+                assertToken(JsonToken.VALUE_STRING, p.currentToken());
+                assertEquals("x", p.getString());
+
+                assertEquals(1, p.nextNameMatchAndToken(m));
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
+                assertEquals(123, p.getIntValue());
+            }
+        }
+    }
+
+    @Test
+    void fusedMatchViaParserSequence() throws Exception
+    {
+        PropertyNameMatcher m = matcher();
+        JsonParser p1 = JSON_F.createParser(ObjectReadContext.empty(), a2q("{'a':'x'}"));
+        JsonParser p2 = JSON_F.createParser(ObjectReadContext.empty(), a2q("{'b':123}"));
+        try (JsonParser p = JsonParserSequence.createFlattened(false, p1, p2)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+            assertEquals(0, p.nextNameMatchAndToken(m));
+            assertToken(JsonToken.VALUE_STRING, p.currentToken());
+            assertEquals("x", p.getString());
+
+            assertEquals(PropertyNameMatcher.MATCH_END_OBJECT, p.nextNameMatchAndToken(m));
+
+            // and this is where the second parser must be switched to
+            assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatchAndToken(m));
+            assertToken(JsonToken.START_OBJECT, p.currentToken());
+
+            assertEquals(1, p.nextNameMatchAndToken(m));
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
+            assertEquals(123, p.getIntValue());
+
+            assertEquals(PropertyNameMatcher.MATCH_END_OBJECT, p.nextNameMatchAndToken(m));
+        }
+    }
+
+    @Test
+    void fusedMatchViaFilteringDelegate() throws Exception
+    {
+        PropertyNameMatcher m = matcher();
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(),
+                a2q("{'skip':1,'ob':{'a':'x','b':123}}"));
+        try (JsonParser p = new FilteringParserDelegate(p0,
+                new JsonPointerBasedFilter("/ob"),
+                TokenFilter.Inclusion.ONLY_INCLUDE_ALL, false)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+            assertEquals(0, p.nextNameMatchAndToken(m));
+            assertToken(JsonToken.VALUE_STRING, p.currentToken());
+            assertEquals("x", p.getString());
+
+            assertEquals(1, p.nextNameMatchAndToken(m));
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
+            assertEquals(123, p.getIntValue());
+
+            assertEquals(PropertyNameMatcher.MATCH_END_OBJECT, p.nextNameMatchAndToken(m));
+            assertToken(JsonToken.END_OBJECT, p.currentToken());
+            assertNull(p.nextToken());
         }
     }
 }

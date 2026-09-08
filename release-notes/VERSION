@@ -27,7 +27,7 @@ JSON library.
 #1664: UTF-8 byte-backed parsers report raw byte instead of decoded character
   for invalid root-value separator
  (reported, fix by DongNyoung L)
-#1686: Synchronous decimal integer parsing buffers oversized values before
+#1686: Synchronous decimal number parsing buffers oversized values before
   `maxNumberLength` validation
  (reported, fix by DongNyoung L)
 

@@ -1644,6 +1644,9 @@ public class ReaderBasedJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer;
+                    //   `expLen` still -1 ("none") here so must not over-estimate
+                    _streamReadConstraints.validateFPLength(intLen + fractLen - 1);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1686,6 +1689,7 @@ public class ReaderBasedJsonParser
             while (c <= INT_9 && c >= INT_0) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }

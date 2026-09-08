@@ -118,6 +118,36 @@ class LargeNumberReadTest
         );
     }
 
+    @Test
+    void tooLongDecimalFloatFailsBeforeFullBuffering() throws Exception
+    {
+        assertAll(
+                () -> _testTooLongDecimalFPFailsBeforeFullBuffering("InputStream/fraction", MODE_INPUT_STREAM, false),
+                () -> _testTooLongDecimalFPFailsBeforeFullBuffering("InputStream/fraction (throttled)", MODE_INPUT_STREAM_THROTTLED, false),
+                () -> _testTooLongDecimalFPFailsBeforeFullBuffering("Reader/fraction", MODE_READER, false),
+                () -> _testTooLongDecimalFPFailsBeforeFullBuffering("Reader/fraction (throttled)", MODE_READER_THROTTLED, false),
+                () -> _testTooLongDecimalFPFailsBeforeFullBuffering("DataInput/fraction", MODE_DATA_INPUT, false),
+                () -> _testTooLongDecimalFPFailsBeforeFullBuffering("InputStream/exponent", MODE_INPUT_STREAM, true),
+                () -> _testTooLongDecimalFPFailsBeforeFullBuffering("Reader/exponent", MODE_READER, true),
+                () -> _testTooLongDecimalFPFailsBeforeFullBuffering("DataInput/exponent", MODE_DATA_INPUT, true)
+        );
+    }
+
+    @Test
+    void decimalFloatAtMaxLengthStillPasses() throws Exception
+    {
+        assertAll(
+                () -> _testDecimalFloatAtMaxLengthStillPasses(MODE_INPUT_STREAM, false),
+                () -> _testDecimalFloatAtMaxLengthStillPasses(MODE_INPUT_STREAM, true),
+                () -> _testDecimalFloatAtMaxLengthStillPasses(MODE_INPUT_STREAM_THROTTLED, false),
+                () -> _testDecimalFloatAtMaxLengthStillPasses(MODE_READER, false),
+                () -> _testDecimalFloatAtMaxLengthStillPasses(MODE_READER, true),
+                () -> _testDecimalFloatAtMaxLengthStillPasses(MODE_READER_THROTTLED, false),
+                () -> _testDecimalFloatAtMaxLengthStillPasses(MODE_DATA_INPUT, false),
+                () -> _testDecimalFloatAtMaxLengthStillPasses(MODE_DATA_INPUT, true)
+        );
+    }
+
     private void _testBigBigDecimals(final int mode, final boolean enableUnlimitedNumberLen) throws Exception
     {
         final String BASE_FRACTION =
@@ -211,6 +241,55 @@ class LargeNumberReadTest
         }
     }
 
+    // [core#1686]: oversized fraction/exponent must be caught while buffering, not after
+    private void _testTooLongDecimalFPFailsBeforeFullBuffering(String modeDesc, final int mode,
+            boolean exponent)
+        throws Exception
+    {
+        RecordingStreamReadConstraints constraints =
+                new RecordingStreamReadConstraints(STRICT_MAX_NUM_LEN);
+        final String doc = (exponent ? "1e" : "1.") + repeatDigit('1', OVERSIZED_INT_LEN) + " ";
+        final JsonFactory f = JsonFactory.builder()
+                .recyclerPool(JsonRecyclerPools.nonRecyclingPool())
+                .streamReadConstraints(constraints)
+                .build();
+
+        try (JsonParser p = createParser(f, mode, doc)) {
+            StreamConstraintsException e = assertThrows(StreamConstraintsException.class,
+                    () -> p.nextToken());
+            verifyException(e, "Number value length (");
+            verifyException(e, "exceeds the maximum allowed");
+        }
+
+        int failingLength = constraints.failingFPLength();
+        assertTrue(failingLength > 0,
+                modeDesc + " did not record failing FP length validation");
+        assertTrue(failingLength < (OVERSIZED_INT_LEN / 10),
+                modeDesc + " FP length validation occurred too late: "
+                        + failingLength + " digits for "
+                        + OVERSIZED_INT_LEN + "-digit input");
+    }
+
+    private void _testDecimalFloatAtMaxLengthStillPasses(final int mode, boolean negative)
+        throws Exception
+    {
+        // Total length (int + fraction) exactly at maximum:
+        final String digits = "1." + repeatDigit('7', STRICT_MAX_NUM_LEN - 1);
+        final String value = negative ? ("-" + digits) : digits;
+        JsonFactory f = JsonFactory.builder()
+                .recyclerPool(JsonRecyclerPools.nonRecyclingPool())
+                .streamReadConstraints(StreamReadConstraints.builder()
+                        .maxNumberLength(STRICT_MAX_NUM_LEN)
+                        .build())
+                .build();
+
+        try (JsonParser p = createParser(f, mode, value + " ")) {
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(new BigDecimal(value), p.getDecimalValue());
+            assertNull(p.nextToken());
+        }
+    }
+
     private JsonParser createParserForLongDecimalInteger(final int mode,
             RecordingStreamReadConstraints constraints)
     {
@@ -234,6 +313,7 @@ class LargeNumberReadTest
         extends StreamReadConstraints
     {
         private int _failingIntegerLength;
+        private int _failingFPLength;
 
         RecordingStreamReadConstraints(int maxNumLen) {
             super(DEFAULT_MAX_DEPTH, DEFAULT_MAX_DOC_LEN, DEFAULT_MAX_TOKEN_COUNT,
@@ -250,8 +330,22 @@ class LargeNumberReadTest
             }
         }
 
+        @Override
+        public void validateFPLength(int length) throws StreamConstraintsException {
+            try {
+                super.validateFPLength(length);
+            } catch (StreamConstraintsException e) {
+                _failingFPLength = length;
+                throw e;
+            }
+        }
+
         int failingIntegerLength() {
             return _failingIntegerLength;
+        }
+
+        int failingFPLength() {
+            return _failingFPLength;
         }
     }
 }

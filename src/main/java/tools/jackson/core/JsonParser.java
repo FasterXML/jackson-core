@@ -567,6 +567,13 @@ public abstract class JsonParser
      * Callers that dispatch on the returned index and then read the value can
      * use this instead of the two-call sequence: format backends may implement
      * it as a single fused scan.
+     *<p>
+     * NOTE: with non-blocking (async) parsers the value token may not be
+     * available even when the name matched: the current token will then be
+     * {@link JsonToken#NOT_AVAILABLE}, and the value only becomes readable
+     * after more input is fed and {@link #nextToken()} called again.
+     * Callers of such parsers must check {@link #currentToken()} instead of
+     * assuming a non-negative result means the value is ready.
      *
      * @param matcher Matcher that will handle actual matching
      *

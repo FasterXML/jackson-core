@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.filter.FilteringParserDelegate;
 import tools.jackson.core.filter.JsonPointerBasedFilter;
 import tools.jackson.core.filter.TokenFilter;
@@ -189,6 +190,28 @@ class NextNameMatchAndTokenTest extends JacksonCoreTestBase
             assertEquals(PropertyNameMatcher.MATCH_END_OBJECT, p.nextNameMatchAndToken(m));
             assertToken(JsonToken.END_OBJECT, p.currentToken());
             assertNull(p.nextToken());
+        }
+    }
+
+    // Non-blocking parsers cannot guarantee the value token is available even
+    // on a match: verify the documented `NOT_AVAILABLE` behavior
+    @Test
+    void fusedMatchWithNonBlockingParser() throws Exception
+    {
+        PropertyNameMatcher m = matcher();
+        final byte[] doc = utf8Bytes(a2q("{'b':1234}"));
+        try (JsonParser p = JSON_F.createNonBlockingByteArrayParser(ObjectReadContext.empty())) {
+            ByteArrayFeeder feeder = (ByteArrayFeeder) p.nonBlockingInputFeeder();
+            // just `{"b":`, that is, name but no value yet
+            feeder.feedInput(doc, 0, 5);
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+            assertEquals(1, p.nextNameMatchAndToken(m));
+            assertToken(JsonToken.NOT_AVAILABLE, p.currentToken());
+
+            feeder.feedInput(doc, 5, doc.length);
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(1234, p.getIntValue());
         }
     }
 }

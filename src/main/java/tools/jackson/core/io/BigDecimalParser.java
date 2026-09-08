@@ -23,7 +23,7 @@ public final class BigDecimalParser
 {
     final static int MAX_CHARS_TO_REPORT = 1000;
  
-    // 200 since Jackson 3.3 (see [core#1689])
+    // 200 since Jackson 3.3 (see [core#1685])
     private final static int SIZE_FOR_SWITCH_TO_FASTDOUBLEPARSER = 200;
 
     private BigDecimalParser() {}

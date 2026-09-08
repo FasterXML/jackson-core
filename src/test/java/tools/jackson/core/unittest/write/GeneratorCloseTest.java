@@ -186,4 +186,35 @@ class GeneratorCloseTest extends JacksonCoreTestBase
         g.close();
         assertEquals(2, bytes.toByteArray().length);
     }
+
+    // Content buffered by the encoding Writer Jackson creates for non-UTF-8
+    // OutputStream targets must not be lost, even when generator is configured
+    // to neither close nor flush the caller-owned stream
+    @Test
+    void nonUtf8OutputStreamNotLosingContent() throws Exception
+    {
+        for (JsonEncoding enc : new JsonEncoding[] {
+                JsonEncoding.UTF16_BE, JsonEncoding.UTF16_LE,
+                JsonEncoding.UTF32_BE, JsonEncoding.UTF32_LE }) {
+            for (boolean autoClose : new boolean[] { true, false }) {
+                for (boolean flush : new boolean[] { true, false }) {
+                    JsonFactory f = JsonFactory.builder()
+                            .configure(StreamWriteFeature.AUTO_CLOSE_TARGET, autoClose)
+                            .configure(StreamWriteFeature.FLUSH_PASSED_TO_STREAM, flush)
+                            .build();
+                    ByteOutputStreamForTesting output = new ByteOutputStreamForTesting();
+                    JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output, enc);
+                    g.writeStartObject();
+                    g.writeNumberProperty("a", 1);
+                    g.writeEndObject();
+                    g.close();
+
+                    String desc = enc+", autoClose="+autoClose+", flush="+flush;
+                    assertEquals("{\"a\":1}",
+                            new String(output.toByteArray(), enc.getJavaName()), desc);
+                    assertEquals(autoClose, output.isClosed(), desc);
+                }
+            }
+        }
+    }
 }

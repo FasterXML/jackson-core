@@ -217,7 +217,7 @@ public abstract class TextualTSFactory
         }
         return _decorate(
                 _createGenerator(writeCtxt, ioCtxt,
-                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                        ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
         );
     }
 
@@ -245,7 +245,7 @@ public abstract class TextualTSFactory
         }
         return _decorate(
                 _createGenerator(writeCtxt, ioCtxt,
-                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                        ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
         );
     }
 
@@ -263,7 +263,7 @@ public abstract class TextualTSFactory
         }
         return _decorate(
                 _createGenerator(writeCtxt, ioCtxt,
-                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                        ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
         );
     }
 

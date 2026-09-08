@@ -8,6 +8,7 @@ import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
+import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.*;
 
 import static tools.jackson.core.JsonTokenId.*;
@@ -1035,6 +1036,26 @@ public class ReaderBasedJsonParser
         }
         _nextToken = t;
         return name;
+    }
+
+    // 07-Sep-2026, tatu: [core#1688] On a match, commit the value token that
+    //    `nextName()` already classified into `_nextToken`, instead of paying
+    //    for a separate `nextToken()` call
+    @Override
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException
+    {
+        String name = nextName();
+        if (name != null) {
+            int match = matcher.matchName(name);
+            if (match >= 0) {
+                _nextAfterName();
+            }
+            return match;
+        }
+        if (_currToken == JsonToken.END_OBJECT) {
+            return PropertyNameMatcher.MATCH_END_OBJECT;
+        }
+        return PropertyNameMatcher.MATCH_ODD_TOKEN;
     }
 
     private final void _isNextTokenNameYes(int i) throws JacksonException

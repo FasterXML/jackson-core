@@ -24,7 +24,7 @@ JSON library.
 #1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
   lands at the output buffer boundary
  (fix by @pjfanning)
-- Fix loss of buffered content when `createGenerator(OutputStream, JsonEncoding)`
+#1674: Fix loss of buffered content when `createGenerator(OutputStream, JsonEncoding)`
   is used with non-UTF-8 encoding and generator is configured to neither close
   nor flush the target
  (fix by @pjfanning)

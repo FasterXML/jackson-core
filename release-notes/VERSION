@@ -27,6 +27,8 @@ JSON library.
 #1664: UTF-8 byte-backed parsers report raw byte instead of decoded character
   for invalid root-value separator
  (reported, fix by DongNyoung L)
+#1675: Allocate ByteArrayBuilder past-block list lazily
+ (contributed by @pjfanning, w/ Claude code)
 #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from 500 to 200 characters
  (reported, fix by DongNyoung L)
 

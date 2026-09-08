@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests to verify that streams Jackson itself opens for {@link File} /
- * {@link java.nio.file.Path} sources and targets get closed if construction of
- * parser or generator fails after opening.
+ * {@link java.nio.file.Path} sources get closed if construction of parser
+ * fails after opening.
  */
-class FailedConstructionStreamCloseTest extends JacksonCoreTestBase
+class FailedParserConstructionCloseTest extends JacksonCoreTestBase
 {
     static class CloseTrackingInputStream extends FilterInputStream {
         public boolean closed;
@@ -33,27 +33,14 @@ class FailedConstructionStreamCloseTest extends JacksonCoreTestBase
         }
     }
 
-    static class CloseTrackingOutputStream extends FilterOutputStream {
-        public boolean closed;
-
-        CloseTrackingOutputStream(OutputStream out) { super(out); }
-
-        @Override
-        public void close() throws IOException {
-            closed = true;
-            super.close();
-        }
-    }
-
     /**
      * Factory that fails the way format backends can (say, when schema
-     * validation fails), that is, after source/target has been opened.
+     * validation fails), that is, after source has been opened.
      */
     static class FailingFactory extends JsonFactory {
         private static final long serialVersionUID = 1L;
 
         public final List<CloseTrackingInputStream> inputs = new ArrayList<>();
-        public final List<CloseTrackingOutputStream> outputs = new ArrayList<>();
 
         @Override
         protected InputStream _fileInputStream(File f) throws JacksonException {
@@ -63,27 +50,8 @@ class FailedConstructionStreamCloseTest extends JacksonCoreTestBase
         }
 
         @Override
-        protected OutputStream _fileOutputStream(File f) throws JacksonException {
-            CloseTrackingOutputStream out = new CloseTrackingOutputStream(super._fileOutputStream(f));
-            outputs.add(out);
-            return out;
-        }
-
-        @Override
         protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
                 InputStream in) throws JacksonException {
-            throw new IllegalStateException("Test-induced construction failure");
-        }
-
-        @Override
-        protected JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-                IOContext ioCtxt, Writer out) throws JacksonException {
-            throw new IllegalStateException("Test-induced construction failure");
-        }
-
-        @Override
-        protected JsonGenerator _createUTF8Generator(ObjectWriteContext writeCtxt,
-                IOContext ioCtxt, OutputStream out) throws JacksonException {
             throw new IllegalStateException("Test-induced construction failure");
         }
     }
@@ -104,19 +72,5 @@ class FailedConstructionStreamCloseTest extends JacksonCoreTestBase
                 () -> f.createParser(ObjectReadContext.empty(), src));
         assertEquals(1, f.inputs.size());
         assertTrue(f.inputs.get(0).closed, "InputStream Jackson opened should have been closed");
-    }
-
-    @Test
-    void closesFileOutputStreamOnFailedGeneratorConstruction() throws Exception
-    {
-        for (JsonEncoding enc : new JsonEncoding[] { JsonEncoding.UTF8, JsonEncoding.UTF16_BE }) {
-            FailingFactory f = new FailingFactory();
-            File dst = _tempFile();
-            assertThrows(IllegalStateException.class,
-                    () -> f.createGenerator(ObjectWriteContext.empty(), dst, enc));
-            assertEquals(1, f.outputs.size(), enc.toString());
-            assertTrue(f.outputs.get(0).closed,
-                    "OutputStream Jackson opened should have been closed, encoding "+enc);
-        }
     }
 }

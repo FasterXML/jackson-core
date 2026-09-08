@@ -69,6 +69,9 @@ DongNyoung Lee (@Dongnyoung)
   (3.3.0)
  * Reported #1654: Stale symbol table child can replace a newer root table
   (3.3.0)
+ * Reported, fixed #1686: Synchronous decimal integer parsing buffers oversized
+   values before `maxNumberLength` validation
+  (3.3.0)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

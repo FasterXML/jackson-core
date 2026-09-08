@@ -5,6 +5,7 @@
 package tools.jackson.core;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import tools.jackson.core.util.ByteArrayBuilder;
 import tools.jackson.core.util.Named;
@@ -583,9 +584,14 @@ public final class Base64Variant
      * @param linefeed Linefeed to use for encoded content
      *
      * @return Base64 encoded String of encoded {@code input} bytes
+     *
+     * @throws NullPointerException if {@code linefeed} is {@code null}
      */
     public String encode(byte[] input, boolean addQuotes, String linefeed)
     {
+        // 07-Sep-2026, tatu: [core#1674] Was implicitly allowed before (appended
+        //   as literal "null"); rejected explicitly now
+        Objects.requireNonNull(linefeed, "Argument \"linefeed\" cannot be null");
         return _encodeToString(input, addQuotes, linefeed);
     }
 

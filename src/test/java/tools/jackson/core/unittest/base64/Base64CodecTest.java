@@ -183,6 +183,24 @@ class Base64CodecTest
         }
     }
 
+    @Test
+    void convenienceMethodNullLinefeed() throws Exception
+    {
+        final byte[] data = new byte[9];
+        Arrays.fill(data, (byte) 1);
+
+        // Even variants that never emit a linefeed must reject `null`
+        for (Base64Variant v : Arrays.asList(Base64Variants.MIME,
+                Base64Variants.MIME_NO_LINEFEEDS, Base64Variants.PEM)) {
+            try {
+                v.encode(data, false, null);
+                fail("Should not pass");
+            } catch (NullPointerException e) {
+                verifyException(e, "\"linefeed\" cannot be null");
+            }
+        }
+    }
+
     @SuppressWarnings("unused")
     @Test
     void errors() throws Exception

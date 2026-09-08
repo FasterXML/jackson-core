@@ -1956,12 +1956,13 @@ public class UTF8StreamJsonParser
                 }
                 break;
             }
+            ++intPartLength;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intPartLength);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
             outBuf[outPtr++] = (char) c;
-            ++intPartLength;
         }
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);
@@ -2097,6 +2098,8 @@ public class UTF8StreamJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -2142,6 +2145,7 @@ public class UTF8StreamJsonParser
             while (c >= INT_0 && c <= INT_9) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -3265,12 +3269,9 @@ public class UTF8StreamJsonParser
                     max = _inputEnd;
                 }
                 while (ptr < max) {
-                    c = inputBuffer[ptr++] & 0xFF;
-                    if (codes[c] != 0) {
-                        _inputPtr = ptr;
-                        break ascii_loop;
-                    }
-                    // Flush intermediate buffer when full
+                    // 30-Aug-2026, pjfanning: Flush before decoding, not before
+                    //   appending: guarantees room is left when we exit the loop
+                    //   for an escape or multi-byte char, which append unchecked
                     if (outPtr >= outBuf.length) {
                         writer.write(outBuf, 0, outPtr);
                         totalLen += outPtr;
@@ -3279,6 +3280,11 @@ public class UTF8StreamJsonParser
                             _streamReadConstraints.validateStringLengthLong(totalLen);
                         }
                         outPtr = 0;
+                    }
+                    c = inputBuffer[ptr++] & 0xFF;
+                    if (codes[c] != 0) {
+                        _inputPtr = ptr;
+                        break ascii_loop;
                     }
                     // Accumulate character in intermediate buffer
                     outBuf[outPtr++] = (char) c;

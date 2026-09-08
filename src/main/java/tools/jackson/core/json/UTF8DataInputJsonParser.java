@@ -1082,6 +1082,7 @@ public class UTF8DataInputJsonParser
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1150,6 +1151,7 @@ public class UTF8DataInputJsonParser
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1265,6 +1267,8 @@ public class UTF8DataInputJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1300,6 +1304,7 @@ public class UTF8DataInputJsonParser
             while (c <= INT_9 && c >= INT_0) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -2283,11 +2288,9 @@ public class UTF8DataInputJsonParser
 
             ascii_loop:
             while (true) {
-                c = readUnsignedByte();
-                if (codes[c] != 0) {
-                    break ascii_loop;
-                }
-                // Flush intermediate buffer when full
+                // 30-Aug-2026, pjfanning: Flush before decoding, not before
+                //   appending: guarantees room is left when we exit the loop
+                //   for an escape or multi-byte char, which append unchecked
                 if (outPtr >= outBuf.length) {
                     writer.write(outBuf, 0, outPtr);
                     totalLen += outPtr;
@@ -2296,6 +2299,10 @@ public class UTF8DataInputJsonParser
                     if (totalLen > maxStringLen) {
                         _streamReadConstraints.validateStringLengthLong(totalLen);
                     }
+                }
+                c = readUnsignedByte();
+                if (codes[c] != 0) {
+                    break ascii_loop;
                 }
                 // Accumulate character in intermediate buffer
                 outBuf[outPtr++] = (char) c;

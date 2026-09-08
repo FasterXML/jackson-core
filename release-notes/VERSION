@@ -24,7 +24,7 @@ JSON library.
 #1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
   lands at the output buffer boundary
  (fix by @pjfanning)
-- Close streams Jackson opened for `File`/`Path` sources and targets when
+#1693: Close streams Jackson opened for `File`/`Path` sources and targets when
   construction of parser or generator fails
  (fix by @pjfanning)
 

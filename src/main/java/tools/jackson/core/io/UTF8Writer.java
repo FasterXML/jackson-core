@@ -57,31 +57,52 @@ public final class UTF8Writer extends Writer
     public void close()
         throws IOException
     {
-        if (_out != null) {
-            if (_outPtr > 0) {
-                _out.write(_outBuffer, 0, _outPtr);
-                _outPtr = 0;
-            }
-            OutputStream out = _out;
-            _out = null;
+        // 08-Sep-2026, pjfanning: buffer and stream must be released even if
+        //   flushing of pending content fails; otherwise close() leaves both
+        //   stranded (and second call would retry the failed write)
+        try {
+            if (_out != null) {
+                OutputStream out = _out;
+                _out = null;
 
-            byte[] buf = _outBuffer;
-            if (buf != null) {
-                _outBuffer = null;
-                _context.releaseWriteEncodingBuffer(buf);
-            }
+                IOException fail = null;
+                try {
+                    if (_outPtr > 0) {
+                        out.write(_outBuffer, 0, _outPtr);
+                        _outPtr = 0;
+                    }
+                } catch (IOException e) {
+                    fail = e;
+                }
+                byte[] buf = _outBuffer;
+                if (buf != null) {
+                    _outBuffer = null;
+                    _context.releaseWriteEncodingBuffer(buf);
+                }
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    if (fail == null) {
+                        fail = e;
+                    } else {
+                        fail.addSuppressed(e);
+                    }
+                }
+                if (fail != null) {
+                    throw fail;
+                }
 
-            out.close();
-
-            // Let's 'flush' orphan surrogate, no matter what; but only
-            // after cleanly closing everything else.
-            int code = _surrogate;
-            _surrogate = 0;
-            if (code > 0) {
-                illegalSurrogate(code);
+                // Let's 'flush' orphan surrogate, no matter what; but only
+                // after cleanly closing everything else.
+                int code = _surrogate;
+                _surrogate = 0;
+                if (code > 0) {
+                    illegalSurrogate(code);
+                }
             }
+        } finally {
+            _context.close();
         }
-        _context.close();
     }
 
     @Override

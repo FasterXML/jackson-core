@@ -163,6 +163,48 @@ class UTF8WriterTest
         }
     }
 
+    // Failure to write out pending content must not prevent releasing of the
+    // encoding buffer and closing of the underlying stream
+    @Test
+    void releasesResourcesOnFailedClose() throws Exception
+    {
+        FailingOutputStream out = new FailingOutputStream();
+        UTF8Writer w = new UTF8Writer(_ioContext(), out);
+        w.write("abc");
+        // nothing pushed to stream yet, so failure occurs during close():
+        assertEquals(0, out.writeCount);
+        try {
+            w.close();
+            fail("should not pass");
+        } catch (IOException e) {
+            verifyException(e, "write() failing");
+        }
+        assertTrue(out.closed, "Underlying stream should have been closed");
+
+        // and second close() is a no-op, not a retry of the failed write
+        w.close();
+        assertEquals(1, out.writeCount);
+    }
+
+    static class FailingOutputStream extends OutputStream {
+        public int writeCount;
+        public boolean closed;
+
+        @Override
+        public void write(int b) throws IOException {
+            write(new byte[] { (byte) b }, 0, 1);
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            ++writeCount;
+            throw new IOException("write() failing");
+        }
+
+        @Override
+        public void close() { closed = true; }
+    }
+
     private IOContext _ioContext() {
         return testIOContext();
     }

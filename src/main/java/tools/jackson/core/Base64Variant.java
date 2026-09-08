@@ -666,8 +666,9 @@ public final class Base64Variant
         if (addQuotes) {
             len += 2;
         }
-        // Note: caller gets NegativeArraySizeException on overflow, same as the
-        // `new StringBuilder(...)` this replaced
+        // 07-Sep-2026, tatu: [core#1674] Overflow unchecked, as before: encoding
+        //   alone maxes at 4/3 * 2^31, always negative when cast. But `linefeed`
+        //   is unbounded, so `len` can wrap positive and undersize the buffer.
         return (int) len;
     }
 

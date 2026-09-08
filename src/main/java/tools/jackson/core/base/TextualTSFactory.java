@@ -238,15 +238,20 @@ public abstract class TextualTSFactory
     {
         final OutputStream out = _fileOutputStream(f);
         final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
-        if (enc == JsonEncoding.UTF8) {
+        try {
+            if (enc == JsonEncoding.UTF8) {
+                return _decorate(
+                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                );
+            }
             return _decorate(
-                    _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                    _createGenerator(writeCtxt, ioCtxt,
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
+        } catch (RuntimeException e) {
+            _closeOnFailedConstruction(out, e);
+            throw e;
         }
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt,
-                        ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
-        );
     }
 
     @Override
@@ -256,15 +261,20 @@ public abstract class TextualTSFactory
     {
         final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
-        if (enc == JsonEncoding.UTF8) {
+        try {
+            if (enc == JsonEncoding.UTF8) {
+                return _decorate(
+                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                );
+            }
             return _decorate(
-                    _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                    _createGenerator(writeCtxt, ioCtxt,
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
+        } catch (RuntimeException e) {
+            _closeOnFailedConstruction(out, e);
+            throw e;
         }
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt,
-                        ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
-        );
     }
 
     /*

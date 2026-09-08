@@ -172,9 +172,14 @@ public abstract class BinaryTSFactory
         final OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         final IOContext ioCtxt = _createContext(_createContentReference(out), true, enc);
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-        );
+        try {
+            return _decorate(
+                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+            );
+        } catch (RuntimeException e) {
+            _closeOnFailedConstruction(out, e);
+            throw e;
+        }
     }
 
     @Override
@@ -184,9 +189,14 @@ public abstract class BinaryTSFactory
     {
         final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-        );
+        try {
+            return _decorate(
+                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+            );
+        } catch (RuntimeException e) {
+            _closeOnFailedConstruction(out, e);
+            throw e;
+        }
     }
 
     /*

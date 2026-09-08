@@ -95,7 +95,9 @@ class NextNameMatchAndTokenTest extends JacksonCoreTestBase
                     JsonParser twoCall = createParser(JSON_F, mode, DOC)) {
                 fused.nextToken();
                 twoCall.nextToken();
-                while (true) {
+                // bound iteration so a regression fails instead of looping forever
+                for (int i = 0, end = 20; ; ++i) {
+                    assertTrue(i < end, "Failed to reach END_OBJECT in "+end+" rounds");
                     int ixF = fused.nextNameMatchAndToken(m1);
                     int ixT = twoCall.nextNameMatch(m2);
                     if (ixT >= 0) {

@@ -544,3 +544,13 @@ Revanth Meesala (@revanthmeesala)
  * Contributed #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser
    [GHSA-649p-m576-vr99]
   (2.18.10)
+
+@hdimitrieski
+ * Reported #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (2.21.7)
+
+Burak KALAYCI (@kalayciburak)
+ * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (2.21.7)

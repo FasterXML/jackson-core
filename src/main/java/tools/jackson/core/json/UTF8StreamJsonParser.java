@@ -5,6 +5,7 @@ import java.io.*;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -2187,7 +2188,6 @@ public class UTF8StreamJsonParser
     {
         // caller had pushed it back, before calling; reset
         ++_inputPtr;
-        // TODO? Handle UTF-8 char decoding for error reporting
         switch (ch) {
         case ' ':
         case '\t':
@@ -2202,6 +2202,15 @@ public class UTF8StreamJsonParser
             ++_currInputRow;
             _currInputRowStart = _inputPtr;
             return;
+        }
+
+        if (ch > 0x7F) {
+            // 19-Aug-2026, tatu: [core#1664] Decode multi-byte character for better
+            //   error message; but if input ends mid-sequence, report lead byte as-is
+            //   (content is malformed here regardless of what would follow)
+            try {
+                ch = _decodeCharForError(ch);
+            } catch (UnexpectedEndOfInputException e) { }
         }
         _reportMissingRootWS(ch);
     }
@@ -3256,12 +3265,9 @@ public class UTF8StreamJsonParser
                     max = _inputEnd;
                 }
                 while (ptr < max) {
-                    c = inputBuffer[ptr++] & 0xFF;
-                    if (codes[c] != 0) {
-                        _inputPtr = ptr;
-                        break ascii_loop;
-                    }
-                    // Flush intermediate buffer when full
+                    // 30-Aug-2026, pjfanning: Flush before decoding, not before
+                    //   appending: guarantees room is left when we exit the loop
+                    //   for an escape or multi-byte char, which append unchecked
                     if (outPtr >= outBuf.length) {
                         writer.write(outBuf, 0, outPtr);
                         totalLen += outPtr;
@@ -3270,6 +3276,11 @@ public class UTF8StreamJsonParser
                             _streamReadConstraints.validateStringLengthLong(totalLen);
                         }
                         outPtr = 0;
+                    }
+                    c = inputBuffer[ptr++] & 0xFF;
+                    if (codes[c] != 0) {
+                        _inputPtr = ptr;
+                        break ascii_loop;
                     }
                     // Accumulate character in intermediate buffer
                     outBuf[outPtr++] = (char) c;

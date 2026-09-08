@@ -1342,6 +1342,18 @@ public class UTF8DataInputJsonParser
             }
             return;
         }
+        if (ch > 0x7F) {
+            // 19-Aug-2026, tatu: [core#1664] Decode multi-byte character for better
+            //   error message; but if input ends mid-sequence, report lead byte as-is
+            //   (content is malformed here regardless of what would follow)
+            try {
+                ch = _decodeCharForError(ch);
+            } catch (EOFException e) {
+                ; // fine, fall through to report lead byte
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
+        }
         _reportMissingRootWS(ch);
     }
 
@@ -2271,11 +2283,9 @@ public class UTF8DataInputJsonParser
 
             ascii_loop:
             while (true) {
-                c = readUnsignedByte();
-                if (codes[c] != 0) {
-                    break ascii_loop;
-                }
-                // Flush intermediate buffer when full
+                // 30-Aug-2026, pjfanning: Flush before decoding, not before
+                //   appending: guarantees room is left when we exit the loop
+                //   for an escape or multi-byte char, which append unchecked
                 if (outPtr >= outBuf.length) {
                     writer.write(outBuf, 0, outPtr);
                     totalLen += outPtr;
@@ -2284,6 +2294,10 @@ public class UTF8DataInputJsonParser
                     if (totalLen > maxStringLen) {
                         _streamReadConstraints.validateStringLengthLong(totalLen);
                     }
+                }
+                c = readUnsignedByte();
+                if (codes[c] != 0) {
+                    break ascii_loop;
                 }
                 // Accumulate character in intermediate buffer
                 outBuf[outPtr++] = (char) c;

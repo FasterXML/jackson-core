@@ -31,6 +31,9 @@ JSON library.
  (contributed by @pjfanning, w/ Claude code)
 #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from 500 to 200 characters
  (reported, fix by DongNyoung L)
+#1686: Synchronous decimal number parsing buffers oversized values before
+  `maxNumberLength` validation
+ (reported, fix by DongNyoung L)
 
 3.2.3 (not yet released)
 

@@ -460,6 +460,8 @@ public class IOContext implements AutoCloseable
      * Wrapper for encoding {@link Writer} Jackson constructed itself, tracking
      * whether it holds content not yet pushed to the underlying target, so that
      * {@link IOContext#close} can drain it exactly once.
+     *
+     * @since 3.1.7
      */
     private final static class EncodingWriter extends FilterWriter
     {
@@ -498,6 +500,9 @@ public class IOContext implements AutoCloseable
             super.close();
         }
 
+        /**
+         * @since 3.1.7
+         */
         public void flushPending() {
             if (_pending) {
                 _pending = false;

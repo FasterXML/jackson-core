@@ -210,7 +210,7 @@ class GeneratorCloseTest extends JacksonCoreTestBase
                     g.close();
 
                     String desc = enc+", autoClose="+autoClose+", flush="+flush;
-                    assertEquals("{\"a\":1}",
+                    assertEquals(a2q("{'a':1}"),
                             new String(output.toByteArray(), enc.getJavaName()), desc);
                     assertEquals(autoClose, output.isClosed(), desc);
                 }

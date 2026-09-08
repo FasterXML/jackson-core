@@ -67,6 +67,11 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1664: UTF-8 byte-backed parsers report raw byte instead of
    decoded character for invalid root-value separator
   (3.3.0)
+ * Reported #1654: Stale symbol table child can replace a newer root table
+  (3.3.0)
+ * Reported, fixed #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from
+   500 to 200 characters
+  (3.3.0)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

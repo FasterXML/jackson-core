@@ -22,11 +22,15 @@ JSON library.
 #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
   already-consumed bytes
  (reported, fix by DongNyoung L)
+#1654: Stale symbol table child can replace a newer root table
+ (reported by DongNyoung L)
 #1664: UTF-8 byte-backed parsers report raw byte instead of decoded character
   for invalid root-value separator
  (reported, fix by DongNyoung L)
 #1675: Allocate ByteArrayBuilder past-block list lazily
  (contributed by @pjfanning, w/ Claude code)
+#1685: Lower `BigDecimalParser` FastDoubleParser cutoff from 500 to 200 characters
+ (reported, fix by DongNyoung L)
 
 3.2.3 (not yet released)
 
@@ -37,6 +41,9 @@ JSON library.
   lands at the output buffer boundary
  (reported by @hdimitrieski)
  (fix by @kalayciburak)
+#1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
+  lands at the output buffer boundary
+ (fix by @pjfanning)
 
 3.2.2 (14-Aug-2026)
 
@@ -81,12 +88,16 @@ No changes since 3.2.0
  (implemented by @cowtowncoder, w/ Claude code)
 #1598: Possible TOCTOU timing bug in `BufferRecycler`
  (implemented by @pjfanning)
+
 3.1.7 (not yet released)
 
 #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
   lands at the output buffer boundary
  (reported by @hdimitrieski)
  (fix by @kalayciburak)
+#1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
+  lands at the output buffer boundary
+ (fix by @pjfanning)
 
 3.1.6 (14-Aug-2026)
 

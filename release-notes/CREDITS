@@ -71,6 +71,7 @@ DongNyoung Lee (@Dongnyoung)
   (3.3.0)
  * Reported, fixed #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from
    500 to 200 characters
+  (3.3.0)
  * Reported, fixed #1686: Synchronous decimal number parsing buffers oversized
    values before `maxNumberLength` validation
   (3.3.0)

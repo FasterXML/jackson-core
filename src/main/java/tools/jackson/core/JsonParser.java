@@ -574,6 +574,11 @@ public abstract class JsonParser
      * after more input is fed and {@link #nextToken()} called again.
      * Callers of such parsers must check {@link #currentToken()} instead of
      * assuming a non-negative result means the value is ready.
+     *<p>
+     * NOTE to subclass implementors: the default implementation is defined in terms
+     * of {@link #nextNameMatch(PropertyNameMatcher)} and {@link #nextToken()}, so
+     * subclasses that override either (especially delegating or filtering ones) should
+     * override this method as well, to keep the two paths consistent.
      *
      * @param matcher Matcher that will handle actual matching
      *

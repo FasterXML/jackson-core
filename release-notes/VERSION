@@ -37,6 +37,9 @@ JSON library.
 #1686: Synchronous decimal number parsing buffers oversized values before
   `maxNumberLength` validation
  (reported, fix by DongNyoung L)
+#1688: Add `JsonParser.nextNameMatchAndToken()`, fused property name match
+  plus value token advance
+ (contributed by @stevenschlansker)
 
 3.2.3 (not yet released)
 

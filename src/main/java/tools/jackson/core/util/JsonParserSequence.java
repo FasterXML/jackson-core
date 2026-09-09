@@ -206,6 +206,17 @@ public class JsonParserSequence extends JsonParserDelegate
         return PropertyNameMatcher.MATCH_ODD_TOKEN;
     }
 
+    @Override
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException {
+        // NOTE: cannot delegate (unlike `JsonParserDelegate`), must call local
+        // `nextNameMatch()`/`nextToken()` to handle delegation
+        int match = nextNameMatch(matcher);
+        if (match >= 0) {
+            nextToken();
+        }
+        return match;
+    }
+
     /*
     /**********************************************************************
     /* Additional extended API

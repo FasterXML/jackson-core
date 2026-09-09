@@ -104,3 +104,8 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
    escape lands at the output buffer boundary
   (3.1.7)
+
+Steven Schlansker (@stevenschlansker)
+ * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
+   name match plus value token advance
+  (3.3.0)

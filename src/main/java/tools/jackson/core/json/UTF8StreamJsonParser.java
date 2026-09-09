@@ -1985,12 +1985,13 @@ public class UTF8StreamJsonParser
                 }
                 break;
             }
+            ++intPartLength;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intPartLength);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
             outBuf[outPtr++] = (char) c;
-            ++intPartLength;
         }
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);
@@ -2126,6 +2127,8 @@ public class UTF8StreamJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -2171,6 +2174,7 @@ public class UTF8StreamJsonParser
             while (c >= INT_0 && c <= INT_9) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }

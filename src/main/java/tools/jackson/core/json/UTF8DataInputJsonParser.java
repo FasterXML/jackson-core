@@ -1082,6 +1082,7 @@ public class UTF8DataInputJsonParser
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1150,6 +1151,7 @@ public class UTF8DataInputJsonParser
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1265,6 +1267,8 @@ public class UTF8DataInputJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1300,6 +1304,7 @@ public class UTF8DataInputJsonParser
             while (c <= INT_9 && c >= INT_0) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }

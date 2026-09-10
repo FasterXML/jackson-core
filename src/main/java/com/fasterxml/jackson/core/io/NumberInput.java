@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.io;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.regex.Pattern;
 
 import ch.randelshofer.fastdoubleparser.JavaDoubleParser;
 import ch.randelshofer.fastdoubleparser.JavaFloatParser;
@@ -32,25 +31,6 @@ public final class NumberInput
     final static String MIN_LONG_STR_NO_SIGN = String.valueOf(Long.MIN_VALUE).substring(1);
     final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
 
-    /**
-     * Regexp used to pre-validate "Stringified Numbers": slightly looser than
-     * JSON Number definition (allows leading zeroes, positive sign).
-     *
-     * @since 2.17
-     */
-    private final static Pattern PATTERN_FLOAT = Pattern.compile(
-          "[+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?");
-
-
-    /**
-     * Secondary regexp used along with {@code PATTERN_FLOAT} to cover
-     * case where number ends with dot, like {@code "+12."}
-     *
-     * @since 2.17.2
-     */
-    private final static Pattern PATTERN_FLOAT_TRAILING_DOT = Pattern.compile(
-            "[+-]?[0-9]+[\\.]");
-    
     /**
      * Fast method for parsing unsigned integers that are known to fit into
      * regular 32-bit signed int type. This means that length is
@@ -644,15 +624,73 @@ public final class NumberInput
      * @since 2.17
      */
     public static boolean looksLikeValidNumber(final String s) {
-        // While PATTERN_FLOAT handles most cases we can optimize some simple ones:
-        if (s == null || s.isEmpty()) {
+        // 10-Sep-2026, pjfanning: [core#1699] hand-rolled single-pass scan; the
+        //   equivalent regexp had adjacent `[0-9]*`/`[0-9]+` quantifiers and so
+        //   backtracked quadratically over long non-matching input.
+        if (s == null) {
             return false;
         }
-        if (s.length() == 1) {
-            char c = s.charAt(0);
-            return (c <= '9') && (c >= '0');
+        final int len = s.length();
+        if (len == 0) {
+            return false;
         }
-        return PATTERN_FLOAT.matcher(s).matches()
-                || PATTERN_FLOAT_TRAILING_DOT.matcher(s).matches();
+        int i = 0;
+        char c = s.charAt(0);
+        if ((c == '+') || (c == '-')) {
+            if (++i == len) { // sign alone
+                return false;
+            }
+        }
+        // Integer part; may be empty for values like ".5"
+        final int intStart = i;
+        while ((i < len) && _isDigitChar(s.charAt(i))) {
+            ++i;
+        }
+        final int intDigits = i - intStart;
+
+        if (i == len) { // digits only, like "125"
+            return intDigits > 0;
+        }
+        if (s.charAt(i) == '.') {
+            final int fractionStart = ++i;
+            while ((i < len) && _isDigitChar(s.charAt(i))) {
+                ++i;
+            }
+            final int fractionDigits = i - fractionStart;
+            if ((intDigits == 0) && (fractionDigits == 0)) { // "." or "-."
+                return false;
+            }
+            if (i == len) { // "1.25", ".25" -- and trailing dot, like "12."
+                return true;
+            }
+            if (fractionDigits == 0) { // dot must be followed by digits, if by anything
+                return false;
+            }
+        } else if (intDigits == 0) { // no digits and no dot, like "x" or "-x"
+            return false;
+        }
+        // Exponent, if any, must consume the remainder
+        c = s.charAt(i);
+        if ((c != 'e') && (c != 'E')) {
+            return false;
+        }
+        if (++i == len) {
+            return false;
+        }
+        c = s.charAt(i);
+        if ((c == '+') || (c == '-')) {
+            if (++i == len) {
+                return false;
+            }
+        }
+        final int expStart = i;
+        while ((i < len) && _isDigitChar(s.charAt(i))) {
+            ++i;
+        }
+        return (i > expStart) && (i == len);
+    }
+
+    private static boolean _isDigitChar(final char c) {
+        return (c >= '0') && (c <= '9');
     }
 }

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.io;
 import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -139,5 +140,113 @@ class NumberInputTest
         assertFalse(NumberInput.looksLikeValidNumber("+."));
         assertFalse(NumberInput.looksLikeValidNumber("-E"));
         assertFalse(NumberInput.looksLikeValidNumber("+E"));
+    }
+
+    // [core#1699]: following tests exercise the branches of the hand-rolled
+    //   scanner that replaced the original regexp
+
+    @Test
+    void looksLikeValidNumberSigns()
+    {
+        _assertValid("+0", "-0", "+9", "-9", "+.5", "-.5", "+5.", "-5.",
+                "+1e5", "-1e5", "+1.5e-5", "-1.5e+5");
+        // Sign alone, repeated or misplaced
+        _assertInvalid("+", "-", "++1", "--1", "+-1", "-+1", "1+", "1-",
+                "+ 1", "1+1", "1-1");
+    }
+
+    @Test
+    void looksLikeValidNumberIntegers()
+    {
+        _assertValid("0", "9", "00", "0001", "1234567890", "9999999999999999999999");
+        _assertInvalid("", " ", "x", "1x", "x1", "1 2", "0x10", "10_000",
+                "Infinity", "-Infinity", "NaN");
+    }
+
+    @Test
+    void looksLikeValidNumberDecimals()
+    {
+        // Leading dot, trailing dot, and both sides present
+        _assertValid(".0", ".5", "0.", "5.", "0.0", "00.00", "1.5", "-0.10", "+0.25");
+        // A dot needs a digit on at least one side, and only one dot is allowed
+        _assertInvalid(".", "-.", "+.", "..", "1..2", "1.2.3", ".1.", "1..", ".." + ".");
+    }
+
+    @Test
+    void looksLikeValidNumberExponents()
+    {
+        _assertValid("1e1", "1E1", "1e+1", "1e-1", "1e0", "1e007", "0e0",
+                "1.5e10", ".5e10", "1.5E-45", "1.4e+45");
+        // Exponent marker must be followed by at least one digit, optionally signed
+        _assertInvalid("1e", "1E", "1e+", "1e-", "e10", "E10", "+e10", "e", "E",
+                "1e+x", "1ee1", "1e1e1", "1e1.5", "1e.5", "1e1.", "5e5e5");
+        // Trailing dot cannot carry an exponent: the "12." form is a separate,
+        // exponent-less case
+        _assertInvalid("1.e5", "1.e", "12.e5", "-12.E5");
+    }
+
+    @Test
+    void looksLikeValidNumberNonAsciiDigits()
+    {
+        // Only ASCII digits count, matching the original regexp's [0-9]
+        _assertInvalid("\u0661\u0662\u0663", // Arabic-Indic 123
+                "\uFF11\uFF12\uFF13", // full-width 123
+                "1\u0661", "\u06603"); // mixed
+    }
+
+    @Test
+    void looksLikeValidNumberWhitespace()
+    {
+        // No trimming is performed by this method
+        _assertInvalid(" 1", "1 ", " 1 ", "\t1", "1\t", "\n1", "1\n", "1\r", "  ");
+    }
+
+    @Test
+    void looksLikeValidNumberNull()
+    {
+        assertFalse(NumberInput.looksLikeValidNumber(null));
+    }
+
+    private void _assertValid(String... inputs) {
+        for (String input : inputs) {
+            assertTrue(NumberInput.looksLikeValidNumber(input),
+                    "Should be valid: \"" + input + "\"");
+        }
+    }
+
+    private void _assertInvalid(String... inputs) {
+        for (String input : inputs) {
+            assertFalse(NumberInput.looksLikeValidNumber(input),
+                    "Should be invalid: \"" + input + "\"");
+        }
+    }
+
+    // [core#1699]: used to backtrack quadratically on long input
+    @Test
+    void looksLikeValidNumberLongInput()
+    {
+        final int len = 1_000_000;
+        final String digits = _repeat('9', len);
+
+        assertTimeoutPreemptively(java.time.Duration.ofSeconds(10), new Executable() {
+            @Override
+            public void execute() {
+                // Valid: plain digits, and digits with fraction and exponent
+                assertTrue(NumberInput.looksLikeValidNumber(digits));
+                assertTrue(NumberInput.looksLikeValidNumber("-" + digits + "." + digits + "e" + digits));
+                // Invalid: worst case for the old regexp, a long digit run that
+                // only fails on the very last character
+                assertFalse(NumberInput.looksLikeValidNumber(digits + "x"));
+                assertFalse(NumberInput.looksLikeValidNumber(digits + "." + digits + "x"));
+            }
+        });
+    }
+
+    private String _repeat(char c, int len) {
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; ++i) {
+            sb.append(c);
+        }
+        return sb.toString();
     }
 }

@@ -20,6 +20,8 @@ a pure JSON library.
   lands at the output buffer boundary
  (reported by @hdimitrieski)
  (fix by @kalayciburak)
+#1699: Replace regexp in `NumberInput.looksLikeValidNumber()` with single-pass
+  scan, to avoid quadratic backtracking on long input
 
 2.21.6 (14-Aug-2026)
 

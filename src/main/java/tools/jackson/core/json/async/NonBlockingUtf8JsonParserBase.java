@@ -1355,6 +1355,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr);
         _textBuffer.setCurrentLength(outPtr);
+        // 08-Aug-2026, tatu: [core#1640] Verify separator in both root and non-root context
+        _verifyNumberSeparator(ch);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
@@ -1422,6 +1424,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr-1);
         _textBuffer.setCurrentLength(outPtr);
+        // 08-Aug-2026, tatu: [core#1640] Verify separator in both root and non-root context
+        _verifyNumberSeparator(ch & 0xFF);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
@@ -1495,6 +1499,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr-1);
         _textBuffer.setCurrentLength(outPtr);
+        // 08-Aug-2026, tatu: [core#1640] Verify separator in both root and non-root context
+        _verifyNumberSeparator(ch & 0xFF);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
@@ -1797,9 +1803,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         final int hexLen = outPtr - prefixLen;
         // As per #105, need separating space between root values; check here.
         // Note: _inputPtr currently points AT the terminator (we did not consume it).
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(getByteFromBuffer(_inputPtr) & 0xFF);
-        }
+        // 08-Aug-2026, tatu: [core#1640] Also verify separator in non-root context (#1615)
+        _verifyNumberSeparator(getByteFromBuffer(_inputPtr) & 0xFF);
         resetIntHex(_numberNegative, hexLen);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
@@ -1857,9 +1862,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         _setIntLength(outPtr+negMod);
         _textBuffer.setCurrentLength(outPtr);
         // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(ch);
-        }
+        // 08-Aug-2026, tatu: [core#1640] Also verify separator in non-root context (#1615)
+        _verifyNumberSeparator(ch);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
@@ -1950,9 +1954,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(ch);
-        }
+        // 08-Aug-2026, tatu: [core#1640] Also verify separator in non-root context (#1615)
+        _verifyNumberSeparator(ch);
         _setExpLength(expLen);
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
@@ -2022,9 +2025,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         // negative, int-length, fract-length already set, so...
         _expLength = 0;
         // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(ch);
-        }
+        // 08-Aug-2026, tatu: [core#1640] Also verify separator in non-root context (#1615)
+        _verifyNumberSeparator(ch & 0xFF);
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
@@ -2070,9 +2072,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(ch);
-        }
+        // 08-Aug-2026, tatu: [core#1640] Also verify separator in non-root context (#1615)
+        _verifyNumberSeparator(ch);
         _setExpLength(expLen);
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
@@ -3312,6 +3313,54 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(f & 0xFF, _inputPtr);
         }
         return ((c << 6) | (f & 0x3F)) - 0x10000;
+    }
+
+    /**
+     * Method called to verify that a number value is followed by a valid separator
+     * (whitespace, comma, closing bracket or brace) when not at root level, or by
+     * whitespace when at root level.
+     *<p>
+     * NOTE: caller MUST ensure there is at least one character available;
+     * and that input pointer is AT given char (not past). For non-root contexts,
+     * the separator is left unconsumed (so the outer loop can handle it).
+     *
+     * @param ch Character after number value (unsigned byte, 0-255)
+     *
+     * @throws JacksonException for decoding problems (unexpected character)
+     *
+     * @since 3.3
+     */
+    // 08-Aug-2026, tatu: [core#1640] Non-root check, equivalent to blocking parsers (see #1615)
+    private final void _verifyNumberSeparator(int ch) throws JacksonException {
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace(ch);
+            return;
+        }
+        switch (ch) {
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+        case ',':
+        case ']':
+        case '}':
+            return;
+        case '/':
+            if (isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
+                return;
+            }
+            break;
+        case '#':
+            if (isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
+                return;
+            }
+            break;
+        }
+        ++_inputPtr;
+        if (ch == '/') {
+            _reportUnexpectedChar(ch, "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
+        }
+        _reportUnexpectedChar(ch, "Expected space, comma or closing bracket/brace after numeric value");
     }
 
     /**

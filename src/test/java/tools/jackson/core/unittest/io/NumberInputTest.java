@@ -1,6 +1,7 @@
 package tools.jackson.core.unittest.io;
 
 import java.math.BigInteger;
+import java.time.Duration;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
@@ -246,6 +247,74 @@ class NumberInputTest
                         prefix + c, remainingLength - 1);
             }
         }
+    }
+
+    // [core#1649]: `null` check is the first branch of the hand-rolled scanner,
+    // and the only input the exhaustive comparison above cannot express
+    @Test
+    void looksLikeValidNumberNull()
+    {
+        assertFalse(NumberInput.looksLikeValidNumber(null));
+    }
+
+    // [core#1649]: digits are tested as `c >= '0' && c <= '9'`, matching the
+    // `[0-9]` of the Regexp that used to do this. `Character.isDigit()` would
+    // accept the following, which `parseDouble()`/`parseLong()` then reject
+    @Test
+    void looksLikeValidNumberNonAsciiDigits()
+    {
+        assertFalse(NumberInput.looksLikeValidNumber("\u0661\u0662\u0663")); // Arabic-Indic 123
+        assertFalse(NumberInput.looksLikeValidNumber("\uFF11\uFF12\uFF13")); // Full-width 123
+        assertFalse(NumberInput.looksLikeValidNumber("\u0967\u0968\u0969")); // Devanagari 123
+        // ... including mixed with ASCII digits, on either side
+        assertFalse(NumberInput.looksLikeValidNumber("1\u0662"));
+        assertFalse(NumberInput.looksLikeValidNumber("\u06601"));
+        assertFalse(NumberInput.looksLikeValidNumber("1.\u0662"));
+        assertFalse(NumberInput.looksLikeValidNumber("1e\u0662"));
+    }
+
+    // [core#1649]: non-numeric tokens are longer than the exhaustive
+    // comparison above reaches
+    @Test
+    void looksLikeValidNumberNonNumericTokens()
+    {
+        assertFalse(NumberInput.looksLikeValidNumber("Infinity"));
+        assertFalse(NumberInput.looksLikeValidNumber("-Infinity"));
+        assertFalse(NumberInput.looksLikeValidNumber("+Infinity"));
+        assertFalse(NumberInput.looksLikeValidNumber("NaN"));
+        assertFalse(NumberInput.looksLikeValidNumber("-NaN"));
+    }
+
+    // [core#1649]: no trimming is performed, for any flavor of white space
+    @Test
+    void looksLikeValidNumberUntrimmed()
+    {
+        assertFalse(NumberInput.looksLikeValidNumber("\t1"));
+        assertFalse(NumberInput.looksLikeValidNumber("1\t"));
+        assertFalse(NumberInput.looksLikeValidNumber("\n1"));
+        assertFalse(NumberInput.looksLikeValidNumber("1\n"));
+        assertFalse(NumberInput.looksLikeValidNumber("\r1"));
+        assertFalse(NumberInput.looksLikeValidNumber("1\r"));
+        assertFalse(NumberInput.looksLikeValidNumber("1.5 "));
+        assertFalse(NumberInput.looksLikeValidNumber(" 1.5"));
+    }
+
+    // [core#1649]: the Regexp implementation this replaced had adjacent
+    // `[0-9]*` and `[0-9]+` over the same character class, so a failing match
+    // had to try every split point between them -- quadratic. Worst case is a
+    // long digit run whose only invalid character is the last one; at 1M chars
+    // that took minutes, where the scan takes ~1 msec.
+    @Test
+    void looksLikeValidNumberLongInput()
+    {
+        final String digits = "9".repeat(1_000_000);
+
+        assertTimeoutPreemptively(Duration.ofSeconds(10), () -> {
+            assertTrue(NumberInput.looksLikeValidNumber(digits));
+            assertTrue(NumberInput.looksLikeValidNumber("-"+digits+"."+digits+"e"+digits));
+            assertFalse(NumberInput.looksLikeValidNumber(digits+"x"));
+            assertFalse(NumberInput.looksLikeValidNumber(digits+"."+digits+"x"));
+        });
     }
 
     @Test

@@ -14,6 +14,7 @@ import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.unittest.*;
+import tools.jackson.core.util.JsonRecyclerPools;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -105,6 +106,14 @@ class LargeNameReadTest extends JacksonCoreTestBase
 
     private void _testLargeNameFailsFast(JsonFactory jf, String nameQuote) throws Exception
     {
+        // 09-Sep-2026, tatu: [core#1643] Must NOT use recycled buffers here: check is
+        //   only made when `TextBuffer` segment gets full, and a buffer left behind by
+        //   an earlier test in same thread may be up to 64kB (`BufferRecycler` retains
+        //   the biggest one released, see [core#1186]) -- which would make the first
+        //   check occur much later than with a fresh (small) buffer.
+        jf = jf.rebuild()
+                .recyclerPool(JsonRecyclerPools.nonRecyclingPool())
+                .build();
         final int nameLen = 1_000_000;
         final String doc = generateJSON(nameLen, nameQuote);
         try (JsonParser p = createParserUsingReader(jf, doc)) {

@@ -2776,6 +2776,10 @@ public class UTF8DataInputJsonParser
                  break;
              }
              sb.append(c);
+             if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+                 sb.append("...");
+                 break;
+             }
              ch = _inputData.readUnsignedByte();
          }
          _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);

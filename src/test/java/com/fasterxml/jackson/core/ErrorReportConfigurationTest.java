@@ -216,6 +216,34 @@ class ErrorReportConfigurationTest
         }
     }
 
+    // [core#1698]: every parser backend must honor `maxErrorTokenLength`;
+    //   `UTF8DataInputJsonParser` used to accumulate the whole token instead
+    @Test
+    void errorTokenLengthBoundedInAllModes()
+            throws Exception
+    {
+        final int maxLen = 256;
+        final JsonFactory f = streamFactoryBuilder()
+                .errorReportConfiguration(ErrorReportConfiguration.builder()
+                        .maxErrorTokenLength(maxLen).build())
+                .build();
+        // Broken token far longer than the limit: must be truncated, not accumulated in full
+        final String doc = _buildBrokenJsonOfLength(50 * maxLen);
+
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(f, mode, doc)) {
+                p.nextToken();
+                p.nextToken();
+                fail("Should not pass, mode: "+mode);
+            } catch (JsonProcessingException e) {
+                assertThat(_unrecognizedToken(e.getMessage()))
+                        .as("mode: %d", mode)
+                        .hasSize(maxLen + 3) // limit, plus appended "..."
+                        .endsWith("...");
+            }
+        }
+    }
+
     @Test
     void nonPositiveErrorTokenConfig()
     {
@@ -316,6 +344,17 @@ class ErrorReportConfigurationTest
             assertThat(e.getLocation()._totalChars).isEqualTo(expectedSize);
             assertThat(e.getMessage()).contains("Unrecognized token");
         }
+    }
+
+    // Extracts X from "Unrecognized token 'X': was expecting ..."
+    private String _unrecognizedToken(String msg)
+    {
+        final String prefix = "Unrecognized token '";
+        final int start = msg.indexOf(prefix);
+        assertThat(start).as("message: %s", msg).isGreaterThanOrEqualTo(0);
+        final int end = msg.indexOf("': was expecting", start);
+        assertThat(end).as("message: %s", msg).isGreaterThan(start);
+        return msg.substring(start + prefix.length(), end);
     }
 
     private String _buildBrokenJsonOfLength(int len)

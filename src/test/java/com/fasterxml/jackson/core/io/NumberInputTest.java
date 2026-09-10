@@ -155,6 +155,21 @@ class NumberInputTest
                 "+ 1", "1+1", "1-1");
     }
 
+    // The two documented deviations from strict JSON Number: positive sign
+    // and leading zeroes, including where they combine
+    @Test
+    void looksLikeValidNumberNonJsonLooseness()
+    {
+        // Positive sign, in every position the grammar allows one
+        _assertValid("+1", "+0.25", "+125.", "+.5", "+1e5", "+1e+5", "+1e-5", "+0e0");
+        // Leading zeroes, in integer part, fraction and exponent
+        _assertValid("00", "0000", "0001", "00.00", "00.5", ".00", "00.",
+                "0e007", "1e007", "1e+007", "1e-007", "0000000000000000001");
+        // ...and the two combined
+        _assertValid("+00", "-00", "+007", "-007", "+00.5", "-00.5",
+                "+00.", "-007.", "+.00", "-.00", "-0.0", "+0.0", "007.5e007");
+    }
+
     @Test
     void looksLikeValidNumberIntegers()
     {

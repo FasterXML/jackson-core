@@ -330,14 +330,31 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override
     public void close() {
         if (!_closed) {
+            RuntimeException fail = null;
             try {
                 _closeInput();
             } catch (IOException e) {
-                throw _wrapIOFailure(e);
+                fail = _wrapIOFailure(e);
+            } catch (RuntimeException e) {
+                fail = e;
             } finally {
                 _releaseBuffers();
-                _ioContext.close();
-                _closed = true;
+                // 11-Sep-2026, tatu: [core#1692] closing context may flush pending
+                //    encoded content, and fail: must not mask earlier failure
+                try {
+                    _ioContext.close();
+                } catch (RuntimeException e) {
+                    if (fail == null) {
+                        fail = e;
+                    } else {
+                        fail.addSuppressed(e);
+                    }
+                } finally {
+                    _closed = true;
+                }
+            }
+            if (fail != null) {
+                throw fail;
             }
         }
     }

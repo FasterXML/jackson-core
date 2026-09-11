@@ -208,6 +208,7 @@ public abstract class BinaryTSFactory
             );
         } catch (RuntimeException e) {
             _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }
@@ -225,6 +226,7 @@ public abstract class BinaryTSFactory
             );
         } catch (RuntimeException e) {
             _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }

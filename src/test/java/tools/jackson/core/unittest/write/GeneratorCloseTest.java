@@ -5,10 +5,13 @@ import java.io.*;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.io.IOContext;
+import tools.jackson.core.io.OutputDecorator;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.unittest.*;
 import tools.jackson.core.unittest.testutil.ByteOutputStreamForTesting;
@@ -185,5 +188,93 @@ class GeneratorCloseTest extends JacksonCoreTestBase
         assertEquals(0, bytes.flushCount);
         g.close();
         assertEquals(2, bytes.toByteArray().length);
+    }
+
+    // Content buffered by the encoding Writer Jackson creates for non-UTF-8
+    // OutputStream targets must not be lost, even when generator is configured
+    // to neither close nor flush the caller-owned stream
+    @Test
+    void nonUtf8OutputStreamNotLosingContent() throws Exception
+    {
+        for (JsonEncoding enc : new JsonEncoding[] {
+                JsonEncoding.UTF16_BE, JsonEncoding.UTF16_LE,
+                JsonEncoding.UTF32_BE, JsonEncoding.UTF32_LE }) {
+            for (boolean autoClose : new boolean[] { true, false }) {
+                for (boolean flush : new boolean[] { true, false }) {
+                    JsonFactory f = JsonFactory.builder()
+                            .configure(StreamWriteFeature.AUTO_CLOSE_TARGET, autoClose)
+                            .configure(StreamWriteFeature.FLUSH_PASSED_TO_STREAM, flush)
+                            .build();
+                    ByteOutputStreamForTesting output = new ByteOutputStreamForTesting();
+                    JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output, enc);
+                    g.writeStartObject();
+                    g.writeNumberProperty("a", 1);
+                    g.writeEndObject();
+                    g.close();
+
+                    String desc = enc+", autoClose="+autoClose+", flush="+flush;
+                    assertEquals(a2q("{'a':1}"),
+                            new String(output.toByteArray(), enc.getJavaName()), desc);
+                    assertEquals(autoClose, output.isClosed(), desc);
+                }
+            }
+        }
+    }
+
+    // Failure to flush pending encoded content on close must not mask earlier
+    // failure, and generator must still be marked as closed
+    @Test
+    void nonUtf8FailingTargetKeepsOriginalFailure() throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .configure(StreamWriteFeature.AUTO_CLOSE_TARGET, false)
+                .configure(StreamWriteFeature.FLUSH_PASSED_TO_STREAM, false)
+                .outputDecorator(new FailingWriterDecorator())
+                .build();
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(),
+                new ByteOutputStreamForTesting(), JsonEncoding.UTF16_BE);
+        g.writeStartObject();
+        g.writeEndObject();
+
+        JacksonException e = assertThrows(JacksonException.class, g::close);
+        assertEquals("write failed", e.getCause().getMessage());
+        assertEquals(1, e.getSuppressed().length);
+        assertEquals("flush failed", e.getSuppressed()[0].getCause().getMessage());
+        assertTrue(g.isClosed());
+    }
+
+    static class FailingWriterDecorator extends OutputDecorator
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public OutputStream decorate(IOContext ctxt, OutputStream out) {
+            return out;
+        }
+
+        @Override
+        public Writer decorate(IOContext ctxt, Writer w) {
+            return new FilterWriter(w) {
+                @Override
+                public void write(int c) throws IOException {
+                    throw new IOException("write failed");
+                }
+
+                @Override
+                public void write(char[] cbuf, int off, int len) throws IOException {
+                    throw new IOException("write failed");
+                }
+
+                @Override
+                public void write(String str, int off, int len) throws IOException {
+                    throw new IOException("write failed");
+                }
+
+                @Override
+                public void flush() throws IOException {
+                    throw new IOException("flush failed");
+                }
+            };
+        }
     }
 }

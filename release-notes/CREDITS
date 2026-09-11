@@ -112,3 +112,7 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
   (3.3.0)
+
+Westin Miller (@westinrm)
+ * Requested #1652: No-allocation DoubleToDecimal / FloatToDecimal
+  (3.3.0)

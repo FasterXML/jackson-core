@@ -3660,6 +3660,7 @@ public class UTF8StreamJsonParser
          * nothing fancy here (nor fast).
          */
         StringBuilder sb = new StringBuilder(matchedPart);
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while ((_inputPtr < _inputEnd) || _loadMore()) {
             int i = _inputBuffer[_inputPtr++];
             char c = (char) _decodeCharForError(i);
@@ -3672,7 +3673,7 @@ public class UTF8StreamJsonParser
                 break;
             }
             sb.append(c);
-            if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+            if (sb.length() >= maxTokenLength) {
                 sb.append("...");
                 break;
             }

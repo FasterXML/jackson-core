@@ -2773,6 +2773,7 @@ public class UTF8DataInputJsonParser
         throws IOException
      {
          StringBuilder sb = new StringBuilder(matchedPart);
+         final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
 
          /* Let's just try to find what appears to be the token, using
           * regular Java identifier character rules. It's just a heuristic,
@@ -2784,7 +2785,7 @@ public class UTF8DataInputJsonParser
                  break;
              }
              sb.append(c);
-             if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+             if (sb.length() >= maxTokenLength) {
                  sb.append("...");
                  break;
              }

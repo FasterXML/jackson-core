@@ -114,6 +114,98 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
     }
 
     @Test
+    void testQuotedFloatsOnlyAcrossBufferBoundary() throws Exception
+    {
+        // Float-only run: the float flush check has a smaller reserve than the
+        // double one, so mixing types never lets it trigger
+        final float[] fvalues = { -Float.MIN_NORMAL, 1.0f, 0.1f, Float.NaN, 1.0E-30f };
+        final int count = 6000;
+        StringBuilder expected = new StringBuilder("[");
+        for (int i = 0; i < count; ++i) {
+            if (i > 0) {
+                expected.append(',');
+            }
+            expected.append(q(NumberOutput.toString(fvalues[i % fvalues.length], true)));
+        }
+        expected.append(']');
+
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = NUMBERS_AS_STRINGS.createGenerator(ObjectWriteContext.empty(), sw)) {
+            gen.writeStartArray();
+            for (int i = 0; i < count; ++i) {
+                gen.writeNumber(fvalues[i % fvalues.length]);
+            }
+            gen.writeEndArray();
+        }
+        assertEquals(expected.toString(), sw.toString());
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (JsonGenerator gen = NUMBERS_AS_STRINGS.createGenerator(ObjectWriteContext.empty(), bytes)) {
+            gen.writeStartArray();
+            for (int i = 0; i < count; ++i) {
+                gen.writeNumber(fvalues[i % fvalues.length]);
+            }
+            gen.writeEndArray();
+        }
+        assertEquals(expected.toString(), bytes.toString("UTF-8"));
+    }
+
+    @Test
+    void testNaNAsStringsDisabled() throws Exception
+    {
+        // With WRITE_NAN_AS_STRINGS off, non-finite values go through the
+        // unquoted fast path (which must still render them correctly)
+        JsonFactory f = JsonFactory.builder()
+                .enable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
+                .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        assertEquals("NaN", _writeChars(f, Double.NaN));
+        assertEquals("NaN", _writeBytes(f, Double.NaN));
+        assertEquals("Infinity", _writeChars(f, Double.POSITIVE_INFINITY));
+        assertEquals("-Infinity", _writeBytes(f, Double.NEGATIVE_INFINITY));
+
+        assertEquals("NaN", _writeChars(f, Float.NaN));
+        assertEquals("NaN", _writeBytes(f, Float.NaN));
+        assertEquals("-Infinity", _writeChars(f, Float.NEGATIVE_INFINITY));
+        assertEquals("Infinity", _writeBytes(f, Float.POSITIVE_INFINITY));
+    }
+
+    @Test
+    void testQuotedWithCustomQuoteChar() throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .enable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
+                .enable(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS)
+                .quoteChar('\'')
+                .build();
+        assertEquals("'1.5'", _writeChars(f, 1.5));
+        assertEquals("'1.5'", _writeBytes(f, 1.5));
+        assertEquals("'2.5'", _writeChars(f, 2.5f));
+        assertEquals("'2.5'", _writeBytes(f, 2.5f));
+        assertEquals("'NaN'", _writeChars(f, Double.NaN));
+        assertEquals("'NaN'", _writeBytes(f, Float.NaN));
+    }
+
+    @Test
+    void testQuotedRootValues() throws Exception
+    {
+        // Root-level values get the root value separator via _verifyValueWrite()
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = NUMBERS_AS_STRINGS.createGenerator(ObjectWriteContext.empty(), sw)) {
+            gen.writeNumber(1.5);
+            gen.writeNumber(2.5f);
+        }
+        assertEquals("\"1.5\" \"2.5\"", sw.toString());
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (JsonGenerator gen = NUMBERS_AS_STRINGS.createGenerator(ObjectWriteContext.empty(), bytes)) {
+            gen.writeNumber(1.5);
+            gen.writeNumber(2.5f);
+        }
+        assertEquals("\"1.5\" \"2.5\"", bytes.toString("UTF-8"));
+    }
+
+    @Test
     void testQuotedInObject() throws Exception
     {
         StringWriter sw = new StringWriter();

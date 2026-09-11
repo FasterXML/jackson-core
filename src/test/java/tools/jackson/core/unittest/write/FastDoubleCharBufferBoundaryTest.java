@@ -1,5 +1,6 @@
 package tools.jackson.core.unittest.write;
 
+import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,25 @@ public class FastDoubleCharBufferBoundaryTest extends JacksonCoreTestBase
             gen.writeEndArray();
         }
         _verify(sw.toString(), expectedOne, count);
+    }
+
+    @Test
+    void testFloatsAcrossBufferBoundaryBytes() throws Exception
+    {
+        // Same for UTF8JsonGenerator: float-only so its (smaller) flush reserve is what trips
+        final float v = -Float.MIN_NORMAL;
+        final String expectedOne = NumberOutput.toString(v, true);
+        final int count = 3000;
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (JsonGenerator gen = FAST_FACTORY.createGenerator(ObjectWriteContext.empty(), bytes)) {
+            gen.writeStartArray();
+            for (int i = 0; i < count; ++i) {
+                gen.writeNumber(v);
+            }
+            gen.writeEndArray();
+        }
+        _verify(bytes.toString("UTF-8"), expectedOne, count);
     }
 
     @Test

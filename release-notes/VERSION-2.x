@@ -16,6 +16,8 @@ a pure JSON library.
 
 2.21.7 (not yet released)
 
+#1649: Optimize `NumberInput.looksLikeValidNumber`
+ (fix by @cowtowncoder, w/ Claude code)
 #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
   lands at the output buffer boundary
  (reported by @hdimitrieski)

@@ -114,15 +114,19 @@ public enum StreamWriteFeature
 
     /**
      * Feature that determines whether to use standard Java code to write floats/doubles
-     * (default) or use the Schubfach algorithm which may be faster (but see the next
-     * paragraph for details).
-     * Schubfach algorithm output may have small differences in the precision of the
-     * float/double that compared to JDK default processing.
+     * (default) or use the XJB algorithm which may be faster (but see below for details).
+     * The XJB writer writes directly into the generator's output buffer, avoiding
+     * intermediate {@code String} allocation.
      *<p>
-     * NOTE! Enabling this feature appears to improve performance significantly
-     * up to and including JDK 17, but NOT when using JDK 21
-     * and above -- in fact, it seems that JDK implementation is slightly faster.
-     * Because of this, enabling this feature is only recommended for JDKs 17 and below.
+     * XJB writes the shortest decimal that round-trips to the same value, so output
+     * may differ slightly from JDK default processing. For example, the smallest
+     * subnormals are written with a single significant digit
+     * ({@code Float.MIN_VALUE} as {@code 1.0E-45} instead of {@code 1.4E-45};
+     * {@code Double.MIN_VALUE} as {@code 5.0E-324} instead of {@code 4.9E-324}).
+     *<p>
+     * NOTE! The JDK implementation improved significantly in JDK 19 and above,
+     * so the relative benefit of enabling this feature depends on the JDK version:
+     * benchmarking on target JDK is recommended.
      *<p>
      * Feature is disabled by default, meaning that JDK default conversions are used.
      */

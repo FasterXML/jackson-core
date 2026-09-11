@@ -2,6 +2,7 @@ package tools.jackson.core.unittest.write;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -110,7 +111,7 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
         try (JsonGenerator gen = NUMBERS_AS_STRINGS.createGenerator(ObjectWriteContext.empty(), bytes)) {
             _writeArray(gen, values, fvalues, count);
         }
-        assertEquals(expected.toString(), bytes.toString("UTF-8"));
+        assertEquals(expected.toString(), bytes.toString(StandardCharsets.UTF_8));
     }
 
     @Test
@@ -147,7 +148,7 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
             }
             gen.writeEndArray();
         }
-        assertEquals(expected.toString(), bytes.toString("UTF-8"));
+        assertEquals(expected.toString(), bytes.toString(StandardCharsets.UTF_8));
     }
 
     @Test
@@ -202,7 +203,7 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
             gen.writeNumber(1.5);
             gen.writeNumber(2.5f);
         }
-        assertEquals(a2q("'1.5' '2.5'"), bytes.toString("UTF-8"));
+        assertEquals(a2q("'1.5' '2.5'"), bytes.toString(StandardCharsets.UTF_8));
     }
 
     @Test
@@ -251,7 +252,7 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
         try (JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes)) {
             gen.writeNumber(v);
         }
-        return bytes.toString("UTF-8");
+        return bytes.toString(StandardCharsets.UTF_8);
     }
 
     private String _writeBytes(JsonFactory f, float v) throws Exception {
@@ -259,6 +260,6 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
         try (JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes)) {
             gen.writeNumber(v);
         }
-        return bytes.toString("UTF-8");
+        return bytes.toString(StandardCharsets.UTF_8);
     }
 }

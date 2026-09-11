@@ -2,6 +2,7 @@ package tools.jackson.core.unittest.write;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -78,7 +79,7 @@ public class FastDoubleCharBufferBoundaryTest extends JacksonCoreTestBase
             }
             gen.writeEndArray();
         }
-        _verify(bytes.toString("UTF-8"), expectedOne, count);
+        _verify(bytes.toString(StandardCharsets.UTF_8), expectedOne, count);
     }
 
     @Test

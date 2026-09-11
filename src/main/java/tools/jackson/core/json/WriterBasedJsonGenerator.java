@@ -871,10 +871,15 @@ public class WriterBasedJsonGenerator
             writeString(NumberOutput.toString(d, useFast));
             return this;
         }
-        // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(NumberOutput.toString(d, useFast));
-        return this;
+        if (useFast) {
+            if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES) > _outputEnd) {
+                _flushBuffer();
+            }
+            _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
+            return this;
+        }
+        return writeRaw(NumberOutput.toString(d, false));
     }
 
     @Override
@@ -886,10 +891,15 @@ public class WriterBasedJsonGenerator
             writeString(NumberOutput.toString(f, useFast));
             return this;
         }
-        // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(NumberOutput.toString(f, useFast));
-        return this;
+        if (useFast) {
+            if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES) > _outputEnd) {
+                _flushBuffer();
+            }
+            _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
+            return this;
+        }
+        return writeRaw(NumberOutput.toString(f, false));
     }
 
     @Override

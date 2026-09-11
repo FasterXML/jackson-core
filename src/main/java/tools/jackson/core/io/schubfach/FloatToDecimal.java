@@ -625,5 +625,66 @@ final public class FloatToDecimal {
         }
     }
 
+    /**
+     * Writes the decimal representation of the given {@code float} directly into
+     * the provided char buffer, avoiding any String allocation.
+     *
+     * @param v   the {@code float} to be rendered
+     * @param buf the target char buffer
+     * @param off the offset within {@code buf} to start writing
+     * @return the offset within {@code buf} after the last char written
+     * @since 3.3
+     */
+    public static int writeFloat(float v, char[] buf, int off) {
+        return new FloatToDecimal().toBuffer(v, buf, off);
+    }
+
+    private int toBuffer(float v, char[] buf, int off) {
+        switch (toDecimal(v)) {
+        case NON_SPECIAL:
+            for (int i = 0; i <= index; ++i) {
+                buf[off + i] = (char) bytes[i];
+            }
+            return off + index + 1;
+        case PLUS_ZERO:
+            buf[off]     = '0';
+            buf[off + 1] = '.';
+            buf[off + 2] = '0';
+            return off + 3;
+        case MINUS_ZERO:
+            buf[off]     = '-';
+            buf[off + 1] = '0';
+            buf[off + 2] = '.';
+            buf[off + 3] = '0';
+            return off + 4;
+        case PLUS_INF:
+            buf[off]     = 'I';
+            buf[off + 1] = 'n';
+            buf[off + 2] = 'f';
+            buf[off + 3] = 'i';
+            buf[off + 4] = 'n';
+            buf[off + 5] = 'i';
+            buf[off + 6] = 't';
+            buf[off + 7] = 'y';
+            return off + 8;
+        case MINUS_INF:
+            buf[off]     = '-';
+            buf[off + 1] = 'I';
+            buf[off + 2] = 'n';
+            buf[off + 3] = 'f';
+            buf[off + 4] = 'i';
+            buf[off + 5] = 'n';
+            buf[off + 6] = 'i';
+            buf[off + 7] = 't';
+            buf[off + 8] = 'y';
+            return off + 9;
+        default: // NAN
+            buf[off]     = 'N';
+            buf[off + 1] = 'a';
+            buf[off + 2] = 'N';
+            return off + 3;
+        }
+    }
+
 }
 

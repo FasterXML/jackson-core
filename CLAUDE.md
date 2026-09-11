@@ -152,8 +152,8 @@ separately. `NonBlockingJsonParserBase` holds the shared state/token-id machiner
   strategy is pluggable per-factory. Failing to release a buffer on an error path is a real leak.
 - **`util/TextBuffer`.** Grow-on-demand character accumulator used for decoded string values;
   `ReadConstrainedTextBuffer` is the variant that enforces `maxStringLength`.
-- **`io/NumberInput`, `io/BigDecimalParser`, `io/BigIntegerParser`, `io/schubfach/`.** Number
-  decoding/encoding, delegating to shaded `fastdoubleparser` for `double`/`float` and to Schubfach
+- **`io/NumberInput`, `io/BigDecimalParser`, `io/BigIntegerParser`, `io/xjb/`.** Number
+  decoding/encoding, delegating to shaded `fastdoubleparser` for `double`/`float` and to XJB
   for shortest-repr output.
 
 ### Configuration model

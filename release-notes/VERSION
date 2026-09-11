@@ -40,6 +40,8 @@ JSON library.
 #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property name match
   plus value token advance
  (contributed by @stevenschlansker)
+#1691: Validate name length in `UTF8DataInputJsonParser` before quad buffer growth
+ (reported, fix by DongNyoung L)
 #1697: Add `ByteArrayUtil` with helper methods for byte encoding
 
 3.2.3 (not yet released)

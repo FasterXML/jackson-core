@@ -240,6 +240,33 @@ public abstract class DecorableTSFactory
     }
 
 
+    /*
+    /**********************************************************************
+    /* Helper methods for failed construction
+    /**********************************************************************
+     */
+
+    /**
+     * Method called when construction of parser or generator fails: releases
+     * {@link IOContext} so that {@link tools.jackson.core.util.BufferRecycler}
+     * it leased gets returned to the pool. Without this the lease is simply
+     * dropped, since context is otherwise only released when parser or
+     * generator that owns it gets closed.
+     *
+     * @param ioCtxt Context to release
+     * @param failure Failure to add possible secondary failure to, as suppressed
+     *
+     * @since 3.1.7
+     */
+    static void _releaseOnFailedConstruction(IOContext ioCtxt, RuntimeException failure)
+    {
+        try {
+            ioCtxt.close();
+        } catch (Exception e) {
+            failure.addSuppressed(e);
+        }
+    }
+
     protected JsonGenerator _decorate(JsonGenerator result) {
         if (_generatorDecorators != null) {
             for(JsonGeneratorDecorator decorator : _generatorDecorators) {

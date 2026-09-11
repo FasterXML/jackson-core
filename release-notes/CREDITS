@@ -75,6 +75,9 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1686: Synchronous decimal number parsing buffers oversized
    values before `maxNumberLength` validation
   (3.3.0)
+ * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
+   quad buffer growth
+  (3.1.7)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

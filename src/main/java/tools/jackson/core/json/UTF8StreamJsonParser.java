@@ -1626,7 +1626,7 @@ public class UTF8StreamJsonParser
         while ((qptr + 4) <= _inputEnd) {
             // [core#1516]: Need to check buffer space BEFORE any writes in this iteration
             if (qlen >= _quadBuffer.length) {
-                _quadBuffer = growArrayBy(_quadBuffer, qlen);
+                _quadBuffer = _growNameDecodeBuffer(_quadBuffer, qlen);
             }
             int i = input[qptr++] & 0xFF;
             if (codes[i] != 0) {

@@ -31,20 +31,22 @@ public final class NumberOutput
     public static final int MAX_DOUBLE_BYTES = 24;
 
     /**
-     * Safe buffer size (in chars) for {@link #outputDouble(double, char[], int)};
-     * conservative, as the char[] writer uses no wide stores.
+     * Maximum number of chars {@link #outputDouble(double, char[], int)} may touch:
+     * the longest output, like {@code -2.2250738585072014E-308}
+     * (the char[] writer uses no wide stores, so there is no padding).
      *
      * @since 3.3
      */
-    public static final int MAX_DOUBLE_CHARS = 48;
+    public static final int MAX_DOUBLE_CHARS = 24;
 
     /**
-     * Safe buffer size (in chars) for {@link #outputFloat(float, char[], int)};
-     * conservative, as the char[] writer uses no wide stores.
+     * Maximum number of chars {@link #outputFloat(float, char[], int)} may touch:
+     * the longest output, like {@code -1.00000075E-36}
+     * (the char[] writer uses no wide stores, so there is no padding).
      *
      * @since 3.3
      */
-    public static final int MAX_FLOAT_CHARS = 32;
+    public static final int MAX_FLOAT_CHARS = 15;
 
     /**
      * Encoded representations of 3-decimal-digit indexed values, where

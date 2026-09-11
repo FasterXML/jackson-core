@@ -229,6 +229,8 @@ class ErrorReportConfigurationTest
                 .build();
         // Broken token far longer than the limit: must be truncated, not accumulated in full
         final String doc = _buildBrokenJsonOfLength(50 * maxLen);
+        // limit, plus appended "..."
+        final String expToken = _brokenToken(maxLen) + "...";
 
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(f, mode, doc)) {
@@ -238,8 +240,29 @@ class ErrorReportConfigurationTest
             } catch (JsonProcessingException e) {
                 assertThat(_unrecognizedToken(e.getMessage()))
                         .as("mode: %d", mode)
-                        .hasSize(maxLen + 3) // limit, plus appended "..."
-                        .endsWith("...");
+                        .isEqualTo(expToken);
+            }
+        }
+    }
+
+    // Short broken token (below limit) must be reported verbatim, without
+    // duplicated leading char, in all modes
+    @Test
+    void shortErrorTokenReportedExactlyInAllModes()
+            throws Exception
+    {
+        final JsonFactory f = newStreamFactory();
+        final String doc = "{\"key\":abc!}";
+
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(f, mode, doc)) {
+                p.nextToken();
+                p.nextToken();
+                fail("Should not pass, mode: "+mode);
+            } catch (JsonProcessingException e) {
+                assertThat(_unrecognizedToken(e.getMessage()))
+                        .as("mode: %d", mode)
+                        .isEqualTo("abc");
             }
         }
     }
@@ -359,11 +382,16 @@ class ErrorReportConfigurationTest
 
     private String _buildBrokenJsonOfLength(int len)
     {
-        StringBuilder sb = new StringBuilder("{\"key\":");
+        return "{\"key\":" + _brokenToken(len) + "!}";
+    }
+
+    // Varied (not repeating single) chars so that duplicated/dropped chars are detectable
+    private String _brokenToken(int len)
+    {
+        StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++) {
-            sb.append("a");
+            sb.append((char) ('a' + (i % 26)));
         }
-        sb.append("!}");
         return sb.toString();
     }
 }

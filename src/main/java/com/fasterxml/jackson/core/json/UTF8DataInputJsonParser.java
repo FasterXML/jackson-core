@@ -2133,7 +2133,8 @@ public class UTF8DataInputJsonParser
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(c)) {
-            _reportInvalidToken(c, ""+((char) c), _validJsonTokenList());
+            // NOTE: 'c' is decoded (and appended) by _reportInvalidToken(); do not pre-append
+            _reportInvalidToken(c, "", _validJsonTokenList());
         }
         // but if it doesn't look like a token:
         _reportUnexpectedChar(c, "expected a valid value "+_validJsonValueList());

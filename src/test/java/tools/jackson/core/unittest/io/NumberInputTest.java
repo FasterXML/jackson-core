@@ -249,8 +249,8 @@ class NumberInputTest
         }
     }
 
-    // [core#1649]: `null` check is the first branch of the hand-rolled scanner,
-    // and the only input the exhaustive comparison above cannot express
+    // [core#1649]: `null` check is the first branch of the hand-rolled scanner;
+    // the exhaustive comparison above only generates non-null Strings
     @Test
     void looksLikeValidNumberNull()
     {
@@ -273,8 +273,8 @@ class NumberInputTest
         assertFalse(NumberInput.looksLikeValidNumber("1e\u0662"));
     }
 
-    // [core#1649]: non-numeric tokens are longer than the exhaustive
-    // comparison above reaches
+    // [core#1649]: non-numeric tokens use letters outside the alphabet of
+    // the exhaustive comparison above
     @Test
     void looksLikeValidNumberNonNumericTokens()
     {

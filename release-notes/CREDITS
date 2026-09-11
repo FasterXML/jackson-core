@@ -61,6 +61,9 @@ Lee Dongnyoung (@DongNyoung)
  * Contributed #1667: `JsonParser.willInternPropertyNames()` returns `true` even when
    `CANONICALIZE_PROPERTY_NAMES` is disabled
   (3.2.3)
+ * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
+   quad buffer growth
+  (3.1.7)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

@@ -1632,7 +1632,7 @@ public class UTF8DataInputJsonParser
                         ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -1642,7 +1642,7 @@ public class UTF8DataInputJsonParser
                         ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -1839,7 +1839,7 @@ public class UTF8DataInputJsonParser
                         ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -1849,7 +1849,7 @@ public class UTF8DataInputJsonParser
                         ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;

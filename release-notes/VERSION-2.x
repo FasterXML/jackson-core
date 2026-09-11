@@ -23,7 +23,7 @@ a pure JSON library.
 
 2.22.3 (not yet released)
 
-#1649: Optimize `NumberInput.looksLikeValidNumber`
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
 #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
   lands at the output buffer boundary
@@ -50,7 +50,7 @@ No changes since 2.21
 
 2.21.7 (not yet released)
 
-#1649: Optimize `NumberInput.looksLikeValidNumber`
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
 #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
   lands at the output buffer boundary

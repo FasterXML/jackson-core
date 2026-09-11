@@ -26,6 +26,9 @@ JSON library.
 #1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
   lands at the output buffer boundary
  (fix by @pjfanning)
+#1695: Release encoding buffer and close underlying stream in `UTF8Writer.close()`
+  even if writing of pending content fails
+ (fix by @pjfanning)
 #1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
   when reporting an unrecognized token
  (fix by @pjfanning)

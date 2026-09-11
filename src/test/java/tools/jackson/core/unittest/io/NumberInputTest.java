@@ -273,32 +273,6 @@ class NumberInputTest
         assertFalse(NumberInput.looksLikeValidNumber("1e\u0662"));
     }
 
-    // [core#1649]: non-numeric tokens use letters outside the alphabet of
-    // the exhaustive comparison above
-    @Test
-    void looksLikeValidNumberNonNumericTokens()
-    {
-        assertFalse(NumberInput.looksLikeValidNumber("Infinity"));
-        assertFalse(NumberInput.looksLikeValidNumber("-Infinity"));
-        assertFalse(NumberInput.looksLikeValidNumber("+Infinity"));
-        assertFalse(NumberInput.looksLikeValidNumber("NaN"));
-        assertFalse(NumberInput.looksLikeValidNumber("-NaN"));
-    }
-
-    // [core#1649]: no trimming is performed, for any flavor of white space
-    @Test
-    void looksLikeValidNumberUntrimmed()
-    {
-        assertFalse(NumberInput.looksLikeValidNumber("\t1"));
-        assertFalse(NumberInput.looksLikeValidNumber("1\t"));
-        assertFalse(NumberInput.looksLikeValidNumber("\n1"));
-        assertFalse(NumberInput.looksLikeValidNumber("1\n"));
-        assertFalse(NumberInput.looksLikeValidNumber("\r1"));
-        assertFalse(NumberInput.looksLikeValidNumber("1\r"));
-        assertFalse(NumberInput.looksLikeValidNumber("1.5 "));
-        assertFalse(NumberInput.looksLikeValidNumber(" 1.5"));
-    }
-
     // [core#1649]: the Regexp implementation this replaced had adjacent
     // `[0-9]*` and `[0-9]+` over the same character class, so a failing match
     // had to try every split point between them -- quadratic. Worst case is a

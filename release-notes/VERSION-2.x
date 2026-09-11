@@ -16,6 +16,8 @@ a pure JSON library.
 
 2.18.11 (not yet released)
 
+#1649: Optimize `NumberInput.looksLikeValidNumber`
+ (fix by @cowtowncoder, w/ Claude code)
 #1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
   when reporting an unrecognized token
 

@@ -54,6 +54,11 @@ JSON library.
 #1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
   lands at the output buffer boundary
  (fix by @pjfanning)
+#1692: Fix loss of buffered content when `createGenerator(OutputStream, JsonEncoding)`
+  is used with non-UTF-8 encoding and generator is configured to neither close
+  nor flush the target; also close streams opened for `File`/`Path` targets when
+  generator construction fails
+ (fix by @pjfanning)
 #1694: Release `IOContext` (and `BufferRecycler` lease it holds) when construction of
   parser or generator fails
  (fix by @pjfanning)
@@ -120,6 +125,11 @@ No changes since 3.2.0
  (fix by @kalayciburak)
 #1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
   lands at the output buffer boundary
+ (fix by @pjfanning)
+#1692: Fix loss of buffered content when `createGenerator(OutputStream, JsonEncoding)`
+  is used with non-UTF-8 encoding and generator is configured to neither close
+  nor flush the target; also close streams opened for `File`/`Path` targets when
+  generator construction fails
  (fix by @pjfanning)
 #1694: Release `IOContext` (and `BufferRecycler` lease it holds) when construction of
   parser or generator fails

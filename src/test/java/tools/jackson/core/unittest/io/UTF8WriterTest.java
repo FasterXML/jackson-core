@@ -186,9 +186,32 @@ class UTF8WriterTest
         assertEquals(1, out.writeCount);
     }
 
+    // Same for unchecked failures
+    @Test
+    void releasesResourcesOnFailedCloseUnchecked() throws Exception
+    {
+        FailingOutputStream out = new FailingOutputStream(true);
+        UTF8Writer w = new UTF8Writer(_ioContext(), out);
+        w.write("abc");
+        try {
+            w.close();
+            fail("should not pass");
+        } catch (UncheckedIOException e) {
+            verifyException(e, "write() failing");
+        }
+        assertTrue(out.closed, "Underlying stream should have been closed");
+        w.close();
+        assertEquals(1, out.writeCount);
+    }
+
     static class FailingOutputStream extends OutputStream {
+        private final boolean _unchecked;
         public int writeCount;
         public boolean closed;
+
+        public FailingOutputStream() { this(false); }
+
+        public FailingOutputStream(boolean unchecked) { _unchecked = unchecked; }
 
         @Override
         public void write(int b) throws IOException {
@@ -198,7 +221,11 @@ class UTF8WriterTest
         @Override
         public void write(byte[] b, int off, int len) throws IOException {
             ++writeCount;
-            throw new IOException("write() failing");
+            IOException e = new IOException("write() failing");
+            if (_unchecked) {
+                throw new UncheckedIOException(e);
+            }
+            throw e;
         }
 
         @Override

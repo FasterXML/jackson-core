@@ -65,31 +65,19 @@ public final class UTF8Writer extends Writer
                 OutputStream out = _out;
                 _out = null;
 
-                IOException fail = null;
-                try {
+                // try-with-resources: stream closed on any failure (unchecked too),
+                // with close failure added as suppressed to primary one
+                try (OutputStream o = out) {
                     if (_outPtr > 0) {
-                        out.write(_outBuffer, 0, _outPtr);
-                        _outPtr = 0;
+                        o.write(_outBuffer, 0, _outPtr);
                     }
-                } catch (IOException e) {
-                    fail = e;
-                }
-                byte[] buf = _outBuffer;
-                if (buf != null) {
-                    _outBuffer = null;
-                    _context.releaseWriteEncodingBuffer(buf);
-                }
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    if (fail == null) {
-                        fail = e;
-                    } else {
-                        fail.addSuppressed(e);
+                } finally {
+                    _outPtr = 0;
+                    byte[] buf = _outBuffer;
+                    if (buf != null) {
+                        _outBuffer = null;
+                        _context.releaseWriteEncodingBuffer(buf);
                     }
-                }
-                if (fail != null) {
-                    throw fail;
                 }
 
                 // Let's 'flush' orphan surrogate, no matter what; but only

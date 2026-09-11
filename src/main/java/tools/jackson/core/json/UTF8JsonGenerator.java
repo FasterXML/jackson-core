@@ -1072,7 +1072,11 @@ public class UTF8JsonGenerator
         if (_cfgNumbersAsStrings ||
             (NumberOutput.notFinite(d)
                     && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            writeString(NumberOutput.toString(d, useFast));
+            if (useFast) {
+                _writeQuotedDouble(d);
+                return this;
+            }
+            writeString(NumberOutput.toString(d, false));
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
@@ -1086,6 +1090,19 @@ public class UTF8JsonGenerator
         return writeRaw(NumberOutput.toString(d, false));
     }
 
+    // Quoted equivalent of the fast path: number text is all ASCII and needs no
+    // escaping, so write it straight into the output buffer.
+    private void _writeQuotedDouble(double d) throws JacksonException
+    {
+        _verifyValueWrite(WRITE_STRING);
+        if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES + 2) > _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
+        _outputBuffer[_outputTail++] = _quoteChar;
+    }
+
     @Override
     public JsonGenerator writeNumber(float f) throws JacksonException
     {
@@ -1093,7 +1110,11 @@ public class UTF8JsonGenerator
         if (_cfgNumbersAsStrings ||
             (NumberOutput.notFinite(f)
                     && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            writeString(NumberOutput.toString(f, useFast));
+            if (useFast) {
+                _writeQuotedFloat(f);
+                return this;
+            }
+            writeString(NumberOutput.toString(f, false));
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
@@ -1105,6 +1126,17 @@ public class UTF8JsonGenerator
             return this;
         }
         return writeRaw(NumberOutput.toString(f, false));
+    }
+
+    private void _writeQuotedFloat(float f) throws JacksonException
+    {
+        _verifyValueWrite(WRITE_STRING);
+        if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES + 2) > _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
+        _outputBuffer[_outputTail++] = _quoteChar;
     }
 
     @Override

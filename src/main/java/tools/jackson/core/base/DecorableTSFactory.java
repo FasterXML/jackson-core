@@ -255,6 +255,8 @@ public abstract class DecorableTSFactory
      *
      * @param ioCtxt Context to release
      * @param failure Failure to add possible secondary failure to, as suppressed
+     *
+     * @since 3.1.7
      */
     static void _releaseOnFailedConstruction(IOContext ioCtxt, RuntimeException failure)
     {

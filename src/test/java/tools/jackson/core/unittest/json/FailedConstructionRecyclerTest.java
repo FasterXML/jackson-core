@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
@@ -86,7 +87,7 @@ class FailedConstructionRecyclerTest extends JacksonCoreTestBase
         assertEquals(0, pool.pooledCount());
 
         byte[] doc = utf8Bytes("{\"a\":1}");
-        assertThrows(RuntimeException.class,
+        assertThrows(StreamReadException.class,
                 () -> f.createParser(ObjectReadContext.empty(), doc, 5, 100));
         assertEquals(1, pool.pooledCount());
     }

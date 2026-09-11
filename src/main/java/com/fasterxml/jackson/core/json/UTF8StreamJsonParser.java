@@ -2745,6 +2745,9 @@ public class UTF8StreamJsonParser
             return _handleInvalidNumberStart(_inputBuffer[_inputPtr++] & 0xFF, false, true);
         }
         // [core#77] Try to decode most likely token
+        if (c > 0x7F) { // multi-byte UTF-8 char: decode first (consumes rest of its bytes)
+            c = _decodeCharForError(c);
+        }
         if (Character.isJavaIdentifierStart(c)) {
             _reportInvalidToken(""+((char) c), _validJsonTokenList());
         }
@@ -2990,10 +2993,25 @@ public class UTF8StreamJsonParser
 
     private final void _checkMatchEnd(String matchStr, int i, int ch) throws IOException {
         // but actually only alphanums are problematic
+        if (ch < 0x80) { // single-byte char: can check without consuming it
+            if (Character.isJavaIdentifierPart((char) ch)) {
+                _reportInvalidToken(matchStr.substring(0, i));
+            }
+            return;
+        }
+        // Multi-byte char: must consume lead byte (decoding consumes the rest)
+        final int ptr = _inputPtr++;
+        final long processed = _currInputProcessed;
         char c = (char) _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
-            _reportInvalidToken(matchStr.substring(0, i));
+            _reportInvalidToken(matchStr.substring(0, i) + c);
         }
+        // Not part of token: rewind so regular handling reports it -- unless
+        // buffer was reloaded during decoding, in which case must report here
+        if (_currInputProcessed != processed) {
+            _reportUnexpectedChar(c, "expected white space, comma or end marker after token '"+matchStr+"'");
+        }
+        _inputPtr = ptr;
     }
 
     /*

@@ -2275,7 +2275,9 @@ public class UTF8DataInputJsonParser
         // but actually only alphanums are problematic
         char c = (char) _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
-            _reportInvalidToken(c, matchStr.substring(0, i));
+            // 'c' already decoded (all of its bytes consumed): include it as matched,
+            // continue from the following byte
+            _reportInvalidToken(_inputData.readUnsignedByte(), matchStr.substring(0, i) + c);
         }
     }
 

@@ -4,8 +4,14 @@ import java.io.*;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.ErrorReportConfiguration;
+import tools.jackson.core.JsonEncoding;
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.StreamWriteConstraints;
+import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.UTF8Writer;
+import tools.jackson.core.util.BufferRecycler;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -161,6 +167,85 @@ class UTF8WriterTest
                 }
             }
         }
+    }
+
+    // Failure to write out pending content must not prevent releasing of the
+    // encoding buffer and closing of the underlying stream
+    @Test
+    void releasesResourcesOnFailedClose() throws Exception
+    {
+        _verifyReleaseOnFailedClose(false);
+    }
+
+    // Same for unchecked failures
+    @Test
+    void releasesResourcesOnFailedCloseUnchecked() throws Exception
+    {
+        _verifyReleaseOnFailedClose(true);
+    }
+
+    private void _verifyReleaseOnFailedClose(boolean unchecked) throws Exception
+    {
+        TrackingBufferRecycler br = new TrackingBufferRecycler();
+        FailingOutputStream out = new FailingOutputStream(unchecked);
+        UTF8Writer w = new UTF8Writer(new IOContext(StreamReadConstraints.defaults(),
+                StreamWriteConstraints.defaults(), ErrorReportConfiguration.defaults(),
+                br, ContentReference.unknown(), false, JsonEncoding.UTF8),
+                out);
+        w.write("abc");
+        // nothing pushed to stream yet, so failure occurs during close():
+        assertEquals(0, out.writeCount);
+        try {
+            w.close();
+            fail("should not pass");
+        } catch (IOException | UncheckedIOException e) {
+            verifyException(e, "write() failing");
+        }
+        assertTrue(out.closed, "Underlying stream should have been closed");
+        assertEquals(1, br.encodingBufferReleases, "Encoding buffer should have been released");
+
+        // and second close() is a no-op, not a retry of the failed write
+        w.close();
+        assertEquals(1, out.writeCount);
+        assertEquals(1, br.encodingBufferReleases);
+    }
+
+    static class TrackingBufferRecycler extends BufferRecycler {
+        public int encodingBufferReleases;
+
+        @Override
+        public void releaseByteBuffer(int ix, byte[] buffer) {
+            if (ix == BYTE_WRITE_ENCODING_BUFFER) {
+                ++encodingBufferReleases;
+            }
+            super.releaseByteBuffer(ix, buffer);
+        }
+    }
+
+    static class FailingOutputStream extends OutputStream {
+        private final boolean _unchecked;
+        public int writeCount;
+        public boolean closed;
+
+        public FailingOutputStream(boolean unchecked) { _unchecked = unchecked; }
+
+        @Override
+        public void write(int b) throws IOException {
+            write(new byte[] { (byte) b }, 0, 1);
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            ++writeCount;
+            IOException e = new IOException("write() failing");
+            if (_unchecked) {
+                throw new UncheckedIOException(e);
+            }
+            throw e;
+        }
+
+        @Override
+        public void close() { closed = true; }
     }
 
     private IOContext _ioContext() {

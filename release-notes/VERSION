@@ -31,6 +31,9 @@ JSON library.
   nor flush the target; also close streams opened for `File`/`Path` targets when
   generator construction fails
  (fix by @pjfanning)
+#1694: Release `IOContext` (and `BufferRecycler` lease it holds) when construction of
+  parser or generator fails
+ (fix by @pjfanning)
 #1695: Release encoding buffer and close underlying stream in `UTF8Writer.close()`
   even if writing of pending content fails
  (fix by @pjfanning)

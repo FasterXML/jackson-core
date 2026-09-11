@@ -167,6 +167,14 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
+2.18.11 (not yet released)
+
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
+ (fix by @cowtowncoder, w/ Claude code)
+#1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
+  when reporting an unrecognized token
+ (fix by @pjfanning)
+
 2.18.10 (15-Aug-2026)
 
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case

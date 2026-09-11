@@ -3212,6 +3212,7 @@ public class ReaderBasedJsonParser
                 _currInputRow, col);
 
         StringBuilder sb = new StringBuilder(matchedPart);
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while ((_inputPtr < _inputEnd) || _loadMore()) {
             char c = _inputBuffer[_inputPtr];
             if (!Character.isJavaIdentifierPart(c)) {
@@ -3219,7 +3220,7 @@ public class ReaderBasedJsonParser
             }
             ++_inputPtr;
             sb.append(c);
-            if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+            if (sb.length() >= maxTokenLength) {
                 sb.append("...");
                 break;
             }

@@ -69,17 +69,17 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
     void testNaNAsStrings() throws Exception
     {
         // Only non-finite values get quoted
-        assertEquals(a2q("'NaN'"), _writeChars(NAN_AS_STRINGS, Double.NaN));
-        assertEquals(a2q("'NaN'"), _writeBytes(NAN_AS_STRINGS, Double.NaN));
-        assertEquals(a2q("'-Infinity'"), _writeChars(NAN_AS_STRINGS, Double.NEGATIVE_INFINITY));
-        assertEquals(a2q("'Infinity'"), _writeBytes(NAN_AS_STRINGS, Double.POSITIVE_INFINITY));
+        assertEquals(q("NaN"), _writeChars(NAN_AS_STRINGS, Double.NaN));
+        assertEquals(q("NaN"), _writeBytes(NAN_AS_STRINGS, Double.NaN));
+        assertEquals(q("-Infinity"), _writeChars(NAN_AS_STRINGS, Double.NEGATIVE_INFINITY));
+        assertEquals(q("Infinity"), _writeBytes(NAN_AS_STRINGS, Double.POSITIVE_INFINITY));
         assertEquals("1.5", _writeChars(NAN_AS_STRINGS, 1.5));
         assertEquals("1.5", _writeBytes(NAN_AS_STRINGS, 1.5));
 
-        assertEquals(a2q("'NaN'"), _writeChars(NAN_AS_STRINGS, Float.NaN));
-        assertEquals(a2q("'NaN'"), _writeBytes(NAN_AS_STRINGS, Float.NaN));
-        assertEquals(a2q("'-Infinity'"), _writeChars(NAN_AS_STRINGS, Float.NEGATIVE_INFINITY));
-        assertEquals(a2q("'Infinity'"), _writeBytes(NAN_AS_STRINGS, Float.POSITIVE_INFINITY));
+        assertEquals(q("NaN"), _writeChars(NAN_AS_STRINGS, Float.NaN));
+        assertEquals(q("NaN"), _writeBytes(NAN_AS_STRINGS, Float.NaN));
+        assertEquals(q("-Infinity"), _writeChars(NAN_AS_STRINGS, Float.NEGATIVE_INFINITY));
+        assertEquals(q("Infinity"), _writeBytes(NAN_AS_STRINGS, Float.POSITIVE_INFINITY));
         assertEquals("1.5", _writeChars(NAN_AS_STRINGS, 1.5f));
         assertEquals("1.5", _writeBytes(NAN_AS_STRINGS, 1.5f));
     }

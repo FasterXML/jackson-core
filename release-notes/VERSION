@@ -71,7 +71,7 @@ JSON library.
  (fix by Revanth M)
 #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
-#1649: Optimize `NumberInput.looksLikeValidNumber`
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
 #1657: UTF8JsonGenerator: writeNumber fast path that avoids extra String allocation
  (implemented by @pjfanning)
@@ -106,7 +106,7 @@ No changes since 3.2.0
 
 3.1.7 (not yet released)
 
-#1649: Optimize `NumberInput.looksLikeValidNumber`
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
 #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
   lands at the output buffer boundary

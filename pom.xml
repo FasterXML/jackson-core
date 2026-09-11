@@ -10,7 +10,6 @@
     <artifactId>jackson-base</artifactId>
     <version>2.18.11-SNAPSHOT</version>
   </parent>
-
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>

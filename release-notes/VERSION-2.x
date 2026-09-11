@@ -46,6 +46,9 @@ No changes since 2.21
   lands at the output buffer boundary
  (reported by @hdimitrieski)
  (fix by @kalayciburak)
+#1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
+  when reporting an unrecognized token
+ (fix by @pjfanning)
 
 2.21.6 (14-Aug-2026)
 

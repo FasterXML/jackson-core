@@ -14,6 +14,11 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.18.11 (not yet released)
+
+#1649: Optimize `NumberInput.looksLikeValidNumber`
+ (fix by @cowtowncoder, w/ Claude code)
+
 2.18.10 (15-Aug-2026)
 
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case

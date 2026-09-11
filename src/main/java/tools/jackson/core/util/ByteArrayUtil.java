@@ -17,6 +17,30 @@ public final class ByteArrayUtil
      */
 
     /**
+     * Reads 2 bytes starting at given offset as a little-endian {@code short}.
+     * Caller MUST have verified that {@code offset+2} is within bounds of
+     * given array.
+     *
+     * @since 3.3
+     */
+    public static short getShortLE(byte[] buffer, int offset) {
+        return (short) ((buffer[offset] & 0xFF)
+                | ((buffer[offset+1] & 0xFF) << 8));
+    }
+
+    /**
+     * Reads 2 bytes starting at given offset as a big-endian {@code short}.
+     * Caller MUST have verified that {@code offset+2} is within bounds of
+     * given array.
+     *
+     * @since 3.3
+     */
+    public static short getShortBE(byte[] buffer, int offset) {
+        return (short) (((buffer[offset] & 0xFF) << 8)
+                | (buffer[offset+1] & 0xFF));
+    }
+
+    /**
      * Reads 4 bytes starting at given offset as a little-endian {@code int}.
      * Caller MUST have verified that {@code offset+4} is within bounds of
      * given array.
@@ -69,6 +93,28 @@ public final class ByteArrayUtil
     /* Writing
     /**********************************************************************
      */
+
+    /**
+     * Writes given {@code short} as 2 little-endian bytes at given offset; caller
+     * MUST have verified that {@code offset+2} is within bounds of given array.
+     *
+     * @since 3.3
+     */
+    public static void setShortLE(byte[] buffer, int offset, short value) {
+        buffer[offset] = (byte) value;
+        buffer[offset+1] = (byte) (value >> 8);
+    }
+
+    /**
+     * Writes given {@code short} as 2 big-endian bytes at given offset; caller
+     * MUST have verified that {@code offset+2} is within bounds of given array.
+     *
+     * @since 3.3
+     */
+    public static void setShortBE(byte[] buffer, int offset, short value) {
+        buffer[offset] = (byte) (value >> 8);
+        buffer[offset+1] = (byte) value;
+    }
 
     /**
      * Writes given {@code int} as 4 little-endian bytes at given offset; caller

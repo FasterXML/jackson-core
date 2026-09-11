@@ -1,6 +1,7 @@
 package tools.jackson.core.io.xjb;
 
 import tools.jackson.core.io.NumberOutput;
+import tools.jackson.core.util.ByteArrayUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -768,7 +769,7 @@ public final class XJBWriter {
 
     // ------------------------------------------------------------------
     // Little-endian byte array access — VarHandle via XJBVarHandleAccess on Java 9+,
-    // manual fallback for Android (where XJBVarHandleAccess fails to load)
+    // ByteArrayUtil byte-shifting fallback for Android (where XJBVarHandleAccess fails to load)
     // ------------------------------------------------------------------
 
     // MethodHandles bound to XJBVarHandleAccess static methods; null on Android
@@ -791,7 +792,7 @@ public final class XJBWriter {
             getLong = lookup.findStatic(vhAccess, "getLong",
                     MethodType.methodType(long.class, byte[].class, int.class));
         } catch (Throwable t) {
-            // Android SDK or older JDK without VarHandle — fall back to manual byte access
+            // Android SDK or older JDK without VarHandle — fall back to ByteArrayUtil
         }
         MH_SET_INT = setInt;
         MH_SET_SHORT = setShort;
@@ -806,7 +807,7 @@ public final class XJBWriter {
                 return;
             } catch (Throwable t) { /* fall through */ }
         }
-        setIntFallback(buf, pos, v);
+        ByteArrayUtil.setIntLE(buf, pos, v);
     }
 
     private static void setShort(byte[] buf, int pos, short v) {
@@ -816,7 +817,7 @@ public final class XJBWriter {
                 return;
             } catch (Throwable t) { /* fall through */ }
         }
-        setShortFallback(buf, pos, v);
+        ByteArrayUtil.setShortLE(buf, pos, v);
     }
 
     private static void setLong(byte[] buf, int pos, long v) {
@@ -826,7 +827,7 @@ public final class XJBWriter {
                 return;
             } catch (Throwable t) { /* fall through */ }
         }
-        setLongFallback(buf, pos, v);
+        ByteArrayUtil.setLongLE(buf, pos, v);
     }
 
     private static long getLong(byte[] buf, int pos) {
@@ -835,46 +836,7 @@ public final class XJBWriter {
                 return (long) MH_GET_LONG.invokeExact(buf, pos);
             } catch (Throwable t) { /* fall through */ }
         }
-        return getLongFallback(buf, pos);
-    }
-
-    // ------------------------------------------------------------------
-    // Fallback byte-level implementations (used on Android / without VarHandle)
-    // Package-private so tests can exercise them directly.
-    // ------------------------------------------------------------------
-
-    static void setIntFallback(byte[] buf, int pos, int v) {
-        buf[pos]     = (byte) v;
-        buf[pos + 1] = (byte) (v >> 8);
-        buf[pos + 2] = (byte) (v >> 16);
-        buf[pos + 3] = (byte) (v >> 24);
-    }
-
-    static void setShortFallback(byte[] buf, int pos, short v) {
-        buf[pos]     = (byte) v;
-        buf[pos + 1] = (byte) (v >> 8);
-    }
-
-    static void setLongFallback(byte[] buf, int pos, long v) {
-        buf[pos]     = (byte) v;
-        buf[pos + 1] = (byte) (v >> 8);
-        buf[pos + 2] = (byte) (v >> 16);
-        buf[pos + 3] = (byte) (v >> 24);
-        buf[pos + 4] = (byte) (v >> 32);
-        buf[pos + 5] = (byte) (v >> 40);
-        buf[pos + 6] = (byte) (v >> 48);
-        buf[pos + 7] = (byte) (v >> 56);
-    }
-
-    static long getLongFallback(byte[] buf, int pos) {
-        return (buf[pos] & 0xFFL)
-                | ((buf[pos + 1] & 0xFFL) << 8)
-                | ((buf[pos + 2] & 0xFFL) << 16)
-                | ((buf[pos + 3] & 0xFFL) << 24)
-                | ((buf[pos + 4] & 0xFFL) << 32)
-                | ((buf[pos + 5] & 0xFFL) << 40)
-                | ((buf[pos + 6] & 0xFFL) << 48)
-                | ((buf[pos + 7] & 0xFFL) << 56);
+        return ByteArrayUtil.getLongLE(buf, pos);
     }
 
     // ------------------------------------------------------------------

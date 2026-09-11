@@ -17,9 +17,11 @@ import java.nio.charset.StandardCharsets;
  *
  * This is a faithful, mostly line-for-line transliteration of the Scala source into
  * plain Java (no external dependencies), preserving all bit tricks and lookup tables.
- * Output matches {@code Float.toString}/{@code Double.toString} formatting conventions
- * (shortest round-tripping decimal, same switch to scientific notation thresholds as
- * used by jsoniter-scala, i.e. decimal exponent &lt; -3 or &gt;= 7 for float/double).
+ * Output follows {@code Float.toString}/{@code Double.toString} formatting conventions
+ * (scientific notation for decimal exponent &lt; -3 or &gt;= 7), and is the shortest
+ * decimal that round-trips. Unlike the JDK, no second digit is added when the shortest
+ * has only one: so the smallest subnormals differ (e.g. {@code Double.MIN_VALUE} is
+ * written as {@code 5.0E-324}, JDK gives {@code 4.9E-324}).
  *
  * @since 3.3
  */

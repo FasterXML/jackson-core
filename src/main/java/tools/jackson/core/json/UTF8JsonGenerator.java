@@ -226,14 +226,15 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+        name.getChars(0, len, _charBuffer, 0);
         // But as one segment, or multiple?
         if (len <= _outputMaxContiguous) {
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
             }
-            _writeStringSegment(name, 0, len);
+            _writeStringSegment(_charBuffer, 0, len);
         } else {
-            _writeStringSegments(name, 0, len);
+            _writeStringSegments(_charBuffer, 0, len);
         }
         // and closing quotes; need room for one more char:
         if (_outputTail >= _outputEnd) {
@@ -527,7 +528,7 @@ public class UTF8JsonGenerator
         }
         // First: if we can't guarantee it all fits, quoted, within output, offline
         final int len = text.length();
-        if (len > _outputMaxContiguous) { // nope: off-line handling
+        if ((len > _outputMaxContiguous) || (len > _charBufferLength)) { // nope: off-line handling
             _writeStringSegments(text, true);
             return this;
         }
@@ -535,7 +536,8 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
-        _writeStringSegment(text, 0, len); // we checked space already above
+        text.getChars(0, len, _charBuffer, 0);
+        _writeStringSegment(_charBuffer, 0, len); // we checked space already above
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -1412,11 +1414,16 @@ public class UTF8JsonGenerator
 
     /**
      * Method called when String to write is long enough not to fit
-     * completely in temporary copy buffer. If so, we will actually
-     * copy it in small enough chunks so it can be directly fed
-     * to single-segment writes (instead of maximum slices that
-     * would fit in copy buffer)
+     * completely in output buffer (or temporary copy buffer). If so,
+     * we will copy it into the copy buffer in chunks, and write
+     * each chunk out via {@link #_writeStringSegments(char[], int, int)}.
      */
+    // 13-Sep-2026, pjfanning: [core#1680] String content is always copied to
+    //   `_charBuffer` (via intrinsic `String.getChars()`) and encoded from there,
+    //   instead of being scanned with `String.charAt()`: that method has a single
+    //   JVM-wide branch profile, and one call on a non-Latin1 String anywhere in
+    //   the process leaves an out-of-line `StringUTF16.charAt` call in every ASCII
+    //   `charAt` loop C2 compiles afterwards, preventing unrolling and forcing spills.
     private final void _writeStringSegments(String text, boolean addQuotes) throws JacksonException
     {
         if (addQuotes) {
@@ -1426,22 +1433,20 @@ public class UTF8JsonGenerator
             _outputBuffer[_outputTail++] = _quoteChar;
         }
 
-        int left = text.length();
+        final char[] cbuf = _charBuffer;
+        final int totalLen = text.length();
         int offset = 0;
 
-        while (left > 0) {
-            int len = Math.min(_outputMaxContiguous, left);
-            // [core#1473]: avoid splitting surrogates between two segments.
+        while (offset < totalLen) {
+            int len = Math.min(cbuf.length, totalLen - offset);
+            text.getChars(offset, offset + len, cbuf, 0);
+            // [core#1473]: avoid splitting surrogates between two chunks.
             // if len == 1 (edge case) don't apply to avoid infinite loop
-            if (len > 1 && _isStartOfSurrogatePair(text.charAt(offset + len-1))) {
+            if (len > 1 && _isStartOfSurrogatePair(cbuf[len-1])) {
                 --len;
             }
-            if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
-                _flushBuffer();
-            }
-            _writeStringSegment(text, offset, len);
+            _writeStringSegments(cbuf, 0, len);
             offset += len;
-            left -= len;
         }
 
         if (addQuotes) {
@@ -1471,24 +1476,6 @@ public class UTF8JsonGenerator
                 _flushBuffer();
             }
             _writeStringSegment(cbuf, offset, len);
-            offset += len;
-            totalLen -= len;
-        } while (totalLen > 0);
-    }
-
-    private final void _writeStringSegments(String text, int offset, int totalLen) throws JacksonException
-    {
-        do {
-            int len = Math.min(_outputMaxContiguous, totalLen);
-            // [core#1473]: avoid splitting surrogates between two segments.
-            // if len == 1 (edge case) don't apply to avoid infinite loop
-            if (len > 1 && _isStartOfSurrogatePair(text.charAt(offset + len-1))) {
-                --len;
-            }
-            if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
-                _flushBuffer();
-            }
-            _writeStringSegment(text, offset, len);
             offset += len;
             totalLen -= len;
         } while (totalLen > 0);
@@ -1539,37 +1526,6 @@ public class UTF8JsonGenerator
                 _writeStringSegmentASCII2(cbuf, offset, len);
             }
 
-        }
-    }
-
-    private final void _writeStringSegment(String text, int offset, int len) throws JacksonException
-    {
-        // note: caller MUST ensure (via flushing) there's room for ASCII only
-        // Fast+tight loop for ASCII-only, no-escaping-needed output
-        len += offset; // becomes end marker, then
-
-        int outputPtr = _outputTail;
-        final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
-
-        while (offset < len) {
-            int ch = text.charAt(offset);
-            // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
-                break;
-            }
-            outputBuffer[outputPtr++] = (byte) ch;
-            ++offset;
-        }
-        _outputTail = outputPtr;
-        if (offset < len) {
-            if (_characterEscapes != null) {
-                _writeCustomStringSegment2(text, offset, len);
-            } else if (_maximumNonEscapedChar == 0) {
-                _writeStringSegment2(text, offset, len);
-            } else {
-                _writeStringSegmentASCII2(text, offset, len);
-            }
         }
     }
 
@@ -1629,57 +1585,6 @@ public class UTF8JsonGenerator
         _outputTail = outputPtr;
     }
 
-    private final void _writeStringSegment2(final String text, int offset, final int end) throws JacksonException
-    {
-        if ((_outputTail +  6 * (end - offset)) > _outputEnd) {
-            _flushBuffer();
-        }
-
-        int outputPtr = _outputTail;
-
-        final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
-
-        while (offset < end) {
-            int ch = text.charAt(offset++);
-            if (ch <= 0x7F) {
-                 if (escCodes[ch] == 0) {
-                     outputBuffer[outputPtr++] = (byte) ch;
-                     continue;
-                 }
-                 int escape = escCodes[ch];
-                 if (escape > 0) { // 2-char escape, fine
-                     outputBuffer[outputPtr++] = BYTE_BACKSLASH;
-                     outputBuffer[outputPtr++] = (byte) escape;
-                 } else {
-                     // ctrl-char, 6-byte escape...
-                     outputPtr = _writeGenericEscape(ch, outputPtr);
-                }
-                continue;
-            }
-            if (ch <= 0x7FF) { // fine, just needs 2 byte output
-                outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
-                outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
-            } else {
-                // 3- or 4-byte character
-                if (_isStartOfSurrogatePair(ch)) {
-                    final boolean combineSurrogates = JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_formatWriteFeatures);
-                    if (combineSurrogates && offset < end) {
-                        char highSurrogate = (char) ch;
-                        char lowSurrogate = text.charAt(offset);
-                        if (_isEndOfSurrogatePair(lowSurrogate)) {
-                            offset++;
-                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                            continue;
-                        }
-                    }
-                }
-                outputPtr = _outputMultiByteChar(ch, outputPtr);
-            }
-        }
-        _outputTail = outputPtr;
-    }
-
     /*
     /**********************************************************************
     /* Internal methods, low-level writing, text segment
@@ -1705,50 +1610,6 @@ public class UTF8JsonGenerator
 
         while (offset < end) {
             int ch = cbuf[offset++];
-            if (ch <= 0x7F) {
-                 if (escCodes[ch] == 0) {
-                     outputBuffer[outputPtr++] = (byte) ch;
-                     continue;
-                 }
-                 int escape = escCodes[ch];
-                 if (escape > 0) { // 2-char escape, fine
-                     outputBuffer[outputPtr++] = BYTE_BACKSLASH;
-                     outputBuffer[outputPtr++] = (byte) escape;
-                 } else {
-                     // ctrl-char, 6-byte escape...
-                     outputPtr = _writeGenericEscape(ch, outputPtr);
-                 }
-                 continue;
-            }
-            if (ch > maxUnescaped) { // [JACKSON-102] Allow forced escaping if non-ASCII (etc) chars:
-                outputPtr = _writeGenericEscape(ch, outputPtr);
-                continue;
-            }
-            if (ch <= 0x7FF) { // fine, just needs 2 byte output
-                outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
-                outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
-            } else {
-                outputPtr = _outputMultiByteChar(ch, outputPtr);
-            }
-        }
-        _outputTail = outputPtr;
-    }
-
-    private final void _writeStringSegmentASCII2(final String text, int offset, final int end) throws JacksonException
-    {
-        // Ok: caller guarantees buffer can have room; but that may require flushing:
-        if ((_outputTail +  6 * (end - offset)) > _outputEnd) {
-            _flushBuffer();
-        }
-
-        int outputPtr = _outputTail;
-
-        final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
-        final int maxUnescaped = _maximumNonEscapedChar;
-
-        while (offset < end) {
-            int ch = text.charAt(offset++);
             if (ch <= 0x7F) {
                  if (escCodes[ch] == 0) {
                      outputBuffer[outputPtr++] = (byte) ch;
@@ -1846,76 +1707,6 @@ public class UTF8JsonGenerator
                     if (combineSurrogates && offset < end) {
                         char highSurrogate = (char) ch;
                         char lowSurrogate = cbuf[offset];
-                        if (_isEndOfSurrogatePair(lowSurrogate)) {
-                            offset++;
-                            outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);
-                            continue;
-                        }
-                    }
-                }
-                outputPtr = _outputMultiByteChar(ch, outputPtr);
-            }
-        }
-        _outputTail = outputPtr;
-    }
-
-    private final void _writeCustomStringSegment2(final String text, int offset, final int end) throws JacksonException
-    {
-        // Ok: caller guarantees buffer can have room; but that may require flushing:
-        if ((_outputTail +  6 * (end - offset)) > _outputEnd) {
-            _flushBuffer();
-        }
-        int outputPtr = _outputTail;
-
-        final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
-        // may or may not have this limit
-        final int maxUnescaped = (_maximumNonEscapedChar <= 0) ? 0xFFFF : _maximumNonEscapedChar;
-        final CharacterEscapes customEscapes = _characterEscapes; // non-null
-
-        while (offset < end) {
-            int ch = text.charAt(offset++);
-            if (ch <= 0x7F) {
-                 if (escCodes[ch] == 0) {
-                     outputBuffer[outputPtr++] = (byte) ch;
-                     continue;
-                 }
-                 int escape = escCodes[ch];
-                 if (escape > 0) { // 2-char escape, fine
-                     outputBuffer[outputPtr++] = BYTE_BACKSLASH;
-                     outputBuffer[outputPtr++] = (byte) escape;
-                 } else if (escape == CharacterEscapes.ESCAPE_CUSTOM) {
-                     SerializableString esc = customEscapes.getEscapeSequence(ch);
-                     if (esc == null) {
-                         _reportError("Invalid custom escape definitions; custom escape not found for character code 0x"
-                                 +Integer.toHexString(ch)+", although was supposed to have one");
-                     }
-                     outputPtr = _writeCustomEscape(outputBuffer, outputPtr, esc, end-offset);
-                 } else {
-                     // ctrl-char, 6-byte escape...
-                     outputPtr = _writeGenericEscape(ch, outputPtr);
-                 }
-                 continue;
-            }
-            if (ch > maxUnescaped) { // [JACKSON-102] Allow forced escaping if non-ASCII (etc) chars:
-                outputPtr = _writeGenericEscape(ch, outputPtr);
-                continue;
-            }
-            SerializableString esc = customEscapes.getEscapeSequence(ch);
-            if (esc != null) {
-                outputPtr = _writeCustomEscape(outputBuffer, outputPtr, esc, end-offset);
-                continue;
-            }
-            if (ch <= 0x7FF) { // fine, just needs 2 byte output
-                outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
-                outputBuffer[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
-            } else {
-                // 3- or 4-byte character
-                if (_isStartOfSurrogatePair(ch)) {
-                    final boolean combineSurrogates = JsonWriteFeature.COMBINE_UNICODE_SURROGATES_IN_UTF8.enabledIn(_formatWriteFeatures);
-                    if (combineSurrogates && offset < end) {
-                        char highSurrogate = (char) ch;
-                        char lowSurrogate = text.charAt(offset);
                         if (_isEndOfSurrogatePair(lowSurrogate)) {
                             offset++;
                             outputPtr = _outputSurrogatePair(highSurrogate, lowSurrogate, outputPtr);

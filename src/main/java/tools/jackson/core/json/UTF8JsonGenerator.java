@@ -1058,9 +1058,9 @@ public class UTF8JsonGenerator
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
-            _writeQuotedRaw(value.toString());
+            _writeQuotedAscii(value.toString());
         } else {
-            writeRaw(value.toString());
+            _writeRawAscii(value.toString());
         }
         return this;
     }
@@ -1083,7 +1083,8 @@ public class UTF8JsonGenerator
             _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
             return this;
         }
-        return writeRaw(NumberOutput.toString(d, false));
+        _writeRawAscii(NumberOutput.toString(d, false));
+        return this;
     }
 
     // Number text is all ASCII and needs no escaping, so write it out raw, same as
@@ -1093,7 +1094,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite(WRITE_STRING);
         if (!useFast) {
-            _writeQuotedRaw(NumberOutput.toString(d, false));
+            _writeQuotedAscii(NumberOutput.toString(d, false));
             return;
         }
         if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES + 2) > _outputEnd) {
@@ -1122,14 +1123,15 @@ public class UTF8JsonGenerator
             _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
             return this;
         }
-        return writeRaw(NumberOutput.toString(f, false));
+        _writeRawAscii(NumberOutput.toString(f, false));
+        return this;
     }
 
     private final void _writeQuotedFloat(float f, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
         if (!useFast) {
-            _writeQuotedRaw(NumberOutput.toString(f, false));
+            _writeQuotedAscii(NumberOutput.toString(f, false));
             return;
         }
         if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES + 2) > _outputEnd) {
@@ -1148,9 +1150,9 @@ public class UTF8JsonGenerator
         if (value == null) {
             _writeNull();
         } else  if (_cfgNumbersAsStrings) {
-            _writeQuotedRaw(_asString(value));
+            _writeQuotedAscii(_asString(value));
         } else {
-            writeRaw(_asString(value));
+            _writeRawAscii(_asString(value));
         }
         return this;
     }
@@ -1178,6 +1180,51 @@ public class UTF8JsonGenerator
             writeRaw(encodedValueBuffer, offset, length);
         }
         return this;
+    }
+
+    // Number text is pure ASCII: copy straight into the output byte[] instead of
+    // going through writeRaw(String), which first copies into _charBuffer and then
+    // runs the UTF-8 encoding loop (with 3x room reservation) over it.
+    private final void _writeRawAscii(String text) throws JacksonException
+    {
+        int offset = 0;
+        int len = text.length();
+        while (true) {
+            int room = _outputEnd - _outputTail;
+            if (room >= len) {
+                break;
+            }
+            // Chunk: only reachable for very long BigInteger/BigDecimal text
+            _copyAscii(text, offset, room);
+            offset += room;
+            len -= room;
+            _flushBuffer();
+        }
+        _copyAscii(text, offset, len);
+    }
+
+    private final void _copyAscii(String text, int offset, int len)
+    {
+        final byte[] buf = _outputBuffer;
+        int ptr = _outputTail;
+        final int end = offset + len;
+        for (int i = offset; i < end; ++i) {
+            buf[ptr++] = (byte) text.charAt(i);
+        }
+        _outputTail = ptr;
+    }
+
+    private final void _writeQuotedAscii(String value) throws JacksonException
+    {
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        _writeRawAscii(value);
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
     }
 
     private final void _writeQuotedRaw(String value) throws JacksonException

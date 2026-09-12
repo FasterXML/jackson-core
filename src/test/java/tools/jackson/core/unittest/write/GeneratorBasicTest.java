@@ -15,6 +15,8 @@ import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.TokenStreamContext;
 import tools.jackson.core.TokenStreamFactory;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.core.unittest.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -217,6 +219,44 @@ public class GeneratorBasicTest
 
         assertEquals("{\"short\":3,\"int\":3,\"long\":3,\"big\":1707,\"double\":0.25,\"float\":-0.25,\"decimal\":17.07}",
                 docStr.trim());
+    }
+
+    // Number text longer than the output buffer must be chunked across flushes,
+    // both plain and quoted (WRITE_NUMBERS_AS_STRINGS), for all number types
+    // written via their String form
+    @Test
+    void longNumberTextAcrossBufferBoundary() throws Exception
+    {
+        final StringBuilder sb = new StringBuilder(20_000);
+        sb.append('7');
+        for (int i = 0; i < 19_999; ++i) {
+            sb.append((char) ('0' + (i % 10)));
+        }
+        final String digits = sb.toString();
+        final BigInteger bigInt = new BigInteger(digits);
+        final BigDecimal bigDec = new BigDecimal(digits + ".5");
+
+        for (boolean quoted : new boolean[] { false, true }) {
+            TokenStreamFactory f = JsonFactory.builder()
+                    .configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS, quoted)
+                    .build();
+            for (boolean useBytes : new boolean[] { false, true }) {
+                StringWriter sw = new StringWriter();
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                JsonGenerator gen = useBytes
+                        ? f.createGenerator(ObjectWriteContext.empty(), bytes)
+                        : f.createGenerator(ObjectWriteContext.empty(), sw);
+                gen.writeStartArray();
+                gen.writeNumber(bigInt);
+                gen.writeNumber(bigDec);
+                gen.writeEndArray();
+                gen.close();
+
+                String q = quoted ? "\"" : "";
+                String exp = "[" + q + digits + q + "," + q + digits + ".5" + q + "]";
+                assertEquals(exp, useBytes ? utf8String(bytes) : sw.toString());
+            }
+        }
     }
 
     /**

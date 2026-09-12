@@ -267,6 +267,26 @@ public abstract class DecorableTSFactory
         }
     }
 
+    /**
+     * Method called when construction of parser or generator fails after
+     * Jackson has opened source or target itself (from {@link java.io.File} or
+     * {@link java.nio.file.Path}): closes it so that it does not get leaked.
+     * Caller-provided sources and targets are never passed here.
+     *
+     * @param toClose Source/target Jackson opened, if any ({@code null} if not yet opened)
+     * @param failure Failure to add possible secondary failure to, as suppressed
+     */
+    static void _closeOnFailedConstruction(Closeable toClose, RuntimeException failure)
+    {
+        if (toClose != null) {
+            try {
+                toClose.close();
+            } catch (Exception e) {
+                failure.addSuppressed(e);
+            }
+        }
+    }
+
     protected JsonGenerator _decorate(JsonGenerator result) {
         if (_generatorDecorators != null) {
             for(JsonGeneratorDecorator decorator : _generatorDecorators) {

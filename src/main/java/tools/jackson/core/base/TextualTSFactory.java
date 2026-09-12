@@ -258,7 +258,7 @@ public abstract class TextualTSFactory
             }
             return _decorate(
                     _createGenerator(writeCtxt, ioCtxt,
-                            _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
         } catch (RuntimeException e) {
             _releaseOnFailedConstruction(ioCtxt, e);
@@ -296,10 +296,11 @@ public abstract class TextualTSFactory
             }
             return _decorate(
                     _createGenerator(writeCtxt, ioCtxt,
-                            _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
         } catch (RuntimeException e) {
             _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }
@@ -319,10 +320,11 @@ public abstract class TextualTSFactory
             }
             return _decorate(
                     _createGenerator(writeCtxt, ioCtxt,
-                            _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
         } catch (RuntimeException e) {
             _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }

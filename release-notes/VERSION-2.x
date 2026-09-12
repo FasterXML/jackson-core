@@ -91,7 +91,7 @@ No changes since 2.19.1
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
 #1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
-  when reporting an unrecognized token
+  when reporting an unrecognized token [CVE-2026-89425]
  (fix by @pjfanning)
 
 2.18.10 (15-Aug-2026)

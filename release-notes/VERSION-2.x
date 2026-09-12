@@ -20,6 +20,10 @@ a pure JSON library.
   based on supplied length
  (requested by @kilink)
  (contributed by @seonwooj0810)
+#1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
+  surrogates in field names and string values (mirror of #1541
+  fix in `UTF8StreamJsonParser`)
+ (contributed by @elang2)
 
 2.22.3 (not yet released)
 

@@ -119,7 +119,13 @@ public abstract class BinaryTSFactory
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
             if (in != null) {
-                return _createParser(readCtxt, ioCtxt, in);
+                // InputStream created by decorator, not caller, so we must close it
+                try {
+                    return _createParser(readCtxt, ioCtxt, in);
+                } catch (RuntimeException e) {
+                    _closeOnFailedConstruction(in, e);
+                    throw e;
+                }
             }
         }
         return _createParser(readCtxt, ioCtxt, data, offset, len);

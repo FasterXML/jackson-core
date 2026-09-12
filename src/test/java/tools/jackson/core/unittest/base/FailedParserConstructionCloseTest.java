@@ -20,10 +20,11 @@ import tools.jackson.core.unittest.JacksonCoreTestBase;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests to verify that streams Jackson itself opens for {@link File} /
- * {@link Path} sources get closed if construction of parser fails after
- * opening -- either in {@link InputDecorator} (before format backend is
- * entered at all), or in backend's own {@code _createParser()}.
+ * Tests to verify that streams Jackson itself opens -- for {@link File} /
+ * {@link Path} sources, or via {@link InputDecorator} -- get closed, exactly
+ * once, if construction of parser fails after opening. Failure may occur in
+ * decorator (before format backend is entered at all), or in backend's own
+ * {@code _createParser()}.
  */
 @SuppressWarnings("serial")
 class FailedParserConstructionCloseTest extends JacksonCoreTestBase
@@ -32,16 +33,35 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
 
     private final static String CREATE_FAIL = "Test-induced construction failure";
 
+    private final static String READ_FAIL = "Will not read, ever!";
+
+    /**
+     * Where construction is to fail, for factories that open source themselves.
+     */
+    enum Failure {
+        /** Fail before backend sees source at all (decorator failure) */
+        IN_DECORATOR,
+        /** Fail in backend's {@code _createParser()}, the way schema validation can */
+        IN_CREATE,
+        /** Fail deeper, on first actual read: exercises real backend code path */
+        ON_READ
+    }
+
     static class CloseTrackingInputStream extends FilterInputStream {
-        public boolean closed;
+        public int closeCount;
 
         CloseTrackingInputStream(InputStream in) { super(in); }
 
         @Override
         public void close() throws IOException {
-            closed = true;
+            ++closeCount;
             super.close();
         }
+    }
+
+    static class UnreadableInputStream extends InputStream {
+        @Override
+        public int read() throws IOException { throw new IOException(READ_FAIL); }
     }
 
     /**
@@ -73,6 +93,28 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
         }
     }
 
+    /**
+     * Decorator that creates {@link InputStream} for {@code byte[]} source: stream
+     * is created by decorator, not caller, so factory must close it on failure.
+     */
+    static class ByteArraySourceDecorator extends InputDecorator {
+        public final List<CloseTrackingInputStream> sources = new ArrayList<>();
+
+        @Override
+        public InputStream decorate(IOContext ctxt, InputStream in) { return in; }
+
+        @Override
+        public InputStream decorate(IOContext ctxt, byte[] src, int offset, int length) {
+            CloseTrackingInputStream wrapped = new CloseTrackingInputStream(
+                    new ByteArrayInputStream(src, offset, length));
+            sources.add(wrapped);
+            return wrapped;
+        }
+
+        @Override
+        public Reader decorate(IOContext ctxt, Reader r) { return r; }
+    }
+
     // // // Textual (JSON) factory
 
     static class TrackingJsonFactory extends JsonFactory
@@ -80,11 +122,11 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
     {
         public final List<CloseTrackingInputStream> sources = new ArrayList<>();
 
-        private final boolean _failInCreate;
+        private final Failure _failure;
 
-        TrackingJsonFactory(JsonFactoryBuilder b, boolean failInCreate) {
+        TrackingJsonFactory(JsonFactoryBuilder b, Failure failure) {
             super(b);
-            _failInCreate = failInCreate;
+            _failure = failure;
         }
 
         @Override
@@ -101,6 +143,9 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
         }
 
         private InputStream _track(InputStream in) {
+            if (_failure == Failure.ON_READ) {
+                in = new UnreadableInputStream();
+            }
             CloseTrackingInputStream wrapped = new CloseTrackingInputStream(in);
             sources.add(wrapped);
             return wrapped;
@@ -109,7 +154,7 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
         @Override
         protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
                 InputStream in) {
-            if (_failInCreate) {
+            if (_failure == Failure.IN_CREATE) {
                 throw new IllegalStateException(CREATE_FAIL);
             }
             return super._createParser(readCtxt, ioCtxt, in);
@@ -208,22 +253,48 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
 
     @Test
     void jsonFileSourceClosedOnDecoratorFailure() throws Exception {
-        _verifyFileSourceClosed(_jsonFactory(true, false), DECORATOR_FAIL);
+        _verifyFileSourceClosed(_jsonFactory(Failure.IN_DECORATOR),
+                IllegalStateException.class, DECORATOR_FAIL);
     }
 
     @Test
     void jsonPathSourceClosedOnDecoratorFailure() throws Exception {
-        _verifyPathSourceClosed(_jsonFactory(true, false), DECORATOR_FAIL);
+        _verifyPathSourceClosed(_jsonFactory(Failure.IN_DECORATOR),
+                IllegalStateException.class, DECORATOR_FAIL);
     }
 
     @Test
     void jsonFileSourceClosedOnCreateFailure() throws Exception {
-        _verifyFileSourceClosed(_jsonFactory(false, true), CREATE_FAIL);
+        _verifyFileSourceClosed(_jsonFactory(Failure.IN_CREATE),
+                IllegalStateException.class, CREATE_FAIL);
     }
 
     @Test
     void jsonPathSourceClosedOnCreateFailure() throws Exception {
-        _verifyPathSourceClosed(_jsonFactory(false, true), CREATE_FAIL);
+        _verifyPathSourceClosed(_jsonFactory(Failure.IN_CREATE),
+                IllegalStateException.class, CREATE_FAIL);
+    }
+
+    // [core#763]: failure inside real backend, after hand-off
+    @Test
+    void jsonFileSourceClosedOnReadFailure() throws Exception {
+        _verifyFileSourceClosed(_jsonFactory(Failure.ON_READ),
+                JacksonException.class, READ_FAIL);
+    }
+
+    @Test
+    void jsonPathSourceClosedOnReadFailure() throws Exception {
+        _verifyPathSourceClosed(_jsonFactory(Failure.ON_READ),
+                JacksonException.class, READ_FAIL);
+    }
+
+    // [core#763]: stream decorator creates from `byte[]` source is ours to close too
+    @Test
+    void jsonByteArraySourceClosedOnCreateFailure() throws Exception {
+        ByteArraySourceDecorator dec = new ByteArraySourceDecorator();
+        TrackingJsonFactory f = new TrackingJsonFactory(
+                JsonFactory.builder().inputDecorator(dec), Failure.IN_CREATE);
+        _verifyByteArraySourceClosed(f, dec);
     }
 
     /*
@@ -234,22 +305,34 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
 
     @Test
     void binaryFileSourceClosedOnDecoratorFailure() throws Exception {
-        _verifyFileSourceClosed(_binaryFactory(true), DECORATOR_FAIL);
+        _verifyFileSourceClosed(_binaryFactory(true),
+                IllegalStateException.class, DECORATOR_FAIL);
     }
 
     @Test
     void binaryPathSourceClosedOnDecoratorFailure() throws Exception {
-        _verifyPathSourceClosed(_binaryFactory(true), DECORATOR_FAIL);
+        _verifyPathSourceClosed(_binaryFactory(true),
+                IllegalStateException.class, DECORATOR_FAIL);
     }
 
     @Test
     void binaryFileSourceClosedOnCreateFailure() throws Exception {
-        _verifyFileSourceClosed(_binaryFactory(false), CREATE_FAIL);
+        _verifyFileSourceClosed(_binaryFactory(false),
+                IllegalStateException.class, CREATE_FAIL);
     }
 
     @Test
     void binaryPathSourceClosedOnCreateFailure() throws Exception {
-        _verifyPathSourceClosed(_binaryFactory(false), CREATE_FAIL);
+        _verifyPathSourceClosed(_binaryFactory(false),
+                IllegalStateException.class, CREATE_FAIL);
+    }
+
+    // [core#763]: stream decorator creates from `byte[]` source is ours to close too
+    @Test
+    void binaryByteArraySourceClosedOnCreateFailure() throws Exception {
+        ByteArraySourceDecorator dec = new ByteArraySourceDecorator();
+        ToyBinaryFactory f = new ToyBinaryFactoryBuilder().inputDecorator(dec).build();
+        _verifyByteArraySourceClosed(f, dec);
     }
 
     /*
@@ -258,12 +341,12 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
     /**********************************************************************
      */
 
-    private TrackingJsonFactory _jsonFactory(boolean failingDecorator, boolean failInCreate) {
+    private TrackingJsonFactory _jsonFactory(Failure failure) {
         JsonFactoryBuilder b = JsonFactory.builder();
-        if (failingDecorator) {
+        if (failure == Failure.IN_DECORATOR) {
             b = b.inputDecorator(new FailingInputDecorator());
         }
-        return new TrackingJsonFactory(b, failInCreate);
+        return new TrackingJsonFactory(b, failure);
     }
 
     private ToyBinaryFactory _binaryFactory(boolean failingDecorator) {
@@ -275,31 +358,43 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
     }
 
     private <F extends TokenStreamFactory & SourceTracking> void _verifyFileSourceClosed(F f,
-            String expFailMsg)
+            Class<? extends Exception> expType, String expFailMsg)
         throws Exception
     {
         final File src = _tempFile();
-        Exception e = assertThrows(IllegalStateException.class,
+        Exception e = assertThrows(expType,
                 () -> f.createParser(ObjectReadContext.empty(), src));
         verifyException(e, expFailMsg);
-        _verifyClosed(f);
+        _verifyClosed(f.openedSources());
     }
 
     private <F extends TokenStreamFactory & SourceTracking> void _verifyPathSourceClosed(F f,
-            String expFailMsg)
+            Class<? extends Exception> expType, String expFailMsg)
         throws Exception
     {
         final Path src = _tempFile().toPath();
-        Exception e = assertThrows(IllegalStateException.class,
+        Exception e = assertThrows(expType,
                 () -> f.createParser(ObjectReadContext.empty(), src));
         verifyException(e, expFailMsg);
-        _verifyClosed(f);
+        _verifyClosed(f.openedSources());
     }
 
-    private void _verifyClosed(SourceTracking f) {
-        List<CloseTrackingInputStream> sources = f.openedSources();
+    private void _verifyByteArraySourceClosed(TokenStreamFactory f,
+            ByteArraySourceDecorator dec)
+    {
+        final byte[] src = utf8Bytes("{\"a\":1}");
+        Exception e = assertThrows(IllegalStateException.class,
+                () -> f.createParser(ObjectReadContext.empty(), src));
+        verifyException(e, CREATE_FAIL);
+        _verifyClosed(dec.sources);
+    }
+
+    private void _verifyClosed(List<CloseTrackingInputStream> sources) {
         assertEquals(1, sources.size(), "Should have opened exactly one source");
-        assertTrue(sources.get(0).closed, "InputStream Jackson opened should have been closed");
+        // Exactly once: not closing leaks, closing twice may fail for non-idempotent
+        // streams (and add bogus suppressed exceptions)
+        assertEquals(1, sources.get(0).closeCount,
+                "InputStream Jackson opened should have been closed exactly once");
     }
 
     private File _tempFile() throws IOException {

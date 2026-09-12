@@ -387,23 +387,14 @@ public class JsonFactory
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
             InputStream in) throws JacksonException
     {
-        try {
-            return new ByteSourceJsonBootstrapper(ioCtxt, in)
-                    .constructParser(readCtxt,
-                        readCtxt.getStreamReadFeatures(_streamReadFeatures),
-                        readCtxt.getFormatReadFeatures(_formatReadFeatures),
-                        _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
-        } catch (RuntimeException e) {
-            // 10-Jun-2022, tatu: For [core#763] may need to close InputStream here
-            if (ioCtxt.isResourceManaged()) {
-                try {
-                    in.close();
-                } catch (Exception e2) {
-                    e.addSuppressed(e2);
-                }
-            }
-            throw e;
-        }
+        // 11-Sep-2026, tatu: [core#1693] Closing of InputStream we opened (for
+        //    [core#763]) is done by caller -- `TextualTSFactory`/`BinaryTSFactory` --
+        //    which also covers failures before we get here (like decorator ones)
+        return new ByteSourceJsonBootstrapper(ioCtxt, in)
+                .constructParser(readCtxt,
+                    readCtxt.getStreamReadFeatures(_streamReadFeatures),
+                    readCtxt.getFormatReadFeatures(_formatReadFeatures),
+                    _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
     @Override

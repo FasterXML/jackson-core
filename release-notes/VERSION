@@ -46,6 +46,9 @@ JSON library.
  (contributed by @pjfanning, w/ Claude code)
 #1706: Write number text directly as ASCII bytes in `UTF8JsonGenerator`
  (contributed by @pjfanning, w/ Claude code)
+#1707: Copy `String` content via `getChars()` in `UTF8JsonGenerator` instead of
+  scanning with `String.charAt()` (avoids JVM-wide `charAt` profile pollution)
+ (contributed by @pjfanning, w/ Claude code)
 
 3.2.3 (not yet released)
 

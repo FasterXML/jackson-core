@@ -262,8 +262,10 @@ public abstract class DecorableTSFactory
      *
      * @param toClose Source/target Jackson opened, if any ({@code null} if not yet opened)
      * @param failure Failure to add possible secondary failure to, as suppressed
+     *
+     * @since 3.1
      */
-    static void _closeOnFailedConstruction(Closeable toClose, RuntimeException failure)
+    protected static void _closeOnFailedConstruction(Closeable toClose, RuntimeException failure)
     {
         if (toClose != null) {
             try {

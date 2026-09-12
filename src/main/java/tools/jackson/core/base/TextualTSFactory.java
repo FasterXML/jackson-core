@@ -94,10 +94,13 @@ public abstract class TextualTSFactory
     {
         // true, since we create InputStream from File
         IOContext ioCtxt = _createContext(_createContentReference(f), true);
+        InputStream in = null;
         try {
-            return _createParser(readCtxt, ioCtxt,
-                    _decorate(ioCtxt, _fileInputStream(f)));
+            in = _fileInputStream(f);
+            in = _decorate(ioCtxt, in);
+            return _createParser(readCtxt, ioCtxt, in);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(in, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -109,10 +112,13 @@ public abstract class TextualTSFactory
     {
         // true, since we create InputStream from Path
         IOContext ioCtxt = _createContext(_createContentReference(p), true);
+        InputStream in = null;
         try {
-            return _createParser(readCtxt, ioCtxt,
-                    _decorate(ioCtxt, _pathInputStream(p)));
+            in = _pathInputStream(p);
+            in = _decorate(ioCtxt, in);
+            return _createParser(readCtxt, ioCtxt, in);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(in, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -151,15 +157,18 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         IOContext ioCtxt = _createContext(_createContentReference(data, offset, len), true);
+        InputStream in = null;
         try {
             if (_inputDecorator != null) {
-                InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
+                // InputStream created by decorator, not caller, so we must close it
+                in = _inputDecorator.decorate(ioCtxt, data, offset, len);
                 if (in != null) {
                     return _createParser(readCtxt, ioCtxt, in);
                 }
             }
             return _createParser(readCtxt, ioCtxt, data, offset, len);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(in, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -258,7 +267,7 @@ public abstract class TextualTSFactory
             }
             return _decorate(
                     _createGenerator(writeCtxt, ioCtxt,
-                            _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
         } catch (RuntimeException e) {
             _releaseOnFailedConstruction(ioCtxt, e);
@@ -296,10 +305,11 @@ public abstract class TextualTSFactory
             }
             return _decorate(
                     _createGenerator(writeCtxt, ioCtxt,
-                            _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
         } catch (RuntimeException e) {
             _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }
@@ -319,10 +329,11 @@ public abstract class TextualTSFactory
             }
             return _decorate(
                     _createGenerator(writeCtxt, ioCtxt,
-                            _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
         } catch (RuntimeException e) {
             _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }

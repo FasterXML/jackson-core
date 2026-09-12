@@ -1072,11 +1072,7 @@ public class UTF8JsonGenerator
         if (_cfgNumbersAsStrings ||
             (NumberOutput.notFinite(d)
                     && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            if (useFast) {
-                _writeQuotedDouble(d);
-                return this;
-            }
-            writeString(NumberOutput.toString(d, false));
+            _writeQuotedDouble(d, useFast);
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
@@ -1090,11 +1086,16 @@ public class UTF8JsonGenerator
         return writeRaw(NumberOutput.toString(d, false));
     }
 
-    // Quoted equivalent of the fast path: number text is all ASCII and needs no
-    // escaping, so write it straight into the output buffer.
-    private void _writeQuotedDouble(double d) throws JacksonException
+    // Number text is all ASCII and needs no escaping, so write it out raw, same as
+    // other quoted-number paths (see _writeQuotedRaw()); fast variant can further
+    // write straight into the output buffer, without intermediate String.
+    private void _writeQuotedDouble(double d, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
+        if (!useFast) {
+            _writeQuotedRaw(NumberOutput.toString(d, false));
+            return;
+        }
         if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES + 2) > _outputEnd) {
             _flushBuffer();
         }
@@ -1110,11 +1111,7 @@ public class UTF8JsonGenerator
         if (_cfgNumbersAsStrings ||
             (NumberOutput.notFinite(f)
                     && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            if (useFast) {
-                _writeQuotedFloat(f);
-                return this;
-            }
-            writeString(NumberOutput.toString(f, false));
+            _writeQuotedFloat(f, useFast);
             return this;
         }
         _verifyValueWrite(WRITE_NUMBER);
@@ -1128,9 +1125,13 @@ public class UTF8JsonGenerator
         return writeRaw(NumberOutput.toString(f, false));
     }
 
-    private void _writeQuotedFloat(float f) throws JacksonException
+    private void _writeQuotedFloat(float f, boolean useFast) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
+        if (!useFast) {
+            _writeQuotedRaw(NumberOutput.toString(f, false));
+            return;
+        }
         if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES + 2) > _outputEnd) {
             _flushBuffer();
         }

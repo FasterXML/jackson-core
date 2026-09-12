@@ -2,13 +2,16 @@ package tools.jackson.core.unittest.write;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.SerializableString;
 import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.NumberOutput;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonWriteFeature;
@@ -221,6 +224,47 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
         assertEquals(a2q("{'d':'1.5','f':'2.5'}"), sw.toString());
     }
 
+    // Escapes every digit; number text must never be escaped, regardless of
+    // whether USE_FAST_DOUBLE_WRITER is enabled
+    @SuppressWarnings("serial")
+    static class DigitEscapes extends CharacterEscapes
+    {
+        private final int[] _asciiEscapes;
+
+        public DigitEscapes() {
+            _asciiEscapes = standardAsciiEscapesForJSON();
+            for (int c = '0'; c <= '9'; ++c) {
+                _asciiEscapes[c] = CharacterEscapes.ESCAPE_STANDARD;
+            }
+        }
+
+        @Override
+        public int[] getEscapeCodesForAscii() { return _asciiEscapes; }
+
+        @Override
+        public SerializableString getEscapeSequence(int ch) { return null; }
+    }
+
+    @Test
+    void testQuotedNotEscapedRegardlessOfFastWriter() throws Exception
+    {
+        for (boolean useFast : new boolean[] { true, false }) {
+            JsonFactory f = JsonFactory.builder()
+                    .configure(StreamWriteFeature.USE_FAST_DOUBLE_WRITER, useFast)
+                    .enable(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS)
+                    .characterEscapes(new DigitEscapes())
+                    .build();
+            String desc = "useFast="+useFast;
+            assertEquals(q("1.5"), _writeChars(f, 1.5), desc);
+            assertEquals(q("1.5"), _writeBytes(f, 1.5), desc);
+            assertEquals(q("2.5"), _writeChars(f, 2.5f), desc);
+            assertEquals(q("2.5"), _writeBytes(f, 2.5f), desc);
+            // ... just like the pre-existing quoted-number paths
+            assertEquals(q("1.5"), _writeChars(f, new BigDecimal("1.5")), desc);
+            assertEquals(q("1.5"), _writeBytes(f, new BigDecimal("1.5")), desc);
+        }
+    }
+
     private void _writeArray(JsonGenerator gen, double[] values, float[] fvalues, int count)
     {
         gen.writeStartArray();
@@ -256,6 +300,22 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
     }
 
     private String _writeBytes(JsonFactory f, float v) throws Exception {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes)) {
+            gen.writeNumber(v);
+        }
+        return bytes.toString(StandardCharsets.UTF_8);
+    }
+
+    private String _writeChars(JsonFactory f, BigDecimal v) throws Exception {
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), sw)) {
+            gen.writeNumber(v);
+        }
+        return sw.toString();
+    }
+
+    private String _writeBytes(JsonFactory f, BigDecimal v) throws Exception {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes)) {
             gen.writeNumber(v);

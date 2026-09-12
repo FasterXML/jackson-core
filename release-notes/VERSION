@@ -39,7 +39,7 @@ JSON library.
   even if writing of pending content fails
  (fix by @pjfanning)
 #1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
-  when reporting an unrecognized token
+  when reporting an unrecognized token [CVE-2026-89425]
  (fix by @pjfanning)
 #1703: Validate name length in `UTF8DataInputJsonParser` before quad buffer growth
  (reported, fix by DongNyoung L)

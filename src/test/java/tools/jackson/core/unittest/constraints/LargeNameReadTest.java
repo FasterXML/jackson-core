@@ -1,25 +1,32 @@
 package tools.jackson.core.unittest.constraints;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.unittest.*;
+import tools.jackson.core.util.JsonRecyclerPools;
+import tools.jackson.core.util.Named;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#1047]: Add max-name-length constraints
 class LargeNameReadTest extends JacksonCoreTestBase
 {
+    private final static int UTF8_INITIAL_QUAD_BUFFER_QUADS = 16;
+
     private final JsonFactory JSON_F_DEFAULT = newStreamFactory();
 
     private final JsonFactory JSON_F_NAME_100 = JsonFactory.builder()
@@ -105,6 +112,14 @@ class LargeNameReadTest extends JacksonCoreTestBase
 
     private void _testLargeNameFailsFast(JsonFactory jf, String nameQuote) throws Exception
     {
+        // 09-Sep-2026, tatu: [core#1643] Must NOT use recycled buffers here: check is
+        //   only made when `TextBuffer` segment gets full, and a buffer left behind by
+        //   an earlier test in same thread may be up to 64kB (`BufferRecycler` retains
+        //   the biggest one released, see [core#1186]) -- which would make the first
+        //   check occur much later than with a fresh (small) buffer.
+        jf = jf.rebuild()
+                .recyclerPool(JsonRecyclerPools.nonRecyclingPool())
+                .build();
         final int nameLen = 1_000_000;
         final String doc = generateJSON(nameLen, nameQuote);
         try (JsonParser p = createParserUsingReader(jf, doc)) {
@@ -161,6 +176,91 @@ class LargeNameReadTest extends JacksonCoreTestBase
         }
     }
 
+    @Test
+    void largeEscapedSupplementaryNameWithSmallLimitDataInputFailsDuringQuadBufferGrowth() throws Exception {
+        _testLargeEscapedSupplementaryNameWithSmallLimitDataInput(JSON_F_NAME_100, "\"");
+        _testLargeEscapedSupplementaryNameWithSmallLimitDataInput(JSON_F_NAME_100_ODD, "'");
+    }
+
+    private void _testLargeEscapedSupplementaryNameWithSmallLimitDataInput(JsonFactory jf,
+            String nameQuote) throws Exception
+    {
+        final int pairCount = 1_000;
+        // Decoded supplementary code point is stored as 4 UTF-8 bytes in the quad buffer.
+        final int fullNameLen = 1 + (pairCount << 2);
+        _testEscapedSupplementaryNameAtDataInputQuadGrowBoundary(jf,
+                generateEscapedSupplementaryNameJSON(pairCount, nameQuote), fullNameLen);
+
+        // These prefixes force the two flush points inside the supplementary
+        // character branch to grow the quad buffer.
+        _testEscapedSupplementaryNameAtDataInputQuadGrowBoundary(jf,
+                generateEscapedSupplementaryNameJSON(pairCount, nameQuote, 2),
+                2 + (pairCount << 2));
+        _testEscapedSupplementaryNameAtDataInputQuadGrowBoundary(jf,
+                generateEscapedSupplementaryNameJSON(pairCount, nameQuote, 3),
+                3 + (pairCount << 2));
+    }
+
+    @Test
+    void largeNameWithSmallLimitAndMatcherFailsDuringQuadBufferGrowth() throws Exception {
+        final int nameLen = 1_000;
+        final String name = generateName(nameLen);
+        final String doc = "{\"" + name + "\":\"value\"}";
+        final PropertyNameMatcher matcher = JSON_F_NAME_100.constructNameMatcher(
+                List.of(Named.fromString(name)), false);
+
+        try (JsonParser p = createParser(JSON_F_NAME_100, MODE_INPUT_STREAM, doc)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            p.nextNameMatch(matcher);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Name length");
+            verifyNameLengthFailedAtUtf8QuadGrowBoundary(e,
+                    JSON_F_NAME_100.streamReadConstraints().getMaxNameLength(), nameLen);
+        }
+    }
+
+    private void _testEscapedSupplementaryNameAtDataInputQuadGrowBoundary(JsonFactory jf,
+            String doc, int fullNameLen) throws Exception
+    {
+        try (JsonParser p = createParser(jf, MODE_DATA_INPUT, doc)) {
+            consumeTokens(p);
+            fail("expected StreamConstraintsException");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "Name length");
+            verifyNameLengthFailedAtUtf8QuadGrowBoundary(e,
+                    jf.streamReadConstraints().getMaxNameLength(), fullNameLen);
+        }
+    }
+
+    private void verifyNameLengthFailedAtUtf8QuadGrowBoundary(StreamConstraintsException e,
+            int maxNameLength, int fullNameLen) {
+        final int reportedLen = _reportedNameLength(e);
+        final int expectedFailingGrowBoundary = _utf8QuadGrowBoundaryAbove(maxNameLength);
+
+        if (reportedLen <= maxNameLength) {
+            fail("Expected reported name length to exceed maxNameLength "+maxNameLength
+                    +", but reported length was: "+reportedLen);
+        }
+        if (reportedLen >= fullNameLen) {
+            fail("Should have failed while growing the quad buffer, before buffering the full "
+                    +"decoded UTF-8 name length "+fullNameLen
+                    +", but reported length was: "+reportedLen);
+        }
+        if (reportedLen != expectedFailingGrowBoundary) {
+            fail("Expected failure at UTF-8 quad-buffer grow boundary "
+                    +expectedFailingGrowBoundary+", but reported length was: "+reportedLen);
+        }
+    }
+
+    private int _utf8QuadGrowBoundaryAbove(int maxNameLength) {
+        int quadBufferLen = UTF8_INITIAL_QUAD_BUFFER_QUADS;
+        while ((quadBufferLen << 2) <= maxNameLength) {
+            quadBufferLen += quadBufferLen;
+        }
+        return quadBufferLen << 2;
+    }
+
     private void consumeTokens(JsonParser p) throws IOException {
         while (p.nextToken() != null) {
             ;
@@ -177,6 +277,32 @@ class LargeNameReadTest extends JacksonCoreTestBase
         sb.append("{").append(nameQuote);
         for (int i = 0; i < nameLen; i++) {
             sb.append("a");
+        }
+        sb.append(nameQuote).append(":\"value\"}");
+        return sb.toString();
+    }
+
+    private String generateName(final int nameLen) {
+        final StringBuilder sb = new StringBuilder(nameLen);
+        for (int i = 0; i < nameLen; i++) {
+            sb.append("a");
+        }
+        return sb.toString();
+    }
+
+    private String generateEscapedSupplementaryNameJSON(final int pairCount, String nameQuote) {
+        return generateEscapedSupplementaryNameJSON(pairCount, nameQuote, 1);
+    }
+
+    private String generateEscapedSupplementaryNameJSON(final int pairCount, String nameQuote,
+            int asciiPrefixLen) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("{").append(nameQuote);
+        for (int i = 0; i < asciiPrefixLen; i++) {
+            sb.append("a");
+        }
+        for (int i = 0; i < pairCount; i++) {
+            sb.append("\\ud83d\\udc4d");
         }
         sb.append(nameQuote).append(":\"value\"}");
         return sb.toString();

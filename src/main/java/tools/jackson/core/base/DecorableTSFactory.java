@@ -255,6 +255,27 @@ public abstract class DecorableTSFactory
      */
 
     /**
+     * Method called when construction of parser or generator fails: releases
+     * {@link IOContext} so that {@link tools.jackson.core.util.BufferRecycler}
+     * it leased gets returned to the pool. Without this the lease is simply
+     * dropped, since context is otherwise only released when parser or
+     * generator that owns it gets closed.
+     *
+     * @param ioCtxt Context to release
+     * @param failure Failure to add possible secondary failure to, as suppressed
+     *
+     * @since 3.1.7
+     */
+    static void _releaseOnFailedConstruction(IOContext ioCtxt, RuntimeException failure)
+    {
+        try {
+            ioCtxt.close();
+        } catch (Exception e) {
+            failure.addSuppressed(e);
+        }
+    }
+
+    /**
      * Method called when construction of parser or generator fails after
      * Jackson has opened source or target itself (from {@link java.io.File} or
      * {@link java.nio.file.Path}): closes it so that it does not get leaked.
@@ -263,7 +284,7 @@ public abstract class DecorableTSFactory
      * @param toClose Source/target Jackson opened, if any ({@code null} if not yet opened)
      * @param failure Failure to add possible secondary failure to, as suppressed
      *
-     * @since 3.1
+     * @since 3.1.7
      */
     protected static void _closeOnFailedConstruction(Closeable toClose, RuntimeException failure)
     {

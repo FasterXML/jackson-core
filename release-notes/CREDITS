@@ -58,6 +58,9 @@ Revanth Meesala (@revanthmeesala)
 Lee Dongnyoung (@DongNyoung)
  * Contributed #1651: Fix object context handling for buffered `INCLUDE_NON_NULL` tokens
   (3.1.6)
+ * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
+   quad buffer growth
+  (3.1.7)
 
 @hdimitrieski
  * Reported #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom

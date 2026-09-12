@@ -101,6 +101,7 @@ public abstract class TextualTSFactory
             return _createParser(readCtxt, ioCtxt, in);
         } catch (RuntimeException e) {
             _closeOnFailedConstruction(in, e);
+            _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
     }
@@ -118,6 +119,7 @@ public abstract class TextualTSFactory
             return _createParser(readCtxt, ioCtxt, in);
         } catch (RuntimeException e) {
             _closeOnFailedConstruction(in, e);
+            _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
     }
@@ -127,7 +129,12 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         IOContext ioCtxt = _createContext(_createContentReference(in), false);
-        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        try {
+            return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     @Override
@@ -136,7 +143,12 @@ public abstract class TextualTSFactory
     {
         // false -> we do NOT own Reader (did not create it)
         IOContext ioCtxt = _createContext(_createContentReference(r), false);
-        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, r));
+        try {
+            return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, r));
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     @Override
@@ -145,19 +157,21 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         IOContext ioCtxt = _createContext(_createContentReference(data, offset, len), true);
-        if (_inputDecorator != null) {
-            InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
-            if (in != null) {
+        InputStream in = null;
+        try {
+            if (_inputDecorator != null) {
                 // InputStream created by decorator, not caller, so we must close it
-                try {
+                in = _inputDecorator.decorate(ioCtxt, data, offset, len);
+                if (in != null) {
                     return _createParser(readCtxt, ioCtxt, in);
-                } catch (RuntimeException e) {
-                    _closeOnFailedConstruction(in, e);
-                    throw e;
                 }
             }
+            return _createParser(readCtxt, ioCtxt, data, offset, len);
+        } catch (RuntimeException e) {
+            _closeOnFailedConstruction(in, e);
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
         }
-        return _createParser(readCtxt, ioCtxt, data, offset, len);
     }
 
     @Override
@@ -172,9 +186,14 @@ public abstract class TextualTSFactory
             return createParser(readCtxt, new StringReader(content));
         }
         IOContext ioCtxt = _createContext(_createContentReference(content), true);
-        char[] buf = ioCtxt.allocTokenBuffer(strLen);
-        content.getChars(0, strLen, buf, 0);
-        return _createParser(readCtxt, ioCtxt, buf, 0, strLen, true);
+        try {
+            char[] buf = ioCtxt.allocTokenBuffer(strLen);
+            content.getChars(0, strLen, buf, 0);
+            return _createParser(readCtxt, ioCtxt, buf, 0, strLen, true);
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     @Override
@@ -185,11 +204,16 @@ public abstract class TextualTSFactory
         if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
             return createParser(readCtxt, new CharArrayReader(content, offset, len));
         }
-        return _createParser(readCtxt,
-                _createContext(_createContentReference(content, offset, len), true),
-                content, offset, len,
-                // important: buffer is NOT recyclable, as it's from caller
-                false);
+        IOContext ioCtxt = _createContext(_createContentReference(content, offset, len), true);
+        try {
+            return _createParser(readCtxt, ioCtxt,
+                    content, offset, len,
+                    // important: buffer is NOT recyclable, as it's from caller
+                    false);
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     @Override
@@ -197,7 +221,12 @@ public abstract class TextualTSFactory
             DataInput in) throws JacksonException
     {
         IOContext ioCtxt = _createContext(_createContentReference(in), false);
-        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        try {
+            return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
@@ -230,15 +259,20 @@ public abstract class TextualTSFactory
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(_createContentReference(out), false, enc);
-        if (enc == JsonEncoding.UTF8) {
+        try {
+            if (enc == JsonEncoding.UTF8) {
+                return _decorate(
+                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                );
+            }
             return _decorate(
-                    _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                    _createGenerator(writeCtxt, ioCtxt,
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
         }
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt,
-                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
-        );
     }
 
     @Override
@@ -246,9 +280,14 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         IOContext ioCtxt = _createContext(_createContentReference(w), false);
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, w))
-        );
+        try {
+            return _decorate(
+                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, w))
+            );
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     @Override
@@ -258,15 +297,21 @@ public abstract class TextualTSFactory
     {
         final OutputStream out = _fileOutputStream(f);
         final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
-        if (enc == JsonEncoding.UTF8) {
+        try {
+            if (enc == JsonEncoding.UTF8) {
+                return _decorate(
+                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                );
+            }
             return _decorate(
-                    _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                    _createGenerator(writeCtxt, ioCtxt,
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
+            throw e;
         }
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt,
-                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
-        );
     }
 
     @Override
@@ -276,15 +321,21 @@ public abstract class TextualTSFactory
     {
         final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
-        if (enc == JsonEncoding.UTF8) {
+        try {
+            if (enc == JsonEncoding.UTF8) {
+                return _decorate(
+                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                );
+            }
             return _decorate(
-                    _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+                    _createGenerator(writeCtxt, ioCtxt,
+                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
             );
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
+            throw e;
         }
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt,
-                        _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)))
-        );
     }
 
     /*

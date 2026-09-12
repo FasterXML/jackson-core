@@ -78,6 +78,7 @@ public abstract class BinaryTSFactory
             return _createParser(readCtxt, ioCtxt, in);
         } catch (RuntimeException e) {
             _closeOnFailedConstruction(in, e);
+            _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
     }
@@ -95,6 +96,7 @@ public abstract class BinaryTSFactory
             return _createParser(readCtxt, ioCtxt, in);
         } catch (RuntimeException e) {
             _closeOnFailedConstruction(in, e);
+            _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
     }
@@ -102,7 +104,12 @@ public abstract class BinaryTSFactory
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, InputStream in) throws JacksonException {
         IOContext ioCtxt = _createContext(_createContentReference(in), false);
-        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        try {
+            return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     @Override
@@ -116,19 +123,21 @@ public abstract class BinaryTSFactory
     {
         IOContext ioCtxt = _createContext(_createContentReference(data, offset, len),
                 true, null);
-        if (_inputDecorator != null) {
-            InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
-            if (in != null) {
+        InputStream in = null;
+        try {
+            if (_inputDecorator != null) {
                 // InputStream created by decorator, not caller, so we must close it
-                try {
+                in = _inputDecorator.decorate(ioCtxt, data, offset, len);
+                if (in != null) {
                     return _createParser(readCtxt, ioCtxt, in);
-                } catch (RuntimeException e) {
-                    _closeOnFailedConstruction(in, e);
-                    throw e;
                 }
             }
+            return _createParser(readCtxt, ioCtxt, data, offset, len);
+        } catch (RuntimeException e) {
+            _closeOnFailedConstruction(in, e);
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
         }
-        return _createParser(readCtxt, ioCtxt, data, offset, len);
     }
 
     @Override
@@ -147,7 +156,12 @@ public abstract class BinaryTSFactory
     public JsonParser createParser(ObjectReadContext readCtxt,
             DataInput in) throws JacksonException {
         IOContext ioCtxt = _createContext(_createContentReference(in), false);
-        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        try {
+            return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
@@ -172,9 +186,14 @@ public abstract class BinaryTSFactory
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(_createContentReference(out), false, enc);
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-        );
+        try {
+            return _decorate(
+                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+            );
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            throw e;
+        }
     }
 
     @Override
@@ -191,9 +210,15 @@ public abstract class BinaryTSFactory
         final OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         final IOContext ioCtxt = _createContext(_createContentReference(out), true, enc);
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-        );
+        try {
+            return _decorate(
+                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+            );
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
+            throw e;
+        }
     }
 
     @Override
@@ -203,9 +228,15 @@ public abstract class BinaryTSFactory
     {
         final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
-        return _decorate(
-                _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-        );
+        try {
+            return _decorate(
+                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
+            );
+        } catch (RuntimeException e) {
+            _releaseOnFailedConstruction(ioCtxt, e);
+            _closeOnFailedConstruction(out, e);
+            throw e;
+        }
     }
 
     /*

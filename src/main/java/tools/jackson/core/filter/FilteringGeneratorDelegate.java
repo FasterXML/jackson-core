@@ -451,12 +451,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            String value = new String(text, offset, len);
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
                 return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
+                String value = new String(text, offset, len);
                 if (!state.includeString(value)) {
                     return this;
                 }

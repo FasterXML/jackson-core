@@ -1183,35 +1183,30 @@ public class UTF8JsonGenerator
     }
 
     // Number text is pure ASCII: copy straight into the output byte[] instead of
-    // going through writeRaw(String), which first copies into _charBuffer and then
-    // runs the UTF-8 encoding loop (with 3x room reservation) over it.
+    // going through writeRaw(String), which runs the UTF-8 encoding loop (with 3x
+    // room reservation) over it. Content is copied via String.getChars() (an
+    // intrinsic) rather than scanned with String.charAt(), whose JVM-wide branch
+    // profile is polluted by any non-Latin1 String use elsewhere (see [core#1680]).
     private final void _writeRawAscii(String text) throws JacksonException
     {
+        final char[] cbuf = _charBuffer;
+        final int totalLen = text.length();
         int offset = 0;
-        int len = text.length();
-        while (true) {
-            int room = _outputEnd - _outputTail;
-            if (room >= len) {
-                break;
+        while (offset < totalLen) {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
             }
-            // Chunk: only reachable for very long BigInteger/BigDecimal text
-            _copyAscii(text, offset, room);
-            offset += room;
-            len -= room;
-            _flushBuffer();
+            // Chunking only ever kicks in for very long BigInteger/BigDecimal text
+            int len = Math.min(totalLen - offset, Math.min(cbuf.length, _outputEnd - _outputTail));
+            text.getChars(offset, offset + len, cbuf, 0);
+            final byte[] buf = _outputBuffer;
+            int ptr = _outputTail;
+            for (int i = 0; i < len; ++i) {
+                buf[ptr++] = (byte) cbuf[i];
+            }
+            _outputTail = ptr;
+            offset += len;
         }
-        _copyAscii(text, offset, len);
-    }
-
-    private final void _copyAscii(String text, int offset, int len)
-    {
-        final byte[] buf = _outputBuffer;
-        int ptr = _outputTail;
-        final int end = offset + len;
-        for (int i = offset; i < end; ++i) {
-            buf[ptr++] = (byte) text.charAt(i);
-        }
-        _outputTail = ptr;
     }
 
     private final void _writeQuotedAscii(String value) throws JacksonException

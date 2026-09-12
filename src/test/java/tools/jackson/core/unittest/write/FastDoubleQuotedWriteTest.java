@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.PrettyPrinter;
 import tools.jackson.core.SerializableString;
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.io.CharacterEscapes;
@@ -16,6 +17,8 @@ import tools.jackson.core.io.NumberOutput;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
+import tools.jackson.core.util.DefaultIndenter;
+import tools.jackson.core.util.DefaultPrettyPrinter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -222,6 +225,53 @@ public class FastDoubleQuotedWriteTest extends JacksonCoreTestBase
             gen.writeEndObject();
         }
         assertEquals(a2q("{'d':'1.5','f':'2.5'}"), sw.toString());
+    }
+
+    // [core#1704]: PrettyPrinter writes indentation from within _verifyValueWrite(),
+    // just before the quoted fast path checks for room
+    @Test
+    void testQuotedPrettyPrintedAcrossBufferBoundary() throws Exception
+    {
+        final double[] values = { -Double.MIN_NORMAL, 1.0, 0.1, Double.NaN, 1.0E-300 };
+        final int count = 500;
+
+        for (int indentLen = 1; indentLen <= 40; ++indentLen) {
+            StringBuilder indent = new StringBuilder();
+            for (int i = 0; i < indentLen; ++i) {
+                indent.append(' ');
+            }
+            final PrettyPrinter pp = new DefaultPrettyPrinter()
+                    .withArrayIndenter(new DefaultIndenter(indent.toString(), "\n"));
+            ObjectWriteContext ctxt = new ObjectWriteContext.Base() {
+                @Override
+                public PrettyPrinter getPrettyPrinter() { return pp; }
+            };
+
+            StringWriter sw = new StringWriter();
+            try (JsonGenerator gen = NUMBERS_AS_STRINGS.createGenerator(ctxt, sw)) {
+                _writeValues(gen, values, count);
+            }
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            try (JsonGenerator gen = NUMBERS_AS_STRINGS.createGenerator(ctxt, bytes)) {
+                _writeValues(gen, values, count);
+            }
+            String desc = "indentLen="+indentLen;
+            String doc = sw.toString();
+            assertEquals(doc, bytes.toString(StandardCharsets.UTF_8), desc);
+            for (int i = 0; i < count; ++i) {
+                assertTrue(doc.contains(q(NumberOutput.toString(values[i % values.length], true))),
+                        desc+", index "+i);
+            }
+        }
+    }
+
+    private void _writeValues(JsonGenerator gen, double[] values, int count)
+    {
+        gen.writeStartArray();
+        for (int i = 0; i < count; ++i) {
+            gen.writeNumber(values[i % values.length]);
+        }
+        gen.writeEndArray();
     }
 
     // Escapes every digit; number text must never be escaped, regardless of

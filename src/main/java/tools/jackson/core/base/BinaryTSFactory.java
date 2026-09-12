@@ -69,13 +69,15 @@ public abstract class BinaryTSFactory
     public JsonParser createParser(ObjectReadContext readCtxt,
             File f) throws JacksonException
     {
-        final InputStream in = _fileInputStream(f);
         // true, since we create InputStream from File
         final IOContext ioCtxt = _createContext(_createContentReference(f), true);
+        InputStream in = null;
         try {
-            return _createParser(readCtxt, ioCtxt,
-                    _decorate(ioCtxt, in));
+            in = _fileInputStream(f);
+            in = _decorate(ioCtxt, in);
+            return _createParser(readCtxt, ioCtxt, in);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(in, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -87,10 +89,13 @@ public abstract class BinaryTSFactory
     {
         // true, since we create InputStream from Path
         IOContext ioCtxt = _createContext(_createContentReference(p), true);
+        InputStream in = null;
         try {
-            return _createParser(readCtxt, ioCtxt,
-                    _decorate(ioCtxt, _pathInputStream(p)));
+            in = _pathInputStream(p);
+            in = _decorate(ioCtxt, in);
+            return _createParser(readCtxt, ioCtxt, in);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(in, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -118,15 +123,18 @@ public abstract class BinaryTSFactory
     {
         IOContext ioCtxt = _createContext(_createContentReference(data, offset, len),
                 true, null);
+        InputStream in = null;
         try {
             if (_inputDecorator != null) {
-                InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
+                // InputStream created by decorator, not caller, so we must close it
+                in = _inputDecorator.decorate(ioCtxt, data, offset, len);
                 if (in != null) {
                     return _createParser(readCtxt, ioCtxt, in);
                 }
             }
             return _createParser(readCtxt, ioCtxt, data, offset, len);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(in, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }

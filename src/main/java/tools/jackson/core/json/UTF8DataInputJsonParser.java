@@ -1093,11 +1093,9 @@ public class UTF8DataInputJsonParser
             return _parseFloat(outBuf, outPtr, c, false, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);
-        // As per [core#105], need separating space between root values; check here
+        // [core#105]/[core#1557]: verify number is properly terminated/separated
         _nextByte = c;
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace();
-        }
+        _verifyNumberSeparator();
         // And there we have it!
         return resetInt(false, intLen);
     }
@@ -1162,11 +1160,9 @@ public class UTF8DataInputJsonParser
             return _parseFloat(outBuf, outPtr, c, negative, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);
-        // As per [core#105], need separating space between root values; check here
+        // [core#105]/[core#1557]: verify number is properly terminated/separated
         _nextByte = c;
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace();
-        }
+        _verifyNumberSeparator();
         // And there we have it!
         return resetInt(negative, intLen);
     }
@@ -1211,9 +1207,7 @@ public class UTF8DataInputJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         _nextByte = c;
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace();
-        }
+        _verifyNumberSeparator();
         return resetIntHex(neg, hexLen);
     }
 
@@ -1318,11 +1312,9 @@ public class UTF8DataInputJsonParser
         }
 
         // Ok; unless we hit end-of-input, need to push last char read back
-        // As per #105, need separating space between root values; check here
+        // [core#105]/[core#1557]: verify number is properly terminated/separated
         _nextByte = c;
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace();
-        }
+        _verifyNumberSeparator();
         _textBuffer.setCurrentLength(outPtr);
 
         // And there we have it!
@@ -1360,6 +1352,60 @@ public class UTF8DataInputJsonParser
             }
         }
         _reportMissingRootWS(ch);
+    }
+
+    /**
+     * Method called to verify that a just-decoded number value is followed by a
+     * valid separator or terminator. For root-level values this means white space
+     * (as per [core#105], see {@link #_verifyRootSpace}); for non-root values
+     * ([core#1557]) the number must be followed by white space, a value separator
+     * ({@code ','}), an enclosing-structure end ({@code ']'} or {@code '}'}) or a
+     * comment start marker (when comments are enabled). Without this, malformed
+     * content such as {@code [ 123true ]} would only fail lazily when accessing the
+     * following token.
+     *<p>
+     * The trailing character is held in {@code _nextByte}; for accepted separators
+     * it is left there so the next {@code nextToken()} call can consume it normally.
+     */
+    private final void _verifyNumberSeparator() throws JacksonException
+    {
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace();
+            return;
+        }
+        final int ch = _nextByte;
+        switch (ch) {
+        case ' ':
+        case '\t':
+        case '\n':
+        case '\r':
+        case ',':
+        case ']':
+        case '}':
+            return;
+        case '/': // possible Java/C++ style comment
+            if (isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
+                return;
+            }
+            break;
+        case '#': // possible YAML/shell style comment
+            if (isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
+                return;
+            }
+            break;
+        }
+        if (ch == '/') {
+            // 23-Jul-2026, tatu: [core#1557] Still fail here rather than lazily, but
+            //   with the more useful message comment-skipping would have given.
+            _reportUnrecognizedComment();
+        }
+        _reportUnexpectedChar(ch,
+                "Expected space, comma or closing bracket/brace after numeric value");
+    }
+
+    // @since 3.3
+    private final void _reportUnrecognizedComment() throws JacksonException {
+        _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
     }
 
     /*
@@ -2754,7 +2800,7 @@ public class UTF8DataInputJsonParser
     private final void _skipComment() throws IOException
     {
         if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
-            _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
+            _reportUnrecognizedComment();
         }
         int c = readUnsignedByte();
         if (c == '/') {

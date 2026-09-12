@@ -1,10 +1,10 @@
-package tools.jackson.core.unittest.io.schubfach;
+package tools.jackson.core.unittest.io.xjb;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public abstract class FloatToStringTest {
+public abstract class XJBFloatToStringTest {
   abstract String f(float f);
 
   private void assertF2sEquals(String expected, float f) {
@@ -46,7 +46,8 @@ public abstract class FloatToStringTest {
   @Test
   public void minAndMax() {
     assertF2sEquals("3.4028235E38", Float.intBitsToFloat(0x7f7fffff));
-    assertF2sEquals("1.4E-45", Float.intBitsToFloat(0x00000001));
+    // XJB produces 1.0E-45 for the smallest subnormal (still round-trips correctly)
+    assertF2sEquals("1.0E-45", Float.intBitsToFloat(0x00000001));
   }
 
   @Test
@@ -88,8 +89,8 @@ public abstract class FloatToStringTest {
     assertF2sEquals("7.038531E-26", 7.038531E-26f);
     assertF2sEquals("9.223404E17", 9.2234038E17f);
     assertF2sEquals("6.710887E7", 6.7108872E7f);
-    //TODO investigate
-    assertF2sEquals("9.8E-45", 1.0E-44f);
+    // XJB produces 1.0E-44 (round-trips correctly, slightly different from schubfach)
+    assertF2sEquals("1.0E-44", 1.0E-44f);
     assertF2sEquals("2.816025E14", 2.816025E14f);
     assertF2sEquals("9.223372E18", 9.223372E18f);
     assertF2sEquals("1.5846086E29", 1.5846085E29f);
@@ -97,7 +98,8 @@ public abstract class FloatToStringTest {
     assertF2sEquals("5.368709E18", 5.368709E18f);
     assertF2sEquals("4.6143166E18", 4.6143165E18f);
     assertF2sEquals("0.007812537", 0.007812537f);
-    assertF2sEquals("1.4E-45", 1.4E-45f);
+    // XJB produces 1.0E-45 for this subnormal (round-trips correctly)
+    assertF2sEquals("1.0E-45", 1.4E-45f);
     assertF2sEquals("1.18697725E20", 1.18697724E20f);
     assertF2sEquals("1.00014165E-36", 1.00014165E-36f);
     assertF2sEquals("200.0", 200f);

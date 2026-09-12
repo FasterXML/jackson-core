@@ -1,7 +1,6 @@
 package tools.jackson.core.io;
 
-import tools.jackson.core.io.schubfach.DoubleToDecimal;
-import tools.jackson.core.io.schubfach.FloatToDecimal;
+import tools.jackson.core.io.xjb.XJBWriter;
 
 public final class NumberOutput
 {
@@ -16,18 +15,38 @@ public final class NumberOutput
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
 
     /**
-     * Maximum number of bytes the Schubfach algorithm may produce for a {@code float}.
+     * Maximum number of bytes {@link #outputFloat(float, byte[], int)} may touch,
+     * including padding written by the algorithm's wide (2/4/8-byte) stores.
      * Equals {@code H + 6} where {@code H = 9} (digit count).
      * @since 3.2.2
      */
     public static final int MAX_FLOAT_BYTES = 15;
 
     /**
-     * Maximum number of bytes the Schubfach algorithm may produce for a {@code double}.
+     * Maximum number of bytes {@link #outputDouble(double, byte[], int)} may touch,
+     * including padding written by the algorithm's wide (2/4/8-byte) stores.
      * Equals {@code H + 7} where {@code H = 17} (digit count).
      * @since 3.2.2
      */
     public static final int MAX_DOUBLE_BYTES = 24;
+
+    /**
+     * Maximum number of chars {@link #outputDouble(double, char[], int)} may touch:
+     * the longest output, like {@code -2.2250738585072014E-308}
+     * (the char[] writer uses no wide stores, so there is no padding).
+     *
+     * @since 3.3
+     */
+    public static final int MAX_DOUBLE_CHARS = 24;
+
+    /**
+     * Maximum number of chars {@link #outputFloat(float, char[], int)} may touch:
+     * the longest output, like {@code -1.00000075E-36}
+     * (the char[] writer uses no wide stores, so there is no padding).
+     *
+     * @since 3.3
+     */
+    public static final int MAX_FLOAT_CHARS = 15;
 
     /**
      * Encoded representations of 3-decimal-digit indexed values, where
@@ -302,11 +321,11 @@ public final class NumberOutput
 
     /**
      * @param v double
-     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @param useFastWriter whether to use XJB algorithm to write output (default false)
      * @return double as a string
      */
     public static String toString(final double v, final boolean useFastWriter) {
-        return useFastWriter ? DoubleToDecimal.toString(v) : Double.toString(v);
+        return useFastWriter ? XJBWriter.toString(v) : Double.toString(v);
     }
 
     /**
@@ -319,18 +338,23 @@ public final class NumberOutput
 
     /**
      * @param v float
-     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @param useFastWriter whether to use XJB algorithm to write output (default false)
      * @return float as a string
      */
     public static String toString(final float v, final boolean useFastWriter) {
-        return useFastWriter ? FloatToDecimal.toString(v) : Float.toString(v);
+        return useFastWriter ? XJBWriter.toString(v) : Float.toString(v);
     }
 
     /**
      * Direct-to-buffer write for {@code float} values, bypassing String allocation.
      * Writes UTF-8 bytes directly into the provided byte buffer.
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
-     * the Schubfach algorithm for writing floating point numbers.
+     * the XJB algorithm for writing floating point numbers.
+     *
+     * <p>Non-finite values are written as {@code NaN} / {@code Infinity} /
+     * {@code -Infinity}, which is not valid JSON: callers that need JSON-legal output
+     * must check with {@link #notFinite(float)} first.
+     * </p>
      *
      * @param v float value to write
      * @param b target byte buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} bytes available from {@code off})
@@ -340,14 +364,42 @@ public final class NumberOutput
      * @since 3.2.2
      */
     public static int outputFloat(float v, byte[] b, int off) {
-        return FloatToDecimal.writeFloat(v, b, off);
+        return XJBWriter.writeFloat(v, b, off);
+    }
+
+    /**
+     * Writes the decimal string representation of {@code v} directly into {@code b}
+     * starting at {@code off}, using the XJB algorithm. The buffer must have at least
+     * {@link #MAX_FLOAT_CHARS} chars of free space from {@code off}.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the XJB algorithm for writing floating point numbers.
+     *
+     * <p>Non-finite values are written as {@code NaN} / {@code Infinity} /
+     * {@code -Infinity}, which is not valid JSON: callers that need JSON-legal output
+     * must check with {@link #notFinite(float)} first.
+     * </p>
+     *
+     * @param v float value to write
+     * @param b target char buffer (caller must ensure at least {@link #MAX_FLOAT_CHARS} chars available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return the position just after the last char written
+     * @since 3.3
+     */
+    public static int outputFloat(float v, char[] b, int off) {
+        return XJBWriter.writeFloat(v, b, off);
     }
 
     /**
      * Direct-to-buffer write for {@code double} values, bypassing String allocation.
      * Writes UTF-8 bytes directly into the provided byte buffer.
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
-     * the Schubfach algorithm for writing floating point numbers.
+     * the XJB algorithm for writing floating point numbers.
+     *
+     * <p>Non-finite values are written as {@code NaN} / {@code Infinity} /
+     * {@code -Infinity}, which is not valid JSON: callers that need JSON-legal output
+     * must check with {@link #notFinite(double)} first.
+     * </p>
      *
      * @param v double value to write
      * @param b target byte buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} bytes available from {@code off})
@@ -357,41 +409,31 @@ public final class NumberOutput
      * @since 3.2.2
      */
     public static int outputDouble(double v, byte[] b, int off) {
-        return DoubleToDecimal.writeDouble(v, b, off);
+        return XJBWriter.writeDouble(v, b, off);
     }
 
     /**
-     * Direct-to-buffer write for {@code float} values, bypassing String allocation.
-     * Writes characters directly into the provided char buffer.
+     * Writes the decimal string representation of {@code v} directly into {@code b}
+     * starting at {@code off}, using the XJB algorithm. The buffer must have at least
+     * {@link #MAX_DOUBLE_CHARS} chars of free space from {@code off}.
      * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
-     * the Schubfach algorithm for writing floating point numbers.
+     * the XJB algorithm for writing floating point numbers.
      *
-     * @param v float value to write
-     * @param b target char buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} chars available from {@code off})
-     * @param off offset within buffer to start writing
-     *
-     * @return offset within buffer after the last char written
-     * @since 3.3
-     */
-    public static int outputFloat(float v, char[] b, int off) {
-        return FloatToDecimal.writeFloat(v, b, off);
-    }
-
-    /**
-     * Direct-to-buffer write for {@code double} values, bypassing String allocation.
-     * Writes characters directly into the provided char buffer.
-     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
-     * the Schubfach algorithm for writing floating point numbers.
+     * <p>Non-finite values are written as {@code NaN} / {@code Infinity} /
+     * {@code -Infinity}, which is not valid JSON: callers that need JSON-legal output
+     * must check with {@link #notFinite(double)} first.
+     * </p>
      *
      * @param v double value to write
-     * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} chars available from {@code off})
+     * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_CHARS} chars available from {@code off})
      * @param off offset within buffer to start writing
      *
-     * @return offset within buffer after the last char written
+     * @return the position just after the last char written
+     *
      * @since 3.3
      */
     public static int outputDouble(double v, char[] b, int off) {
-        return DoubleToDecimal.writeDouble(v, b, off);
+        return XJBWriter.writeDouble(v, b, off);
     }
 
     /*

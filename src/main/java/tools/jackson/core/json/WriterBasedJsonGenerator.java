@@ -873,7 +873,7 @@ public class WriterBasedJsonGenerator
         }
         _verifyValueWrite(WRITE_NUMBER);
         if (useFast) {
-            if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES) > _outputEnd) {
+            if ((_outputTail + NumberOutput.MAX_DOUBLE_CHARS) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
@@ -892,7 +892,7 @@ public class WriterBasedJsonGenerator
             _writeQuotedRaw(NumberOutput.toString(d, false));
             return;
         }
-        if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES + 2) > _outputEnd) {
+        if ((_outputTail + NumberOutput.MAX_DOUBLE_CHARS + 2) > _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
@@ -911,7 +911,7 @@ public class WriterBasedJsonGenerator
         }
         _verifyValueWrite(WRITE_NUMBER);
         if (useFast) {
-            if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES) > _outputEnd) {
+            if ((_outputTail + NumberOutput.MAX_FLOAT_CHARS) > _outputEnd) {
                 _flushBuffer();
             }
             _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
@@ -927,7 +927,7 @@ public class WriterBasedJsonGenerator
             _writeQuotedRaw(NumberOutput.toString(f, false));
             return;
         }
-        if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES + 2) > _outputEnd) {
+        if ((_outputTail + NumberOutput.MAX_FLOAT_CHARS + 2) > _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;

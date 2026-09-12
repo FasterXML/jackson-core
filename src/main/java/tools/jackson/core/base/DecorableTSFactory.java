@@ -239,6 +239,14 @@ public abstract class DecorableTSFactory
         return out;
     }
 
+    protected JsonGenerator _decorate(JsonGenerator result) {
+        if (_generatorDecorators != null) {
+            for(JsonGeneratorDecorator decorator : _generatorDecorators) {
+                result = decorator.decorate(this, result);
+            }
+        }
+        return result;
+    }
 
     /*
     /**********************************************************************
@@ -264,14 +272,5 @@ public abstract class DecorableTSFactory
                 failure.addSuppressed(e);
             }
         }
-    }
-
-    protected JsonGenerator _decorate(JsonGenerator result) {
-        if (_generatorDecorators != null) {
-            for(JsonGeneratorDecorator decorator : _generatorDecorators) {
-                result = decorator.decorate(this, result);
-            }
-        }
-        return result;
     }
 }

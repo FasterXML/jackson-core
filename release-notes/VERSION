@@ -45,6 +45,9 @@ JSON library.
   plus value token advance
  (contributed by @stevenschlansker)
 #1697: Add `ByteArrayUtil` with helper methods for byte encoding
+#1704: Add `NumberOutput.outputDouble/outputFloat(char[])`, use in
+  `WriterBasedJsonGenerator` with `USE_FAST_DOUBLE_WRITER`
+ (contributed by @pjfanning, w/ Claude code)
 
 3.2.3 (not yet released)
 

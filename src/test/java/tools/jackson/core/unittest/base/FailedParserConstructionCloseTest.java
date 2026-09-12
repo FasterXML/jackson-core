@@ -275,7 +275,8 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
                 IllegalStateException.class, CREATE_FAIL);
     }
 
-    // [core#763]: failure inside real backend, after hand-off
+    // [core#763] (and [databind#3455]): failure inside real backend, after
+    // hand-off -- that is, without test overriding `_createParser()` at all
     @Test
     void jsonFileSourceClosedOnReadFailure() throws Exception {
         _verifyFileSourceClosed(_jsonFactory(Failure.ON_READ),

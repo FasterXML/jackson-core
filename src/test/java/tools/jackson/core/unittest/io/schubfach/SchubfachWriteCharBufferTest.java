@@ -1,5 +1,6 @@
 package tools.jackson.core.unittest.io.schubfach;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
@@ -97,7 +98,8 @@ public class SchubfachWriteCharBufferTest
         // and must agree with the byte[] variant
         byte[] bbuf = new byte[32];
         int bend = NumberOutput.outputFloat(v, bbuf, 0);
-        assertEquals(end, bend);
+        assertEquals(expected, new String(bbuf, 0, bend, StandardCharsets.US_ASCII),
+                "byte[] mismatch for float " + v);
     }
 
     private void _verifyDouble(double v)
@@ -108,6 +110,7 @@ public class SchubfachWriteCharBufferTest
         assertEquals(expected, new String(buf, 0, end), "mismatch for double " + v);
         byte[] bbuf = new byte[48];
         int bend = NumberOutput.outputDouble(v, bbuf, 0);
-        assertEquals(end, bend);
+        assertEquals(expected, new String(bbuf, 0, bend, StandardCharsets.US_ASCII),
+                "byte[] mismatch for double " + v);
     }
 }

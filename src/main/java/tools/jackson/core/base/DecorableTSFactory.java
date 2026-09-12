@@ -239,6 +239,14 @@ public abstract class DecorableTSFactory
         return out;
     }
 
+    protected JsonGenerator _decorate(JsonGenerator result) {
+        if (_generatorDecorators != null) {
+            for(JsonGeneratorDecorator decorator : _generatorDecorators) {
+                result = decorator.decorate(this, result);
+            }
+        }
+        return result;
+    }
 
     /*
     /**********************************************************************
@@ -275,8 +283,10 @@ public abstract class DecorableTSFactory
      *
      * @param toClose Source/target Jackson opened, if any ({@code null} if not yet opened)
      * @param failure Failure to add possible secondary failure to, as suppressed
+     *
+     * @since 3.1.7
      */
-    static void _closeOnFailedConstruction(Closeable toClose, RuntimeException failure)
+    protected static void _closeOnFailedConstruction(Closeable toClose, RuntimeException failure)
     {
         if (toClose != null) {
             try {
@@ -285,14 +295,5 @@ public abstract class DecorableTSFactory
                 failure.addSuppressed(e);
             }
         }
-    }
-
-    protected JsonGenerator _decorate(JsonGenerator result) {
-        if (_generatorDecorators != null) {
-            for(JsonGeneratorDecorator decorator : _generatorDecorators) {
-                result = decorator.decorate(this, result);
-            }
-        }
-        return result;
     }
 }

@@ -1082,6 +1082,7 @@ public class UTF8DataInputJsonParser
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1150,6 +1151,7 @@ public class UTF8DataInputJsonParser
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1265,6 +1267,8 @@ public class UTF8DataInputJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1300,6 +1304,7 @@ public class UTF8DataInputJsonParser
             while (c <= INT_9 && c >= INT_0) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1644,7 +1649,7 @@ public class UTF8DataInputJsonParser
                         ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -1654,7 +1659,7 @@ public class UTF8DataInputJsonParser
                         ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -1851,7 +1856,7 @@ public class UTF8DataInputJsonParser
                         ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -1861,7 +1866,7 @@ public class UTF8DataInputJsonParser
                         ++currQuadBytes;
                         if (currQuadBytes >= 4) {
                             if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
                             }
                             quads[qlen++] = currQuad;
                             currQuad = 0;
@@ -2412,7 +2417,13 @@ public class UTF8DataInputJsonParser
             return _handleInvalidNumberStart(readUnsignedByte(), false, true);
         }
         // [core#77] Try to decode most likely token
-        if (Character.isJavaIdentifierStart(c)) {
+        if (c > 0x7F) { // multi-byte UTF-8 char: decode first (consumes rest of its bytes)
+            c = _decodeCharForError(c);
+            if (Character.isJavaIdentifierStart(c)) {
+                _reportInvalidToken(readUnsignedByte(), ""+((char) c), _validJsonTokenList());
+            }
+        } else if (Character.isJavaIdentifierStart(c)) {
+            // NOTE: 'c' is decoded (and appended) by _reportInvalidToken(); do not pre-append
             _reportInvalidToken(c, "", _validJsonTokenList());
         }
         // but if it doesn't look like a token:
@@ -2554,7 +2565,9 @@ public class UTF8DataInputJsonParser
         // but actually only alphanums are problematic
         char c = (char) _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
-            _reportInvalidToken(c, matchStr.substring(0, i));
+            // 'c' already decoded (all of its bytes consumed): include it as matched,
+            // continue from the following byte
+            _reportInvalidToken(readUnsignedByte(), matchStr.substring(0, i) + c);
         }
     }
 
@@ -3055,6 +3068,8 @@ public class UTF8DataInputJsonParser
         throws JacksonException
      {
          StringBuilder sb = new StringBuilder(matchedPart);
+         final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
+
          // Let's just try to find what appears to be the token, using
          // regular Java identifier character rules. It's just a heuristic,
          // nothing fancy here (nor fast).
@@ -3065,6 +3080,10 @@ public class UTF8DataInputJsonParser
                      break;
                  }
                  sb.append(c);
+                 if (sb.length() >= maxTokenLength) {
+                     sb.append("...");
+                     break;
+                 }
                  ch = readUnsignedByte();
              }
          } catch (IOException e) {

@@ -27,6 +27,23 @@ JSON library.
 #1664: UTF-8 byte-backed parsers report raw byte instead of decoded character
   for invalid root-value separator
  (reported, fix by DongNyoung L)
+#1674: Optimize `Base64Variant.encode()` to write into exactly-sized `char[]`
+  instead of `StringBuilder`
+ (contributed by @pjfanning, w/ Claude code)
+#1675: Allocate ByteArrayBuilder past-block list lazily
+ (contributed by @pjfanning, w/ Claude code)
+#1685: Lower `BigDecimalParser` FastDoubleParser cutoff from 500 to 200 characters
+ (reported, fix by DongNyoung L)
+#1686: Synchronous decimal number parsing buffers oversized values before
+  `maxNumberLength` validation
+ (reported, fix by DongNyoung L)
+#1688: Add `JsonParser.nextNameMatchAndToken()`, fused property name match
+  plus value token advance
+ (contributed by @stevenschlansker)
+#1697: Add `ByteArrayUtil` with helper methods for byte encoding
+#1704: Add `NumberOutput.outputDouble/outputFloat(char[])`, use in
+  `WriterBasedJsonGenerator` with `USE_FAST_DOUBLE_WRITER`
+ (contributed by @pjfanning, w/ Claude code)
 
 3.2.3 (not yet released)
 
@@ -40,6 +57,25 @@ JSON library.
 #1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
   lands at the output buffer boundary
  (fix by @pjfanning)
+#1692: Fix loss of buffered content when `createGenerator(OutputStream, JsonEncoding)`
+  is used with non-UTF-8 encoding and generator is configured to neither close
+  nor flush the target; also close streams opened for `File`/`Path` targets when
+  generator construction fails
+ (fix by @pjfanning)
+#1693: Close streams Jackson opened for `File`/`Path` sources when construction
+  of parser fails
+ (fix by @pjfanning)
+#1694: Release `IOContext` (and `BufferRecycler` lease it holds) when construction of
+  parser or generator fails
+ (fix by @pjfanning)
+#1695: Release encoding buffer and close underlying stream in `UTF8Writer.close()`
+  even if writing of pending content fails
+ (fix by @pjfanning)
+#1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
+  when reporting an unrecognized token [CVE-2026-89425]
+ (fix by @pjfanning)
+#1703: Validate name length in `UTF8DataInputJsonParser` before quad buffer growth
+ (reported, fix by DongNyoung L)
 
 3.2.2 (14-Aug-2026)
 
@@ -52,7 +88,7 @@ JSON library.
  (fix by Revanth M)
 #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
-#1649: Optimize `NumberInput.looksLikeValidNumber`
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
 #1657: UTF8JsonGenerator: writeNumber fast path that avoids extra String allocation
  (implemented by @pjfanning)
@@ -87,6 +123,8 @@ No changes since 3.2.0
 
 3.1.7 (not yet released)
 
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
+ (fix by @cowtowncoder, w/ Claude code)
 #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
   lands at the output buffer boundary
  (reported by @hdimitrieski)
@@ -94,6 +132,25 @@ No changes since 3.2.0
 #1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
   lands at the output buffer boundary
  (fix by @pjfanning)
+#1692: Fix loss of buffered content when `createGenerator(OutputStream, JsonEncoding)`
+  is used with non-UTF-8 encoding and generator is configured to neither close
+  nor flush the target; also close streams opened for `File`/`Path` targets when
+  generator construction fails
+ (fix by @pjfanning)
+#1693: Close streams Jackson opened for `File`/`Path` sources when construction
+  of parser fails
+ (fix by @pjfanning)
+#1694: Release `IOContext` (and `BufferRecycler` lease it holds) when construction of
+  parser or generator fails
+ (fix by @pjfanning)
+#1695: Release encoding buffer and close underlying stream in `UTF8Writer.close()`
+  even if writing of pending content fails
+ (fix by @pjfanning)
+#1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
+  when reporting an unrecognized token [CVE-2026-89425]
+ (fix by @pjfanning)
+#1703: Validate name length in `UTF8DataInputJsonParser` before quad buffer growth
+ (reported, fix by DongNyoung L)
 
 3.1.6 (14-Aug-2026)
 

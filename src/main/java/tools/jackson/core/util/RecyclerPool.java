@@ -321,6 +321,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * This is a "bounded" pool: it will never hold on to more pooled instances
      * than its slot count (default {@link StripedArrayPoolBase#DEFAULT_CAPACITY});
      * an instance released when every slot is occupied is dropped.
+     * Special thanks to the Vert.x project for the approach.
      *
      * @since 3.3
      */

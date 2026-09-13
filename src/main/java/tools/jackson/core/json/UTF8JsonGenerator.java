@@ -1197,7 +1197,7 @@ public class UTF8JsonGenerator
                 _flushBuffer();
             }
             // Chunking only ever kicks in for very long BigInteger/BigDecimal text
-            int len = Math.min(totalLen - offset, Math.min(cbuf.length, _outputEnd - _outputTail));
+            int len = Math.min(totalLen - offset, Math.min(_charBufferLength, _outputEnd - _outputTail));
             text.getChars(offset, offset + len, cbuf, 0);
             final byte[] buf = _outputBuffer;
             int ptr = _outputTail;

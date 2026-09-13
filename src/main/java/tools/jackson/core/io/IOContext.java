@@ -1,8 +1,12 @@
 package tools.jackson.core.io;
 
+import java.io.FilterWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Objects;
 
 import tools.jackson.core.ErrorReportConfiguration;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.StreamWriteConstraints;
@@ -110,6 +114,14 @@ public class IOContext implements AutoCloseable
      */
     protected char[] _nameCopyBuffer;
 
+    /**
+     * Intermediate encoding {@link Writer} Jackson constructed itself over
+     * caller-supplied {@link java.io.OutputStream}, if any. Unlike caller-provided
+     * targets it has to be drained when this context is closed: caller has no
+     * reference with which to flush content buffered in it.
+     */
+    protected EncodingWriter _encodingWriter;
+
     private boolean _closed = false;
 
     /*
@@ -153,6 +165,28 @@ public class IOContext implements AutoCloseable
     public IOContext markBufferRecyclerReleased() {
         _releaseRecycler = false;
         return this;
+    }
+
+    /**
+     * Method factories call to register intermediate encoding {@link Writer}
+     * they constructed themselves to wrap caller-supplied
+     * {@link java.io.OutputStream}; returns Writer to actually pass to generator.
+     *<p>
+     * Content buffered by such Writer is flushed when this context is closed
+     * (that is, when generator using it gets closed), regardless of whether
+     * generator is configured to close or flush the caller-owned target:
+     * otherwise buffered output would simply be lost.
+     *
+     * @param w Encoding Writer Jackson constructed
+     *
+     * @return Writer to pass to generator
+     *
+     * @since 3.1.7
+     */
+    public Writer encodingWriter(Writer w) {
+        EncodingWriter ew = new EncodingWriter(w);
+        _encodingWriter = ew;
+        return ew;
     }
 
     /*
@@ -407,9 +441,76 @@ public class IOContext implements AutoCloseable
     public void close() {
         if (!_closed) {
             _closed = true;
-            if (_releaseRecycler) {
-                _releaseRecycler = false;
-                _bufferRecycler.releaseToPool();
+            try {
+                EncodingWriter w = _encodingWriter;
+                if (w != null) {
+                    _encodingWriter = null;
+                    w.flushPending();
+                }
+            } finally {
+                if (_releaseRecycler) {
+                    _releaseRecycler = false;
+                    _bufferRecycler.releaseToPool();
+                }
+            }
+        }
+    }
+
+    /**
+     * Wrapper for encoding {@link Writer} Jackson constructed itself, tracking
+     * whether it holds content not yet pushed to the underlying target, so that
+     * {@link IOContext#close} can drain it exactly once.
+     *
+     * @since 3.1.7
+     */
+    private final static class EncodingWriter extends FilterWriter
+    {
+        private boolean _pending;
+
+        EncodingWriter(Writer w) { super(w); }
+
+        @Override
+        public void write(int c) throws IOException {
+            _pending = true;
+            super.write(c);
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            _pending = true;
+            super.write(cbuf, off, len);
+        }
+
+        @Override
+        public void write(String str, int off, int len) throws IOException {
+            _pending = true;
+            super.write(str, off, len);
+        }
+
+        @Override
+        public void flush() throws IOException {
+            _pending = false;
+            super.flush();
+        }
+
+        @Override
+        public void close() throws IOException {
+            // clear before delegating: close() may lead back to IOContext.close()
+            _pending = false;
+            super.close();
+        }
+
+        /**
+         * @since 3.1.7
+         */
+        public void flushPending() {
+            if (_pending) {
+                _pending = false;
+                try {
+                    out.flush();
+                } catch (IOException e) {
+                    throw JacksonIOException.construct(e);
+                }
             }
         }
     }

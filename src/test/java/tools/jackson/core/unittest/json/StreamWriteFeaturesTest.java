@@ -59,19 +59,19 @@ class GeneratorFeaturesTest
     @Test
     void nonNumericQuoting() throws IOException
     {
-        JsonFactory f = new JsonFactory();
-        // by default, quoting should be enabled
-        assertTrue(f.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
-        _testNonNumericQuoting(f, true);
-        // can disable it
-        f = f.rebuild().disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+        JsonFactory f = JsonFactory.builder()
+                .disable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
                 .build();
-        _testNonNumericQuoting(f, false);
-        // and (re)enable:
-        f = f.rebuild()
-                .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+        _testNonNumericQuoting(f);
+    }
+
+    @Test
+    void nonNumericQuotingFastWriter() throws IOException
+    {
+        JsonFactory f = JsonFactory.builder()
+                .enable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
                 .build();
-        _testNonNumericQuoting(f, true);
+        _testNonNumericQuoting(f);
     }
 
     /**
@@ -297,6 +297,23 @@ class GeneratorFeaturesTest
             assertEquals("{foo:1}", result);
         }
     }
+
+    private void _testNonNumericQuoting(JsonFactory f)
+    {
+        // by default, quoting should be enabled
+        assertTrue(f.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
+        _testNonNumericQuoting(f, true);
+        // can disable it
+        f = f.rebuild().disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        _testNonNumericQuoting(f, false);
+        // and (re)enable:
+        f = f.rebuild()
+                .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        _testNonNumericQuoting(f, true);
+    }
+
     private void _testNonNumericQuoting(JsonFactory f, boolean quoted)
     {
         StringWriter sw = new StringWriter();

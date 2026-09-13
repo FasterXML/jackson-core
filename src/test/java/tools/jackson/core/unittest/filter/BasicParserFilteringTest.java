@@ -497,6 +497,53 @@ class BasicParserFilteringTest extends JacksonCoreTestBase
         assertEquals(2, p.getMatchCount());
     }
 
+    // [core#1651]: buffered START_OBJECT must create Object (not Array) context
+    @Test
+    void includeNonNullWithNestedObjectContext() throws Exception
+    {
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(),
+                a2q("{'a':{'b':1}}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                new TokenFilter() { },
+                Inclusion.INCLUDE_NON_NULL,
+                true // multipleMatches
+        );
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertTrue(p.streamReadContext().inObject());
+
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals("a", p.currentName());
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertTrue(p.streamReadContext().inObject());
+        assertEquals("a", p.currentName());
+
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals("b", p.currentName());
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(1, p.getIntValue());
+
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.nextToken());
+    }
+
+    // [core#1651]: buffered START_OBJECT with INCLUDE_ALL filter must replay
+    // the enclosing (buffered) Property name
+    @Test
+    void includeNonNullWithBufferedIncludeAllObject() throws Exception
+    {
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(),
+                a2q("{'a':{'b':1}}"));
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+                new StrictNameMatchFilter("a"),
+                Inclusion.INCLUDE_NON_NULL, true);
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(a2q("{'a':{'b':1}}"), result);
+    }
+
     @Test
     void noMatchFiltering1() throws Exception
     {

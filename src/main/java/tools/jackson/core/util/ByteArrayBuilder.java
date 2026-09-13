@@ -43,7 +43,9 @@ public final class ByteArrayBuilder
 
     // Optional buffer recycler instance that we can use for allocating the first block.
     private final BufferRecycler _bufferRecycler;
-    private final List<byte[]> _pastBlocks = new ArrayList<>();
+    // 24-Aug-2026, pjfanning: Allocated lazily on first block overflow: most
+    //   instances fit within the first block and never need this at all.
+    private List<byte[]> _pastBlocks;
 
     // Number of bytes within byte arrays in {@link _pastBlocks}.
     private int _pastLen;
@@ -78,7 +80,9 @@ public final class ByteArrayBuilder
         _pastLen = 0;
         _currBlockPtr = 0;
 
-        _pastBlocks.clear();
+        if (_pastBlocks != null) {
+            _pastBlocks.clear();
+        }
     }
 
     /**
@@ -163,10 +167,12 @@ public final class ByteArrayBuilder
         byte[] result = new byte[totalLen];
         int offset = 0;
 
-        for (byte[] block : _pastBlocks) {
-            int len = block.length;
-            System.arraycopy(block, 0, result, offset, len);
-            offset += len;
+        if (_pastBlocks != null) {
+            for (byte[] block : _pastBlocks) {
+                int len = block.length;
+                System.arraycopy(block, 0, result, offset, len);
+                offset += len;
+            }
         }
         System.arraycopy(_currBlock, 0, result, offset, _currBlockPtr);
         offset += _currBlockPtr;
@@ -174,7 +180,7 @@ public final class ByteArrayBuilder
             throw new RuntimeException("Internal error: total len assumed to be "+totalLen+", copied "+offset+" bytes");
         }
         // Let's only reset if there's sizable use, otherwise will get reset later on
-        if (!_pastBlocks.isEmpty()) {
+        if (_pastBlocks != null && !_pastBlocks.isEmpty()) {
             reset();
         }
         return result;
@@ -327,6 +333,9 @@ public final class ByteArrayBuilder
         // plus not to exceed max we define...
         if (newSize > MAX_BLOCK_SIZE) {
             newSize = MAX_BLOCK_SIZE;
+        }
+        if (_pastBlocks == null) {
+            _pastBlocks = new ArrayList<>();
         }
         _pastBlocks.add(_currBlock);
         _currBlock = new byte[newSize];

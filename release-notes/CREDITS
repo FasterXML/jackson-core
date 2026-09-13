@@ -55,6 +55,30 @@ Revanth Meesala (@revanthmeesala)
    [GHSA-649p-m576-vr99]
   (3.1.6)
 
+DongNyoung Lee (@Dongnyoung)
+ * Contributed #1651: Fix object context handling for buffered `INCLUDE_NON_NULL` tokens
+  (3.1.6)
+ * Contributed #1667: `JsonParser.willInternPropertyNames()` returns `true` even when
+   `CANONICALIZE_PROPERTY_NAMES` is disabled
+  (3.2.3)
+ * Reported, fixed #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
+   already-consumed bytes
+  (3.3.0)
+ * Reported, fixed #1664: UTF-8 byte-backed parsers report raw byte instead of
+   decoded character for invalid root-value separator
+  (3.3.0)
+ * Reported #1654: Stale symbol table child can replace a newer root table
+  (3.3.0)
+ * Reported, fixed #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from
+   500 to 200 characters
+  (3.3.0)
+ * Reported, fixed #1686: Synchronous decimal number parsing buffers oversized
+   values before `maxNumberLength` validation
+  (3.3.0)
+ * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
+   quad buffer growth
+  (3.1.7)
+
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
    for JSON5-style hexadecimal integer literals
@@ -74,8 +98,17 @@ Scott Lewis (@scottslewis)
    prefix match
   (3.3.0)
 
-DongNyoung Lee (@Dongnyoung)
- * Reported, fixed #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
-   already-consumed bytes
-  (3.3.0)
+@hdimitrieski
+ * Reported #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (3.1.7)
 
+Burak KALAYCI (@kalayciburak)
+ * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (3.1.7)
+
+Steven Schlansker (@stevenschlansker)
+ * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
+   name match plus value token advance
+  (3.3.0)

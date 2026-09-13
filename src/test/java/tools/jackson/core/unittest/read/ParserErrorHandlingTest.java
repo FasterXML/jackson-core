@@ -68,6 +68,21 @@ class ParserErrorHandlingTest
         doTestInvalidKeyword1(mode, "treu");
         doTestInvalidKeyword1(mode, "trueenough");
         doTestInvalidKeyword1(mode, "C");
+
+        // Multi-byte (non-ASCII) identifier chars right after keyword
+        doTestInvalidKeyword1(mode, "trueé");
+        doTestInvalidKeyword1(mode, "nullé");
+        doTestInvalidKeyword1(mode, "false中x");
+
+        // Multi-byte (non-ASCII) identifier char at start of token
+        doTestInvalidKeyword1(mode, "éabc");
+        doTestInvalidKeyword1(mode, "中x");
+
+        // Multi-byte char that is NOT part of token (NBSP): after keyword, or at value start
+        _testNonTokenChar(mode, "[true\u00A0]");
+        _testNonTokenChar(mode, "{\"a\":null\u00A0}");
+        _testNonTokenChar(mode, "[\u00A0]");
+        _testNonTokenChar(mode, "{\"a\":\u00A0}");
     }
 
     private void doTestInvalidKeyword1(int mode, String value)
@@ -99,6 +114,17 @@ class ParserErrorHandlingTest
             verifyException(jex, value);
         } finally {
             p.close();
+        }
+    }
+
+    // Must be reported as an error: not skipped, nor mis-decoded
+    private void _testNonTokenChar(int mode, String doc)
+    {
+        try (JsonParser p = createParser(JSON_F, mode, doc)) {
+            while (p.nextToken() != null) { }
+            fail("Expected an exception for invalid non-token char; doc: "+doc);
+        } catch (StreamReadException jex) {
+            verifyException(jex, "Unexpected character");
         }
     }
 

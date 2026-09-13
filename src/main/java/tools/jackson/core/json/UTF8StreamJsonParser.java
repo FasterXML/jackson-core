@@ -5,6 +5,7 @@ import java.io.*;
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -1118,6 +1119,20 @@ public class UTF8StreamJsonParser
     @Override
     public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException
     {
+        return _nextNameMatch(matcher, false);
+    }
+
+    @Override
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException
+    {
+        return _nextNameMatch(matcher, true);
+    }
+
+    // On a non-negative match with `fused`, commits the value token directly
+    // (the work _nextAfterName() would otherwise do on the following
+    // nextToken() call); everything else is nextNameMatch() unchanged.
+    private int _nextNameMatch(PropertyNameMatcher matcher, boolean fused) throws JacksonException
+    {
         // // // Note: this is almost a verbatim copy of nextToken()
         _numTypesValid = NR_UNKNOWN;
         if (_currToken == JsonToken.PROPERTY_NAME) {
@@ -1195,7 +1210,12 @@ public class UTF8StreamJsonParser
         _updateLocation();
         if (i == INT_QUOTE) { // optimize commonest case, String value
             _tokenIncomplete = true;
-            _nextToken = JsonToken.VALUE_STRING;
+            if (fused && match >= 0) {
+                _nameCopied = false;
+                _updateToken(JsonToken.VALUE_STRING);
+            } else {
+                _nextToken = JsonToken.VALUE_STRING;
+            }
             return match;
         }
         JsonToken t;
@@ -1247,7 +1267,17 @@ public class UTF8StreamJsonParser
         default:
             t = _handleUnexpectedValue(i);
         }
-        _nextToken = t;
+        if (fused && match >= 0) {
+            _nameCopied = false;
+            if (t == JsonToken.START_ARRAY) {
+                createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            } else if (t == JsonToken.START_OBJECT) {
+                createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            }
+            _updateToken(t);
+        } else {
+            _nextToken = t;
+        }
         return match;
     }
 
@@ -1596,7 +1626,7 @@ public class UTF8StreamJsonParser
         while ((qptr + 4) <= _inputEnd) {
             // [core#1516]: Need to check buffer space BEFORE any writes in this iteration
             if (qlen >= _quadBuffer.length) {
-                _quadBuffer = growArrayBy(_quadBuffer, qlen);
+                _quadBuffer = _growNameDecodeBuffer(_quadBuffer, qlen);
             }
             int i = input[qptr++] & 0xFF;
             if (codes[i] != 0) {
@@ -1955,12 +1985,13 @@ public class UTF8StreamJsonParser
                 }
                 break;
             }
+            ++intPartLength;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intPartLength);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
             outBuf[outPtr++] = (char) c;
-            ++intPartLength;
         }
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);
@@ -2096,6 +2127,8 @@ public class UTF8StreamJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -2141,6 +2174,7 @@ public class UTF8StreamJsonParser
             while (c >= INT_0 && c <= INT_9) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -2187,7 +2221,6 @@ public class UTF8StreamJsonParser
     {
         // caller had pushed it back, before calling; reset
         ++_inputPtr;
-        // TODO? Handle UTF-8 char decoding for error reporting
         switch (ch) {
         case ' ':
         case '\t':
@@ -2202,6 +2235,15 @@ public class UTF8StreamJsonParser
             ++_currInputRow;
             _currInputRowStart = _inputPtr;
             return;
+        }
+
+        if (ch > 0x7F) {
+            // 19-Aug-2026, tatu: [core#1664] Decode multi-byte character for better
+            //   error message; but if input ends mid-sequence, report lead byte as-is
+            //   (content is malformed here regardless of what would follow)
+            try {
+                ch = _decodeCharForError(ch);
+            } catch (UnexpectedEndOfInputException e) { }
         }
         _reportMissingRootWS(ch);
     }
@@ -3256,12 +3298,9 @@ public class UTF8StreamJsonParser
                     max = _inputEnd;
                 }
                 while (ptr < max) {
-                    c = inputBuffer[ptr++] & 0xFF;
-                    if (codes[c] != 0) {
-                        _inputPtr = ptr;
-                        break ascii_loop;
-                    }
-                    // Flush intermediate buffer when full
+                    // 30-Aug-2026, pjfanning: Flush before decoding, not before
+                    //   appending: guarantees room is left when we exit the loop
+                    //   for an escape or multi-byte char, which append unchecked
                     if (outPtr >= outBuf.length) {
                         writer.write(outBuf, 0, outPtr);
                         totalLen += outPtr;
@@ -3270,6 +3309,11 @@ public class UTF8StreamJsonParser
                             _streamReadConstraints.validateStringLengthLong(totalLen);
                         }
                         outPtr = 0;
+                    }
+                    c = inputBuffer[ptr++] & 0xFF;
+                    if (codes[c] != 0) {
+                        _inputPtr = ptr;
+                        break ascii_loop;
                     }
                     // Accumulate character in intermediate buffer
                     outBuf[outPtr++] = (char) c;
@@ -3400,6 +3444,9 @@ public class UTF8StreamJsonParser
             return _handleInvalidNumberStart(_inputBuffer[_inputPtr++] & 0xFF, false, true);
         }
         // [core#77] Try to decode most likely token
+        if (c > 0x7F) { // multi-byte UTF-8 char: decode first (consumes rest of its bytes)
+            c = _decodeCharForError(c);
+        }
         if (Character.isJavaIdentifierStart(c)) {
             _reportInvalidToken(""+((char) c), _validJsonTokenList());
         }
@@ -3644,10 +3691,25 @@ public class UTF8StreamJsonParser
 
     private final void _checkMatchEnd(String matchStr, int i, int ch) throws JacksonException {
         // but actually only alphanums are problematic
+        if (ch < 0x80) { // single-byte char: can check without consuming it
+            if (Character.isJavaIdentifierPart((char) ch)) {
+                _reportInvalidToken(matchStr.substring(0, i));
+            }
+            return;
+        }
+        // Multi-byte char: must consume lead byte (decoding consumes the rest)
+        final int ptr = _inputPtr++;
+        final long processed = _currInputProcessed;
         char c = (char) _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
-            _reportInvalidToken(matchStr.substring(0, i));
+            _reportInvalidToken(matchStr.substring(0, i) + c);
         }
+        // Not part of token: rewind so regular handling reports it -- unless
+        // buffer was reloaded during decoding, in which case must report here
+        if (_currInputProcessed != processed) {
+            _reportUnexpectedChar(c, "expected white space, comma or end marker after token '"+matchStr+"'");
+        }
+        _inputPtr = ptr;
     }
 
     /*
@@ -4311,6 +4373,7 @@ public class UTF8StreamJsonParser
                 _currInputRow, col);
 
         StringBuilder sb = new StringBuilder(matchedPart);
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while ((_inputPtr < _inputEnd) || _loadMore()) {
             int i = _inputBuffer[_inputPtr++];
             char c = (char) _decodeCharForError(i);
@@ -4323,7 +4386,7 @@ public class UTF8StreamJsonParser
                 break;
             }
             sb.append(c);
-            if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+            if (sb.length() >= maxTokenLength) {
                 sb.append("...");
                 break;
             }

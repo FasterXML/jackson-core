@@ -2,7 +2,6 @@ package tools.jackson.core.io;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.regex.Pattern;
 
 import ch.randelshofer.fastdoubleparser.JavaDoubleParser;
 import ch.randelshofer.fastdoubleparser.JavaFloatParser;
@@ -23,25 +22,6 @@ public final class NumberInput
     final static String MIN_LONG_STR_NO_SIGN = String.valueOf(Long.MIN_VALUE).substring(1);
     final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
 
-    /**
-     * Regexp used to pre-validate "Stringified Numbers": slightly looser than
-     * JSON Number definition (allows leading zeroes, positive sign).
-     *
-     * @since 2.17
-     */
-    private final static Pattern PATTERN_FLOAT = Pattern.compile(
-          "[+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?");
-
-
-    /**
-     * Secondary regexp used along with {@code PATTERN_FLOAT} to cover
-     * case where number ends with dot, like {@code "+12."}
-     *
-     * @since 2.17.2
-     */
-    private final static Pattern PATTERN_FLOAT_TRAILING_DOT = Pattern.compile(
-            "[+-]?[0-9]+[\\.]");
-    
     /**
      * Fast method for parsing unsigned integers that are known to fit into
      * regular 32-bit signed int type. This means that length is
@@ -631,23 +611,86 @@ public final class NumberInput
      *<p>
      * Note: this method returning {@code true} DOES NOT GUARANTEE String is valid
      * number but just that it looks close enough.
+     *<p>
+     * Note: method rewritten in 3.2.2 to avoid use of JDK regexp functionality.
      *
      * @param s String to validate
      *
      * @return True if String looks like valid Java number; false otherwise.
      *
-     * @since 2.17
+     * @since 2.17 (rewritten in 3.2.2)
      */
     public static boolean looksLikeValidNumber(final String s) {
-        // While PATTERN_FLOAT handles most cases we can optimize some simple ones:
-        if (s == null || s.isEmpty()) {
+        // 08-Aug-2026, tatu: [core#1649] Hand-rolled scan; matches (union of)
+        //    "[+-]?[0-9]*[.]?[0-9]+([eE][+-]?[0-9]+)?" and "[+-]?[0-9]+[.]"
+        if (s == null) {
             return false;
         }
-        if (s.length() == 1) {
-            char c = s.charAt(0);
-            return (c <= '9') && (c >= '0');
+        final int len = s.length();
+        if (len == 0) {
+            return false;
         }
-        return PATTERN_FLOAT.matcher(s).matches()
-                || PATTERN_FLOAT_TRAILING_DOT.matcher(s).matches();
+        int i = 0;
+        char c = s.charAt(i);
+
+        // Optional sign
+        if (c == '+' || c == '-') {
+            if (++i == len) { // sign alone
+                return false;
+            }
+            c = s.charAt(i);
+        }
+
+        // Integer part, if any
+        final int intStart = i;
+        while (c >= '0' && c <= '9') {
+            if (++i == len) { // "[+-]?[0-9]+"
+                return true;
+            }
+            c = s.charAt(i);
+        }
+        final int intDigits = i - intStart;
+
+        if (c == '.') {
+            if (++i == len) { // trailing dot only allowed after digit(s)
+                return intDigits > 0;
+            }
+            c = s.charAt(i);
+            final int fractStart = i;
+            while (c >= '0' && c <= '9') {
+                if (++i == len) {
+                    return true;
+                }
+                c = s.charAt(i);
+            }
+            if (i == fractStart) { // "1.x": no fraction digits, and not trailing dot
+                return false;
+            }
+        } else if (intDigits == 0) { // no mantissa digits at all
+            return false;
+        }
+
+        // Only an exponent may follow
+        if (c != 'e' && c != 'E') {
+            return false;
+        }
+        if (++i == len) {
+            return false;
+        }
+        c = s.charAt(i);
+        if (c == '+' || c == '-') {
+            if (++i == len) {
+                return false;
+            }
+            c = s.charAt(i);
+        }
+        while (c >= '0' && c <= '9') {
+            if (++i == len) {
+                return true;
+            }
+            c = s.charAt(i);
+        }
+        // Either no exponent digits, or trailing garbage
+        return false;
     }
 }

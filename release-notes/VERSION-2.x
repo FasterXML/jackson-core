@@ -21,26 +21,54 @@ a pure JSON library.
  (requested by @kilink)
  (contributed by @seonwooj0810)
 
-2.22.2 (not yet released)
+2.22.3 (not yet released)
+
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
+ (fix by @cowtowncoder, w/ Claude code)
+#1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
+  lands at the output buffer boundary
+ (reported by @hdimitrieski)
+ (fix by @kalayciburak)
+#1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
+  when reporting an unrecognized token [CVE-2026-89425]
+ (fix by @pjfanning)
+
+2.22.2 (16-Aug-2026)
 
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case
   [GHSA-2c4j-63jj-9fqr]
  (fix by Revanth M)
 #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
+#1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
+ (contributed by @Dongnyoung)
 
 2.22.1 (07-Jul-2026)
 2.22.0 (03-Jun-2026)
 
 No changes since 2.21
 
-2.21.6 (not yet released)
+2.21.7 (not yet released)
+
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
+ (fix by @cowtowncoder, w/ Claude code)
+#1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
+  lands at the output buffer boundary
+ (reported by @hdimitrieski)
+ (fix by @kalayciburak)
+#1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
+  when reporting an unrecognized token [CVE-2026-89425]
+ (fix by @pjfanning)
+
+2.21.6 (14-Aug-2026)
 
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case
   [GHSA-2c4j-63jj-9fqr]
  (fix by Revanth M)
 #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
  (fix by @tinyb0y)
+#1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
+ (contributed by @Dongnyoung)
 
 2.21.5 (06-Jul-2026)
 
@@ -173,7 +201,15 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
-2.18.10 (not yet released)
+2.18.11 (not yet released)
+
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
+ (fix by @cowtowncoder, w/ Claude code)
+#1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
+  when reporting an unrecognized token [CVE-2026-89425]
+ (fix by @pjfanning)
+
+2.18.10 (15-Aug-2026)
 
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case
   [GHSA-2c4j-63jj-9fqr]

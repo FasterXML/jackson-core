@@ -16,6 +16,20 @@ public final class NumberOutput
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
 
     /**
+     * Maximum number of bytes the Schubfach algorithm may produce for a {@code float}.
+     * Equals {@code H + 6} where {@code H = 9} (digit count).
+     * @since 3.2.2
+     */
+    public static final int MAX_FLOAT_BYTES = 15;
+
+    /**
+     * Maximum number of bytes the Schubfach algorithm may produce for a {@code double}.
+     * Equals {@code H + 7} where {@code H = 17} (digit count).
+     * @since 3.2.2
+     */
+    public static final int MAX_DOUBLE_BYTES = 24;
+
+    /**
      * Encoded representations of 3-decimal-digit indexed values, where
      * 3 LSB are ascii characters
      */
@@ -45,7 +59,7 @@ public final class NumberOutput
 
     /**
      * Method for appending value of given {@code int} value into
-     * specified {@code char[]}.
+     * specified {@code char[]} buffer.
      *<p>
      * NOTE: caller must guarantee that the output buffer has enough room
      * for String representation of the value.
@@ -109,6 +123,19 @@ public final class NumberOutput
         return _full3(ones, b, off);
     }
 
+    /**
+     * Method for appending value of given {@code int} value into
+     * specified {@code byte[]} buffer.
+     *<p>
+     * NOTE: caller must guarantee that the output buffer has enough room
+     * for String representation of the value.
+     *
+     * @param v Value to append to buffer
+     * @param b Buffer to append value to: caller must guarantee there is enough room
+     * @param off Offset within output buffer ({@code b}) to append number at
+     *
+     * @return Offset within buffer after outputting {@code int}
+     */
     public static int outputInt(int v, byte[] b, int off)
     {
         if (v < 0) {
@@ -156,7 +183,7 @@ public final class NumberOutput
 
     /**
      * Method for appending value of given {@code long} value into
-     * specified {@code char[]}.
+     * specified {@code char[]} buffer.
      *<p>
      * NOTE: caller must guarantee that the output buffer has enough room
      * for String representation of the value.
@@ -202,6 +229,19 @@ public final class NumberOutput
         return _outputFullBillion((int) v, b, off);
     }
 
+    /**
+     * Method for appending value of given {@code long} value into
+     * specified {@code byte[]} buffer.
+     *<p>
+     * NOTE: caller must guarantee that the output buffer has enough room
+     * for String representation of the value.
+     *
+     * @param v Value to append to buffer
+     * @param b Buffer to append value to: caller must guarantee there is enough room
+     * @param off Offset within output buffer ({@code b}) to append number at
+     *
+     * @return Offset within buffer after outputting {@code long}
+     */
     public static int outputLong(long v, byte[] b, int off)
     {
         if (v < 0L) {
@@ -284,6 +324,74 @@ public final class NumberOutput
      */
     public static String toString(final float v, final boolean useFastWriter) {
         return useFastWriter ? FloatToDecimal.toString(v) : Float.toString(v);
+    }
+
+    /**
+     * Direct-to-buffer write for {@code float} values, bypassing String allocation.
+     * Writes UTF-8 bytes directly into the provided byte buffer.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the Schubfach algorithm for writing floating point numbers.
+     *
+     * @param v float value to write
+     * @param b target byte buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} bytes available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return offset within buffer after the last byte written
+     * @since 3.2.2
+     */
+    public static int outputFloat(float v, byte[] b, int off) {
+        return FloatToDecimal.writeFloat(v, b, off);
+    }
+
+    /**
+     * Direct-to-buffer write for {@code double} values, bypassing String allocation.
+     * Writes UTF-8 bytes directly into the provided byte buffer.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the Schubfach algorithm for writing floating point numbers.
+     *
+     * @param v double value to write
+     * @param b target byte buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} bytes available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return offset within buffer after the last byte written
+     * @since 3.2.2
+     */
+    public static int outputDouble(double v, byte[] b, int off) {
+        return DoubleToDecimal.writeDouble(v, b, off);
+    }
+
+    /**
+     * Direct-to-buffer write for {@code float} values, bypassing String allocation.
+     * Writes characters directly into the provided char buffer.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the Schubfach algorithm for writing floating point numbers.
+     *
+     * @param v float value to write
+     * @param b target char buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} chars available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return offset within buffer after the last char written
+     * @since 3.3
+     */
+    public static int outputFloat(float v, char[] b, int off) {
+        return FloatToDecimal.writeFloat(v, b, off);
+    }
+
+    /**
+     * Direct-to-buffer write for {@code double} values, bypassing String allocation.
+     * Writes characters directly into the provided char buffer.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the Schubfach algorithm for writing floating point numbers.
+     *
+     * @param v double value to write
+     * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} chars available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return offset within buffer after the last char written
+     * @since 3.3
+     */
+    public static int outputDouble(double v, char[] b, int off) {
+        return DoubleToDecimal.writeDouble(v, b, off);
     }
 
     /*

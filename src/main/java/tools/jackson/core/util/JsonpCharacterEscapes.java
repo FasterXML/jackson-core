@@ -28,14 +28,11 @@ public class JsonpCharacterEscapes extends CharacterEscapes
     @Override
     public SerializableString getEscapeSequence(int ch)
     {
-        switch (ch) {
-        case 0x2028:
-            return escapeFor2028;
-        case 0x2029:
-            return escapeFor2029;
-        default:
-            return null;
-        }
+        return switch (ch) {
+        case 0x2028 -> escapeFor2028;
+        case 0x2029 -> escapeFor2029;
+        default -> null;
+        };
     }
 
     @Override

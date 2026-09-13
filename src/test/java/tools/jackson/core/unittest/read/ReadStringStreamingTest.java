@@ -160,6 +160,36 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         }
     }
 
+    @Test
+    void escapeAtFullOutputBuffer() throws Exception
+    {
+        // Buffer *exactly* full when the escape is reached: the ASCII loop only
+        // flushes before appending, so on exit `outPtr` can equal the buffer
+        // length and the escape branch must make room for itself.
+        for (int mode : ALL_MODES) {
+            _testEscapeAfterAsciiPrefix(mode, OUT_BUF_SIZE);
+            _testEscapeAfterAsciiPrefix(mode, OUT_BUF_SIZE * 2);
+        }
+    }
+
+    private void _testEscapeAfterAsciiPrefix(int mode, int prefixLen) throws Exception
+    {
+        String prefix = "x".repeat(prefixLen);
+        String json = "[\"" + prefix + "\\n\"]";
+        String expected = prefix + "\n";
+        String desc = "mode=" + mode + ", prefixLen=" + prefixLen;
+
+        try (JsonParser p = createParser(JSON_FACTORY, mode, json)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+
+            Writer w = new StringWriter();
+            long len = p.readString(w);
+            assertEquals(expected, w.toString(), desc);
+            assertEquals((long) expected.length(), len, desc);
+        }
+    }
+
     /*
     /**********************************************************************
     /* Multi-byte UTF-8 (exercises binary-parser code paths)
@@ -208,6 +238,21 @@ class ReadStringStreamingTest extends JacksonCoreTestBase
         String value = prefix + "\uD83D\uDE00" + "tail";
         for (int mode : ALL_BINARY_MODES) {
             _testUtf8Value(mode, value);
+        }
+    }
+
+    @Test
+    void multiByteAtFullOutputBuffer() throws Exception
+    {
+        // Same boundary as escapeAtFullOutputBuffer(), but reached via 2-, 3- and
+        // 4-byte UTF-8 characters instead of a backslash escape.
+        for (String ch : new String[] { "\u00e9", "\u4e2d", "\uD83D\uDE00" }) {
+            for (int prefixLen : new int[] { OUT_BUF_SIZE, OUT_BUF_SIZE * 2 }) {
+                String value = "x".repeat(prefixLen) + ch + "tail";
+                for (int mode : ALL_BINARY_MODES) {
+                    _testUtf8Value(mode, value);
+                }
+            }
         }
     }
 

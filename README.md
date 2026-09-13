@@ -49,7 +49,7 @@ To use the package, you need to use following Maven dependency:
 <dependency> <!-- Jackson 3.x -->
     <groupId>tools.jackson.core</groupId>
     <artifactId>jackson-core</artifactId>
-    <version>3.2.1</version>
+    <version>3.2.2</version>
 </dependency>
 <dependency> <!-- Jackson 2.x -->
     <groupId>com.fasterxml.jackson.core</groupId>

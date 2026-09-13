@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.unittest.async.AsyncTestBase;
 import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
@@ -21,6 +22,43 @@ class AsyncRootValuesTest extends AsyncTestBase
     /* Simple token (true, false, null) tests
     /**********************************************************************
      */
+
+    // [core#1664]: multi-byte UTF-8 character must be decoded before reporting
+    // missing root-level separator (when whole sequence is in the buffer)
+    @Test
+    void missingRootSeparatorUTF8() throws Exception {
+        // 2-byte sequence: NBSP (U+00A0)
+        _testMissingRootSeparatorUTF8(new byte[] { '1', '.', '5', (byte) 0xC2, (byte) 0xA0 },
+                90, "code 160");
+        // 3-byte sequence: LINE SEPARATOR (U+2028)
+        _testMissingRootSeparatorUTF8(new byte[] { '1', '.', '5', (byte) 0xE2, (byte) 0x80, (byte) 0xA8 },
+                90, "code 8232");
+        // ... but decoding is strictly best-effort: if sequence is not (yet) fully
+        // available, lead byte is reported as-is (non-blocking parser cannot wait
+        // for more input just to build a message)
+        _testMissingRootSeparatorUTF8(new byte[] { '1', '.', '5', (byte) 0xC2, (byte) 0xA0 },
+                4, "code 194");
+        _testMissingRootSeparatorUTF8(new byte[] { '1', '.', '5', (byte) 0xC2 },
+                90, "code 194");
+        // ... and malformed UTF-8 must not replace the error caller asked for
+        _testMissingRootSeparatorUTF8(new byte[] { '1', '.', '5', (byte) 0xC2, (byte) 0x41 },
+                90, "code 194"); // invalid continuation byte
+        _testMissingRootSeparatorUTF8(new byte[] { '1', '.', '5', (byte) 0xFF },
+                90, "code 255"); // invalid lead byte
+    }
+
+    private void _testMissingRootSeparatorUTF8(byte[] doc, int readSize, String expCode)
+        throws Exception
+    {
+        try (AsyncReaderWrapper r = asyncForBytes(JSON_F, readSize, doc, 0)) {
+            r.nextToken();
+            r.nextToken();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, expCode);
+            verifyException(e, "Expected space separating root-level values");
+        }
+    }
 
     @Test
     void tokenRootTokens() throws Exception {

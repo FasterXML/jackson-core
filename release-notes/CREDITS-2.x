@@ -214,7 +214,7 @@ David Nault (dnault@github)
   * Reported #531: Non-blocking parser reports incorrect locations when fed with
    non-zero offset
   (2.10.0)
-  * Reported 1412: More cases of Non-blocking parser reporting incorrect locations
+  * Reported #1412: More cases of Non-blocking parser reporting incorrect locations
    when fed with non-zero offset
   (2.19.0)
 
@@ -521,6 +521,10 @@ Mike Pedersen (@mpdncrwd)
    character when parsing field names
   (2.21.3)
 
+DongNyoung Lee (@Dongnyoung)
+ * Contributed #1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
+  (2.21.6)
+
 Patrick Strawderman (@kilink)
  * Requested #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
   based on supplied length
@@ -540,3 +544,13 @@ Revanth Meesala (@revanthmeesala)
  * Contributed #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser
    [GHSA-649p-m576-vr99]
   (2.18.10)
+
+@hdimitrieski
+ * Reported #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (2.21.7)
+
+Burak KALAYCI (@kalayciburak)
+ * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
+   escape lands at the output buffer boundary
+  (2.21.7)

@@ -57,31 +57,40 @@ public final class UTF8Writer extends Writer
     public void close()
         throws IOException
     {
-        if (_out != null) {
-            if (_outPtr > 0) {
-                _out.write(_outBuffer, 0, _outPtr);
-                _outPtr = 0;
-            }
-            OutputStream out = _out;
-            _out = null;
+        // 08-Sep-2026, pjfanning: buffer and stream must be released even if
+        //   flushing of pending content fails; otherwise close() leaves both
+        //   stranded (and second call would retry the failed write)
+        try {
+            if (_out != null) {
+                OutputStream out = _out;
+                _out = null;
 
-            byte[] buf = _outBuffer;
-            if (buf != null) {
-                _outBuffer = null;
-                _context.releaseWriteEncodingBuffer(buf);
-            }
+                // try-with-resources: stream closed on any failure (unchecked too),
+                // with close failure added as suppressed to primary one
+                try (OutputStream o = out) {
+                    if (_outPtr > 0) {
+                        o.write(_outBuffer, 0, _outPtr);
+                    }
+                } finally {
+                    _outPtr = 0;
+                    byte[] buf = _outBuffer;
+                    if (buf != null) {
+                        _outBuffer = null;
+                        _context.releaseWriteEncodingBuffer(buf);
+                    }
+                }
 
-            out.close();
-
-            // Let's 'flush' orphan surrogate, no matter what; but only
-            // after cleanly closing everything else.
-            int code = _surrogate;
-            _surrogate = 0;
-            if (code > 0) {
-                illegalSurrogate(code);
+                // Let's 'flush' orphan surrogate, no matter what; but only
+                // after cleanly closing everything else.
+                int code = _surrogate;
+                _surrogate = 0;
+                if (code > 0) {
+                    illegalSurrogate(code);
+                }
             }
+        } finally {
+            _context.close();
         }
-        _context.close();
     }
 
     @Override

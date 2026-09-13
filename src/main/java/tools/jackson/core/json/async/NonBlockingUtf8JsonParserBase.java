@@ -1258,6 +1258,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     protected JsonToken _finishErrorToken() throws JacksonException
     {
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while (_inputPtr < _inputEnd) {
             int i = getNextSignedByteFromBuffer();
 
@@ -1269,7 +1270,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // 11-Jan-2016, tatu: note: we will fully consume the character,
                 // included or not, so if recovery was possible, it'd be off-by-one...
                 _textBuffer.append(ch);
-                if (_textBuffer.size() < _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+                if (_textBuffer.size() < maxTokenLength) {
                     continue;
                 }
             }
@@ -3390,7 +3391,51 @@ public abstract class NonBlockingUtf8JsonParserBase
             _currInputRowStart = _inputPtr;
             return;
         }
+        if (ch > 0x7F) {
+            ch = _decodeCharForError(ch);
+        }
         _reportMissingRootWS(ch);
+    }
+
+    /**
+     * Helper method for decoding multi-byte UTF-8 character for error reporting
+     * purposes only: caller has already detected a problem, so this method is
+     * strictly best-effort and will never fail -- lead byte is returned as-is if
+     * the full sequence is not (yet) buffered, or is not valid UTF-8. Also note
+     * that unlike blocking parsers we cannot wait for more input just to build a
+     * better error message.
+     *
+     * @param firstByte Lead byte of the character; input pointer is past it
+     *
+     * @return Decoded character (code point) if decodable; lead byte if not
+     */
+    // 21-Aug-2026, tatu: [core#1664]
+    private final int _decodeCharForError(int firstByte)
+    {
+        final int c = firstByte & 0xFF;
+        final int needed;
+
+        if ((c & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
+            needed = 1;
+        } else if ((c & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
+            needed = 2;
+        } else if ((c & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
+            needed = 3;
+        } else { // invalid lead byte; report as-is
+            return c;
+        }
+        if ((_inputPtr + needed) > _inputEnd) { // not (yet) buffered; report as-is
+            return c;
+        }
+        int value = c & (0x3F >> needed); // 0x1F, 0x0F or 0x07
+        for (int i = 0; i < needed; ++i) {
+            final int d = getByteFromBuffer(_inputPtr + i) & 0xFF;
+            if ((d & 0xC0) != 0x080) { // invalid continuation byte; report lead byte as-is
+                return c;
+            }
+            value = (value << 6) | (d & 0x3F);
+        }
+        return value;
     }
 
     /*

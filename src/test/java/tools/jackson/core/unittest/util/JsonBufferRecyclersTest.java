@@ -69,7 +69,14 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("foobar", p.getString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        
+
+        p.close();
+
+        if (expSizeAfter != null) {
+            assertEquals(expSizeAfter, pool.pooledCount());
+        }
+
+        // Second close() must not release the recycler again
         p.close();
 
         if (expSizeAfter != null) {
@@ -113,12 +120,20 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
         }
 
         StringWriter w = new StringWriter();
-        try (JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w)) {
+        JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w);
+        try (g) {
             g.writeStartObject();
             g.writeNumberProperty("a", -42);
             g.writeStringProperty("b", "barfoo");
             g.writeEndObject();
         }
+
+        if (expSizeAfter != null) {
+            assertEquals(expSizeAfter, pool.pooledCount());
+        }
+
+        // Second close() must not release the recycler again
+        g.close();
 
         if (expSizeAfter != null) {
             assertEquals(expSizeAfter, pool.pooledCount());

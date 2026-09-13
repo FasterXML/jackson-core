@@ -741,8 +741,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
             case ID_START_OBJECT:
                 f = _itemFilter;
                 if (f == TokenFilter.INCLUDE_ALL) {
+                    // 14-Aug-2026, tatu: [core#1651] Must replay buffered tokens
+                    //    (like enclosing Property name), not just return START_OBJECT
                     _headContext = _headContext.createChildObjectContext(f, null, true);
-                    return t;
+                    return _nextBuffered(buffRoot);
                 }
                 if (f == null) { // does this occur?
                     delegate.skipChildren();
@@ -763,7 +765,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     return _nextBuffered(buffRoot);
                 } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
                     // TODO don't count as match?
-                    _headContext = _headContext.createChildArrayContext(f, null, true);
+                    _headContext = _headContext.createChildObjectContext(f, null, true);
                     return _nextBuffered(buffRoot);
                 }
                 _headContext = _headContext.createChildObjectContext(f, null, false);
@@ -1048,6 +1050,17 @@ public class FilteringParserDelegate extends JsonParserDelegate
             return PropertyNameMatcher.MATCH_END_OBJECT;
         }
         return PropertyNameMatcher.MATCH_ODD_TOKEN;
+    }
+
+    @Override
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException {
+        // NOTE: cannot delegate (unlike `JsonParserDelegate`), must call local
+        // `nextNameMatch()`/`nextToken()` to handle delegation
+        int match = nextNameMatch(matcher);
+        if (match >= 0) {
+            nextToken();
+        }
+        return match;
     }
 
     /*

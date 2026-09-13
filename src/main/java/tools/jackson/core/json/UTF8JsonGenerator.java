@@ -1088,7 +1088,7 @@ public class UTF8JsonGenerator
     }
 
     // Number text is all ASCII and needs no escaping, so write it out raw, same as
-    // other quoted-number paths (see _writeQuotedRaw()); fast variant can further
+    // other quoted-number paths (see _writeQuotedAscii()); fast variant can further
     // write straight into the output buffer, without intermediate String.
     private final void _writeQuotedDouble(double d, boolean useFast) throws JacksonException
     {

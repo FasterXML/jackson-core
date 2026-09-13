@@ -335,6 +335,15 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          */
         public final static int DEFAULT_CAPACITY = 16;
 
+        /**
+         * Spacing between slots in the backing array, as a shift: slots are
+         * 16 references (64 bytes with compressed references) apart, so
+         * threads working on different slots do not contend on one cache
+         * line. Without the spacing all 16 default slots share a line, and
+         * the contended throughput of this pool falls below no pooling.
+         */
+        private static final int SLOT_SHIFT = 4;
+
         private final transient AtomicReferenceArray<P> _slots;
 
         /**
@@ -348,7 +357,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         protected StripedArrayPoolBase(int capacityAsId) {
             super(capacityAsId);
             final int capacity = _powerOfTwoCapacity(capacityAsId);
-            _slots = new AtomicReferenceArray<>(capacity);
+            _slots = new AtomicReferenceArray<>(capacity << SLOT_SHIFT);
             _mask = capacity - 1;
         }
 
@@ -383,8 +392,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             final int start = _startingSlot();
             for (int i = 0; i <= end; ++i) {
                 final int slot = (start + i) & _mask;
-                if (_slots.get(slot) != null) {
-                    P pooled = _slots.getAndSet(slot, null);
+                if (_slots.get(slot << SLOT_SHIFT) != null) {
+                    P pooled = _slots.getAndSet(slot << SLOT_SHIFT, null);
                     if (pooled != null) {
                         return pooled;
                     }
@@ -399,8 +408,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             final int start = _startingSlot();
             for (int i = 0; i <= end; ++i) {
                 final int slot = (start + i) & _mask;
-                if ((_slots.get(slot) == null)
-                        && _slots.compareAndSet(slot, null, pooled)) {
+                if ((_slots.get(slot << SLOT_SHIFT) == null)
+                        && _slots.compareAndSet(slot << SLOT_SHIFT, null, pooled)) {
                     return;
                 }
             }
@@ -412,7 +421,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         public int pooledCount() {
             int count = 0;
             for (int i = 0; i <= _mask; ++i) {
-                if (_slots.get(i) != null) {
+                if (_slots.get(i << SLOT_SHIFT) != null) {
                     ++count;
                 }
             }
@@ -422,7 +431,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         @Override
         public boolean clear() {
             for (int i = 0; i <= _mask; ++i) {
-                _slots.set(i, null);
+                _slots.set(i << SLOT_SHIFT, null);
             }
             return true;
         }

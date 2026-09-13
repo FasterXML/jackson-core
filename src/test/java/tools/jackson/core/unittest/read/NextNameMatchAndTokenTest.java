@@ -141,6 +141,51 @@ class NextNameMatchAndTokenTest extends JacksonCoreTestBase
         }
     }
 
+    // Delegate sub-classes that override `nextNameMatch()` (but not the fused
+    // method) must still have their override called
+    @Test
+    void fusedMatchViaParserDelegateSubclass() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            PropertyNameMatcher m = matcher();
+            try (JsonParser p = new RenamingDelegate(createParser(JSON_F, mode,
+                    a2q("{'legacy':'x','b':123}")))) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+                assertEquals(0, p.nextNameMatchAndToken(m));
+                assertToken(JsonToken.VALUE_STRING, p.currentToken());
+                assertEquals("x", p.getString());
+
+                assertEquals(1, p.nextNameMatchAndToken(m));
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
+                assertEquals(123, p.getIntValue());
+
+                assertEquals(PropertyNameMatcher.MATCH_END_OBJECT, p.nextNameMatchAndToken(m));
+            }
+        }
+    }
+
+    static class RenamingDelegate extends JsonParserDelegate
+    {
+        RenamingDelegate(JsonParser p) { super(p); }
+
+        @Override
+        public String currentName() {
+            String name = delegate.currentName();
+            return "legacy".equals(name) ? "a" : name;
+        }
+
+        @Override
+        public int nextNameMatch(PropertyNameMatcher matcher) {
+            JsonToken t = nextToken();
+            if (t == JsonToken.PROPERTY_NAME) {
+                return matcher.matchName(currentName());
+            }
+            return (t == JsonToken.END_OBJECT) ? PropertyNameMatcher.MATCH_END_OBJECT
+                    : PropertyNameMatcher.MATCH_ODD_TOKEN;
+        }
+    }
+
     @Test
     void fusedMatchViaParserSequence() throws Exception
     {

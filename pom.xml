@@ -381,6 +381,16 @@ tools.jackson.core.*;version=${project.version}
             <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
             <version>${version.android.sdk.signature}</version>
           </signature>
+          <ignores>
+            <!-- 07-Sep-2026: [core#1687] MethodHandle.invokeExact is
+                 signature-polymorphic: the compiled call site references an
+                 adapted descriptor that exists in no signature file, so
+                 AnimalSniffer flags it even though java.lang.invoke is part
+                 of the Android API 26+ profile this check targets. Runtimes
+                 without method-handle support are handled by a runtime
+                 fallback (RecyclerPool.HybridPoolBase.VirtualProbe). -->
+            <ignore>java.lang.invoke.MethodHandle</ignore>
+          </ignores>
         </configuration>
       </plugin>
     </plugins>

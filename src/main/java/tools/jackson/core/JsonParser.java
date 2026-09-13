@@ -575,10 +575,12 @@ public abstract class JsonParser
      * Callers of such parsers must check {@link #currentToken()} instead of
      * assuming a non-negative result means the value is ready.
      *<p>
-     * NOTE to subclass implementors: the default implementation is defined in terms
-     * of {@link #nextNameMatch(PropertyNameMatcher)} and {@link #nextToken()}, so
-     * subclasses that override either (especially delegating or filtering ones) should
-     * override this method as well, to keep the two paths consistent.
+     * NOTE to subclass implementors: the default implementation calls
+     * {@link #nextNameMatch(PropertyNameMatcher)} and {@link #nextToken()} on this
+     * instance, so overrides of either are honored. Subclasses overriding this method
+     * (to provide a fused scan) must keep it equivalent to that two-call sequence;
+     * delegating or filtering parsers should NOT forward it directly to the wrapped
+     * parser, as that would bypass their own overrides.
      *
      * @param matcher Matcher that will handle actual matching
      *

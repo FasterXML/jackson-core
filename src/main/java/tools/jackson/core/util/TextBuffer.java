@@ -794,6 +794,7 @@ public class TextBuffer
     public void append(char c) throws JacksonException {
         // Using shared buffer so far?
         if (_inputStart >= 0) {
+            validateAppendToShared(1);
             unshare(16);
         }
         _resultString = null;
@@ -819,6 +820,7 @@ public class TextBuffer
     {
         // Can't append to shared buf (sanity check)
         if (_inputStart >= 0) {
+            validateAppendToShared(len);
             unshare(len);
         }
         _resultString = null;
@@ -864,6 +866,7 @@ public class TextBuffer
     {
         // Can't append to shared buf (sanity check)
         if (_inputStart >= 0) {
+            validateAppendToShared(len);
             unshare(len);
         }
         _resultString = null;
@@ -900,6 +903,15 @@ public class TextBuffer
 
     private void validateAppend(int toAppend) throws JacksonException {
         int newTotalLength = _segmentSize + _currentSize + toAppend;
+        // guard against overflow
+        if (newTotalLength < 0) {
+            newTotalLength = Integer.MAX_VALUE;
+        }
+        validateStringLength(newTotalLength);
+    }
+
+    private void validateAppendToShared(int toAppend) throws JacksonException {
+        int newTotalLength = _inputLen + toAppend;
         // guard against overflow
         if (newTotalLength < 0) {
             newTotalLength = Integer.MAX_VALUE;

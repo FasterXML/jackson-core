@@ -1198,25 +1198,54 @@ public class WriterBasedJsonGenerator
         }
     }
 
+    /**
+     * Helper method that finds offset of the first character in given range
+     * (from {@code ptr}, inclusive, to {@code end}, exclusive) that needs
+     * escaping as per {@link #_outputEscapes}; returning {@code end} if none does.
+     *<p>
+     * Default implementation checks characters against {@link #_outputEscapes},
+     * with a specialization for the standard JSON escape settings; sub-classes
+     * with statically known escaping rules may override this method to use a
+     * simple comparison-based check instead of a per-character table lookup.
+     *
+     * @since 3.3
+     */
+    protected int _findFirstToEscape(final char[] cbuf, int ptr, final int end)
+    {
+        final int[] escCodes = _outputEscapes;
+        // [core#1680]: With standard escape settings can check the (few) escapable
+        // characters directly, avoiding per-character escape table load
+        if (escCodes == CharTypes.get7BitOutputEscapes()) {
+            while (ptr < end) {
+                final char c = cbuf[ptr];
+                if (c < 0x20 || c == '"' || c == '\\') {
+                    break;
+                }
+                ++ptr;
+            }
+            return ptr;
+        }
+        final int escLen = escCodes.length;
+        while (ptr < end) {
+            final char c = cbuf[ptr];
+            if (c < escLen && escCodes[c] != 0) {
+                break;
+            }
+            ++ptr;
+        }
+        return ptr;
+    }
+
     private void _writeString2(final int len) throws JacksonException
     {
         // And then we'll need to verify need for escaping etc:
         final int end = _outputTail + len;
-        final int[] escCodes = _outputEscapes;
-        final int escLen = escCodes.length;
 
-        output_loop:
         while (_outputTail < end) {
-            // Fast loop for chars not needing escaping
-            escape_loop:
-            while (true) {
-                char c = _outputBuffer[_outputTail];
-                if (c < escLen && escCodes[c] != 0) {
-                    break escape_loop;
-                }
-                if (++_outputTail >= end) {
-                    break output_loop;
-                }
+            // Fast scan for chars not needing escaping:
+            _outputTail = _findFirstToEscape(_outputBuffer, _outputTail, end);
+            if (_outputTail >= end) {
+                break;
             }
 
             // Ok, bumped into something that needs escaping.
@@ -1235,7 +1264,7 @@ public class WriterBasedJsonGenerator
              * we have room now.
              */
             char c = _outputBuffer[_outputTail++];
-            _prependOrWriteCharacterEscape(c, escCodes[c]);
+            _prependOrWriteCharacterEscape(c, _outputEscapes[c]);
         }
     }
 
@@ -1279,26 +1308,15 @@ public class WriterBasedJsonGenerator
     private void _writeSegment(int end) throws JacksonException
     {
         final int[] escCodes = _outputEscapes;
-        final int escLen = escCodes.length;
 
         int ptr = 0;
         int start = ptr;
 
-        output_loop:
         while (ptr < end) {
-            // Fast loop for chars not needing escaping
-            char c;
-            while (true) {
-                c = _outputBuffer[ptr];
-                if (c < escLen && escCodes[c] != 0) {
-                    break;
-                }
-                if (++ptr >= end) {
-                    break;
-                }
-            }
+            // Fast scan for chars not needing escaping:
+            ptr = _findFirstToEscape(_outputBuffer, ptr, end);
 
-            // Ok, bumped into something that needs escaping.
+            // Ok, bumped into something that needs escaping, or hit the end.
             /* First things first: need to flush the buffer.
              * Inlined, as we don't want to lose tail pointer
              */
@@ -1310,10 +1328,10 @@ public class WriterBasedJsonGenerator
                     throw _wrapIOFailure(e);
                 }
                 if (ptr >= end) {
-                    break output_loop;
+                    break;
                 }
             }
-            ++ptr;
+            char c = _outputBuffer[ptr++];
             // So; either try to prepend (most likely), or write directly:
             start = _prependOrWriteCharacterEscape(_outputBuffer, ptr, end, c, escCodes[c]);
         }
@@ -1339,19 +1357,10 @@ public class WriterBasedJsonGenerator
 
         len += offset; // -> len marks the end from now on
         final int[] escCodes = _outputEscapes;
-        final int escLen = escCodes.length;
         while (offset < len) {
             int start = offset;
-
-            while (true) {
-                char c = text[offset];
-                if (c < escLen && escCodes[c] != 0) {
-                    break;
-                }
-                if (++offset >= len) {
-                    break;
-                }
-            }
+            // Fast scan for chars not needing escaping:
+            offset = _findFirstToEscape(text, offset, len);
 
             // Short span? Better just copy it to buffer first:
             int newAmount = offset - start;

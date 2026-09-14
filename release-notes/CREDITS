@@ -112,3 +112,8 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
   (3.3.0)
+
+Francesco Nigro (@franz1981)
+ * Suggested #1680: Avoid per-character escape-table load in JSON String value
+   serialization fast path
+  (3.3.0)

@@ -295,21 +295,30 @@ public abstract class TextualTSFactory
             File f, JsonEncoding enc)
         throws JacksonException
     {
-        final OutputStream out = _fileOutputStream(f);
         final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
+        Closeable outputToClose = null;
         try {
+            final OutputStream out = _fileOutputStream(f);
+            outputToClose = out;
             if (enc == JsonEncoding.UTF8) {
-                return _decorate(
-                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-                );
+                OutputStream decoratedOut = _decorate(ioCtxt, out);
+                outputToClose = decoratedOut;
+                JsonGenerator generator = _createUTF8Generator(writeCtxt, ioCtxt, decoratedOut);
+                outputToClose = generator;
+                return _decorate(generator);
             }
-            return _decorate(
-                    _createGenerator(writeCtxt, ioCtxt,
-                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
-            );
+            Writer w = _createWriter(ioCtxt, out, enc);
+            outputToClose = w;
+            w = _decorate(ioCtxt, w);
+            outputToClose = w;
+            w = ioCtxt.encodingWriter(w);
+            outputToClose = w;
+            JsonGenerator generator = _createGenerator(writeCtxt, ioCtxt, w);
+            outputToClose = generator;
+            return _decorate(generator);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(outputToClose, e);
             _releaseOnFailedConstruction(ioCtxt, e);
-            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }
@@ -319,21 +328,30 @@ public abstract class TextualTSFactory
             Path p, JsonEncoding enc)
         throws JacksonException
     {
-        final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
+        Closeable outputToClose = null;
         try {
+            final OutputStream out = _pathOutputStream(p);
+            outputToClose = out;
             if (enc == JsonEncoding.UTF8) {
-                return _decorate(
-                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-                );
+                OutputStream decoratedOut = _decorate(ioCtxt, out);
+                outputToClose = decoratedOut;
+                JsonGenerator generator = _createUTF8Generator(writeCtxt, ioCtxt, decoratedOut);
+                outputToClose = generator;
+                return _decorate(generator);
             }
-            return _decorate(
-                    _createGenerator(writeCtxt, ioCtxt,
-                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
-            );
+            Writer w = _createWriter(ioCtxt, out, enc);
+            outputToClose = w;
+            w = _decorate(ioCtxt, w);
+            outputToClose = w;
+            w = ioCtxt.encodingWriter(w);
+            outputToClose = w;
+            JsonGenerator generator = _createGenerator(writeCtxt, ioCtxt, w);
+            outputToClose = generator;
+            return _decorate(generator);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(outputToClose, e);
             _releaseOnFailedConstruction(ioCtxt, e);
-            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }

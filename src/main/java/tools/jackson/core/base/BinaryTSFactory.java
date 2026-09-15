@@ -207,16 +207,23 @@ public abstract class BinaryTSFactory
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             File f, JsonEncoding enc) throws JacksonException
     {
-        final OutputStream out = _fileOutputStream(f);
-        // true -> yes, we have to manage the stream since we created it
-        final IOContext ioCtxt = _createContext(_createContentReference(out), true, enc);
+        IOContext ioCtxt = null;
+        Closeable outputToClose = null;
         try {
-            return _decorate(
-                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-            );
+            final OutputStream out = _fileOutputStream(f);
+            outputToClose = out;
+            // true -> yes, we have to manage the stream since we created it
+            ioCtxt = _createContext(_createContentReference(out), true, enc);
+            OutputStream decoratedOut = _decorate(ioCtxt, out);
+            outputToClose = decoratedOut;
+            JsonGenerator generator = _createGenerator(writeCtxt, ioCtxt, decoratedOut);
+            outputToClose = generator;
+            return _decorate(generator);
         } catch (RuntimeException e) {
-            _releaseOnFailedConstruction(ioCtxt, e);
-            _closeOnFailedConstruction(out, e);
+            _closeOnFailedConstruction(outputToClose, e);
+            if (ioCtxt != null) {
+                _releaseOnFailedConstruction(ioCtxt, e);
+            }
             throw e;
         }
     }
@@ -226,15 +233,19 @@ public abstract class BinaryTSFactory
             Path p, JsonEncoding enc)
         throws JacksonException
     {
-        final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
+        Closeable outputToClose = null;
         try {
-            return _decorate(
-                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-            );
+            final OutputStream out = _pathOutputStream(p);
+            outputToClose = out;
+            OutputStream decoratedOut = _decorate(ioCtxt, out);
+            outputToClose = decoratedOut;
+            JsonGenerator generator = _createGenerator(writeCtxt, ioCtxt, decoratedOut);
+            outputToClose = generator;
+            return _decorate(generator);
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(outputToClose, e);
             _releaseOnFailedConstruction(ioCtxt, e);
-            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }

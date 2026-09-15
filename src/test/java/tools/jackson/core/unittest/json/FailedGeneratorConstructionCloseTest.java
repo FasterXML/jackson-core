@@ -18,6 +18,7 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonFactoryBuilder;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
 import tools.jackson.core.util.JsonGeneratorDecorator;
+import tools.jackson.core.util.JsonGeneratorDelegate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,25 +31,53 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 {
     static class CloseTrackingOutputStream extends FilterOutputStream {
         public boolean closed;
+        public int closeCount;
 
         CloseTrackingOutputStream(OutputStream out) { super(out); }
 
         @Override
         public void close() throws IOException {
             closed = true;
+            ++closeCount;
             super.close();
         }
     }
 
     static class CloseTrackingWriter extends FilterWriter {
         public boolean closed;
+        public int closeCount;
 
         CloseTrackingWriter(Writer out) { super(out); }
 
         @Override
         public void close() throws IOException {
             closed = true;
+            ++closeCount;
             super.close();
+        }
+    }
+
+    static class FailingCloseOutputStream extends FilterOutputStream {
+        public boolean closeAttempted;
+
+        FailingCloseOutputStream(OutputStream out) { super(out); }
+
+        @Override
+        public void close() throws IOException {
+            closeAttempted = true;
+            throw new IOException("Test-induced output close failure");
+        }
+    }
+
+    static class FailingCloseWriter extends FilterWriter {
+        public boolean closeAttempted;
+
+        FailingCloseWriter(Writer out) { super(out); }
+
+        @Override
+        public void close() throws IOException {
+            closeAttempted = true;
+            throw new IOException("Test-induced writer close failure");
         }
     }
 
@@ -68,6 +97,27 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
         @Override
         public Writer decorate(IOContext ctxt, Writer w) {
             CloseTrackingWriter wrapped = new CloseTrackingWriter(w);
+            writers.add(wrapped);
+            return wrapped;
+        }
+    }
+
+    static class FailingCloseOutputDecorator extends OutputDecorator {
+        private static final long serialVersionUID = 1L;
+
+        public final List<FailingCloseOutputStream> outputs = new ArrayList<>();
+        public final List<FailingCloseWriter> writers = new ArrayList<>();
+
+        @Override
+        public OutputStream decorate(IOContext ctxt, OutputStream out) {
+            FailingCloseOutputStream wrapped = new FailingCloseOutputStream(out);
+            outputs.add(wrapped);
+            return wrapped;
+        }
+
+        @Override
+        public Writer decorate(IOContext ctxt, Writer w) {
+            FailingCloseWriter wrapped = new FailingCloseWriter(w);
             writers.add(wrapped);
             return wrapped;
         }
@@ -116,8 +166,8 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
     }
 
     /**
-     * Factory that fails after the target has been opened but before the normal
-     * generator construction failure guard is entered.
+     * Factory that fails while creating the context, before generator
+     * construction itself starts.
      */
     static class ContextFailingFactory extends FailingFactory {
         private static final long serialVersionUID = 1L;
@@ -166,10 +216,13 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
         public final List<CloseTrackingOutputStream> outputs = new ArrayList<>();
 
         private final boolean _failContextCreation;
+        private final boolean _writeHeaderGenerator;
 
-        FailingBinaryFactory(FailingBinaryFactoryBuilder b, boolean failContextCreation) {
+        FailingBinaryFactory(FailingBinaryFactoryBuilder b,
+                boolean failContextCreation, boolean writeHeaderGenerator) {
             super(b);
             _failContextCreation = failContextCreation;
+            _writeHeaderGenerator = writeHeaderGenerator;
         }
 
         @Override
@@ -215,7 +268,10 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         @Override
         protected JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-                IOContext ioCtxt, OutputStream out) {
+                IOContext ioCtxt, OutputStream out) throws JacksonException {
+            if (_writeHeaderGenerator) {
+                return new HeaderCloseSideEffectGenerator(out);
+            }
             throw new IllegalStateException("Test-induced construction failure");
         }
 
@@ -252,7 +308,36 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
         }
 
         public FailingBinaryFactory build(boolean failContextCreation) {
-            return new FailingBinaryFactory(this, failContextCreation);
+            return new FailingBinaryFactory(this, failContextCreation, false);
+        }
+
+        public FailingBinaryFactory buildWithHeaderGenerator() {
+            return new FailingBinaryFactory(this, false, true);
+        }
+    }
+
+    static class HeaderCloseSideEffectGenerator extends JsonGeneratorDelegate {
+        private final OutputStream _out;
+
+        HeaderCloseSideEffectGenerator(OutputStream out) throws JacksonException {
+            super(new JsonFactory().createGenerator(ObjectWriteContext.empty(),
+                    new ByteArrayOutputStream()));
+            _out = out;
+            _writeByte('H');
+        }
+
+        @Override
+        public void close() {
+            _writeByte('C');
+            super.close();
+        }
+
+        private void _writeByte(int b) {
+            try {
+                _out.write(b);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
@@ -271,9 +356,19 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
             File dst = _tempFile();
             assertThrows(IllegalStateException.class,
                     () -> f.createGenerator(ObjectWriteContext.empty(), dst, enc));
-            assertEquals(1, f.outputs.size(), enc.toString());
-            assertTrue(f.outputs.get(0).closed,
-                    "OutputStream Jackson opened should have been closed, encoding "+enc);
+            _verifyOneClosedOutput(f.outputs, enc.toString());
+        }
+    }
+
+    @Test
+    void closesPathOutputStreamOnFailedGeneratorConstruction() throws Exception
+    {
+        for (JsonEncoding enc : new JsonEncoding[] { JsonEncoding.UTF8, JsonEncoding.UTF16_BE }) {
+            FailingFactory f = new FailingFactory();
+            Path dst = _tempFile().toPath();
+            assertThrows(IllegalStateException.class,
+                    () -> f.createGenerator(ObjectWriteContext.empty(), dst, enc));
+            _verifyOneClosedOutput(f.outputs, enc.toString());
         }
     }
 
@@ -285,7 +380,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
-        _verifyNoLeakedOutput(f.outputs);
+        _verifyNoOutputOpened(f.outputs);
     }
 
     @Test
@@ -296,7 +391,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
-        _verifyNoLeakedOutput(f.outputs);
+        _verifyNoOutputOpened(f.outputs);
     }
 
     @Test
@@ -309,6 +404,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
+        _verifyOneClosedOutput(f.outputs);
         assertEquals(1, dec.outputs.size());
         assertTrue(dec.outputs.get(0).closed,
                 "Decorated OutputStream should have been closed");
@@ -324,9 +420,44 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF16_BE));
+        _verifyOneClosedOutput(f.outputs);
         assertEquals(1, dec.writers.size());
         assertTrue(dec.writers.get(0).closed,
                 "Decorated Writer should have been closed");
+    }
+
+    @Test
+    void closesRawFileOutputStreamWhenDecoratedOutputCloseFails() throws Exception
+    {
+        FailingCloseOutputDecorator dec = new FailingCloseOutputDecorator();
+        FailingFactory f = new FailingFactory(JsonFactory.builder()
+                .outputDecorator(dec));
+        File dst = _tempFile();
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
+        _verifyOneClosedOutput(f.outputs);
+        assertEquals(1, dec.outputs.size());
+        assertTrue(dec.outputs.get(0).closeAttempted,
+                "Decorated OutputStream close should have been attempted");
+        _verifySuppressed(e, "Test-induced output close failure");
+    }
+
+    @Test
+    void closesRawFileOutputStreamWhenDecoratedWriterCloseFails() throws Exception
+    {
+        FailingCloseOutputDecorator dec = new FailingCloseOutputDecorator();
+        FailingFactory f = new FailingFactory(JsonFactory.builder()
+                .outputDecorator(dec));
+        File dst = _tempFile();
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF16_BE));
+        _verifyOneClosedOutput(f.outputs);
+        assertEquals(1, dec.writers.size());
+        assertTrue(dec.writers.get(0).closeAttempted,
+                "Decorated Writer close should have been attempted");
+        _verifySuppressed(e, "Test-induced writer close failure");
     }
 
     @Test
@@ -339,7 +470,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
-        _verifyNoLeakedOutput(f.outputs);
+        _verifyOneClosedOutput(f.outputs);
     }
 
     @Test
@@ -352,7 +483,29 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF16_BE));
-        _verifyNoLeakedOutput(f.outputs);
+        _verifyOneClosedOutput(f.outputs);
+    }
+
+    @Test
+    void binaryClosesFileOutputStreamOnFailedGeneratorConstruction() throws Exception
+    {
+        FailingBinaryFactory f = new FailingBinaryFactoryBuilder().build();
+        File dst = _tempFile();
+
+        assertThrows(IllegalStateException.class,
+                () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
+        _verifyOneClosedOutput(f.outputs);
+    }
+
+    @Test
+    void binaryClosesPathOutputStreamOnFailedGeneratorConstruction() throws Exception
+    {
+        FailingBinaryFactory f = new FailingBinaryFactoryBuilder().build();
+        Path dst = _tempFile().toPath();
+
+        assertThrows(IllegalStateException.class,
+                () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
+        _verifyOneClosedOutput(f.outputs);
     }
 
     @Test
@@ -363,7 +516,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
-        _verifyNoLeakedOutput(f.outputs);
+        _verifyOneClosedOutput(f.outputs);
     }
 
     @Test
@@ -374,7 +527,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
-        _verifyNoLeakedOutput(f.outputs);
+        _verifyNoOutputOpened(f.outputs);
     }
 
     @Test
@@ -388,16 +541,46 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
+        _verifyOneClosedOutput(f.outputs);
         assertEquals(1, dec.outputs.size());
         assertTrue(dec.outputs.get(0).closed,
                 "Decorated OutputStream should have been closed");
     }
 
-    private void _verifyNoLeakedOutput(List<CloseTrackingOutputStream> outputs) {
-        assertTrue(outputs.size() <= 1, "Should have opened at most one output");
-        if (!outputs.isEmpty()) {
-            assertTrue(outputs.get(0).closed,
-                    "OutputStream Jackson opened should have been closed");
+    @Test
+    void binaryGeneratorDecoratorFailureDoesNotClosePartiallyConstructedGenerator() throws Exception
+    {
+        FailingBinaryFactory f = new FailingBinaryFactoryBuilder()
+                .addDecorator(new FailingGeneratorDecorator())
+                .buildWithHeaderGenerator();
+        File dst = _tempFile();
+
+        assertThrows(IllegalStateException.class,
+                () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
+        _verifyOneClosedOutput(f.outputs);
+        assertArrayEquals(new byte[] { 'H' }, Files.readAllBytes(dst.toPath()));
+    }
+
+    private void _verifyOneClosedOutput(List<CloseTrackingOutputStream> outputs) {
+        _verifyOneClosedOutput(outputs, "Should have opened exactly one output");
+    }
+
+    private void _verifyOneClosedOutput(List<CloseTrackingOutputStream> outputs, String msg) {
+        assertEquals(1, outputs.size(), msg);
+        assertTrue(outputs.get(0).closed,
+                "OutputStream Jackson opened should have been closed");
+    }
+
+    private void _verifyNoOutputOpened(List<CloseTrackingOutputStream> outputs) {
+        assertEquals(0, outputs.size(), "Should not have opened output");
+    }
+
+    private void _verifySuppressed(Throwable failure, String msg) {
+        for (Throwable suppressed : failure.getSuppressed()) {
+            if (suppressed.getMessage().contains(msg)) {
+                return;
+            }
         }
+        fail("Expected suppressed exception containing: "+msg);
     }
 }

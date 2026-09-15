@@ -296,28 +296,28 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
+        OutputStream rawOut = null;
         Closeable outputToClose = null;
         try {
-            final OutputStream out = _fileOutputStream(f);
-            outputToClose = out;
+            rawOut = _fileOutputStream(f);
+            outputToClose = rawOut;
             if (enc == JsonEncoding.UTF8) {
-                OutputStream decoratedOut = _decorate(ioCtxt, out);
+                OutputStream decoratedOut = _decorate(ioCtxt, rawOut);
                 outputToClose = decoratedOut;
-                JsonGenerator generator = _createUTF8Generator(writeCtxt, ioCtxt, decoratedOut);
-                outputToClose = generator;
-                return _decorate(generator);
+                return _decorate(_createUTF8Generator(writeCtxt, ioCtxt, decoratedOut));
             }
-            Writer w = _createWriter(ioCtxt, out, enc);
+            Writer w = _createWriter(ioCtxt, rawOut, enc);
             outputToClose = w;
             w = _decorate(ioCtxt, w);
             outputToClose = w;
             w = ioCtxt.encodingWriter(w);
             outputToClose = w;
-            JsonGenerator generator = _createGenerator(writeCtxt, ioCtxt, w);
-            outputToClose = generator;
-            return _decorate(generator);
+            return _decorate(_createGenerator(writeCtxt, ioCtxt, w));
         } catch (RuntimeException e) {
             _closeOnFailedConstruction(outputToClose, e);
+            if (rawOut != outputToClose) {
+                _closeOnFailedConstruction(rawOut, e);
+            }
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -329,28 +329,28 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
+        OutputStream rawOut = null;
         Closeable outputToClose = null;
         try {
-            final OutputStream out = _pathOutputStream(p);
-            outputToClose = out;
+            rawOut = _pathOutputStream(p);
+            outputToClose = rawOut;
             if (enc == JsonEncoding.UTF8) {
-                OutputStream decoratedOut = _decorate(ioCtxt, out);
+                OutputStream decoratedOut = _decorate(ioCtxt, rawOut);
                 outputToClose = decoratedOut;
-                JsonGenerator generator = _createUTF8Generator(writeCtxt, ioCtxt, decoratedOut);
-                outputToClose = generator;
-                return _decorate(generator);
+                return _decorate(_createUTF8Generator(writeCtxt, ioCtxt, decoratedOut));
             }
-            Writer w = _createWriter(ioCtxt, out, enc);
+            Writer w = _createWriter(ioCtxt, rawOut, enc);
             outputToClose = w;
             w = _decorate(ioCtxt, w);
             outputToClose = w;
             w = ioCtxt.encodingWriter(w);
             outputToClose = w;
-            JsonGenerator generator = _createGenerator(writeCtxt, ioCtxt, w);
-            outputToClose = generator;
-            return _decorate(generator);
+            return _decorate(_createGenerator(writeCtxt, ioCtxt, w));
         } catch (RuntimeException e) {
             _closeOnFailedConstruction(outputToClose, e);
+            if (rawOut != outputToClose) {
+                _closeOnFailedConstruction(rawOut, e);
+            }
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }

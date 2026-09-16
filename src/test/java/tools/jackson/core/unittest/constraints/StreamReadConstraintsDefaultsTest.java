@@ -47,7 +47,7 @@ class StreamReadConstraintsDefaultsTest
         }
     }
 
-    // Accessor for maximum BigInteger (BigDecimal) scale magnitude
+    // [core#1715]: accessor for maximum BigInteger (BigDecimal) scale magnitude
     @Test
     void maxBigIntegerScale() throws Exception
     {

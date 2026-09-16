@@ -432,6 +432,21 @@ public class StreamReadConstraints
         return _maxNameLen;
     }
 
+    /**
+     * Accessor for maximum magnitude (absolute value) of {@link java.math.BigDecimal}
+     * scale that may be converted to {@link java.math.BigInteger}:
+     * see {@link #validateBigIntegerScale(int)} for details.
+     *<p>
+     * Note: unlike other limits, this one is not configurable (yet).
+     *
+     * @return Maximum allowed scale magnitude
+     *
+     * @since 3.3
+     */
+    public int getMaxBigIntegerScale() {
+        return MAX_BIGINT_SCALE_MAGNITUDE;
+    }
+
     /*
     /**********************************************************************
     /* Convenience methods for validation, document limits
@@ -627,10 +642,10 @@ public class StreamReadConstraints
      */
 
     /**
-     * Convenience method that can be used to verify that a conversion to
-     * {@link java.math.BigInteger}
-     * {@link StreamConstraintsException}
-     * is thrown.
+     * Convenience method that can be used to verify that the scale of a
+     * {@link java.math.BigDecimal} to convert to {@link java.math.BigInteger}
+     * does not exceed the maximum magnitude specified by this constraints
+     * object: if it does, a {@link StreamConstraintsException} is thrown.
      *
      * @param scale Scale (possibly negative) of {@link java.math.BigDecimal} to convert
      *
@@ -640,12 +655,13 @@ public class StreamReadConstraints
     public void validateBigIntegerScale(int scale) throws StreamConstraintsException
     {
         final int absScale = Math.abs(scale);
-        final int limit = MAX_BIGINT_SCALE_MAGNITUDE;
+        final int limit = getMaxBigIntegerScale();
 
         if (absScale > limit) {
             throw _constructException(
-                    "BigDecimal scale (%d) magnitude exceeds the maximum allowed (%d)",
-                    scale, limit);
+                    "BigDecimal scale (%d) magnitude exceeds the maximum allowed (%d, from %s)",
+                    scale, limit,
+                    _constrainRef("getMaxBigIntegerScale"));
         }
     }
 

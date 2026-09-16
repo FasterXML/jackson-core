@@ -47,7 +47,8 @@ JSON library.
 #1706: Write number text directly as ASCII bytes in `UTF8JsonGenerator`
  (contributed by @pjfanning, w/ Claude code)
 #1715: Add `StreamReadConstraints.getMaxBigIntegerScale()` accessor for maximum
-  `BigDecimal` scale magnitude convertible to `BigInteger`
+  `BigDecimal` scale magnitude convertible to `BigInteger`; also fix
+  `validateBigIntegerScale()` to catch `Integer.MIN_VALUE` scale
 
 3.2.3 (not yet released)
 

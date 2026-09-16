@@ -60,8 +60,10 @@ class StreamReadConstraintsDefaultsTest
         constraints.validateBigIntegerScale(limit);
         constraints.validateBigIntegerScale(-limit);
 
-        // But just past it must fail, and message should refer to the accessor:
-        for (int scale : new int[] { limit + 1, -(limit + 1) }) {
+        // But just past it must fail, and message should refer to the accessor.
+        // Note: `Integer.MIN_VALUE` included since `Math.abs()` of it is negative
+        for (int scale : new int[] { limit + 1, -(limit + 1),
+                Integer.MAX_VALUE, Integer.MIN_VALUE }) {
             try {
                 constraints.validateBigIntegerScale(scale);
                 fail("Should not pass, scale "+scale);

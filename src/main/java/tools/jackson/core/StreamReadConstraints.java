@@ -654,7 +654,9 @@ public class StreamReadConstraints
      */
     public void validateBigIntegerScale(int scale) throws StreamConstraintsException
     {
-        final int absScale = Math.abs(scale);
+        // 15-Sep-2026, tatu: [core#1715] Widen to `long`: `Math.abs(Integer.MIN_VALUE)`
+        //    is itself negative, and would slip past the check below
+        final long absScale = Math.abs((long) scale);
         final int limit = getMaxBigIntegerScale();
 
         if (absScale > limit) {

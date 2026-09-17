@@ -61,8 +61,8 @@ Lee Dongnyoung (@DongNyoung)
  * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
    quad buffer growth
   (3.1.7)
- * Contributed #1711: Close decorated `File`/`Path` generator targets on construction
-   failure without invoking generator close lifecycle
+ * Reported, fixed #1711: `File`/`Path` generator targets may be leaked, double-closed
+   or truncated when construction fails
   (3.1.7)
 
 @hdimitrieski

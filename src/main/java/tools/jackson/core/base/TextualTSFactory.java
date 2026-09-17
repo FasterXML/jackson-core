@@ -314,10 +314,7 @@ public abstract class TextualTSFactory
             outputToClose = w;
             return _decorate(_createGenerator(writeCtxt, ioCtxt, w));
         } catch (RuntimeException e) {
-            _closeOnFailedConstruction(outputToClose, e);
-            if (rawOut != outputToClose) {
-                _closeOnFailedConstruction(rawOut, e);
-            }
+            _closeOnFailedConstruction(outputToClose, rawOut, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -347,10 +344,7 @@ public abstract class TextualTSFactory
             outputToClose = w;
             return _decorate(_createGenerator(writeCtxt, ioCtxt, w));
         } catch (RuntimeException e) {
-            _closeOnFailedConstruction(outputToClose, e);
-            if (rawOut != outputToClose) {
-                _closeOnFailedConstruction(rawOut, e);
-            }
+            _closeOnFailedConstruction(outputToClose, rawOut, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }

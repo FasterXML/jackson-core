@@ -296,4 +296,35 @@ public abstract class DecorableTSFactory
             }
         }
     }
+
+    /**
+     * Variant of {@link #_closeOnFailedConstruction(Closeable, RuntimeException)} for case
+     * where the resource to close may wrap (decorate) the source/target Jackson opened:
+     * closing the outermost resource is expected to close what it wraps, so underlying
+     * resource is only closed if closing of the outermost one failed.
+     *
+     * @param toClose Outermost source/target to close, if any ({@code null} if not yet opened)
+     * @param rawFallback Source/target Jackson opened: closed if, and only if, closing
+     *    of {@code toClose} failed
+     * @param failure Failure to add possible secondary failure to, as suppressed
+     *
+     * @since 3.1.7
+     */
+    static void _closeOnFailedConstruction(Closeable toClose, Closeable rawFallback,
+            RuntimeException failure)
+    {
+        if (toClose != null) {
+            try {
+                toClose.close();
+                return;
+            } catch (Exception e) {
+                failure.addSuppressed(e);
+            }
+        }
+        // 16-Sep-2026, tatu: [core#1711] Wrapper either never created, or failed to close:
+        //   either way need to ensure target Jackson opened does not leak
+        if (rawFallback != toClose) {
+            _closeOnFailedConstruction(rawFallback, failure);
+        }
+    }
 }

@@ -373,7 +373,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
     }
 
     @Test
-    void closesFileOutputStreamOnContextCreationFailure() throws Exception
+    void doesNotOpenFileOutputStreamOnContextCreationFailure() throws Exception
     {
         ContextFailingFactory f = new ContextFailingFactory();
         File dst = _tempFile();
@@ -384,7 +384,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
     }
 
     @Test
-    void closesPathOutputStreamOnContextCreationFailure() throws Exception
+    void doesNotOpenPathOutputStreamOnContextCreationFailure() throws Exception
     {
         ContextFailingFactory f = new ContextFailingFactory();
         Path dst = _tempFile().toPath();
@@ -520,7 +520,7 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
     }
 
     @Test
-    void binaryClosesPathOutputStreamOnContextCreationFailure() throws Exception
+    void binaryDoesNotOpenPathOutputStreamOnContextCreationFailure() throws Exception
     {
         FailingBinaryFactory f = new FailingBinaryFactoryBuilder().build(true);
         Path dst = _tempFile().toPath();
@@ -569,6 +569,10 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
         assertEquals(1, outputs.size(), msg);
         assertTrue(outputs.get(0).closed,
                 "OutputStream Jackson opened should have been closed");
+        // 16-Sep-2026, tatu: [core#1711] Closing decorated resource closes what it wraps,
+        //   so target Jackson opened must not be closed a second time
+        assertEquals(1, outputs.get(0).closeCount,
+                "OutputStream Jackson opened should have been closed exactly once");
     }
 
     private void _verifyNoOutputOpened(List<CloseTrackingOutputStream> outputs) {

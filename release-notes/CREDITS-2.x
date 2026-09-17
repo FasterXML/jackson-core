@@ -554,3 +554,8 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
    escape lands at the output buffer boundary
   (2.21.7)
+
+@youdie006
+ * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a
+   supplementary character splits across a `read()` boundary
+  (2.21.7)

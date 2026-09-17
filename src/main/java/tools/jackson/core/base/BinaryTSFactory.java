@@ -207,22 +207,24 @@ public abstract class BinaryTSFactory
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             File f, JsonEncoding enc) throws JacksonException
     {
-        IOContext ioCtxt = null;
+        // true -> yes, we have to manage the stream since we created it
+        // 16-Sep-2026, tatu: [core#1711] Reference `File` itself, not stream opened from
+        //   it: avoids having to open (and truncate!) target before context creation
+        final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
         OutputStream rawOut = null;
+        // 16-Sep-2026, tatu: [core#1711] Tracks outermost resource successfully created,
+        //   to close on failure. Note that generator itself is deliberately NOT tracked:
+        //   closing a partially constructed one could write to the target.
         Closeable outputToClose = null;
         try {
             rawOut = _fileOutputStream(f);
             outputToClose = rawOut;
-            // true -> yes, we have to manage the stream since we created it
-            ioCtxt = _createContext(_createContentReference(rawOut), true, enc);
             OutputStream decoratedOut = _decorate(ioCtxt, rawOut);
             outputToClose = decoratedOut;
             return _decorate(_createGenerator(writeCtxt, ioCtxt, decoratedOut));
         } catch (RuntimeException e) {
             _closeOnFailedConstruction(outputToClose, rawOut, e);
-            if (ioCtxt != null) {
-                _releaseOnFailedConstruction(ioCtxt, e);
-            }
+            _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
     }
@@ -234,6 +236,9 @@ public abstract class BinaryTSFactory
     {
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
         OutputStream rawOut = null;
+        // 16-Sep-2026, tatu: [core#1711] Tracks outermost resource successfully created,
+        //   to close on failure. Note that generator itself is deliberately NOT tracked:
+        //   closing a partially constructed one could write to the target.
         Closeable outputToClose = null;
         try {
             rawOut = _pathOutputStream(p);

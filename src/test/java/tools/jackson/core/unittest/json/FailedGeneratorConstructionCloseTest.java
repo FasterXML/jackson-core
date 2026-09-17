@@ -509,14 +509,17 @@ class FailedGeneratorConstructionCloseTest extends JacksonCoreTestBase
     }
 
     @Test
-    void binaryClosesFileOutputStreamOnContextCreationFailure() throws Exception
+    void binaryDoesNotOpenFileOutputStreamOnContextCreationFailure() throws Exception
     {
         FailingBinaryFactory f = new FailingBinaryFactoryBuilder().build(true);
         File dst = _tempFile();
+        Files.write(dst.toPath(), new byte[] { 'a' });
 
         assertThrows(IllegalStateException.class,
                 () -> f.createGenerator(ObjectWriteContext.empty(), dst, JsonEncoding.UTF8));
-        _verifyOneClosedOutput(f.outputs);
+        _verifyNoOutputOpened(f.outputs);
+        // [core#1711] Target must not be truncated if context creation fails
+        assertArrayEquals(new byte[] { 'a' }, Files.readAllBytes(dst.toPath()));
     }
 
     @Test

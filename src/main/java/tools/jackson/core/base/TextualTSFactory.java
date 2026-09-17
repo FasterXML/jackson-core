@@ -297,6 +297,9 @@ public abstract class TextualTSFactory
     {
         final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
         OutputStream rawOut = null;
+        // 16-Sep-2026, tatu: [core#1711] Tracks outermost resource successfully created,
+        //   to close on failure. Note that generator itself is deliberately NOT tracked:
+        //   closing a partially constructed one could write to the target.
         Closeable outputToClose = null;
         try {
             rawOut = _fileOutputStream(f);
@@ -327,6 +330,9 @@ public abstract class TextualTSFactory
     {
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
         OutputStream rawOut = null;
+        // 16-Sep-2026, tatu: [core#1711] Tracks outermost resource successfully created,
+        //   to close on failure. Note that generator itself is deliberately NOT tracked:
+        //   closing a partially constructed one could write to the target.
         Closeable outputToClose = null;
         try {
             rawOut = _pathOutputStream(p);

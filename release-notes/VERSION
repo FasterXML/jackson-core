@@ -84,6 +84,10 @@ JSON library.
 #1711: `File`/`Path` generator targets may be leaked, double-closed or truncated
   when construction fails
  (reported, fix by DongNyoung L)
+#1713: `UTF32Reader` corrupts or drops the low surrogate when a supplementary
+  character splits across a `read()` boundary
+ (reported by @youdie006)
+ (fix by @pjfanning)
 
 3.2.2 (14-Aug-2026)
 
@@ -162,6 +166,10 @@ No changes since 3.2.0
 #1711: `File`/`Path` generator targets may be leaked, double-closed or truncated
   when construction fails
  (reported, fix by DongNyoung L)
+#1713: `UTF32Reader` corrupts or drops the low surrogate when a supplementary
+  character splits across a `read()` boundary
+ (reported by @youdie006)
+ (fix by @pjfanning)
 
 3.1.6 (14-Aug-2026)
 

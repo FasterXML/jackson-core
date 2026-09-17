@@ -25,6 +25,10 @@ a pure JSON library.
 #1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
   when reporting an unrecognized token [CVE-2026-89425]
  (fix by @pjfanning)
+#1713: `UTF32Reader` corrupts or drops the low surrogate when a supplementary
+  character splits across a `read()` boundary
+ (reported by @youdie006)
+ (fix by @pjfanning)
 
 2.22.2 (16-Aug-2026)
 

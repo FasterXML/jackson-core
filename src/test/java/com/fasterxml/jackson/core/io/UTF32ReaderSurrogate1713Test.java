@@ -19,7 +19,10 @@ class UTF32ReaderSurrogate1713Test extends JUnit5TestBase
 {
     // U+10000 is the interesting one: normalized value is 0, same as the
     // "no surrogate pending" sentinel
-    private final static String SUPPLEMENTARY = "😀𐀀􏿿";
+    private final static String SUPPLEMENTARY =
+            "😀" // U+1F600
+            + "𐀀" // U+10000
+            + "􏿿"; // U+10FFFF
 
     @Test
     void singleCharReadBigEndian() throws Exception {
@@ -47,7 +50,7 @@ class UTF32ReaderSurrogate1713Test extends JUnit5TestBase
     @Test
     void chunkedReadSplitsPair() throws Exception
     {
-        // Text of odd length so every surrogate pair straddles some chunk boundary
+        // Chunk sizes 1..7 make every surrogate pair straddle some chunk boundary
         String text = "a" + SUPPLEMENTARY + "b" + SUPPLEMENTARY;
         for (boolean bigEndian : new boolean[] { true, false }) {
             for (int chunkSize = 1; chunkSize <= 7; ++chunkSize) {
@@ -84,7 +87,12 @@ class UTF32ReaderSurrogate1713Test extends JUnit5TestBase
                 try (JsonParser p = f.createParser(utf32(doc, bigEndian))) {
                     assertToken(JsonToken.START_ARRAY, p.nextToken());
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                    assertEquals(value, p.getText(), "prefixLen="+prefixLen+", bigEndian="+bigEndian);
+                    final String text = p.getText();
+                    final String msg = "prefixLen="+prefixLen+", bigEndian="+bigEndian;
+                    // Compare tail first to keep failure messages readable
+                    assertEquals(value.substring(prefixLen - 5),
+                            text.substring(Math.min(prefixLen - 5, text.length())), msg);
+                    assertEquals(value, text, msg);
                     assertToken(JsonToken.END_ARRAY, p.nextToken());
                 }
             }

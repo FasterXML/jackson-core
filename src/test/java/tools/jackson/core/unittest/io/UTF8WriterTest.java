@@ -112,6 +112,69 @@ class UTF8WriterTest
         assertArrayEquals(EXP_SURROGATES, out.toByteArray());
     }
 
+    // Surrogate pair split across two write() calls: first half must be
+    // carried over and combined with the second half from the next call
+    @Test
+    void surrogatesSplitAcrossWrites() throws Exception
+    {
+        final String text = "a\uD83D\uDE00b\uD800\uDC00c\uDBFF\uDFFF";
+        final byte[] exp = text.getBytes("UTF-8");
+        final char[] chars = text.toCharArray();
+
+        for (int split = 1; split < chars.length; ++split) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            UTF8Writer w = new UTF8Writer(_ioContext(), out);
+            w.write(chars, 0, split);
+            w.write(chars, split, chars.length - split);
+            w.close();
+            assertArrayEquals(exp, out.toByteArray(), "char[], split="+split);
+
+            out = new ByteArrayOutputStream();
+            w = new UTF8Writer(_ioContext(), out);
+            w.write(text, 0, split);
+            w.write(text, split, chars.length - split);
+            w.close();
+            assertArrayEquals(exp, out.toByteArray(), "String, split="+split);
+
+            out = new ByteArrayOutputStream();
+            w = new UTF8Writer(_ioContext(), out);
+            w.write(chars, 0, split);
+            for (int i = split; i < chars.length; ++i) {
+                w.write(chars[i]);
+            }
+            w.close();
+            assertArrayEquals(exp, out.toByteArray(), "mixed, split="+split);
+        }
+    }
+
+    // Surrogate pair landing on the internal output buffer flush point
+    @Test
+    void surrogatesAtOutputBufferEdge() throws Exception
+    {
+        final String pairs = "\uD83D\uDE00\uD800\uDC00";
+        // write buffer is 8000 bytes; flush happens when fewer than 4 bytes left
+        for (int prefix = 7990; prefix <= 8010; ++prefix) {
+            StringBuilder sb = new StringBuilder(prefix + 4);
+            for (int i = 0; i < prefix; ++i) {
+                sb.append('x');
+            }
+            sb.append(pairs);
+            String text = sb.toString();
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            UTF8Writer w = new UTF8Writer(_ioContext(), out);
+            w.write(text);
+            w.close();
+            assertArrayEquals(text.getBytes("UTF-8"), out.toByteArray(), "prefix="+prefix);
+
+            out = new ByteArrayOutputStream();
+            w = new UTF8Writer(_ioContext(), out);
+            w.write(text.toCharArray());
+            w.close();
+            assertArrayEquals(text.getBytes("UTF-8"), out.toByteArray(), "char[], prefix="+prefix);
+        }
+    }
+
     @SuppressWarnings("resource")
     @Test
     void surrogatesFail() throws Exception

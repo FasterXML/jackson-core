@@ -164,7 +164,7 @@ public class UTF32Reader extends Reader
                 lo = (0xDC00 | (ch & 0x03FF));
                 // Room for second part?
                 if (outPtr >= outEnd) { // nope
-                    _surrogate = (char) ch;
+                    _surrogate = (char) lo;
                     break main_loop;
                 }
             }

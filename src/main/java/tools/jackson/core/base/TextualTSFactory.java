@@ -94,13 +94,18 @@ public abstract class TextualTSFactory
     {
         // true, since we create InputStream from File
         IOContext ioCtxt = _createContext(_createContentReference(f), true);
-        InputStream in = null;
+        InputStream rawIn = null;
+        // 17-Sep-2026, [core#1718] Track outermost source; if decorated close throws,
+        //   fall back to the stream Jackson opened so it is not leaked.
+        Closeable inputToClose = null;
         try {
-            in = _fileInputStream(f);
-            in = _decorate(ioCtxt, in);
-            return _createParser(readCtxt, ioCtxt, in);
+            rawIn = _fileInputStream(f);
+            inputToClose = rawIn;
+            InputStream decorated = _decorate(ioCtxt, rawIn);
+            inputToClose = decorated;
+            return _createParser(readCtxt, ioCtxt, decorated);
         } catch (RuntimeException e) {
-            _closeOnFailedConstruction(in, e);
+            _closeOnFailedConstruction(inputToClose, rawIn, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -112,13 +117,18 @@ public abstract class TextualTSFactory
     {
         // true, since we create InputStream from Path
         IOContext ioCtxt = _createContext(_createContentReference(p), true);
-        InputStream in = null;
+        InputStream rawIn = null;
+        // 17-Sep-2026, [core#1718] Track outermost source; if decorated close throws,
+        //   fall back to the stream Jackson opened so it is not leaked.
+        Closeable inputToClose = null;
         try {
-            in = _pathInputStream(p);
-            in = _decorate(ioCtxt, in);
-            return _createParser(readCtxt, ioCtxt, in);
+            rawIn = _pathInputStream(p);
+            inputToClose = rawIn;
+            InputStream decorated = _decorate(ioCtxt, rawIn);
+            inputToClose = decorated;
+            return _createParser(readCtxt, ioCtxt, decorated);
         } catch (RuntimeException e) {
-            _closeOnFailedConstruction(in, e);
+            _closeOnFailedConstruction(inputToClose, rawIn, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }

@@ -8,6 +8,7 @@ import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
+import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.*;
 
 import static tools.jackson.core.JsonTokenId.*;
@@ -1037,6 +1038,26 @@ public class ReaderBasedJsonParser
         return name;
     }
 
+    // 07-Sep-2026, tatu: [core#1688] On a match, commit the value token that
+    //    `nextName()` already classified into `_nextToken`, instead of paying
+    //    for a separate `nextToken()` call
+    @Override
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException
+    {
+        String name = nextName();
+        if (name != null) {
+            int match = matcher.matchName(name);
+            if (match >= 0) {
+                _nextAfterName();
+            }
+            return match;
+        }
+        if (_currToken == JsonToken.END_OBJECT) {
+            return PropertyNameMatcher.MATCH_END_OBJECT;
+        }
+        return PropertyNameMatcher.MATCH_ODD_TOKEN;
+    }
+
     private final void _isNextTokenNameYes(int i) throws JacksonException
     {
         _updateToken(JsonToken.PROPERTY_NAME);
@@ -1601,6 +1622,7 @@ public class ReaderBasedJsonParser
         while (c >= '0' && c <= '9') {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1643,6 +1665,9 @@ public class ReaderBasedJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer;
+                    //   `expLen` still -1 ("none") here so must not over-estimate
+                    _streamReadConstraints.validateFPLength(intLen + fractLen - 1);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1685,6 +1710,7 @@ public class ReaderBasedJsonParser
             while (c <= INT_9 && c >= INT_0) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -3212,6 +3238,7 @@ public class ReaderBasedJsonParser
                 _currInputRow, col);
 
         StringBuilder sb = new StringBuilder(matchedPart);
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while ((_inputPtr < _inputEnd) || _loadMore()) {
             char c = _inputBuffer[_inputPtr];
             if (!Character.isJavaIdentifierPart(c)) {
@@ -3219,7 +3246,7 @@ public class ReaderBasedJsonParser
             }
             ++_inputPtr;
             sb.append(c);
-            if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+            if (sb.length() >= maxTokenLength) {
                 sb.append("...");
                 break;
             }

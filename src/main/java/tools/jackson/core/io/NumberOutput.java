@@ -360,6 +360,40 @@ public final class NumberOutput
         return DoubleToDecimal.writeDouble(v, b, off);
     }
 
+    /**
+     * Direct-to-buffer write for {@code float} values, bypassing String allocation.
+     * Writes characters directly into the provided char buffer.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the Schubfach algorithm for writing floating point numbers.
+     *
+     * @param v float value to write
+     * @param b target char buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} chars available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return offset within buffer after the last char written
+     * @since 3.3
+     */
+    public static int outputFloat(float v, char[] b, int off) {
+        return FloatToDecimal.writeFloat(v, b, off);
+    }
+
+    /**
+     * Direct-to-buffer write for {@code double} values, bypassing String allocation.
+     * Writes characters directly into the provided char buffer.
+     * Only intended for use when {@code USE_FAST_DOUBLE_WRITER} is enabled, as it uses
+     * the Schubfach algorithm for writing floating point numbers.
+     *
+     * @param v double value to write
+     * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} chars available from {@code off})
+     * @param off offset within buffer to start writing
+     *
+     * @return offset within buffer after the last char written
+     * @since 3.3
+     */
+    public static int outputDouble(double v, char[] b, int off) {
+        return DoubleToDecimal.writeDouble(v, b, off);
+    }
+
     /*
     /**********************************************************************
     /* Other convenience methods

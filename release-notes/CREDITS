@@ -69,6 +69,15 @@ DongNyoung Lee (@Dongnyoung)
   (3.3.0)
  * Reported #1654: Stale symbol table child can replace a newer root table
   (3.3.0)
+ * Reported, fixed #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from
+   500 to 200 characters
+  (3.3.0)
+ * Reported, fixed #1686: Synchronous decimal number parsing buffers oversized
+   values before `maxNumberLength` validation
+  (3.3.0)
+ * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
+   quad buffer growth
+  (3.1.7)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
@@ -98,3 +107,8 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
    escape lands at the output buffer boundary
   (3.1.7)
+
+Steven Schlansker (@stevenschlansker)
+ * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
+   name match plus value token advance
+  (3.3.0)

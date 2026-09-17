@@ -225,6 +225,57 @@ class ErrorReportConfigurationTest
         }
     }
 
+    // [core#1698]: every parser backend must honor `maxErrorTokenLength`;
+    //   `UTF8DataInputJsonParser` used to accumulate the whole token instead
+    @Test
+    void errorTokenLengthBoundedInAllModes()
+            throws Exception
+    {
+        final int maxLen = 256;
+        final JsonFactory f = streamFactoryBuilder()
+                .errorReportConfiguration(ErrorReportConfiguration.builder()
+                        .maxErrorTokenLength(maxLen).build())
+                .build();
+        // Broken token far longer than the limit: must be truncated, not accumulated in full
+        final String doc = _buildBrokenJsonOfLength(50 * maxLen);
+        // limit, plus appended "..."
+        final String expToken = _brokenToken(maxLen) + "...";
+
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(f, mode, doc)) {
+                p.nextToken();
+                p.nextToken();
+                fail("Should not pass, mode: "+mode);
+            } catch (StreamReadException e) {
+                assertThat(_unrecognizedToken(e.getMessage()))
+                        .as("mode: %d", mode)
+                        .isEqualTo(expToken);
+            }
+        }
+    }
+
+    // Short broken token (below limit) must be reported verbatim, without
+    // duplicated leading char, in all modes
+    @Test
+    void shortErrorTokenReportedExactlyInAllModes()
+            throws Exception
+    {
+        final JsonFactory f = newStreamFactory();
+        final String doc = "{\"key\":abc!}";
+
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(f, mode, doc)) {
+                p.nextToken();
+                p.nextToken();
+                fail("Should not pass, mode: "+mode);
+            } catch (StreamReadException e) {
+                assertThat(_unrecognizedToken(e.getMessage()))
+                        .as("mode: %d", mode)
+                        .isEqualTo("abc");
+            }
+        }
+    }
+
     @Test
     void nonPositiveErrorTokenConfig()
     {
@@ -319,13 +370,29 @@ class ErrorReportConfigurationTest
         }
     }
 
+    // Extracts X from "Unrecognized token 'X': was expecting ..."
+    private String _unrecognizedToken(String msg)
+    {
+        final String prefix = "Unrecognized token '";
+        final int start = msg.indexOf(prefix);
+        assertThat(start).as("message: %s", msg).isGreaterThanOrEqualTo(0);
+        final int end = msg.indexOf("': was expecting", start);
+        assertThat(end).as("message: %s", msg).isGreaterThan(start);
+        return msg.substring(start + prefix.length(), end);
+    }
+
     private String _buildBrokenJsonOfLength(int len)
     {
-        StringBuilder sb = new StringBuilder("{\"key\":");
+        return "{\"key\":" + _brokenToken(len) + "!}";
+    }
+
+    // Varied (not repeating single) chars so that duplicated/dropped chars are detectable
+    private String _brokenToken(int len)
+    {
+        StringBuilder sb = new StringBuilder(len);
         for (int i = 0; i < len; i++) {
-            sb.append("a");
+            sb.append((char) ('a' + (i % 26)));
         }
-        sb.append("!}");
         return sb.toString();
     }
 }

@@ -653,4 +653,40 @@ final public class DoubleToDecimal {
         }
     }
 
+    /**
+     * Writes the decimal representation of the given {@code double} directly into
+     * the provided char buffer, avoiding any String allocation.
+     *
+     * @param v   the {@code double} to be rendered
+     * @param buf the target char buffer
+     * @param off the offset within {@code buf} to start writing
+     * @return the offset within {@code buf} after the last char written
+     * @since 3.3
+     */
+    public static int writeDouble(double v, char[] buf, int off) {
+        return new DoubleToDecimal().toBuffer(v, buf, off);
+    }
+
+    private int toBuffer(double v, char[] buf, int off) {
+        // Specials are short constants; same set as toDecimalString()
+        switch (toDecimal(v)) {
+            case NON_SPECIAL:
+                for (int i = 0; i <= index; ++i) {
+                    buf[off + i] = (char) bytes[i];
+                }
+                return off + index + 1;
+            case PLUS_ZERO: return copy("0.0", buf, off);
+            case MINUS_ZERO: return copy("-0.0", buf, off);
+            case PLUS_INF: return copy("Infinity", buf, off);
+            case MINUS_INF: return copy("-Infinity", buf, off);
+            default: return copy("NaN", buf, off);
+        }
+    }
+
+    private static int copy(String str, char[] buf, int off) {
+        final int len = str.length();
+        str.getChars(0, len, buf, off);
+        return off + len;
+    }
+
 }

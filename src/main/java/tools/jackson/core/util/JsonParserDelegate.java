@@ -164,6 +164,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public String nextName(){ return delegate.nextName(); }
     @Override public boolean nextName(SerializableString str) { return delegate.nextName(str); }
     @Override public int nextNameMatch(PropertyNameMatcher matcher) { return delegate.nextNameMatch(matcher); }
+    // NOTE: `nextNameMatchAndToken()` deliberately NOT overridden: default impl in
+    // `JsonParser` calls `nextNameMatch()` and `nextToken()` on this instance, so that
+    // sub-classes overriding either (but not the fused method) still get them called
 
     // NOTE: fine without overrides since it does NOT change state
     @Override public int currentNameMatch(PropertyNameMatcher matcher) { return delegate.currentNameMatch(matcher); }

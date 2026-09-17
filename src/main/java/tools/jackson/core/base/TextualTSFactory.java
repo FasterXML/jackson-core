@@ -295,21 +295,30 @@ public abstract class TextualTSFactory
             File f, JsonEncoding enc)
         throws JacksonException
     {
-        final OutputStream out = _fileOutputStream(f);
         final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
+        OutputStream rawOut = null;
+        // 16-Sep-2026, tatu: [core#1711] Tracks outermost resource successfully created,
+        //   to close on failure. Note that generator itself is deliberately NOT tracked:
+        //   closing a partially constructed one could write to the target.
+        Closeable outputToClose = null;
         try {
+            rawOut = _fileOutputStream(f);
+            outputToClose = rawOut;
             if (enc == JsonEncoding.UTF8) {
-                return _decorate(
-                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-                );
+                OutputStream decoratedOut = _decorate(ioCtxt, rawOut);
+                outputToClose = decoratedOut;
+                return _decorate(_createUTF8Generator(writeCtxt, ioCtxt, decoratedOut));
             }
-            return _decorate(
-                    _createGenerator(writeCtxt, ioCtxt,
-                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
-            );
+            Writer w = _createWriter(ioCtxt, rawOut, enc);
+            outputToClose = w;
+            w = _decorate(ioCtxt, w);
+            outputToClose = w;
+            w = ioCtxt.encodingWriter(w);
+            outputToClose = w;
+            return _decorate(_createGenerator(writeCtxt, ioCtxt, w));
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(outputToClose, rawOut, e);
             _releaseOnFailedConstruction(ioCtxt, e);
-            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }
@@ -319,21 +328,30 @@ public abstract class TextualTSFactory
             Path p, JsonEncoding enc)
         throws JacksonException
     {
-        final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
+        OutputStream rawOut = null;
+        // 16-Sep-2026, tatu: [core#1711] Tracks outermost resource successfully created,
+        //   to close on failure. Note that generator itself is deliberately NOT tracked:
+        //   closing a partially constructed one could write to the target.
+        Closeable outputToClose = null;
         try {
+            rawOut = _pathOutputStream(p);
+            outputToClose = rawOut;
             if (enc == JsonEncoding.UTF8) {
-                return _decorate(
-                        _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-                );
+                OutputStream decoratedOut = _decorate(ioCtxt, rawOut);
+                outputToClose = decoratedOut;
+                return _decorate(_createUTF8Generator(writeCtxt, ioCtxt, decoratedOut));
             }
-            return _decorate(
-                    _createGenerator(writeCtxt, ioCtxt,
-                            ioCtxt.encodingWriter(_decorate(ioCtxt, _createWriter(ioCtxt, out, enc))))
-            );
+            Writer w = _createWriter(ioCtxt, rawOut, enc);
+            outputToClose = w;
+            w = _decorate(ioCtxt, w);
+            outputToClose = w;
+            w = ioCtxt.encodingWriter(w);
+            outputToClose = w;
+            return _decorate(_createGenerator(writeCtxt, ioCtxt, w));
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(outputToClose, rawOut, e);
             _releaseOnFailedConstruction(ioCtxt, e);
-            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }

@@ -78,6 +78,9 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
    quad buffer growth
   (3.1.7)
+ * Reported, fixed #1711: `File`/`Path` generator targets may be leaked, double-closed
+   or truncated when construction fails
+  (3.1.7)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

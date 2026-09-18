@@ -35,6 +35,8 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
 
     private final static String READ_FAIL = "Will not read, ever!";
 
+    private final static String CLOSE_FAIL = "Test-induced input close failure";
+
     /**
      * Where construction is to fail, for factories that open source themselves.
      */
@@ -91,6 +93,45 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
         public Reader decorate(IOContext ctxt, Reader r) {
             throw new IllegalStateException(DECORATOR_FAIL);
         }
+    }
+
+    /**
+     * Wrapper whose {@code close()} throws, so closing the decorated stream
+     * does not close the stream Jackson opened.
+     */
+    static class FailingCloseInputStream extends FilterInputStream {
+        public boolean closeAttempted;
+
+        FailingCloseInputStream(InputStream in) { super(in); }
+
+        @Override
+        public void close() throws IOException {
+            closeAttempted = true;
+            throw new IOException(CLOSE_FAIL);
+        }
+    }
+
+    /**
+     * Decorator that returns a wrapper whose {@code close()} throws: used to
+     * prove the stream Jackson opened is still closed if wrapper close fails.
+     */
+    static class FailingCloseInputDecorator extends InputDecorator {
+        public final List<FailingCloseInputStream> wrappers = new ArrayList<>();
+
+        @Override
+        public InputStream decorate(IOContext ctxt, InputStream in) {
+            FailingCloseInputStream wrapped = new FailingCloseInputStream(in);
+            wrappers.add(wrapped);
+            return wrapped;
+        }
+
+        @Override
+        public InputStream decorate(IOContext ctxt, byte[] src, int offset, int length) {
+            return new ByteArrayInputStream(src, offset, length);
+        }
+
+        @Override
+        public Reader decorate(IOContext ctxt, Reader r) { return r; }
     }
 
     /**
@@ -289,6 +330,21 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
                 JacksonException.class, READ_FAIL);
     }
 
+    // [core#1718]: if decorated stream close throws, still close stream Jackson opened
+    @Test
+    void jsonFileSourceClosedWhenDecoratedInputCloseFails() throws Exception {
+        FailingCloseInputDecorator dec = new FailingCloseInputDecorator();
+        _verifySourceClosedWhenDecoratedCloseFails(_jsonFactoryWithFailingCloseDecorator(dec),
+                dec, true);
+    }
+
+    @Test
+    void jsonPathSourceClosedWhenDecoratedInputCloseFails() throws Exception {
+        FailingCloseInputDecorator dec = new FailingCloseInputDecorator();
+        _verifySourceClosedWhenDecoratedCloseFails(_jsonFactoryWithFailingCloseDecorator(dec),
+                dec, false);
+    }
+
     // [core#763]: stream decorator creates from `byte[]` source is ours to close too
     @Test
     void jsonByteArraySourceClosedOnCreateFailure() throws Exception {
@@ -328,6 +384,21 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
                 IllegalStateException.class, CREATE_FAIL);
     }
 
+    // [core#1718]: if decorated stream close throws, still close stream Jackson opened
+    @Test
+    void binaryFileSourceClosedWhenDecoratedInputCloseFails() throws Exception {
+        FailingCloseInputDecorator dec = new FailingCloseInputDecorator();
+        _verifySourceClosedWhenDecoratedCloseFails(_binaryFactoryWithFailingCloseDecorator(dec),
+                dec, true);
+    }
+
+    @Test
+    void binaryPathSourceClosedWhenDecoratedInputCloseFails() throws Exception {
+        FailingCloseInputDecorator dec = new FailingCloseInputDecorator();
+        _verifySourceClosedWhenDecoratedCloseFails(_binaryFactoryWithFailingCloseDecorator(dec),
+                dec, false);
+    }
+
     // [core#763]: stream decorator creates from `byte[]` source is ours to close too
     @Test
     void binaryByteArraySourceClosedOnCreateFailure() throws Exception {
@@ -356,6 +427,20 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
             b = b.inputDecorator(new FailingInputDecorator());
         }
         return b.build();
+    }
+
+    private TrackingJsonFactory _jsonFactoryWithFailingCloseDecorator(
+            FailingCloseInputDecorator dec) {
+        return new TrackingJsonFactory(
+                JsonFactory.builder().inputDecorator(dec),
+                Failure.IN_CREATE);
+    }
+
+    private ToyBinaryFactory _binaryFactoryWithFailingCloseDecorator(
+            FailingCloseInputDecorator dec) {
+        return new ToyBinaryFactoryBuilder()
+                .inputDecorator(dec)
+                .build();
     }
 
     private <F extends TokenStreamFactory & SourceTracking> void _verifyFileSourceClosed(F f,
@@ -396,6 +481,35 @@ class FailedParserConstructionCloseTest extends JacksonCoreTestBase
         // streams (and add bogus suppressed exceptions)
         assertEquals(1, sources.get(0).closeCount,
                 "InputStream Jackson opened should have been closed exactly once");
+    }
+
+    private <F extends TokenStreamFactory & SourceTracking> void _verifySourceClosedWhenDecoratedCloseFails(
+            F f, FailingCloseInputDecorator dec, boolean fileSource)
+        throws Exception
+    {
+        final File srcFile = _tempFile();
+        Exception e = assertThrows(IllegalStateException.class, () -> {
+            if (fileSource) {
+                f.createParser(ObjectReadContext.empty(), srcFile);
+            } else {
+                f.createParser(ObjectReadContext.empty(), srcFile.toPath());
+            }
+        });
+        verifyException(e, CREATE_FAIL);
+        _verifyClosed(f.openedSources());
+        assertEquals(1, dec.wrappers.size());
+        assertTrue(dec.wrappers.get(0).closeAttempted,
+                "Decorated InputStream close should have been attempted");
+        _verifySuppressed(e, CLOSE_FAIL);
+    }
+
+    private void _verifySuppressed(Throwable failure, String msg) {
+        for (Throwable suppressed : failure.getSuppressed()) {
+            if (suppressed.getMessage() != null && suppressed.getMessage().contains(msg)) {
+                return;
+            }
+        }
+        fail("Expected suppressed exception containing: "+msg);
     }
 
     private File _tempFile() throws IOException {

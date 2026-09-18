@@ -53,6 +53,10 @@ JSON library.
   character splits across a `read()` boundary
  (reported by @youdie006)
  (fix by @pjfanning)
+#1718: `File`/`Path` parser sources leak if decorated stream `close()` fails
+  on failed construction
+ (reported by @cowtowncoder)
+ (fix by @kalayciburak)
 
 3.2.2 (14-Aug-2026)
 

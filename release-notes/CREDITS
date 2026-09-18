@@ -91,6 +91,9 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
    escape lands at the output buffer boundary
   (3.1.7)
+ * Contributed #1718: `File`/`Path` parser sources leak if decorated stream
+   `close()` fails on failed construction
+  (3.1.7)
 
 @youdie006
  * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a

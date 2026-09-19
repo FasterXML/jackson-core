@@ -56,10 +56,6 @@ JSON library.
   on failed construction
  (reported by @cowtowncoder)
  (fix by @kalayciburak)
-#1722: Make `DecorableTSFactory._releaseOnFailedConstruction()` and 2-argument
-  `_closeOnFailedConstruction()` `protected`, for format backends that implement
-  their own `File`/`Path` create methods
- (fix by @cowtowncoder, w/ Claude code)
 
 3.1.6 (14-Aug-2026)
 

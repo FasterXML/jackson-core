@@ -53,6 +53,33 @@ class SegmentedStringWriterTest
         assertEquals(exp.toString(), act);
     }
 
+    @Test
+    void appendNull() throws Exception
+    {
+        SegmentedStringWriter w = new SegmentedStringWriter(new BufferRecycler());
+        assertSame(w, w.append(null));
+        assertEquals("null", w.getAndClear());
+    }
+
+    @Test
+    void appendNullSubsequence() throws Exception
+    {
+        SegmentedStringWriter w = new SegmentedStringWriter(new BufferRecycler());
+        assertSame(w, w.append(null, 1, 3));
+        w.append(null, 0, 4);
+        w.append(null, 4, 4);
+        assertEquals("ulnull", w.getAndClear());
+    }
+
+    @Test
+    void appendNullSubsequenceBounds()
+    {
+        SegmentedStringWriter w = new SegmentedStringWriter(new BufferRecycler());
+        assertThrows(IndexOutOfBoundsException.class, () -> w.append(null, -1, 2));
+        assertThrows(IndexOutOfBoundsException.class, () -> w.append(null, 0, 5));
+        assertThrows(IndexOutOfBoundsException.class, () -> w.append(null, 3, 2));
+    }
+
     // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
     @Test
     void bufferRecyclerReuse() throws Exception

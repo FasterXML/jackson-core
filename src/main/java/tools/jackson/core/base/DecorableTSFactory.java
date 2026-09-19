@@ -261,17 +261,19 @@ public abstract class DecorableTSFactory
      * dropped, since context is otherwise only released when parser or
      * generator that owns it gets closed.
      *
-     * @param ioCtxt Context to release
+     * @param ioCtxt Context to release, if any ({@code null} if not yet created)
      * @param failure Failure to add possible secondary failure to, as suppressed
      *
      * @since 3.1.7
      */
-    static void _releaseOnFailedConstruction(IOContext ioCtxt, RuntimeException failure)
+    protected static void _releaseOnFailedConstruction(IOContext ioCtxt, RuntimeException failure)
     {
-        try {
-            ioCtxt.close();
-        } catch (Exception e) {
-            failure.addSuppressed(e);
+        if (ioCtxt != null) {
+            try {
+                ioCtxt.close();
+            } catch (Exception e) {
+                failure.addSuppressed(e);
+            }
         }
     }
 
@@ -310,7 +312,7 @@ public abstract class DecorableTSFactory
      *
      * @since 3.1.7
      */
-    static void _closeOnFailedConstruction(Closeable toClose, Closeable rawFallback,
+    protected static void _closeOnFailedConstruction(Closeable toClose, Closeable rawFallback,
             RuntimeException failure)
     {
         if (toClose != null) {

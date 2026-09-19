@@ -30,6 +30,9 @@ a pure JSON library.
  (reported by @youdie006)
  (fix by @pjfanning)
 
+#1721: SegmentedStringWriter append methods fail for null CharSequence
+ (contributed by @jakezwang)
+
 2.21.6 (14-Aug-2026)
 
 #1642: Fix maxDocumentLength bypass in async parser single-feedInput() case

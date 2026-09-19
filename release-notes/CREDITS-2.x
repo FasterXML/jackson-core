@@ -549,3 +549,7 @@ Burak KALAYCI (@kalayciburak)
  * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a
    supplementary character splits across a `read()` boundary
   (2.21.7)
+
+Jake Wang (@jakezwang)
+ * Contributed #1721: SegmentedStringWriter append methods fail for null CharSequence
+  (2.21.7)

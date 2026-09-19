@@ -555,8 +555,13 @@ Burak KALAYCI (@kalayciburak)
    escape lands at the output buffer boundary
   (2.21.7)
 
+@youdie006
+ * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a
+   supplementary character splits across a `read()` boundary
+  (2.21.7)
+  
 Elankumaran Srinivasan (@elang2)
  * Contributed #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
    surrogates in field names and string values (mirror of #1541 fix in
    `UTF8StreamJsonParser`)
-  (2.23.0)
+  (2.23.0) 

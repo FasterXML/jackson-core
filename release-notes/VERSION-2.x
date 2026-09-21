@@ -52,7 +52,7 @@ a pure JSON library.
 
 No changes since 2.21
 
-2.21.7 (not yet released)
+2.21.7 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)

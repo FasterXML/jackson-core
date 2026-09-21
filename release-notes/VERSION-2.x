@@ -14,7 +14,7 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.22.3 (not yet released)
+2.22.3 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)

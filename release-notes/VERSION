@@ -15,7 +15,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-3.2.3 (not yet released)
+3.2.3 (21-Sep-2026)
 
 #1667: `JsonParser.willInternPropertyNames()` returns `true` even when
   `CANONICALIZE_PROPERTY_NAMES` is disabled

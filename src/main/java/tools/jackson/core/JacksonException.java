@@ -320,7 +320,11 @@ public class JacksonException
             String msg = _exceptionMessage(src);
             // Let's use a more meaningful placeholder if all we have is null
             if (msg == null || msg.isEmpty()) {
-                msg = "(was "+src.getClass().getName()+")";
+                Throwable messageSource = src;
+                if (src instanceof InvocationTargetException && src.getCause() != null) {
+                    messageSource = src.getCause();
+                }
+                msg = "(was "+messageSource.getClass().getName()+")";
             }
             jme = ctor.apply(msg, src);
         }
@@ -329,11 +333,11 @@ public class JacksonException
     }
 
     public static String _exceptionMessage(Throwable t) {
+        if (t instanceof InvocationTargetException && t.getCause() != null) {
+            t = t.getCause();
+        }
         if (t instanceof JacksonException) {
             return ((JacksonException) t).getOriginalMessage();
-        }
-        if (t instanceof InvocationTargetException && t.getCause() != null) {
-            return t.getCause().getMessage();
         }
         return t.getMessage();
     }

@@ -15,6 +15,13 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.1.8 (not yet released)
+
+#1724: Use target exception's original message and type when wrapping
+  `InvocationTargetException` with path information
+ (reported by Lee Dongnyoung)
+ (fix by @CCCLL)
+
 3.1.7 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]

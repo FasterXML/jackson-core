@@ -15,6 +15,13 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.2.4 (not yet released)
+
+#1724: Use target exception's original message and type when wrapping
+  `InvocationTargetException` with path information
+ (reported by Lee Dongnyoung)
+ (fix by @CCCLL)
+
 3.2.3 (21-Sep-2026)
 
 #1667: `JsonParser.willInternPropertyNames()` returns `true` even when

@@ -49,8 +49,11 @@ JSON library.
 #1707: Copy `String` content via `getChars()` in `UTF8JsonGenerator` instead of
   scanning with `String.charAt()` (avoids JVM-wide `charAt` profile pollution)
  (contributed by @pjfanning, w/ Claude code)
+#1715: Add `StreamReadConstraints.getMaxBigIntegerScale()` accessor for maximum
+  `BigDecimal` scale magnitude convertible to `BigInteger`.
+ (fix by @cowtowncoder, w/ Claude code)
 
-3.2.3 (not yet released)
+3.2.3 (21-Sep-2026)
 
 #1667: `JsonParser.willInternPropertyNames()` returns `true` even when
   `CANONICALIZE_PROPERTY_NAMES` is disabled
@@ -81,6 +84,17 @@ JSON library.
  (fix by @pjfanning)
 #1703: Validate name length in `UTF8DataInputJsonParser` before quad buffer growth
  (reported, fix by DongNyoung L)
+#1711: `File`/`Path` generator targets may be leaked, double-closed or truncated
+  when construction fails
+ (reported, fix by DongNyoung L)
+#1713: `UTF32Reader` corrupts or drops the low surrogate when a supplementary
+  character splits across a `read()` boundary
+ (reported by @youdie006)
+ (fix by @pjfanning)
+#1718: `File`/`Path` parser sources leak if decorated stream `close()` fails
+  on failed construction
+ (reported by @cowtowncoder)
+ (fix by @kalayciburak)
 
 3.2.2 (14-Aug-2026)
 
@@ -126,7 +140,7 @@ No changes since 3.2.0
 #1598: Possible TOCTOU timing bug in `BufferRecycler`
  (implemented by @pjfanning)
 
-3.1.7 (not yet released)
+3.1.7 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
@@ -156,6 +170,17 @@ No changes since 3.2.0
  (fix by @pjfanning)
 #1703: Validate name length in `UTF8DataInputJsonParser` before quad buffer growth
  (reported, fix by DongNyoung L)
+#1711: `File`/`Path` generator targets may be leaked, double-closed or truncated
+  when construction fails
+ (reported, fix by DongNyoung L)
+#1713: `UTF32Reader` corrupts or drops the low surrogate when a supplementary
+  character splits across a `read()` boundary
+ (reported by @youdie006)
+ (fix by @pjfanning)
+#1718: `File`/`Path` parser sources leak if decorated stream `close()` fails
+  on failed construction
+ (reported by @cowtowncoder)
+ (fix by @kalayciburak)
 
 3.1.6 (14-Aug-2026)
 

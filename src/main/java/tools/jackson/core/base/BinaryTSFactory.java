@@ -71,13 +71,18 @@ public abstract class BinaryTSFactory
     {
         // true, since we create InputStream from File
         final IOContext ioCtxt = _createContext(_createContentReference(f), true);
-        InputStream in = null;
+        InputStream rawIn = null;
+        // 17-Sep-2026, [core#1718] Track outermost source; if decorated close throws,
+        //   fall back to the stream Jackson opened so it is not leaked.
+        Closeable inputToClose = null;
         try {
-            in = _fileInputStream(f);
-            in = _decorate(ioCtxt, in);
-            return _createParser(readCtxt, ioCtxt, in);
+            rawIn = _fileInputStream(f);
+            inputToClose = rawIn;
+            InputStream decorated = _decorate(ioCtxt, rawIn);
+            inputToClose = decorated;
+            return _createParser(readCtxt, ioCtxt, decorated);
         } catch (RuntimeException e) {
-            _closeOnFailedConstruction(in, e);
+            _closeOnFailedConstruction(inputToClose, rawIn, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -89,13 +94,18 @@ public abstract class BinaryTSFactory
     {
         // true, since we create InputStream from Path
         IOContext ioCtxt = _createContext(_createContentReference(p), true);
-        InputStream in = null;
+        InputStream rawIn = null;
+        // 17-Sep-2026, [core#1718] Track outermost source; if decorated close throws,
+        //   fall back to the stream Jackson opened so it is not leaked.
+        Closeable inputToClose = null;
         try {
-            in = _pathInputStream(p);
-            in = _decorate(ioCtxt, in);
-            return _createParser(readCtxt, ioCtxt, in);
+            rawIn = _pathInputStream(p);
+            inputToClose = rawIn;
+            InputStream decorated = _decorate(ioCtxt, rawIn);
+            inputToClose = decorated;
+            return _createParser(readCtxt, ioCtxt, decorated);
         } catch (RuntimeException e) {
-            _closeOnFailedConstruction(in, e);
+            _closeOnFailedConstruction(inputToClose, rawIn, e);
             _releaseOnFailedConstruction(ioCtxt, e);
             throw e;
         }
@@ -207,16 +217,24 @@ public abstract class BinaryTSFactory
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             File f, JsonEncoding enc) throws JacksonException
     {
-        final OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
-        final IOContext ioCtxt = _createContext(_createContentReference(out), true, enc);
+        // 16-Sep-2026, tatu: [core#1711] Reference `File` itself, not stream opened from
+        //   it: avoids having to open (and truncate!) target before context creation
+        final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
+        OutputStream rawOut = null;
+        // 16-Sep-2026, tatu: [core#1711] Tracks outermost resource successfully created,
+        //   to close on failure. Note that generator itself is deliberately NOT tracked:
+        //   closing a partially constructed one could write to the target.
+        Closeable outputToClose = null;
         try {
-            return _decorate(
-                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-            );
+            rawOut = _fileOutputStream(f);
+            outputToClose = rawOut;
+            OutputStream decoratedOut = _decorate(ioCtxt, rawOut);
+            outputToClose = decoratedOut;
+            return _decorate(_createGenerator(writeCtxt, ioCtxt, decoratedOut));
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(outputToClose, rawOut, e);
             _releaseOnFailedConstruction(ioCtxt, e);
-            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }
@@ -226,15 +244,21 @@ public abstract class BinaryTSFactory
             Path p, JsonEncoding enc)
         throws JacksonException
     {
-        final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
+        OutputStream rawOut = null;
+        // 16-Sep-2026, tatu: [core#1711] Tracks outermost resource successfully created,
+        //   to close on failure. Note that generator itself is deliberately NOT tracked:
+        //   closing a partially constructed one could write to the target.
+        Closeable outputToClose = null;
         try {
-            return _decorate(
-                    _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out))
-            );
+            rawOut = _pathOutputStream(p);
+            outputToClose = rawOut;
+            OutputStream decoratedOut = _decorate(ioCtxt, rawOut);
+            outputToClose = decoratedOut;
+            return _decorate(_createGenerator(writeCtxt, ioCtxt, decoratedOut));
         } catch (RuntimeException e) {
+            _closeOnFailedConstruction(outputToClose, rawOut, e);
             _releaseOnFailedConstruction(ioCtxt, e);
-            _closeOnFailedConstruction(out, e);
             throw e;
         }
     }

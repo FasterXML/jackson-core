@@ -78,6 +78,12 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
    quad buffer growth
   (3.1.7)
+ * Reported, fixed #1711: `File`/`Path` generator targets may be leaked, double-closed
+   or truncated when construction fails
+  (3.1.7)
+ * Reported #1724: Use target exception's original message and type when wrapping
+   `InvocationTargetException` with path information
+  (3.1.8)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
@@ -107,8 +113,21 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
    escape lands at the output buffer boundary
   (3.1.7)
+ * Contributed #1718: `File`/`Path` parser sources leak if decorated stream
+   `close()` fails on failed construction
+  (3.1.7)
 
 Steven Schlansker (@stevenschlansker)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
   (3.3.0)
+
+@youdie006
+ * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a
+   supplementary character splits across a `read()` boundary
+  (3.1.7)
+
+@CCCLL
+ * Contributed #1724: Use target exception's original message and type when wrapping
+   `InvocationTargetException` with path information
+  (3.1.8)

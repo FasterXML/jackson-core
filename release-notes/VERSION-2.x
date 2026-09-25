@@ -21,7 +21,7 @@ a pure JSON library.
  (requested by @kilink)
  (contributed by @seonwooj0810)
 
-2.22.3 (not yet released)
+2.22.3 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
@@ -31,6 +31,10 @@ a pure JSON library.
  (fix by @kalayciburak)
 #1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
   when reporting an unrecognized token [CVE-2026-89425]
+ (fix by @pjfanning)
+#1713: `UTF32Reader` corrupts or drops the low surrogate when a supplementary
+  character splits across a `read()` boundary
+ (reported by @youdie006)
  (fix by @pjfanning)
 
 2.22.2 (16-Aug-2026)
@@ -48,7 +52,7 @@ a pure JSON library.
 
 No changes since 2.21
 
-2.21.7 (not yet released)
+2.21.7 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
@@ -58,6 +62,10 @@ No changes since 2.21
  (fix by @kalayciburak)
 #1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
   when reporting an unrecognized token [CVE-2026-89425]
+ (fix by @pjfanning)
+#1713: `UTF32Reader` corrupts or drops the low surrogate when a supplementary
+  character splits across a `read()` boundary
+ (reported by @youdie006)
  (fix by @pjfanning)
 
 2.21.6 (14-Aug-2026)
@@ -201,7 +209,7 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
-2.18.11 (not yet released)
+2.18.11 (20-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)

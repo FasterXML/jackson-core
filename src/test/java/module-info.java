@@ -34,7 +34,6 @@ module tools.jackson.core.unittest
     opens tools.jackson.core.unittest.jsonptr;
     opens tools.jackson.core.unittest.read;
     opens tools.jackson.core.unittest.read.loc;
-    opens tools.jackson.core.unittest.tofix;
     opens tools.jackson.core.unittest.tofix.async;
     opens tools.jackson.core.unittest.sym;
     opens tools.jackson.core.unittest.type;

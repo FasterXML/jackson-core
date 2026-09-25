@@ -1434,10 +1434,8 @@ public class ReaderBasedJsonParser
         // Got it all: let's add to text buffer for parsing, access
         --ptr; // need to push back following separator
         _inputPtr = ptr;
-        // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(ch);
-        }
+        // [core#105]/[core#1557]: verify number is properly terminated/separated
+        _verifyNumberSeparator(ch);
         int len = ptr-startPtr;
         _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
         return resetInt(false, intLen);
@@ -1501,10 +1499,8 @@ public class ReaderBasedJsonParser
         }
         --ptr; // need to push back following separator
         _inputPtr = ptr;
-        // As per #105, need separating space between root values; check here
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(ch);
-        }
+        // [core#105]/[core#1557]: verify number is properly terminated/separated
+        _verifyNumberSeparator(ch);
         int len = ptr-startPtr;
         _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
         // And there we have it!
@@ -1559,9 +1555,7 @@ public class ReaderBasedJsonParser
         }
         --ptr;
         _inputPtr = ptr;
-        if (_streamReadContext.inRoot()) {
-            _verifyRootSpace(ch);
-        }
+        _verifyNumberSeparator(ch);
         int len = ptr-startPtr;
         _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
         return resetInt(negative, intLen);
@@ -1730,9 +1724,7 @@ public class ReaderBasedJsonParser
         // Ok; unless we hit end-of-input, need to push last char read back
         if (!eof) {
             --_inputPtr;
-            if (_streamReadContext.inRoot()) {
-                _verifyRootSpace(c);
-            }
+            _verifyNumberSeparator(c);
         }
         _textBuffer.setCurrentLength(outPtr);
 
@@ -1799,9 +1791,7 @@ public class ReaderBasedJsonParser
 
         if (!eof) {
             --_inputPtr; // push back the terminating non-hex char
-            if (_streamReadContext.inRoot()) {
-                _verifyRootSpace(c);
-            }
+            _verifyNumberSeparator(c);
         }
         _textBuffer.setCurrentLength(outPtr);
         return resetIntHex(neg, hexLen);
@@ -1931,6 +1921,67 @@ public class ReaderBasedJsonParser
             return;
         }
         _reportMissingRootWS(ch);
+    }
+
+    /**
+     * Method called to verify that a just-decoded number value is followed by a
+     * valid separator or terminator character. For root-level values this means
+     * white space (as per [core#105], see {@link #_verifyRootSpace}); for non-root
+     * values ([core#1557]) the number must be followed by white space, a value
+     * separator ({@code ','}), an enclosing-structure end ({@code ']'} or
+     * {@code '}'}) or a comment start marker (when comments are enabled). Without
+     * this, malformed content such as {@code [ 123true ]} would only fail lazily
+     * when accessing the following token.
+     *<p>
+     * NOTE: not called at all if the number was terminated by end-of-input; callers
+     * check for that first.
+     *<p>
+     * On entry the caller has pushed the trailing character back, so {@code _inputPtr}
+     * points <i>at</i> it; for accepted separators this method leaves {@code _inputPtr}
+     * untouched so the next {@code nextToken()} call can consume them normally.
+     */
+    private final void _verifyNumberSeparator(int ch) throws JacksonException
+    {
+        if (_streamReadContext.inRoot()) {
+            _verifyRootSpace(ch);
+            return;
+        }
+        switch (ch) {
+        case ' ':
+        case '\t':
+        case '\n':
+        case '\r':
+        case ',':
+        case ']':
+        case '}':
+            return;
+        case '/': // possible Java/C++ style comment
+            if (isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
+                return;
+            }
+            break;
+        case '#': // possible YAML/shell style comment
+            if (isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
+                return;
+            }
+            break;
+        }
+        // Align `_inputPtr` with what `_reportUnexpectedChar` ->
+        // `_currentLocationMinusOne()` expects (one past the offending char),
+        // matching `_verifyRootSpace` which advances up front.
+        ++_inputPtr;
+        if (ch == '/') {
+            // 23-Jul-2026, tatu: [core#1557] Still fail here rather than lazily, but
+            //   with the more useful message comment-skipping would have given.
+            _reportUnrecognizedComment();
+        }
+        _reportUnexpectedChar(ch,
+                "Expected space, comma or closing bracket/brace after numeric value");
+    }
+
+    // @since 3.3
+    private final void _reportUnrecognizedComment() throws JacksonException {
+        _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
     }
 
     /*
@@ -2798,7 +2849,7 @@ public class ReaderBasedJsonParser
     private void _skipComment() throws JacksonException
     {
         if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
-            _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
+            _reportUnrecognizedComment();
         }
         // First: check which comment (if either) it is:
         if (_inputPtr >= _inputEnd && !_loadMore()) {

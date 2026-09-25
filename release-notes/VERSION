@@ -49,6 +49,10 @@ JSON library.
 #1715: Add `StreamReadConstraints.getMaxBigIntegerScale()` accessor for maximum
   `BigDecimal` scale magnitude convertible to `BigInteger`.
  (fix by @cowtowncoder, w/ Claude code)
+#1724: Use target exception's original message and type when wrapping
+  `InvocationTargetException` with path information
+ (reported by Lee Dongnyoung)
+ (fix by @CCCLL)
 
 3.2.3 (21-Sep-2026)
 

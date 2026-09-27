@@ -51,6 +51,38 @@ class UTF8SurrogateValidation363Test
     }
 
     /**
+     * Test that parser rejects 3-byte UTF-8 sequence encoding U+D800 when a
+     * lazily parsed String value is skipped without materializing it.
+     */
+    @Test
+    void rejectSurrogateD800InSkippedString() throws Exception
+    {
+        // JSON: ["X",1]
+        // where X is the invalid 3-byte sequence ED A0 80 (U+D800)
+        byte[] doc = new byte[] {
+            '[', '"',
+            (byte) 0xED, (byte) 0xA0, (byte) 0x80, // Invalid: U+D800 surrogate
+            '"', ',', '1', ']'
+        };
+
+        for (int mode : ALL_BINARY_MODES) {
+            try (JsonParser p = createParser(FACTORY, mode, doc)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+
+                // Do not call getString()/getText(); nextToken() must validate
+                // the skipped String contents before moving to VALUE_NUMBER_INT.
+                try {
+                    p.nextToken();
+                    fail("Should have thrown an exception for surrogate code point in skipped UTF-8 string");
+                } catch (StreamReadException e) {
+                    verifyException(e, "Invalid UTF-8");
+                }
+            }
+        }
+    }
+
+    /**
      * Test that parser rejects 3-byte UTF-8 sequence encoding U+DFFF (end of surrogate range).
      * In UTF-8, U+DFFF would be encoded as: ED BF BF
      */

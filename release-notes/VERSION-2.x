@@ -14,6 +14,12 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.21.8 (not yet released)
+
+#1730: `FilteringGeneratorDelegate` does not filter `writeEmbeddedObject()`
+  and typed `writeArray()`, and raw/binary values do not advance array index
+ (fix by @pjfanning)
+
 2.21.7 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]

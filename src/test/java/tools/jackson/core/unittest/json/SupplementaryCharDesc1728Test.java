@@ -7,8 +7,7 @@ import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [core#1728]: unexpected-character messages must quote the supplementary
@@ -75,9 +74,10 @@ class SupplementaryCharDesc1728Test extends JacksonCoreTestBase
 
     private static void _assertFullCodePoint(String msg, String quoted, String truncated)
     {
-        assertTrue(msg.contains("Unexpected character (" + quoted), msg);
-        assertTrue(msg.contains("code " + SEE_NO_EVIL), msg);
-        assertTrue(msg.contains("0x" + Integer.toHexString(SEE_NO_EVIL)), msg);
-        assertFalse(msg.contains(truncated), msg);
+        assertThat(msg)
+                .contains("Unexpected character (" + quoted)
+                .contains("code " + SEE_NO_EVIL)
+                .contains("0x" + Integer.toHexString(SEE_NO_EVIL))
+                .doesNotContain(truncated);
     }
 }

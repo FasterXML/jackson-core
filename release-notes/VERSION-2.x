@@ -16,8 +16,8 @@ a pure JSON library.
 
 2.21.8 (not yet released)
 
-#1730: `FilteringGeneratorDelegate` does not filter `writeEmbeddedObject()`
-  and typed `writeArray()`, and raw/binary values do not advance array index
+#1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
+  typed `writeArray()` and raw/binary values consistently
  (fix by @pjfanning)
 
 2.21.7 (21-Sep-2026)

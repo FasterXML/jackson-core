@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests to ensure that no value write method of {@link FilteringGeneratorDelegate}
- * bypasses filtering, and that all value writes advance the array element index.
+ * skips filtering, and that all value writes advance the array element index.
  */
-class GeneratorFilteringBypassTest
+class GeneratorFilteringValueWritesTest
     extends JUnit5TestBase
 {
     static class DenyAllFilter extends TokenFilter {

@@ -468,7 +468,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
-    // Must not use JsonGeneratorDelegate impls, which would bypass filtering
+    // Override JsonGeneratorDelegate impls so that elements go through filtering
 
     @Override
     public void writeArray(int[] array, int offset, int length) throws IOException

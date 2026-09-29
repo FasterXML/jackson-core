@@ -17,6 +17,11 @@ JSON library.
 
 3.1.8 (not yet released)
 
+#1728: Quote supplementary code points in unexpected-character messages
+  instead of the 16-bit truncation
+ (reported by @bodograumann)
+ (fix by @kalayciburak)
+
 #1724: Use target exception's original message and type when wrapping
   `InvocationTargetException` with path information
  (reported by Lee Dongnyoung)

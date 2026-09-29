@@ -1090,10 +1090,16 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final static String _getCharDesc(int ch)
     {
-        char c = (char) ch;
-        if (Character.isISOControl(c)) {
+        // 29-Sep-2026, burak: [core#1728] do not truncate to 16 bits. A supplementary
+        // code point must be quoted as itself; the low 16 bits are a different character.
+        if (Character.isISOControl(ch)) {
             return "(CTRL-CHAR, code "+ch+")";
         }
+        if (ch > 0xFFFF && ch <= 0x10FFFF) {
+            return "'"+new String(Character.toChars(ch))
+                    +"' (code "+ch+" / 0x"+Integer.toHexString(ch)+")";
+        }
+        char c = (char) ch;
         if (ch > 255) {
             return "'"+c+"' (code "+ch+" / 0x"+Integer.toHexString(ch)+")";
         }

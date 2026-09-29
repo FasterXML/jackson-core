@@ -1630,8 +1630,9 @@ public class UTF8DataInputJsonParser
             return _parseAposName();
         }
         if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
-            char c = (char) _decodeCharForError(ch);
-            _reportUnexpectedChar(c, "was expecting double-quote to start property name");
+            // [core#1728]: pass the decoded code point through; a char cast drops supplementary planes
+            _reportUnexpectedChar(_decodeCharForError(ch),
+                    "was expecting double-quote to start property name");
         }
         /* Also: note that although we use a different table here,
          * it does NOT handle UTF-8 decoding. It'll just pass those

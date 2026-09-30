@@ -1182,7 +1182,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      *
      * @throws JacksonException If there is a problem writing (parent path)
      *
-     * @since 2.21.8
+     * @since 3.1.8
      */
     protected boolean _checkRawValueWriteAsValue() throws JacksonException
     {

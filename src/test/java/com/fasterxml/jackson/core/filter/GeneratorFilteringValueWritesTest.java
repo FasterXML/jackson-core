@@ -35,6 +35,18 @@ class GeneratorFilteringValueWritesTest
         protected boolean _includeScalar() { return false; }
     }
 
+    // Includes only root value at specified index
+    static class RootIndexFilter extends TokenFilter {
+        private final int _index;
+
+        RootIndexFilter(int index) { _index = index; }
+
+        @Override
+        public TokenFilter includeRootValue(int index) {
+            return (index == _index) ? TokenFilter.INCLUDE_ALL : null;
+        }
+    }
+
     private final JsonFactory JSON_F = newStreamFactory();
 
     @Test
@@ -109,6 +121,31 @@ class GeneratorFilteringValueWritesTest
             gen.writeBinary(bytes);
             gen.writeString("b");
             gen.writeEndArray();
+        }
+        assertEquals(q("c2VjcmV0"), w.toString());
+    }
+
+    // Root-level raw/binary/embedded values must advance root value index too
+    @Test
+    void rootValuesAdvanceIndex() throws Exception
+    {
+        final byte[] bytes = "secret".getBytes(StandardCharsets.UTF_8);
+
+        StringWriter w = new StringWriter();
+        try (JsonGenerator gen = _filtered(w, new RootIndexFilter(3))) {
+            gen.writeRawValue(q("raw"));
+            gen.writeBinary(bytes);
+            gen.writeEmbeddedObject(bytes);
+            gen.writeString("a");
+            gen.writeString("b");
+        }
+        assertEquals(q("a"), w.toString());
+
+        w = new StringWriter();
+        try (JsonGenerator gen = _filtered(w, new RootIndexFilter(1))) {
+            gen.writeString("a");
+            gen.writeBinary(bytes);
+            gen.writeString("b");
         }
         assertEquals(q("c2VjcmV0"), w.toString());
     }

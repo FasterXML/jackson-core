@@ -468,7 +468,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
-    // Override JsonGeneratorDelegate impls so that elements go through filtering
+    // Override JsonGeneratorDelegate impls (which pass writes straight through) so that
+    // elements go through filtering: intentionally mirror JsonGenerator.writeArray() impls
 
     @Override
     public void writeArray(int[] array, int offset, int length) throws IOException
@@ -621,7 +622,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
     {
-        if (_checkRawScalarWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawUTF8String(text, offset, length);
         }
     }
@@ -630,7 +631,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeUTF8String(byte[] text, int offset, int length) throws IOException
     {
         // not exact match, but best we can do
-        if (_checkRawScalarWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeUTF8String(text, offset, length);
         }
     }
@@ -684,7 +685,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeRawValue(String text) throws IOException
     {
-        if (_checkRawScalarWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text);
         }
     }
@@ -692,7 +693,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeRawValue(String text, int offset, int len) throws IOException
     {
-        if (_checkRawScalarWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text, offset, len);
         }
     }
@@ -700,7 +701,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeRawValue(char[] text, int offset, int len) throws IOException
     {
-        if (_checkRawScalarWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text, offset, len);
         }
     }
@@ -1169,8 +1170,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * Variant of {@link #_checkRawValueWrite()} for raw writes that constitute
      * a full value (like {@link #writeRawValue(String)}): these must go through
      * {@link TokenFilterContext#checkValue} so that array element index is advanced.
+     *
+     * @return True if raw value is to be written; false if not
+     *
+     * @throws IOException If there is a problem writing (parent path)
+     *
+     * @since 2.21.8
      */
-    private boolean _checkRawScalarWrite() throws IOException
+    protected boolean _checkRawValueWriteAsValue() throws IOException
     {
         if (_itemFilter == null) {
             return false;

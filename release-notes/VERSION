@@ -26,6 +26,9 @@ JSON library.
   `InvocationTargetException` with path information
  (reported by Lee Dongnyoung)
  (fix by @CCCLL)
+#1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
+  typed `writeArray()` and raw/binary values consistently
+ (fix by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 

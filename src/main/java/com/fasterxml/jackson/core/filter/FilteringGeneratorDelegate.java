@@ -464,6 +464,107 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     /*
     /**********************************************************
+    /* Public API, write methods, typed arrays
+    /**********************************************************
+     */
+
+    // Override JsonGeneratorDelegate impls (which pass writes straight through) so that
+    // elements go through filtering: intentionally mirror JsonGenerator.writeArray() impls
+
+    @Override
+    public void writeArray(int[] array, int offset, int length) throws IOException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return;
+        }
+        _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return;
+        }
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+    }
+
+    @Override
+    public void writeArray(long[] array, int offset, int length) throws IOException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return;
+        }
+        _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return;
+        }
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+    }
+
+    @Override
+    public void writeArray(double[] array, int offset, int length) throws IOException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return;
+        }
+        _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return;
+        }
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+    }
+
+    @Override
+    public void writeArray(String[] array, int offset, int length) throws IOException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return;
+        }
+        _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return;
+        }
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeString(array[i]);
+        }
+        writeEndArray();
+    }
+
+    /*
+    /**********************************************************
     /* Public API, write methods, text/String values
     /**********************************************************
      */
@@ -557,7 +658,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
     {
-        if (_checkRawValueWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawUTF8String(text, offset, length);
         }
     }
@@ -566,7 +667,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeUTF8String(byte[] text, int offset, int length) throws IOException
     {
         // not exact match, but best we can do
-        if (_checkRawValueWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeUTF8String(text, offset, length);
         }
     }
@@ -620,7 +721,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeRawValue(String text) throws IOException
     {
-        if (_checkRawValueWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text);
         }
     }
@@ -628,7 +729,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeRawValue(String text, int offset, int len) throws IOException
     {
-        if (_checkRawValueWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text, offset, len);
         }
     }
@@ -636,7 +737,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeRawValue(char[] text, int offset, int len) throws IOException
     {
-        if (_checkRawValueWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text, offset, len);
         }
     }
@@ -656,6 +757,27 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             return delegate.writeBinary(b64variant, data, dataLength);
         }
         return -1;
+    }
+
+    @Override
+    public void writeEmbeddedObject(Object object) throws IOException
+    {
+        if (_itemFilter == null) {
+            return;
+        }
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
+                return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeEmbeddedValue(object)) {
+                    return;
+                }
+            }
+            _checkParentPath();
+        }
+        delegate.writeEmbeddedObject(object);
     }
 
     /*
@@ -1068,7 +1190,42 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             return true;
         }
-        if (_itemFilter.includeBinary()) { // close enough?
+        // Binary is a value: must go through checkValue() to advance array index
+        TokenFilter state = _filterContext.checkValue(_itemFilter);
+        if (state == null) {
+            return false;
+        }
+        if ((state == TokenFilter.INCLUDE_ALL) || state.includeBinary()) {
+            _checkParentPath();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Variant of {@link #_checkRawValueWrite()} for raw writes that constitute
+     * a full value (like {@link #writeRawValue(String)}): these must go through
+     * {@link TokenFilterContext#checkValue} so that array element index is advanced.
+     *
+     * @return True if raw value is to be written; false if not
+     *
+     * @throws IOException If there is a problem writing (parent path)
+     *
+     * @since 2.21.8
+     */
+    protected boolean _checkRawValueWriteAsValue() throws IOException
+    {
+        if (_itemFilter == null) {
+            return false;
+        }
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            return true;
+        }
+        TokenFilter state = _filterContext.checkValue(_itemFilter);
+        if (state == null) {
+            return false;
+        }
+        if ((state == TokenFilter.INCLUDE_ALL) || state.includeRawValue()) {
             _checkParentPath();
             return true;
         }

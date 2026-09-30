@@ -25,7 +25,13 @@ a pure JSON library.
   fix in `UTF8StreamJsonParser`)
  (contributed by @elang2)
 
-2.22.3 (not yet released)
+2.22.4 (not yet released)
+
+#1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
+  typed `writeArray()` and raw/binary values consistently
+ (fix by @pjfanning)
+
+2.22.3 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
@@ -56,7 +62,13 @@ a pure JSON library.
 
 No changes since 2.21
 
-2.21.7 (not yet released)
+2.21.8 (not yet released)
+
+#1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
+  typed `writeArray()` and raw/binary values consistently
+ (fix by @pjfanning)
+
+2.21.7 (21-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)
@@ -213,7 +225,7 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
-2.18.11 (not yet released)
+2.18.11 (20-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
  (fix by @cowtowncoder, w/ Claude code)

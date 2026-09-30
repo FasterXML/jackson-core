@@ -1,5 +1,7 @@
 package tools.jackson.core.unittest.json;
 
+import java.util.function.Supplier;
+
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
@@ -7,8 +9,7 @@ import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 // [core#1728]: unexpected-character messages must quote the supplementary
 // code point, not the 16-bit truncation of it.
@@ -24,60 +25,42 @@ class SupplementaryCharDesc1728Test extends JacksonCoreTestBase
     @Test
     void unexpectedSupplementaryValueQuotesFullCodePoint() throws Exception
     {
-        final String quoted = "'" + new String(Character.toChars(SEE_NO_EVIL)) + "'";
-        final String truncated = "'" + (char) SEE_NO_EVIL + "'";
-
-        try (JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), SEE_NO_EVIL_UTF8)) {
-            p.nextToken();
-            fail("unquoted supplementary character must not be a JSON value");
-        } catch (StreamReadException e) {
-            _assertFullCodePoint(e.getMessage(), quoted, truncated);
-        }
-
+        _assertFullCodePoint(() -> JSON_FACTORY.createParser(ObjectReadContext.empty(),
+                SEE_NO_EVIL_UTF8), 1);
         for (int mode : ALL_BINARY_MODES) {
-            try (JsonParser p = createParser(mode, SEE_NO_EVIL_UTF8)) {
-                p.nextToken();
-                fail("unquoted supplementary character must not be a JSON value, mode " + mode);
-            } catch (StreamReadException e) {
-                _assertFullCodePoint(e.getMessage(), quoted, truncated);
-            }
+            _assertFullCodePoint(() -> createParser(mode, SEE_NO_EVIL_UTF8), 1);
         }
     }
 
     @Test
     void unexpectedSupplementaryPropertyNameQuotesFullCodePoint() throws Exception
     {
-        final String quoted = "'" + new String(Character.toChars(SEE_NO_EVIL)) + "'";
-        final String truncated = "'" + (char) SEE_NO_EVIL + "'";
         final byte[] doc = new byte[SEE_NO_EVIL_UTF8.length + 1];
         doc[0] = '{';
         System.arraycopy(SEE_NO_EVIL_UTF8, 0, doc, 1, SEE_NO_EVIL_UTF8.length);
 
-        try (JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), doc)) {
-            p.nextToken();
-            p.nextToken();
-            fail("unquoted supplementary character must not start a property name");
-        } catch (StreamReadException e) {
-            _assertFullCodePoint(e.getMessage(), quoted, truncated);
-        }
-
+        _assertFullCodePoint(() -> JSON_FACTORY.createParser(ObjectReadContext.empty(), doc), 2);
         for (int mode : ALL_BINARY_MODES) {
-            try (JsonParser p = createParser(mode, doc)) {
-                p.nextToken();
-                p.nextToken();
-                fail("unquoted supplementary character must not start a property name, mode " + mode);
-            } catch (StreamReadException e) {
-                _assertFullCodePoint(e.getMessage(), quoted, truncated);
-            }
+            _assertFullCodePoint(() -> createParser(mode, doc), 2);
         }
     }
 
-    private static void _assertFullCodePoint(String msg, String quoted, String truncated)
+    private static void _assertFullCodePoint(Supplier<JsonParser> parserSupplier, int tokens)
     {
-        assertThat(msg)
-                .contains("Unexpected character (" + quoted)
-                .contains("code " + SEE_NO_EVIL)
-                .contains("0x" + Integer.toHexString(SEE_NO_EVIL))
-                .doesNotContain(truncated);
+        final String quoted = "'" + new String(Character.toChars(SEE_NO_EVIL)) + "'";
+        final String truncated = "'" + (char) SEE_NO_EVIL + "'";
+
+        assertThatThrownBy(() -> {
+            try (JsonParser p = parserSupplier.get()) {
+                for (int i = 0; i < tokens; ++i) {
+                    p.nextToken();
+                }
+            }
+        })
+                .isInstanceOf(StreamReadException.class)
+                .hasMessageContaining("Unexpected character (" + quoted)
+                .hasMessageContaining("code " + SEE_NO_EVIL)
+                .hasMessageContaining("0x" + Integer.toHexString(SEE_NO_EVIL))
+                .hasMessageNotContaining(truncated);
     }
 }

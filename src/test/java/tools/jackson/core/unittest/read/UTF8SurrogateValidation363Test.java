@@ -53,6 +53,7 @@ class UTF8SurrogateValidation363Test
     /**
      * Test that parser rejects 3-byte UTF-8 sequence encoding U+D800 when a
      * lazily parsed String value is skipped without materializing it.
+     * See [core#1727].
      */
     @Test
     void rejectSurrogateD800InSkippedString() throws Exception

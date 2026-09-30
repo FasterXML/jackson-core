@@ -3318,7 +3318,8 @@ public class UTF8StreamJsonParser
             c = _decodeCharForError(c);
         }
         if (Character.isJavaIdentifierStart(c)) {
-            _reportInvalidToken(""+((char) c), _validJsonTokenList());
+            // [core#1728]: keep full code point (no char cast)
+            _reportInvalidToken(new String(Character.toChars(c)), _validJsonTokenList());
         }
         // but if it doesn't look like a token:
         _reportUnexpectedChar(c, "expected a valid value "+_validJsonValueList());

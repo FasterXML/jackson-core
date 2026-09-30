@@ -65,12 +65,12 @@ class SupplementaryCharDesc1728Test extends JacksonCoreTestBase
     }
 
     // Supplementary identifier char included in "Unrecognized token" text:
-    // both directly after keyword, and later in token
+    // at token start, directly after keyword, and later in token
     @Test
     void invalidTokenIncludesFullSupplementaryCodePoint() throws Exception
     {
         final String letter = new String(Character.toChars(MATH_BOLD_A));
-        for (String prefix : new String[] { "true", "truex" }) {
+        for (String prefix : new String[] { "", "true", "truex" }) {
             final byte[] doc = _concat(_concat(prefix.getBytes("UTF-8"), MATH_BOLD_A_UTF8),
                     new byte[] { ' ' }); // trailing space for DataInput
             final String expected = "Unrecognized token '" + prefix + letter + "'";

@@ -2332,7 +2332,9 @@ public class UTF8DataInputJsonParser
         if (c > 0x7F) { // multi-byte UTF-8 char: decode first (consumes rest of its bytes)
             c = _decodeCharForError(c);
             if (Character.isJavaIdentifierStart(c)) {
-                _reportInvalidToken(_inputData.readUnsignedByte(), ""+((char) c), _validJsonTokenList());
+                // [core#1728]: keep full code point (no char cast)
+                _reportInvalidToken(_inputData.readUnsignedByte(), new String(Character.toChars(c)),
+                        _validJsonTokenList());
             }
         } else if (Character.isJavaIdentifierStart(c)) {
             // NOTE: 'c' is decoded (and appended) by _reportInvalidToken(); do not pre-append

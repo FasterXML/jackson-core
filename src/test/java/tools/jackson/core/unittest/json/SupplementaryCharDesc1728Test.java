@@ -22,6 +22,14 @@ class SupplementaryCharDesc1728Test extends JacksonCoreTestBase
         (byte) 0xF0, (byte) 0x9F, (byte) 0x99, (byte) 0x88
     };
 
+    // U+1D400 MATHEMATICAL BOLD CAPITAL A: a supplementary Java identifier char.
+    // Low 16 bits are U+D400, a Hangul syllable (also identifier char).
+    private static final int MATH_BOLD_A = 0x1D400;
+
+    private static final byte[] MATH_BOLD_A_UTF8 = new byte[] {
+        (byte) 0xF0, (byte) 0x9D, (byte) 0x90, (byte) 0x80
+    };
+
     @Test
     void unexpectedSupplementaryValueQuotesFullCodePoint() throws Exception
     {
@@ -35,9 +43,7 @@ class SupplementaryCharDesc1728Test extends JacksonCoreTestBase
     @Test
     void unexpectedSupplementaryPropertyNameQuotesFullCodePoint() throws Exception
     {
-        final byte[] doc = new byte[SEE_NO_EVIL_UTF8.length + 1];
-        doc[0] = '{';
-        System.arraycopy(SEE_NO_EVIL_UTF8, 0, doc, 1, SEE_NO_EVIL_UTF8.length);
+        final byte[] doc = _concat(new byte[] { '{' }, SEE_NO_EVIL_UTF8);
 
         _assertFullCodePoint(() -> JSON_FACTORY.createParser(ObjectReadContext.empty(), doc), 2);
         for (int mode : ALL_BINARY_MODES) {
@@ -45,18 +51,69 @@ class SupplementaryCharDesc1728Test extends JacksonCoreTestBase
         }
     }
 
+    // Unexpected supplementary char right after a matched keyword
+    @Test
+    void unexpectedSupplementaryAfterTokenQuotesFullCodePoint() throws Exception
+    {
+        final byte[] doc = _concat(_concat("true".getBytes("UTF-8"), SEE_NO_EVIL_UTF8),
+                new byte[] { ' ' }); // trailing space for DataInput
+
+        _assertFullCodePoint(() -> JSON_FACTORY.createParser(ObjectReadContext.empty(), doc), 2);
+        for (int mode : ALL_BINARY_MODES) {
+            _assertFullCodePoint(() -> createParser(mode, doc), 2);
+        }
+    }
+
+    // Supplementary identifier char included in "Unrecognized token" text:
+    // both directly after keyword, and later in token
+    @Test
+    void invalidTokenIncludesFullSupplementaryCodePoint() throws Exception
+    {
+        final String letter = new String(Character.toChars(MATH_BOLD_A));
+        for (String prefix : new String[] { "true", "truex" }) {
+            final byte[] doc = _concat(_concat(prefix.getBytes("UTF-8"), MATH_BOLD_A_UTF8),
+                    new byte[] { ' ' }); // trailing space for DataInput
+            final String expected = "Unrecognized token '" + prefix + letter + "'";
+
+            _assertInvalidToken(() -> JSON_FACTORY.createParser(ObjectReadContext.empty(), doc),
+                    expected);
+            for (int mode : ALL_BINARY_MODES) {
+                _assertInvalidToken(() -> createParser(mode, doc), expected);
+            }
+        }
+    }
+
+    private static void _assertInvalidToken(Supplier<JsonParser> parserSupplier, String expected)
+    {
+        assertThatThrownBy(() -> _readTokens(parserSupplier, 2))
+                .isInstanceOf(StreamReadException.class)
+                .hasMessageContaining(expected)
+                .hasMessageNotContaining(String.valueOf((char) MATH_BOLD_A));
+    }
+
+    private static void _readTokens(Supplier<JsonParser> parserSupplier, int tokens)
+    {
+        try (JsonParser p = parserSupplier.get()) {
+            for (int i = 0; i < tokens; ++i) {
+                p.nextToken();
+            }
+        }
+    }
+
+    private static byte[] _concat(byte[] a, byte[] b)
+    {
+        final byte[] result = new byte[a.length + b.length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
+    }
+
     private static void _assertFullCodePoint(Supplier<JsonParser> parserSupplier, int tokens)
     {
         final String quoted = "'" + new String(Character.toChars(SEE_NO_EVIL)) + "'";
         final String truncated = "'" + (char) SEE_NO_EVIL + "'";
 
-        assertThatThrownBy(() -> {
-            try (JsonParser p = parserSupplier.get()) {
-                for (int i = 0; i < tokens; ++i) {
-                    p.nextToken();
-                }
-            }
-        })
+        assertThatThrownBy(() -> _readTokens(parserSupplier, tokens))
                 .isInstanceOf(StreamReadException.class)
                 .hasMessageContaining("Unexpected character (" + quoted)
                 .hasMessageContaining("code " + SEE_NO_EVIL)

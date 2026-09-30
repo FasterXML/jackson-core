@@ -3570,9 +3570,10 @@ public class UTF8StreamJsonParser
         // Multi-byte char: must consume lead byte (decoding consumes the rest)
         final int ptr = _inputPtr++;
         final long processed = _currInputProcessed;
-        char c = (char) _decodeCharForError(ch);
+        // [core#1728]: keep full code point (no char cast)
+        final int c = _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
-            _reportInvalidToken(matchStr.substring(0, i) + c);
+            _reportInvalidToken(matchStr.substring(0, i) + new String(Character.toChars(c)));
         }
         // Not part of token: rewind so regular handling reports it -- unless
         // buffer was reloaded during decoding, in which case must report here
@@ -4246,7 +4247,8 @@ public class UTF8StreamJsonParser
         final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while ((_inputPtr < _inputEnd) || _loadMore()) {
             int i = _inputBuffer[_inputPtr++];
-            char c = (char) _decodeCharForError(i);
+            // [core#1728]: keep full code point (no char cast)
+            final int c = _decodeCharForError(i);
             if (!Character.isJavaIdentifierPart(c)) {
                 // 11-Jan-2016, tatu: note: we will fully consume the character,
                 //   included or not, so if recovery was possible, it'd be off-by-one...
@@ -4255,7 +4257,7 @@ public class UTF8StreamJsonParser
                 //   offset, on buffer boundary it would not work, still)
                 break;
             }
-            sb.append(c);
+            sb.appendCodePoint(c);
             if (sb.length() >= maxTokenLength) {
                 sb.append("...");
                 break;

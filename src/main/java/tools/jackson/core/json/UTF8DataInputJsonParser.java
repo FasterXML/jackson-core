@@ -2475,11 +2475,17 @@ public class UTF8DataInputJsonParser
 
     private final void _checkMatchEnd(String matchStr, int i, int ch) throws IOException {
         // but actually only alphanums are problematic
-        char c = (char) _decodeCharForError(ch);
+        // [core#1728]: keep full code point (no char cast)
+        final int c = _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
             // 'c' already decoded (all of its bytes consumed): include it as matched,
             // continue from the following byte
-            _reportInvalidToken(_inputData.readUnsignedByte(), matchStr.substring(0, i) + c);
+            _reportInvalidToken(_inputData.readUnsignedByte(),
+                    matchStr.substring(0, i) + new String(Character.toChars(c)));
+        }
+        // Multi-byte char fully consumed, cannot push back: must report here
+        if (ch > 0x7F) {
+            _reportUnexpectedChar(c, "expected white space, comma or end marker after token '"+matchStr+"'");
         }
     }
 
@@ -2987,11 +2993,12 @@ public class UTF8DataInputJsonParser
          // nothing fancy here (nor fast).
          try {
              while (true) {
-                 char c = (char) _decodeCharForError(ch);
+                 // [core#1728]: keep full code point (no char cast)
+                 final int c = _decodeCharForError(ch);
                  if (!Character.isJavaIdentifierPart(c)) {
                      break;
                  }
-                 sb.append(c);
+                 sb.appendCodePoint(c);
                  if (sb.length() >= maxTokenLength) {
                      sb.append("...");
                      break;

@@ -477,7 +477,16 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (array == null) {
             throw new IllegalArgumentException("null array");
         }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return;
+        }
         _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return;
+        }
         writeStartArray(array, length);
         for (int i = offset, end = offset+length; i < end; ++i) {
             writeNumber(array[i]);
@@ -491,7 +500,16 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (array == null) {
             throw new IllegalArgumentException("null array");
         }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return;
+        }
         _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return;
+        }
         writeStartArray(array, length);
         for (int i = offset, end = offset+length; i < end; ++i) {
             writeNumber(array[i]);
@@ -505,7 +523,16 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (array == null) {
             throw new IllegalArgumentException("null array");
         }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return;
+        }
         _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return;
+        }
         writeStartArray(array, length);
         for (int i = offset, end = offset+length; i < end; ++i) {
             writeNumber(array[i]);
@@ -519,7 +546,16 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (array == null) {
             throw new IllegalArgumentException("null array");
         }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return;
+        }
         _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return;
+        }
         writeStartArray(array, length);
         for (int i = offset, end = offset+length; i < end; ++i) {
             writeString(array[i]);

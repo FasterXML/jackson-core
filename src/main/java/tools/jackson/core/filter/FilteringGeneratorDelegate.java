@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import tools.jackson.core.*;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
@@ -620,7 +621,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException
     {
-        if (_checkRawValueWriteAsValue()) {
+        // pre-escaped bytes: includeString sees that text, not the unescaped value
+        if (_includeUtf8String(text, offset, length)) {
             delegate.writeRawUTF8String(text, offset, length);
         }
         return this;
@@ -629,8 +631,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public JsonGenerator writeUTF8String(byte[] text, int offset, int length) throws JacksonException
     {
-        // not exact match, but best we can do
-        if (_checkRawValueWriteAsValue()) {
+        if (_includeUtf8String(text, offset, length)) {
             delegate.writeUTF8String(text, offset, length);
         }
         return this;
@@ -1201,6 +1202,29 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             return true;
         }
         return false;
+    }
+
+    // 30-Sep-2026, kalayci: [core#1731] quoted String values, not raw values.
+    // Decode only when the filter can reject the value.
+    private boolean _includeUtf8String(byte[] text, int offset, int length) throws JacksonException
+    {
+        if (_itemFilter == null) {
+            return false;
+        }
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
+                return false;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                String value = new String(text, offset, length, StandardCharsets.UTF_8);
+                if (!state.includeString(value)) {
+                    return false;
+                }
+            }
+            _checkParentPath();
+        }
+        return true;
     }
 
     protected boolean _checkRawValueWrite() throws JacksonException

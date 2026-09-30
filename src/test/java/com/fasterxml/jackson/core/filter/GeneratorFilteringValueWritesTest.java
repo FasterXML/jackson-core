@@ -125,6 +125,39 @@ class GeneratorFilteringValueWritesTest
         assertEquals(q("c2VjcmV0"), w.toString());
     }
 
+    // Object property path: raw/binary/embedded values filtered by property name
+    @Test
+    void objectPropertyValuesFiltered() throws Exception
+    {
+        final byte[] bytes = "secret".getBytes(StandardCharsets.UTF_8);
+
+        for (String prop : new String[] { "raw", "bin", "emb" }) {
+            StringWriter w = new StringWriter();
+            try (JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                    new JsonPointerBasedFilter("/"+prop), Inclusion.INCLUDE_ALL_AND_PATH, false)) {
+                gen.writeStartObject();
+                gen.writeFieldName("raw");
+                gen.writeRawValue("123");
+                gen.writeFieldName("bin");
+                gen.writeBinary(bytes);
+                gen.writeFieldName("emb");
+                gen.writeEmbeddedObject(bytes);
+                gen.writeFieldName("str");
+                gen.writeString("a");
+                gen.writeEndObject();
+            }
+            final String exp;
+            switch (prop) {
+            case "raw":
+                exp = "{\"raw\":123}";
+                break;
+            default:
+                exp = "{\""+prop+"\":\"c2VjcmV0\"}";
+            }
+            assertEquals(exp, w.toString());
+        }
+    }
+
     // Root-level raw/binary/embedded values must advance root value index too
     @Test
     void rootValuesAdvanceIndex() throws Exception

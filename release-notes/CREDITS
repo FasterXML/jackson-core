@@ -84,6 +84,8 @@ DongNyoung Lee (@Dongnyoung)
  * Reported #1724: Use target exception's original message and type when wrapping
    `InvocationTargetException` with path information
   (3.1.8)
+ * Fixed #1727: UTF-8 surrogate code points not rejected when skipping String values
+  (3.3.0)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

@@ -83,6 +83,33 @@ class SupplementaryCharDesc1728Test extends JacksonCoreTestBase
         }
     }
 
+    // Lead bytes that would decode above U+10FFFF must be reported as invalid UTF-8
+    @Test
+    void codePointAboveMaxReportedAsInvalidUtf8() throws Exception
+    {
+        _assertError(new byte[] { (byte) 0xF5, (byte) 0x80, (byte) 0x80, (byte) 0x80, ' ' },
+                "Invalid UTF-8 start byte 0xf5");
+        _assertError(new byte[] { (byte) 0xF4, (byte) 0x90, (byte) 0x80, (byte) 0x80, ' ' },
+                "Invalid UTF-8 middle byte 0x90");
+        // but U+10FFFF itself is valid
+        _assertError(new byte[] { (byte) 0xF4, (byte) 0x8F, (byte) 0xBF, (byte) 0xBF, ' ' },
+                "Unexpected character ('" + new String(Character.toChars(0x10FFFF))
+                + "' (code 1114111 / 0x10ffff)");
+    }
+
+    private void _assertError(byte[] doc, String expected)
+    {
+        assertThatThrownBy(() -> _readTokens(
+                () -> JSON_FACTORY.createParser(ObjectReadContext.empty(), doc), 1))
+                .isInstanceOf(StreamReadException.class)
+                .hasMessageContaining(expected);
+        for (int mode : ALL_BINARY_MODES) {
+            assertThatThrownBy(() -> _readTokens(() -> createParser(mode, doc), 1))
+                    .isInstanceOf(StreamReadException.class)
+                    .hasMessageContaining(expected);
+        }
+    }
+
     private static void _assertInvalidToken(Supplier<JsonParser> parserSupplier, String expected)
     {
         assertThatThrownBy(() -> _readTokens(parserSupplier, 2))

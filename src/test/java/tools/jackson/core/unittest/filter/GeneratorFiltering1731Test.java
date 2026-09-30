@@ -7,14 +7,16 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.filter.FilteringGeneratorDelegate;
+import tools.jackson.core.filter.JsonPointerBasedFilter;
 import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
+import tools.jackson.core.unittest.JacksonCoreTestBase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [core#1731]
 class GeneratorFiltering1731Test
-    extends tools.jackson.core.unittest.JacksonCoreTestBase
+    extends JacksonCoreTestBase
 {
     /**
      * Drops the string {@code drop}. Raw values stay included, which is how
@@ -119,7 +121,8 @@ class GeneratorFiltering1731Test
 
         g.writeStartArray();
         g.writeUTF8String(padded, 2, hello.length);
-        // Pre-escaped text decodes to a\"b, not héllo, so it stays excluded.
+        // includeString sees the escaped text as-is (a\"b with the backslash),
+        // not héllo, so it stays excluded.
         byte[] escaped = utf8(a2q("a\\'b"));
         g.writeRawUTF8String(escaped, 0, escaped.length);
         g.writeEndArray();
@@ -150,6 +153,48 @@ class GeneratorFiltering1731Test
         g.close();
 
         assertEquals(a2q("{'keep':'yes'}"), utf8(out));
+    }
+
+    @Test
+    void utf8StringWritesInArrayAdvanceIndex() throws Exception
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        JsonGenerator g = new FilteringGeneratorDelegate(createGenerator(out),
+                new JsonPointerBasedFilter("/1"), Inclusion.ONLY_INCLUDE_ALL, false);
+        byte[] a = utf8("a");
+        byte[] b = utf8("b");
+        byte[] c = utf8("c");
+
+        g.writeStartArray();
+        g.writeUTF8String(a, 0, a.length);
+        g.writeRawUTF8String(b, 0, b.length);
+        g.writeUTF8String(c, 0, c.length);
+        g.writeEndArray();
+        g.close();
+
+        // ONLY_INCLUDE_ALL: matched value only, without parent path
+        assertEquals(a2q("'b'"), utf8(out));
+    }
+
+    @Test
+    void utf8StringWritesAllRejected() throws Exception
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        JsonGenerator g = filtered(out, new ExactStringFilter("none"));
+        byte[] x = utf8("x");
+
+        g.writeStartObject();
+        g.writeName("a");
+        g.writeUTF8String(x, 0, x.length);
+        g.writeName("b");
+        g.writeRawUTF8String(x, 0, x.length);
+        g.writeEndObject();
+        g.writeStartArray();
+        g.writeUTF8String(x, 0, x.length);
+        g.writeEndArray();
+        g.close();
+
+        assertEquals("", utf8(out));
     }
 
     private static JsonGenerator filtered(ByteArrayOutputStream out, TokenFilter filter) throws Exception

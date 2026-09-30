@@ -51,6 +51,11 @@ JSON library.
  (fix by @cowtowncoder, w/ Claude code)
 #1727: UTF-8 surrogate code points not rejected when skipping String values
  (fix by DongNyoung L)
+#1731: `FilteringGeneratorDelegate.writeUTF8String()` and
+  `writeRawUTF8String()` filtered via `includeRawValue()` instead of
+  `includeString()`
+ (reported by @cowtowncoder)
+ (fix by @kalayciburak)
 
 3.2.3 (21-Sep-2026)
 

@@ -121,6 +121,9 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1728: Quote supplementary code points in unexpected-character
    messages
   (3.1.8)
+ * Contributed #1731: `FilteringGeneratorDelegate` UTF-8 string writes used
+   `includeRawValue()` instead of `includeString()`
+  (3.3.0)
 
 Steven Schlansker (@stevenschlansker)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property

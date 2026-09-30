@@ -79,7 +79,7 @@ class GeneratorFiltering1731Test
         g.writeEndObject();
         g.close();
 
-        assertEquals("{\"plain\":\"keep\",\"utf8keep\":\"keep\"}", utf8(out));
+        assertEquals(a2q("{'plain':'keep','utf8keep':'keep'}"), utf8(out));
     }
 
     @Test
@@ -100,7 +100,7 @@ class GeneratorFiltering1731Test
         g.writeEndObject();
         g.close();
 
-        assertEquals("{\"utf8\":\"yes\",\"rawutf8\":\"yes2\"}", utf8(out));
+        assertEquals(a2q("{'utf8':'yes','rawutf8':'yes2'}"), utf8(out));
     }
 
     @Test
@@ -120,12 +120,12 @@ class GeneratorFiltering1731Test
         g.writeStartArray();
         g.writeUTF8String(padded, 2, hello.length);
         // Pre-escaped text decodes to a\"b, not héllo, so it stays excluded.
-        byte[] escaped = utf8("a\\\"b");
+        byte[] escaped = utf8(a2q("a\\'b"));
         g.writeRawUTF8String(escaped, 0, escaped.length);
         g.writeEndArray();
         g.close();
 
-        assertEquals("[\"héllo\"]", utf8(out));
+        assertEquals(a2q("['héllo']"), utf8(out));
     }
 
     @Test
@@ -149,7 +149,7 @@ class GeneratorFiltering1731Test
         g.writeEndObject();
         g.close();
 
-        assertEquals("{\"keep\":\"yes\"}", utf8(out));
+        assertEquals(a2q("{'keep':'yes'}"), utf8(out));
     }
 
     private static JsonGenerator filtered(ByteArrayOutputStream out, TokenFilter filter) throws Exception

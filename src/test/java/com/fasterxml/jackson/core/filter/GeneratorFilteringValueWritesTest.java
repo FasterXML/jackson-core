@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.filter;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -207,6 +208,60 @@ class GeneratorFilteringValueWritesTest
             gen.writeEndObject();
         }
         assertEquals("2", w.toString());
+    }
+
+    // Fully included typed arrays should be passed to delegate as-is
+    @Test
+    void typedArraysFullyIncluded() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        ArrayWriteCounter counter = new ArrayWriteCounter(JSON_F.createGenerator(w));
+        try (JsonGenerator gen = new FilteringGeneratorDelegate(counter,
+                new JsonPointerBasedFilter("/a"), Inclusion.ONLY_INCLUDE_ALL, true)) {
+            gen.writeStartObject();
+            gen.writeFieldName("a");
+            gen.writeStartArray();
+            gen.writeArray(new int[] { 1, 2, 3 }, 0, 3);
+            gen.writeArray(new long[] { 4L }, 0, 1);
+            gen.writeArray(new double[] { 0.5 }, 0, 1);
+            gen.writeArray(new String[] { "x", "y" }, 1, 1);
+            gen.writeEndArray();
+            gen.writeFieldName("b");
+            gen.writeArray(new int[] { 7 }, 0, 1);
+            gen.writeEndObject();
+        }
+        assertEquals("[[1,2,3],[4],[0.5],[\"y\"]]", w.toString());
+        assertEquals(4, counter.arrayWrites);
+    }
+
+    static class ArrayWriteCounter extends JsonGeneratorDelegate {
+        int arrayWrites;
+
+        ArrayWriteCounter(JsonGenerator d) { super(d, false); }
+
+        @Override
+        public void writeArray(int[] array, int offset, int length) throws IOException {
+            ++arrayWrites;
+            super.writeArray(array, offset, length);
+        }
+
+        @Override
+        public void writeArray(long[] array, int offset, int length) throws IOException {
+            ++arrayWrites;
+            super.writeArray(array, offset, length);
+        }
+
+        @Override
+        public void writeArray(double[] array, int offset, int length) throws IOException {
+            ++arrayWrites;
+            super.writeArray(array, offset, length);
+        }
+
+        @Override
+        public void writeArray(String[] array, int offset, int length) throws IOException {
+            ++arrayWrites;
+            super.writeArray(array, offset, length);
+        }
     }
 
     // Guard against future additions to JsonGeneratorDelegate that pass writes

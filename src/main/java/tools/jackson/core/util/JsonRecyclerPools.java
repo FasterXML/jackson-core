@@ -85,6 +85,83 @@ public final class JsonRecyclerPools
         return BoundedPool.construct(size);
     }
 
+    /**
+     * Accessor for getting the shared/global {@link StripedArrayPool} instance.
+     *
+     * @return Globally shared instance of {@link StripedArrayPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> sharedStripedArrayPool() {
+        return StripedArrayPool.GLOBAL;
+    }
+
+    /**
+     * Accessor for constructing a new, non-shared {@link StripedArrayPool}
+     * instance with the default slot count
+     * ({@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY}).
+     *
+     * @return New instance of {@link StripedArrayPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> newStripedArrayPool() {
+        return StripedArrayPool.construct(RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY);
+    }
+
+    /**
+     * Accessor for constructing a new, non-shared {@link StripedArrayPool}
+     * instance.
+     *
+     * @param size Maximum number of values to pool; rounded up to the next
+     *   power of two
+     *
+     * @return New instance of {@link StripedArrayPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> newStripedArrayPool(int size) {
+        return StripedArrayPool.construct(size);
+    }
+
+    /**
+     * Accessor for getting the shared/global {@link HybridPool} instance.
+     *
+     * @return Globally shared instance of {@link HybridPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> sharedHybridPool() {
+        return HybridPool.GLOBAL;
+    }
+
+    /**
+     * Accessor for constructing a new, non-shared {@link HybridPool} instance
+     * with the default slot count for its virtual-thread side
+     * ({@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY}).
+     *
+     * @return New instance of {@link HybridPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> newHybridPool() {
+        return HybridPool.construct(RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY);
+    }
+
+    /**
+     * Accessor for constructing a new, non-shared {@link HybridPool} instance.
+     *
+     * @param size Maximum number of values to pool for virtual threads;
+     *   rounded up to the next power of two
+     *
+     * @return New instance of {@link HybridPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> newHybridPool(int size) {
+        return HybridPool.construct(size);
+    }
+
     /*
     /**********************************************************************
     /* Concrete RecyclerPool implementations for recycling BufferRecyclers
@@ -214,6 +291,87 @@ public final class JsonRecyclerPools
                 throw new IllegalArgumentException("capacity must be > 0, was: "+capacity);
             }
             return new BoundedPool(capacity);
+        }
+
+        @Override
+        public BufferRecycler createPooled() {
+            return new BufferRecycler();
+        }
+
+        // // // JDK serialization support
+
+        // Make sure to re-link to global/shared or non-shared.
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> construct(_serialization));
+        }
+    }
+
+    /**
+     * {@link RecyclerPool} implementation that uses a fixed array of atomic
+     * slots for recycling {@link BufferRecycler} instances:
+     * see {@link RecyclerPool.StripedArrayPoolBase} for full explanation
+     * of functioning.
+     *
+     * @since 3.3
+     */
+    public static class StripedArrayPool extends RecyclerPool.StripedArrayPoolBase<BufferRecycler>
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected static final StripedArrayPool GLOBAL = new StripedArrayPool(SERIALIZATION_SHARED);
+
+        // // // Life-cycle (constructors, factory methods)
+
+        protected StripedArrayPool(int capacityAsId) {
+            super(capacityAsId);
+        }
+
+        public static StripedArrayPool construct(int capacity) {
+            if (capacity <= 0) {
+                throw new IllegalArgumentException("capacity must be > 0, was: "+capacity);
+            }
+            return new StripedArrayPool(capacity);
+        }
+
+        @Override
+        public BufferRecycler createPooled() {
+            return new BufferRecycler();
+        }
+
+        // // // JDK serialization support
+
+        // Make sure to re-link to global/shared or non-shared.
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> construct(_serialization));
+        }
+    }
+
+    /**
+     * {@link RecyclerPool} implementation that recycles
+     * {@link BufferRecycler} instances through a per-thread leave-in for
+     * platform threads and shared atomic slots for virtual threads:
+     * see {@link RecyclerPool.HybridPoolBase} for full explanation
+     * of functioning.
+     *
+     * @since 3.3
+     */
+    public static class HybridPool extends RecyclerPool.HybridPoolBase<BufferRecycler>
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected static final HybridPool GLOBAL = new HybridPool(SERIALIZATION_SHARED);
+
+        // // // Life-cycle (constructors, factory methods)
+
+        protected HybridPool(int capacityAsId) {
+            super(capacityAsId);
+        }
+
+        public static HybridPool construct(int capacity) {
+            if (capacity <= 0) {
+                throw new IllegalArgumentException("capacity must be > 0, was: "+capacity);
+            }
+            return new HybridPool(capacity);
         }
 
         @Override

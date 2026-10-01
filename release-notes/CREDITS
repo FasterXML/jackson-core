@@ -144,3 +144,8 @@ Steven Schlansker (@stevenschlansker)
  * Reported #1728: Unexpected-character messages drop the high bits of a
    supplementary code point
   (3.1.8)
+
+Francesco Nigro (@franz1981)
+ * Suggested #1680: Avoid per-character escape-table load in JSON String value
+   serialization fast path
+  (3.3.0)

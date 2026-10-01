@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import tools.jackson.core.*;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
@@ -418,6 +419,111 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     /*
     /**********************************************************************
+    /* Public API, write methods, typed arrays
+    /**********************************************************************
+     */
+
+    // Override JsonGeneratorDelegate impls (which pass writes straight through) so that
+    // elements go through filtering: intentionally mirror JsonGenerator.writeArray() impls
+
+    @Override
+    public JsonGenerator writeArray(int[] array, int offset, int length) throws JacksonException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return this;
+        }
+        _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return this;
+        }
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeArray(long[] array, int offset, int length) throws JacksonException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return this;
+        }
+        _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return this;
+        }
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeArray(double[] array, int offset, int length) throws JacksonException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return this;
+        }
+        _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return this;
+        }
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeArray(String[] array, int offset, int length) throws JacksonException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        // Fully included: let delegate use its (possibly optimized) implementation
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            delegate.writeArray(array, offset, length);
+            return this;
+        }
+        _verifyOffsets(array.length, offset, length);
+        // Fully excluded: nothing to write
+        if (_itemFilter == null) {
+            return this;
+        }
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeString(array[i]);
+        }
+        writeEndArray();
+        return this;
+    }
+
+    /*
+    /**********************************************************************
     /* Public API, write methods, text/String values
     /**********************************************************************
      */
@@ -515,7 +621,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException
     {
-        if (_checkRawValueWrite()) {
+        // pre-escaped bytes: includeString sees that text, not the unescaped value
+        if (_includeUtf8String(text, offset, length)) {
             delegate.writeRawUTF8String(text, offset, length);
         }
         return this;
@@ -524,8 +631,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public JsonGenerator writeUTF8String(byte[] text, int offset, int length) throws JacksonException
     {
-        // not exact match, but best we can do
-        if (_checkRawValueWrite()) {
+        if (_includeUtf8String(text, offset, length)) {
             delegate.writeUTF8String(text, offset, length);
         }
         return this;
@@ -585,7 +691,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public JsonGenerator writeRawValue(String text) throws JacksonException
     {
-        if (_checkRawValueWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text);
         }
         return this;
@@ -594,7 +700,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public JsonGenerator writeRawValue(String text, int offset, int len) throws JacksonException
     {
-        if (_checkRawValueWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text, offset, len);
         }
         return this;
@@ -603,7 +709,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public JsonGenerator writeRawValue(char[] text, int offset, int len) throws JacksonException
     {
-        if (_checkRawValueWrite()) {
+        if (_checkRawValueWriteAsValue()) {
             delegate.writeRawValue(text, offset, len);
         }
         return this;
@@ -625,6 +731,28 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             return delegate.writeBinary(b64variant, data, dataLength);
         }
         return -1;
+    }
+
+    @Override
+    public JsonGenerator writeEmbeddedObject(Object object) throws JacksonException
+    {
+        if (_itemFilter == null) {
+            return this;
+        }
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
+                return this;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeEmbeddedValue(object)) {
+                    return this;
+                }
+            }
+            _checkParentPath();
+        }
+        delegate.writeEmbeddedObject(object);
+        return this;
     }
 
     /*
@@ -1034,11 +1162,69 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             return true;
         }
-        if (_itemFilter.includeBinary()) { // close enough?
+        // Binary is a value: must go through checkValue() to advance array index
+        TokenFilter state = _filterContext.checkValue(_itemFilter);
+        if (state == null) {
+            return false;
+        }
+        if ((state == TokenFilter.INCLUDE_ALL) || state.includeBinary()) {
             _checkParentPath();
             return true;
         }
         return false;
+    }
+
+    /**
+     * Variant of {@link #_checkRawValueWrite()} for raw writes that constitute
+     * a full value (like {@link #writeRawValue(String)}): these must go through
+     * {@link TokenFilterContext#checkValue} so that array element index is advanced.
+     *
+     * @return True if raw value is to be written; false if not
+     *
+     * @throws JacksonException If there is a problem writing (parent path)
+     *
+     * @since 3.1.8
+     */
+    protected boolean _checkRawValueWriteAsValue() throws JacksonException
+    {
+        if (_itemFilter == null) {
+            return false;
+        }
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            return true;
+        }
+        TokenFilter state = _filterContext.checkValue(_itemFilter);
+        if (state == null) {
+            return false;
+        }
+        if ((state == TokenFilter.INCLUDE_ALL) || state.includeRawValue()) {
+            _checkParentPath();
+            return true;
+        }
+        return false;
+    }
+
+    // 30-Sep-2026, kalayci: [core#1731] quoted String values, not raw values.
+    // Decode only when the filter can reject the value.
+    private boolean _includeUtf8String(byte[] text, int offset, int length) throws JacksonException
+    {
+        if (_itemFilter == null) {
+            return false;
+        }
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
+                return false;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                String value = new String(text, offset, length, StandardCharsets.UTF_8);
+                if (!state.includeString(value)) {
+                    return false;
+                }
+            }
+            _checkParentPath();
+        }
+        return true;
     }
 
     protected boolean _checkRawValueWrite() throws JacksonException

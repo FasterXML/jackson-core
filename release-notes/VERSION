@@ -17,6 +17,9 @@ JSON library.
 
 3.1.8 (not yet released)
 
+#1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
+  surrogates in property names (mirror of #1541 fix in `UTF8StreamJsonParser`)
+ (fix by @elang2)
 #1728: Quote supplementary code points in unexpected-character messages
   instead of the 16-bit truncation
  (reported by @bodograumann)

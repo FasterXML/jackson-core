@@ -1866,9 +1866,8 @@ public class ReaderBasedJsonParser
                      * For now let's assume it does not.
                      */
                     c = _decodeEscaped();
-                    // [jackson-core#1683]: Validate JSON-escaped surrogates in
-                    //   field name. Mirror of [jackson-core#1541] fix in
-                    //   UTF8StreamJsonParser.
+                    // 05-Sep-2026, elang2: [core#1683] Validate JSON-escaped surrogates
+                    //   in field name; mirror of [core#1541] fix in UTF8StreamJsonParser.
                     if (c >= 0xD800 && c <= 0xDFFF) {
                         if (c < 0xDC00) { // high surrogate: must be followed by low surrogate escape
                             char hi = c;
@@ -3077,9 +3076,8 @@ public class ReaderBasedJsonParser
         throw _constructReadException(fullMsg, loc);
     }
 
-    // [jackson-core#1683]: helpers for reporting malformed JSON-escaped surrogate
-    //   sequences. Wording mirrors the messages introduced for UTF8StreamJsonParser
-    //   by the [jackson-core#1541] fix, extended to name the offending context.
+    // 05-Sep-2026, elang2: [core#1683] Helpers for reporting malformed JSON-escaped
+    //   surrogates; wording mirrors UTF8StreamJsonParser ([core#1541]), plus context.
     private void _reportUnexpectedLowSurrogate(int lo, String ctx) throws IOException {
         _reportError("Unexpected low surrogate in " + ctx + ": 0x" + Integer.toHexString(lo));
     }

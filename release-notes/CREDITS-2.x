@@ -562,6 +562,5 @@ Burak KALAYCI (@kalayciburak)
 
 Elankumaran Srinivasan (@elang2)
  * Contributed #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
-   surrogates in field names and string values (mirror of #1541 fix in
-   `UTF8StreamJsonParser`)
+   surrogates in field names (mirror of #1541 fix in `UTF8StreamJsonParser`)
   (2.23.0)

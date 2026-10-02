@@ -1888,13 +1888,7 @@ public class ReaderBasedJsonParser
                             // Store as two UTF-16 code units. Hash includes the low
                             // surrogate below; add high surrogate here.
                             hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + hi;
-                            if (outPtr >= outBuf.length) {
-                                totalLen += outBuf.length;
-                                _streamReadConstraints.validateNameLength(totalLen);
-                                outBuf = _textBuffer.finishCurrentSegment();
-                                outPtr = 0;
-                            }
-                            outBuf[outPtr++] = hi;
+                            // Room for one char is guaranteed at loop start.
                             if (outPtr >= outBuf.length) {
                                 totalLen += outBuf.length;
                                 _streamReadConstraints.validateNameLength(totalLen);

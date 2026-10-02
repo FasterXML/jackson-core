@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.read;
 
-import java.io.StringReader;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JUnit5TestBase;
@@ -21,11 +19,34 @@ import static org.junit.jupiter.api.Assertions.fail;
  * fix applied for the UTF-8 stream parser in [jackson-core#1541].
  *
  * <p>Only exercises {@link com.fasterxml.jackson.core.json.ReaderBasedJsonParser}
- * paths; UTF-8 / async parsers are covered separately.
+ * paths; UTF-8 / async parsers are covered separately. Every test runs over
+ * {@link #MODES}: {@code String} input (whole content in one buffer), plain
+ * {@code Reader} and 1-char-at-a-time throttled {@code Reader}; the latter
+ * forces every escape to span input-buffer boundaries.
  */
 class EscapedSurrogateInStringValue1683Test extends JUnit5TestBase
 {
+    // Local pseudo-mode for `JsonFactory.createParser(String)`, in addition
+    // to Reader-backed ALL_TEXT_MODES
+    private final static int MODE_STRING = -1;
+
+    private final static int[] MODES = new int[] {
+        MODE_STRING, MODE_READER, MODE_READER_THROTTLED
+    };
+
+    // Size of char input buffer `ReaderBasedJsonParser` reads into
+    // (BufferRecycler.CHAR_TOKEN_BUFFER)
+    private final static int INPUT_BUFFER_LEN = 4000;
+
+    // 6-char escape for high surrogate of U+1F600
+    private final static String HI_ESCAPE = "\\uD83D";
+    private final static String LO_ESCAPE = "\\uDE00";
+
     private final JsonFactory FACTORY = new JsonFactory();
+
+    private final JsonFactory APOS_FACTORY = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+            .build();
 
     // JSON documents. Each backslash-u escape is written using an explicit
     // '\\' + 'u' + hex prefix so the Java pre-lexer doesn't fold it into a
@@ -38,191 +59,86 @@ class EscapedSurrogateInStringValue1683Test extends JUnit5TestBase
     private static final String LONE_LEADING_NAME    = "{\"\\uD800\":1}";
     private static final String REVERSED_PAIR_NAME   = "{\"\\uDC00\\uD800\":1}";
 
-    // ---- string-value coverage --------------------------------------------
-
-    @Test
-    void loneLeadingSurrogateInStringValue_stringInput() throws Exception {
-        assertRejects(LONE_LEADING_VALUE, /*fromString=*/true);
-    }
-
-    @Test
-    void loneLeadingSurrogateInStringValue_readerInput() throws Exception {
-        assertRejects(LONE_LEADING_VALUE, /*fromString=*/false);
-    }
-
-    @Test
-    void loneTrailingSurrogateInStringValue_stringInput() throws Exception {
-        assertRejects(LONE_TRAILING_VALUE, /*fromString=*/true);
-    }
-
-    @Test
-    void loneTrailingSurrogateInStringValue_readerInput() throws Exception {
-        assertRejects(LONE_TRAILING_VALUE, /*fromString=*/false);
-    }
-
-    @Test
-    void reversedSurrogatePairInStringValue_stringInput() throws Exception {
-        assertRejects(REVERSED_PAIR_VALUE, /*fromString=*/true);
-    }
-
-    @Test
-    void reversedSurrogatePairInStringValue_readerInput() throws Exception {
-        assertRejects(REVERSED_PAIR_VALUE, /*fromString=*/false);
-    }
-
-    @Test
-    void validSurrogatePairInStringValue_stringInput() throws Exception {
-        assertAcceptsValidPair(VALID_PAIR_VALUE, /*fromString=*/true);
-    }
-
-    @Test
-    void validSurrogatePairInStringValue_readerInput() throws Exception {
-        assertAcceptsValidPair(VALID_PAIR_VALUE, /*fromString=*/false);
-    }
-
-    // ---- field-name coverage ----------------------------------------------
-
-    @Test
-    void loneTrailingSurrogateInFieldName_stringInput() throws Exception {
-        assertRejects(LONE_TRAILING_NAME, /*fromString=*/true);
-    }
-
-    @Test
-    void loneTrailingSurrogateInFieldName_readerInput() throws Exception {
-        assertRejects(LONE_TRAILING_NAME, /*fromString=*/false);
-    }
-
-    @Test
-    void loneLeadingSurrogateInFieldName_stringInput() throws Exception {
-        assertRejects(LONE_LEADING_NAME, /*fromString=*/true);
-    }
-
-    @Test
-    void loneLeadingSurrogateInFieldName_readerInput() throws Exception {
-        assertRejects(LONE_LEADING_NAME, /*fromString=*/false);
-    }
-
-    @Test
-    void reversedSurrogatePairInFieldName_stringInput() throws Exception {
-        assertRejects(REVERSED_PAIR_NAME, /*fromString=*/true);
-    }
-
-    @Test
-    void reversedSurrogatePairInFieldName_readerInput() throws Exception {
-        assertRejects(REVERSED_PAIR_NAME, /*fromString=*/false);
-    }
-
-    // ---- single-quoted string coverage (exercises _handleApos) ------------
-
     private static final String APOS_LONE_LEADING   = "{'k':'\\uD800'}";
     private static final String APOS_LONE_TRAILING  = "{'k':'\\uDC00'}";
     private static final String APOS_REVERSED_PAIR  = "{'k':'\\uDC00\\uD800'}";
     private static final String APOS_VALID_PAIR     = "{'k':'\\uD800\\uDC00'}";
 
-    private JsonFactory factoryWithSingleQuotes() {
-        return JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
-                .build();
+    // ---- string-value coverage --------------------------------------------
+
+    @Test
+    void loneLeadingSurrogateInStringValue() throws Exception {
+        assertRejects(FACTORY, LONE_LEADING_VALUE);
     }
 
     @Test
-    void singleQuotedStringWithLoneLeadingSurrogate_stringInput() throws Exception {
-        assertRejects(factoryWithSingleQuotes(), APOS_LONE_LEADING, /*fromString=*/true);
+    void loneTrailingSurrogateInStringValue() throws Exception {
+        assertRejects(FACTORY, LONE_TRAILING_VALUE);
     }
 
     @Test
-    void singleQuotedStringWithLoneLeadingSurrogate_readerInput() throws Exception {
-        assertRejects(factoryWithSingleQuotes(), APOS_LONE_LEADING, /*fromString=*/false);
+    void reversedSurrogatePairInStringValue() throws Exception {
+        assertRejects(FACTORY, REVERSED_PAIR_VALUE);
     }
 
     @Test
-    void singleQuotedStringWithLoneTrailingSurrogate_stringInput() throws Exception {
-        assertRejects(factoryWithSingleQuotes(), APOS_LONE_TRAILING, /*fromString=*/true);
+    void validSurrogatePairInStringValue() throws Exception {
+        assertAcceptsValidPair(FACTORY, VALID_PAIR_VALUE);
+    }
+
+    // ---- field-name coverage ----------------------------------------------
+
+    @Test
+    void loneTrailingSurrogateInFieldName() throws Exception {
+        assertRejects(FACTORY, LONE_TRAILING_NAME);
     }
 
     @Test
-    void singleQuotedStringWithLoneTrailingSurrogate_readerInput() throws Exception {
-        assertRejects(factoryWithSingleQuotes(), APOS_LONE_TRAILING, /*fromString=*/false);
+    void loneLeadingSurrogateInFieldName() throws Exception {
+        assertRejects(FACTORY, LONE_LEADING_NAME);
     }
 
     @Test
-    void singleQuotedStringWithReversedSurrogatePair_stringInput() throws Exception {
-        assertRejects(factoryWithSingleQuotes(), APOS_REVERSED_PAIR, /*fromString=*/true);
+    void reversedSurrogatePairInFieldName() throws Exception {
+        assertRejects(FACTORY, REVERSED_PAIR_NAME);
+    }
+
+    // ---- single-quoted string coverage (exercises _handleApos) ------------
+
+    @Test
+    void singleQuotedStringWithLoneLeadingSurrogate() throws Exception {
+        assertRejects(APOS_FACTORY, APOS_LONE_LEADING);
     }
 
     @Test
-    void singleQuotedStringWithReversedSurrogatePair_readerInput() throws Exception {
-        assertRejects(factoryWithSingleQuotes(), APOS_REVERSED_PAIR, /*fromString=*/false);
+    void singleQuotedStringWithLoneTrailingSurrogate() throws Exception {
+        assertRejects(APOS_FACTORY, APOS_LONE_TRAILING);
     }
 
     @Test
-    void singleQuotedStringWithValidSurrogatePair_stringInput() throws Exception {
-        assertAcceptsValidPair(factoryWithSingleQuotes(), APOS_VALID_PAIR, /*fromString=*/true);
+    void singleQuotedStringWithReversedSurrogatePair() throws Exception {
+        assertRejects(APOS_FACTORY, APOS_REVERSED_PAIR);
     }
 
     @Test
-    void singleQuotedStringWithValidSurrogatePair_readerInput() throws Exception {
-        assertAcceptsValidPair(factoryWithSingleQuotes(), APOS_VALID_PAIR, /*fromString=*/false);
+    void singleQuotedStringWithValidSurrogatePair() throws Exception {
+        assertAcceptsValidPair(APOS_FACTORY, APOS_VALID_PAIR);
     }
 
     // ---- skipChildren coverage (exercises _skipString) --------------------
 
     @Test
-    void skipChildrenPastMalformedString_fromString() throws Exception {
-        String doc = "{\"outer\":{\"k\":\"\\uDC00\"}}";
-        try (JsonParser p = FACTORY.createParser(doc)) {
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            try {
-                p.skipChildren();
-                fail("expected JsonParseException");
-            } catch (JsonParseException e) {
-                String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-                assertTrue(msg.contains("surrogate"),
-                        "expected surrogate error, got: " + e.getMessage());
-            }
-        }
+    void skipChildrenPastLoneTrailingSurrogate() throws Exception {
+        assertSkipChildrenRejects("{\"outer\":{\"k\":\"\\uDC00\"}}");
     }
 
     @Test
-    void skipChildrenPastMalformedString_fromReader() throws Exception {
-        String doc = "{\"outer\":{\"k\":\"\\uDC00\"}}";
-        try (JsonParser p = FACTORY.createParser(new StringReader(doc))) {
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            try {
-                p.skipChildren();
-                fail("expected JsonParseException");
-            } catch (JsonParseException e) {
-                String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-                assertTrue(msg.contains("surrogate"),
-                        "expected surrogate error, got: " + e.getMessage());
-            }
-        }
-    }
-
-    @Test
-    void skipChildrenPastMalformedString_highSurrogateFollowedByNonEscape() throws Exception {
+    void skipChildrenPastHighSurrogateFollowedByNonEscape() throws Exception {
         // High surrogate followed by a plain character rather than another escape
-        String doc = "{\"outer\":{\"k\":\"\\uD800x\"}}";
-        try (JsonParser p = FACTORY.createParser(new StringReader(doc))) {
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            try {
-                p.skipChildren();
-                fail("expected JsonParseException");
-            } catch (JsonParseException e) {
-                String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-                assertTrue(msg.contains("surrogate"),
-                        "expected surrogate error, got: " + e.getMessage());
-            }
-        }
+        assertSkipChildrenRejects("{\"outer\":{\"k\":\"\\uD800x\"}}");
     }
 
-    // ---- segment-boundary coverage (exercises _parseName2 bounds check) ---
+    // ---- text-buffer segment-boundary coverage (exercises _parseName2) ----
 
     /**
      * Regression test for the buffer overflow that would occur if the high
@@ -238,54 +154,111 @@ class EscapedSurrogateInStringValue1683Test extends JUnit5TestBase
      * high-surrogate write on {@code outBuf.length - 1}.
      */
     @Test
-    void longFieldNameWithSurrogatePairAtSegmentBoundary_readerInput() throws Exception {
-        // Sweep sizes so that at least one lands the hi write on the segment boundary
+    void longFieldNameWithSurrogatePairAtSegmentBoundary() throws Exception {
         int[] padSizes = { 199, 200, 201, 399, 400, 401, 4000 };
-        for (int pad : padSizes) {
-            StringBuilder sb = new StringBuilder("{\"");
-            for (int i = 0; i < pad; i++) sb.append('a');
-            sb.append("\\uD83D\\uDE00\":1}");
-            String doc = sb.toString();
-            try (JsonParser p = FACTORY.createParser(new StringReader(doc))) {
-                assertToken(JsonToken.START_OBJECT, p.nextToken());
-                assertToken(JsonToken.FIELD_NAME, p.nextToken());
-                String name = p.currentName();
-                int expectedCodePoints = pad + 1;
-                assertEquals(expectedCodePoints, name.codePointCount(0, name.length()),
-                        "codepoint count for pad=" + pad);
-                assertEquals(0x1F600, name.codePointAt(pad),
-                        "astral cp at index " + pad + " for pad=" + pad);
-                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-                assertToken(JsonToken.END_OBJECT, p.nextToken());
+        for (int mode : MODES) {
+            for (int pad : padSizes) {
+                String doc = "{\"" + pad(pad) + HI_ESCAPE + LO_ESCAPE + "\":1}";
+                try (JsonParser p = open(FACTORY, mode, doc)) {
+                    assertToken(JsonToken.START_OBJECT, p.nextToken());
+                    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                    String name = p.currentName();
+                    assertEquals(pad + 1, name.codePointCount(0, name.length()),
+                            "codepoint count for pad=" + pad + ", mode=" + mode);
+                    assertEquals(0x1F600, name.codePointAt(pad),
+                            "astral cp at index " + pad + " for pad=" + pad + ", mode=" + mode);
+                    assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertToken(JsonToken.END_OBJECT, p.nextToken());
+                }
             }
         }
     }
 
     @Test
-    void longFieldNameWithLoneTrailingSurrogateAtSegmentBoundary_readerInput() throws Exception {
+    void longFieldNameWithLoneTrailingSurrogateAtSegmentBoundary() throws Exception {
         // Same padding sweep, but lone-trailing-surrogate escape — must still
         // reject cleanly at the boundary rather than overflowing.
         int[] padSizes = { 199, 200, 201, 399, 400, 401, 4000 };
         for (int pad : padSizes) {
-            StringBuilder sb = new StringBuilder("{\"");
-            for (int i = 0; i < pad; i++) sb.append('a');
-            sb.append("\\uDC00\":1}");
-            String doc = sb.toString();
-            try (JsonParser p = FACTORY.createParser(new StringReader(doc))) {
-                try {
-                    while (p.nextToken() != null) {
-                        if (p.currentToken() == JsonToken.FIELD_NAME) {
-                            p.getText();
-                        }
-                    }
-                    fail("expected JsonParseException for lone trailing surrogate at pad=" + pad);
-                } catch (JsonParseException e) {
-                    String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-                    assertTrue(msg.contains("surrogate"),
-                            "expected surrogate error at pad=" + pad + ", got: " + e.getMessage());
+            assertRejects(FACTORY, "{\"" + pad(pad) + "\\uDC00\":1}");
+        }
+    }
+
+    // ---- input-buffer boundary coverage -----------------------------------
+    //
+    // High-surrogate escape ending exactly at the end of the first input
+    // buffer, so the following low-surrogate escape (or other char, or EOF)
+    // is only seen after `_loadMore()`. Applies to Reader-backed input only:
+    // String input is never refilled.
+
+    @Test
+    void highSurrogateAtInputBufferEnd_fieldName() throws Exception {
+        _testHighSurrogateAtInputBufferEnd(FACTORY, "{\"", "\":1}", false);
+    }
+
+    @Test
+    void highSurrogateAtInputBufferEnd_stringValue() throws Exception {
+        _testHighSurrogateAtInputBufferEnd(FACTORY, "[\"", "\"]", false);
+    }
+
+    @Test
+    void highSurrogateAtInputBufferEnd_aposStringValue() throws Exception {
+        _testHighSurrogateAtInputBufferEnd(APOS_FACTORY, "['", "']", false);
+    }
+
+    @Test
+    void highSurrogateAtInputBufferEnd_skippedStringValue() throws Exception {
+        _testHighSurrogateAtInputBufferEnd(FACTORY, "[\"", "\"]", true);
+    }
+
+    private void _testHighSurrogateAtInputBufferEnd(JsonFactory f,
+            String prefix, String suffix, boolean skip) throws Exception
+    {
+        final String lead = prefix + pad(INPUT_BUFFER_LEN - prefix.length() - HI_ESCAPE.length())
+                + HI_ESCAPE;
+        assertEquals(INPUT_BUFFER_LEN, lead.length());
+
+        for (int mode : ALL_TEXT_MODES) {
+            // Valid pair split across buffers: accepted
+            try (JsonParser p = open(f, mode, lead + LO_ESCAPE + suffix)) {
+                String text = _readFirstString(p, skip);
+                if (!skip) {
+                    assertEquals(0x1F600, text.codePointAt(text.length() - 2), "mode=" + mode);
                 }
             }
+            // High surrogate followed by non-escape char in next buffer
+            try (JsonParser p = open(f, mode, lead + "x" + suffix)) {
+                _readFirstString(p, skip);
+                fail("Expected JsonParseException (mode=" + mode + ")");
+            } catch (JsonParseException e) {
+                verifyException(e, "surrogate");
+            }
+            // High surrogate as the very last content
+            try (JsonParser p = open(f, mode, lead)) {
+                _readFirstString(p, skip);
+                fail("Expected JsonParseException (mode=" + mode + ")");
+            } catch (JsonParseException e) {
+                verifyException(e, "end-of-input");
+            }
         }
+    }
+
+    // Returns first field name or String value; or, if `skip`, skips value
+    // (without accessing text) and returns null
+    private String _readFirstString(JsonParser p, boolean skip) throws Exception
+    {
+        JsonToken t = p.nextToken();
+        if (t == JsonToken.START_OBJECT) {
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            return p.currentName();
+        }
+        assertToken(JsonToken.START_ARRAY, t);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        if (skip) {
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            return null;
+        }
+        return p.getText();
     }
 
     // ---- mixed escape / literal-surrogate coverage (locks §5.6 behavior) --
@@ -300,36 +273,12 @@ class EscapedSurrogateInStringValue1683Test extends JUnit5TestBase
      */
     @Test
     void escapedHighFollowedByLiteralLowSurrogate_isRejected() throws Exception {
-        String doc = "{\"k\":\"\\uD800" + '\uDC00' + "\"}";
-        for (boolean fromString : new boolean[]{true, false}) {
-            try (JsonParser p = open(doc, fromString)) {
-                try {
-                    while (p.nextToken() != null) { p.getText(); }
-                    fail("expected JsonParseException (fromString=" + fromString + ")");
-                } catch (JsonParseException e) {
-                    String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-                    assertTrue(msg.contains("surrogate"),
-                            "expected surrogate error, got: " + e.getMessage());
-                }
-            }
-        }
+        assertRejects(FACTORY, "{\"k\":\"\\uD800" + '\uDC00' + "\"}");
     }
 
     @Test
     void literalHighFollowedByEscapedLowSurrogate_isRejected() throws Exception {
-        String doc = "{\"k\":\"" + '\uD800' + "\\uDC00\"}";
-        for (boolean fromString : new boolean[]{true, false}) {
-            try (JsonParser p = open(doc, fromString)) {
-                try {
-                    while (p.nextToken() != null) { p.getText(); }
-                    fail("expected JsonParseException (fromString=" + fromString + ")");
-                } catch (JsonParseException e) {
-                    String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-                    assertTrue(msg.contains("surrogate"),
-                            "expected surrogate error, got: " + e.getMessage());
-                }
-            }
-        }
+        assertRejects(FACTORY, "{\"k\":\"" + '\uD800' + "\\uDC00\"}");
     }
 
     @Test
@@ -339,14 +288,13 @@ class EscapedSurrogateInStringValue1683Test extends JUnit5TestBase
         // literal chars in the input stream and locks that we do not
         // regress it while validating the escape paths.
         String doc = "{\"k\":\"" + '\uD800' + '\uDC00' + "\"}";
-        for (boolean fromString : new boolean[]{true, false}) {
-            try (JsonParser p = open(doc, fromString)) {
+        for (int mode : MODES) {
+            try (JsonParser p = open(FACTORY, mode, doc)) {
                 assertToken(JsonToken.START_OBJECT, p.nextToken());
                 assertToken(JsonToken.FIELD_NAME, p.nextToken());
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                String v = p.getText();
-                assertEquals(0x10000, v.codePointAt(0),
-                        "expected U+10000 from literal surrogate pair (fromString=" + fromString + ")");
+                assertEquals(0x10000, p.getText().codePointAt(0),
+                        "expected U+10000 from literal surrogate pair (mode=" + mode + ")");
                 assertToken(JsonToken.END_OBJECT, p.nextToken());
             }
         }
@@ -354,23 +302,24 @@ class EscapedSurrogateInStringValue1683Test extends JUnit5TestBase
 
     // ---- helpers ----------------------------------------------------------
 
-    private JsonParser open(String doc, boolean fromString) throws Exception {
-        return open(FACTORY, doc, fromString);
+    private JsonParser open(JsonFactory f, int mode, String doc) throws Exception {
+        if (mode == MODE_STRING) {
+            return f.createParser(doc);
+        }
+        return createParser(f, mode, doc);
     }
 
-    private JsonParser open(JsonFactory factory, String doc, boolean fromString) throws Exception {
-        return fromString
-                ? factory.createParser(doc)
-                : factory.createParser(new StringReader(doc));
+    private static String pad(int len) {
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append('a');
+        }
+        return sb.toString();
     }
 
-    private void assertRejects(String doc, boolean fromString) throws Exception {
-        assertRejects(FACTORY, doc, fromString);
-    }
-
-    private void assertRejects(JsonFactory factory, String doc, boolean fromString) throws Exception {
-        try (JsonParser p = open(factory, doc, fromString)) {
-            try {
+    private void assertRejects(JsonFactory f, String doc) throws Exception {
+        for (int mode : MODES) {
+            try (JsonParser p = open(f, mode, doc)) {
                 // Drive tokens until either the parser throws or the doc ends.
                 while (p.nextToken() != null) {
                     if (p.currentToken() == JsonToken.VALUE_STRING
@@ -380,32 +329,41 @@ class EscapedSurrogateInStringValue1683Test extends JUnit5TestBase
                         p.getText();
                     }
                 }
-                fail("Expected JsonParseException for malformed surrogate escape in: " + doc);
+                fail("Expected JsonParseException for malformed surrogate escape (mode="
+                        + mode + ") in: " + doc);
             } catch (JsonParseException e) {
-                String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
-                assertTrue(msg.contains("surrogate"),
-                        "Expected surrogate error message, got: " + e.getMessage());
+                verifyException(e, "surrogate");
             }
         }
     }
 
-    private void assertAcceptsValidPair(String doc, boolean fromString) throws Exception {
-        assertAcceptsValidPair(FACTORY, doc, fromString);
+    private void assertSkipChildrenRejects(String doc) throws Exception {
+        for (int mode : MODES) {
+            try (JsonParser p = open(FACTORY, mode, doc)) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                p.skipChildren();
+                fail("Expected JsonParseException (mode=" + mode + ")");
+            } catch (JsonParseException e) {
+                verifyException(e, "surrogate");
+            }
+        }
     }
 
-    private void assertAcceptsValidPair(JsonFactory factory, String doc, boolean fromString) throws Exception {
-        try (JsonParser p = open(factory, doc, fromString)) {
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("k", p.currentName());
-            assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            String text = p.getText();
-            // U+10000 encodes as the surrogate pair D800 DC00 in Java strings.
-            assertEquals(2, text.length(), "expected two UTF-16 code units");
-            int cp = text.codePointAt(0);
-            assertEquals(0x10000, cp,
-                    "expected code point U+10000, got U+" + Integer.toHexString(cp));
-            assertToken(JsonToken.END_OBJECT, p.nextToken());
+    private void assertAcceptsValidPair(JsonFactory f, String doc) throws Exception {
+        for (int mode : MODES) {
+            try (JsonParser p = open(f, mode, doc)) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                assertEquals("k", p.currentName());
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                String text = p.getText();
+                // U+10000 encodes as the surrogate pair D800 DC00 in Java strings.
+                assertEquals(2, text.length(), "expected two UTF-16 code units (mode=" + mode + ")");
+                assertEquals(0x10000, text.codePointAt(0), "mode=" + mode);
+                assertToken(JsonToken.END_OBJECT, p.nextToken());
+            }
         }
     }
 }

@@ -1878,7 +1878,7 @@ public class ReaderBasedJsonParser
                                 }
                             }
                             if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr] & 0xFFFF, "field name");
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "field name");
                             }
                             ++_inputPtr;
                             char lo = _decodeEscaped();
@@ -2139,7 +2139,7 @@ public class ReaderBasedJsonParser
                                 }
                             }
                             if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr] & 0xFFFF, "string value");
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "string value");
                             }
                             ++_inputPtr;
                             char lo = _decodeEscaped();
@@ -2298,7 +2298,7 @@ public class ReaderBasedJsonParser
                                 }
                             }
                             if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr] & 0xFFFF, "string value");
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "string value");
                             }
                             ++_inputPtr;
                             char lo = _decodeEscaped();
@@ -2371,7 +2371,6 @@ public class ReaderBasedJsonParser
                     //   over content with `skipChildren()` still see malformed input.
                     if (decoded >= 0xD800 && decoded <= 0xDFFF) {
                         if (decoded < 0xDC00) { // high surrogate: must be followed by low surrogate escape
-                            char hi = decoded;
                             if (_inputPtr >= _inputEnd) {
                                 if (!_loadMore()) {
                                     _reportInvalidEOF(
@@ -2380,7 +2379,7 @@ public class ReaderBasedJsonParser
                                 }
                             }
                             if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr] & 0xFFFF, "string value");
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "string value");
                             }
                             ++_inputPtr;
                             char lo = _decodeEscaped();

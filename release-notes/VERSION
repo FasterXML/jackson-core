@@ -22,6 +22,10 @@ JSON library.
 #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
   already-consumed bytes
  (reported, fix by DongNyoung L)
+#1652: Replace Schubfach with XJB algorithm for `USE_FAST_DOUBLE_WRITER`,
+  allowing no-allocation writes of `float`/`double`
+ (requested by @westinrm)
+ (contributed by @pjfanning, w/ Claude code)
 #1654: Stale symbol table child can replace a newer root table
  (reported by DongNyoung L)
 #1664: UTF-8 byte-backed parsers report raw byte instead of decoded character

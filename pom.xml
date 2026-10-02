@@ -135,9 +135,9 @@ tools.jackson.core.*;version=${project.version}
             <id>default-testCompile</id>
             <configuration>
               <compilerArgs>
-                <!-- 11-Dec-2025: [core#1517] Need to open up Schubfach to unit tests -->
+                <!-- 11-Dec-2025: [core#1517] Need to open up XJB to unit tests -->
                 <arg>--add-exports</arg>
-                <arg>tools.jackson.core/tools.jackson.core.io.schubfach=tools.jackson.core.unittest</arg>
+                <arg>tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest</arg>
               </compilerArgs>
             </configuration>
           </execution>
@@ -149,9 +149,10 @@ tools.jackson.core.*;version=${project.version}
         <version>${version.plugin.surefire}</version>
         <configuration>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
-          <!-- 11-Dec-2025: [core#1517] Need to open up Schubfach to unit tests -->
+          <!-- 11-Dec-2025: [core#1517] Need to open up XJB to unit tests -->
           <argLine>@{argLine}
-            --add-exports tools.jackson.core/tools.jackson.core.io.schubfach=tools.jackson.core.unittest
+            --add-exports tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
+            --add-opens tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
             --add-opens tools.jackson.core/tools.jackson.core.json=tools.jackson.core.unittest
            </argLine>
         </configuration>
@@ -381,6 +382,14 @@ tools.jackson.core.*;version=${project.version}
             <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
             <version>${version.android.sdk.signature}</version>
           </signature>
+          <sourceExcludes>
+            <!-- VarHandle (Java 9+) — loaded via reflection by XJBWriter, excluded from Android check -->
+            <sourceExclude>tools/jackson/core/io/xjb/XJBVarHandleAccess.java</sourceExclude>
+          </sourceExcludes>
+          <ignores>
+            <ignore>java.lang.invoke.VarHandle</ignore>
+            <ignore>java.lang.invoke.MethodHandle</ignore>
+          </ignores>
         </configuration>
       </plugin>
     </plugins>

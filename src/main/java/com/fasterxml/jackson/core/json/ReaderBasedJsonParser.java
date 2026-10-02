@@ -2121,36 +2121,6 @@ public class ReaderBasedJsonParser
                     // an UTF-16 surrogate pair, does that affect decoding?
                     // For now let's assume it does not.
                     c = _decodeEscaped();
-                    // [jackson-core#1683]: Validate JSON-escaped surrogates in
-                    //   apostrophe-quoted string value.
-                    if (c >= 0xD800 && c <= 0xDFFF) {
-                        if (c < 0xDC00) { // high surrogate
-                            char hi = c;
-                            if (_inputPtr >= _inputEnd) {
-                                if (!_loadMore()) {
-                                    _reportInvalidEOF(
-                                            ": was expecting closing quote for a string value",
-                                            JsonToken.VALUE_STRING);
-                                }
-                            }
-                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "string value");
-                            }
-                            ++_inputPtr;
-                            char lo = _decodeEscaped();
-                            if (lo < 0xDC00 || lo > 0xDFFF) {
-                                _reportBrokenSurrogatePair(lo, "string value");
-                            }
-                            if (outPtr >= outBuf.length) {
-                                outBuf = _textBuffer.finishCurrentSegment();
-                                outPtr = 0;
-                            }
-                            outBuf[outPtr++] = hi;
-                            c = lo;
-                        } else { // lone low surrogate
-                            _reportUnexpectedLowSurrogate(c, "string value");
-                        }
-                    }
                 } else if (i <= '\'') {
                     if (i == '\'') {
                         break;
@@ -2279,39 +2249,6 @@ public class ReaderBasedJsonParser
                      * For now let's assume it does not.
                      */
                     c = _decodeEscaped();
-                    // [jackson-core#1683]: Validate JSON-escaped surrogates in
-                    //   string value. Mirror of [jackson-core#1541] fix in
-                    //   UTF8StreamJsonParser, applied to the Reader-based path.
-                    if (c >= 0xD800 && c <= 0xDFFF) {
-                        if (c < 0xDC00) { // high surrogate: must be followed by low surrogate escape
-                            char hi = c;
-                            if (_inputPtr >= _inputEnd) {
-                                if (!_loadMore()) {
-                                    _reportInvalidEOF(
-                                            ": was expecting closing quote for a string value",
-                                            JsonToken.VALUE_STRING);
-                                }
-                            }
-                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "string value");
-                            }
-                            ++_inputPtr;
-                            char lo = _decodeEscaped();
-                            if (lo < 0xDC00 || lo > 0xDFFF) {
-                                _reportBrokenSurrogatePair(lo, "string value");
-                            }
-                            // Emit high surrogate first, then fall through so the
-                            // low surrogate is appended by the normal path below.
-                            if (outPtr >= outBuf.length) {
-                                outBuf = _textBuffer.finishCurrentSegment();
-                                outPtr = 0;
-                            }
-                            outBuf[outPtr++] = hi;
-                            c = lo;
-                        } else { // lone low surrogate
-                            _reportUnexpectedLowSurrogate(c, "string value");
-                        }
-                    }
                 } else if (i < INT_SPACE) {
                     _throwUnquotedSpace(i, "string value");
                 } // anything else?
@@ -2360,32 +2297,7 @@ public class ReaderBasedJsonParser
                     // Although chars outside of BMP are to be escaped as an UTF-16 surrogate pair,
                     // does that affect decoding? For now let's assume it does not.
                     _inputPtr = inPtr;
-                    char decoded = _decodeEscaped();
-                    // [jackson-core#1683]: Validate JSON-escaped surrogates even when
-                    //   the string content is being skipped, so callers that stream
-                    //   over content with `skipChildren()` still see malformed input.
-                    if (decoded >= 0xD800 && decoded <= 0xDFFF) {
-                        if (decoded < 0xDC00) { // high surrogate: must be followed by low surrogate escape
-                            if (_inputPtr >= _inputEnd) {
-                                if (!_loadMore()) {
-                                    _reportInvalidEOF(
-                                            ": was expecting closing quote for a string value",
-                                            JsonToken.VALUE_STRING);
-                                }
-                            }
-                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "string value");
-                            }
-                            ++_inputPtr;
-                            char lo = _decodeEscaped();
-                            if (lo < 0xDC00 || lo > 0xDFFF) {
-                                _reportBrokenSurrogatePair(lo, "string value");
-                            }
-                        } else { // lone low surrogate
-                            _reportUnexpectedLowSurrogate(decoded, "string value");
-                        }
-                    }
-                    inBuf = _inputBuffer;
+                    /*c = */ _decodeEscaped();
                     inPtr = _inputPtr;
                     inLen = _inputEnd;
                 } else if (i <= INT_QUOTE) {

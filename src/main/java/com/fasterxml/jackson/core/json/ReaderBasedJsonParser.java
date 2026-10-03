@@ -2275,10 +2275,15 @@ public class ReaderBasedJsonParser
     {
         _tokenIncomplete = false;
 
+        long totalLen = 0L;
+        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
+        final int[] codes = INPUT_CODES_LATIN1;
+        final int maxCode = codes.length;
         int inPtr = _inputPtr;
         int inLen = _inputEnd;
         char[] inBuf = _inputBuffer;
 
+        main_loop:
         while (true) {
             if (inPtr >= inLen) {
                 _inputPtr = inPtr;
@@ -2288,27 +2293,48 @@ public class ReaderBasedJsonParser
                 }
                 inPtr = _inputPtr;
                 inLen = _inputEnd;
+                inBuf = _inputBuffer;
             }
-            char c = inBuf[inPtr++];
-            int i = c;
-            if (i <= INT_BACKSLASH) {
-                if (i == INT_BACKSLASH) {
-                    // Although chars outside of BMP are to be escaped as an UTF-16 surrogate pair,
-                    // does that affect decoding? For now let's assume it does not.
-                    _inputPtr = inPtr;
-                    /*c = */ _decodeEscaped();
-                    inPtr = _inputPtr;
-                    inLen = _inputEnd;
-                } else if (i <= INT_QUOTE) {
+            int startPtr = inPtr;
+            while (inPtr < inLen) {
+                char c = inBuf[inPtr++];
+                int i = c;
+                if (i < maxCode && codes[i] != 0) {
+                    totalLen += inPtr - startPtr - 1;
+                    if (totalLen > maxStringLen) {
+                        _inputPtr = inPtr;
+                        _streamReadConstraints.validateStringLength((int) Math.min(totalLen, Integer.MAX_VALUE));
+                    }
                     if (i == INT_QUOTE) {
                         _inputPtr = inPtr;
-                        break;
+                        break main_loop;
                     }
-                    if (i < INT_SPACE) {
+                    if (i == INT_BACKSLASH) {
+                        // Although chars outside of BMP are to be escaped as an UTF-16 surrogate pair,
+                        // does that affect decoding? For now let's assume it does not.
                         _inputPtr = inPtr;
-                        _throwUnquotedSpace(i, "string value");
+                        /*c = */ _decodeEscaped();
+                        inPtr = _inputPtr;
+                        inLen = _inputEnd;
+                        inBuf = _inputBuffer;
+                    } else {
+                        if (i < INT_SPACE) {
+                            _inputPtr = inPtr;
+                            _throwUnquotedSpace(i, "string value");
+                        }
                     }
+                    ++totalLen;
+                    if (totalLen > maxStringLen) {
+                        _inputPtr = inPtr;
+                        _streamReadConstraints.validateStringLength((int) Math.min(totalLen, Integer.MAX_VALUE));
+                    }
+                    continue main_loop;
                 }
+            }
+            totalLen += inPtr - startPtr;
+            if (totalLen > maxStringLen) {
+                _inputPtr = inPtr;
+                _streamReadConstraints.validateStringLength((int) Math.min(totalLen, Integer.MAX_VALUE));
             }
         }
     }

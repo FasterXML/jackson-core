@@ -757,7 +757,9 @@ class SimpleParserTest extends JUnit5TestBase
     private void _testSkippedStringEnforcesMaxStringLength(int mode) throws Exception
     {
         final int maxLen = 1000;
-        final String longText = "x".repeat(100_000);
+        char[] longChars = new char[100_000];
+        Arrays.fill(longChars, 'x');
+        final String longText = new String(longChars);
         final String JSON = "[\""+longText+"\",1]";
 
         JsonFactory factory = JsonFactory.builder()

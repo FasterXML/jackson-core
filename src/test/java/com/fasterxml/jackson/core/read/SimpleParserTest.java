@@ -7,6 +7,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
@@ -743,6 +744,36 @@ class SimpleParserTest extends JUnit5TestBase
                 verifyException(e, "unquoted character");
             }
         }
+    }
+
+    @Test
+    void skippedStringEnforcesMaxStringLength() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testSkippedStringEnforcesMaxStringLength(mode);
+        }
+    }
+
+    private void _testSkippedStringEnforcesMaxStringLength(int mode) throws Exception
+    {
+        final int maxLen = 1000;
+        final String longText = "x".repeat(100_000);
+        final String JSON = "[\""+longText+"\",1]";
+
+        JsonFactory factory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxStringLength(maxLen).build())
+                .build();
+
+        JsonParser parser = createParser(factory, mode, JSON);
+        assertToken(JsonToken.START_ARRAY, parser.nextToken());
+        assertToken(JsonToken.VALUE_STRING, parser.nextToken());
+
+        StreamConstraintsException ex = assertThrows(StreamConstraintsException.class,
+                () -> parser.nextToken());
+        assertTrue(ex.getMessage().contains("String value length"));
+        assertTrue(ex.getMessage().contains("exceeds the maximum allowed"));
+
+        parser.close();
     }
 
     /*

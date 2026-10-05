@@ -1866,6 +1866,40 @@ public class ReaderBasedJsonParser
                      * For now let's assume it does not.
                      */
                     c = _decodeEscaped();
+                    // 05-Sep-2026, elang2: [core#1683] Validate JSON-escaped surrogates
+                    //   in field name; mirror of [core#1541] fix in UTF8StreamJsonParser.
+                    if (c >= 0xD800 && c <= 0xDFFF) {
+                        if (c < 0xDC00) { // high surrogate: must be followed by low surrogate escape
+                            char hi = c;
+                            if (_inputPtr >= _inputEnd) {
+                                if (!_loadMore()) {
+                                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                                }
+                            }
+                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "field name");
+                            }
+                            ++_inputPtr;
+                            char lo = _decodeEscaped();
+                            if (lo < 0xDC00 || lo > 0xDFFF) {
+                                _reportBrokenSurrogatePair(lo, "field name");
+                            }
+                            // Store as two UTF-16 code units. Hash includes the low
+                            // surrogate below; add high surrogate here.
+                            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + hi;
+                            // Room for one char is guaranteed at loop start.
+                            outBuf[outPtr++] = hi;
+                            if (outPtr >= outBuf.length) {
+                                totalLen += outBuf.length;
+                                _streamReadConstraints.validateNameLength(totalLen);
+                                outBuf = _textBuffer.finishCurrentSegment();
+                                outPtr = 0;
+                            }
+                            c = lo;
+                        } else { // lone low surrogate
+                            _reportUnexpectedLowSurrogate(c, "field name");
+                        }
+                    }
                 } else if (i <= endChar) {
                     if (i == endChar) {
                         break;
@@ -3051,6 +3085,7 @@ public class ReaderBasedJsonParser
                 _currInputRow, col);
 
         StringBuilder sb = new StringBuilder(matchedPart);
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while ((_inputPtr < _inputEnd) || _loadMore()) {
             char c = _inputBuffer[_inputPtr];
             if (!Character.isJavaIdentifierPart(c)) {
@@ -3058,13 +3093,30 @@ public class ReaderBasedJsonParser
             }
             ++_inputPtr;
             sb.append(c);
-            if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+            if (sb.length() >= maxTokenLength) {
                 sb.append("...");
                 break;
             }
         }
         final String fullMsg = String.format("Unrecognized token '%s': was expecting %s", sb, msg);
         throw _constructReadException(fullMsg, loc);
+    }
+
+    // 05-Sep-2026, elang2: [core#1683] Helpers for reporting malformed JSON-escaped
+    //   surrogates; wording mirrors UTF8StreamJsonParser ([core#1541]), plus context.
+    private void _reportUnexpectedLowSurrogate(int lo, String ctx) throws IOException {
+        _reportError("Unexpected low surrogate in " + ctx + ": 0x" + Integer.toHexString(lo));
+    }
+
+    private void _reportUnexpectedCharAfterHighSurrogate(int next, String ctx)
+            throws IOException {
+        _reportError("Broken surrogate pair in " + ctx
+                + ": expected '\\' to start low surrogate, got 0x" + Integer.toHexString(next));
+    }
+
+    private void _reportBrokenSurrogatePair(int lo, String ctx) throws IOException {
+        _reportError(String.format(
+                "Broken surrogate pair in %s: expected low surrogate, got 0x%04X", ctx, lo));
     }
 
     /*

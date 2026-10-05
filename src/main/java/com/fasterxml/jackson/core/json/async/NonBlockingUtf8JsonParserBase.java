@@ -1236,6 +1236,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     protected JsonToken _finishErrorToken() throws IOException
     {
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while (_inputPtr < _inputEnd) {
             int i = getNextSignedByteFromBuffer();
 
@@ -1247,7 +1248,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // 11-Jan-2016, tatu: note: we will fully consume the character,
                 // included or not, so if recovery was possible, it'd be off-by-one...
                 _textBuffer.append(ch);
-                if (_textBuffer.size() < _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+                if (_textBuffer.size() < maxTokenLength) {
                     continue;
                 }
             }

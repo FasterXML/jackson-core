@@ -102,11 +102,11 @@ public class VersionUtil
     /**********************************************************************
      */
 
-    public final static void throwInternal() {
+    public static void throwInternal() {
         throw new IllegalStateException("Internal error: this code path should never get executed");
     }
 
-    public final static <T> T throwInternalReturnAny() {
+    public static <T> T throwInternalReturnAny() {
         throw new IllegalStateException("Internal error: this code path should never get executed");
     }
 }

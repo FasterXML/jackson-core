@@ -1,6 +1,5 @@
 package tools.jackson.core.io;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
@@ -23,16 +22,27 @@ import java.util.Objects;
  *
  * @since 3.3
  */
-public final class GuardedOutputStream extends FilterOutputStream
+public final class GuardedOutputStream extends OutputStream
 {
+    private final OutputStream _out;
+
     public GuardedOutputStream(OutputStream out) {
-        super(Objects.requireNonNull(out, "Cannot pass `null` OutputStream"));
+        _out = Objects.requireNonNull(out, "Cannot pass `null` OutputStream");
     }
 
-    // NOTE: must override; `FilterOutputStream` otherwise writes one byte at a time
+    @Override
+    public void write(int b) throws IOException {
+        _out.write(b);
+    }
+
+    @Override
+    public void write(byte[] b) throws IOException {
+        _out.write(b, 0, b.length);
+    }
+
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        out.write(b, off, len);
+        _out.write(b, off, len);
     }
 
     @Override

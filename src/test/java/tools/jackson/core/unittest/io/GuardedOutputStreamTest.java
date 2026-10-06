@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.io.GuardedOutputStream;
+import tools.jackson.core.io.UTF8Writer;
 import tools.jackson.core.unittest.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -76,6 +77,23 @@ class GuardedOutputStreamTest
         // second close is a no-op, as is flush after close
         out.close();
         out.flush();
+    }
+
+    // Usage as by textual format backends
+    @Test
+    void utf8WriterOverGuardedStream() throws Exception
+    {
+        TrackingStream target = new TrackingStream();
+        Writer w = new UTF8Writer(testIOContext(), new GuardedOutputStream(target));
+        w.write("abc");
+        w.flush();
+        assertEquals("abc", target.toString(StandardCharsets.UTF_8));
+        w.write("déf");
+        w.close();
+        assertEquals("abcdéf", target.toString(StandardCharsets.UTF_8));
+        assertEquals(0, target.flushCount);
+        assertEquals(0, target.closeCount);
+        assertEquals(0, target.singleByteWrites);
     }
 
     @Test

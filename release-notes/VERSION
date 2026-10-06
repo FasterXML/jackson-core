@@ -17,6 +17,10 @@ JSON library.
 
 3.3.0 (not yet released)
 
+#1640: Non-blocking (async) parser does not validate numeric value separator
+  in non-root context (Array/Object), unlike blocking parsers
+ (reported by @seonwooj0810)
+ (fix by @seonwooj0810)
 #1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match
  (contributed by @scottslewis)
 #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write

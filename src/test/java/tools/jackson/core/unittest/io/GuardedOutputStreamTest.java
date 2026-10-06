@@ -31,6 +31,12 @@ class GuardedOutputStreamTest
     }
 
     @Test
+    void nullStreamRejected()
+    {
+        assertThrows(NullPointerException.class, () -> new GuardedOutputStream(null));
+    }
+
+    @Test
     void writesPassedThrough() throws Exception
     {
         TrackingStream target = new TrackingStream();

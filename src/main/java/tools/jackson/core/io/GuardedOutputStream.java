@@ -3,6 +3,7 @@ package tools.jackson.core.io;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * {@link OutputStream} wrapper that forwards written content, but never flushes or
@@ -25,7 +26,7 @@ import java.io.OutputStream;
 public final class GuardedOutputStream extends FilterOutputStream
 {
     public GuardedOutputStream(OutputStream out) {
-        super(out);
+        super(Objects.requireNonNull(out, "Cannot pass `null` OutputStream"));
     }
 
     // NOTE: must override; `FilterOutputStream` otherwise writes one byte at a time

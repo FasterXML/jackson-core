@@ -63,6 +63,22 @@ class GuardedOutputStreamTest
     }
 
     @Test
+    void writesAfterCloseFail() throws Exception
+    {
+        TrackingStream target = new TrackingStream();
+        GuardedOutputStream out = new GuardedOutputStream(target);
+        out.write('a');
+        out.close();
+        assertThrows(IOException.class, () -> out.write('b'));
+        assertThrows(IOException.class, () -> out.write(new byte[] { 'c' }));
+        assertThrows(IOException.class, () -> out.write(new byte[] { 'd' }, 0, 1));
+        assertEquals("a", target.toString(StandardCharsets.UTF_8));
+        // second close is a no-op, as is flush after close
+        out.close();
+        out.flush();
+    }
+
+    @Test
     void writerOverGuardedStream() throws Exception
     {
         TrackingStream target = new TrackingStream();

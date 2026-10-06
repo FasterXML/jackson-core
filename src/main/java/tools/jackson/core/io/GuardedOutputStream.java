@@ -22,7 +22,7 @@ import java.util.Objects;
  *
  * @since 3.3
  */
-public final class GuardedOutputStream extends OutputStream
+public class GuardedOutputStream extends OutputStream
 {
     private final OutputStream _out;
 

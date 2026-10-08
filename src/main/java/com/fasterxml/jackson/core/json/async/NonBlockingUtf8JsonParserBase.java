@@ -2431,7 +2431,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // Need to read the backslash that starts the low surrogate escape
                 if (_inputPtr >= _inputEnd) {
                     _minorState = MINOR_FIELD_NAME_ESCAPE;
-                    return JsonToken.NOT_AVAILABLE;
+                    return _updateTokenToNA();
                 }
                 int b = getNextUnsignedByteFromBuffer();
                 if (b != INT_BACKSLASH) {
@@ -2444,7 +2444,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
             if (ch < 0) {
                 _minorState = MINOR_FIELD_NAME_ESCAPE;
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             // Combine high + low surrogate into supplementary code point
             int highSurrogate = _pendingSurrogateInName;
@@ -2461,7 +2461,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
             if (ch < 0) { // ... if possible
                 _minorState = MINOR_FIELD_NAME_ESCAPE;
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             // [jackson-core#1581]: high surrogate - save and wait for low surrogate
             if (ch >= 0xD800 && ch <= 0xDBFF) {

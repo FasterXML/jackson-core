@@ -19,6 +19,9 @@ a pure JSON library.
 #1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
   typed `writeArray()` and raw/binary values consistently
  (fix by @pjfanning)
+#1744: `UTF8DataInputJsonParser` fails on JSON-escaped surrogate pairs in
+  property names
+ (fix by @pjfanning)
 
 2.21.7 (21-Sep-2026)
 

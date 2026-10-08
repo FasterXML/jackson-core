@@ -700,6 +700,11 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
+        case '.': // [core#611], [core#1746]
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _startFloatThatStartsWithPeriod();
+            }
+            break;
         case '/':
             return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
@@ -790,6 +795,11 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
+        case '.': // [core#611], [core#1746]
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _startFloatThatStartsWithPeriod();
+            }
+            break;
         case '/':
             return _startSlashComment(MINOR_VALUE_LEADING_WS);
 
@@ -842,6 +852,11 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
+        case '.': // [core#611], [core#1746]
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _startFloatThatStartsWithPeriod();
+            }
+            break;
         case '/':
             return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 

@@ -19,6 +19,9 @@ a pure JSON library.
 #1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
   typed `writeArray()` and raw/binary values consistently
  (fix by @pjfanning)
+#1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
+  with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
+ (fix by @pjfanning)
 
 2.21.7 (21-Sep-2026)
 

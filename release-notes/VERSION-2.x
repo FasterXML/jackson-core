@@ -19,6 +19,9 @@ a pure JSON library.
 #1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
   typed `writeArray()` and raw/binary values consistently
  (fix by @pjfanning)
+#1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
+  `ALLOW_UNQUOTED_FIELD_NAMES`
+ (fix by @pjfanning)
 
 2.21.7 (21-Sep-2026)
 

@@ -2924,9 +2924,10 @@ public class UTF8StreamJsonParser
             default:
                 if (c < INT_SPACE) {
                     _throwUnquotedSpace(c, "string value");
+                } else {
+                    // Is this good enough error message?
+                    _reportInvalidChar(c);
                 }
-                // Is this good enough error message?
-                _reportInvalidChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {

@@ -381,10 +381,9 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // Number-parsing states; valid stopping points, more explicit errors
         case MINOR_NUMBER_ZERO:
+            return _numberCompleteZero("0");
         case MINOR_NUMBER_MINUSZERO:
-            // NOTE: does NOT retain possible leading minus-sign (can change if
-            // absolutely needs be)
-            return _valueCompleteInt(0, "0");
+            return _numberCompleteZero("-0");
         case MINOR_NUMBER_INTEGER_DIGITS:
             // Fine: just need to ensure we have value fully defined
             {
@@ -397,9 +396,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _valueComplete(JsonToken.VALUE_NUMBER_INT);
 
         case MINOR_NUMBER_FRACTION_DIGITS:
-            // 09-Oct-2026, tatu: must have at least one digit (unless allowed)
-            if ((_fractLength == 0)
-                    && !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+            // 09-Oct-2026, tatu: [core#1746] input may end right after decimal point
+            if (_missingFractionDigits(_fractLength, _intLength)) {
                 _reportInvalidEOF(": Decimal point not followed by a digit", JsonToken.VALUE_NUMBER_FLOAT);
             }
             _expLength = 0;
@@ -645,10 +643,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // and could be indicate by a more specific error message.
 
         case '.': // [core#611]
-            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                return _startFloatThatStartsWithPeriod();
-            }
-            break;
+            return _startValueWithPeriod();
 
         case '0':
             return _startNumberLeadingZero();
@@ -737,6 +732,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
+        case '.': // [core#611], [core#1746]
+            return _startValueWithPeriod();
         case '/':
             return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
@@ -827,6 +824,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
+        case '.': // [core#611], [core#1746]
+            return _startValueWithPeriod();
         case '/':
             return _startSlashComment(MINOR_VALUE_LEADING_WS);
 
@@ -879,6 +878,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
+        case '.': // [core#611], [core#1746]
+            return _startValueWithPeriod();
         case '/':
             return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
@@ -1368,11 +1369,91 @@ public abstract class NonBlockingUtf8JsonParserBase
         throw _constructReadException(fullMsg, currentTokenLocation());
     }
 
+    // 09-Oct-2026, tatu: As with blocking parsers, root-level number must be
+    //    followed by white space (or end-of-input). Called on number completion,
+    //    with the byte that ended number pushed back (at `_inputPtr`)
+    private final void _verifyRootSpaceAfterNumber() throws IOException
+    {
+        if ((_inputPtr >= _inputEnd) || !_parsingContext.inRoot()) {
+            return;
+        }
+        int ch = getByteFromBuffer(_inputPtr) & 0xFF;
+        switch (ch) {
+        case INT_SPACE:
+        case INT_TAB:
+        case INT_LF:
+        case INT_CR:
+            return;
+        }
+        // RS (JSON Text Sequences) is accepted as white space when enabled
+        if (_isAllowedCtrlCharRS(ch)) {
+            return;
+        }
+        // as with blocking parsers, consume offending byte for error location
+        ++_inputPtr;
+        if (ch > 0x7F) {
+            ch = _decodeCharForError(ch);
+        }
+        _reportMissingRootWS(ch);
+    }
+
+    /**
+     * Helper method for decoding multi-byte UTF-8 character for error reporting
+     * purposes only: caller has already detected a problem, so this method is
+     * strictly best-effort and will never fail -- lead byte is returned as-is if
+     * the full sequence is not (yet) buffered, or is not valid UTF-8. Also note
+     * that unlike blocking parsers we cannot wait for more input just to build a
+     * better error message.
+     *
+     * @param firstByte Lead byte of the character; input pointer is past it
+     *
+     * @return Decoded character (code point) if decodable; lead byte if not
+     */
+    // 21-Aug-2026, tatu: [core#1664]
+    private final int _decodeCharForError(int firstByte)
+    {
+        final int c = firstByte & 0xFF;
+        final int needed;
+
+        if ((c & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
+            needed = 1;
+        } else if ((c & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
+            needed = 2;
+        } else if ((c & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
+            needed = 3;
+        } else { // invalid lead byte; report as-is
+            return c;
+        }
+        if ((_inputPtr + needed) > _inputEnd) { // not (yet) buffered; report as-is
+            return c;
+        }
+        int value = c & (0x3F >> needed); // 0x1F, 0x0F or 0x07
+        for (int i = 0; i < needed; ++i) {
+            final int d = getByteFromBuffer(_inputPtr + i) & 0xFF;
+            if ((d & 0xC0) != 0x080) { // invalid continuation byte; report lead byte as-is
+                return c;
+            }
+            value = (value << 6) | (d & 0x3F);
+        }
+        return value;
+    }
+
     /*
     /**********************************************************************
     /* Second-level decoding, Number decoding
     /**********************************************************************
      */
+
+    // 09-Oct-2026, tatu: [core#1746] Value starting with '.': float if
+    //    ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS enabled, otherwise unexpected character
+    //    (note: `_startUnexpectedValue()` does not use `leadingComma` for '.')
+    private JsonToken _startValueWithPeriod() throws IOException
+    {
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+            return _startUnexpectedValue(false, INT_PERIOD);
+        }
+        return _startFloatThatStartsWithPeriod();
+    }
 
     // [core#611]: allow non-standard floats like ".125"
     protected JsonToken _startFloatThatStartsWithPeriod() throws IOException
@@ -1381,6 +1462,22 @@ public abstract class NonBlockingUtf8JsonParserBase
         _intLength = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         return _startFloat(outBuf, 0, INT_PERIOD);
+    }
+
+    // Number completion, when the byte that ended number is available: all such
+    // completions go via these two methods. Numbers ended by end-of-input are
+    // instead completed in `_finishTokenWithEOF()` (no separator check needed)
+    private JsonToken _numberComplete(JsonToken t) throws IOException {
+        _verifyRootSpaceAfterNumber();
+        return _valueComplete(t);
+    }
+
+    // 09-Oct-2026, tatu: "-0" retains sign in text, but not in integer-part length
+    private JsonToken _numberCompleteZero(String text) throws IOException {
+        _verifyRootSpaceAfterNumber();
+        JsonToken t = _valueCompleteInt(0, text);
+        _intLength = 1;
+        return t;
     }
 
     protected JsonToken _startPositiveNumber(int ch) throws IOException
@@ -1431,7 +1528,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr);
         _textBuffer.setCurrentLength(outPtr);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _startNegativeNumber() throws IOException
@@ -1445,6 +1542,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (ch <= INT_0) {
             if (ch == INT_0) {
                 return _finishNumberLeadingNegZeroes();
+            }
+            if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _startSignedFloatThatStartsWithPeriod(true);
             }
             // One special case: if first char is 0, must not be followed by a digit
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
@@ -1498,7 +1598,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr-1);
         _textBuffer.setCurrentLength(outPtr);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _startPositiveNumber() throws IOException
@@ -1512,9 +1612,12 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (ch <= INT_0) {
             if (ch == INT_0) {
                 if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                    _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                    _reportLeadingPlusSignNotAllowed();
                 }
-                return _finishNumberLeadingPosZeroes();
+                return _finishNumberLeadingZeroes();
+            }
+            if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _startSignedFloatThatStartsWithPeriod(false);
             }
             // One special case: if first char is 0, must not be followed by a digit
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
@@ -1525,57 +1628,33 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
-        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = '+';
-        outBuf[1] = (char) ch;
-        if (_inputPtr >= _inputEnd) {
-            _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-            _textBuffer.setCurrentLength(2);
-            _intLength = 1;
-            return _updateTokenToNA();
-        }
-        ch = getByteFromBuffer(_inputPtr);
-        int outPtr = 2;
+        // 09-Oct-2026, tatu: '+' not included in text (shared number decoding, and
+        //    blocking parsers, only expect '-' sign) so rest same as unsigned number
+        return _startPositiveNumber(ch);
+    }
 
-        while (true) {
-            if (ch < INT_0) {
-                if (ch == INT_PERIOD) {
-                    _setIntLength(outPtr-1);
-                    ++_inputPtr;
-                    return _startFloat(outBuf, outPtr, ch);
-                }
-                break;
-            }
-            if (ch > INT_9) {
-                if ((ch | 0x20) == INT_e) { // ~ 'eE'
-                    _setIntLength(outPtr-1);
-                    ++_inputPtr;
-                    return _startFloat(outBuf, outPtr, ch);
-                }
-                break;
-            }
-            if (outPtr >= outBuf.length) {
-                // NOTE: must expand, to ensure contiguous buffer, outPtr is the length
-                outBuf = _textBuffer.expandCurrentSegment();
-            }
-            outBuf[outPtr++] = (char) ch;
-            if (++_inputPtr >= _inputEnd) {
-                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-                _textBuffer.setCurrentLength(outPtr);
-                _setIntLength(outPtr-1);
-                return _updateTokenToNA();
-            }
-            ch = getByteFromBuffer(_inputPtr) & 0xFF;
+    // 09-Oct-2026, tatu: [core#1746] signed float like "-.5"; sign and '.' already
+    //    consumed. Like blocking parsers, only '-' is retained in text
+    private JsonToken _startSignedFloatThatStartsWithPeriod(boolean negative) throws IOException
+    {
+        if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            _reportLeadingPlusSignNotAllowed();
         }
-        _setIntLength(outPtr-1);
-        _textBuffer.setCurrentLength(outPtr);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+        _intLength = 0;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        int outPtr = 0;
+        if (negative) {
+            outBuf[outPtr++] = '-';
+        }
+        return _startFloat(outBuf, outPtr, INT_PERIOD);
     }
 
     protected JsonToken _startNumberLeadingZero() throws IOException
     {
+        // 09-Oct-2026, tatu: must not inherit sign of preceding number
+        _numberNegative = false;
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
             _minorState = MINOR_NUMBER_ZERO;
@@ -1604,19 +1683,14 @@ public abstract class NonBlockingUtf8JsonParserBase
                 outBuf[0] = '0';
                 return _startFloat(outBuf, 1, ch);
             }
-            // Ok; unfortunately we have closing bracket/curly that are valid so need
-            // (colon not possible since this is within value, not after key)
-            //
-            if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
-                _reportUnexpectedNumberChar(ch,
-                        "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
-            }
+            // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
+            //    reported as missing separator (root) or missing comma (otherwise)
         } else { // leading zero case (zero followed by a digit)
             // leave inputPtr as is (i.e. "push back" digit)
             return _finishNumberLeadingZeroes();
         }
         // leave _inputPtr as-is, to push back byte we checked
-        return _valueCompleteInt(0, "0");
+        return _numberCompleteZero("0");
     }
 
     protected JsonToken _finishNumberMinus(int ch) throws IOException
@@ -1637,21 +1711,12 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _finishNumberLeadingNegZeroes();
                 } else {
                     if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                        _reportLeadingPlusSignNotAllowed();
                     }
-                    return _finishNumberLeadingPosZeroes();
+                    return _finishNumberLeadingZeroes();
                 }
             } else if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                if (negative) {
-                    _inputPtr--;
-                    return _finishNumberLeadingNegZeroes();
-                } else {
-                    if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
-                    }
-                    _inputPtr--;
-                    return _finishNumberLeadingPosZeroes();
-                }
+                return _startSignedFloatThatStartsWithPeriod(negative);
             }
             final String message = negative ?
                     "expected digit (0-9) to follow minus sign, for valid numeric value" :
@@ -1667,11 +1732,15 @@ public abstract class NonBlockingUtf8JsonParserBase
                     "expected digit (0-9) for valid numeric value";
             _reportUnexpectedNumberChar(ch, message);
         }
-        if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+        if (!negative) {
+            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                _reportLeadingPlusSignNotAllowed();
+            }
+            // '+' not included in text, so same as unsigned number
+            return _startPositiveNumber(ch);
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = negative ? '-' : '+';
+        outBuf[0] = '-';
         outBuf[1] = (char) ch;
         _intLength = 1;
         return _finishNumberIntegralPart(outBuf, 2);
@@ -1701,13 +1770,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _intLength = 1;
                     return _startFloat(outBuf, 1, ch);
                 }
-                // Ok; unfortunately we have closing bracket/curly that are valid so need
-                // (colon not possible since this is within value, not after key)
-                //
-                if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
-                    _reportUnexpectedNumberChar(ch,
-                            "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
-                }
+                // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
+                //    reported as missing separator (root) or missing comma (otherwise)
             } else { // Number between 0 and 9
                 // although not guaranteed, seems likely valid separator (white space,
                 // comma, end bracket/curly); next time token needed will verify
@@ -1724,31 +1788,41 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _finishNumberIntegralPart(outBuf, 1);
             }
             --_inputPtr;
-            return _valueCompleteInt(0, "0");
+            return _numberCompleteZero("0");
         }
     }
 
-    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException {
-        return _finishNumberLeadingPosNegZeroes(true);
-    }
-
+    /**
+     * @deprecated Since 2.21.8 '+' is not included in text, so this is the same as
+     *    {@link #_finishNumberLeadingZeroes()}
+     */
+    @Deprecated // since 2.21.8
     protected JsonToken _finishNumberLeadingPosZeroes() throws IOException {
-        return _finishNumberLeadingPosNegZeroes(false);
+        return _finishNumberLeadingZeroes();
     }
 
+    /**
+     * @deprecated Since 2.21.8 use {@link #_finishNumberLeadingNegZeroes()} or
+     *    {@link #_finishNumberLeadingZeroes()}
+     */
+    @Deprecated // since 2.21.8
     protected JsonToken _finishNumberLeadingPosNegZeroes(final boolean negative) throws IOException {
+        return negative ? _finishNumberLeadingNegZeroes() : _finishNumberLeadingZeroes();
+    }
+
+    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException {
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_ZERO;
+                _minorState = MINOR_NUMBER_MINUSZERO;
                 return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = negative ? '-' : '+';
+                    outBuf[0] = '-';
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
@@ -1756,18 +1830,13 @@ public abstract class NonBlockingUtf8JsonParserBase
             } else if (ch > INT_9) {
                 if ((ch | 0x20) == INT_e) { // ~ 'eE'
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = negative ? '-' : '+';
+                    outBuf[0] = '-';
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
                 }
-                // Ok; unfortunately we have closing bracket/curly that are valid so need
-                // (colon not possible since this is within value, not after key)
-                //
-                if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
-                    _reportUnexpectedNumberChar(ch,
-                            "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
-                }
+                // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
+                //    reported as missing separator (root) or missing comma (otherwise)
             } else { // Number between 1 and 9; go integral
                 // although not guaranteed, seems likely valid separator (white space,
                 // comma, end bracket/curly); next time token needed will verify
@@ -1779,13 +1848,13 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                 // trim out leading zero
-                outBuf[0] = negative ? '-' : '+';
+                outBuf[0] = '-';
                 outBuf[1] = (char) ch;
                 _intLength = 1;
                 return _finishNumberIntegralPart(outBuf, 2);
             }
             --_inputPtr;
-            return _valueCompleteInt(0, "0");
+            return _numberCompleteZero("-0");
         }
     }
 
@@ -1829,7 +1898,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr+negMod);
         _textBuffer.setCurrentLength(outPtr);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _startFloat(char[] outBuf, int outPtr, int ch) throws IOException
@@ -1850,12 +1919,10 @@ public abstract class NonBlockingUtf8JsonParserBase
                 ch = getNextSignedByteFromBuffer(); // ok to have sign extension for now
                 if (ch < INT_0 || ch > INT_9) {
                     ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
-                    // must be followed by sequence of ints, one minimum
-                    if (fractLen == 0) {
-                        if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                            _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-                        }
-                    }
+                    // must be followed by sequence of ints, one minimum. Any other
+                    // character ends the number, as with blocking parsers (and
+                    // regardless of where input chunk boundaries fall)
+                    _verifyFractionDigits(fractLen, _intLength, ch);
                     break;
                 }
                 if (outPtr >= outBuf.length) {
@@ -1917,7 +1984,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _setExpLength(expLen);
-        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
     protected JsonToken _finishFloatFraction() throws IOException
@@ -1928,36 +1995,24 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // caller guarantees at least one char; also, sign-extension not needed here
         int ch = getNextSignedByteFromBuffer();
-        boolean loop = true;
-        while (loop) {
-            if (ch >= INT_0 && ch <= INT_9) {
-                ++fractLen;
-                if (outPtr >= outBuf.length) {
-                    outBuf = _textBuffer.expandCurrentSegment();
-                }
-                outBuf[outPtr++] = (char) ch;
-                if (_inputPtr >= _inputEnd) {
-                    _textBuffer.setCurrentLength(outPtr);
-                    _setFractLength(fractLen);
-                    return _updateTokenToNA();
-                }
-                ch = getNextSignedByteFromBuffer();
-            } else if ((ch | 0x22) == 'f') { // ~ fFdD
-                _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
-            } else if (ch == INT_PERIOD) {
-                _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
-            } else {
-                loop = false;
+        while (ch >= INT_0 && ch <= INT_9) {
+            ++fractLen;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.expandCurrentSegment();
             }
+            outBuf[outPtr++] = (char) ch;
+            if (_inputPtr >= _inputEnd) {
+                _textBuffer.setCurrentLength(outPtr);
+                _setFractLength(fractLen);
+                return _updateTokenToNA();
+            }
+            ch = getNextSignedByteFromBuffer();
         }
 
         // Ok, fraction done; what have we got next?
-        // must be followed by sequence of ints, one minimum
-        if (fractLen == 0) {
-            if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-            }
-        }
+        ch &= 0xFF; // mask to unsigned 8-bit, as with `_startFloat()`
+        // must be followed by sequence of ints, one minimum (same as `_startFloat()`)
+        _verifyFractionDigits(fractLen, _intLength, ch);
         _setFractLength(fractLen);
         _textBuffer.setCurrentLength(outPtr);
 
@@ -1978,7 +2033,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _expLength = 0;
-        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
     protected JsonToken _finishFloatExponent(boolean checkSign, int ch) throws IOException
@@ -2023,7 +2078,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _setExpLength(expLen);
-        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
     /*

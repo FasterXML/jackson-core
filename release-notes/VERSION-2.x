@@ -23,6 +23,9 @@ a pure JSON library.
   a feed ends inside an escaped surrogate pair in a property name
  (reported by @DRMacIver)
  (fix by @pjfanning)
+#1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
+  with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
+ (fix by @pjfanning)
 #1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
   `ALLOW_UNQUOTED_FIELD_NAMES`
  (fix by @pjfanning)

@@ -249,8 +249,6 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishNumberLeadingZeroes();
         case MINOR_NUMBER_MINUSZERO:
             return _finishNumberLeadingNegZeroes();
-        case MINOR_NUMBER_PLUSZERO:
-            return _finishNumberLeadingPosZeroes();
         case MINOR_NUMBER_INTEGER_DIGITS:
             return _finishNumberIntegralPart(_textBuffer.getBufferWithoutReset(),
                     _textBuffer.getCurrentSegmentSize());
@@ -358,9 +356,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_NUMBER_ZERO:
             return _valueCompleteInt(0, "0");
         case MINOR_NUMBER_MINUSZERO:
-            return _valueCompleteSignedZero(true);
-        case MINOR_NUMBER_PLUSZERO:
-            return _valueCompleteSignedZero(false);
+            return _valueCompleteNegativeZero();
         case MINOR_NUMBER_INTEGER_DIGITS:
             // Fine: just need to ensure we have value fully defined
             {
@@ -1465,22 +1461,23 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
             _reportLeadingPlusSignNotAllowed();
         }
+        // 09-Oct-2026, tatu: '+' not included in text; shared number decoding
+        //    (and blocking parsers) only expect '-' sign
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = '+';
-        outBuf[1] = (char) ch;
+        outBuf[0] = (char) ch;
         if (_inputPtr >= _inputEnd) {
             _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-            _textBuffer.setCurrentLength(2);
+            _textBuffer.setCurrentLength(1);
             _intLength = 1;
             return _updateTokenToNA();
         }
         ch = getByteFromBuffer(_inputPtr);
-        int outPtr = 2;
+        int outPtr = 1;
 
         while (true) {
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
-                    _setIntLength(outPtr-1);
+                    _setIntLength(outPtr);
                     ++_inputPtr;
                     return _startFloat(outBuf, outPtr, ch);
                 }
@@ -1488,7 +1485,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             if (ch > INT_9) {
                 if ((ch | 0x20) == INT_e) { // ~ 'eE'
-                    _setIntLength(outPtr-1);
+                    _setIntLength(outPtr);
                     ++_inputPtr;
                     return _startFloat(outBuf, outPtr, ch);
                 }
@@ -1502,17 +1499,18 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (++_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
-                _setIntLength(outPtr-1);
+                _setIntLength(outPtr);
                 return _updateTokenToNA();
             }
             ch = getByteFromBuffer(_inputPtr) & 0xFF;
         }
-        _setIntLength(outPtr-1);
+        _setIntLength(outPtr);
         _textBuffer.setCurrentLength(outPtr);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
-    // [core#1746]: signed float like "-.5"; sign and '.' already consumed
+    // 09-Oct-2026, tatu: [core#1746] signed float like "-.5"; sign and '.' already
+    //    consumed. Like blocking parsers, only '-' is retained in text
     private JsonToken _startSignedFloatThatStartsWithPeriod(boolean negative) throws IOException
     {
         if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
@@ -1520,8 +1518,11 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _intLength = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = negative ? '-' : '+';
-        return _startFloat(outBuf, 1, INT_PERIOD);
+        int outPtr = 0;
+        if (negative) {
+            outBuf[outPtr++] = '-';
+        }
+        return _startFloat(outBuf, outPtr, INT_PERIOD);
     }
 
     protected JsonToken _startNumberLeadingZero() throws IOException
@@ -1614,10 +1615,13 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportLeadingPlusSignNotAllowed();
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = negative ? '-' : '+';
-        outBuf[1] = (char) ch;
+        int outPtr = 0;
+        if (negative) {
+            outBuf[outPtr++] = '-';
+        }
+        outBuf[outPtr++] = (char) ch;
         _intLength = 1;
-        return _finishNumberIntegralPart(outBuf, 2);
+        return _finishNumberIntegralPart(outBuf, outPtr);
     }
 
     protected JsonToken _finishNumberLeadingZeroes() throws IOException
@@ -1676,22 +1680,26 @@ public abstract class NonBlockingUtf8JsonParserBase
     }
 
     protected JsonToken _finishNumberLeadingPosZeroes() throws IOException {
-        return _finishNumberLeadingPosNegZeroes(false);
+        // 09-Oct-2026, tatu: '+' not included in text, so same as unsigned
+        return _finishNumberLeadingZeroes();
     }
 
     protected JsonToken _finishNumberLeadingPosNegZeroes(final boolean negative) throws IOException {
+        if (!negative) {
+            return _finishNumberLeadingZeroes();
+        }
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_PLUSZERO;
+                _minorState = MINOR_NUMBER_MINUSZERO;
                 return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = negative ? '-' : '+';
+                    outBuf[0] = '-';
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
@@ -1699,7 +1707,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             } else if (ch > INT_9) {
                 if ((ch | 0x20) == INT_e) { // ~ 'eE'
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = negative ? '-' : '+';
+                    outBuf[0] = '-';
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
@@ -1722,19 +1730,19 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                 // trim out leading zero
-                outBuf[0] = negative ? '-' : '+';
+                outBuf[0] = '-';
                 outBuf[1] = (char) ch;
                 _intLength = 1;
                 return _finishNumberIntegralPart(outBuf, 2);
             }
             --_inputPtr;
-            return _valueCompleteSignedZero(negative);
+            return _valueCompleteNegativeZero();
         }
     }
 
-    // Retain sign in text ("-0", "+0"), but not in integer-part length
-    private JsonToken _valueCompleteSignedZero(boolean negative) throws IOException {
-        JsonToken t = _valueCompleteInt(0, negative ? "-0" : "+0");
+    // 09-Oct-2026, tatu: retain sign in text ("-0"), but not in integer-part length
+    private JsonToken _valueCompleteNegativeZero() throws IOException {
+        JsonToken t = _valueCompleteInt(0, "-0");
         _intLength = 1;
         return t;
     }

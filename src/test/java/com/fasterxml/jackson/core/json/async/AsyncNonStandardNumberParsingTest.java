@@ -213,7 +213,7 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(123.0, p.getDoubleValue());
             assertEquals("123", p.getDecimalValue().toString());
-            assertEquals("+123", p.currentText());
+            assertEquals("123", p.currentText());
         } finally {
             p.close();
         }
@@ -231,7 +231,7 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(0.123, p.getDoubleValue());
             assertEquals("0.123", p.getDecimalValue().toString());
-            assertEquals("+0.123", p.currentText());
+            assertEquals("0.123", p.currentText());
         } finally {
             p.close();
         }
@@ -249,7 +249,7 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(123.123, p.getDoubleValue());
             assertEquals("123.123", p.getDecimalValue().toString());
-            assertEquals("+123.123", p.currentText());
+            assertEquals("123.123", p.currentText());
         } finally {
             p.close();
         }
@@ -287,7 +287,7 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(0.123, p.getDoubleValue());
             assertEquals("0.123", p.getDecimalValue().toString());
-            assertEquals("+.123", p.currentText());
+            assertEquals(".123", p.currentText());
         } finally {
             p.close();
         }

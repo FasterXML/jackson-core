@@ -103,7 +103,7 @@ class AsyncLeadingDecimalPoint1746Test extends AsyncTestBase
     {
         _testSignedLeadingDot("[1,-.5]", "-.5", -0.5);
         _testSignedLeadingDot("[1, -.5]", "-.5", -0.5);
-        _testSignedLeadingDot("[1,+.5]", "+.5", 0.5);
+        _testSignedLeadingDot("[1,+.5]", ".5", 0.5);
         _testSignedLeadingDot("[-.25e2]", "-.25e2", -25.0);
     }
 
@@ -136,7 +136,7 @@ class AsyncLeadingDecimalPoint1746Test extends AsyncTestBase
                 assertEquals("-.5", p.currentText());
                 assertEquals(-0.5, p.getDoubleValue());
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                assertEquals("+.75", p.currentText());
+                assertEquals(".75", p.currentText());
                 assertEquals(0.75, p.getDoubleValue());
                 p.close();
             }

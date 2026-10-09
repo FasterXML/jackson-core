@@ -32,6 +32,9 @@ JSON library.
  (contributed by @pjfanning, w/ Claude code)
 #1675: Allocate ByteArrayBuilder past-block list lazily
  (contributed by @pjfanning, w/ Claude code)
+#1680: Avoid per-character escape-table load in JSON String value
+  serialization fast path
+ (suggested by Francesco N)
 #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from 500 to 200 characters
  (reported, fix by DongNyoung L)
 #1686: Synchronous decimal number parsing buffers oversized values before

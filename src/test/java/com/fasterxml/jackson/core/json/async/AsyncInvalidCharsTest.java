@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for verifying things such as handling of invalid control characters;
@@ -92,6 +93,56 @@ class AsyncInvalidCharsTest extends AsyncTestBase
         } catch (JsonParseException e) {
             verifyException(e, verify);
         }
+    }
+
+    // 09-Oct-2026, tatu: split BOM followed by white space split at end of
+    //   chunk used to fail with "Internal error"
+    @Test
+    void utf8BOMFollowedBySplitWhitespace() throws Exception
+    {
+        final byte[] doc = _withBOM(" \n [ 1 ] ");
+        for (int readSize = 1; readSize <= doc.length; ++readSize) {
+            for (boolean byteBuffer : new boolean[] { false, true }) {
+                try (AsyncReaderWrapper p = byteBuffer
+                        ? asyncForByteBuffer(JSON_F, readSize, doc, 0)
+                        : asyncForBytes(JSON_F, readSize, doc, 0)) {
+                    assertEquals(JsonToken.START_ARRAY, p.nextToken());
+                    assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertEquals(1, p.getIntValue());
+                    assertEquals(JsonToken.END_ARRAY, p.nextToken());
+                    assertNull(p.nextToken());
+                }
+            }
+        }
+    }
+
+    // BOM only allowed as the very first bytes, not after white space
+    @Test
+    void utf8BOMAfterWhitespace() throws Exception
+    {
+        final byte[] ws = " ".getBytes("UTF-8");
+        final byte[] bom = _withBOM("[ 1 ]");
+        final byte[] doc = new byte[ws.length + bom.length];
+        System.arraycopy(ws, 0, doc, 0, ws.length);
+        System.arraycopy(bom, 0, doc, ws.length, bom.length);
+        for (int readSize = 1; readSize <= doc.length; ++readSize) {
+            try (AsyncReaderWrapper p = asyncForBytes(JSON_F, readSize, doc, 0)) {
+                JsonToken t = p.nextToken();
+                fail("Should not pass for readSize "+readSize+"; got "+t);
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character");
+            }
+        }
+    }
+
+    private static byte[] _withBOM(String json) throws Exception
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bytes.write(0xEF);
+        bytes.write(0xBB);
+        bytes.write(0xBF);
+        bytes.write(json.getBytes("UTF-8"));
+        return bytes.toByteArray();
     }
 
     @Test

@@ -206,6 +206,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         switch (_minorState) {
         case MINOR_ROOT_BOM:
             return _finishBOM(_pending32);
+        case MINOR_ROOT_GOT_SEPARATOR: // white space after split BOM, split
+            return _startDocument(getNextUnsignedByteFromBuffer());
         case MINOR_FIELD_LEADING_WS:
             return _startFieldName(getNextUnsignedByteFromBuffer());
         case MINOR_FIELD_LEADING_COMMA:
@@ -407,8 +409,8 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         ch &= 0xFF;
 
-        // Very first byte: could be BOM
-        if ((ch == 0xEF) && (_minorState != MINOR_ROOT_BOM)) {
+        // Very first byte: could be BOM (but not after BOM or leading white space)
+        if ((ch == 0xEF) && (_minorState == 0)) {
             return _finishBOM(1);
         }
 

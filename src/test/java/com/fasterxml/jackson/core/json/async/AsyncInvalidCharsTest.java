@@ -243,6 +243,43 @@ class AsyncInvalidCharsTest extends AsyncTestBase
         }
     }
 
+    // Same with leading comment, split or not
+    @Test
+    void leadingCommentKeepsNullToken() throws Exception
+    {
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                .build();
+        final String[][] FEEDS = {
+                { "/* c", " */ " },
+                { "/* c */" },
+                { "/* c */ " },
+                { " /* c */", "// x\n" },
+        };
+        for (String[] feeds : FEEDS) {
+            try (NonBlockingJsonParser p = (NonBlockingJsonParser) f.createNonBlockingByteArrayParser()) {
+                for (String feed : feeds) {
+                    byte[] b = feed.getBytes("UTF-8");
+                    p.feedInput(b, 0, b.length);
+                    assertEquals(JsonToken.NOT_AVAILABLE, p.nextToken());
+                }
+                assertNull(p.currentToken(), "for "+String.join("|", feeds));
+                byte[] doc = "[1]".getBytes("UTF-8");
+                p.feedInput(doc, 0, doc.length);
+                assertEquals(JsonToken.START_ARRAY, p.nextToken());
+                assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(JsonToken.END_ARRAY, p.nextToken());
+            }
+        }
+        // and with end-of-input: no content
+        try (NonBlockingJsonParser p = (NonBlockingJsonParser) f.createNonBlockingByteArrayParser()) {
+            byte[] b = "/* c */".getBytes("UTF-8");
+            p.feedInput(b, 0, b.length);
+            p.endOfInput();
+            assertNull(p.nextToken());
+        }
+    }
+
     private static AsyncReaderWrapper _async(JsonFactory f, boolean byteBuffer,
             int readSize, byte[] doc) throws Exception
     {

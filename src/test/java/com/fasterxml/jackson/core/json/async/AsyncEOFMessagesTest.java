@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -50,6 +51,33 @@ class AsyncEOFMessagesTest extends AsyncTestBase
     {
         _testEOF(utf8Bytes("+"), "Unexpected end-of-input in a Number value");
         _testEOF(utf8Bytes("[-"), "Unexpected end-of-input in a Number value");
+    }
+
+    // Number with no digits after decimal point or exponent sign is invalid
+    @Test
+    void eofInNumberWithoutDigits() throws Exception
+    {
+        _testEOF(utf8Bytes("1."), "Decimal point not followed by a digit");
+        _testEOF(utf8Bytes("-1."), "Decimal point not followed by a digit");
+        _testEOF(utf8Bytes("[1."), "Decimal point not followed by a digit");
+        _testEOF(utf8Bytes("1e+"), "was expecting digits after exponent marker");
+        _testEOF(utf8Bytes("1.5e-"), "was expecting digits after exponent marker");
+    }
+
+    @Test
+    void eofAfterTrailingDecimalPointAllowed() throws Exception
+    {
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)
+                .build();
+        final byte[] doc = utf8Bytes("1.");
+        for (int readSize = 1; readSize <= doc.length; ++readSize) {
+            try (AsyncReaderWrapper p = asyncForBytes(f, readSize, doc, 0)) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(1.0, p.getDoubleValue());
+                assertNull(p.nextToken());
+            }
+        }
     }
 
     @Test

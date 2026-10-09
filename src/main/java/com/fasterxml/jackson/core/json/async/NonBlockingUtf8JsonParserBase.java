@@ -335,8 +335,6 @@ public abstract class NonBlockingUtf8JsonParserBase
         // NOTE: caller ensures there's input available...
         JsonToken t = _currToken;
         switch (_minorState) {
-        case MINOR_ROOT_GOT_SEPARATOR: // fine, just skip some trailing space
-            return _eofAsNextToken();
         case MINOR_ROOT_BOM:
             if (_pending32 == 3) { // full BOM, no content: same as empty content
                 return _eofAsNextToken();
@@ -399,9 +397,17 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _valueComplete(JsonToken.VALUE_NUMBER_INT);
 
         case MINOR_NUMBER_FRACTION_DIGITS:
+            // 09-Oct-2026, tatu: must have at least one digit (unless allowed)
+            if ((_fractLength == 0)
+                    && !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                _reportInvalidEOF(": Decimal point not followed by a digit", JsonToken.VALUE_NUMBER_FLOAT);
+            }
             _expLength = 0;
-            // fall through
+            return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
         case MINOR_NUMBER_EXPONENT_DIGITS:
+            if (_expLength == 0) {
+                _reportInvalidEOF(": was expecting digits after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
+            }
             return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
 
         case MINOR_NUMBER_PLUS:
@@ -450,16 +456,22 @@ public abstract class NonBlockingUtf8JsonParserBase
         // 09-Oct-2026, tatu: leading white space (incl. RS, if enabled) and comments
         //   handled same as before any other root value
         JsonToken t = _startValue(ch);
-        // but retain existing behavior for white space only content: report
-        // end-of-input right away, and otherwise keep "no current token"
-        // (nothing returned yet, even if BOM was split)
         if ((t == JsonToken.NOT_AVAILABLE) && (_minorState == MINOR_VALUE_LEADING_WS)) {
-            if (_endOfInput) {
-                return _eofAsNextToken();
-            }
-            _currToken = null;
+            return _suspendLeadingWS();
         }
         return t;
+    }
+
+    // Called when input runs out after white space/comments at start of document:
+    // as nothing returned yet, keep "no current token" (even if BOM or comment was
+    // split), and report end-of-input right away if known
+    private final JsonToken _suspendLeadingWS() throws IOException
+    {
+        if (_endOfInput) {
+            return _eofAsNextToken();
+        }
+        _currToken = null;
+        return JsonToken.NOT_AVAILABLE;
     }
 
     private final JsonToken _finishBOM(int bytesHandled) throws IOException
@@ -1098,9 +1110,16 @@ public abstract class NonBlockingUtf8JsonParserBase
         // Ok, then, need one more character...
         if (_inputPtr >= _inputEnd) {
             _minorState = fromMinorState;
+            if ((fromMinorState == MINOR_VALUE_LEADING_WS) && (_majorState == MAJOR_INITIAL)) {
+                return _suspendLeadingWS();
+            }
             return _updateTokenToNA();
         }
         int ch = getNextUnsignedByteFromBuffer();
+        if ((fromMinorState == MINOR_VALUE_LEADING_WS) && (_majorState == MAJOR_INITIAL)) {
+            _minorState = MINOR_VALUE_LEADING_WS; // to prevent BOM after comment
+            return _startDocument(ch);
+        }
         switch (fromMinorState) {
         case MINOR_FIELD_LEADING_WS:
             return _startFieldName(ch);
@@ -2157,7 +2176,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 // [jackson-core#1581]: Check if decoded value is a high surrogate
                 if (ch >= 0xD800 && ch <= 0xDBFF) {
-                    // 09-Oct-2026, tatu: decode low surrogate here; only resumed via
+                    // 09-Oct-2026, tatu: [core#1742] decode low surrogate here; only resumed via
                     //   _finishToken() if input runs out (no recursion)
                     ch = _decodeLowSurrogateInName(ch);
                     if (ch < 0) {
@@ -2370,7 +2389,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     }
                     // [jackson-core#1581]: Check if decoded value is a high surrogate
                     if (ch >= 0xD800 && ch <= 0xDBFF) {
-                        // 09-Oct-2026, tatu: see _parseEscapedName()
+                        // 09-Oct-2026, tatu: [core#1742] see _parseEscapedName()
                         ch = _decodeLowSurrogateInName(ch);
                         if (ch < 0) {
                             return _suspendNameEscape(MINOR_FIELD_APOS_NAME, qlen, currQuad, currQuadBytes);
@@ -2597,7 +2616,9 @@ public abstract class NonBlockingUtf8JsonParserBase
             _quotedDigits = -1;
             _quoted32 = 0;
         }
-        int ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
+        // Nothing after backslash read yet? Can use fast path if fully buffered
+        int ch = (_quotedDigits == -1) ? _decodeCharEscape()
+                : _decodeSplitEscaped(_quoted32, _quotedDigits);
         if (ch < 0) {
             _pendingSurrogateInName = highSurrogate;
             return -1;

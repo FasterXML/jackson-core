@@ -64,6 +64,9 @@ No changes since 2.21
   a feed ends inside an escaped surrogate pair in a property name
  (reported by @DRMacIver)
  (fix by @pjfanning)
+#1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
+  with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
+ (fix by @pjfanning)
 
 2.21.7 (21-Sep-2026)
 

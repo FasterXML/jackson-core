@@ -144,4 +144,24 @@ public abstract class JsonParserBase
     protected boolean _isAllowedCtrlCharRS(int i) {
         return (i == INT_RS)  && (_features & FEAT_MASK_ALLOW_CTRL_RS) != 0;
     }
+
+    // 09-Oct-2026, tatu: [core#1746] Decimal point must be followed by a digit,
+    //   unless trailing decimal point is allowed AND there is an integer part
+    // @since 2.21.8
+    protected boolean _missingFractionDigits(int fractLen, int intLen) {
+        return (fractLen == 0)
+                && ((intLen == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature()));
+    }
+
+    // @since 2.21.8
+    protected void _verifyFractionDigits(int fractLen, int intLen, int ch) throws JsonParseException {
+        if (_missingFractionDigits(fractLen, intLen)) {
+            _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+        }
+    }
+
+    // @since 2.21.8
+    protected void _reportLeadingPlusSignNotAllowed() throws JsonParseException {
+        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+    }
 }

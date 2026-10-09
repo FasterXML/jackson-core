@@ -1330,6 +1330,15 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _startFloat(outBuf, 0, INT_PERIOD);
     }
 
+    // 09-Oct-2026, tatu: [core#1506] at root level, report missing separator
+    //    (as blocking parsers do), since "1.5false" is not a suffix problem
+    private void _reportFloatSuffix(int ch) throws IOException {
+        if (_parsingContext.inRoot()) {
+            _reportMissingRootWS(ch);
+        }
+        _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+    }
+
     private JsonToken _numberComplete(JsonToken t) throws IOException {
         _verifyRootSpaceAfterNumber();
         return _valueComplete(t);
@@ -1838,7 +1847,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // 09-Oct-2026, tatu: same checks as `_finishFloatFraction()`, to
                     //    not depend on where input chunk boundaries fall
                     if ((ch | 0x22) == 'f') { // ~ fFdD
-                        _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+                        _reportFloatSuffix(ch);
                     } else if (ch == INT_PERIOD) {
                         _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
                     }
@@ -1931,7 +1940,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 ch = getNextSignedByteFromBuffer();
             } else if ((ch | 0x22) == 'f') { // ~ fFdD
-                _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+                _reportFloatSuffix(ch);
             } else if (ch == INT_PERIOD) {
                 _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
             } else {

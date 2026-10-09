@@ -27,6 +27,10 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
+        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
+        //    the number, then fails as missing comma
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals("0", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -45,6 +49,10 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
+        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
+        //    the number, then fails as missing comma
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals("0", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -63,6 +71,10 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
+        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
+        //    the number, then fails as missing comma
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals("-0", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -81,6 +93,10 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
+        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
+        //    the number, then fails as missing comma
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals("-0.123", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -99,6 +115,10 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
+        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
+        //    the number, then fails as missing comma
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals("-0.123", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -116,6 +136,10 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
+        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
+        //    the number, then fails as missing comma
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals("-0.123", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -214,7 +238,7 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(123.0, p.getDoubleValue());
             assertEquals("123", p.getDecimalValue().toString());
-            assertEquals("+123", p.currentText());
+            assertEquals("123", p.currentText());
         } finally {
             p.close();
         }
@@ -250,7 +274,7 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(123.123, p.getDoubleValue());
             assertEquals("123.123", p.getDecimalValue().toString());
-            assertEquals("+123.123", p.currentText());
+            assertEquals("123.123", p.currentText());
         } finally {
             p.close();
         }
@@ -288,7 +312,7 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(0.123, p.getDoubleValue());
             assertEquals("0.123", p.getDecimalValue().toString());
-            assertEquals("+0.123", p.currentText());
+            assertEquals(".123", p.currentText());
         } finally {
             p.close();
         }
@@ -307,7 +331,7 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(-0.123, p.getDoubleValue());
             assertEquals("-0.123", p.getDecimalValue().toString());
-            assertEquals("-0.123", p.currentText());
+            assertEquals("-.123", p.currentText());
         } finally {
             p.close();
         }

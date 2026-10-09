@@ -269,7 +269,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_3:
             if (!_decodeSplitUTF8_3(_pending32, _pendingBytes, getNextSignedByteFromBuffer())) {
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             if (_minorStateAfterSplit == MINOR_VALUE_APOS_STRING) {
                 return _finishAposString();
@@ -277,7 +277,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_4:
             if (!_decodeSplitUTF8_4(_pending32, _pendingBytes, getNextSignedByteFromBuffer())) {
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             if (_minorStateAfterSplit == MINOR_VALUE_APOS_STRING) {
                 return _finishAposString();
@@ -288,7 +288,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             {
                 int c = _decodeSplitEscaped(_quoted32, _quotedDigits);
                 if (c < 0) {
-                    return JsonToken.NOT_AVAILABLE;
+                    return _updateTokenToNA();
                 }
                 _textBuffer.append((char) c);
             }
@@ -1842,7 +1842,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 if (_inputPtr >= _inputEnd) {
                     _textBuffer.setCurrentLength(outPtr);
                     _setFractLength(fractLen);
-                    return JsonToken.NOT_AVAILABLE;
+                    return _updateTokenToNA();
                 }
                 ch = getNextSignedByteFromBuffer();
             } else if ((ch | 0x22) == 'f') { // ~ fFdD
@@ -1870,7 +1870,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _expLength = 0;
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_EXPONENT_MARKER;
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
             return _finishFloatExponent(true, getNextUnsignedByteFromBuffer());
@@ -1893,7 +1893,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 if (_inputPtr >= _inputEnd) {
                     _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
                     _expLength = 0;
-                    return JsonToken.NOT_AVAILABLE;
+                    return _updateTokenToNA();
                 }
                 ch = getNextSignedByteFromBuffer();
             }
@@ -1912,7 +1912,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _textBuffer.setCurrentLength(outPtr);
                 _setExpLength(expLen);
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             ch = getNextSignedByteFromBuffer();
         }
@@ -2469,16 +2469,20 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _fieldComplete(name);
     }
 
+    // NOTE: callers set '_minorState' to MINOR_FIELD_NAME_ESCAPE before calling
     protected final JsonToken _finishFieldWithEscape() throws IOException
     {
         int ch;
 
         // [jackson-core#1581]: Handle pending high surrogate saved from previous chunk
         if (_pendingSurrogateInName != 0) {
+            // Clear up-front so failures below do not leave stale state; restored if suspending
+            final int highSurrogate = _pendingSurrogateInName;
+            _pendingSurrogateInName = 0;
             if (_quotedDigits == -2) {
                 // Need to read the backslash that starts the low surrogate escape
                 if (_inputPtr >= _inputEnd) {
-                    _minorState = MINOR_FIELD_NAME_ESCAPE;
+                    _pendingSurrogateInName = highSurrogate;
                     return _updateTokenToNA();
                 }
                 _verifyLowSurrogateBackslash(getNextUnsignedByteFromBuffer());
@@ -2487,17 +2491,14 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
             if (ch < 0) {
-                _minorState = MINOR_FIELD_NAME_ESCAPE;
+                _pendingSurrogateInName = highSurrogate;
                 return _updateTokenToNA();
             }
-            int highSurrogate = _pendingSurrogateInName;
-            _pendingSurrogateInName = 0;
             ch = _combineSurrogatesInName(highSurrogate, ch);
         } else {
             // First: try finishing what wasn't yet:
             ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
             if (ch < 0) { // ... if possible
-                _minorState = MINOR_FIELD_NAME_ESCAPE;
                 return _updateTokenToNA();
             }
             // [jackson-core#1581]: high surrogate - save and wait for low surrogate
@@ -2505,7 +2506,6 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _pendingSurrogateInName = ch;
                 _quoted32 = 0;
                 _quotedDigits = -2;
-                _minorState = MINOR_FIELD_NAME_ESCAPE;
                 // Recurse to immediately attempt reading the low surrogate escape
                 return _finishFieldWithEscape();
             } else if (ch >= 0xDC00 && ch <= 0xDFFF) {

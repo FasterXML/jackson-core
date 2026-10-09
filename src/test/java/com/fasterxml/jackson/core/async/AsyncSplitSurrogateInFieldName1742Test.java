@@ -1,18 +1,20 @@
 package com.fasterxml.jackson.core.async;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// [jackson-core#1742]: feed split inside low surrogate escape of a property name
+// 09-Oct-2026, tatu: [core#1742] feed split inside escaped surrogate pair
+//   of a property name; all chunk sizes so every split offset gets covered
 class AsyncSplitSurrogateInFieldName1742Test extends AsyncTestBase
 {
     private final JsonFactory FACTORY = newStreamFactory();
@@ -20,88 +22,99 @@ class AsyncSplitSurrogateInFieldName1742Test extends AsyncTestBase
             .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
             .build();
 
-    // U+1F600 GRINNING FACE
-    private static final String SMILEY = new String(Character.toChars(0x1F600));
-    // U+1D11E MUSICAL SYMBOL G CLEF
-    private static final String G_CLEF = new String(Character.toChars(0x1D11E));
-
-    @Test
-    void splitInLowSurrogateEscape() throws Exception
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void splitInSurrogatePair(boolean byteBuffer) throws Exception
     {
-        _testSplitInLowSurrogateEscape(false);
-        _testSplitInLowSurrogateEscape(true);
+        _testAllSplits(byteBuffer, FACTORY, "{\"\\uD83D\\uDE00\":1}");
+        _testAllSplits(byteBuffer, FACTORY, "{\"ab\\uD83D\\uDE00cd\":1}");
+        _testAllSplits(byteBuffer, FACTORY, "{\"x\":{\"\\uD83D\\uDE00\":[true,\"v\"]}}");
+        _testAllSplits(byteBuffer, FACTORY, "{\"\\uD83D\\uDE00\\uD834\\uDD1E\":-1.5e3}");
+        _testAllSplits(byteBuffer, FACTORY, "{\"a\":1,\"\\ud834\\udd1e\":\"\\ud834\\udd1e\"}");
     }
 
-    @Test
-    void splitInLowSurrogateEscapeApos() throws Exception
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void splitInSurrogatePairApos(boolean byteBuffer) throws Exception
     {
-        _testSplitInLowSurrogateEscapeApos(false);
-        _testSplitInLowSurrogateEscapeApos(true);
+        _testAllSplits(byteBuffer, APOS_FACTORY, "{'\\uD83D\\uDE00':1}");
+        _testAllSplits(byteBuffer, APOS_FACTORY, "{'ab\\uD83D\\uDE00cd':'x'}");
     }
 
-    private void _testSplitInLowSurrogateEscape(boolean byteBuffer) throws Exception
+    // End-of-input within surrogate pair escape must fail, not hang or hit internal error
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void eofInSurrogatePair(boolean byteBuffer) throws Exception
     {
-        _testAllSplits(byteBuffer, FACTORY, "{\"\\uD83D\\uDE00\":1}", SMILEY);
-        _testAllSplits(byteBuffer, FACTORY, "{\"ab\\uD83D\\uDE00cd\":1}", "ab"+SMILEY+"cd");
-        _testAllSplits(byteBuffer, FACTORY, "{\"x\":{\"\\uD83D\\uDE00\":1}}", "x", SMILEY);
-        _testAllSplits(byteBuffer, FACTORY, "{\"\\uD83D\\uDE00\\uD834\\uDD1E\":1}", SMILEY+G_CLEF);
-        _testAllSplits(byteBuffer, FACTORY, "{\"a\":1,\"\\ud834\\udd1e\":2}", "a", G_CLEF);
-    }
-
-    private void _testSplitInLowSurrogateEscapeApos(boolean byteBuffer) throws Exception
-    {
-        _testAllSplits(byteBuffer, APOS_FACTORY, "{'\\uD83D\\uDE00':1}", SMILEY);
-        _testAllSplits(byteBuffer, APOS_FACTORY, "{'ab\\uD83D\\uDE00cd':1}", "ab"+SMILEY+"cd");
-    }
-
-    private void _testAllSplits(boolean byteBuffer, JsonFactory f, String json, String... expNames) throws Exception
-    {
-        byte[] doc = json.getBytes(StandardCharsets.UTF_8);
-        for (int split = 1; split < doc.length; ++split) {
-            _testSplit(byteBuffer, f, doc, split, String.join("|", expNames));
+        for (String doc : new String[] {
+                "{\"\\uD83D", "{\"\\uD83D\\", "{\"\\uD83D\\u", "{\"\\uD83D\\uDE", "{\"\\uD83D\\uDE0"
+        }) {
+            _testAllSplitsFail(byteBuffer, FACTORY, doc, "Unexpected end-of-input");
         }
     }
 
-    private void _testSplit(boolean byteBuffer, JsonFactory f, byte[] doc, int split, String expNames) throws Exception
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void brokenSurrogatePair(boolean byteBuffer) throws Exception
     {
-        JsonParser p = byteBuffer ? f.createNonBlockingByteBufferParser()
-                : f.createNonBlockingByteArrayParser();
-        NonBlockingInputFeeder feeder = p.getNonBlockingInputFeeder();
-        _feed(feeder, doc, 0, split);
-        boolean fedAll = false;
-        List<String> names = new ArrayList<>();
+        _testAllSplitsFail(byteBuffer, FACTORY, "{\"\\uD83D\":1}", "Broken surrogate pair");
+        _testAllSplitsFail(byteBuffer, FACTORY, "{\"\\uD83Dx\":1}", "Broken surrogate pair");
+        _testAllSplitsFail(byteBuffer, FACTORY, "{\"\\uD83D\\u0041\":1}", "Broken surrogate pair");
+        _testAllSplitsFail(byteBuffer, FACTORY, "{\"\\uD83D\\n\":1}", "Broken surrogate pair");
+        _testAllSplitsFail(byteBuffer, FACTORY, "{\"\\uD83D\\uDEx0\":1}", "expected a hex-digit");
+    }
+
+    private void _testAllSplits(boolean byteBuffer, JsonFactory f, String json) throws Exception
+    {
+        final byte[] doc = json.getBytes(StandardCharsets.UTF_8);
+        final String exp = _blockingTokens(f, doc);
+        for (int chunk = 1; chunk <= doc.length; ++chunk) {
+            try (AsyncReaderWrapper r = _wrap(byteBuffer, f, chunk, doc)) {
+                assertEquals(exp, _asyncTokens(r), "chunk size "+chunk+", byteBuffer="+byteBuffer);
+            }
+        }
+    }
+
+    private void _testAllSplitsFail(boolean byteBuffer, JsonFactory f, String json,
+            String expMsg) throws Exception
+    {
+        final byte[] doc = json.getBytes(StandardCharsets.UTF_8);
+        for (int chunk = 1; chunk <= doc.length; ++chunk) {
+            try (AsyncReaderWrapper r = _wrap(byteBuffer, f, chunk, doc)) {
+                String tokens = _asyncTokens(r);
+                fail("Should fail for chunk size "+chunk+", byteBuffer="+byteBuffer+"; got: "+tokens);
+            } catch (StreamReadException e) {
+                verifyException(e, expMsg);
+            }
+        }
+    }
+
+    private AsyncReaderWrapper _wrap(boolean byteBuffer, JsonFactory f, int chunk, byte[] doc)
+        throws IOException
+    {
+        return byteBuffer ? asyncForByteBuffer(f, chunk, doc, 0)
+                : asyncForBytes(f, chunk, doc, 0);
+    }
+
+    private String _blockingTokens(JsonFactory f, byte[] doc) throws IOException
+    {
+        StringBuilder sb = new StringBuilder();
+        try (JsonParser p = f.createParser(doc)) {
+            JsonToken t;
+            while ((t = p.nextToken()) != null) {
+                sb.append(t).append(':').append(p.getText()).append('|');
+            }
+        }
+        return sb.toString();
+    }
+
+    private String _asyncTokens(AsyncReaderWrapper r) throws IOException
+    {
+        StringBuilder sb = new StringBuilder();
         JsonToken t;
-        while (true) {
-            t = p.nextToken();
-            if (t == JsonToken.NOT_AVAILABLE) {
-                assertTrue(feeder.needMoreInput(),
-                        "NOT_AVAILABLE with unread input, split at "+split+", byteBuffer="+byteBuffer);
-                if (fedAll) {
-                    feeder.endOfInput();
-                } else {
-                    _feed(feeder, doc, split, doc.length);
-                    fedAll = true;
-                }
-                continue;
-            }
-            if (t == null) {
-                break;
-            }
-            if (t == JsonToken.FIELD_NAME) {
-                names.add(p.currentName());
-            }
+        while ((t = r.nextToken()) != null) {
+            sb.append(t).append(':').append(r.currentText()).append('|');
         }
-        assertEquals(expNames, String.join("|", names), "split at "+split+", byteBuffer="+byteBuffer);
-        p.close();
-    }
-
-    private static void _feed(NonBlockingInputFeeder feeder, byte[] doc, int start, int end)
-        throws Exception
-    {
-        if (feeder instanceof ByteBufferFeeder) {
-            ((ByteBufferFeeder) feeder).feedInput(ByteBuffer.wrap(doc, start, end - start));
-        } else {
-            ((ByteArrayFeeder) feeder).feedInput(doc, start, end);
-        }
+        return sb.toString();
     }
 }

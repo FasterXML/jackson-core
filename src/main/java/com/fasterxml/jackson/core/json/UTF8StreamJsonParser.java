@@ -1639,8 +1639,9 @@ public class UTF8StreamJsonParser
                 outBuf[outPtr++] = (char) c;
             }
             // must be followed by sequence of ints, one minimum
+            // [core#1746]: trailing decimal point needs integer part
             if (fractLen == 0) {
-                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                if ((integerPartLength == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
                     _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
                 }
             }

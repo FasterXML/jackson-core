@@ -608,10 +608,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // and could be indicate by a more specific error message.
 
         case '.': // [core#611]
-            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                return _startFloatThatStartsWithPeriod();
-            }
-            break;
+            return _startFloatThatStartsWithPeriod(false);
 
         case '0':
             return _startNumberLeadingZero();
@@ -701,10 +698,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case '-':
             return _startNegativeNumber();
         case '.': // [core#611], [core#1746]
-            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                return _startFloatThatStartsWithPeriod();
-            }
-            break;
+            return _startFloatThatStartsWithPeriod(true);
         case '/':
             return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
@@ -796,10 +790,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case '-':
             return _startNegativeNumber();
         case '.': // [core#611], [core#1746]
-            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                return _startFloatThatStartsWithPeriod();
-            }
-            break;
+            return _startFloatThatStartsWithPeriod(false);
         case '/':
             return _startSlashComment(MINOR_VALUE_LEADING_WS);
 
@@ -853,10 +844,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case '-':
             return _startNegativeNumber();
         case '.': // [core#611], [core#1746]
-            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                return _startFloatThatStartsWithPeriod();
-            }
-            break;
+            return _startFloatThatStartsWithPeriod(true);
         case '/':
             return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
@@ -1292,6 +1280,21 @@ public abstract class NonBlockingUtf8JsonParserBase
     /**********************************************************************
      */
 
+    /**
+     * Method called when a value starts with {@code '.'}: parses it as a float
+     * if {@link JsonReadFeature#ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS} is enabled,
+     * otherwise reports an unexpected character.
+     *
+     * @since 2.21.8
+     */
+    protected JsonToken _startFloatThatStartsWithPeriod(boolean leadingComma) throws IOException
+    {
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+            return _startUnexpectedValue(leadingComma, INT_PERIOD);
+        }
+        return _startFloatThatStartsWithPeriod();
+    }
+
     // [core#611]: allow non-standard floats like ".125"
     protected JsonToken _startFloatThatStartsWithPeriod() throws IOException
     {
@@ -1364,6 +1367,9 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (ch == INT_0) {
                 return _finishNumberLeadingNegZeroes();
             }
+            if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _startSignedFloatThatStartsWithPeriod(true);
+            }
             // One special case: if first char is 0, must not be followed by a digit
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         } else if (ch > INT_9) {
@@ -1434,6 +1440,9 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 return _finishNumberLeadingPosZeroes();
             }
+            if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _startSignedFloatThatStartsWithPeriod(false);
+            }
             // One special case: if first char is 0, must not be followed by a digit
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
         } else if (ch > INT_9) {
@@ -1490,6 +1499,18 @@ public abstract class NonBlockingUtf8JsonParserBase
         _setIntLength(outPtr-1);
         _textBuffer.setCurrentLength(outPtr);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+    }
+
+    // [core#1746]: signed float like "-.5"; sign and '.' already consumed
+    private JsonToken _startSignedFloatThatStartsWithPeriod(boolean negative) throws IOException
+    {
+        if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+        }
+        _intLength = 0;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = negative ? '-' : '+';
+        return _startFloat(outBuf, 1, INT_PERIOD);
     }
 
     protected JsonToken _startNumberLeadingZero() throws IOException
@@ -1560,16 +1581,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _finishNumberLeadingPosZeroes();
                 }
             } else if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                if (negative) {
-                    _inputPtr--;
-                    return _finishNumberLeadingNegZeroes();
-                } else {
-                    if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
-                    }
-                    _inputPtr--;
-                    return _finishNumberLeadingPosZeroes();
-                }
+                return _startSignedFloatThatStartsWithPeriod(negative);
             }
             final String message = negative ?
                     "expected digit (0-9) to follow minus sign, for valid numeric value" :

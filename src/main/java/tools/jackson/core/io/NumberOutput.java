@@ -32,8 +32,9 @@ public final class NumberOutput
 
     /**
      * Maximum number of chars {@link #outputDouble(double, char[], int)} may touch:
-     * the longest output, like {@code -2.2250738585072014E-308}
-     * (the char[] writer uses no wide stores, so there is no padding).
+     * the longest output, like {@code -2.2250738585072014E-308}.
+     * Shorter outputs may still overwrite chars past the returned end position
+     * (but within this limit), so callers must reserve the full amount.
      *
      * @since 3.3
      */
@@ -41,8 +42,9 @@ public final class NumberOutput
 
     /**
      * Maximum number of chars {@link #outputFloat(float, char[], int)} may touch:
-     * the longest output, like {@code -1.00000075E-36}
-     * (the char[] writer uses no wide stores, so there is no padding).
+     * the longest output, like {@code -1.00000075E-36}.
+     * Shorter outputs may still overwrite chars past the returned end position
+     * (but within this limit), so callers must reserve the full amount.
      *
      * @since 3.3
      */
@@ -360,7 +362,8 @@ public final class NumberOutput
      * @param b target byte buffer (caller must ensure at least {@link #MAX_FLOAT_BYTES} bytes available from {@code off})
      * @param off offset within buffer to start writing
      *
-     * @return offset within buffer after the last byte written
+     * @return offset within buffer just after the last byte of output; bytes past it
+     *   (within {@link #MAX_FLOAT_BYTES}) may also have been overwritten
      * @since 3.2.2
      */
     public static int outputFloat(float v, byte[] b, int off) {
@@ -383,7 +386,8 @@ public final class NumberOutput
      * @param b target char buffer (caller must ensure at least {@link #MAX_FLOAT_CHARS} chars available from {@code off})
      * @param off offset within buffer to start writing
      *
-     * @return the position just after the last char written
+     * @return offset within buffer just after the last char of output; chars past it
+     *   (within {@link #MAX_FLOAT_CHARS}) may also have been overwritten
      * @since 3.3
      */
     public static int outputFloat(float v, char[] b, int off) {
@@ -405,7 +409,8 @@ public final class NumberOutput
      * @param b target byte buffer (caller must ensure at least {@link #MAX_DOUBLE_BYTES} bytes available from {@code off})
      * @param off offset within buffer to start writing
      *
-     * @return offset within buffer after the last byte written
+     * @return offset within buffer just after the last byte of output; bytes past it
+     *   (within {@link #MAX_DOUBLE_BYTES}) may also have been overwritten
      * @since 3.2.2
      */
     public static int outputDouble(double v, byte[] b, int off) {
@@ -428,7 +433,8 @@ public final class NumberOutput
      * @param b target char buffer (caller must ensure at least {@link #MAX_DOUBLE_CHARS} chars available from {@code off})
      * @param off offset within buffer to start writing
      *
-     * @return the position just after the last char written
+     * @return offset within buffer just after the last char of output; chars past it
+     *   (within {@link #MAX_DOUBLE_CHARS}) may also have been overwritten
      *
      * @since 3.3
      */

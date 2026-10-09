@@ -61,7 +61,9 @@ public final class XJBWriter {
      * {@link tools.jackson.core.io.NumberOutput#MAX_FLOAT_BYTES} bytes of free space
      * from {@code from}.
      *
-     * @return the position just after the last byte written
+     * @return the position just after the last byte of output; bytes past it
+     *   (within {@link tools.jackson.core.io.NumberOutput#MAX_FLOAT_BYTES}) may also
+     *   have been overwritten
      */
     public static int writeFloat(float x, byte[] buf, int from) {
         int bits = Float.floatToRawIntBits(x);
@@ -188,7 +190,9 @@ public final class XJBWriter {
      * {@link tools.jackson.core.io.NumberOutput#MAX_DOUBLE_BYTES} bytes of free space
      * from {@code from}.
      *
-     * @return the position just after the last byte written
+     * @return the position just after the last byte of output; bytes past it
+     *   (within {@link tools.jackson.core.io.NumberOutput#MAX_DOUBLE_BYTES}) may also
+     *   have been overwritten
      */
     public static int writeDouble(double x, byte[] buf, int from) {
         long bits = Double.doubleToRawLongBits(x);
@@ -338,7 +342,9 @@ public final class XJBWriter {
      * {@link tools.jackson.core.io.NumberOutput#MAX_FLOAT_CHARS} chars of free space
      * from {@code from}.
      *
-     * @return the position just after the last char written
+     * @return the position just after the last char of output; chars past it
+     *   (within {@link tools.jackson.core.io.NumberOutput#MAX_FLOAT_CHARS}) may also
+     *   have been overwritten
      *
      * @since 3.3
      */
@@ -478,7 +484,9 @@ public final class XJBWriter {
      * {@link tools.jackson.core.io.NumberOutput#MAX_DOUBLE_CHARS} chars of free space
      * from {@code from}.
      *
-     * @return the position just after the last char written
+     * @return the position just after the last char of output; chars past it
+     *   (within {@link tools.jackson.core.io.NumberOutput#MAX_DOUBLE_CHARS}) may also
+     *   have been overwritten
      *
      * @since 3.3
      */

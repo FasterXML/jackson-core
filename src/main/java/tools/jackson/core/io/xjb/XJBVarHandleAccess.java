@@ -6,8 +6,8 @@ import java.nio.ByteOrder;
 
 /**
  * VarHandle-based little-endian byte array access for Java 9+.
- * Separated from {@link XJBWriter} so animal-sniffer can exclude it
- * while still verifying Android SDK compatibility of the main class.
+ * Loaded reflectively by {@link XJBWriter}, which falls back to
+ * {@link tools.jackson.core.util.ByteArrayUtil} if this class cannot be used.
  */
 final class XJBVarHandleAccess {
 

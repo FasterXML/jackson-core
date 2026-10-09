@@ -49,6 +49,8 @@ public class NumberOutputFloatDoubleTest
         assertFloatOutputMatchesToString(Float.MIN_NORMAL);
         assertFloatOutputMatchesToString(-Float.MAX_VALUE);
         assertFloatOutputMatchesToString(-Float.MIN_VALUE);
+        // longest output
+        assertFloatOutputMatchesToString(-Float.MIN_NORMAL);
     }
 
     @Test
@@ -123,30 +125,11 @@ public class NumberOutputFloatDoubleTest
     }
 
     @Test
-    public void floatRoundTrip() {
-        float[] specials = {
-            0f, -0f, 1f, -1f, 0.1f, -0.1f, 100f, 123.45f, 1000f, 123000f,
-            1.2e23f, 1e10f, 1e-10f, 0.0001f, 0.001f, 0.0123f, 0.000123f,
-            Float.MIN_VALUE, Float.MAX_VALUE, Float.MIN_NORMAL,
-            -Float.MIN_VALUE, -Float.MAX_VALUE,
-            123456789f, 1.23456789E10f, 9999999f, 99999990f,
-            Float.intBitsToFloat(1), Float.intBitsToFloat(2),
-            Float.intBitsToFloat(0x7f7fffff),
-        };
-        for (float f : specials) {
-            assertFloatRoundTrip(f);
-        }
-    }
-
-    @Test
-    public void floatRoundTripRandom() {
+    public void floatRandom() {
+        // Round-trip correctness is covered by XJBRoundTripTest; here just verify char[] == toString
         Random r = new Random(42);
-        for (int i = 0; i < 500_000; i++) {
-            int bits = r.nextInt();
-            float f = Float.intBitsToFloat(bits);
-            if (Float.isFinite(f)) {
-                assertFloatRoundTrip(f);
-            }
+        for (int i = 0; i < 100_000; i++) {
+            assertFloatOutputMatchesToString(Float.intBitsToFloat(r.nextInt()));
         }
     }
 
@@ -181,6 +164,8 @@ public class NumberOutputFloatDoubleTest
         assertDoubleOutputMatchesToString(Double.MIN_NORMAL);
         assertDoubleOutputMatchesToString(-Double.MAX_VALUE);
         assertDoubleOutputMatchesToString(-Double.MIN_VALUE);
+        // longest output
+        assertDoubleOutputMatchesToString(-Double.MIN_NORMAL);
     }
 
     @Test
@@ -227,40 +212,12 @@ public class NumberOutputFloatDoubleTest
     }
 
     @Test
-    public void doubleRoundTrip() {
-        double[] specials = {
-            0d, -0d, 1d, -1d, 0.1d, -0.1d, 100d, 123.45d, 1000d, 123000d,
-            1.2e23d, 1e10d, 1e-10d, 0.0001d, 0.001d, 0.0123d, 0.000123d,
-            Double.MIN_VALUE, Double.MAX_VALUE, Double.MIN_NORMAL,
-            -Double.MIN_VALUE, -Double.MAX_VALUE,
-            123456789012345d, 1.23456789012345E100d, 9999999999999999d,
-            Double.longBitsToDouble(1L), Double.longBitsToDouble(2L),
-            Double.longBitsToDouble(0x7fefffffffffffffL),
-            4.9E-324, 2.2250738585072014E-308,
-        };
-        for (double d : specials) {
-            assertDoubleRoundTrip(d);
-        }
-    }
-
-    @Test
-    public void doubleRoundTripRandom() {
+    public void doubleRandom() {
+        // Round-trip correctness is covered by XJBRoundTripTest; here just verify char[] == toString
         Random r = new Random(42);
-        for (int i = 0; i < 500_000; i++) {
-            long bits = r.nextLong();
-            double d = Double.longBitsToDouble(bits);
-            if (Double.isFinite(d)) {
-                assertDoubleRoundTrip(d);
-            }
-        }
-    }
-
-    @Test
-    public void doubleRoundTripNiceDecimals() {
-        Random r = new Random(42);
-        for (int i = 0; i < 200_000; i++) {
-            double d = (r.nextDouble() - 0.5) * Math.pow(10, r.nextInt(60) - 30);
-            assertDoubleRoundTrip(d);
+        for (int i = 0; i < 100_000; i++) {
+            assertDoubleOutputMatchesToString(Double.longBitsToDouble(r.nextLong()));
+            assertDoubleOutputMatchesToString((r.nextDouble() - 0.5) * Math.pow(10, r.nextInt(60) - 30));
         }
     }
 
@@ -352,25 +309,5 @@ public class NumberOutputFloatDoubleTest
         for (int i = 0; i < offset; i++) {
             assertEquals('$', buf[i], "Offset area corrupted at position " + i);
         }
-    }
-
-    private void assertFloatRoundTrip(float f) {
-        char[] buf = new char[NumberOutput.MAX_FLOAT_CHARS];
-        int pos = NumberOutput.outputFloat(f, buf, 0);
-        String s = new String(buf, 0, pos);
-        float roundTripped = Float.parseFloat(s);
-        assertEquals(Float.floatToRawIntBits(f), Float.floatToRawIntBits(roundTripped),
-            () -> "Round-trip failed for float bits=" + Integer.toHexString(Float.floatToRawIntBits(f))
-                + " value=" + f + " string=\"" + s + "\"");
-    }
-
-    private void assertDoubleRoundTrip(double d) {
-        char[] buf = new char[NumberOutput.MAX_DOUBLE_CHARS];
-        int pos = NumberOutput.outputDouble(d, buf, 0);
-        String s = new String(buf, 0, pos);
-        double roundTripped = Double.parseDouble(s);
-        assertEquals(Double.doubleToRawLongBits(d), Double.doubleToRawLongBits(roundTripped),
-            () -> "Round-trip failed for double bits=" + Long.toHexString(Double.doubleToRawLongBits(d))
-                + " value=" + d + " string=\"" + s + "\"");
     }
 }

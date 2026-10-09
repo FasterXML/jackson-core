@@ -44,6 +44,31 @@ class AsyncRootNumberSeparationTest extends AsyncTestBase
         }
     }
 
+    // Non-ASCII character reported decoded, if fully buffered; lead byte if not
+    @Test
+    void nonAsciiAfterRootNumber() throws Exception
+    {
+        _testFailsOnFirstToken("1\u00e9 ", "Expected space separating root-level values");
+        AsyncReaderWrapper p = _parser("1\u00e9 ", 100, false);
+        try {
+            p.nextToken();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, "('\u00e9' (code 233))");
+        } finally {
+            p.close();
+        }
+        p = _parser("1.5\u20ac ", 100, true);
+        try {
+            p.nextToken();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, "(code 8364 / 0x20ac)");
+        } finally {
+            p.close();
+        }
+    }
+
     @Test
     void secondDecimalPointAtRoot() throws Exception
     {

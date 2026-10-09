@@ -2137,16 +2137,23 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 // [jackson-core#1581]: Check if decoded value is a high surrogate
                 if (ch >= 0xD800 && ch <= 0xDBFF) {
-                    _pendingSurrogateInName = ch;
-                    _minorState = MINOR_FIELD_NAME_ESCAPE;
-                    _minorStateAfterSplit = MINOR_FIELD_NAME;
-                    _quadLength = qlen;
-                    _pending32 = currQuad;
-                    _pendingBytes = currQuadBytes;
-                    _quoted32 = 0;
-                    _quotedDigits = -2;
-                    // Recurse to immediately attempt reading the low surrogate escape
-                    return _finishFieldWithEscape();
+                    // 09-Oct-2026, tatu: decode low surrogate escape inline when fully
+                    //   buffered; calling _finishFieldWithEscape() for each pair would
+                    //   recurse excessively
+                    if ((_inputEnd - _inputPtr) >= 6) {
+                        ch = _decodeLowSurrogateInName(ch);
+                    } else {
+                        _pendingSurrogateInName = ch;
+                        _minorState = MINOR_FIELD_NAME_ESCAPE;
+                        _minorStateAfterSplit = MINOR_FIELD_NAME;
+                        _quadLength = qlen;
+                        _pending32 = currQuad;
+                        _pendingBytes = currQuadBytes;
+                        _quoted32 = 0;
+                        _quotedDigits = -2;
+                        // Bounded: at most one more pair can follow within remaining bytes
+                        return _finishFieldWithEscape();
+                    }
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
                     _reportError("Unexpected low surrogate character (0x"
                             + Integer.toHexString(ch) + ") in field name");
@@ -2170,7 +2177,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                     ++currQuadBytes;
                     // Second byte gets output below:
-                } else { // 3 bytes; no need to worry about surrogates here
+                } else if (ch < 0x10000) { // 3 bytes (BMP, non-surrogate)
                     currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                     ++currQuadBytes;
                     // need room for middle byte?
@@ -2181,8 +2188,23 @@ public abstract class NonBlockingUtf8JsonParserBase
                     }
                     currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
                     ++currQuadBytes;
+                } else { // 4 bytes (supplementary code point from surrogate pair)
+                    currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                    if (++currQuadBytes >= 4) {
+                        quads[qlen++] = currQuad;
+                        currQuad = 0;
+                        currQuadBytes = 0;
+                    }
+                    currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
+                    if (++currQuadBytes >= 4) {
+                        quads[qlen++] = currQuad;
+                        currQuad = 0;
+                        currQuadBytes = 0;
+                    }
+                    currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                    ++currQuadBytes;
                 }
-                // And same last byte in both cases, gets output below:
+                // And same last byte in all cases, gets output below:
                 ch = 0x80 | (ch & 0x3f);
             }
             if (currQuadBytes < 4) {
@@ -2344,16 +2366,21 @@ public abstract class NonBlockingUtf8JsonParserBase
                     }
                     // [jackson-core#1581]: Check if decoded value is a high surrogate
                     if (ch >= 0xD800 && ch <= 0xDBFF) {
-                        _pendingSurrogateInName = ch;
-                        _minorState = MINOR_FIELD_NAME_ESCAPE;
-                        _minorStateAfterSplit = MINOR_FIELD_APOS_NAME;
-                        _quadLength = qlen;
-                        _pending32 = currQuad;
-                        _pendingBytes = currQuadBytes;
-                        _quoted32 = 0;
-                        _quotedDigits = -2;
-                        // Recurse to immediately attempt reading the low surrogate escape
-                        return _finishFieldWithEscape();
+                        // 09-Oct-2026, tatu: decode inline when fully buffered to avoid
+                        //   unbounded recursion (see _parseEscapedName())
+                        if ((_inputEnd - _inputPtr) >= 6) {
+                            ch = _decodeLowSurrogateInName(ch);
+                        } else {
+                            _pendingSurrogateInName = ch;
+                            _minorState = MINOR_FIELD_NAME_ESCAPE;
+                            _minorStateAfterSplit = MINOR_FIELD_APOS_NAME;
+                            _quadLength = qlen;
+                            _pending32 = currQuad;
+                            _pendingBytes = currQuadBytes;
+                            _quoted32 = 0;
+                            _quotedDigits = -2;
+                            return _finishFieldWithEscape();
+                        }
                     } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
                         _reportError("Unexpected low surrogate character (0x"
                                 + Integer.toHexString(ch) + ") in field name");
@@ -2373,7 +2400,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                         currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                         ++currQuadBytes;
                         // Second byte gets output below:
-                    } else { // 3 bytes; no need to worry about surrogates here
+                    } else if (ch < 0x10000) { // 3 bytes (BMP, non-surrogate)
                         currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                         ++currQuadBytes;
                         // need room for middle byte?
@@ -2387,8 +2414,29 @@ public abstract class NonBlockingUtf8JsonParserBase
                         }
                         currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
                         ++currQuadBytes;
+                    } else { // 4 bytes (supplementary code point from surrogate pair)
+                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                        if (++currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
+                        if (++currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                        ++currQuadBytes;
                     }
-                    // And same last byte in both cases, gets output below:
+                    // And same last byte in all cases, gets output below:
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -2433,11 +2481,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _minorState = MINOR_FIELD_NAME_ESCAPE;
                     return _updateTokenToNA();
                 }
-                int b = getNextUnsignedByteFromBuffer();
-                if (b != INT_BACKSLASH) {
-                    _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate escape, got 0x"
-                            + Integer.toHexString(b));
-                }
+                _verifyLowSurrogateBackslash(getNextUnsignedByteFromBuffer());
                 _quotedDigits = -1;
                 _quoted32 = 0;
             }
@@ -2446,16 +2490,9 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _minorState = MINOR_FIELD_NAME_ESCAPE;
                 return _updateTokenToNA();
             }
-            // Combine high + low surrogate into supplementary code point
             int highSurrogate = _pendingSurrogateInName;
             _pendingSurrogateInName = 0;
-            if (ch < 0xDC00 || ch > 0xDFFF) {
-                _reportError("Broken surrogate pair in field name: high surrogate 0x"
-                        + Integer.toHexString(highSurrogate)
-                        + " not followed by valid low surrogate, got 0x"
-                        + Integer.toHexString(ch));
-            }
-            ch = 0x10000 + ((highSurrogate - 0xD800) << 10) + (ch - 0xDC00);
+            ch = _combineSurrogatesInName(highSurrogate, ch);
         } else {
             // First: try finishing what wasn't yet:
             ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
@@ -2534,6 +2571,32 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishAposName(_quadLength, currQuad, currQuadBytes);
         }
         return _parseEscapedName(_quadLength, currQuad, currQuadBytes);
+    }
+
+    // Caller must ensure full low surrogate escape (6 bytes) is available
+    private int _decodeLowSurrogateInName(int highSurrogate) throws IOException
+    {
+        _verifyLowSurrogateBackslash(getNextUnsignedByteFromBuffer());
+        return _combineSurrogatesInName(highSurrogate, _decodeFastCharEscape());
+    }
+
+    private void _verifyLowSurrogateBackslash(int b) throws IOException
+    {
+        if (b != INT_BACKSLASH) {
+            _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate escape, got 0x"
+                    + Integer.toHexString(b));
+        }
+    }
+
+    private int _combineSurrogatesInName(int highSurrogate, int lowSurrogate) throws IOException
+    {
+        if (lowSurrogate < 0xDC00 || lowSurrogate > 0xDFFF) {
+            _reportError("Broken surrogate pair in field name: high surrogate 0x"
+                    + Integer.toHexString(highSurrogate)
+                    + " not followed by valid low surrogate, got 0x"
+                    + Integer.toHexString(lowSurrogate));
+        }
+        return 0x10000 + ((highSurrogate - 0xD800) << 10) + (lowSurrogate - 0xDC00);
     }
 
     private int _decodeSplitEscaped(int value, int bytesRead) throws IOException

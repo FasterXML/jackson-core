@@ -994,7 +994,44 @@ public abstract class NonBlockingUtf8JsonParserBase
         return ch;
     }
 
+    // 09-Oct-2026, tatu: comment handling methods skip the comment and only then
+    //   continue via _startAfterComment(), which loops over any following white space
+    //   and comments: so consecutive comments do not lead to excessive recursion
+
     private final JsonToken _startSlashComment(int fromMinorState) throws IOException
+    {
+        if (!_skipSlashComment(fromMinorState)) {
+            return _updateTokenToNA();
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _finishHashComment(int fromMinorState) throws IOException
+    {
+        if (!_skipHashComment(fromMinorState)) {
+            return _updateTokenToNA();
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _finishCppComment(int fromMinorState) throws IOException
+    {
+        if (!_skipCppComment(fromMinorState)) {
+            return _updateTokenToNA();
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws IOException
+    {
+        if (!_skipCComment(fromMinorState, gotStar)) {
+            return _updateTokenToNA();
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    // @return True if comment was fully skipped; false if input ran out (state saved)
+    private final boolean _skipSlashComment(int fromMinorState) throws IOException
     {
         if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
@@ -1004,82 +1041,65 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (_inputPtr >= _inputEnd) {
             _pending32 = fromMinorState;
             _minorState = MINOR_COMMENT_LEADING_SLASH;
-            return _updateTokenToNA();
+            return false;
         }
         int ch = getNextSignedByteFromBuffer();
         if (ch == INT_ASTERISK) { // c-style
-            return _finishCComment(fromMinorState, false);
+            return _skipCComment(fromMinorState, false);
         }
         if (ch == INT_SLASH) { // c++-style
-            return _finishCppComment(fromMinorState);
+            return _skipCppComment(fromMinorState);
         }
         _reportUnexpectedChar(ch & 0xFF, "was expecting either '*' or '/' for a comment");
-        return null;
+        return false;
     }
 
-    private final JsonToken _finishHashComment(int fromMinorState) throws IOException
+    private final boolean _skipHashComment(int fromMinorState) throws IOException
     {
         // Could by-pass this check by refactoring, but for now simplest way...
         if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
-        while (true) {
-            if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_COMMENT_YAML;
-                _pending32 = fromMinorState;
-                return _updateTokenToNA();
-            }
-            int ch = getNextUnsignedByteFromBuffer();
-            if (ch < 0x020) {
-                if (ch == INT_LF) {
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                    break;
-                } else if (ch == INT_CR) {
-                    ++_currInputRowAlt;
-                    _currInputRowStart = _inputPtr;
-                    break;
-                } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
-                }
-            }
-        }
-        return _startAfterComment(fromMinorState);
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_YAML);
     }
 
-    private final JsonToken _finishCppComment(int fromMinorState) throws IOException
+    private final boolean _skipCppComment(int fromMinorState) throws IOException
+    {
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_CPP);
+    }
+
+    private final boolean _skipLineComment(int fromMinorState, int commentState) throws IOException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_COMMENT_CPP;
+                _minorState = commentState;
                 _pending32 = fromMinorState;
-                return _updateTokenToNA();
+                return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
                     _currInputRowStart = _inputPtr;
-                    break;
+                    return true;
                 } else if (ch == INT_CR) {
                     ++_currInputRowAlt;
                     _currInputRowStart = _inputPtr;
-                    break;
+                    return true;
                 } else if (ch != INT_TAB) {
                     _throwInvalidSpace(ch);
                 }
             }
         }
-        return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws IOException
+    private final boolean _skipCComment(int fromMinorState, boolean gotStar) throws IOException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = gotStar ? MINOR_COMMENT_CLOSING_ASTERISK : MINOR_COMMENT_C;
                 _pending32 = fromMinorState;
-                return _updateTokenToNA();
+                return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < 0x020) {
@@ -1097,26 +1117,49 @@ public abstract class NonBlockingUtf8JsonParserBase
                 continue;
             } else if (ch == INT_SLASH) {
                 if (gotStar) {
-                    break;
+                    return true;
                 }
             }
             gotStar = false;
         }
-        return _startAfterComment(fromMinorState);
     }
 
     private final JsonToken _startAfterComment(int fromMinorState) throws IOException
     {
-        // Ok, then, need one more character...
-        if (_inputPtr >= _inputEnd) {
-            _minorState = fromMinorState;
-            if ((fromMinorState == MINOR_VALUE_LEADING_WS) && (_majorState == MAJOR_INITIAL)) {
-                return _suspendLeadingWS();
+        final boolean docStart = (fromMinorState == MINOR_VALUE_LEADING_WS)
+                && (_majorState == MAJOR_INITIAL);
+        int ch;
+        // Skip any white space and further comments here, iteratively
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                return _suspendAfterComment(fromMinorState, docStart);
             }
-            return _updateTokenToNA();
+            ch = getNextUnsignedByteFromBuffer();
+            if (ch <= 0x0020) {
+                ch = _skipWS(ch);
+                if (ch <= 0) {
+                    return _suspendAfterComment(fromMinorState, docStart);
+                }
+            }
+            if (ch == INT_SLASH) {
+                if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+                    break; // let caller report the problem
+                }
+                if (!_skipSlashComment(fromMinorState)) {
+                    return _updateTokenToNA();
+                }
+            } else if (ch == INT_HASH) {
+                if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+                    break; // may be valid for some states, error for others
+                }
+                if (!_skipHashComment(fromMinorState)) {
+                    return _updateTokenToNA();
+                }
+            } else {
+                break;
+            }
         }
-        int ch = getNextUnsignedByteFromBuffer();
-        if ((fromMinorState == MINOR_VALUE_LEADING_WS) && (_majorState == MAJOR_INITIAL)) {
+        if (docStart) {
             _minorState = MINOR_VALUE_LEADING_WS; // to prevent BOM after comment
             return _startDocument(ch);
         }
@@ -1137,6 +1180,16 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         VersionUtil.throwInternal();
         return null;
+    }
+
+    private final JsonToken _suspendAfterComment(int fromMinorState, boolean docStart)
+        throws IOException
+    {
+        _minorState = fromMinorState;
+        if (docStart) {
+            return _suspendLeadingWS();
+        }
+        return _updateTokenToNA();
     }
 
     /*

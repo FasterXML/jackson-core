@@ -205,6 +205,26 @@ class AsyncInvalidCharsTest extends AsyncTestBase
         }
     }
 
+    // Leading white space alone does not change current token (remains null)
+    @Test
+    void leadingWhitespaceKeepsNullToken() throws Exception
+    {
+        try (NonBlockingJsonParser p = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser()) {
+            byte[] ws = " \n ".getBytes("UTF-8");
+            p.feedInput(ws, 0, ws.length);
+            assertEquals(JsonToken.NOT_AVAILABLE, p.nextToken());
+            assertNull(p.currentToken());
+            p.feedInput(ws, 0, ws.length);
+            assertEquals(JsonToken.NOT_AVAILABLE, p.nextToken());
+            assertNull(p.currentToken());
+            byte[] doc = "[1]".getBytes("UTF-8");
+            p.feedInput(doc, 0, doc.length);
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        }
+    }
+
     private static AsyncReaderWrapper _async(JsonFactory f, boolean byteBuffer,
             int readSize, byte[] doc) throws Exception
     {

@@ -615,7 +615,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // and could be indicate by a more specific error message.
 
         case '.': // [core#611]
-            return _startFloatThatStartsWithPeriod(false);
+            return _startValueWithPeriod();
 
         case '0':
             return _startNumberLeadingZero();
@@ -705,7 +705,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case '-':
             return _startNegativeNumber();
         case '.': // [core#611], [core#1746]
-            return _startFloatThatStartsWithPeriod(true);
+            return _startValueWithPeriod();
         case '/':
             return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
@@ -797,7 +797,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case '-':
             return _startNegativeNumber();
         case '.': // [core#611], [core#1746]
-            return _startFloatThatStartsWithPeriod(false);
+            return _startValueWithPeriod();
         case '/':
             return _startSlashComment(MINOR_VALUE_LEADING_WS);
 
@@ -851,7 +851,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case '-':
             return _startNegativeNumber();
         case '.': // [core#611], [core#1746]
-            return _startFloatThatStartsWithPeriod(true);
+            return _startValueWithPeriod();
         case '/':
             return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
@@ -1356,17 +1356,13 @@ public abstract class NonBlockingUtf8JsonParserBase
     /**********************************************************************
      */
 
-    /**
-     * Method called when a value starts with {@code '.'}: parses it as a float
-     * if {@link JsonReadFeature#ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS} is enabled,
-     * otherwise reports an unexpected character.
-     *
-     * @since 2.21.8
-     */
-    protected JsonToken _startFloatThatStartsWithPeriod(boolean leadingComma) throws IOException
+    // 09-Oct-2026, tatu: [core#1746] Value starting with '.': float if
+    //    ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS enabled, otherwise unexpected character
+    //    (note: `_startUnexpectedValue()` does not use `leadingComma` for '.')
+    private JsonToken _startValueWithPeriod() throws IOException
     {
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-            return _startUnexpectedValue(leadingComma, INT_PERIOD);
+            return _startUnexpectedValue(false, INT_PERIOD);
         }
         return _startFloatThatStartsWithPeriod();
     }
@@ -1378,24 +1374,6 @@ public abstract class NonBlockingUtf8JsonParserBase
         _intLength = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         return _startFloat(outBuf, 0, INT_PERIOD);
-    }
-
-    // 09-Oct-2026, tatu: Checks for the character that ended fraction; shared by
-    //    `_startFloat()` and `_finishFloatFraction()` so that results do not
-    //    depend on where input chunk boundaries fall
-    private void _verifyFractionEnd(int fractLen, int ch) throws IOException {
-        if ((ch | 0x22) == 'f') { // ~ fFdD
-            // [core#1506] at root level, report missing separator (as blocking
-            // parsers do), since "1.5false" is not a suffix problem
-            if (_parsingContext.inRoot()) {
-                _reportMissingRootWS(ch);
-            }
-            _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
-        } else if (ch == INT_PERIOD) {
-            _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
-        }
-        // must be followed by sequence of ints, one minimum
-        _verifyFractionDigits(fractLen, _intLength, ch);
     }
 
     // Number completion: all number tokens complete via these two methods
@@ -1615,13 +1593,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 outBuf[0] = '0';
                 return _startFloat(outBuf, 1, ch);
             }
-            // Ok; unfortunately we have closing bracket/curly that are valid so need
-            // (colon not possible since this is within value, not after key)
-            //
-            if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
-                _reportUnexpectedNumberChar(ch,
-                        "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
-            }
+            // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
+            //    reported as missing separator (root) or missing comma (otherwise)
         } else { // leading zero case (zero followed by a digit)
             // leave inputPtr as is (i.e. "push back" digit)
             return _finishNumberLeadingZeroes();
@@ -1707,13 +1680,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _intLength = 1;
                     return _startFloat(outBuf, 1, ch);
                 }
-                // Ok; unfortunately we have closing bracket/curly that are valid so need
-                // (colon not possible since this is within value, not after key)
-                //
-                if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
-                    _reportUnexpectedNumberChar(ch,
-                            "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
-                }
+                // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
+                //    reported as missing separator (root) or missing comma (otherwise)
             } else { // Number between 0 and 9
                 // although not guaranteed, seems likely valid separator (white space,
                 // comma, end bracket/curly); next time token needed will verify
@@ -1777,13 +1745,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
                 }
-                // Ok; unfortunately we have closing bracket/curly that are valid so need
-                // (colon not possible since this is within value, not after key)
-                //
-                if ((ch | 0x20) != INT_RCURLY) { // ~ '}]'
-                    _reportUnexpectedNumberChar(ch,
-                            "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
-                }
+                // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
+                //    reported as missing separator (root) or missing comma (otherwise)
             } else { // Number between 1 and 9; go integral
                 // although not guaranteed, seems likely valid separator (white space,
                 // comma, end bracket/curly); next time token needed will verify
@@ -1866,7 +1829,10 @@ public abstract class NonBlockingUtf8JsonParserBase
                 ch = getNextSignedByteFromBuffer(); // ok to have sign extension for now
                 if (ch < INT_0 || ch > INT_9) {
                     ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
-                    _verifyFractionEnd(fractLen, ch);
+                    // must be followed by sequence of ints, one minimum. Any other
+                    // character ends the number, as with blocking parsers (and
+                    // regardless of where input chunk boundaries fall)
+                    _verifyFractionDigits(fractLen, _intLength, ch);
                     break;
                 }
                 if (outPtr >= outBuf.length) {
@@ -1955,7 +1921,8 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // Ok, fraction done; what have we got next?
         ch &= 0xFF; // mask to unsigned 8-bit, as with `_startFloat()`
-        _verifyFractionEnd(fractLen, ch);
+        // must be followed by sequence of ints, one minimum (same as `_startFloat()`)
+        _verifyFractionDigits(fractLen, _intLength, ch);
         _setFractLength(fractLen);
         _textBuffer.setCurrentLength(outPtr);
 

@@ -70,19 +70,35 @@ class AsyncRootNumberSeparationTest extends AsyncTestBase
         }
     }
 
+    // As with blocking parsers, unexpected character just ends the number
     @Test
-    void secondDecimalPointAtRoot() throws Exception
+    void unexpectedCharAfterRootNumber() throws Exception
     {
-        _testFailsOnFirstToken("1.5.5 ", "more than one decimal point");
+        for (String json : new String[] { "1.5.5 ", "1.5f ", "1.5D ", "0x ", "-0x ", "0a ", "0]" }) {
+            _testFailsOnFirstToken(json, "Expected space separating root-level values");
+        }
     }
 
-    // Inside Arrays/Objects, malformed number must also fail on the number itself
+    // Inside Arrays/Objects, as with blocking parsers, unexpected character ends
+    // the number, then fails as missing comma (regardless of chunk boundaries)
     @Test
-    void malformedFloatInArray() throws Exception
+    void unexpectedCharAfterNumberInArray() throws Exception
     {
-        _testFailsOnSecondToken("[1.5.5]", "more than one decimal point");
-        _testFailsOnSecondToken("[1.5f]", "'f' or 'd' suffixes");
-        _testFailsOnSecondToken("[1.5D]", "'f' or 'd' suffixes");
+        _testFailsAfterNumber("[1.5.5]", JsonToken.VALUE_NUMBER_FLOAT, "1.5");
+        _testFailsAfterNumber("[1.5f]", JsonToken.VALUE_NUMBER_FLOAT, "1.5");
+        _testFailsAfterNumber("[1.5D]", JsonToken.VALUE_NUMBER_FLOAT, "1.5");
+        _testFailsAfterNumber("[-.5.5]", JsonToken.VALUE_NUMBER_FLOAT, "-.5");
+        _testFailsAfterNumber("[0x]", JsonToken.VALUE_NUMBER_INT, "0");
+        _testFailsAfterNumber("[-0x]", JsonToken.VALUE_NUMBER_INT, "-0");
+        _testFailsAfterNumber("[1e5f]", JsonToken.VALUE_NUMBER_FLOAT, "1e5");
+    }
+
+    // But decimal point must still be followed by a digit
+    @Test
+    void decimalPointWithoutDigitInArray() throws Exception
+    {
+        _testFailsOnSecondToken("[1..5]", "Decimal point not followed by a digit");
+        _testFailsOnSecondToken("[1.f]", "Decimal point not followed by a digit");
     }
 
     // Non-ASCII byte ending fraction reported same regardless of chunking
@@ -185,6 +201,27 @@ class AsyncRootNumberSeparationTest extends AsyncTestBase
                             + " bytes/read); got token " + t + " ('" + p.currentText() + "')");
                 } catch (StreamReadException e) {
                     verifyException(e, expMsg);
+                } finally {
+                    p.close();
+                }
+            }
+        }
+    }
+
+    private void _testFailsAfterNumber(String json, JsonToken expToken, String expText) throws Exception
+    {
+        for (int bytesPerRead : BYTES_PER_READ) {
+            for (boolean bb : new boolean[] { false, true }) {
+                AsyncReaderWrapper p = _parser(json, bytesPerRead, bb);
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(expToken, p.nextToken());
+                assertEquals(expText, p.currentText());
+                try {
+                    JsonToken t = p.nextToken();
+                    fail("Should not pass for '" + json + "' (" + bytesPerRead
+                            + " bytes/read); got token " + t);
+                } catch (StreamReadException e) {
+                    verifyException(e, "was expecting comma to separate Array entries");
                 } finally {
                     p.close();
                 }

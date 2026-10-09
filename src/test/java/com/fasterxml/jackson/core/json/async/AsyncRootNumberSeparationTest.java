@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -100,6 +101,31 @@ class AsyncRootNumberSeparationTest extends AsyncTestBase
                 }
             }
         }
+    }
+
+    // RS (JSON Text Sequences) accepted after root-level number, if enabled
+    @Test
+    void recordSeparatorAfterRootNumber() throws Exception
+    {
+        final JsonFactory rsF = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_RS_CONTROL_CHAR)
+                .build();
+        for (String json : new String[] { "1\u001E2", "1.5\u001E2", "1e2\u001E2", "0\u001E2", "-0\u001E2" }) {
+            for (int bytesPerRead : BYTES_PER_READ) {
+                for (boolean bb : new boolean[] { false, true }) {
+                    byte[] doc = json.getBytes(StandardCharsets.UTF_8);
+                    AsyncReaderWrapper p = bb ? asyncForByteBuffer(rsF, bytesPerRead, doc, 0)
+                            : asyncForBytes(rsF, bytesPerRead, doc, 0);
+                    assertTrue(p.nextToken().isNumeric());
+                    assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertEquals(2, p.getIntValue());
+                    assertNull(p.nextToken());
+                    p.close();
+                }
+            }
+        }
+        // but not without feature enabled
+        _testFailsOnFirstToken("1\u001E2", "Expected space separating root-level values");
     }
 
     @Test

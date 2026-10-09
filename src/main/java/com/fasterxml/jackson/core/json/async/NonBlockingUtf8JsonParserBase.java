@@ -354,9 +354,9 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // Number-parsing states; valid stopping points, more explicit errors
         case MINOR_NUMBER_ZERO:
-            return _valueCompleteInt(0, "0");
+            return _numberCompleteZero("0");
         case MINOR_NUMBER_MINUSZERO:
-            return _valueCompleteNegativeZero();
+            return _numberCompleteZero("-0");
         case MINOR_NUMBER_INTEGER_DIGITS:
             // Fine: just need to ensure we have value fully defined
             {
@@ -1297,6 +1297,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         case INT_CR:
             return;
         }
+        // RS (JSON Text Sequences) is accepted as white space when enabled
+        if (_isAllowedCtrlCharRS(ch)) {
+            return;
+        }
         // as with blocking parsers, consume offending byte for error location
         ++_inputPtr;
         if (ch > 0x7F) {
@@ -1376,18 +1380,36 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _startFloat(outBuf, 0, INT_PERIOD);
     }
 
-    // 09-Oct-2026, tatu: [core#1506] at root level, report missing separator
-    //    (as blocking parsers do), since "1.5false" is not a suffix problem
-    private void _reportFloatSuffix(int ch) throws IOException {
-        if (_parsingContext.inRoot()) {
-            _reportMissingRootWS(ch);
+    // 09-Oct-2026, tatu: Checks for the character that ended fraction; shared by
+    //    `_startFloat()` and `_finishFloatFraction()` so that results do not
+    //    depend on where input chunk boundaries fall
+    private void _verifyFractionEnd(int fractLen, int ch) throws IOException {
+        if ((ch | 0x22) == 'f') { // ~ fFdD
+            // [core#1506] at root level, report missing separator (as blocking
+            // parsers do), since "1.5false" is not a suffix problem
+            if (_parsingContext.inRoot()) {
+                _reportMissingRootWS(ch);
+            }
+            _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+        } else if (ch == INT_PERIOD) {
+            _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
         }
-        _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+        // must be followed by sequence of ints, one minimum
+        _verifyFractionDigits(fractLen, _intLength, ch);
     }
 
+    // Number completion: all number tokens complete via these two methods
     private JsonToken _numberComplete(JsonToken t) throws IOException {
         _verifyRootSpaceAfterNumber();
         return _valueComplete(t);
+    }
+
+    // 09-Oct-2026, tatu: "-0" retains sign in text, but not in integer-part length
+    private JsonToken _numberCompleteZero(String text) throws IOException {
+        _verifyRootSpaceAfterNumber();
+        JsonToken t = _valueCompleteInt(0, text);
+        _intLength = 1;
+        return t;
     }
 
     protected JsonToken _startPositiveNumber(int ch) throws IOException
@@ -1648,8 +1670,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishNumberLeadingZeroes();
         }
         // leave _inputPtr as-is, to push back byte we checked
-        _verifyRootSpaceAfterNumber();
-        return _valueCompleteInt(0, "0");
+        return _numberCompleteZero("0");
     }
 
     protected JsonToken _finishNumberMinus(int ch) throws IOException
@@ -1751,13 +1772,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _finishNumberIntegralPart(outBuf, 1);
             }
             --_inputPtr;
-            _verifyRootSpaceAfterNumber();
-            return _valueCompleteInt(0, "0");
+            return _numberCompleteZero("0");
         }
-    }
-
-    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException {
-        return _finishNumberLeadingPosNegZeroes(true);
     }
 
     protected JsonToken _finishNumberLeadingPosZeroes() throws IOException {
@@ -1766,9 +1782,10 @@ public abstract class NonBlockingUtf8JsonParserBase
     }
 
     protected JsonToken _finishNumberLeadingPosNegZeroes(final boolean negative) throws IOException {
-        if (!negative) {
-            return _finishNumberLeadingZeroes();
-        }
+        return negative ? _finishNumberLeadingNegZeroes() : _finishNumberLeadingZeroes();
+    }
+
+    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException {
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
@@ -1817,16 +1834,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _finishNumberIntegralPart(outBuf, 2);
             }
             --_inputPtr;
-            return _valueCompleteNegativeZero();
+            return _numberCompleteZero("-0");
         }
-    }
-
-    // 09-Oct-2026, tatu: retain sign in text ("-0"), but not in integer-part length
-    private JsonToken _valueCompleteNegativeZero() throws IOException {
-        _verifyRootSpaceAfterNumber();
-        JsonToken t = _valueCompleteInt(0, "-0");
-        _intLength = 1;
-        return t;
     }
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException {
@@ -1890,15 +1899,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 ch = getNextSignedByteFromBuffer(); // ok to have sign extension for now
                 if (ch < INT_0 || ch > INT_9) {
                     ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
-                    // 09-Oct-2026, tatu: same checks as `_finishFloatFraction()`, to
-                    //    not depend on where input chunk boundaries fall
-                    if ((ch | 0x22) == 'f') { // ~ fFdD
-                        _reportFloatSuffix(ch);
-                    } else if (ch == INT_PERIOD) {
-                        _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
-                    }
-                    // must be followed by sequence of ints, one minimum
-                    _verifyFractionDigits(fractLen, _intLength, ch);
+                    _verifyFractionEnd(fractLen, ch);
                     break;
                 }
                 if (outPtr >= outBuf.length) {
@@ -1971,32 +1972,22 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // caller guarantees at least one char; also, sign-extension not needed here
         int ch = getNextSignedByteFromBuffer();
-        boolean loop = true;
-        while (loop) {
-            if (ch >= INT_0 && ch <= INT_9) {
-                ++fractLen;
-                if (outPtr >= outBuf.length) {
-                    outBuf = _textBuffer.expandCurrentSegment();
-                }
-                outBuf[outPtr++] = (char) ch;
-                if (_inputPtr >= _inputEnd) {
-                    _textBuffer.setCurrentLength(outPtr);
-                    _setFractLength(fractLen);
-                    return JsonToken.NOT_AVAILABLE;
-                }
-                ch = getNextSignedByteFromBuffer();
-            } else if ((ch | 0x22) == 'f') { // ~ fFdD
-                _reportFloatSuffix(ch);
-            } else if (ch == INT_PERIOD) {
-                _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
-            } else {
-                loop = false;
+        while (ch >= INT_0 && ch <= INT_9) {
+            ++fractLen;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.expandCurrentSegment();
             }
+            outBuf[outPtr++] = (char) ch;
+            if (_inputPtr >= _inputEnd) {
+                _textBuffer.setCurrentLength(outPtr);
+                _setFractLength(fractLen);
+                return JsonToken.NOT_AVAILABLE;
+            }
+            ch = getNextSignedByteFromBuffer();
         }
 
         // Ok, fraction done; what have we got next?
-        // must be followed by sequence of ints, one minimum
-        _verifyFractionDigits(fractLen, _intLength, ch);
+        _verifyFractionEnd(fractLen, ch);
         _setFractLength(fractLen);
         _textBuffer.setCurrentLength(outPtr);
 

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests that the non-blocking parser decodes signed numbers to correct values,
- * with same text as blocking parsers ('-' retained, '+' dropped),
+ * with same text as blocking parsers (sign retained, [core#784]),
  * regardless of chunking.
  */
 class AsyncSignedNumberTest extends AsyncTestBase
@@ -30,21 +30,21 @@ class AsyncSignedNumberTest extends AsyncTestBase
     @Test
     void signedZeroInArray() throws Exception
     {
-        _testInArray("+0", JsonToken.VALUE_NUMBER_INT, "0", 0.0);
+        _testInArray("+0", JsonToken.VALUE_NUMBER_INT, "+0", 0.0);
         _testInArray("-0", JsonToken.VALUE_NUMBER_INT, "-0", 0.0);
-        _testInArray("+00", JsonToken.VALUE_NUMBER_INT, "0", 0.0);
+        _testInArray("+00", JsonToken.VALUE_NUMBER_INT, "+0", 0.0);
         _testInArray("-00", JsonToken.VALUE_NUMBER_INT, "-0", 0.0);
-        _testInArray("+05", JsonToken.VALUE_NUMBER_INT, "5", 5.0);
-        _testInArray("+0.5", JsonToken.VALUE_NUMBER_FLOAT, "0.5", 0.5);
+        _testInArray("+05", JsonToken.VALUE_NUMBER_INT, "+5", 5.0);
+        _testInArray("+0.5", JsonToken.VALUE_NUMBER_FLOAT, "+0.5", 0.5);
         _testInArray("-0.5", JsonToken.VALUE_NUMBER_FLOAT, "-0.5", -0.5);
-        _testInArray("+0e2", JsonToken.VALUE_NUMBER_FLOAT, "0e2", 0.0);
+        _testInArray("+0e2", JsonToken.VALUE_NUMBER_FLOAT, "+0e2", 0.0);
     }
 
     // Root-level value ending at end-of-input
     @Test
     void signedZeroAtRootEOF() throws Exception
     {
-        _testAtRoot("+0", "0", 0);
+        _testAtRoot("+0", "+0", 0);
         _testAtRoot("-0", "-0", 0);
         _testAtRoot("0", "0", 0);
     }
@@ -87,7 +87,8 @@ class AsyncSignedNumberTest extends AsyncTestBase
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(exp, p.getLongValue(), "for " + json + ", " + bytesPerRead + " bytes/read");
-                assertEquals(String.valueOf(exp), p.currentText());
+                // sign retained in text, but leading zeroes trimmed
+                assertEquals((value.startsWith("+") ? "+" : "") + exp, p.currentText());
                 assertToken(JsonToken.END_ARRAY, p.nextToken());
                 p.close();
             }

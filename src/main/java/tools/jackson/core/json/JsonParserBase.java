@@ -226,7 +226,9 @@ public abstract class JsonParserBase
             if (len == 19) {
                 char[] buf = _textBuffer.getTextBuffer();
                 int offset = _textBuffer.getTextOffset();
-                if (_numberNegative) {
+                // 09-Oct-2026, tatu: [core#784] leading '+' is retained in text
+                //    (if enabled), so must be skipped same as '-'
+                if (_numberNegative || (buf[offset] == '+')) {
                     ++offset;
                 }
                 if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {

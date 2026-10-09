@@ -27,6 +27,28 @@ public class ByteArrayUtilTest extends JacksonCoreTestBase
      */
 
     @Test
+    void getShortLE()
+    {
+        for (byte[] input : _inputs(2)) {
+            final short exp = ByteBuffer.wrap(input, OFFSET, 2)
+                    .order(ByteOrder.LITTLE_ENDIAN).getShort();
+            assertEquals(exp, ByteArrayUtil.getShortLE(input, OFFSET),
+                    "for input "+Arrays.toString(input));
+        }
+    }
+
+    @Test
+    void getShortBE()
+    {
+        for (byte[] input : _inputs(2)) {
+            final short exp = ByteBuffer.wrap(input, OFFSET, 2)
+                    .order(ByteOrder.BIG_ENDIAN).getShort();
+            assertEquals(exp, ByteArrayUtil.getShortBE(input, OFFSET),
+                    "for input "+Arrays.toString(input));
+        }
+    }
+
+    @Test
     void getIntLE()
     {
         for (byte[] input : _inputs(4)) {
@@ -75,6 +97,34 @@ public class ByteArrayUtilTest extends JacksonCoreTestBase
     /* Test methods, writing
     /**********************************************************************
      */
+
+    @Test
+    void setShortLE()
+    {
+        for (short value : _shortValues()) {
+            byte[] exp = new byte[OFFSET+2];
+            ByteBuffer.wrap(exp, OFFSET, 2).order(ByteOrder.LITTLE_ENDIAN).putShort(value);
+
+            byte[] act = new byte[OFFSET+2];
+            ByteArrayUtil.setShortLE(act, OFFSET, value);
+            assertArrayEquals(exp, act, "for value "+value);
+            assertEquals(value, ByteArrayUtil.getShortLE(act, OFFSET));
+        }
+    }
+
+    @Test
+    void setShortBE()
+    {
+        for (short value : _shortValues()) {
+            byte[] exp = new byte[OFFSET+2];
+            ByteBuffer.wrap(exp, OFFSET, 2).order(ByteOrder.BIG_ENDIAN).putShort(value);
+
+            byte[] act = new byte[OFFSET+2];
+            ByteArrayUtil.setShortBE(act, OFFSET, value);
+            assertArrayEquals(exp, act, "for value "+value);
+            assertEquals(value, ByteArrayUtil.getShortBE(act, OFFSET));
+        }
+    }
 
     @Test
     void setIntLE()
@@ -142,6 +192,8 @@ public class ByteArrayUtilTest extends JacksonCoreTestBase
     void endiannessIsReversed()
     {
         for (byte[] input : _inputs(8)) {
+            assertEquals(ByteArrayUtil.getShortBE(input, OFFSET),
+                    Short.reverseBytes(ByteArrayUtil.getShortLE(input, OFFSET)));
             assertEquals(ByteArrayUtil.getIntBE(input, OFFSET),
                     Integer.reverseBytes(ByteArrayUtil.getIntLE(input, OFFSET)));
             assertEquals(ByteArrayUtil.getLongBE(input, OFFSET),
@@ -191,6 +243,19 @@ public class ByteArrayUtilTest extends JacksonCoreTestBase
             byte[] b = new byte[size];
             rnd.nextBytes(b);
             result[i] = b;
+        }
+        return result;
+    }
+
+    private short[] _shortValues() {
+        short[] result = new short[4+100];
+        result[0] = 0;
+        result[1] = -1;
+        result[2] = Short.MIN_VALUE;
+        result[3] = Short.MAX_VALUE;
+        Random rnd = new Random(3456);
+        for (int i = 4; i < result.length; ++i) {
+            result[i] = (short) rnd.nextInt();
         }
         return result;
     }

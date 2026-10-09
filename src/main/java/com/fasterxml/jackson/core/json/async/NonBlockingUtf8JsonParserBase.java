@@ -337,8 +337,29 @@ public abstract class NonBlockingUtf8JsonParserBase
         switch (_minorState) {
         case MINOR_ROOT_GOT_SEPARATOR: // fine, just skip some trailing space
             return _eofAsNextToken();
+        case MINOR_ROOT_BOM:
+            if (_pending32 == 3) { // full BOM, no content: same as empty content
+                return _eofAsNextToken();
+            }
+            _reportInvalidEOF(" in UTF-8 BOM", JsonToken.NOT_AVAILABLE);
+            return null; // never gets here
+        case MINOR_FIELD_NAME:
+        case MINOR_FIELD_APOS_NAME:
+            _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+            return null; // never gets here
         case MINOR_FIELD_NAME_ESCAPE:
             _reportInvalidEOF(" in character escape sequence", JsonToken.FIELD_NAME);
+            return null; // never gets here
+        case MINOR_VALUE_STRING:
+        case MINOR_VALUE_APOS_STRING:
+        case MINOR_VALUE_STRING_UTF8_2:
+        case MINOR_VALUE_STRING_UTF8_3:
+        case MINOR_VALUE_STRING_UTF8_4:
+            _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
+            return null; // never gets here
+        case MINOR_VALUE_STRING_ESCAPE:
+            _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
+            return null; // never gets here
         case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
             return _eofAsNextToken();
 //        case MINOR_VALUE_EXPECTING_COMMA: // not fine
@@ -416,15 +437,15 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // 09-Oct-2026, tatu: leading white space (incl. RS, if enabled) and comments
         //   handled same as before any other root value
-        final JsonToken prevToken = _currToken;
         JsonToken t = _startValue(ch);
         // but retain existing behavior for white space only content: report
-        // end-of-input right away, and otherwise leave current token as is
+        // end-of-input right away, and otherwise keep "no current token"
+        // (nothing returned yet, even if BOM was split)
         if ((t == JsonToken.NOT_AVAILABLE) && (_minorState == MINOR_VALUE_LEADING_WS)) {
             if (_endOfInput) {
                 return _eofAsNextToken();
             }
-            _currToken = prevToken;
+            _currToken = null;
         }
         return t;
     }
@@ -459,6 +480,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _pending32 = bytesHandled;
         _minorState = MINOR_ROOT_BOM;
+        if (_endOfInput) {
+            return _finishTokenWithEOF();
+        }
         return _updateTokenToNA();
     }
 
@@ -2117,12 +2141,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // Nope, escape sequence
                 ch = _decodeCharEscape();
                 if (ch < 0) { // method has set up state about escape sequence
-                    _minorState = MINOR_FIELD_NAME_ESCAPE;
-                    _minorStateAfterSplit = MINOR_FIELD_NAME;
-                    _quadLength = qlen;
-                    _pending32 = currQuad;
-                    _pendingBytes = currQuadBytes;
-                    return _updateTokenToNA();
+                    return _suspendNameEscape(MINOR_FIELD_NAME, qlen, currQuad, currQuadBytes);
                 }
                 // [jackson-core#1581]: Check if decoded value is a high surrogate
                 if (ch >= 0xD800 && ch <= 0xDBFF) {
@@ -2130,12 +2149,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     //   _finishToken() if input runs out (no recursion)
                     ch = _decodeLowSurrogateInName(ch);
                     if (ch < 0) {
-                        _minorState = MINOR_FIELD_NAME_ESCAPE;
-                        _minorStateAfterSplit = MINOR_FIELD_NAME;
-                        _quadLength = qlen;
-                        _pending32 = currQuad;
-                        _pendingBytes = currQuadBytes;
-                        return _updateTokenToNA();
+                        return _suspendNameEscape(MINOR_FIELD_NAME, qlen, currQuad, currQuadBytes);
                     }
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
                     _reportError("Unexpected low surrogate character (0x"
@@ -2340,24 +2354,14 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // Nope, escape sequence
                     ch = _decodeCharEscape();
                     if (ch < 0) { // method has set up state about escape sequence
-                        _minorState = MINOR_FIELD_NAME_ESCAPE;
-                        _minorStateAfterSplit = MINOR_FIELD_APOS_NAME;
-                        _quadLength = qlen;
-                        _pending32 = currQuad;
-                        _pendingBytes = currQuadBytes;
-                        return _updateTokenToNA();
+                        return _suspendNameEscape(MINOR_FIELD_APOS_NAME, qlen, currQuad, currQuadBytes);
                     }
                     // [jackson-core#1581]: Check if decoded value is a high surrogate
                     if (ch >= 0xD800 && ch <= 0xDBFF) {
                         // 09-Oct-2026, tatu: see _parseEscapedName()
                         ch = _decodeLowSurrogateInName(ch);
                         if (ch < 0) {
-                            _minorState = MINOR_FIELD_NAME_ESCAPE;
-                            _minorStateAfterSplit = MINOR_FIELD_APOS_NAME;
-                            _quadLength = qlen;
-                            _pending32 = currQuad;
-                            _pendingBytes = currQuadBytes;
-                            return _updateTokenToNA();
+                            return _suspendNameEscape(MINOR_FIELD_APOS_NAME, qlen, currQuad, currQuadBytes);
                         }
                     } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
                         _reportError("Unexpected low surrogate character (0x"
@@ -2533,6 +2537,18 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishAposName(_quadLength, currQuad, currQuadBytes);
         }
         return _parseEscapedName(_quadLength, currQuad, currQuadBytes);
+    }
+
+    // Called when input ends within escape sequence in a name
+    private JsonToken _suspendNameEscape(int minorStateAfterSplit,
+            int qlen, int currQuad, int currQuadBytes)
+    {
+        _minorState = MINOR_FIELD_NAME_ESCAPE;
+        _minorStateAfterSplit = minorStateAfterSplit;
+        _quadLength = qlen;
+        _pending32 = currQuad;
+        _pendingBytes = currQuadBytes;
+        return _updateTokenToNA();
     }
 
     /**

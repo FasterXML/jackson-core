@@ -225,6 +225,24 @@ class AsyncInvalidCharsTest extends AsyncTestBase
         }
     }
 
+    // Same with split BOM before white space
+    @Test
+    void splitBOMAndWhitespaceKeepsNullToken() throws Exception
+    {
+        try (NonBlockingJsonParser p = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser()) {
+            p.feedInput(new byte[] { (byte) 0xEF }, 0, 1);
+            assertEquals(JsonToken.NOT_AVAILABLE, p.nextToken());
+            p.feedInput(new byte[] { (byte) 0xBB, (byte) 0xBF, ' ' }, 0, 3);
+            assertEquals(JsonToken.NOT_AVAILABLE, p.nextToken());
+            assertNull(p.currentToken());
+            byte[] doc = "[1]".getBytes("UTF-8");
+            p.feedInput(doc, 0, doc.length);
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        }
+    }
+
     private static AsyncReaderWrapper _async(JsonFactory f, boolean byteBuffer,
             int readSize, byte[] doc) throws Exception
     {

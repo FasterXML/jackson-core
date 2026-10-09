@@ -145,6 +145,11 @@ Steven Schlansker (@stevenschlansker)
    supplementary code point
   (3.1.8)
 
+Elankumaran Srinivasan (@elang2)
+ * Contributed #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
+   surrogates in property names (mirror of #1541 fix in `UTF8StreamJsonParser`)
+  (3.1.8)
+
 Francesco Nigro (@franz1981)
  * Suggested #1680: Avoid per-character escape-table load in JSON String value
    serialization fast path

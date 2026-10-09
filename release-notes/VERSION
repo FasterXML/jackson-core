@@ -59,6 +59,9 @@ JSON library.
   `includeString()`
  (reported by @cowtowncoder)
  (fix by @kalayciburak)
+#1738: Add `GuardedOutputStream` (non-flushing, non-closing `OutputStream` wrapper)
+  for textual format backends
+ (fix by @cowtowncoder, w/ Claude code)
 
 3.2.3 (21-Sep-2026)
 

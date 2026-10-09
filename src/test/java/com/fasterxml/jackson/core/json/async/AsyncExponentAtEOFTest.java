@@ -37,7 +37,7 @@ class AsyncExponentAtEOFTest extends AsyncTestBase
                         p.nextToken();
                         fail("Should not pass for: '" + json + "' (" + bytesPerRead + " bytes/read)");
                     } catch (StreamReadException e) {
-                        verifyException(e, "Exponent indicator not followed by a digit");
+                        verifyException(e, "was expecting digits after exponent marker");
                     } finally {
                         p.close();
                     }

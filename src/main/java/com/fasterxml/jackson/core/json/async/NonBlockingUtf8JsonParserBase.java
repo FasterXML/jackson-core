@@ -269,7 +269,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_3:
             if (!_decodeSplitUTF8_3(_pending32, _pendingBytes, getNextSignedByteFromBuffer())) {
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             if (_minorStateAfterSplit == MINOR_VALUE_APOS_STRING) {
                 return _finishAposString();
@@ -277,7 +277,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_4:
             if (!_decodeSplitUTF8_4(_pending32, _pendingBytes, getNextSignedByteFromBuffer())) {
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             if (_minorStateAfterSplit == MINOR_VALUE_APOS_STRING) {
                 return _finishAposString();
@@ -288,7 +288,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             {
                 int c = _decodeSplitEscaped(_quoted32, _quotedDigits);
                 if (c < 0) {
-                    return JsonToken.NOT_AVAILABLE;
+                    return _updateTokenToNA();
                 }
                 _textBuffer.append((char) c);
             }
@@ -335,12 +335,39 @@ public abstract class NonBlockingUtf8JsonParserBase
         // NOTE: caller ensures there's input available...
         JsonToken t = _currToken;
         switch (_minorState) {
-        case MINOR_ROOT_GOT_SEPARATOR: // fine, just skip some trailing space
+        case MINOR_ROOT_BOM:
+            if (_pending32 == 3) { // full BOM, no content: same as empty content
+                return _eofAsNextToken();
+            }
+            _reportInvalidEOF(" in UTF-8 BOM", JsonToken.NOT_AVAILABLE);
+            return null; // never gets here
+        // Between tokens within Object/Array: reports missing close marker
+        case MINOR_FIELD_LEADING_WS:
+        case MINOR_FIELD_LEADING_COMMA:
+        case MINOR_VALUE_EXPECTING_COMMA:
+        case MINOR_VALUE_EXPECTING_COLON:
+        case MINOR_VALUE_WS_AFTER_COMMA:
             return _eofAsNextToken();
+        case MINOR_FIELD_NAME:
+        case MINOR_FIELD_APOS_NAME:
+        case MINOR_FIELD_UNQUOTED_NAME:
+            _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+            return null; // never gets here
+        case MINOR_FIELD_NAME_ESCAPE:
+            _reportInvalidEOF(" in character escape sequence", JsonToken.FIELD_NAME);
+            return null; // never gets here
+        case MINOR_VALUE_STRING:
+        case MINOR_VALUE_APOS_STRING:
+        case MINOR_VALUE_STRING_UTF8_2:
+        case MINOR_VALUE_STRING_UTF8_3:
+        case MINOR_VALUE_STRING_UTF8_4:
+            _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
+            return null; // never gets here
+        case MINOR_VALUE_STRING_ESCAPE:
+            _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
+            return null; // never gets here
         case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
             return _eofAsNextToken();
-//        case MINOR_VALUE_EXPECTING_COMMA: // not fine
-//        case MINOR_VALUE_EXPECTING_COLON: // not fine
         case MINOR_VALUE_TOKEN_NULL:
             return _finishKeywordTokenWithEOF("null", _pending32, JsonToken.VALUE_NULL);
         case MINOR_VALUE_TOKEN_TRUE:
@@ -376,19 +403,24 @@ public abstract class NonBlockingUtf8JsonParserBase
             _expLength = 0;
             return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
         case MINOR_NUMBER_EXPONENT_DIGITS:
-            // 09-Oct-2026, tatu: input may end right after exponent sign
             if (_expLength == 0) {
-                _reportInvalidEOF(": Exponent indicator not followed by a digit", JsonToken.VALUE_NUMBER_FLOAT);
+                _reportInvalidEOF(": was expecting digits after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
             }
             return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
 
+        case MINOR_NUMBER_PLUS:
+        case MINOR_NUMBER_MINUS:
+            _reportInvalidEOFInValue(JsonToken.VALUE_NUMBER_INT);
+            return null; // never gets here
         case MINOR_NUMBER_EXPONENT_MARKER:
             _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
 
             // How about comments?
             // Inside C-comments; not legal
 
-//        case MINOR_COMMENT_LEADING_SLASH: // not legal, but use default error
+        case MINOR_COMMENT_LEADING_SLASH:
+            _reportInvalidEOF(" in a comment", JsonToken.NOT_AVAILABLE);
+            return null; // never gets here
         case MINOR_COMMENT_CLOSING_ASTERISK:
         case MINOR_COMMENT_C:
             _reportInvalidEOF(": was expecting closing '*/' for comment", JsonToken.NOT_AVAILABLE);
@@ -414,38 +446,30 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         ch &= 0xFF;
 
-        // Very first byte: could be BOM
-        if ((ch == 0xEF) && (_minorState != MINOR_ROOT_BOM)) {
+        // Very first byte: could be BOM (but not after BOM or leading white space)
+        if ((ch == 0xEF) && (_minorState == 0)) {
             return _finishBOM(1);
         }
 
-        // If not BOM (or we got past it), could be whitespace or comment to skip
-        while (ch <= 0x020) {
-            if (ch != INT_SPACE) {
-                if (ch == INT_LF) {
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                } else if (ch == INT_CR) {
-                    ++_currInputRowAlt;
-                    _currInputRowStart = _inputPtr;
-                } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
-                }
-            }
-            if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_ROOT_GOT_SEPARATOR;
-                if (_closed) {
-                    return null;
-                }
-                // note: if so, do not even bother changing state
-                if (_endOfInput) { // except for this special case
-                    return _eofAsNextToken();
-                }
-                return JsonToken.NOT_AVAILABLE;
-            }
-            ch = getNextUnsignedByteFromBuffer();
+        // 09-Oct-2026, tatu: leading white space (incl. RS, if enabled) and comments
+        //   handled same as before any other root value
+        JsonToken t = _startValue(ch);
+        if ((t == JsonToken.NOT_AVAILABLE) && (_minorState == MINOR_VALUE_LEADING_WS)) {
+            return _suspendLeadingWS();
         }
-        return _startValue(ch);
+        return t;
+    }
+
+    // Called when input runs out after white space/comments at start of document:
+    // as nothing returned yet, keep "no current token" (even if BOM or comment was
+    // split), and report end-of-input right away if known
+    private final JsonToken _suspendLeadingWS() throws IOException
+    {
+        if (_endOfInput) {
+            return _eofAsNextToken();
+        }
+        _currToken = null;
+        return JsonToken.NOT_AVAILABLE;
     }
 
     private final JsonToken _finishBOM(int bytesHandled) throws IOException
@@ -458,9 +482,10 @@ public abstract class NonBlockingUtf8JsonParserBase
             int ch = getNextUnsignedByteFromBuffer();
             switch (bytesHandled) {
             case 3:
-                // got it all; go back to "start document" handling, without changing
-                // minor state (to let it know we've done BOM)
+                // got it all; go back to "start document" handling, with minor
+                // state indicating BOM is done (no second BOM allowed)
                 _currInputProcessed -= 3;
+                _minorState = MINOR_ROOT_BOM;
                 return _startDocument(ch);
             case 2:
                 if (ch != 0xBF) {
@@ -477,6 +502,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _pending32 = bytesHandled;
         _minorState = MINOR_ROOT_BOM;
+        if (_endOfInput) {
+            return _finishTokenWithEOF();
+        }
         return _updateTokenToNA();
     }
 
@@ -967,7 +995,44 @@ public abstract class NonBlockingUtf8JsonParserBase
         return ch;
     }
 
+    // 09-Oct-2026, tatu: comment handling methods skip the comment and only then
+    //   continue via _startAfterComment(), which loops over any following white space
+    //   and comments: so consecutive comments do not lead to excessive recursion
+
     private final JsonToken _startSlashComment(int fromMinorState) throws IOException
+    {
+        if (!_skipSlashComment(fromMinorState)) {
+            return _updateTokenToNA();
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _finishHashComment(int fromMinorState) throws IOException
+    {
+        if (!_skipHashComment(fromMinorState)) {
+            return _updateTokenToNA();
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _finishCppComment(int fromMinorState) throws IOException
+    {
+        if (!_skipCppComment(fromMinorState)) {
+            return _updateTokenToNA();
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws IOException
+    {
+        if (!_skipCComment(fromMinorState, gotStar)) {
+            return _updateTokenToNA();
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    // @return True if comment was fully skipped; false if input ran out (state saved)
+    private final boolean _skipSlashComment(int fromMinorState) throws IOException
     {
         if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
@@ -977,82 +1042,65 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (_inputPtr >= _inputEnd) {
             _pending32 = fromMinorState;
             _minorState = MINOR_COMMENT_LEADING_SLASH;
-            return _updateTokenToNA();
+            return false;
         }
         int ch = getNextSignedByteFromBuffer();
         if (ch == INT_ASTERISK) { // c-style
-            return _finishCComment(fromMinorState, false);
+            return _skipCComment(fromMinorState, false);
         }
         if (ch == INT_SLASH) { // c++-style
-            return _finishCppComment(fromMinorState);
+            return _skipCppComment(fromMinorState);
         }
         _reportUnexpectedChar(ch & 0xFF, "was expecting either '*' or '/' for a comment");
-        return null;
+        return false;
     }
 
-    private final JsonToken _finishHashComment(int fromMinorState) throws IOException
+    private final boolean _skipHashComment(int fromMinorState) throws IOException
     {
         // Could by-pass this check by refactoring, but for now simplest way...
         if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
-        while (true) {
-            if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_COMMENT_YAML;
-                _pending32 = fromMinorState;
-                return _updateTokenToNA();
-            }
-            int ch = getNextUnsignedByteFromBuffer();
-            if (ch < 0x020) {
-                if (ch == INT_LF) {
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                    break;
-                } else if (ch == INT_CR) {
-                    ++_currInputRowAlt;
-                    _currInputRowStart = _inputPtr;
-                    break;
-                } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
-                }
-            }
-        }
-        return _startAfterComment(fromMinorState);
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_YAML);
     }
 
-    private final JsonToken _finishCppComment(int fromMinorState) throws IOException
+    private final boolean _skipCppComment(int fromMinorState) throws IOException
+    {
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_CPP);
+    }
+
+    private final boolean _skipLineComment(int fromMinorState, int commentState) throws IOException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_COMMENT_CPP;
+                _minorState = commentState;
                 _pending32 = fromMinorState;
-                return _updateTokenToNA();
+                return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
                     _currInputRowStart = _inputPtr;
-                    break;
+                    return true;
                 } else if (ch == INT_CR) {
                     ++_currInputRowAlt;
                     _currInputRowStart = _inputPtr;
-                    break;
+                    return true;
                 } else if (ch != INT_TAB) {
                     _throwInvalidSpace(ch);
                 }
             }
         }
-        return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws IOException
+    private final boolean _skipCComment(int fromMinorState, boolean gotStar) throws IOException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = gotStar ? MINOR_COMMENT_CLOSING_ASTERISK : MINOR_COMMENT_C;
                 _pending32 = fromMinorState;
-                return _updateTokenToNA();
+                return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
             if (ch < 0x020) {
@@ -1070,22 +1118,52 @@ public abstract class NonBlockingUtf8JsonParserBase
                 continue;
             } else if (ch == INT_SLASH) {
                 if (gotStar) {
-                    break;
+                    return true;
                 }
             }
             gotStar = false;
         }
-        return _startAfterComment(fromMinorState);
     }
 
     private final JsonToken _startAfterComment(int fromMinorState) throws IOException
     {
-        // Ok, then, need one more character...
-        if (_inputPtr >= _inputEnd) {
-            _minorState = fromMinorState;
-            return _updateTokenToNA();
+        final boolean docStart = (fromMinorState == MINOR_VALUE_LEADING_WS)
+                && (_majorState == MAJOR_INITIAL);
+        int ch;
+        // Skip any white space and further comments here, iteratively
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                return _suspendAfterComment(fromMinorState, docStart);
+            }
+            ch = getNextUnsignedByteFromBuffer();
+            if (ch <= 0x0020) {
+                ch = _skipWS(ch);
+                if (ch <= 0) {
+                    return _suspendAfterComment(fromMinorState, docStart);
+                }
+            }
+            if (ch == INT_SLASH) {
+                if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+                    break; // let caller report the problem
+                }
+                if (!_skipSlashComment(fromMinorState)) {
+                    return _updateTokenToNA();
+                }
+            } else if (ch == INT_HASH) {
+                if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+                    break; // may be valid for some states, error for others
+                }
+                if (!_skipHashComment(fromMinorState)) {
+                    return _updateTokenToNA();
+                }
+            } else {
+                break;
+            }
         }
-        int ch = getNextUnsignedByteFromBuffer();
+        if (docStart) {
+            _minorState = MINOR_VALUE_LEADING_WS; // to prevent BOM after comment
+            return _startDocument(ch);
+        }
         switch (fromMinorState) {
         case MINOR_FIELD_LEADING_WS:
             return _startFieldName(ch);
@@ -1103,6 +1181,16 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         VersionUtil.throwInternal();
         return null;
+    }
+
+    private final JsonToken _suspendAfterComment(int fromMinorState, boolean docStart)
+        throws IOException
+    {
+        _minorState = fromMinorState;
+        if (docStart) {
+            return _suspendLeadingWS();
+        }
+        return _updateTokenToNA();
     }
 
     /*
@@ -1914,7 +2002,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _textBuffer.setCurrentLength(outPtr);
                 _setFractLength(fractLen);
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             ch = getNextSignedByteFromBuffer();
         }
@@ -1932,7 +2020,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _expLength = 0;
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_EXPONENT_MARKER;
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
             return _finishFloatExponent(true, getNextUnsignedByteFromBuffer());
@@ -1955,7 +2043,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 if (_inputPtr >= _inputEnd) {
                     _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
                     _expLength = 0;
-                    return JsonToken.NOT_AVAILABLE;
+                    return _updateTokenToNA();
                 }
                 ch = getNextSignedByteFromBuffer();
             }
@@ -1974,7 +2062,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _textBuffer.setCurrentLength(outPtr);
                 _setExpLength(expLen);
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
             ch = getNextSignedByteFromBuffer();
         }
@@ -2190,25 +2278,16 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // Nope, escape sequence
                 ch = _decodeCharEscape();
                 if (ch < 0) { // method has set up state about escape sequence
-                    _minorState = MINOR_FIELD_NAME_ESCAPE;
-                    _minorStateAfterSplit = MINOR_FIELD_NAME;
-                    _quadLength = qlen;
-                    _pending32 = currQuad;
-                    _pendingBytes = currQuadBytes;
-                    return _updateTokenToNA();
+                    return _suspendNameEscape(MINOR_FIELD_NAME, qlen, currQuad, currQuadBytes);
                 }
                 // [jackson-core#1581]: Check if decoded value is a high surrogate
                 if (ch >= 0xD800 && ch <= 0xDBFF) {
-                    _pendingSurrogateInName = ch;
-                    _minorState = MINOR_FIELD_NAME_ESCAPE;
-                    _minorStateAfterSplit = MINOR_FIELD_NAME;
-                    _quadLength = qlen;
-                    _pending32 = currQuad;
-                    _pendingBytes = currQuadBytes;
-                    _quoted32 = 0;
-                    _quotedDigits = -2;
-                    // Recurse to immediately attempt reading the low surrogate escape
-                    return _finishFieldWithEscape();
+                    // 09-Oct-2026, tatu: [core#1742] decode low surrogate here; only resumed via
+                    //   _finishToken() if input runs out (no recursion)
+                    ch = _decodeLowSurrogateInName(ch);
+                    if (ch < 0) {
+                        return _suspendNameEscape(MINOR_FIELD_NAME, qlen, currQuad, currQuadBytes);
+                    }
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
                     _reportError("Unexpected low surrogate character (0x"
                             + Integer.toHexString(ch) + ") in field name");
@@ -2232,7 +2311,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                     ++currQuadBytes;
                     // Second byte gets output below:
-                } else { // 3 bytes; no need to worry about surrogates here
+                } else if (ch < 0x10000) { // 3 bytes (BMP, non-surrogate)
                     currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                     ++currQuadBytes;
                     // need room for middle byte?
@@ -2243,8 +2322,23 @@ public abstract class NonBlockingUtf8JsonParserBase
                     }
                     currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
                     ++currQuadBytes;
+                } else { // 4 bytes (supplementary code point from surrogate pair)
+                    currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                    if (++currQuadBytes >= 4) {
+                        quads[qlen++] = currQuad;
+                        currQuad = 0;
+                        currQuadBytes = 0;
+                    }
+                    currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
+                    if (++currQuadBytes >= 4) {
+                        quads[qlen++] = currQuad;
+                        currQuad = 0;
+                        currQuadBytes = 0;
+                    }
+                    currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                    ++currQuadBytes;
                 }
-                // And same last byte in both cases, gets output below:
+                // And same last byte in all cases, gets output below:
                 ch = 0x80 | (ch & 0x3f);
             }
             if (currQuadBytes < 4) {
@@ -2397,25 +2491,15 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // Nope, escape sequence
                     ch = _decodeCharEscape();
                     if (ch < 0) { // method has set up state about escape sequence
-                        _minorState = MINOR_FIELD_NAME_ESCAPE;
-                        _minorStateAfterSplit = MINOR_FIELD_APOS_NAME;
-                        _quadLength = qlen;
-                        _pending32 = currQuad;
-                        _pendingBytes = currQuadBytes;
-                        return _updateTokenToNA();
+                        return _suspendNameEscape(MINOR_FIELD_APOS_NAME, qlen, currQuad, currQuadBytes);
                     }
                     // [jackson-core#1581]: Check if decoded value is a high surrogate
                     if (ch >= 0xD800 && ch <= 0xDBFF) {
-                        _pendingSurrogateInName = ch;
-                        _minorState = MINOR_FIELD_NAME_ESCAPE;
-                        _minorStateAfterSplit = MINOR_FIELD_APOS_NAME;
-                        _quadLength = qlen;
-                        _pending32 = currQuad;
-                        _pendingBytes = currQuadBytes;
-                        _quoted32 = 0;
-                        _quotedDigits = -2;
-                        // Recurse to immediately attempt reading the low surrogate escape
-                        return _finishFieldWithEscape();
+                        // 09-Oct-2026, tatu: [core#1742] see _parseEscapedName()
+                        ch = _decodeLowSurrogateInName(ch);
+                        if (ch < 0) {
+                            return _suspendNameEscape(MINOR_FIELD_APOS_NAME, qlen, currQuad, currQuadBytes);
+                        }
                     } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
                         _reportError("Unexpected low surrogate character (0x"
                                 + Integer.toHexString(ch) + ") in field name");
@@ -2435,7 +2519,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                         currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
                         ++currQuadBytes;
                         // Second byte gets output below:
-                    } else { // 3 bytes; no need to worry about surrogates here
+                    } else if (ch < 0x10000) { // 3 bytes (BMP, non-surrogate)
                         currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
                         ++currQuadBytes;
                         // need room for middle byte?
@@ -2449,8 +2533,29 @@ public abstract class NonBlockingUtf8JsonParserBase
                         }
                         currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
                         ++currQuadBytes;
+                    } else { // 4 bytes (supplementary code point from surrogate pair)
+                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
+                        if (++currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
+                        if (++currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                        ++currQuadBytes;
                     }
-                    // And same last byte in both cases, gets output below:
+                    // And same last byte in all cases, gets output below:
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -2483,56 +2588,29 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _fieldComplete(name);
     }
 
+    // NOTE: only called from _finishToken(), for MINOR_FIELD_NAME_ESCAPE
     protected final JsonToken _finishFieldWithEscape() throws IOException
     {
         int ch;
 
         // [jackson-core#1581]: Handle pending high surrogate saved from previous chunk
         if (_pendingSurrogateInName != 0) {
-            if (_quotedDigits == -2) {
-                // Need to read the backslash that starts the low surrogate escape
-                if (_inputPtr >= _inputEnd) {
-                    _minorState = MINOR_FIELD_NAME_ESCAPE;
-                    return JsonToken.NOT_AVAILABLE;
-                }
-                int b = getNextUnsignedByteFromBuffer();
-                if (b != INT_BACKSLASH) {
-                    _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate escape, got 0x"
-                            + Integer.toHexString(b));
-                }
-                _quotedDigits = -1;
-                _quoted32 = 0;
-            }
-            ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
+            ch = _finishLowSurrogateInName();
             if (ch < 0) {
-                _minorState = MINOR_FIELD_NAME_ESCAPE;
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
-            // Combine high + low surrogate into supplementary code point
-            int highSurrogate = _pendingSurrogateInName;
-            _pendingSurrogateInName = 0;
-            if (ch < 0xDC00 || ch > 0xDFFF) {
-                _reportError("Broken surrogate pair in field name: high surrogate 0x"
-                        + Integer.toHexString(highSurrogate)
-                        + " not followed by valid low surrogate, got 0x"
-                        + Integer.toHexString(ch));
-            }
-            ch = 0x10000 + ((highSurrogate - 0xD800) << 10) + (ch - 0xDC00);
         } else {
             // First: try finishing what wasn't yet:
             ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
             if (ch < 0) { // ... if possible
-                _minorState = MINOR_FIELD_NAME_ESCAPE;
-                return JsonToken.NOT_AVAILABLE;
+                return _updateTokenToNA();
             }
-            // [jackson-core#1581]: high surrogate - save and wait for low surrogate
+            // [jackson-core#1581]: high surrogate - need low surrogate as well
             if (ch >= 0xD800 && ch <= 0xDBFF) {
-                _pendingSurrogateInName = ch;
-                _quoted32 = 0;
-                _quotedDigits = -2;
-                _minorState = MINOR_FIELD_NAME_ESCAPE;
-                // Recurse to immediately attempt reading the low surrogate escape
-                return _finishFieldWithEscape();
+                ch = _decodeLowSurrogateInName(ch);
+                if (ch < 0) {
+                    return _updateTokenToNA();
+                }
             } else if (ch >= 0xDC00 && ch <= 0xDFFF) {
                 _reportError("Unexpected low surrogate character (0x"
                         + Integer.toHexString(ch) + ") in field name");
@@ -2596,6 +2674,73 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishAposName(_quadLength, currQuad, currQuadBytes);
         }
         return _parseEscapedName(_quadLength, currQuad, currQuadBytes);
+    }
+
+    // Called when input ends within escape sequence in a name
+    private JsonToken _suspendNameEscape(int minorStateAfterSplit,
+            int qlen, int currQuad, int currQuadBytes)
+    {
+        _minorState = MINOR_FIELD_NAME_ESCAPE;
+        _minorStateAfterSplit = minorStateAfterSplit;
+        _quadLength = qlen;
+        _pending32 = currQuad;
+        _pendingBytes = currQuadBytes;
+        return _updateTokenToNA();
+    }
+
+    /**
+     * Method called after decoding high surrogate escape in a name, to decode
+     * the following low surrogate escape.
+     *
+     * @return Combined code point; or -1 if input ran out (state saved to resume
+     *    via {@link #_finishLowSurrogateInName})
+     */
+    private int _decodeLowSurrogateInName(int highSurrogate) throws IOException
+    {
+        _pendingSurrogateInName = highSurrogate;
+        _quoted32 = 0;
+        _quotedDigits = -2;
+        return _finishLowSurrogateInName();
+    }
+
+    private int _finishLowSurrogateInName() throws IOException
+    {
+        // Clear up-front so failures below do not leave stale state; restored if suspending
+        final int highSurrogate = _pendingSurrogateInName;
+        _pendingSurrogateInName = 0;
+        if (_quotedDigits == -2) {
+            // Need to read the backslash that starts the low surrogate escape
+            if (_inputPtr >= _inputEnd) {
+                _pendingSurrogateInName = highSurrogate;
+                return -1;
+            }
+            int b = getNextUnsignedByteFromBuffer();
+            if (b != INT_BACKSLASH) {
+                _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate escape, got 0x"
+                        + Integer.toHexString(b));
+            }
+            _quotedDigits = -1;
+            _quoted32 = 0;
+        }
+        // Nothing after backslash read yet? Can use fast path if fully buffered
+        int ch = (_quotedDigits == -1) ? _decodeCharEscape()
+                : _decodeSplitEscaped(_quoted32, _quotedDigits);
+        if (ch < 0) {
+            _pendingSurrogateInName = highSurrogate;
+            return -1;
+        }
+        return _combineSurrogatesInName(highSurrogate, ch);
+    }
+
+    private int _combineSurrogatesInName(int highSurrogate, int lowSurrogate) throws IOException
+    {
+        if (lowSurrogate < 0xDC00 || lowSurrogate > 0xDFFF) {
+            _reportError("Broken surrogate pair in field name: high surrogate 0x"
+                    + Integer.toHexString(highSurrogate)
+                    + " not followed by valid low surrogate, got 0x"
+                    + Integer.toHexString(lowSurrogate));
+        }
+        return 0x10000 + ((highSurrogate - 0xD800) << 10) + (lowSurrogate - 0xDC00);
     }
 
     private int _decodeSplitEscaped(int value, int bytesRead) throws IOException

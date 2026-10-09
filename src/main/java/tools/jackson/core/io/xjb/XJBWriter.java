@@ -35,12 +35,20 @@ public final class XJBWriter {
     // Public API
     // ------------------------------------------------------------------
 
+    /**
+     * Returns the shortest decimal {@code String} representation of {@code x}
+     * that round-trips back to the same {@code float}.
+     */
     public static String toString(float x) {
         byte[] buf = new byte[NumberOutput.MAX_FLOAT_BYTES];
         int pos = writeFloat(x, buf, 0);
         return new String(buf, 0, pos, StandardCharsets.ISO_8859_1);
     }
 
+    /**
+     * Returns the shortest decimal {@code String} representation of {@code x}
+     * that round-trips back to the same {@code double}.
+     */
     public static String toString(double x) {
         byte[] buf = new byte[NumberOutput.MAX_DOUBLE_BYTES];
         int pos = writeDouble(x, buf, 0);

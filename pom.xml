@@ -135,7 +135,7 @@ tools.jackson.core.*;version=${project.version}
             <id>default-testCompile</id>
             <configuration>
               <compilerArgs>
-                <!-- 11-Dec-2025: [core#1517] Need to open up XJB to unit tests -->
+                <!-- 14-Aug-2026, pjfanning: [core#1652] Need to open up XJB to unit tests -->
                 <arg>--add-exports</arg>
                 <arg>tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest</arg>
               </compilerArgs>
@@ -149,7 +149,7 @@ tools.jackson.core.*;version=${project.version}
         <version>${version.plugin.surefire}</version>
         <configuration>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
-          <!-- 11-Dec-2025: [core#1517] Need to open up XJB to unit tests -->
+          <!-- 14-Aug-2026, pjfanning: [core#1652] Need to open up XJB to unit tests -->
           <argLine>@{argLine}
             --add-exports tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
             --add-opens tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
@@ -383,7 +383,7 @@ tools.jackson.core.*;version=${project.version}
             <version>${version.android.sdk.signature}</version>
           </signature>
           <sourceExcludes>
-            <!-- VarHandle (Java 9+) — loaded via reflection by XJBWriter, excluded from Android check -->
+            <!-- 12-Aug-2026, pjfanning: [core#1652] VarHandle (Java 9+) loaded via reflection by XJBWriter, excluded from Android check -->
             <sourceExclude>tools/jackson/core/io/xjb/XJBVarHandleAccess.java</sourceExclude>
           </sourceExcludes>
           <ignores>

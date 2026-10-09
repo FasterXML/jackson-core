@@ -78,14 +78,14 @@ public class NumberOutputCharBufferTest
     public void testMaxLengthFitsInBuffer()
     {
         // Longest forms: exactly MAX_*_BYTES chars, must not overflow a tight buffer
-        char[] buf = new char[NumberOutput.MAX_DOUBLE_BYTES];
+        char[] buf = new char[NumberOutput.MAX_DOUBLE_CHARS];
         int end = NumberOutput.outputDouble(-Double.MIN_NORMAL, buf, 0);
-        assertTrue(end <= NumberOutput.MAX_DOUBLE_BYTES);
+        assertTrue(end <= NumberOutput.MAX_DOUBLE_CHARS);
         assertEquals(NumberOutput.toString(-Double.MIN_NORMAL, true), new String(buf, 0, end));
 
-        buf = new char[NumberOutput.MAX_FLOAT_BYTES];
+        buf = new char[NumberOutput.MAX_FLOAT_CHARS];
         end = NumberOutput.outputFloat(-Float.MIN_NORMAL, buf, 0);
-        assertTrue(end <= NumberOutput.MAX_FLOAT_BYTES);
+        assertTrue(end <= NumberOutput.MAX_FLOAT_CHARS);
         assertEquals(NumberOutput.toString(-Float.MIN_NORMAL, true), new String(buf, 0, end));
     }
 

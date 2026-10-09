@@ -249,6 +249,62 @@ class AsyncEscapedSurrogateInFieldName1581Test extends AsyncTestBase
 
     /*
     /**********************************************************************
+    /* Test methods, many surrogate pairs (recursion depth)
+    /**********************************************************************
+     */
+
+    // 09-Oct-2026, tatu: decoding each pair used to recurse, leading to
+    //   excessive recursion for names with a few thousand pairs
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void manySurrogatePairsInFieldName(Variant v) throws Exception
+    {
+        _testManyPairs(v, false);
+    }
+
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void manySurrogatePairsInAposFieldName(Variant v) throws Exception
+    {
+        _testManyPairs(v, true);
+    }
+
+    private void _testManyPairs(Variant v, boolean apos) throws Exception
+    {
+        // 10k pairs -> 40k UTF-8 bytes, within default max name length
+        final int count = 10_000;
+        StringBuilder esc = new StringBuilder(count * 12);
+        StringBuilder exp = new StringBuilder(count * 2);
+        for (int i = 0; i < count; ++i) {
+            esc.append(ESC_THUMBS);
+            exp.append(THUMBS_UP);
+        }
+        final String escaped = esc.toString();
+        final String expected = exp.toString();
+        final Throwable[] fail = new Throwable[1];
+        // Small stack so that regression fails reliably
+        Thread t = new Thread(null, () -> {
+            try {
+                for (int bytesPerRead : new int[] { 1, 7, Integer.MAX_VALUE }) {
+                    if (apos) {
+                        _testAposFieldName(v, bytesPerRead, escaped, expected);
+                    } else {
+                        _testFieldName(v, FACTORY, bytesPerRead, escaped, expected);
+                    }
+                }
+            } catch (Throwable e) {
+                fail[0] = e;
+            }
+        }, "many-pairs", 256 * 1024);
+        t.start();
+        t.join();
+        if (fail[0] != null) {
+            throw new AssertionError("Failed with: " + fail[0], fail[0]);
+        }
+    }
+
+    /*
+    /**********************************************************************
     /* Test methods, error cases
     /**********************************************************************
      */

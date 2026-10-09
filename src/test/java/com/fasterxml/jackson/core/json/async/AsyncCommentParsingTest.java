@@ -265,4 +265,42 @@ class AsyncCommentParsingTest extends AsyncTestBase
     {
         return asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);
     }
+
+    // 09-Oct-2026, tatu: consecutive comments used to lead to excessive recursion
+    @Test
+    void manyConsecutiveComments() throws Exception
+    {
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
+                .build();
+        for (String comment : new String[] { "/**/", "/* x */ ", "//\n", "#\n" }) {
+            final String c = _repeat(comment, 100_000);
+            final String doc = c+"{"+c+"\"a\""+c+":"+c+"["+c+"1"+c+","+c+"2"+c+"]"+c+"}"+c;
+            for (int bytesPerRead : new int[] { 7, Integer.MAX_VALUE }) {
+                try (AsyncReaderWrapper p = _createParser(f, doc, bytesPerRead)) {
+                    assertToken(JsonToken.START_OBJECT, p.nextToken());
+                    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                    assertEquals("a", p.currentName());
+                    assertToken(JsonToken.START_ARRAY, p.nextToken());
+                    assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertEquals(1, p.getIntValue());
+                    assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertEquals(2, p.getIntValue());
+                    assertToken(JsonToken.END_ARRAY, p.nextToken());
+                    assertToken(JsonToken.END_OBJECT, p.nextToken());
+                    assertNull(p.nextToken());
+                }
+            }
+        }
+    }
+
+    private static String _repeat(String str, int count)
+    {
+        StringBuilder sb = new StringBuilder(str.length() * count);
+        for (int i = 0; i < count; ++i) {
+            sb.append(str);
+        }
+        return sb.toString();
+    }
 }

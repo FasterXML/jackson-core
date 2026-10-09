@@ -564,3 +564,8 @@ Elankumaran Srinivasan (@elang2)
  * Contributed #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
    surrogates in field names (mirror of #1541 fix in `UTF8StreamJsonParser`)
   (2.23.0)
+
+David R. MacIver (@DRMacIver)
+ * Reported #1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
+   a feed ends inside an escaped surrogate pair in a property name
+  (2.21.8)

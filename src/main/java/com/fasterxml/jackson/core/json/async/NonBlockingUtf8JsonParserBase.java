@@ -373,9 +373,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _valueComplete(JsonToken.VALUE_NUMBER_INT);
 
         case MINOR_NUMBER_FRACTION_DIGITS:
-            // [core#1746]: input may end right after decimal point
-            if ((_fractLength == 0)
-                    && ((_intLength == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature()))) {
+            // 09-Oct-2026, tatu: [core#1746] input may end right after decimal point
+            if (_missingFractionDigits(_fractLength, _intLength)) {
                 _reportInvalidEOF(": Decimal point not followed by a digit", JsonToken.VALUE_NUMBER_FLOAT);
             }
             _expLength = 0;
@@ -1444,7 +1443,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (ch <= INT_0) {
             if (ch == INT_0) {
                 if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                    _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                    _reportLeadingPlusSignNotAllowed();
                 }
                 return _finishNumberLeadingPosZeroes();
             }
@@ -1460,7 +1459,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         outBuf[0] = '+';
@@ -1513,7 +1512,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     private JsonToken _startSignedFloatThatStartsWithPeriod(boolean negative) throws IOException
     {
         if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
         _intLength = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1584,7 +1583,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     return _finishNumberLeadingNegZeroes();
                 } else {
                     if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                        _reportLeadingPlusSignNotAllowed();
                     }
                     return _finishNumberLeadingPosZeroes();
                 }
@@ -1606,7 +1605,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportUnexpectedNumberChar(ch, message);
         }
         if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         outBuf[0] = negative ? '-' : '+';
@@ -1796,12 +1795,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 if (ch < INT_0 || ch > INT_9) {
                     ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
                     // must be followed by sequence of ints, one minimum
-                    // [core#1746]: trailing decimal point needs integer part
-                    if (fractLen == 0) {
-                        if ((_intLength == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                            _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-                        }
-                    }
+                    _verifyFractionDigits(fractLen, _intLength, ch);
                     break;
                 }
                 if (outPtr >= outBuf.length) {
@@ -1899,12 +1893,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // Ok, fraction done; what have we got next?
         // must be followed by sequence of ints, one minimum
-        // [core#1746]: trailing decimal point needs integer part
-        if (fractLen == 0) {
-            if ((_intLength == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-            }
-        }
+        _verifyFractionDigits(fractLen, _intLength, ch);
         _setFractLength(fractLen);
         _textBuffer.setCurrentLength(outPtr);
 

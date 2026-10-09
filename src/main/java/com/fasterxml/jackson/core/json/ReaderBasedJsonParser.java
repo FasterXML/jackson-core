@@ -1420,12 +1420,7 @@ public class ReaderBasedJsonParser
                 ++fractLen;
             }
             // must be followed by sequence of ints, one minimum
-            // [core#1746]: trailing decimal point needs integer part
-            if (fractLen == 0) {
-                if ((intLen == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                    _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-                }
-            }
+            _verifyFractionDigits(fractLen, intLen, ch);
         }
         int expLen = 0;
         if ((ch | 0x20) == INT_e) { // ~ 'eE' and/or exponent
@@ -1609,12 +1604,7 @@ public class ReaderBasedJsonParser
                 outBuf[outPtr++] = c;
             }
             // must be followed by sequence of ints, one minimum
-            // [core#1746]: trailing decimal point needs integer part
-            if (fractLen == 0) {
-                if ((intLen == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                    _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
-                }
-            }
+            _verifyFractionDigits(fractLen, intLen, c);
         }
 
         int expLen = -1;
@@ -1756,7 +1746,7 @@ public class ReaderBasedJsonParser
             }
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature()) && hasSign && !negative) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
         final String message = negative ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :

@@ -1166,12 +1166,7 @@ public class UTF8DataInputJsonParser
                 outBuf[outPtr++] = (char) c;
             }
             // must be followed by sequence of ints, one minimum
-            // [core#1746]: trailing decimal point needs integer part
-            if (fractLen == 0) {
-                if ((integerPartLength == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                    _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
-                }
-            }
+            _verifyFractionDigits(fractLen, integerPartLength, c);
         }
 
         int expLen = 0;
@@ -2256,7 +2251,7 @@ public class UTF8DataInputJsonParser
             _reportError("Non-standard token '"+match+"': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature()) && hasSign && !neg) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
         final String message = neg ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :

@@ -107,16 +107,16 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_NUMBER_ZERO = 24; // zero as first, possibly trimming multiple
     protected final static int MINOR_NUMBER_MINUSZERO = 25; // "-0" (and possibly more zeroes) receive
     protected final static int MINOR_NUMBER_INTEGER_DIGITS = 26;
-    /**
-     * "+0" (and possibly more zeroes) received
-     *
-     * @since 2.21.8
-     */
-    protected final static int MINOR_NUMBER_PLUSZERO = 27;
 
     protected final static int MINOR_NUMBER_FRACTION_DIGITS = 30;
     protected final static int MINOR_NUMBER_EXPONENT_MARKER = 31;
     protected final static int MINOR_NUMBER_EXPONENT_DIGITS = 32;
+
+    // Resumption state for an explicit '+' followed by '0' (and possibly more
+    // zeros). Companion to {@link #MINOR_NUMBER_ZERO} and
+    // {@link #MINOR_NUMBER_MINUSZERO}; needed so that the buffered text on
+    // resume correctly retains the leading '+' character.
+    protected final static int MINOR_NUMBER_PLUSZERO = 33;
 
     protected final static int MINOR_VALUE_STRING = 40;
     protected final static int MINOR_VALUE_STRING_ESCAPE = 41;

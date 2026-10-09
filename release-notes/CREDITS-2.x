@@ -549,3 +549,8 @@ Burak KALAYCI (@kalayciburak)
  * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a
    supplementary character splits across a `read()` boundary
   (2.21.7)
+
+David R. MacIver (@DRMacIver)
+ * Reported #1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
+   a feed ends inside an escaped surrogate pair in a property name
+  (2.21.8)

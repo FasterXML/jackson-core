@@ -66,14 +66,20 @@ public abstract class NonBlockingJsonParserBase
     /**
      * State between root-level value, waiting for at least one white-space
      * character as separator
+     *
+     * @deprecated Since 2.21.8 not used
      */
+    @Deprecated // since 2.21.8
     protected final static int MINOR_ROOT_NEED_SEPARATOR = 2;
 
     /**
      * State between root-level value, having processed at least one white-space
      * character, and expecting either more, start of a value, or end of input
      * stream.
+     *
+     * @deprecated Since 2.21.8 not used
      */
+    @Deprecated // since 2.21.8
     protected final static int MINOR_ROOT_GOT_SEPARATOR = 3;
 
     // state before field name itself, waiting for quote (or unquoted name)

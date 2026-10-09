@@ -378,8 +378,12 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportInvalidEOF(": Decimal point not followed by a digit", JsonToken.VALUE_NUMBER_FLOAT);
             }
             _expLength = 0;
-            // fall through
+            return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
         case MINOR_NUMBER_EXPONENT_DIGITS:
+            // 09-Oct-2026, tatu: input may end right after exponent sign
+            if (_expLength == 0) {
+                _reportInvalidEOF(": Exponent indicator not followed by a digit", JsonToken.VALUE_NUMBER_FLOAT);
+            }
             return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
 
         case MINOR_NUMBER_EXPONENT_MARKER:
@@ -1522,6 +1526,8 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     protected JsonToken _startNumberLeadingZero() throws IOException
     {
+        // 09-Oct-2026, tatu: must not inherit sign of preceding number
+        _numberNegative = false;
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
             _minorState = MINOR_NUMBER_ZERO;

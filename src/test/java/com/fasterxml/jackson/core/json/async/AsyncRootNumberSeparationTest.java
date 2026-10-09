@@ -85,6 +85,13 @@ class AsyncRootNumberSeparationTest extends AsyncTestBase
         _testFailsOnSecondToken("[1.5D]", "'f' or 'd' suffixes");
     }
 
+    // Non-ASCII byte ending fraction reported same regardless of chunking
+    @Test
+    void nonAsciiAfterDecimalPointInArray() throws Exception
+    {
+        _testFailsOnSecondToken("[1.\u00e9]", "(code 195)");
+    }
+
     @Test
     void validRootSeparators() throws Exception
     {

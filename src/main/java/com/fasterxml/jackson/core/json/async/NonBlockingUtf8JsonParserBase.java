@@ -1546,7 +1546,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
                     _reportLeadingPlusSignNotAllowed();
                 }
-                return _finishNumberLeadingPosZeroes();
+                return _finishNumberLeadingZeroes();
             }
             if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
                 return _startSignedFloatThatStartsWithPeriod(false);
@@ -1562,52 +1562,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
             _reportLeadingPlusSignNotAllowed();
         }
-        // 09-Oct-2026, tatu: '+' not included in text; shared number decoding
-        //    (and blocking parsers) only expect '-' sign
-        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = (char) ch;
-        if (_inputPtr >= _inputEnd) {
-            _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-            _textBuffer.setCurrentLength(1);
-            _intLength = 1;
-            return _updateTokenToNA();
-        }
-        ch = getByteFromBuffer(_inputPtr);
-        int outPtr = 1;
-
-        while (true) {
-            if (ch < INT_0) {
-                if (ch == INT_PERIOD) {
-                    _setIntLength(outPtr);
-                    ++_inputPtr;
-                    return _startFloat(outBuf, outPtr, ch);
-                }
-                break;
-            }
-            if (ch > INT_9) {
-                if ((ch | 0x20) == INT_e) { // ~ 'eE'
-                    _setIntLength(outPtr);
-                    ++_inputPtr;
-                    return _startFloat(outBuf, outPtr, ch);
-                }
-                break;
-            }
-            if (outPtr >= outBuf.length) {
-                // NOTE: must expand, to ensure contiguous buffer, outPtr is the length
-                outBuf = _textBuffer.expandCurrentSegment();
-            }
-            outBuf[outPtr++] = (char) ch;
-            if (++_inputPtr >= _inputEnd) {
-                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-                _textBuffer.setCurrentLength(outPtr);
-                _setIntLength(outPtr);
-                return _updateTokenToNA();
-            }
-            ch = getByteFromBuffer(_inputPtr) & 0xFF;
-        }
-        _setIntLength(outPtr);
-        _textBuffer.setCurrentLength(outPtr);
-        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
+        // 09-Oct-2026, tatu: '+' not included in text (shared number decoding, and
+        //    blocking parsers, only expect '-' sign) so rest same as unsigned number
+        return _startPositiveNumber(ch);
     }
 
     // 09-Oct-2026, tatu: [core#1746] signed float like "-.5"; sign and '.' already
@@ -1693,7 +1650,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
                         _reportLeadingPlusSignNotAllowed();
                     }
-                    return _finishNumberLeadingPosZeroes();
+                    return _finishNumberLeadingZeroes();
                 }
             } else if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
                 return _startSignedFloatThatStartsWithPeriod(negative);
@@ -1712,17 +1669,18 @@ public abstract class NonBlockingUtf8JsonParserBase
                     "expected digit (0-9) for valid numeric value";
             _reportUnexpectedNumberChar(ch, message);
         }
-        if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            _reportLeadingPlusSignNotAllowed();
+        if (!negative) {
+            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                _reportLeadingPlusSignNotAllowed();
+            }
+            // '+' not included in text, so same as unsigned number
+            return _startPositiveNumber(ch);
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        int outPtr = 0;
-        if (negative) {
-            outBuf[outPtr++] = '-';
-        }
-        outBuf[outPtr++] = (char) ch;
+        outBuf[0] = '-';
+        outBuf[1] = (char) ch;
         _intLength = 1;
-        return _finishNumberIntegralPart(outBuf, outPtr);
+        return _finishNumberIntegralPart(outBuf, 2);
     }
 
     protected JsonToken _finishNumberLeadingZeroes() throws IOException
@@ -1776,11 +1734,20 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
     }
 
+    /**
+     * @deprecated Since 2.21.8 '+' is not included in text, so this is the same as
+     *    {@link #_finishNumberLeadingZeroes()}
+     */
+    @Deprecated // since 2.21.8
     protected JsonToken _finishNumberLeadingPosZeroes() throws IOException {
-        // 09-Oct-2026, tatu: '+' not included in text, so same as unsigned
         return _finishNumberLeadingZeroes();
     }
 
+    /**
+     * @deprecated Since 2.21.8 use {@link #_finishNumberLeadingNegZeroes()} or
+     *    {@link #_finishNumberLeadingZeroes()}
+     */
+    @Deprecated // since 2.21.8
     protected JsonToken _finishNumberLeadingPosNegZeroes(final boolean negative) throws IOException {
         return negative ? _finishNumberLeadingNegZeroes() : _finishNumberLeadingZeroes();
     }
@@ -1987,6 +1954,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
 
         // Ok, fraction done; what have we got next?
+        ch &= 0xFF; // mask to unsigned 8-bit, as with `_startFloat()`
         _verifyFractionEnd(fractLen, ch);
         _setFractLength(fractLen);
         _textBuffer.setCurrentLength(outPtr);

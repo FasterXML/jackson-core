@@ -253,8 +253,8 @@ class AsyncEscapedSurrogateInFieldName1581Test extends AsyncTestBase
     /**********************************************************************
      */
 
-    // 09-Oct-2026, tatu: decoding each pair used to recurse, causing
-    //   StackOverflowError for names with a few thousand pairs
+    // 09-Oct-2026, tatu: decoding each pair used to recurse, leading to
+    //   excessive recursion for names with a few thousand pairs
     @ParameterizedTest
     @EnumSource(Variant.class)
     void manySurrogatePairsInFieldName(Variant v) throws Exception

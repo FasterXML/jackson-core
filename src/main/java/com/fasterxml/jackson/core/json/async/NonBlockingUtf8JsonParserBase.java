@@ -2369,7 +2369,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // [jackson-core#1581]: Check if decoded value is a high surrogate
                     if (ch >= 0xD800 && ch <= 0xDBFF) {
                         // 09-Oct-2026, tatu: decode inline when fully buffered to avoid
-                        //   unbounded recursion (see _parseEscapedName())
+                        //   excessive recursion (see _parseEscapedName())
                         if ((_inputEnd - _inputPtr) >= 6) {
                             ch = _decodeLowSurrogateInName(ch);
                         } else {

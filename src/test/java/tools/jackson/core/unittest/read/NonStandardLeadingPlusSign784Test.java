@@ -42,6 +42,35 @@ class NonStandardLeadingPlusSign784Test extends JacksonCoreTestBase
         _testNumber("+1e-2", JsonToken.VALUE_NUMBER_FLOAT);
     }
 
+    // With '+' retained in text, values must still be decoded correctly; 19-digit
+    // values use a separate decoding path
+    @Test
+    void testLeadingPlusSignLongValues() throws Exception {
+        _testLong("+999999999999999999", 999999999999999999L);
+        _testLong("+1000000000000000000", 1000000000000000000L);
+        _testLong("+9223372036854775807", Long.MAX_VALUE);
+        _testLong("+2147483648", 2147483648L);
+        _testLong("+1234567890", 1234567890L);
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(JSON_F, mode, " +9223372036854775808 ")) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+                assertEquals(new java.math.BigInteger("9223372036854775808"), p.getBigIntegerValue());
+            }
+        }
+    }
+
+    private void _testLong(String numberString, long expected) throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(JSON_F, mode, " " + numberString + " ")) {
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(numberString, p.getString());
+                assertEquals(expected, p.getLongValue(),
+                        "wrong value for " + numberString + " in mode " + mode);
+            }
+        }
+    }
+
     private void _testNumber(String numberString, JsonToken expectedToken) throws Exception {
         String input = " " + numberString + " ";
         for (int mode : ALL_MODES) {

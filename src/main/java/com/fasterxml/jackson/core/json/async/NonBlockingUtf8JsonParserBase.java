@@ -249,6 +249,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishNumberLeadingZeroes();
         case MINOR_NUMBER_MINUSZERO:
             return _finishNumberLeadingNegZeroes();
+        case MINOR_NUMBER_PLUSZERO:
+            return _finishNumberLeadingPosZeroes();
         case MINOR_NUMBER_INTEGER_DIGITS:
             return _finishNumberIntegralPart(_textBuffer.getBufferWithoutReset(),
                     _textBuffer.getCurrentSegmentSize());
@@ -354,10 +356,11 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // Number-parsing states; valid stopping points, more explicit errors
         case MINOR_NUMBER_ZERO:
-        case MINOR_NUMBER_MINUSZERO:
-            // NOTE: does NOT retain possible leading minus-sign (can change if
-            // absolutely needs be)
             return _valueCompleteInt(0, "0");
+        case MINOR_NUMBER_MINUSZERO:
+            return _valueCompleteSignedZero(true);
+        case MINOR_NUMBER_PLUSZERO:
+            return _valueCompleteSignedZero(false);
         case MINOR_NUMBER_INTEGER_DIGITS:
             // Fine: just need to ensure we have value fully defined
             {
@@ -1671,7 +1674,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_ZERO;
+                _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_PLUSZERO;
                 return _updateTokenToNA();
             }
             int ch = getNextUnsignedByteFromBuffer();
@@ -1715,8 +1718,15 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _finishNumberIntegralPart(outBuf, 2);
             }
             --_inputPtr;
-            return _valueCompleteInt(0, "0");
+            return _valueCompleteSignedZero(negative);
         }
+    }
+
+    // Retain sign in text ("-0", "+0"), but not in integer-part length
+    private JsonToken _valueCompleteSignedZero(boolean negative) throws IOException {
+        JsonToken t = _valueCompleteInt(0, negative ? "-0" : "+0");
+        _intLength = 1;
+        return t;
     }
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException {

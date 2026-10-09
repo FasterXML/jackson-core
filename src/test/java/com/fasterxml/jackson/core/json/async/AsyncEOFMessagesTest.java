@@ -17,6 +17,9 @@ class AsyncEOFMessagesTest extends AsyncTestBase
 {
     private final JsonFactory F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+            .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+            .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+            .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)
             .build();
 
     private final static byte[] BOM = { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF };
@@ -26,6 +29,34 @@ class AsyncEOFMessagesTest extends AsyncTestBase
     {
         _testEOF(utf8Bytes("{\"ab"), "Unexpected end-of-input in field name");
         _testEOF(utf8Bytes("{'ab"), "Unexpected end-of-input in field name");
+        _testEOF(utf8Bytes("{ab"), "Unexpected end-of-input in field name");
+    }
+
+    @Test
+    void eofBetweenTokens() throws Exception
+    {
+        for (String doc : new String[] {
+                "{ ", "{\"a\":1,", "{\"a\":1, ", "{\"a\"", "{\"a\" ", "{\"a\":1 "
+        }) {
+            _testEOF(utf8Bytes(doc), "expected close marker for Object");
+        }
+        for (String doc : new String[] { "[ ", "[1 ", "[1,", "[1, " }) {
+            _testEOF(utf8Bytes(doc), "expected close marker for Array");
+        }
+    }
+
+    @Test
+    void eofInNumberSign() throws Exception
+    {
+        _testEOF(utf8Bytes("+"), "Unexpected end-of-input in a Number value");
+        _testEOF(utf8Bytes("[-"), "Unexpected end-of-input in a Number value");
+    }
+
+    @Test
+    void eofInCommentStart() throws Exception
+    {
+        _testEOF(utf8Bytes("/"), "Unexpected end-of-input in a comment");
+        _testEOF(utf8Bytes("[/"), "Unexpected end-of-input in a comment");
     }
 
     @Test

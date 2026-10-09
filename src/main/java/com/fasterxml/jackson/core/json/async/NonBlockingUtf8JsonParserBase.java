@@ -343,8 +343,16 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             _reportInvalidEOF(" in UTF-8 BOM", JsonToken.NOT_AVAILABLE);
             return null; // never gets here
+        // Between tokens within Object/Array: reports missing close marker
+        case MINOR_FIELD_LEADING_WS:
+        case MINOR_FIELD_LEADING_COMMA:
+        case MINOR_VALUE_EXPECTING_COMMA:
+        case MINOR_VALUE_EXPECTING_COLON:
+        case MINOR_VALUE_WS_AFTER_COMMA:
+            return _eofAsNextToken();
         case MINOR_FIELD_NAME:
         case MINOR_FIELD_APOS_NAME:
+        case MINOR_FIELD_UNQUOTED_NAME:
             _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
             return null; // never gets here
         case MINOR_FIELD_NAME_ESCAPE:
@@ -362,8 +370,6 @@ public abstract class NonBlockingUtf8JsonParserBase
             return null; // never gets here
         case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
             return _eofAsNextToken();
-//        case MINOR_VALUE_EXPECTING_COMMA: // not fine
-//        case MINOR_VALUE_EXPECTING_COLON: // not fine
         case MINOR_VALUE_TOKEN_NULL:
             return _finishKeywordTokenWithEOF("null", _pending32, JsonToken.VALUE_NULL);
         case MINOR_VALUE_TOKEN_TRUE:
@@ -398,13 +404,19 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_NUMBER_EXPONENT_DIGITS:
             return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
 
+        case MINOR_NUMBER_PLUS:
+        case MINOR_NUMBER_MINUS:
+            _reportInvalidEOFInValue(JsonToken.VALUE_NUMBER_INT);
+            return null; // never gets here
         case MINOR_NUMBER_EXPONENT_MARKER:
             _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
 
             // How about comments?
             // Inside C-comments; not legal
 
-//        case MINOR_COMMENT_LEADING_SLASH: // not legal, but use default error
+        case MINOR_COMMENT_LEADING_SLASH:
+            _reportInvalidEOF(" in a comment", JsonToken.NOT_AVAILABLE);
+            return null; // never gets here
         case MINOR_COMMENT_CLOSING_ASTERISK:
         case MINOR_COMMENT_C:
             _reportInvalidEOF(": was expecting closing '*/' for comment", JsonToken.NOT_AVAILABLE);

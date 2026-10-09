@@ -1281,6 +1281,25 @@ public abstract class NonBlockingUtf8JsonParserBase
         throw _constructReadException(fullMsg, currentTokenLocation());
     }
 
+    // 09-Oct-2026, tatu: As with blocking parsers, root-level number must be
+    //    followed by white space (or end-of-input). Called on number completion,
+    //    with the byte that ended number pushed back (at `_inputPtr`)
+    private final void _verifyRootSpaceAfterNumber() throws IOException
+    {
+        if ((_inputPtr >= _inputEnd) || !_parsingContext.inRoot()) {
+            return;
+        }
+        final int ch = getByteFromBuffer(_inputPtr) & 0xFF;
+        switch (ch) {
+        case INT_SPACE:
+        case INT_TAB:
+        case INT_LF:
+        case INT_CR:
+            return;
+        }
+        _reportMissingRootWS(ch);
+    }
+
     /*
     /**********************************************************************
     /* Second-level decoding, Number decoding
@@ -1309,6 +1328,11 @@ public abstract class NonBlockingUtf8JsonParserBase
         _intLength = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         return _startFloat(outBuf, 0, INT_PERIOD);
+    }
+
+    private JsonToken _numberComplete(JsonToken t) throws IOException {
+        _verifyRootSpaceAfterNumber();
+        return _valueComplete(t);
     }
 
     protected JsonToken _startPositiveNumber(int ch) throws IOException
@@ -1359,7 +1383,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr);
         _textBuffer.setCurrentLength(outPtr);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _startNegativeNumber() throws IOException
@@ -1429,7 +1453,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr-1);
         _textBuffer.setCurrentLength(outPtr);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _startPositiveNumber() throws IOException
@@ -1506,7 +1530,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr);
         _textBuffer.setCurrentLength(outPtr);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     // 09-Oct-2026, tatu: [core#1746] signed float like "-.5"; sign and '.' already
@@ -1569,6 +1593,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishNumberLeadingZeroes();
         }
         // leave _inputPtr as-is, to push back byte we checked
+        _verifyRootSpaceAfterNumber();
         return _valueCompleteInt(0, "0");
     }
 
@@ -1671,6 +1696,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return _finishNumberIntegralPart(outBuf, 1);
             }
             --_inputPtr;
+            _verifyRootSpaceAfterNumber();
             return _valueCompleteInt(0, "0");
         }
     }
@@ -1742,6 +1768,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     // 09-Oct-2026, tatu: retain sign in text ("-0"), but not in integer-part length
     private JsonToken _valueCompleteNegativeZero() throws IOException {
+        _verifyRootSpaceAfterNumber();
         JsonToken t = _valueCompleteInt(0, "-0");
         _intLength = 1;
         return t;
@@ -1787,7 +1814,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         _setIntLength(outPtr+negMod);
         _textBuffer.setCurrentLength(outPtr);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _startFloat(char[] outBuf, int outPtr, int ch) throws IOException
@@ -1808,6 +1835,13 @@ public abstract class NonBlockingUtf8JsonParserBase
                 ch = getNextSignedByteFromBuffer(); // ok to have sign extension for now
                 if (ch < INT_0 || ch > INT_9) {
                     ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
+                    // 09-Oct-2026, tatu: same checks as `_finishFloatFraction()`, to
+                    //    not depend on where input chunk boundaries fall
+                    if ((ch | 0x22) == 'f') { // ~ fFdD
+                        _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+                    } else if (ch == INT_PERIOD) {
+                        _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
+                    }
                     // must be followed by sequence of ints, one minimum
                     _verifyFractionDigits(fractLen, _intLength, ch);
                     break;
@@ -1871,7 +1905,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _setExpLength(expLen);
-        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
     protected JsonToken _finishFloatFraction() throws IOException
@@ -1928,7 +1962,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _expLength = 0;
-        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
     protected JsonToken _finishFloatExponent(boolean checkSign, int ch) throws IOException
@@ -1973,7 +2007,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         _textBuffer.setCurrentLength(outPtr);
         // negative, int-length, fract-length already set, so...
         _setExpLength(expLen);
-        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+        return _numberComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
     /*

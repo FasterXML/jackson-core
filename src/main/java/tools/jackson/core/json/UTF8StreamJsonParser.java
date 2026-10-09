@@ -4239,6 +4239,9 @@ public class UTF8StreamJsonParser
     //    can readily expand it to actual surrogates
     private final int _decodeUtf8_4(int c) throws JacksonException
     {
+        if (c > 0xF4) {
+            _reportInvalidInitial(c);
+        }
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
@@ -4247,6 +4250,9 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
+        if (c > 0x10F) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
+        }
 
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();

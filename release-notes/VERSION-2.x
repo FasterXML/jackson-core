@@ -19,6 +19,10 @@ a pure JSON library.
 #1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
   typed `writeArray()` and raw/binary values consistently
  (fix by @pjfanning)
+#1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
+  a feed ends inside an escaped surrogate pair in a property name
+ (reported by @DRMacIver)
+ (fix by @pjfanning)
 #1744: `UTF8DataInputJsonParser` fails on JSON-escaped surrogate pairs in
   property names
  (fix by @pjfanning)

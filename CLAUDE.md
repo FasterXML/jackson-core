@@ -59,7 +59,7 @@ then get merged forward:
 ```
 
 `2.x` merges into `3.1`, so 2.x fixes flow into the 3.x line. `3.1` is the current patch branch
-(3.1.6-SNAPSHOT), `3.2` the current minor branch (3.2.1-SNAPSHOT), `3.x` the dev branch
+(3.1.7-SNAPSHOT), `3.2` the current minor branch (3.2.3-SNAPSHOT), `3.x` the dev branch
 (3.3.0-SNAPSHOT). The `3.0` branch still exists (3.0.5-SNAPSHOT) but is dormant — fully merged into
 `3.1`, no commits since 3.0.4 shipped, and no unreleased section in `release-notes/VERSION`. Start
 from `3.1`, not `3.0`, unless told otherwise.

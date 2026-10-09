@@ -3,8 +3,11 @@ package tools.jackson.core.unittest.constraints;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamConstraintsException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class StreamReadConstraintsDefaultsTest
 {
@@ -41,6 +44,36 @@ class StreamReadConstraintsDefaultsTest
                     StreamReadConstraints.defaults().getMaxNameLength());
             assertEquals(StreamReadConstraints.DEFAULT_MAX_NUM_LEN,
                     StreamReadConstraints.defaults().getMaxNumberLength());
+        }
+    }
+
+    // [core#1715]: accessor for maximum BigInteger (BigDecimal) scale magnitude
+    @Test
+    void maxBigIntegerScale() throws Exception
+    {
+        final StreamReadConstraints constraints = StreamReadConstraints.defaults();
+        final int limit = constraints.getMaxBigIntegerScale();
+
+        assertEquals(100_000, limit);
+
+        // Within limit (both signs) must pass:
+        constraints.validateBigIntegerScale(limit);
+        constraints.validateBigIntegerScale(-limit);
+
+        // But just past it must fail, and message should refer to the accessor.
+        // Note: `Integer.MIN_VALUE` included since `Math.abs()` of it is negative
+        for (int scale : new int[] { limit + 1, -(limit + 1),
+                Integer.MAX_VALUE, Integer.MIN_VALUE }) {
+            try {
+                constraints.validateBigIntegerScale(scale);
+                fail("Should not pass, scale "+scale);
+            } catch (StreamConstraintsException e) {
+                final String msg = e.getMessage();
+                assertTrue(msg.contains("BigDecimal scale ("+scale+")"),
+                        "Unexpected message: "+msg);
+                assertTrue(msg.contains("StreamReadConstraints.getMaxBigIntegerScale()"),
+                        "Unexpected message: "+msg);
+            }
         }
     }
 }

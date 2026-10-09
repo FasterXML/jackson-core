@@ -2646,8 +2646,9 @@ public class UTF8StreamJsonParser
         }
         // Allow unquoted names only if feature enabled:
         if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
-            char c = (char) _decodeCharForError(ch);
-            return _reportUnexpectedChar(c, "was expecting double-quote to start property name");
+            // [core#1728]: pass the decoded code point through; a char cast drops supplementary planes
+            return _reportUnexpectedChar(_decodeCharForError(ch),
+                    "was expecting double-quote to start property name");
         }
         /* Also: note that although we use a different table here,
          * it does NOT handle UTF-8 decoding. It'll just pass those
@@ -3244,7 +3245,7 @@ public class UTF8StreamJsonParser
                 _skipUtf8_2();
                 break;
             case 3: // 3-byte UTF
-                _skipUtf8_3();
+                _skipUtf8_3(c);
                 break;
             case 4: // 4-byte UTF
                 _skipUtf8_4(c);
@@ -3448,7 +3449,8 @@ public class UTF8StreamJsonParser
             c = _decodeCharForError(c);
         }
         if (Character.isJavaIdentifierStart(c)) {
-            _reportInvalidToken(""+((char) c), _validJsonTokenList());
+            // [core#1728]: keep full code point (no char cast)
+            _reportInvalidToken(new String(Character.toChars(c)), _validJsonTokenList());
         }
         // but if it doesn't look like a token:
         _reportUnexpectedChar(c, "expected a valid value "+_validJsonValueList());
@@ -3700,9 +3702,10 @@ public class UTF8StreamJsonParser
         // Multi-byte char: must consume lead byte (decoding consumes the rest)
         final int ptr = _inputPtr++;
         final long processed = _currInputProcessed;
-        char c = (char) _decodeCharForError(ch);
+        // [core#1728]: keep full code point (no char cast)
+        final int c = _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
-            _reportInvalidToken(matchStr.substring(0, i) + c);
+            _reportInvalidToken(matchStr.substring(0, i) + new String(Character.toChars(c)));
         }
         // Not part of token: rewind so regular handling reports it -- unless
         // buffer was reloaded during decoding, in which case must report here
@@ -3998,7 +4001,7 @@ public class UTF8StreamJsonParser
                     _skipUtf8_2();
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3();
+                    _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
                     _skipUtf8_4(i);
@@ -4045,7 +4048,7 @@ public class UTF8StreamJsonParser
                     _skipUtf8_2();
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3();
+                    _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
                     _skipUtf8_4(i);
@@ -4129,6 +4132,10 @@ public class UTF8StreamJsonParser
                 needed = 2;
             } else if ((c & 0xF8) == 0xF0) {
                 // 4 bytes; double-char with surrogates and all...
+                // [core#1728]: 0xF5 - 0xF7 would exceed U+10FFFF
+                if (c > 0xF4) {
+                    _reportInvalidInitial(c);
+                }
                 c &= 0x07;
                 needed = 3;
             } else {
@@ -4141,6 +4148,10 @@ public class UTF8StreamJsonParser
                 _reportInvalidOther(d & 0xFF);
             }
             c = (c << 6) | (d & 0x3F);
+            // [core#1728]: 0xF4 followed by 0x90 or above would exceed U+10FFFF
+            if ((needed > 2) && (c > 0x10F)) {
+                _reportInvalidOther(d & 0xFF);
+            }
 
             if (needed > 1) { // needed == 1 means 2 bytes total
                 d = nextByte(); // 3rd byte
@@ -4273,22 +4284,28 @@ public class UTF8StreamJsonParser
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3() throws JacksonException
+    private final void _skipUtf8_3(int c1) throws JacksonException
     {
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        //c &= 0x0F;
-        int c = _inputBuffer[_inputPtr++];
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF, _inputPtr);
+        c1 &= 0x0F;
+        int d = _inputBuffer[_inputPtr++];
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
         }
+        int c = (c1 << 6) | (d & 0x3F);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        c = _inputBuffer[_inputPtr++];
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF, _inputPtr);
+        d = _inputBuffer[_inputPtr++];
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
+        }
+        c = (c << 6) | (d & 0x3F);
+        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
+        if (c >= 0xD800 && c <= 0xDFFF) {
+            _reportInvalidUTF8Surrogate(c);
         }
     }
 
@@ -4376,7 +4393,8 @@ public class UTF8StreamJsonParser
         final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while ((_inputPtr < _inputEnd) || _loadMore()) {
             int i = _inputBuffer[_inputPtr++];
-            char c = (char) _decodeCharForError(i);
+            // [core#1728]: keep full code point (no char cast)
+            final int c = _decodeCharForError(i);
             if (!Character.isJavaIdentifierPart(c)) {
                 // 11-Jan-2016, tatu: note: we will fully consume the character,
                 //   included or not, so if recovery was possible, it'd be off-by-one...
@@ -4385,7 +4403,7 @@ public class UTF8StreamJsonParser
                 //   offset, on buffer boundary it would not work, still)
                 break;
             }
-            sb.append(c);
+            sb.appendCodePoint(c);
             if (sb.length() >= maxTokenLength) {
                 sb.append("...");
                 break;

@@ -1860,7 +1860,10 @@ public class ReaderBasedJsonParser
                     c = _decodeEscaped();
                     // 05-Sep-2026, elang2: [core#1683] Validate JSON-escaped surrogates
                     //   in field name; mirror of [core#1541] fix in UTF8StreamJsonParser.
-                    if (c >= 0xD800 && c <= 0xDFFF) {
+                    // 09-Oct-2026, tatu: [core#1744] ... but only for hex escapes: backslash-escaped
+                    //   raw surrogate (ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER) is left as is.
+                    //   Last char read is a hex digit for hex escape, the raw char itself otherwise.
+                    if (c >= 0xD800 && c <= 0xDFFF && _inputBuffer[_inputPtr - 1] != c) {
                         if (c < 0xDC00) { // high surrogate: must be followed by low surrogate escape
                             char hi = c;
                             if (_inputPtr >= _inputEnd) {
@@ -1868,17 +1871,13 @@ public class ReaderBasedJsonParser
                                     _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
                                 }
                             }
-                            char lo = _inputBuffer[_inputPtr++];
-                            // 09-Oct-2026, tatu: [core#1744] Raw low surrogate follows if a raw
-                            //   supplementary char was backslash-escaped (ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)
+                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "field name");
+                            }
+                            ++_inputPtr;
+                            char lo = _decodeEscaped();
                             if (lo < 0xDC00 || lo > 0xDFFF) {
-                                if (lo != INT_BACKSLASH) {
-                                    _reportUnexpectedCharAfterHighSurrogate(lo, "field name");
-                                }
-                                lo = _decodeEscaped();
-                                if (lo < 0xDC00 || lo > 0xDFFF) {
-                                    _reportBrokenSurrogatePair(lo, "field name");
-                                }
+                                _reportBrokenSurrogatePair(lo, "field name");
                             }
                             // Store as two UTF-16 code units. Hash includes the low
                             // surrogate below; add high surrogate here.

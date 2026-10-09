@@ -2035,7 +2035,20 @@ public class UTF8DataInputJsonParser
             }
             switch (codes[c]) {
             case 1: // backslash
-                c = _decodeEscaped();
+                c = _decodeEscapedCodePoint();
+                // 09-Oct-2026, tatu: [core#1744] Backslash-escaped supplementary
+                //   character needs a surrogate pair, same as 4-byte UTF-8 below
+                if (c > 0xFFFF) {
+                    c -= 0x10000;
+                    // Let's add first part right away:
+                    if (outPtr >= outBuf.length) {
+                        outBuf = _textBuffer.finishCurrentSegment();
+                        outPtr = 0;
+                        outEnd = outBuf.length;
+                    }
+                    outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
+                    c = 0xDC00 | (c & 0x3FF);
+                }
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUtf8_2(c);
@@ -2242,7 +2255,19 @@ public class UTF8DataInputJsonParser
             }
             switch (codes[c]) {
             case 1: // backslash
-                c = _decodeEscaped();
+                c = _decodeEscapedCodePoint();
+                // 09-Oct-2026, tatu: [core#1744] Backslash-escaped supplementary
+                //   character needs a surrogate pair, same as 4-byte UTF-8 below
+                if (c > 0xFFFF) {
+                    c -= 0x10000;
+                    // Let's add first part right away:
+                    outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
+                    if (outPtr >= outBuf.length) {
+                        outBuf = _textBuffer.finishCurrentSegment();
+                        outPtr = 0;
+                    }
+                    c = 0xDC00 | (c & 0x3FF);
+                }
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUtf8_2(c);
@@ -2663,9 +2688,7 @@ public class UTF8DataInputJsonParser
             break;
 
         default:
-            int cp = _decodeCharForError(c);
-            char ch = _handleUnrecognizedCharacterEscape((char) cp);
-            return (cp > 0xFFFF) ? cp : ch;
+            return _decodeEscapedRawChar(c);
         }
 
         // Ok, a hex escape. Need 4 characters
@@ -2701,6 +2724,28 @@ public class UTF8DataInputJsonParser
             _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
             return -1; // never gets here
         }
+    }
+
+    // 09-Oct-2026, tatu: [core#1744] Decodes (possibly multi-byte) raw character after
+    //   backslash; must validate full code point, not truncated 16-bit char
+    private int _decodeEscapedRawChar(int firstByte) throws IOException
+    {
+        final int cp = _decodeCharForError(firstByte);
+        if (cp <= 0xFFFF) {
+            if (cp >= 0xD800 && cp <= 0xDFFF) { // CESU-8 style encoded surrogate
+                _reportInvalidUTF8Surrogate(cp);
+            }
+            return _handleUnrecognizedCharacterEscape((char) cp);
+        }
+        if (cp > 0x10FFFF) {
+            _reportError(String.format(
+                    "Invalid UTF-8: code point 0x%X exceeds maximum 0x10FFFF", cp));
+        }
+        if (!isEnabled(Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)) {
+            throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
+                    _currentLocationMinusOne());
+        }
+        return cp;
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException

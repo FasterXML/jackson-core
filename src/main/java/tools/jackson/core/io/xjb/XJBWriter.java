@@ -3,9 +3,6 @@ package tools.jackson.core.io.xjb;
 import tools.jackson.core.io.NumberOutput;
 import tools.jackson.core.util.ByteArrayUtil;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -784,73 +781,52 @@ public final class XJBWriter {
     }
 
     // ------------------------------------------------------------------
-    // Little-endian byte array access — VarHandle via XJBVarHandleAccess on Java 9+,
-    // ByteArrayUtil byte-shifting fallback for Android (where XJBVarHandleAccess fails to load)
+    // Little-endian byte array access: VarHandle via XJBVarHandleAccess where available,
+    // ByteArrayUtil byte-shifting fallback where it is not (Android API < 33, or any
+    // runtime where XJBVarHandleAccess fails to initialize)
     // ------------------------------------------------------------------
 
-    // MethodHandles bound to XJBVarHandleAccess static methods; null on Android
-    private static final MethodHandle MH_SET_INT;
-    private static final MethodHandle MH_SET_SHORT;
-    private static final MethodHandle MH_SET_LONG;
-    private static final MethodHandle MH_GET_LONG;
+    // Decided once at class init; `static final` so JIT folds the branch away.
+    // XJBVarHandleAccess is referenced directly (no reflection), so it survives
+    // R8/ProGuard shrinking and GraalVM native-image without extra metadata;
+    // it is only linked when first executed, so a failed probe never touches it again.
+    private static final boolean USE_VAR_HANDLE = _varHandleUsable();
 
-    static {
-        MethodHandle setInt = null, setShort = null, setLong = null, getLong = null;
+    private static boolean _varHandleUsable() {
         try {
-            Class<?> vhAccess = Class.forName("tools.jackson.core.io.xjb.XJBVarHandleAccess");
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
-            setInt = lookup.findStatic(vhAccess, "setInt",
-                    MethodType.methodType(void.class, byte[].class, int.class, int.class));
-            setShort = lookup.findStatic(vhAccess, "setShort",
-                    MethodType.methodType(void.class, byte[].class, int.class, short.class));
-            setLong = lookup.findStatic(vhAccess, "setLong",
-                    MethodType.methodType(void.class, byte[].class, int.class, long.class));
-            getLong = lookup.findStatic(vhAccess, "getLong",
-                    MethodType.methodType(long.class, byte[].class, int.class));
-        } catch (Throwable t) {
-            // Android SDK or older JDK without VarHandle — fall back to ByteArrayUtil
+            return XJBVarHandleAccess.selfTest();
+        } catch (Throwable t) { // LinkageError, UnsupportedOperationException, etc
+            return false;
         }
-        MH_SET_INT = setInt;
-        MH_SET_SHORT = setShort;
-        MH_SET_LONG = setLong;
-        MH_GET_LONG = getLong;
     }
 
     private static void setInt(byte[] buf, int pos, int v) {
-        if (MH_SET_INT != null) {
-            try {
-                MH_SET_INT.invokeExact(buf, pos, v);
-                return;
-            } catch (Throwable t) { /* fall through */ }
+        if (USE_VAR_HANDLE) {
+            XJBVarHandleAccess.setInt(buf, pos, v);
+        } else {
+            ByteArrayUtil.setIntLE(buf, pos, v);
         }
-        ByteArrayUtil.setIntLE(buf, pos, v);
     }
 
     private static void setShort(byte[] buf, int pos, short v) {
-        if (MH_SET_SHORT != null) {
-            try {
-                MH_SET_SHORT.invokeExact(buf, pos, v);
-                return;
-            } catch (Throwable t) { /* fall through */ }
+        if (USE_VAR_HANDLE) {
+            XJBVarHandleAccess.setShort(buf, pos, v);
+        } else {
+            ByteArrayUtil.setShortLE(buf, pos, v);
         }
-        ByteArrayUtil.setShortLE(buf, pos, v);
     }
 
     private static void setLong(byte[] buf, int pos, long v) {
-        if (MH_SET_LONG != null) {
-            try {
-                MH_SET_LONG.invokeExact(buf, pos, v);
-                return;
-            } catch (Throwable t) { /* fall through */ }
+        if (USE_VAR_HANDLE) {
+            XJBVarHandleAccess.setLong(buf, pos, v);
+        } else {
+            ByteArrayUtil.setLongLE(buf, pos, v);
         }
-        ByteArrayUtil.setLongLE(buf, pos, v);
     }
 
     private static long getLong(byte[] buf, int pos) {
-        if (MH_GET_LONG != null) {
-            try {
-                return (long) MH_GET_LONG.invokeExact(buf, pos);
-            } catch (Throwable t) { /* fall through */ }
+        if (USE_VAR_HANDLE) {
+            return XJBVarHandleAccess.getLong(buf, pos);
         }
         return ByteArrayUtil.getLongLE(buf, pos);
     }

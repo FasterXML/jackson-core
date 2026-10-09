@@ -5,9 +5,10 @@ import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
 
 /**
- * VarHandle-based little-endian byte array access for Java 9+.
- * Loaded reflectively by {@link XJBWriter}, which falls back to
- * {@link tools.jackson.core.util.ByteArrayUtil} if this class cannot be used.
+ * VarHandle-based little-endian byte array access.
+ * Kept separate from {@link XJBWriter} so that a runtime without {@code VarHandle}
+ * (Android API &lt; 33) only fails to initialize this class; {@link XJBWriter} probes it
+ * once via {@link #selfTest()} and otherwise uses {@link tools.jackson.core.util.ByteArrayUtil}.
  */
 final class XJBVarHandleAccess {
 
@@ -19,6 +20,19 @@ final class XJBVarHandleAccess {
             MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
 
     private XJBVarHandleAccess() {
+    }
+
+    /**
+     * Round-trips a value through the handles; returns {@code true} if they work.
+     * Any failure (missing {@code VarHandle}, unsupported access mode) propagates
+     * as an exception to the caller.
+     */
+    static boolean selfTest() {
+        final byte[] buf = new byte[8];
+        setLong(buf, 0, 0x0807060504030201L);
+        setInt(buf, 0, 0x0D0C0B0A);
+        setShort(buf, 4, (short) 0x0F0E);
+        return (getLong(buf, 0) == 0x08070F0E0D0C0B0AL);
     }
 
     static void setInt(byte[] buf, int pos, int v) {

@@ -1484,58 +1484,36 @@ public class UTF8DataInputJsonParser
                  * canonicalization to avoid these hits.
                  */
                 if (ch > 127) {
-                    // Ok, we'll need room for first byte right away
-                    if (currQuadBytes >= 4) {
-                        if (qlen >= quads.length) {
-                            _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                        }
-                        quads[qlen++] = currQuad;
-                        currQuad = 0;
-                        currQuadBytes = 0;
-                    }
-                    if (ch < 0x800) { // 2-byte
-                        currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
-                        ++currQuadBytes;
-                        // Second byte gets output below:
+                    // 09-Oct-2026, tatu: [core#1744] UTF-8 encode all but the last byte here
+                    //   (last byte gets output below)
+                    int b, shift;
+                    if (ch < 0x800) { // 2 bytes
+                        b = 0xc0 | (ch >> 6);
+                        shift = 0;
                     } else if (ch < 0x10000) { // 3 bytes
-                        currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
-                        ++currQuadBytes;
-                        // need room for middle byte?
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xe0 | (ch >> 12);
+                        shift = 6;
                     } else { // 4 bytes (supplementary character)
-                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xf0 | (ch >> 18);
+                        shift = 12;
                     }
-                    // And same last byte in all cases, gets output below:
+                    while (true) {
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | b;
+                        ++currQuadBytes;
+                        if (shift == 0) {
+                            break;
+                        }
+                        b = 0x80 | ((ch >> shift) & 0x3f);
+                        shift -= 6;
+                    }
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -1687,58 +1665,36 @@ public class UTF8DataInputJsonParser
                  * to use different name canonicalization to avoid these hits.
                  */
                 if (ch > 127) {
-                    // Ok, we'll need room for first byte right away
-                    if (currQuadBytes >= 4) {
-                        if (qlen >= quads.length) {
-                            _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                        }
-                        quads[qlen++] = currQuad;
-                        currQuad = 0;
-                        currQuadBytes = 0;
-                    }
-                    if (ch < 0x800) { // 2-byte
-                        currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
-                        ++currQuadBytes;
-                        // Second byte gets output below:
+                    // 09-Oct-2026, tatu: [core#1744] UTF-8 encode all but the last byte here
+                    //   (last byte gets output below)
+                    int b, shift;
+                    if (ch < 0x800) { // 2 bytes
+                        b = 0xc0 | (ch >> 6);
+                        shift = 0;
                     } else if (ch < 0x10000) { // 3 bytes
-                        currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
-                        ++currQuadBytes;
-                        // need room for middle byte?
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xe0 | (ch >> 12);
+                        shift = 6;
                     } else { // 4 bytes (supplementary character)
-                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xf0 | (ch >> 18);
+                        shift = 12;
                     }
-                    // And same last byte in all cases, gets output below:
+                    while (true) {
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | b;
+                        ++currQuadBytes;
+                        if (shift == 0) {
+                            break;
+                        }
+                        b = 0x80 | ((ch >> shift) & 0x3f);
+                        shift -= 6;
+                    }
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -2719,7 +2675,7 @@ public class UTF8DataInputJsonParser
                 _reportError(String.format(
                         "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
             }
-            return 0x10000 + ((hi - 0xD800) << 10) + (lo - 0xDC00);
+            return Character.toCodePoint((char) hi, (char) lo);
         } catch (EOFException e) {
             _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
             return -1; // never gets here

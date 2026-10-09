@@ -48,17 +48,70 @@ class EscapedSurrogateInFieldName1744Test extends JUnit5TestBase
         }
     }
 
+    // Long enough (> 64 bytes as UTF-8) to require growing quad buffer
+    @Test
+    void longNameWithEscapedSurrogatePairs() throws Exception
+    {
+        StringBuilder esc = new StringBuilder();
+        StringBuilder exp = new StringBuilder();
+        for (int i = 0; i < 40; ++i) {
+            esc.append(ESC_SMILEY);
+            exp.append(SMILEY);
+        }
+        for (int mode : ALL_MODES) {
+            for (String prefix : new String[] { "", "a", "ab", "abc" }) {
+                _testName(FACTORY, mode, '"', prefix + esc, prefix + exp);
+                _testName(APOS_FACTORY, mode, '\'', prefix + esc, prefix + exp);
+            }
+        }
+    }
+
+    // Backslash-escaped raw supplementary character must not be truncated to 16 bits
+    @Test
+    void backslashEscapedSupplementaryCharInFieldName() throws Exception
+    {
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)
+                .build();
+        // U+1D800 truncates to 0xD800, a high surrogate
+        final String odd = new String(Character.toChars(0x1D800));
+        for (int mode : ALL_MODES) {
+            _testName(f, mode, '"', "\\" + SMILEY, SMILEY);
+            _testName(f, mode, '"', "a\\" + SMILEY + "b", "a" + SMILEY + "b");
+            _testName(f, mode, '"', "\\" + odd, odd);
+            _testName(f, mode, '"', ESC_SMILEY + "\\" + odd, SMILEY + odd);
+            // and escaped low surrogate must not be faked either (U+1DC00 -> 0xDC00)
+            _testBroken(f, mode, "{\"\\uD83D\\" + new String(Character.toChars(0x1DC00)) + "\":1}",
+                    "Broken surrogate pair");
+        }
+    }
+
     @Test
     void brokenSurrogatePairInFieldName() throws Exception
     {
-        for (int mode : ALL_BINARY_MODES) {
+        for (int mode : ALL_MODES) {
             // high surrogate not followed by escape
             _testBroken(FACTORY, mode, "{\"\\uD83Dx\":1}", "Broken surrogate pair");
+            // high surrogate right before closing quote
+            _testBroken(FACTORY, mode, "{\"\\uD83D\":1}", "Broken surrogate pair");
             // high surrogate followed by non-low-surrogate escape
             _testBroken(FACTORY, mode, "{\"\\uD83D\\u0041\":1}", "Broken surrogate pair");
+            // high surrogate followed by another high surrogate
+            _testBroken(FACTORY, mode, "{\"\\uD83D\\uD83D\":1}", "Broken surrogate pair");
             // lone low surrogate
             _testBroken(FACTORY, mode, "{\"\\uDE00\":1}", "Unexpected low surrogate");
             _testBroken(APOS_FACTORY, mode, "{'\\uD83Dx':1}", "Broken surrogate pair");
+            _testBroken(APOS_FACTORY, mode, "{'\\uDE00':1}", "Unexpected low surrogate");
+        }
+    }
+
+    @Test
+    void eofWithinSurrogatePairInFieldName() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testBroken(FACTORY, mode, "{\"\\uD83D", "Unexpected end-of-input");
+            _testBroken(FACTORY, mode, "{\"\\uD83D\\", "Unexpected end-of-input");
+            _testBroken(FACTORY, mode, "{\"\\uD83D\\uDE", "Unexpected end-of-input");
         }
     }
 

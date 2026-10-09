@@ -2003,7 +2003,7 @@ public class UTF8StreamJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscaped();
+                    ch = _decodeEscapedCodePoint();
                 }
                 // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
@@ -2018,7 +2018,7 @@ public class UTF8StreamJsonParser
                                 + Integer.toHexString(_inputBuffer[_inputPtr] & 0xFF));
                     }
                     ++_inputPtr;
-                    int lo = _decodeEscaped();
+                    int lo = _decodeEscapedCodePoint();
                     if (lo < 0xDC00 || lo > 0xDFFF) {
                         _reportError(String.format(
                                 "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
@@ -2235,7 +2235,7 @@ public class UTF8StreamJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscaped();
+                    ch = _decodeEscapedCodePoint();
                 }
                 // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
@@ -2249,7 +2249,7 @@ public class UTF8StreamJsonParser
                                 + Integer.toHexString(_inputBuffer[_inputPtr] & 0xFF));
                     }
                     ++_inputPtr;
-                    int lo = _decodeEscaped();
+                    int lo = _decodeEscapedCodePoint();
                     if (lo < 0xDC00 || lo > 0xDFFF) {
                         _reportError(String.format(
                                 "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
@@ -3453,7 +3453,13 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    protected char _decodeEscaped() throws IOException
+    protected char _decodeEscaped() throws IOException {
+        return (char) _decodeEscapedCodePoint();
+    }
+
+    // 09-Oct-2026, tatu: [core#1744] Same as `_decodeEscaped()` but does not truncate
+    //   backslash-escaped supplementary (4-byte UTF-8) characters
+    private int _decodeEscapedCodePoint() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
@@ -3485,7 +3491,9 @@ public class UTF8StreamJsonParser
             break;
 
         default:
-            return _handleUnrecognizedCharacterEscape((char) _decodeCharForError(c));
+            int cp = _decodeCharForError(c);
+            char ch = _handleUnrecognizedCharacterEscape((char) cp);
+            return (cp > 0xFFFF) ? cp : ch;
         }
 
         // Ok, a hex escape. Need 4 characters
@@ -3503,7 +3511,7 @@ public class UTF8StreamJsonParser
             }
             value = (value << 4) | digit;
         }
-        return (char) value;
+        return value;
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException

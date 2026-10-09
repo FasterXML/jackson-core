@@ -16,6 +16,9 @@ a pure JSON library.
 
 2.21.8 (not yet released)
 
+#1683: JSON`\uXXXX` escape accepts lone surrogates in field names for
+  `ReaderBasedJsonParser`
+ (contributed by @elang2)
 #1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
   typed `writeArray()` and raw/binary values consistently
  (fix by @pjfanning)

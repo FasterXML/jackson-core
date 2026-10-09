@@ -1470,21 +1470,11 @@ public class UTF8DataInputJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscaped();
+                    ch = _decodeEscapedCodePoint();
                 }
-                // [jackson-core#1744]: Handle JSON-escaped surrogate pairs in field names
+                // 08-Oct-2026, pjfanning: [core#1744] Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
-                    int b = _inputData.readUnsignedByte();
-                    if (b != INT_BACKSLASH) {
-                        _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate, got 0x"
-                                + Integer.toHexString(b));
-                    }
-                    int lo = _decodeEscaped();
-                    if (lo < 0xDC00 || lo > 0xDFFF) {
-                        _reportError(String.format(
-                                "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
-                    }
-                    ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
+                    ch = _decodeSurrogatePairInName(ch);
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
                     _reportError("Unexpected low surrogate in field name: 0x" + Integer.toHexString(ch));
                 }
@@ -1545,7 +1535,7 @@ public class UTF8DataInputJsonParser
                         currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
                         ++currQuadBytes;
                     }
-                    // And same last byte in both cases, gets output below:
+                    // And same last byte in all cases, gets output below:
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -1684,21 +1674,11 @@ public class UTF8DataInputJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscaped();
+                    ch = _decodeEscapedCodePoint();
                 }
-                // [jackson-core#1744]: Handle JSON-escaped surrogate pairs in field names
+                // 08-Oct-2026, pjfanning: [core#1744] Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
-                    int b = _inputData.readUnsignedByte();
-                    if (b != INT_BACKSLASH) {
-                        _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate, got 0x"
-                                + Integer.toHexString(b));
-                    }
-                    int lo = _decodeEscaped();
-                    if (lo < 0xDC00 || lo > 0xDFFF) {
-                        _reportError(String.format(
-                                "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
-                    }
-                    ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
+                    ch = _decodeSurrogatePairInName(ch);
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
                     _reportError("Unexpected low surrogate in field name: 0x" + Integer.toHexString(ch));
                 }
@@ -1758,7 +1738,7 @@ public class UTF8DataInputJsonParser
                         currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
                         ++currQuadBytes;
                     }
-                    // And same last byte in both cases, gets output below:
+                    // And same last byte in all cases, gets output below:
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -2650,7 +2630,13 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    protected char _decodeEscaped() throws IOException
+    protected char _decodeEscaped() throws IOException {
+        return (char) _decodeEscapedCodePoint();
+    }
+
+    // 09-Oct-2026, tatu: [core#1744] Same as `_decodeEscaped()` but does not truncate
+    //   backslash-escaped supplementary (4-byte UTF-8) characters
+    private int _decodeEscapedCodePoint() throws IOException
     {
         int c = _inputData.readUnsignedByte();
 
@@ -2677,7 +2663,9 @@ public class UTF8DataInputJsonParser
             break;
 
         default:
-            return _handleUnrecognizedCharacterEscape((char) _decodeCharForError(c));
+            int cp = _decodeCharForError(c);
+            char ch = _handleUnrecognizedCharacterEscape((char) cp);
+            return (cp > 0xFFFF) ? cp : ch;
         }
 
         // Ok, a hex escape. Need 4 characters
@@ -2690,7 +2678,29 @@ public class UTF8DataInputJsonParser
             }
             value = (value << 4) | digit;
         }
-        return (char) value;
+        return value;
+    }
+
+    // 09-Oct-2026, tatu: [core#1744] Decodes low surrogate escape that must follow
+    //   JSON-escaped high surrogate in a field name; returns combined code point
+    private int _decodeSurrogatePairInName(int hi) throws IOException
+    {
+        try {
+            int b = _inputData.readUnsignedByte();
+            if (b != INT_BACKSLASH) {
+                _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate, got 0x"
+                        + Integer.toHexString(b));
+            }
+            int lo = _decodeEscapedCodePoint();
+            if (lo < 0xDC00 || lo > 0xDFFF) {
+                _reportError(String.format(
+                        "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
+            }
+            return 0x10000 + ((hi - 0xD800) << 10) + (lo - 0xDC00);
+        } catch (EOFException e) {
+            _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+            return -1; // never gets here
+        }
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException

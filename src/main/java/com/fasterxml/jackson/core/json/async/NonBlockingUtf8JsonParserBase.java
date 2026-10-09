@@ -206,8 +206,6 @@ public abstract class NonBlockingUtf8JsonParserBase
         switch (_minorState) {
         case MINOR_ROOT_BOM:
             return _finishBOM(_pending32);
-        case MINOR_ROOT_GOT_SEPARATOR: // white space after split BOM, split
-            return _startDocument(getNextUnsignedByteFromBuffer());
         case MINOR_FIELD_LEADING_WS:
             return _startFieldName(getNextUnsignedByteFromBuffer());
         case MINOR_FIELD_LEADING_COMMA:
@@ -339,6 +337,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         switch (_minorState) {
         case MINOR_ROOT_GOT_SEPARATOR: // fine, just skip some trailing space
             return _eofAsNextToken();
+        case MINOR_FIELD_NAME_ESCAPE:
+            _reportInvalidEOF(" in character escape sequence", JsonToken.FIELD_NAME);
         case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
             return _eofAsNextToken();
 //        case MINOR_VALUE_EXPECTING_COMMA: // not fine
@@ -414,33 +414,16 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishBOM(1);
         }
 
-        // If not BOM (or we got past it), could be whitespace or comment to skip
-        while (ch <= 0x020) {
-            if (ch != INT_SPACE) {
-                if (ch == INT_LF) {
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                } else if (ch == INT_CR) {
-                    ++_currInputRowAlt;
-                    _currInputRowStart = _inputPtr;
-                } else if (ch != INT_TAB) {
-                    _throwInvalidSpace(ch);
-                }
-            }
-            if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_ROOT_GOT_SEPARATOR;
-                if (_closed) {
-                    return null;
-                }
-                // note: if so, do not even bother changing state
-                if (_endOfInput) { // except for this special case
-                    return _eofAsNextToken();
-                }
-                return JsonToken.NOT_AVAILABLE;
-            }
-            ch = getNextUnsignedByteFromBuffer();
+        // 09-Oct-2026, tatu: leading white space (incl. RS, if enabled) and comments
+        //   handled same as before any other root value
+        JsonToken t = _startValue(ch);
+        // but retain existing behavior of reporting end-of-input right away for
+        // white space only content
+        if ((t == JsonToken.NOT_AVAILABLE) && _endOfInput
+                && (_minorState == MINOR_VALUE_LEADING_WS)) {
+            return _eofAsNextToken();
         }
-        return _startValue(ch);
+        return t;
     }
 
     private final JsonToken _finishBOM(int bytesHandled) throws IOException
@@ -453,9 +436,10 @@ public abstract class NonBlockingUtf8JsonParserBase
             int ch = getNextUnsignedByteFromBuffer();
             switch (bytesHandled) {
             case 3:
-                // got it all; go back to "start document" handling, without changing
-                // minor state (to let it know we've done BOM)
+                // got it all; go back to "start document" handling, with minor
+                // state indicating BOM is done (no second BOM allowed)
                 _currInputProcessed -= 3;
+                _minorState = MINOR_ROOT_BOM;
                 return _startDocument(ch);
             case 2:
                 if (ch != 0xBF) {
@@ -2153,7 +2137,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                         _pendingBytes = currQuadBytes;
                         _quoted32 = 0;
                         _quotedDigits = -2;
-                        // Bounded: at most one more pair can follow within remaining bytes
+                        // Under 6 bytes: low surrogate escape cannot complete, so this call
+                        // only consumes what is left and suspends (does not call back here)
                         return _finishFieldWithEscape();
                     }
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) {

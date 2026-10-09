@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -103,9 +104,7 @@ class AsyncInvalidCharsTest extends AsyncTestBase
         final byte[] doc = _withBOM(" \n [ 1 ] ");
         for (int readSize = 1; readSize <= doc.length; ++readSize) {
             for (boolean byteBuffer : new boolean[] { false, true }) {
-                try (AsyncReaderWrapper p = byteBuffer
-                        ? asyncForByteBuffer(JSON_F, readSize, doc, 0)
-                        : asyncForBytes(JSON_F, readSize, doc, 0)) {
+                try (AsyncReaderWrapper p = _async(JSON_F, byteBuffer, readSize, doc)) {
                     assertEquals(JsonToken.START_ARRAY, p.nextToken());
                     assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                     assertEquals(1, p.getIntValue());
@@ -116,23 +115,109 @@ class AsyncInvalidCharsTest extends AsyncTestBase
         }
     }
 
-    // BOM only allowed as the very first bytes, not after white space
+    // BOM only allowed as the very first bytes: not after white space,
+    // comment or another BOM
     @Test
-    void utf8BOMAfterWhitespace() throws Exception
+    void utf8BOMNotFirst() throws Exception
     {
-        final byte[] ws = " ".getBytes("UTF-8");
-        final byte[] bom = _withBOM("[ 1 ]");
-        final byte[] doc = new byte[ws.length + bom.length];
-        System.arraycopy(ws, 0, doc, 0, ws.length);
-        System.arraycopy(bom, 0, doc, ws.length, bom.length);
+        final JsonFactory commentF = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                .build();
+        _testBOMNotFirst(JSON_F, _concat(" ".getBytes("UTF-8"), _withBOM("[ 1 ]")));
+        _testBOMNotFirst(commentF, _concat("/* x */".getBytes("UTF-8"), _withBOM("[ 1 ]")));
+        _testBOMNotFirst(JSON_F, _withBOM(new String(_withBOM("[ 1 ]"), "UTF-8")));
+    }
+
+    private void _testBOMNotFirst(JsonFactory f, byte[] doc) throws Exception
+    {
         for (int readSize = 1; readSize <= doc.length; ++readSize) {
-            try (AsyncReaderWrapper p = asyncForBytes(JSON_F, readSize, doc, 0)) {
-                JsonToken t = p.nextToken();
-                fail("Should not pass for readSize "+readSize+"; got "+t);
-            } catch (JsonParseException e) {
-                verifyException(e, "Unexpected character");
+            for (boolean byteBuffer : new boolean[] { false, true }) {
+                try (AsyncReaderWrapper p = _async(f, byteBuffer, readSize, doc)) {
+                    JsonToken t = p.nextToken();
+                    fail("Should not pass for readSize "+readSize+", byteBuffer="+byteBuffer+"; got "+t);
+                } catch (JsonParseException e) {
+                    verifyException(e, "Unexpected character");
+                }
             }
         }
+    }
+
+    // Repeated BOMs must fail with regular exception, not excessive recursion
+    @Test
+    void utf8ManyBOMs() throws Exception
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        for (int i = 0; i < 200_000; ++i) {
+            bytes.write(0xEF);
+            bytes.write(0xBB);
+            bytes.write(0xBF);
+        }
+        bytes.write("[ 1 ]".getBytes("UTF-8"));
+        final byte[] doc = bytes.toByteArray();
+        try (AsyncReaderWrapper p = asyncForBytes(JSON_F, doc.length, doc, 0)) {
+            JsonToken t = p.nextToken();
+            fail("Should not pass; got "+t);
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected character");
+        }
+    }
+
+    // 09-Oct-2026, tatu: RS (if enabled) at start of document used to be rejected
+    @Test
+    void leadingRecordSeparator() throws Exception
+    {
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_RS_CONTROL_CHAR)
+                .build();
+        final String DOC = "\u001E[1]\n\u001E[2]\n";
+        _testLeadingRS(f, DOC.getBytes("UTF-8"));
+        _testLeadingRS(f, (" "+DOC).getBytes("UTF-8"));
+        _testLeadingRS(f, _withBOM(DOC));
+    }
+
+    private void _testLeadingRS(JsonFactory f, byte[] doc) throws Exception
+    {
+        for (int readSize = 1; readSize <= doc.length; ++readSize) {
+            for (boolean byteBuffer : new boolean[] { false, true }) {
+                try (AsyncReaderWrapper p = _async(f, byteBuffer, readSize, doc)) {
+                    for (int i = 1; i <= 2; ++i) {
+                        assertEquals(JsonToken.START_ARRAY, p.nextToken());
+                        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                        assertEquals(i, p.getIntValue());
+                        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+                    }
+                    assertNull(p.nextToken());
+                }
+            }
+        }
+    }
+
+    // White space only content with end-of-input: no NOT_AVAILABLE before end
+    @Test
+    void whitespaceOnlyWithEndOfInput() throws Exception
+    {
+        for (byte[] doc : new byte[][] { "  ".getBytes("UTF-8"), _withBOM(" \n") }) {
+            try (NonBlockingJsonParser p = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser()) {
+                p.feedInput(doc, 0, doc.length);
+                p.endOfInput();
+                assertNull(p.nextToken());
+            }
+        }
+    }
+
+    private static AsyncReaderWrapper _async(JsonFactory f, boolean byteBuffer,
+            int readSize, byte[] doc) throws Exception
+    {
+        return byteBuffer ? asyncForByteBuffer(f, readSize, doc, 0)
+                : asyncForBytes(f, readSize, doc, 0);
+    }
+
+    private static byte[] _concat(byte[] a, byte[] b)
+    {
+        byte[] result = new byte[a.length + b.length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
     }
 
     private static byte[] _withBOM(String json) throws Exception

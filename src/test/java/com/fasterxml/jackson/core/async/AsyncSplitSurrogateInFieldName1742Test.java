@@ -49,7 +49,8 @@ class AsyncSplitSurrogateInFieldName1742Test extends AsyncTestBase
         for (String doc : new String[] {
                 "{\"\\uD83D", "{\"\\uD83D\\", "{\"\\uD83D\\u", "{\"\\uD83D\\uDE", "{\"\\uD83D\\uDE0"
         }) {
-            _testAllSplitsFail(byteBuffer, FACTORY, doc, "Unexpected end-of-input");
+            _testAllSplitsFail(byteBuffer, FACTORY, doc,
+                    "Unexpected end-of-input in character escape sequence");
         }
     }
 

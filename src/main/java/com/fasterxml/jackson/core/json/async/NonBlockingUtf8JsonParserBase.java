@@ -1464,7 +1464,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _startFloat(outBuf, 0, INT_PERIOD);
     }
 
-    // Number completion: all number tokens complete via these two methods
+    // Number completion, when the byte that ended number is available: all such
+    // completions go via these two methods. Numbers ended by end-of-input are
+    // instead completed in `_finishTokenWithEOF()` (no separator check needed)
     private JsonToken _numberComplete(JsonToken t) throws IOException {
         _verifyRootSpaceAfterNumber();
         return _valueComplete(t);

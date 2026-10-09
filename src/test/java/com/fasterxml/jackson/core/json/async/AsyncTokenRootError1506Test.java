@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.tofix.async;
+package com.fasterxml.jackson.core.json.async;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,17 +6,15 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
-import com.fasterxml.jackson.core.testutil.failure.JacksonTestFailureExpected;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-// [core#1506]: Fix in 3.1, failing (left) for 2.x
+// [core#1506]: Fixed in 3.1; backported to 2.21.8
 // Tests for handling token decoding fails for Root values
 class AsyncTokenRootError1506Test extends AsyncTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
-    @JacksonTestFailureExpected
     @Test
     void mangledRootInts() throws Exception
     {
@@ -28,7 +26,6 @@ class AsyncTokenRootError1506Test extends AsyncTestBase
         }
     }
 
-    @JacksonTestFailureExpected
     @Test
     void mangledRootFloats() throws Exception
     {

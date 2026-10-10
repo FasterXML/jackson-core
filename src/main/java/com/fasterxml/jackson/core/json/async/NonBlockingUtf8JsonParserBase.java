@@ -572,7 +572,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_FIELD_LEADING_WS;
             return _updateTokenToNA();
         }
-        ch = getByteFromBuffer(ptr);
+        ch = getByteFromBuffer(ptr) & 0xFF;
         _inputPtr = ptr+1;
         if (ch <= 0x0020) {
             ch = _skipWS(ch);
@@ -712,7 +712,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_VALUE_WS_AFTER_COMMA;
             return _updateTokenToNA();
         }
-        ch = getByteFromBuffer(ptr);
+        ch = getByteFromBuffer(ptr) & 0xFF;
         _inputPtr = ptr+1;
         if (ch <= 0x0020) {
             ch = _skipWS(ch);
@@ -804,7 +804,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_VALUE_LEADING_WS;
             return _updateTokenToNA();
         }
-        ch = getByteFromBuffer(ptr);
+        ch = getByteFromBuffer(ptr) & 0xFF;
         _inputPtr = ptr+1;
         if (ch <= 0x0020) {
             ch = _skipWS(ch); // will skip through all available ws (and comments)

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,11 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
     {
         for (int mode : ALL_MODES) {
             for (String name : NAMES) {
-                _testName(mode, name);
+                for (String doc : _docs(name)) {
+                    try (JsonParser p = createParser(UNQUOTED_F, mode, doc)) {
+                        _verify(p::nextToken, p::currentName, name, doc);
+                    }
+                }
             }
         }
     }
@@ -41,41 +46,43 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
     {
         for (int bytesPerRead : new int[] { 1, 2, 3, 100 }) {
             for (String name : NAMES) {
-                byte[] doc = _doc(name).getBytes(StandardCharsets.UTF_8);
-                _verify(AsyncTestBase.asyncForBytes(UNQUOTED_F, bytesPerRead, doc, 0), name);
-                _verify(AsyncTestBase.asyncForByteBuffer(UNQUOTED_F, bytesPerRead, doc, 0), name);
+                for (String doc : _docs(name)) {
+                    byte[] b = doc.getBytes(StandardCharsets.UTF_8);
+                    try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(UNQUOTED_F, bytesPerRead, b, 0)) {
+                        _verify(p::nextToken, p::currentName, name, doc);
+                    }
+                    try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(UNQUOTED_F, bytesPerRead, b, 0)) {
+                        _verify(p::nextToken, p::currentName, name, doc);
+                    }
+                }
             }
         }
     }
 
-    private void _testName(int mode, String name) throws Exception
-    {
-        try (JsonParser p = createParser(UNQUOTED_F, mode, _doc(name))) {
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals(name, p.currentName(), "mode " + mode);
-            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals(name + "2", p.currentName(), "mode " + mode);
-            assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-            assertToken(JsonToken.END_OBJECT, p.nextToken());
-        }
+    @FunctionalInterface
+    interface IOSupplier<T> {
+        T get() throws IOException;
     }
 
-    private void _verify(AsyncReaderWrapper p, String name) throws Exception
+    private void _verify(IOSupplier<JsonToken> next, IOSupplier<String> currName,
+            String name, String doc) throws IOException
     {
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals(name, p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals(name + "2", p.currentName());
-        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        p.close();
+        assertToken(JsonToken.START_OBJECT, next.get());
+        assertToken(JsonToken.FIELD_NAME, next.get());
+        assertEquals(name, currName.get(), doc);
+        assertToken(JsonToken.VALUE_NUMBER_INT, next.get());
+        assertToken(JsonToken.FIELD_NAME, next.get());
+        assertEquals(name + "2", currName.get(), doc);
+        assertToken(JsonToken.VALUE_TRUE, next.get());
+        assertToken(JsonToken.END_OBJECT, next.get());
     }
 
-    private static String _doc(String name) {
-        return "{" + name + ":1, " + name + "2 :true}";
+    // Both with and without whitespace after separators (async parsers
+    // have separate code paths for these)
+    private static String[] _docs(String name) {
+        return new String[] {
+            "{" + name + ":1, " + name + "2 :true}",
+            "{" + name + ":1," + name + "2:true}"
+        };
     }
 }

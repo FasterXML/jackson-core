@@ -2227,7 +2227,7 @@ public class ReaderBasedJsonParser
                         break;
                     }
                     if (i < INT_SPACE) {
-                        _throwUnquotedSpace(i, "string value");
+                        _handleInvalidStringChar(i);
                     }
                 }
             }
@@ -2350,7 +2350,7 @@ public class ReaderBasedJsonParser
                      */
                     c = _decodeEscaped();
                 } else if (i < INT_SPACE) {
-                    _throwUnquotedSpace(i, "string value");
+                    _handleInvalidStringChar(i);
                 } // anything else?
             }
             // Need more room?
@@ -2407,7 +2407,9 @@ public class ReaderBasedJsonParser
                     }
                     if (i < INT_SPACE) {
                         _inputPtr = inPtr;
-                        _throwUnquotedSpace(i, "string value");
+                        _handleInvalidStringChar(i);
+                        inPtr = _inputPtr;
+                        inLen = _inputEnd;
                     }
                 }
             }
@@ -2476,7 +2478,9 @@ public class ReaderBasedJsonParser
                     }
                     if (i < INT_SPACE) {
                         _inputPtr = inPtr;
-                        _throwUnquotedSpace(i, "string value");
+                        _handleInvalidStringChar(i);
+                        inPtr = _inputPtr;
+                        inLen = _inputEnd;
                     }
                 }
             }
@@ -2502,6 +2506,18 @@ public class ReaderBasedJsonParser
     /* Internal methods, other parsing
     /**********************************************************************
      */
+
+    @Override // @since 2.21.8
+    protected void _handleLinefeedInString(int c) throws JacksonException
+    {
+        // with "\r\n", count row on '\n' instead
+        if (c == INT_CR
+                && (_inputPtr < _inputEnd || _loadMore()) && _inputBuffer[_inputPtr] == '\n') {
+            return;
+        }
+        ++_currInputRow;
+        _currInputRowStart = _inputPtr;
+    }
 
     // We actually need to check the character value here
     // (to see if we have \n following \r).

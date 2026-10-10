@@ -916,18 +916,6 @@ public abstract class NonBlockingJsonParserBase
         _tokenInputTotal = _currInputProcessed + (ptr - _currBufferStart);
     }
 
-    protected void _reportInvalidChar(int c) throws JacksonException {
-        // Either invalid WS or illegal UTF-8 start char
-        if (c < INT_SPACE) {
-            _reportInvalidSpace(c);
-        }
-        _reportInvalidInitial(c);
-    }
-
-    protected void _reportInvalidInitial(int mask) throws JacksonException {
-        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
-    }
-
     protected void _reportInvalidOther(int mask, int ptr) throws JacksonException {
         _inputPtr = ptr;
         _reportInvalidOther(mask);

@@ -1083,7 +1083,7 @@ public class UTF8JsonGenerator
             _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
             return this;
         }
-        _writeRawAscii(NumberOutput.toString(d, false));
+        _writeRawAscii(NumberOutput.toString(d, useFast));
         return this;
     }
 
@@ -1094,7 +1094,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite(WRITE_STRING);
         if (!useFast) {
-            _writeQuotedAscii(NumberOutput.toString(d, false));
+            _writeQuotedAscii(NumberOutput.toString(d, useFast));
             return;
         }
         if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES + 2) > _outputEnd) {
@@ -1123,7 +1123,7 @@ public class UTF8JsonGenerator
             _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
             return this;
         }
-        _writeRawAscii(NumberOutput.toString(f, false));
+        _writeRawAscii(NumberOutput.toString(f, useFast));
         return this;
     }
 
@@ -1131,7 +1131,7 @@ public class UTF8JsonGenerator
     {
         _verifyValueWrite(WRITE_STRING);
         if (!useFast) {
-            _writeQuotedAscii(NumberOutput.toString(f, false));
+            _writeQuotedAscii(NumberOutput.toString(f, useFast));
             return;
         }
         if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES + 2) > _outputEnd) {

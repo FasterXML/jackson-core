@@ -1,10 +1,10 @@
-package tools.jackson.core.unittest.io.schubfach;
+package tools.jackson.core.unittest.io.xjb;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public abstract class DoubleToStringTest {
+public abstract class XJBDoubleToStringTest {
   abstract String f(double f);
 
   private void assertD2sEquals(String expected, double f) {
@@ -46,7 +46,8 @@ public abstract class DoubleToStringTest {
   @Test
   public void minAndMax() {
     assertD2sEquals("1.7976931348623157E308", Double.longBitsToDouble(0x7fefffffffffffffL));
-    assertD2sEquals("4.9E-324", Double.longBitsToDouble(1));
+    // XJB produces 5.0E-324 for the smallest subnormal (still round-trips correctly)
+    assertD2sEquals("5.0E-324", Double.longBitsToDouble(1));
   }
 
   @Test

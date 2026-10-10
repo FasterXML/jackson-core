@@ -1,15 +1,13 @@
-package tools.jackson.core.unittest.io.schubfach;
+package tools.jackson.core.unittest.io.xjb;
 
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.io.schubfach.FloatToDecimal;
-
 import static java.lang.Float.intBitsToFloat;
 import static java.lang.StrictMath.scalb;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static tools.jackson.core.unittest.io.schubfach.FloatToDecimalChecker.*;
+import static tools.jackson.core.unittest.io.xjb.FloatToDecimalChecker.*;
 
 class FloatToDecimalTest {
     /*
@@ -41,7 +39,7 @@ class FloatToDecimalTest {
         toDec(intBitsToFloat(0xFF80_0001));
 
         /*
-        All values treated specially by Schubfach
+        Smallest subnormals (treated specially by Schubfach)
          */
         for (int c = 1; c < C_TINY; ++c) {
             toDec(c * Float.MIN_VALUE);
@@ -72,23 +70,11 @@ class FloatToDecimalTest {
 
     @Test
     void constants() {
-        assertEquals(FloatToDecimal.P, P, "P");
         assertEquals(C_MIN, (long) (float) C_MIN, "C_MIN");
         assertEquals(C_MAX, (long) (float) C_MAX, "C_MAX");
         assertEquals(Float.MIN_VALUE, MIN_VALUE, "MIN_VALUE");
         assertEquals(Float.MIN_NORMAL, MIN_NORMAL, "MIN_NORMAL");
         assertEquals(Float.MAX_VALUE, MAX_VALUE, "MAX_VALUE");
-
-        assertEquals(FloatToDecimal.Q_MIN, Q_MIN, "Q_MIN");
-        assertEquals(FloatToDecimal.Q_MAX, Q_MAX, "Q_MAX");
-
-        assertEquals(FloatToDecimal.K_MIN, K_MIN, "K_MIN");
-        assertEquals(FloatToDecimal.K_MAX, K_MAX, "K_MAX");
-        assertEquals(FloatToDecimal.H, H, "H");
-
-        assertEquals(FloatToDecimal.E_MIN, E_MIN, "E_MIN");
-        assertEquals(FloatToDecimal.E_MAX, E_MAX, "E_MAX");
-        assertEquals(FloatToDecimal.C_TINY, C_TINY, "C_TINY");
     }
 
     @Test

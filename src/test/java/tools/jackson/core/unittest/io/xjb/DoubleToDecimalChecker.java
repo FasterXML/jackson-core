@@ -20,17 +20,16 @@
  * THE SOFTWARE.
  */
 
-package tools.jackson.core.unittest.io.schubfach;
+package tools.jackson.core.unittest.io.xjb;
 
 import java.math.BigDecimal;
 import java.util.Random;
 
-import tools.jackson.core.io.schubfach.DoubleToDecimal;
+import tools.jackson.core.io.xjb.XJBWriter;
 
 import static java.lang.Double.*;
 import static java.lang.Long.numberOfTrailingZeros;
 import static java.lang.StrictMath.scalb;
-import static tools.jackson.core.io.schubfach.MathUtils.flog10pow2;
 
 public class DoubleToDecimalChecker extends ToDecimalChecker {
 
@@ -132,7 +131,7 @@ public class DoubleToDecimalChecker extends ToDecimalChecker {
 
     static void toDec(double v) {
 //        String s = Double.toString(v);
-        String s = DoubleToDecimal.toString(v);
+        String s = XJBWriter.toString(v);
         new DoubleToDecimalChecker(v, s).validate();
     }
 

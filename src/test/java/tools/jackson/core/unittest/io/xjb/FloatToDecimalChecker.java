@@ -20,13 +20,12 @@
  * THE SOFTWARE.
  */
 
-package tools.jackson.core.unittest.io.schubfach;
+package tools.jackson.core.unittest.io.xjb;
 
 import java.math.BigDecimal;
 import java.util.Random;
 
-import tools.jackson.core.io.schubfach.FloatToDecimal;
-import tools.jackson.core.io.schubfach.MathUtils;
+import tools.jackson.core.io.xjb.XJBWriter;
 
 import static java.lang.Float.*;
 
@@ -40,9 +39,9 @@ public class FloatToDecimalChecker extends ToDecimalChecker {
     static final int C_MIN = 1 << P - 1;
     static final int C_MAX = (1 << P) - 1;
 
-    static final int K_MIN = MathUtils.flog10pow2(Q_MIN);
-    static final int K_MAX = MathUtils.flog10pow2(Q_MAX);
-    static final int H = MathUtils.flog10pow2(P) + 2;
+    static final int K_MIN = flog10pow2(Q_MIN);
+    static final int K_MAX = flog10pow2(Q_MAX);
+    static final int H = flog10pow2(P) + 2;
 
     static final float MIN_VALUE = StrictMath.scalb(1.0f, Q_MIN);
     static final float MIN_NORMAL = StrictMath.scalb((float) C_MIN, Q_MIN);
@@ -128,7 +127,7 @@ public class FloatToDecimalChecker extends ToDecimalChecker {
 
     static void toDec(float v) {
 //        String s = Float.toString(v);
-        String s = FloatToDecimal.toString(v);
+        String s = XJBWriter.toString(v);
         new FloatToDecimalChecker(v, s).validate();
     }
 

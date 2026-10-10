@@ -3,6 +3,9 @@ package com.fasterxml.jackson.core.read;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,8 +29,8 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
             .build();
 
     private final static String[] NAMES = {
-        "é", "été", "aéb", "abcé", "über_x",
-        "中文", "x中", "абв", "$é-1"
+        "\u00E9", "\u00E9t\u00E9", "a\u00E9b", "abc\u00E9", "\u00FCber_x",
+        "\u4E2D\u6587", "x\u4E2D", "\u0430\u0431\u0432", "$\u00E9-1"
     };
 
     @Test
@@ -76,28 +79,76 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
         _testInvalid(new int[] { 0xE2, 0x82 }, "incomplete multi-byte sequence");
     }
 
-    // Boundary code points must still be accepted
+    // Boundary code points must still be accepted: 4-byte ones only in quoted
+    // names, as supplementary chars are not valid in unquoted names
     @Test
     void validUtf8BoundariesInNames() throws Exception
     {
-        for (String name : new String[] { "\u0080", "\u07FF", "\u0800", "\uFFFD",
-                "\uD800\uDC00", "\uDBFF\uDFFF" }) {
-            for (String doc : _docs(name)) {
-                for (int mode : ALL_BINARY_MODES) {
-                    try (JsonParser p = createParser(UNQUOTED_F, mode, doc)) {
-                        _verify(p::nextToken, p::currentName, name, doc);
-                    }
-                }
-                byte[] b = doc.getBytes(StandardCharsets.UTF_8);
-                for (int bytesPerRead : new int[] { 1, 2, 3, 100 }) {
-                    try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(UNQUOTED_F, bytesPerRead, b, 0)) {
-                        _verify(p::nextToken, p::currentName, name, doc);
-                    }
-                    try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(UNQUOTED_F, bytesPerRead, b, 0)) {
-                        _verify(p::nextToken, p::currentName, name, doc);
-                    }
+        List<String> docs = new ArrayList<>();
+        for (String name : new String[] { "\u0080", "\u07FF", "\u0800", "\uFFDC" }) {
+            docs.addAll(Arrays.asList(_docs(name)));
+        }
+        for (String name : new String[] { "\uD800\uDC00", "\uDBFF\uDFFF" }) {
+            docs.add("{\"" + name + "\":1, \"" + name + "2\":true}");
+        }
+        for (String doc : docs) {
+            final String name = _firstName(doc);
+            for (int mode : ALL_BINARY_MODES) {
+                try (JsonParser p = createParser(UNQUOTED_F, mode, doc)) {
+                    _verify(p::nextToken, p::currentName, name, doc);
                 }
             }
+            byte[] b = doc.getBytes(StandardCharsets.UTF_8);
+            for (int bytesPerRead : new int[] { 1, 2, 3, 100 }) {
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(UNQUOTED_F, bytesPerRead, b, 0)) {
+                    _verify(p::nextToken, p::currentName, name, doc);
+                }
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(UNQUOTED_F, bytesPerRead, b, 0)) {
+                    _verify(p::nextToken, p::currentName, name, doc);
+                }
+            }
+        }
+    }
+
+    // Non-ASCII chars that are not Java identifier parts must be rejected by
+    // all parsers, as `ReaderBasedJsonParser` does: including supplementary
+    // chars (checked as surrogate pair chars) and names already in symbol table
+    @Test
+    void nonIdentifierCharsInUnquotedNames() throws Exception
+    {
+        final String[] docs = {
+            "{\u00D7:1}", "{a\u00D7b:1}", "{key\u00A0:1}", "{x\u3000:1}", "{a\u2028:1}",
+            "{\uD83D\uDE00:1}", "{a\uD835\uDCB3:1}",
+            "{\"a\u00D7b\":1, a\u00D7b:2}"
+        };
+        for (String doc : docs) {
+            for (int mode : ALL_MODES) {
+                try (JsonParser p = createParser(UNQUOTED_F, mode, doc)) {
+                    _verifyRejected(p::nextToken, doc + ", mode " + mode);
+                }
+            }
+            byte[] b = doc.getBytes(StandardCharsets.UTF_8);
+            for (int bytesPerRead : new int[] { 1, 3, 100 }) {
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(UNQUOTED_F, bytesPerRead, b, 0)) {
+                    _verifyRejected(p::nextToken, doc + ", async");
+                }
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(UNQUOTED_F, bytesPerRead, b, 0)) {
+                    _verifyRejected(p::nextToken, doc + ", async ByteBuffer");
+                }
+            }
+        }
+    }
+
+    private void _verifyRejected(IOSupplier<JsonToken> next, String desc)
+        throws IOException
+    {
+        try {
+            while (next.get() != null) { } // skip valid tokens
+            fail("Should not pass: " + desc);
+        } catch (JsonEOFException e) {
+            fail("Should not report EOF (" + desc + "): " + e.getMessage());
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected character (");
         }
     }
 
@@ -107,7 +158,7 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
     void nonAsciiUnexpectedValueAsync() throws Exception
     {
         final JsonFactory f = newStreamFactory();
-        for (String doc : new String[] { "[×]", "[1,×]", "[1, ×]", "{\"a\":×}", "{\"a\": ×}" }) {
+        for (String doc : new String[] { "[\u00D7]", "[1,\u00D7]", "[1, \u00D7]", "{\"a\":\u00D7}", "{\"a\": \u00D7}" }) {
             byte[] b = doc.getBytes(StandardCharsets.UTF_8);
             try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(f, 100, b, 0)) {
                 _verifyUnexpectedValue(p::nextToken, doc);
@@ -125,7 +176,7 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
             while (next.get() != null) { } // skip valid tokens
             fail("Should not pass: " + doc);
         } catch (JsonParseException e) {
-            verifyException(e, "Unexpected character ('×' (code 215");
+            verifyException(e, "Unexpected character ('\u00D7' (code 215");
         }
     }
 
@@ -201,6 +252,13 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
         assertEquals(name + "2", currName.get(), doc);
         assertToken(JsonToken.VALUE_TRUE, next.get());
         assertToken(JsonToken.END_OBJECT, next.get());
+    }
+
+    // Name of first property of `{name:...}` or `{"name":...}`
+    private static String _firstName(String doc) {
+        int start = (doc.charAt(1) == '"') ? 2 : 1;
+        int end = doc.indexOf((start == 2) ? '"' : ':', start);
+        return doc.substring(start, end);
     }
 
     // Both with and without whitespace after separators (async parsers

@@ -165,6 +165,22 @@ public abstract class JsonParserBase
         _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
     }
 
+    // 09-Oct-2026, tatu: [core#1748] Byte-based parsers accept all multi-byte UTF-8
+    //   characters when scanning unquoted names, so decoded name must be verified to
+    //   only contain chars `ReaderBasedJsonParser` accepts (Java identifier parts)
+    // @since 2.23
+    protected String _verifyUnquotedName(String name) throws JsonParseException {
+        for (int i = 0, len = name.length(); i < len; ++i) {
+            final char c = name.charAt(i);
+            if ((c > 0x7F) && !Character.isJavaIdentifierPart(c)) {
+                _reportUnexpectedChar(c, (i == 0)
+                        ? "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name"
+                        : "was expecting a colon to separate field name and value");
+            }
+        }
+        return name;
+    }
+
     // [core#1748]: rejects overlong encodings and code points beyond U+10FFFF
     // for code point decoded from multi-byte UTF-8 sequence (with `needed` continuation bytes)
     // in a property name

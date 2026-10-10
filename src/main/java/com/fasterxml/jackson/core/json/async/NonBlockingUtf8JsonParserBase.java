@@ -2467,7 +2467,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
         }
-        return _fieldComplete(name);
+        return _fieldComplete(_verifyUnquotedName(name));
     }
 
     private JsonToken _finishAposName(int qlen, int currQuad, int currQuadBytes)

@@ -2158,7 +2158,7 @@ public class UTF8StreamJsonParser
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
         }
-        return name;
+        return _verifyUnquotedName(name);
     }
 
     // Parsing to support apostrope-quoted names. Plenty of duplicated code;

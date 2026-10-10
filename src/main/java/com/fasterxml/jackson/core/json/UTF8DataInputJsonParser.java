@@ -1616,7 +1616,7 @@ public class UTF8DataInputJsonParser
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
         }
-        return name;
+        return _verifyUnquotedName(name);
     }
 
     /* Parsing to allow optional use of non-standard single quotes.

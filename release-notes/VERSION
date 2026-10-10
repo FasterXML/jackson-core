@@ -36,6 +36,9 @@ JSON library.
   a feed ends inside an escaped surrogate pair in a property name
  (reported by @DRMacIver)
  (fix by @pjfanning)
+#1744: Backslash-escaped supplementary characters (with
+  `ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER`) truncated to 16 bits; now rejected
+ (fix by @pjfanning)
 #1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
   with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
  (fix by @pjfanning)

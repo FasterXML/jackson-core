@@ -2911,6 +2911,12 @@ public class ReaderBasedJsonParser
             break;
 
         default:
+            // 09-Oct-2026, tatu: [core#1744] Backslash-escaped raw surrogate (half of
+            //   supplementary character) not allowed, same as with byte-based parsers
+            if (Character.isSurrogate(c)) {
+                throw _constructReadException("Unrecognized character escape "+_getCharDesc(c),
+                        _currentLocationMinusOne());
+            }
             return _handleUnrecognizedCharacterEscape(c);
         }
 

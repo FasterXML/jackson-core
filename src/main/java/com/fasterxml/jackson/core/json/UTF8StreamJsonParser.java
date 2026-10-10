@@ -2603,13 +2603,7 @@ public class UTF8StreamJsonParser
                 // And let the other char output down below
                 break;
             default:
-                if (c < INT_SPACE) {
-                    // As per [JACKSON-208], call can now return:
-                    _throwUnquotedSpace(c, "string value");
-                } else {
-                    // Is this good enough error message?
-                    _reportInvalidChar(c);
-                }
+                _handleInvalidStringChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -2679,12 +2673,7 @@ public class UTF8StreamJsonParser
                 _skipUtf8_4(c);
                 break;
             default:
-                if (c < INT_SPACE) {
-                    _throwUnquotedSpace(c, "string value");
-                } else {
-                    // Is this good enough error message?
-                    _reportInvalidChar(c);
-                }
+                _handleInvalidStringChar(c);
             }
         }
     }
@@ -2843,12 +2832,7 @@ public class UTF8StreamJsonParser
                 // And let the other char output down below
                 break;
             default:
-                if (c < INT_SPACE) {
-                    _throwUnquotedSpace(c, "string value");
-                } else {
-                    // Is this good enough error message?
-                    _reportInvalidChar(c);
-                }
+                _handleInvalidStringChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -3748,17 +3732,16 @@ public class UTF8StreamJsonParser
         throw _constructReadException(fullMsg, loc);
     }
 
-    protected void _reportInvalidChar(int c) throws JsonParseException
+    @Override // @since 2.21.8
+    protected void _handleLinefeedInString(int c) throws IOException
     {
-        // Either invalid WS or illegal UTF-8 start char
-        if (c < INT_SPACE) {
-            _throwInvalidSpace(c);
+        // with "\r\n", count row on '\n' instead
+        if (c == INT_CR
+                && (_inputPtr < _inputEnd || _loadMore()) && _inputBuffer[_inputPtr] == BYTE_LF) {
+            return;
         }
-        _reportInvalidInitial(c);
-    }
-
-    protected void _reportInvalidInitial(int mask) throws JsonParseException {
-        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
+        ++_currInputRow;
+        _currInputRowStart = _inputPtr;
     }
 
     protected void _reportInvalidOther(int mask) throws JsonParseException {

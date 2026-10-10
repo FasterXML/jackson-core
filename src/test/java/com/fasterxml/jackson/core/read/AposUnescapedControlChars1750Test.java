@@ -23,11 +23,16 @@ class AposUnescapedControlChars1750Test extends JUnit5TestBase
             .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
             .build();
 
+    private final static String[] VALUES = new String[] {
+            "a\tb", "\t", "a\u0001b", "x\ny\rz", "é\t中", "\t\uD83D\uDE00\t",
+            _longValue()
+    };
+
     @Test
     void controlCharsInAposValueAllowed() throws Exception
     {
         for (int mode : ALL_MODES) {
-            for (String value : new String[] { "a\tb", "\t", "a\u0001b", "x\ny\rz", "é\t中" }) {
+            for (String value : VALUES) {
                 try (JsonParser p = createParser(APOS_CTRL_F, mode, "['" + value + "']")) {
                     assertToken(JsonToken.START_ARRAY, p.nextToken());
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -41,22 +46,104 @@ class AposUnescapedControlChars1750Test extends JUnit5TestBase
                     assertEquals(value, p.getText(), "mode " + mode);
                     assertToken(JsonToken.END_OBJECT, p.nextToken());
                 }
+                // and skipping (no access to text)
+                try (JsonParser p = createParser(APOS_CTRL_F, mode, "['" + value + "',true]")) {
+                    assertToken(JsonToken.START_ARRAY, p.nextToken());
+                    assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+                    assertToken(JsonToken.END_ARRAY, p.nextToken());
+                }
             }
         }
     }
 
     @Test
-    void controlCharsInAposValueDisallowed() throws Exception
+    void controlCharsInAposNameAllowed() throws Exception
     {
         for (int mode : ALL_MODES) {
-            try (JsonParser p = createParser(APOS_F, mode, "['a\tb']")) {
-                assertToken(JsonToken.START_ARRAY, p.nextToken());
+            for (String name : new String[] { "a\tb", "\t", "x\ny" }) {
+                try (JsonParser p = createParser(APOS_CTRL_F, mode, "{'" + name + "':1}")) {
+                    assertToken(JsonToken.START_OBJECT, p.nextToken());
+                    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                    assertEquals(name, p.currentName(), "mode " + mode);
+                    assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                    assertToken(JsonToken.END_OBJECT, p.nextToken());
+                }
+            }
+        }
+    }
+
+    @Test
+    void controlCharsInAposDisallowed() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            for (String doc : new String[] { "['a\tb']", "{'a':'a\tb'}", "['" + _longValue() + "']" }) {
+                try (JsonParser p = createParser(APOS_F, mode, doc)) {
+                    p.nextToken();
+                    p.nextToken();
+                    p.nextToken();
+                    p.getText();
+                    fail("Should not pass, mode " + mode);
+                } catch (StreamReadException e) {
+                    verifyException(e, "Illegal unquoted character");
+                    verifyException(e, "string value");
+                }
+            }
+            try (JsonParser p = createParser(APOS_F, mode, "{'a\tb':1}")) {
                 p.nextToken();
-                p.getText();
+                p.nextToken();
                 fail("Should not pass, mode " + mode);
             } catch (StreamReadException e) {
                 verifyException(e, "Illegal unquoted character");
+                verifyException(e, "name");
             }
         }
+    }
+
+    // Linefeeds in String values must update row number
+    @Test
+    void linefeedsUpdateRow() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            for (String lf : new String[] { "\n", "\r", "\r\n" }) {
+                // DataInput counts both '\r' and '\n' (no lookahead), same as with white space
+                final int expRow = (mode == MODE_DATA_INPUT && lf.length() == 2) ? 3 : 2;
+                for (char q : new char[] { '\'', '"' }) {
+                    final String doc = "[" + q + "x" + lf + "y" + q + ", 1]";
+                    // with and without accessing String value (decode vs skip)
+                    for (boolean getText : new boolean[] { true, false }) {
+                        try (JsonParser p = createParser(APOS_CTRL_F, mode, doc)) {
+                            assertToken(JsonToken.START_ARRAY, p.nextToken());
+                            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                            if (getText) {
+                                assertEquals("x" + lf + "y", p.getText());
+                            }
+                            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                            assertEquals(expRow, p.currentTokenLocation().getLineNr(),
+                                    "mode " + mode + ", doc " + doc.replace("\r", "\\r").replace("\n", "\\n"));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Long enough to span input buffer and text buffer segment boundaries,
+    // with control chars at varying offsets
+    private static String _longValue() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 6000; ++i) {
+            switch (i % 7) {
+            case 0:
+                sb.append('\t');
+                break;
+            case 3:
+                sb.append('é');
+                break;
+            default:
+                sb.append((char) ('a' + (i % 26)));
+            }
+        }
+        return sb.toString();
     }
 }

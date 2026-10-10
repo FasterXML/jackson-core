@@ -164,4 +164,48 @@ public abstract class JsonParserBase
     protected void _reportLeadingPlusSignNotAllowed() throws JsonParseException {
         _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
     }
+
+    // 09-Oct-2026, tatu: [core#1750] Handling of a String value char that is neither
+    //   escape nor valid (UTF-8) start char: control chars are only allowed (and returned
+    //   from) with ALLOW_UNESCAPED_CONTROL_CHARS; must not be reduced to a plain
+    //   "_reportInvalidChar()" call.
+    // @since 2.21.8
+    protected void _handleInvalidStringChar(int c) throws IOException {
+        if (c >= INT_SPACE) {
+            _reportInvalidChar(c);
+            return; // never gets here
+        }
+        // Throws unless control chars allowed
+        _throwUnquotedSpace(c, "string value");
+        if (c == INT_LF || c == INT_CR) {
+            _handleLinefeedInString(c);
+        }
+    }
+
+    /**
+     * Method called for an unescaped linefeed (allowed by
+     * {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}) within a String value,
+     * to update row tracking. Default implementation does nothing.
+     *
+     * @param c Linefeed character ({@code '\r'} or {@code '\n'})
+     *
+     * @throws IOException for low-level read issues
+     *
+     * @since 2.21.8
+     */
+    protected void _handleLinefeedInString(int c) throws IOException { }
+
+    // @since 2.21.8 (moved from sub-classes)
+    protected void _reportInvalidChar(int c) throws JsonParseException {
+        // Either invalid WS or illegal UTF-8 start char
+        if (c < INT_SPACE) {
+            _throwInvalidSpace(c);
+        }
+        _reportInvalidInitial(c);
+    }
+
+    // @since 2.21.8 (moved from sub-classes)
+    protected void _reportInvalidInitial(int mask) throws JsonParseException {
+        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
+    }
 }

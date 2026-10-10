@@ -961,6 +961,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         case 'I':
             return _finishNonStdToken(NON_STD_TOKEN_INFINITY, 1);
         }
+        // 09-Oct-2026, tatu: [core#1748] Decode multi-byte UTF-8 char, as blocking parsers do
+        if (ch > 0x7F) {
+            ch = _decodeCharForError(ch);
+        }
         // !!! TODO: maybe try to collect more information for better diagnostics
         _reportUnexpectedChar(ch, "expected a valid value "+_validJsonValueList());
         return null;

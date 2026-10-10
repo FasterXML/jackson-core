@@ -101,6 +101,34 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
         }
     }
 
+    // Async parsers must report decoded UTF-8 char for unexpected value,
+    // with or without whitespace after separator
+    @Test
+    void nonAsciiUnexpectedValueAsync() throws Exception
+    {
+        final JsonFactory f = newStreamFactory();
+        for (String doc : new String[] { "[×]", "[1,×]", "[1, ×]", "{\"a\":×}", "{\"a\": ×}" }) {
+            byte[] b = doc.getBytes(StandardCharsets.UTF_8);
+            try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(f, 100, b, 0)) {
+                _verifyUnexpectedValue(p::nextToken, doc);
+            }
+            try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(f, 100, b, 0)) {
+                _verifyUnexpectedValue(p::nextToken, doc);
+            }
+        }
+    }
+
+    private void _verifyUnexpectedValue(IOSupplier<JsonToken> next, String doc)
+        throws IOException
+    {
+        try {
+            while (next.get() != null) { } // skip valid tokens
+            fail("Should not pass: " + doc);
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected character ('×' (code 215");
+        }
+    }
+
     private void _testInvalid(int[] seq, String expMsg) throws Exception
     {
         for (boolean quoted : new boolean[] { false, true }) {

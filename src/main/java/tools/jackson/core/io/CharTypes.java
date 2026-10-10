@@ -101,7 +101,8 @@ public final class CharTypes
     static {
         // start with 8-bit JS names
         final int[] table = Arrays.copyOf(sInputCodesJsNames, sInputCodesJsNames.length);
-        Arrays.fill(table, 128, 128, 0);
+        // 08-Oct-2026, pjfanning: [core#1748] was (128, 128), an empty range
+        Arrays.fill(table, 128, 256, 0);
         sInputCodesUtf8JsNames = table;
     }
 

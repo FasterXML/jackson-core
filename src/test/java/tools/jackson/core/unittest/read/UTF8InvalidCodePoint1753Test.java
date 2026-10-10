@@ -11,7 +11,11 @@ import tools.jackson.core.unittest.JacksonCoreTestBase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class UTF8InvalidCodePointTest
+/**
+ * Tests for [jackson-core#1753]: 4-byte UTF-8 sequences above U+10FFFF
+ * must be rejected when decoding String values.
+ */
+class UTF8InvalidCodePoint1753Test
     extends JacksonCoreTestBase
 {
     private final JsonFactory FACTORY = newStreamFactory();
@@ -39,11 +43,15 @@ class UTF8InvalidCodePointTest
     {
         byte[][] invalidSequences = {
                 { (byte) 0xF4, (byte) 0x90, (byte) 0x80, (byte) 0x80 },
-                { (byte) 0xF5, (byte) 0x80, (byte) 0x80, (byte) 0x80 }
+                { (byte) 0xF5, (byte) 0x80, (byte) 0x80, (byte) 0x80 },
+                { (byte) 0xF7, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF }
         };
 
         for (byte[] sequence : invalidSequences) {
             byte[] json = _quotedUtf8Sequence(sequence);
+            final String expMsg = String.format(
+                    "Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): code point exceeds U+10FFFF",
+                    sequence[0] & 0xFF, sequence[1] & 0xFF);
 
             for (int mode : STREAM_MODES) {
                 StreamReadException read = assertThrows(StreamReadException.class, () -> {
@@ -53,7 +61,7 @@ class UTF8InvalidCodePointTest
                     }
                 }, "read path, mode=" + mode);
 
-                verifyException(read, "Invalid UTF-8");
+                verifyException(read, expMsg);
             }
         }
     }

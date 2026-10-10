@@ -2929,9 +2929,8 @@ public class UTF8DataInputJsonParser
                 _reportInvalidOther(d & 0xFF);
             }
             c = (c << 6) | (d & 0x3F);
-            // [core#1728]: 0xF4 followed by 0x90 or above would exceed U+10FFFF
-            if ((needed > 2) && (c > 0x10F)) {
-                _reportInvalidOther(d & 0xFF);
+            if (needed > 2) {
+                _verifyUtf8_4Range(c);
             }
 
             if (needed > 1) { // needed == 1 means 2 bytes total

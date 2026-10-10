@@ -4115,9 +4115,8 @@ public class UTF8StreamJsonParser
                 _reportInvalidOther(d & 0xFF);
             }
             c = (c << 6) | (d & 0x3F);
-            // [core#1728]: 0xF4 followed by 0x90 or above would exceed U+10FFFF
-            if ((needed > 2) && (c > 0x10F)) {
-                _reportInvalidOther(d & 0xFF);
+            if (needed > 2) {
+                _verifyUtf8_4Range(c);
             }
 
             if (needed > 1) { // needed == 1 means 2 bytes total
@@ -4206,9 +4205,6 @@ public class UTF8StreamJsonParser
     //    can readily expand it to actual surrogates
     private final int _decodeUtf8_4(int c) throws JacksonException
     {
-        if (c > 0xF4) {
-            _reportInvalidInitial(c);
-        }
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
@@ -4217,9 +4213,8 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
-        if (c > 0x10F) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
-        }
+        // [core#1753]: also covers lead bytes 0xF5 - 0xF7
+        _verifyUtf8_4Range(c);
 
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();

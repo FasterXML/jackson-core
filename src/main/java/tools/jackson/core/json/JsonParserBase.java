@@ -655,4 +655,15 @@ public abstract class JsonParserBase
     protected void _reportLeadingPlusSignNotAllowed() throws StreamReadException {
         _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
     }
+
+    // [core#1728], [core#1753]: for a 4-byte UTF-8 sequence, lead byte (3 bits) plus
+    //   first continuation byte (6 bits) above 0x10F would exceed U+10FFFF
+    // @since 3.3
+    protected void _verifyUtf8_4Range(int c) throws StreamReadException {
+        if (c > 0x10F) {
+            _reportError(String.format(
+                    "Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): code point exceeds U+10FFFF",
+                    0xF0 | (c >> 6), 0x80 | (c & 0x3F)));
+        }
+    }
 }

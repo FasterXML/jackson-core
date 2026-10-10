@@ -85,7 +85,8 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
     void validUtf8BoundariesInNames() throws Exception
     {
         List<String> docs = new ArrayList<>();
-        for (String name : new String[] { "\u0080", "\u07FF", "\u0800", "\uFFDC" }) {
+        // NOTE: not U+07FF, which is only assigned (as identifier char) since Unicode 11 (JDK 12)
+        for (String name : new String[] { "\u0080", "\u07FA", "\u0800", "\uFFDC" }) {
             docs.addAll(Arrays.asList(_docs(name)));
         }
         for (String name : new String[] { "\uD800\uDC00", "\uDBFF\uDFFF" }) {

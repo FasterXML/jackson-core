@@ -2509,20 +2509,7 @@ public class UTF8StreamJsonParser
                         ch = (ch << 6) | (ch2 & 0x3F);
                     }
                 }
-                // [core#1748]: reject overlong encodings and code points beyond U+10FFFF
-                if (needed == 1) {
-                    if (ch < 0x80) {
-                        _reportError("Invalid UTF-8: overlong 2-byte encoding of 0x"+Integer.toHexString(ch));
-                    }
-                } else if (needed == 2) {
-                    if (ch < 0x800) {
-                        _reportError("Invalid UTF-8: overlong 3-byte encoding of 0x"+Integer.toHexString(ch));
-                    }
-                } else if (ch < 0x10000) {
-                    _reportError("Invalid UTF-8: overlong 4-byte encoding of 0x"+Integer.toHexString(ch));
-                } else if (ch > 0x10FFFF) {
-                    _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
-                }
+                _verifyUTF8NameCodePoint(ch, needed);
                 if (needed > 2) { // surrogate pair? once again, let's output one here, one later on
                     ch -= 0x10000; // to normalize it starting with 0x0
                     if (cix >= cbuf.length) {

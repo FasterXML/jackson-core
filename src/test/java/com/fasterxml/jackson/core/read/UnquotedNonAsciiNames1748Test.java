@@ -89,8 +89,13 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
                     }
                 }
                 byte[] b = doc.getBytes(StandardCharsets.UTF_8);
-                try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(UNQUOTED_F, 1, b, 0)) {
-                    _verify(p::nextToken, p::currentName, name, doc);
+                for (int bytesPerRead : new int[] { 1, 2, 3, 100 }) {
+                    try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(UNQUOTED_F, bytesPerRead, b, 0)) {
+                        _verify(p::nextToken, p::currentName, name, doc);
+                    }
+                    try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(UNQUOTED_F, bytesPerRead, b, 0)) {
+                        _verify(p::nextToken, p::currentName, name, doc);
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -7,10 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for [jackson-core#1748]: unquoted property names with non-ASCII
@@ -57,6 +60,96 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
                 }
             }
         }
+    }
+
+    // Invalid UTF-8 in names must be rejected, quoted or not
+    @Test
+    void invalidUtf8InNames() throws Exception
+    {
+        _testInvalid(new int[] { 0xC0, 0xBA }, "overlong 2-byte");
+        _testInvalid(new int[] { 0xC1, 0xBF }, "overlong 2-byte");
+        _testInvalid(new int[] { 0xE0, 0x80, 0xBA }, "overlong 3-byte");
+        _testInvalid(new int[] { 0xF0, 0x80, 0x80, 0xBA }, "overlong 4-byte");
+        _testInvalid(new int[] { 0xF4, 0x90, 0x80, 0x80 }, "beyond U+10FFFF");
+        _testInvalid(new int[] { 0xF7, 0xBF, 0xBF, 0xBF }, "beyond U+10FFFF");
+        _testInvalid(new int[] { 0xC3 }, "incomplete multi-byte sequence");
+        _testInvalid(new int[] { 0xE2, 0x82 }, "incomplete multi-byte sequence");
+    }
+
+    // Boundary code points must still be accepted
+    @Test
+    void validUtf8BoundariesInNames() throws Exception
+    {
+        for (String name : new String[] { "\u0080", "\u07FF", "\u0800", "\uFFFD",
+                "\uD800\uDC00", "\uDBFF\uDFFF" }) {
+            for (String doc : _docs(name)) {
+                for (int mode : ALL_BINARY_MODES) {
+                    try (JsonParser p = createParser(UNQUOTED_F, mode, doc)) {
+                        _verify(p::nextToken, p::currentName, name, doc);
+                    }
+                }
+                byte[] b = doc.getBytes(StandardCharsets.UTF_8);
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(UNQUOTED_F, 1, b, 0)) {
+                    _verify(p::nextToken, p::currentName, name, doc);
+                }
+            }
+        }
+    }
+
+    private void _testInvalid(int[] seq, String expMsg) throws Exception
+    {
+        for (boolean quoted : new boolean[] { false, true }) {
+            byte[] doc = _invalidDoc(seq, quoted);
+            String desc = expMsg + (quoted ? " (quoted)" : " (unquoted)");
+            for (int mode : ALL_BINARY_MODES) {
+                try (JsonParser p = createParser(UNQUOTED_F, mode, doc)) {
+                    _verifyInvalid(p::nextToken, expMsg, desc + ", mode " + mode);
+                }
+            }
+            for (int bytesPerRead : new int[] { 1, 3, 100 }) {
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(UNQUOTED_F, bytesPerRead, doc, 0)) {
+                    _verifyInvalid(p::nextToken, expMsg, desc + ", async");
+                }
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(UNQUOTED_F, bytesPerRead, doc, 0)) {
+                    _verifyInvalid(p::nextToken, expMsg, desc + ", async ByteBuffer");
+                }
+            }
+        }
+    }
+
+    private void _verifyInvalid(IOSupplier<JsonToken> next, String expMsg, String desc)
+        throws IOException
+    {
+        assertToken(JsonToken.START_OBJECT, next.get());
+        try {
+            JsonToken t = next.get();
+            fail("Should not pass (" + desc + "), got " + t);
+        } catch (JsonEOFException e) {
+            fail("Should not report EOF (" + desc + "): " + e.getMessage());
+        } catch (JsonParseException e) {
+            verifyException(e, expMsg);
+        }
+    }
+
+    // `{a<seq>:1}` or `{"a<seq>":1}`: sequence ends the name
+    private static byte[] _invalidDoc(int[] seq, boolean quoted)
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        out.write('{');
+        if (quoted) {
+            out.write('"');
+        }
+        out.write('a');
+        for (int b : seq) {
+            out.write(b);
+        }
+        if (quoted) {
+            out.write('"');
+        }
+        out.write(':');
+        out.write('1');
+        out.write('}');
+        return out.toByteArray();
     }
 
     @FunctionalInterface

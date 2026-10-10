@@ -1463,11 +1463,9 @@ public class ReaderBasedJsonParser
                 ++fractLen;
             }
             // must be followed by sequence of ints, one minimum
-            if (fractLen == 0) {
-                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
-                    _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-                }
-            } else if (ch == INT_PERIOD) {
+            _verifyFractionDigits(fractLen, intLen, ch);
+            // [core#679]: no second decimal point
+            if ((fractLen > 0) && (ch == INT_PERIOD)) {
                 _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
             }
         }
@@ -1674,11 +1672,9 @@ public class ReaderBasedJsonParser
                 outBuf[outPtr++] = c;
             }
             // must be followed by sequence of ints, one minimum
-            if (fractLen == 0) {
-                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
-                    _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
-                }
-            } else if (c == INT_PERIOD) {
+            _verifyFractionDigits(fractLen, intLen, c);
+            // [core#679]: no second decimal point
+            if ((fractLen > 0) && (c == INT_PERIOD)) {
                 _reportUnexpectedNumberChar(c, "Cannot parse number with more than one decimal point");
             }
         }
@@ -1887,7 +1883,7 @@ public class ReaderBasedJsonParser
             }
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS) && hasSign && !negative) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
         final String message = negative ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :
@@ -1999,6 +1995,40 @@ public class ReaderBasedJsonParser
                      * For now let's assume it does not.
                      */
                     c = _decodeEscaped();
+                    // 05-Sep-2026, elang2: [core#1683] Validate JSON-escaped surrogates
+                    //   in property name; mirror of [core#1541] fix in UTF8StreamJsonParser.
+                    if (c >= 0xD800 && c <= 0xDFFF) {
+                        if (c < 0xDC00) { // high surrogate: must be followed by low surrogate escape
+                            char hi = c;
+                            if (_inputPtr >= _inputEnd) {
+                                if (!_loadMore()) {
+                                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
+                                }
+                            }
+                            if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
+                                _reportUnexpectedCharAfterHighSurrogate(_inputBuffer[_inputPtr], "property name");
+                            }
+                            ++_inputPtr;
+                            char lo = _decodeEscaped();
+                            if (lo < 0xDC00 || lo > 0xDFFF) {
+                                _reportBrokenSurrogatePair(lo, "property name");
+                            }
+                            // Store as two UTF-16 code units. Hash includes the low
+                            // surrogate below; add high surrogate here.
+                            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + hi;
+                            // Room for one char is guaranteed at loop start.
+                            outBuf[outPtr++] = hi;
+                            if (outPtr >= outBuf.length) {
+                                totalLen += outBuf.length;
+                                _streamReadConstraints.validateNameLength(totalLen);
+                                outBuf = _textBuffer.finishCurrentSegment();
+                                outPtr = 0;
+                            }
+                            c = lo;
+                        } else { // lone low surrogate
+                            _reportUnexpectedLowSurrogate(c, "property name");
+                        }
+                    }
                 } else if (i <= endChar) {
                     if (i == endChar) {
                         break;
@@ -2223,7 +2253,7 @@ public class ReaderBasedJsonParser
                         break;
                     }
                     if (i < INT_SPACE) {
-                        _throwUnquotedSpace(i, "string value");
+                        _handleInvalidStringChar(i);
                     }
                 }
             }
@@ -2346,7 +2376,7 @@ public class ReaderBasedJsonParser
                      */
                     c = _decodeEscaped();
                 } else if (i < INT_SPACE) {
-                    _throwUnquotedSpace(i, "string value");
+                    _handleInvalidStringChar(i);
                 } // anything else?
             }
             // Need more room?
@@ -2403,7 +2433,9 @@ public class ReaderBasedJsonParser
                     }
                     if (i < INT_SPACE) {
                         _inputPtr = inPtr;
-                        _throwUnquotedSpace(i, "string value");
+                        _handleInvalidStringChar(i);
+                        inPtr = _inputPtr;
+                        inLen = _inputEnd;
                     }
                 }
             }
@@ -2472,7 +2504,9 @@ public class ReaderBasedJsonParser
                     }
                     if (i < INT_SPACE) {
                         _inputPtr = inPtr;
-                        _throwUnquotedSpace(i, "string value");
+                        _handleInvalidStringChar(i);
+                        inPtr = _inputPtr;
+                        inLen = _inputEnd;
                     }
                 }
             }
@@ -2498,6 +2532,18 @@ public class ReaderBasedJsonParser
     /* Internal methods, other parsing
     /**********************************************************************
      */
+
+    @Override // @since 2.21.8
+    protected void _handleLinefeedInString(int c) throws JacksonException
+    {
+        // with "\r\n", count row on '\n' instead
+        if (c == INT_CR
+                && (_inputPtr < _inputEnd || _loadMore()) && _inputBuffer[_inputPtr] == '\n') {
+            return;
+        }
+        ++_currInputRow;
+        _currInputRowStart = _inputPtr;
+    }
 
     // We actually need to check the character value here
     // (to see if we have \n following \r).
@@ -2907,6 +2953,12 @@ public class ReaderBasedJsonParser
             break;
 
         default:
+            // 09-Oct-2026, tatu: [core#1744] Backslash-escaped raw surrogate (half of
+            //   supplementary character) not allowed, same as with byte-based parsers
+            if (Character.isSurrogate(c)) {
+                throw _constructReadException("Unrecognized character escape "+_getCharDesc(c),
+                        _currentLocationMinusOne());
+            }
             return _handleUnrecognizedCharacterEscape(c);
         }
 
@@ -3253,6 +3305,23 @@ public class ReaderBasedJsonParser
         }
         final String fullMsg = String.format("Unrecognized token '%s': was expecting %s", sb, msg);
         throw _constructReadException(fullMsg, loc);
+    }
+
+    // 05-Sep-2026, elang2: [core#1683] Helpers for reporting malformed JSON-escaped
+    //   surrogates; wording mirrors UTF8StreamJsonParser ([core#1541]), plus context.
+    private void _reportUnexpectedLowSurrogate(int lo, String ctx) throws JacksonException {
+        _reportError("Unexpected low surrogate in " + ctx + ": 0x" + Integer.toHexString(lo));
+    }
+
+    private void _reportUnexpectedCharAfterHighSurrogate(int next, String ctx)
+            throws JacksonException {
+        _reportError("Broken surrogate pair in " + ctx
+                + ": expected '\\' to start low surrogate, got 0x" + Integer.toHexString(next));
+    }
+
+    private void _reportBrokenSurrogatePair(int lo, String ctx) throws JacksonException {
+        _reportError(String.format(
+                "Broken surrogate pair in %s: expected low surrogate, got 0x%04X", ctx, lo));
     }
 
     /*

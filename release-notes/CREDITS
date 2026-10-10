@@ -86,6 +86,9 @@ DongNyoung Lee (@Dongnyoung)
   (3.1.8)
  * Fixed #1727: UTF-8 surrogate code points not rejected when skipping String values
   (3.3.0)
+ * Reported, fixed #1753: Reject 4-byte UTF-8 sequences exceeding U+10FFFF in
+   String values of `UTF8StreamJsonParser`
+  (3.3.0)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
@@ -143,4 +146,14 @@ Steven Schlansker (@stevenschlansker)
 @bodograumann
  * Reported #1728: Unexpected-character messages drop the high bits of a
    supplementary code point
+  (3.1.8)
+
+Elankumaran Srinivasan (@elang2)
+ * Contributed #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
+   surrogates in property names (mirror of #1541 fix in `UTF8StreamJsonParser`)
+  (3.1.8)
+
+David R. MacIver (@DRMacIver)
+ * Reported #1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
+   a feed ends inside an escaped surrogate pair in a property name
   (3.1.8)

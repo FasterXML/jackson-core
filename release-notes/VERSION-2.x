@@ -20,11 +20,30 @@ a pure JSON library.
   based on supplied length
  (requested by @kilink)
  (contributed by @seonwooj0810)
+#1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
+  `ALLOW_UNQUOTED_FIELD_NAMES`
+ (fix by @pjfanning)
 
 2.22.4 (not yet released)
 
+#1683: JSON`\uXXXX` escape accepts lone surrogates in field names for
+  `ReaderBasedJsonParser`
+ (contributed by @elang2)
 #1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
   typed `writeArray()` and raw/binary values consistently
+ (fix by @pjfanning)
+#1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
+  a feed ends inside an escaped surrogate pair in a property name
+ (reported by @DRMacIver)
+ (fix by @pjfanning)
+#1744: `UTF8DataInputJsonParser` fails on JSON-escaped surrogate pairs in
+  property names
+ (fix by @pjfanning)
+#1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
+  with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
+ (fix by @pjfanning)
+#1750: `ALLOW_UNESCAPED_CONTROL_CHARS` ignored for single-quoted string values
+  in UTF-8 byte parsers
  (fix by @pjfanning)
 
 2.22.3 (21-Sep-2026)
@@ -60,8 +79,24 @@ No changes since 2.21
 
 2.21.8 (not yet released)
 
+#1683: JSON`\uXXXX` escape accepts lone surrogates in field names for
+  `ReaderBasedJsonParser`
+ (contributed by @elang2)
 #1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
   typed `writeArray()` and raw/binary values consistently
+ (fix by @pjfanning)
+#1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
+  a feed ends inside an escaped surrogate pair in a property name
+ (reported by @DRMacIver)
+ (fix by @pjfanning)
+#1744: `UTF8DataInputJsonParser` fails on JSON-escaped surrogate pairs in
+  property names
+ (fix by @pjfanning)
+#1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
+  with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
+ (fix by @pjfanning)
+#1750: `ALLOW_UNESCAPED_CONTROL_CHARS` ignored for single-quoted string values
+  in UTF-8 byte parsers
  (fix by @pjfanning)
 
 2.21.7 (21-Sep-2026)

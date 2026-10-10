@@ -66,68 +66,30 @@ class EscapedSurrogateInFieldName1744Test extends JUnit5TestBase
         }
     }
 
-    // Backslash-escaped raw supplementary character must not be truncated to 16 bits
+    // Backslash-escaped supplementary character cannot be decoded as single char:
+    // must be rejected, not truncated to 16 bits (U+10027 would become apostrophe)
     @Test
-    void backslashEscapedSupplementaryCharInFieldName() throws Exception
+    void backslashEscapedSupplementaryCharRejected() throws Exception
     {
-        final JsonFactory f = JsonFactory.builder()
+        final JsonFactory anyEscape = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)
                 .build();
-        // U+1D800 truncates to 0xD800, a high surrogate
-        final String odd = new String(Character.toChars(0x1D800));
+        final String apos = new String(Character.toChars(0x10027));
         for (int mode : ALL_MODES) {
-            _testName(f, mode, '"', "\\" + SMILEY, SMILEY);
-            _testName(f, mode, '"', "a\\" + SMILEY + "b", "a" + SMILEY + "b");
-            _testName(f, mode, '"', "\\" + odd, odd);
-            _testName(f, mode, '"', ESC_SMILEY + "\\" + odd, SMILEY + odd);
-            // and escaped low surrogate must not be faked either (U+1DC00 -> 0xDC00)
-            _testBroken(f, mode, "{\"\\uD83D\\" + new String(Character.toChars(0x1DC00)) + "\":1}",
-                    "Broken surrogate pair");
-        }
-    }
-
-    // Same for String values
-    @Test
-    void backslashEscapedSupplementaryCharInValue() throws Exception
-    {
-        final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)
-                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
-                .build();
-        final String odd = new String(Character.toChars(0x1D800));
-        // long enough to span multiple text buffer segments
-        StringBuilder esc = new StringBuilder();
-        StringBuilder exp = new StringBuilder();
-        for (int i = 0; i < 3000; ++i) {
-            esc.append("a\\").append(SMILEY);
-            exp.append('a').append(SMILEY);
-        }
-        for (int mode : ALL_MODES) {
-            for (char q : new char[] { '"', '\'' }) {
-                _testValue(f, mode, q, "\\" + SMILEY, SMILEY);
-                _testValue(f, mode, q, "a\\" + SMILEY + "b", "a" + SMILEY + "b");
-                _testValue(f, mode, q, "\\" + odd, odd);
-                _testValue(f, mode, q, esc.toString(), exp.toString());
+            for (String doc : new String[] {
+                    "{\"\\" + SMILEY + "\":1}",
+                    "[\"\\" + SMILEY + "\"]",
+                    "{\"" + ESC_SMILEY + "\\" + SMILEY + "\":1}",
+            }) {
+                _testBroken(FACTORY, mode, doc, "Unrecognized character escape");
+                _testBroken(anyEscape, mode, doc, "Unrecognized character escape");
             }
+            _testBroken(APOS_FACTORY, mode, "{\"\\" + apos + "\":1}", "Unrecognized character escape");
+            _testBroken(APOS_FACTORY, mode, "[\"\\" + apos + "\"]", "Unrecognized character escape");
         }
     }
 
-    // Validation must use full code point, not truncated one: U+10027 truncates to '\''
-    @Test
-    void backslashEscapedSupplementaryCharNotAllowed() throws Exception
-    {
-        final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
-                .build();
-        final String ch = new String(Character.toChars(0x10027));
-        for (int mode : ALL_MODES) {
-            _testBroken(f, mode, "{\"\\" + ch + "\":1}", "Unrecognized character escape");
-            _testBroken(f, mode, "[\"\\" + ch + "\"]", "Unrecognized character escape");
-            _testBroken(FACTORY, mode, "{\"\\" + SMILEY + "\":1}", "Unrecognized character escape");
-        }
-    }
-
-    // Invalid UTF-8 after backslash must not get through
+    // Same for invalid UTF-8 after backslash (only possible with byte input)
     @Test
     void backslashEscapedInvalidUTF8() throws Exception
     {
@@ -139,10 +101,10 @@ class EscapedSurrogateInFieldName1744Test extends JUnit5TestBase
         // CESU-8 style encoded high surrogate U+D83D
         final int[] cesu = { 0xED, 0xA0, 0xBD };
         for (int mode : ALL_BINARY_MODES) {
-            _testBroken(f, mode, concat("{\"\\", tooBig, "\":1}"), "Invalid UTF-8");
-            _testBroken(f, mode, concat("[\"\\", tooBig, "\"]"), "Invalid UTF-8");
-            _testBroken(f, mode, concat("{\"\\", cesu, "\\uDE00\":1}"), "Invalid UTF-8");
-            _testBroken(f, mode, concat("[\"\\", cesu, "\\uDE00\"]"), "Invalid UTF-8");
+            _testBroken(f, mode, concat("{\"\\", tooBig, "\":1}"), "Unrecognized character escape");
+            _testBroken(f, mode, concat("[\"\\", tooBig, "\"]"), "Unrecognized character escape");
+            _testBroken(f, mode, concat("{\"\\", cesu, "\\uDE00\":1}"), "Unrecognized character escape");
+            _testBroken(f, mode, concat("[\"\\", cesu, "\\uDE00\"]"), "Unrecognized character escape");
         }
     }
 
@@ -177,6 +139,18 @@ class EscapedSurrogateInFieldName1744Test extends JUnit5TestBase
         }
     }
 
+    // Truncated escape must be reported as JsonEOFException by all backends
+    @Test
+    void eofWithinEscape() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testBroken(FACTORY, mode, "{\"\\", "Unexpected end-of-input");
+            _testBroken(FACTORY, mode, "{\"\\uD8", "Unexpected end-of-input");
+            _testBroken(FACTORY, mode, "[\"\\", "Unexpected end-of-input");
+            _testBroken(FACTORY, mode, "[\"\\u00", "Unexpected end-of-input");
+        }
+    }
+
     private void _testName(JsonFactory f, int mode, char q, String escName, String expName)
         throws Exception
     {
@@ -187,18 +161,6 @@ class EscapedSurrogateInFieldName1744Test extends JUnit5TestBase
             assertEquals(expName, p.currentName(), "mode " + mode);
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
-        }
-    }
-
-    private void _testValue(JsonFactory f, int mode, char q, String escValue, String expValue)
-        throws Exception
-    {
-        String doc = "[" + q + escValue + q + "]";
-        try (JsonParser p = createParser(f, mode, doc)) {
-            assertToken(JsonToken.START_ARRAY, p.nextToken());
-            assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            assertEquals(expValue, p.getText(), "mode " + mode);
-            assertToken(JsonToken.END_ARRAY, p.nextToken());
         }
     }
 

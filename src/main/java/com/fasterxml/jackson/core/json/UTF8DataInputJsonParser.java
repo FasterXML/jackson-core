@@ -1470,7 +1470,7 @@ public class UTF8DataInputJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscapedCodePoint();
+                    ch = _decodeEscaped();
                 }
                 // 08-Oct-2026, pjfanning: [core#1744] Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
@@ -1652,7 +1652,7 @@ public class UTF8DataInputJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscapedCodePoint();
+                    ch = _decodeEscaped();
                 }
                 // 08-Oct-2026, pjfanning: [core#1744] Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
@@ -1991,20 +1991,7 @@ public class UTF8DataInputJsonParser
             }
             switch (codes[c]) {
             case 1: // backslash
-                c = _decodeEscapedCodePoint();
-                // 09-Oct-2026, tatu: [core#1744] Backslash-escaped supplementary
-                //   character needs a surrogate pair, same as 4-byte UTF-8 below
-                if (c > 0xFFFF) {
-                    c -= 0x10000;
-                    // Let's add first part right away:
-                    if (outPtr >= outBuf.length) {
-                        outBuf = _textBuffer.finishCurrentSegment();
-                        outPtr = 0;
-                        outEnd = outBuf.length;
-                    }
-                    outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
-                    c = 0xDC00 | (c & 0x3FF);
-                }
+                c = _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUtf8_2(c);
@@ -2211,19 +2198,7 @@ public class UTF8DataInputJsonParser
             }
             switch (codes[c]) {
             case 1: // backslash
-                c = _decodeEscapedCodePoint();
-                // 09-Oct-2026, tatu: [core#1744] Backslash-escaped supplementary
-                //   character needs a surrogate pair, same as 4-byte UTF-8 below
-                if (c > 0xFFFF) {
-                    c -= 0x10000;
-                    // Let's add first part right away:
-                    outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
-                    if (outPtr >= outBuf.length) {
-                        outBuf = _textBuffer.finishCurrentSegment();
-                        outPtr = 0;
-                    }
-                    c = 0xDC00 | (c & 0x3FF);
-                }
+                c = _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUtf8_2(c);
@@ -2611,53 +2586,53 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    protected char _decodeEscaped() throws IOException {
-        return (char) _decodeEscapedCodePoint();
-    }
-
-    // 09-Oct-2026, tatu: [core#1744] Same as `_decodeEscaped()` but does not truncate
-    //   backslash-escaped supplementary (4-byte UTF-8) characters
-    private int _decodeEscapedCodePoint() throws IOException
+    protected char _decodeEscaped() throws IOException
     {
-        int c = _inputData.readUnsignedByte();
+        // 09-Oct-2026, tatu: [core#1744] Report end-of-input same as other parsers
+        try {
+            int c = _inputData.readUnsignedByte();
 
-        switch (c) {
-            // First, ones that are mapped
-        case 'b':
-            return '\b';
-        case 't':
-            return '\t';
-        case 'n':
-            return '\n';
-        case 'f':
-            return '\f';
-        case 'r':
-            return '\r';
+            switch (c) {
+                // First, ones that are mapped
+            case 'b':
+                return '\b';
+            case 't':
+                return '\t';
+            case 'n':
+                return '\n';
+            case 'f':
+                return '\f';
+            case 'r':
+                return '\r';
 
-            // And these are to be returned as they are
-        case '"':
-        case '/':
-        case '\\':
-            return (char) c;
+                // And these are to be returned as they are
+            case '"':
+            case '/':
+            case '\\':
+                return (char) c;
 
-        case 'u': // and finally hex-escaped
-            break;
+            case 'u': // and finally hex-escaped
+                break;
 
-        default:
-            return _decodeEscapedRawChar(c);
-        }
-
-        // Ok, a hex escape. Need 4 characters
-        int value = 0;
-        for (int i = 0; i < 4; ++i) {
-            int ch = _inputData.readUnsignedByte();
-            int digit = CharTypes.charToHex(ch);
-            if (digit < 0) {
-                _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
+            default:
+                return _decodeEscapedRawChar(c);
             }
-            value = (value << 4) | digit;
+
+            // Ok, a hex escape. Need 4 characters
+            int value = 0;
+            for (int i = 0; i < 4; ++i) {
+                int ch = _inputData.readUnsignedByte();
+                int digit = CharTypes.charToHex(ch);
+                if (digit < 0) {
+                    _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
+                }
+                value = (value << 4) | digit;
+            }
+            return (char) value;
+        } catch (EOFException e) {
+            _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
+            return 0; // never gets here
         }
-        return value;
     }
 
     // 09-Oct-2026, tatu: [core#1744] Decodes low surrogate escape that must follow
@@ -2670,7 +2645,7 @@ public class UTF8DataInputJsonParser
                 _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate, got 0x"
                         + Integer.toHexString(b));
             }
-            int lo = _decodeEscapedCodePoint();
+            int lo = _decodeEscaped();
             if (lo < 0xDC00 || lo > 0xDFFF) {
                 _reportError(String.format(
                         "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
@@ -2683,25 +2658,16 @@ public class UTF8DataInputJsonParser
     }
 
     // 09-Oct-2026, tatu: [core#1744] Decodes (possibly multi-byte) raw character after
-    //   backslash; must validate full code point, not truncated 16-bit char
-    private int _decodeEscapedRawChar(int firstByte) throws IOException
+    //   backslash: supplementary characters (cannot be returned as `char`) and
+    //   surrogates (invalid in UTF-8) are rejected, instead of being truncated
+    private char _decodeEscapedRawChar(int firstByte) throws IOException
     {
         final int cp = _decodeCharForError(firstByte);
-        if (cp <= 0xFFFF) {
-            if (cp >= 0xD800 && cp <= 0xDFFF) { // CESU-8 style encoded surrogate
-                _reportInvalidUTF8Surrogate(cp);
-            }
-            return _handleUnrecognizedCharacterEscape((char) cp);
-        }
-        if (cp > 0x10FFFF) {
-            _reportError(String.format(
-                    "Invalid UTF-8: code point 0x%X exceeds maximum 0x10FFFF", cp));
-        }
-        if (!isEnabled(Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)) {
+        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
             throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
                     _currentLocationMinusOne());
         }
-        return cp;
+        return _handleUnrecognizedCharacterEscape((char) cp);
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException

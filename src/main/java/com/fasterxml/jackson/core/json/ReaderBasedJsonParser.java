@@ -1860,10 +1860,7 @@ public class ReaderBasedJsonParser
                     c = _decodeEscaped();
                     // 05-Sep-2026, elang2: [core#1683] Validate JSON-escaped surrogates
                     //   in field name; mirror of [core#1541] fix in UTF8StreamJsonParser.
-                    // 09-Oct-2026, tatu: [core#1744] ... but only for hex escapes: backslash-escaped
-                    //   raw surrogate (ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER) is left as is.
-                    //   Last char read is a hex digit for hex escape, the raw char itself otherwise.
-                    if (c >= 0xD800 && c <= 0xDFFF && _inputBuffer[_inputPtr - 1] != c) {
+                    if (c >= 0xD800 && c <= 0xDFFF) {
                         if (c < 0xDC00) { // high surrogate: must be followed by low surrogate escape
                             char hi = c;
                             if (_inputPtr >= _inputEnd) {
@@ -2722,6 +2719,12 @@ public class ReaderBasedJsonParser
             break;
 
         default:
+            // 09-Oct-2026, tatu: [core#1744] Backslash-escaped raw surrogate (half of
+            //   supplementary character) not allowed, same as with byte-based parsers
+            if (Character.isSurrogate(c)) {
+                throw _constructReadException("Unrecognized character escape "+_getCharDesc(c),
+                        _currentLocationMinusOne());
+            }
             return _handleUnrecognizedCharacterEscape(c);
         }
 

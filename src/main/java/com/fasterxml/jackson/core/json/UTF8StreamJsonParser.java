@@ -2003,7 +2003,7 @@ public class UTF8StreamJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscapedCodePoint();
+                    ch = _decodeEscaped();
                 }
                 // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
@@ -2197,7 +2197,7 @@ public class UTF8StreamJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscapedCodePoint();
+                    ch = _decodeEscaped();
                 }
                 // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
@@ -2579,19 +2579,7 @@ public class UTF8StreamJsonParser
 
             switch (codes[c]) {
             case 1: // backslash
-                c = _decodeEscapedCodePoint();
-                // 09-Oct-2026, tatu: [core#1744] Backslash-escaped supplementary
-                //   character needs a surrogate pair, same as 4-byte UTF-8 below
-                if (c > 0xFFFF) {
-                    c -= 0x10000;
-                    // Let's add first part right away:
-                    outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
-                    if (outPtr >= outBuf.length) {
-                        outBuf = _textBuffer.finishCurrentSegment();
-                        outPtr = 0;
-                    }
-                    c = 0xDC00 | (c & 0x3FF);
-                }
+                c = _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUtf8_2(c);
@@ -2831,19 +2819,7 @@ public class UTF8StreamJsonParser
 
             switch (codes[c]) {
             case 1: // backslash
-                c = _decodeEscapedCodePoint();
-                // 09-Oct-2026, tatu: [core#1744] Backslash-escaped supplementary
-                //   character needs a surrogate pair, same as 4-byte UTF-8 below
-                if (c > 0xFFFF) {
-                    c -= 0x10000;
-                    // Let's add first part right away:
-                    outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
-                    if (outPtr >= outBuf.length) {
-                        outBuf = _textBuffer.finishCurrentSegment();
-                        outPtr = 0;
-                    }
-                    c = 0xDC00 | (c & 0x3FF);
-                }
+                c = _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUtf8_2(c);
@@ -3402,13 +3378,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    protected char _decodeEscaped() throws IOException {
-        return (char) _decodeEscapedCodePoint();
-    }
-
-    // 09-Oct-2026, tatu: [core#1744] Same as `_decodeEscaped()` but does not truncate
-    //   backslash-escaped supplementary (4-byte UTF-8) characters
-    private int _decodeEscapedCodePoint() throws IOException
+    protected char _decodeEscaped() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
@@ -3458,7 +3428,7 @@ public class UTF8StreamJsonParser
             }
             value = (value << 4) | digit;
         }
-        return value;
+        return (char) value;
     }
 
     // 09-Oct-2026, tatu: [core#1744] Decodes low surrogate escape that must follow
@@ -3475,7 +3445,7 @@ public class UTF8StreamJsonParser
                     + Integer.toHexString(_inputBuffer[_inputPtr] & 0xFF));
         }
         ++_inputPtr;
-        int lo = _decodeEscapedCodePoint();
+        int lo = _decodeEscaped();
         if (lo < 0xDC00 || lo > 0xDFFF) {
             _reportError(String.format(
                     "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
@@ -3484,25 +3454,16 @@ public class UTF8StreamJsonParser
     }
 
     // 09-Oct-2026, tatu: [core#1744] Decodes (possibly multi-byte) raw character after
-    //   backslash; must validate full code point, not truncated 16-bit char
-    private int _decodeEscapedRawChar(int firstByte) throws IOException
+    //   backslash: supplementary characters (cannot be returned as `char`) and
+    //   surrogates (invalid in UTF-8) are rejected, instead of being truncated
+    private char _decodeEscapedRawChar(int firstByte) throws IOException
     {
         final int cp = _decodeCharForError(firstByte);
-        if (cp <= 0xFFFF) {
-            if (cp >= 0xD800 && cp <= 0xDFFF) { // CESU-8 style encoded surrogate
-                _reportInvalidUTF8Surrogate(cp);
-            }
-            return _handleUnrecognizedCharacterEscape((char) cp);
-        }
-        if (cp > 0x10FFFF) {
-            _reportError(String.format(
-                    "Invalid UTF-8: code point 0x%X exceeds maximum 0x10FFFF", cp));
-        }
-        if (!isEnabled(Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)) {
+        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
             throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
                     _currentLocationMinusOne());
         }
-        return cp;
+        return _handleUnrecognizedCharacterEscape((char) cp);
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException

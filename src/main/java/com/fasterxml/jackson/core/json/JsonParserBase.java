@@ -5,8 +5,10 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberTypeFP;
 import com.fasterxml.jackson.core.base.ParserBase;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 /**
@@ -181,11 +183,150 @@ public abstract class JsonParserBase
         return name;
     }
 
+    /**
+     * Helper method used by UTF-8 byte-based parsers to decode property name from
+     * quads collected while scanning it, and add it to the symbol table.
+     *
+     * @param symbols Symbol table to add name to
+     * @param quads Name bytes, packed 4 per quad (big-endian)
+     * @param qlen Number of quads used
+     * @param lastQuadBytes Number of bytes used in the last quad (1 - 4)
+     *
+     * @return Decoded (and canonicalized, if enabled) name
+     *
+     * @since 2.23
+     */
+    // 09-Oct-2026, tatu: [core#1748] Moved from `UTF8StreamJsonParser`,
+    //   `UTF8DataInputJsonParser` and `NonBlockingJsonParserBase`
+    protected final String _decodeAndAddUTF8Name(ByteQuadsCanonicalizer symbols,
+            int[] quads, int qlen, int lastQuadBytes)
+        throws JsonParseException, StreamConstraintsException
+    {
+        // Ok: must decode UTF-8 chars. No other validation is needed, since unescaping
+        // has been done earlier as necessary (as well as error reporting for unescaped
+        // control chars)
+
+        // 4 bytes per quad, except last one maybe less
+        final int byteLen = (qlen << 2) - 4 + lastQuadBytes;
+        _streamReadConstraints.validateNameLength(byteLen);
+
+        // And last one is not correctly aligned (leading zero bytes instead
+        // need to shift a bit, instead of trailing). Only need to shift it
+        // for UTF-8 decoding; need revert for storage (since key will not
+        // be aligned, to optimize lookup speed)
+        int lastQuad;
+
+        if (lastQuadBytes < 4) {
+            lastQuad = quads[qlen-1];
+            // 8/16/24 bit left shift
+            quads[qlen-1] = (lastQuad << ((4 - lastQuadBytes) << 3));
+        } else {
+            lastQuad = 0;
+        }
+
+        // Need some working space, TextBuffer works well:
+        char[] cbuf = _textBuffer.emptyAndGetCurrentSegment();
+        int cix = 0;
+
+        for (int ix = 0; ix < byteLen; ) {
+            int ch = quads[ix >> 2]; // current quad, need to shift+mask
+            int byteIx = (ix & 3);
+            ch = (ch >> ((3 - byteIx) << 3)) & 0xFF;
+            ++ix;
+
+            if (ch > 127) { // multi-byte
+                int needed;
+                if ((ch & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
+                    ch &= 0x1F;
+                    needed = 1;
+                } else if ((ch & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
+                    ch &= 0x0F;
+                    needed = 2;
+                } else if ((ch & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
+                    ch &= 0x07;
+                    needed = 3;
+                } else { // 5- and 6-byte chars not valid json chars
+                    _reportInvalidUTF8NameByte("start", ch);
+                    needed = ch = 1; // never really gets this far
+                }
+                // [core#1748]: name bytes are complete, so this is a truncated sequence, not EOF
+                if ((ix + needed) > byteLen) {
+                    _reportError("Invalid UTF-8: incomplete multi-byte sequence in field name");
+                }
+
+                // Ok, always need at least one more:
+                int ch2 = quads[ix >> 2]; // current quad, need to shift+mask
+                byteIx = (ix & 3);
+                ch2 = (ch2 >> ((3 - byteIx) << 3));
+                ++ix;
+
+                if ((ch2 & 0xC0) != 0x080) {
+                    _reportInvalidUTF8NameByte("middle", ch2);
+                }
+                ch = (ch << 6) | (ch2 & 0x3F);
+                if (needed > 1) {
+                    ch2 = quads[ix >> 2];
+                    byteIx = (ix & 3);
+                    ch2 = (ch2 >> ((3 - byteIx) << 3));
+                    ++ix;
+
+                    if ((ch2 & 0xC0) != 0x080) {
+                        _reportInvalidUTF8NameByte("middle", ch2);
+                    }
+                    ch = (ch << 6) | (ch2 & 0x3F);
+                    // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8 for 3-byte sequences
+                    if (needed == 2) {
+                        if (ch >= 0xD800 && ch <= 0xDFFF) {
+                            _reportInvalidUTF8Surrogate(ch);
+                        }
+                    } else { // 4 bytes? (need surrogates on output)
+                        ch2 = quads[ix >> 2];
+                        byteIx = (ix & 3);
+                        ch2 = (ch2 >> ((3 - byteIx) << 3));
+                        ++ix;
+                        if ((ch2 & 0xC0) != 0x080) {
+                            _reportInvalidUTF8NameByte("middle", ch2 & 0xFF);
+                        }
+                        ch = (ch << 6) | (ch2 & 0x3F);
+                    }
+                }
+                _verifyUTF8NameCodePoint(ch, needed);
+                if (needed > 2) { // surrogate pair? once again, let's output one here, one later on
+                    ch -= 0x10000; // to normalize it starting with 0x0
+                    if (cix >= cbuf.length) {
+                        cbuf = _textBuffer.expandCurrentSegment();
+                    }
+                    cbuf[cix++] = (char) (0xD800 + (ch >> 10));
+                    ch = 0xDC00 | (ch & 0x03FF);
+                }
+            }
+            if (cix >= cbuf.length) {
+                cbuf = _textBuffer.expandCurrentSegment();
+            }
+            cbuf[cix++] = (char) ch;
+        }
+
+        // Ok. Now we have the character array, and can construct the String
+        String baseName = new String(cbuf, 0, cix);
+        // 5-May-2023, ckozak: [core#1015] respect CANONICALIZE_FIELD_NAMES factory config.
+        if (!symbols.isCanonicalizing()) {
+            return baseName;
+        }
+        // And finally, un-align if necessary
+        if (lastQuadBytes < 4) {
+            quads[qlen-1] = lastQuad;
+        }
+        return symbols.addName(baseName, quads, qlen);
+    }
+
+    private void _reportInvalidUTF8NameByte(String type, int b) throws JsonParseException {
+        _reportError("Invalid UTF-8 "+type+" byte 0x"+Integer.toHexString(b));
+    }
+
     // [core#1748]: rejects overlong encodings and code points beyond U+10FFFF
     // for code point decoded from multi-byte UTF-8 sequence (with `needed` continuation bytes)
     // in a property name
-    // @since 2.23
-    protected void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
+    private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
         if (needed == 1) {
             if (ch < 0x80) {
                 _reportError("Invalid UTF-8: overlong 2-byte encoding of 0x"+Integer.toHexString(ch));

@@ -2771,7 +2771,6 @@ public class UTF8DataInputJsonParser
                 needed = 2;
             } else if ((c & 0xF8) == 0xF0) {
                 // 4 bytes; double-char with surrogates and all...
-                // [core#1728]: 0xF5 - 0xF7 (exceeding U+10FFFF) caught by range check below
                 c &= 0x07;
                 needed = 3;
             } else {

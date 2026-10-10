@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Tests for [jackson-core#1753]: 4-byte UTF-8 sequences above U+10FFFF
- * must be rejected when decoding String values.
+ * Tests for [jackson-core#1753]: 4-byte UTF-8 sequences outside of
+ * [U+10000, U+10FFFF] must be rejected when decoding String values.
  */
 class UTF8InvalidCodePoint1753Test
     extends JacksonCoreTestBase
@@ -26,94 +26,58 @@ class UTF8InvalidCodePoint1753Test
     };
 
     @Test
-    void acceptUtf8CodePointAtUnicodeMaximum() throws Exception
+    void acceptUtf8CodePointsAtRangeBoundaries() throws Exception
     {
-        byte[] json = _quotedUtf8Sequence((byte) 0xF4, (byte) 0x8F, (byte) 0xBF, (byte) 0xBF);
+        _verifyAccepted(new int[] { 0xF0, 0x90, 0x80, 0x80 }, "𐀀"); // U+10000
+        _verifyAccepted(new int[] { 0xF4, 0x8F, 0xBF, 0xBF }, "􏿿"); // U+10FFFF
+    }
 
+    @Test
+    void rejectUtf8CodePointsOutsideRange() throws Exception
+    {
+        final String OVERLONG = "overlong encoding";
+        final String ABOVE_MAX = "code point exceeds U+10FFFF";
+
+        _verifyRejected(new int[] { 0xF0, 0x80, 0x80, 0x80 }, OVERLONG);
+        _verifyRejected(new int[] { 0xF0, 0x8F, 0xBF, 0xBF }, OVERLONG);
+        _verifyRejected(new int[] { 0xF0, 0x8D, 0xA0, 0x80 }, OVERLONG); // surrogate U+D800
+        _verifyRejected(new int[] { 0xF4, 0x90, 0x80, 0x80 }, ABOVE_MAX);
+        _verifyRejected(new int[] { 0xF5, 0x80, 0x80, 0x80 }, ABOVE_MAX);
+        _verifyRejected(new int[] { 0xF7, 0xBF, 0xBF, 0xBF }, ABOVE_MAX);
+    }
+
+    private void _verifyAccepted(int[] sequence, String expected) throws Exception
+    {
         for (int mode : STREAM_MODES) {
-            try (JsonParser p = createParser(FACTORY, mode, json)) {
+            try (JsonParser p = createParser(FACTORY, mode, _quoted(sequence))) {
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                assertEquals("\uDBFF\uDFFF", p.getString(), "mode=" + mode);
+                assertEquals(expected, p.getString(), "mode=" + mode);
             }
         }
     }
 
-    @Test
-    void acceptUtf8CodePointAtSupplementaryMinimum() throws Exception
+    private void _verifyRejected(int[] sequence, String reason) throws Exception
     {
-        byte[] json = _quotedUtf8Sequence((byte) 0xF0, (byte) 0x90, (byte) 0x80, (byte) 0x80);
-
+        final String expMsg = String.format("Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): %s",
+                sequence[0], sequence[1], reason);
         for (int mode : STREAM_MODES) {
-            try (JsonParser p = createParser(FACTORY, mode, json)) {
-                assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                assertEquals("\uD800\uDC00", p.getString(), "mode=" + mode);
-            }
+            StreamReadException e = assertThrows(StreamReadException.class, () -> {
+                try (JsonParser p = createParser(FACTORY, mode, _quoted(sequence))) {
+                    assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                    p.getString();
+                }
+            }, "mode=" + mode);
+            verifyException(e, expMsg);
         }
     }
 
-    // Overlong 4-byte encodings (of code points below U+10000) must be rejected
-    @Test
-    void rejectOverlongUtf8_4ByteSequences() throws Exception
-    {
-        byte[][] invalidSequences = {
-                { (byte) 0xF0, (byte) 0x80, (byte) 0x80, (byte) 0x80 },
-                { (byte) 0xF0, (byte) 0x8F, (byte) 0xBF, (byte) 0xBF },
-                // overlong encoding of surrogate U+D800
-                { (byte) 0xF0, (byte) 0x8D, (byte) 0xA0, (byte) 0x80 }
-        };
-
-        for (byte[] sequence : invalidSequences) {
-            byte[] json = _quotedUtf8Sequence(sequence);
-            final String expMsg = String.format(
-                    "Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): overlong encoding",
-                    sequence[0] & 0xFF, sequence[1] & 0xFF);
-
-            for (int mode : STREAM_MODES) {
-                StreamReadException read = assertThrows(StreamReadException.class, () -> {
-                    try (JsonParser p = createParser(FACTORY, mode, json)) {
-                        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                        p.getString();
-                    }
-                }, "read path, mode=" + mode);
-
-                verifyException(read, expMsg);
-            }
-        }
-    }
-
-    @Test
-    void rejectUtf8CodePointsAboveUnicodeMaximum() throws Exception
-    {
-        byte[][] invalidSequences = {
-                { (byte) 0xF4, (byte) 0x90, (byte) 0x80, (byte) 0x80 },
-                { (byte) 0xF5, (byte) 0x80, (byte) 0x80, (byte) 0x80 },
-                { (byte) 0xF7, (byte) 0xBF, (byte) 0xBF, (byte) 0xBF }
-        };
-
-        for (byte[] sequence : invalidSequences) {
-            byte[] json = _quotedUtf8Sequence(sequence);
-            final String expMsg = String.format(
-                    "Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): code point exceeds U+10FFFF",
-                    sequence[0] & 0xFF, sequence[1] & 0xFF);
-
-            for (int mode : STREAM_MODES) {
-                StreamReadException read = assertThrows(StreamReadException.class, () -> {
-                    try (JsonParser p = createParser(FACTORY, mode, json)) {
-                        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                        p.getString();
-                    }
-                }, "read path, mode=" + mode);
-
-                verifyException(read, expMsg);
-            }
-        }
-    }
-
-    private byte[] _quotedUtf8Sequence(byte... sequence)
+    private static byte[] _quoted(int[] sequence)
     {
         byte[] json = new byte[sequence.length + 2];
         json[0] = '"';
-        System.arraycopy(sequence, 0, json, 1, sequence.length);
+        for (int i = 0; i < sequence.length; ++i) {
+            json[i + 1] = (byte) sequence[i];
+        }
         json[json.length - 1] = '"';
         return json;
     }

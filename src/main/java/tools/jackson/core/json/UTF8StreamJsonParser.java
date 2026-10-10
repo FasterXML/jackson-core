@@ -3956,7 +3956,6 @@ public class UTF8StreamJsonParser
                 needed = 2;
             } else if ((c & 0xF8) == 0xF0) {
                 // 4 bytes; double-char with surrogates and all...
-                // [core#1728]: 0xF5 - 0xF7 (exceeding U+10FFFF) caught by range check below
                 c &= 0x07;
                 needed = 3;
             } else {
@@ -4067,7 +4066,6 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
-        // [core#1753]: also covers lead bytes 0xF5 - 0xF7
         _verifyUtf8_4Range(c);
 
         if (_inputPtr >= _inputEnd) {

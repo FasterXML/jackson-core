@@ -670,7 +670,7 @@ public abstract class NonBlockingJsonParserBase
         }
         // If not, more work. We'll need add stuff to buffer
         _quadBuffer[0] = q1;
-        return _addName(_quadBuffer, 1, lastQuadBytes);
+        return _decodeAndAddUTF8Name(_symbols, _quadBuffer, 1, lastQuadBytes);
     }
 
     protected final String _findName(int q1, int q2, int lastQuadBytes)
@@ -685,7 +685,7 @@ public abstract class NonBlockingJsonParserBase
         // If not, more work. We'll need add stuff to buffer
         _quadBuffer[0] = q1;
         _quadBuffer[1] = q2;
-        return _addName(_quadBuffer, 2, lastQuadBytes);
+        return _decodeAndAddUTF8Name(_symbols, _quadBuffer, 2, lastQuadBytes);
     }
 
     protected final String _findName(int q1, int q2, int q3, int lastQuadBytes)
@@ -699,14 +699,14 @@ public abstract class NonBlockingJsonParserBase
         int[] quads = _quadBuffer;
         quads[0] = q1;
         quads[1] = q2;
-        quads[2] = _padLastQuad(q3, lastQuadBytes);
-        return _addName(quads, 3, lastQuadBytes);
+        quads[2] = q3; // already padded
+        return _decodeAndAddUTF8Name(_symbols, quads, 3, lastQuadBytes);
     }
 
-    // This is the main workhorse method used when we take a symbol
-    // table miss. It needs to demultiplex individual bytes, decode
-    // multi-byte chars (if any), and then construct Name instance
-    // and add it to the symbol table.
+    /**
+     * @deprecated Since 2.23 use {@link #_decodeAndAddUTF8Name} instead
+     */
+    @Deprecated // @since 2.23
     protected final String _addName(int[] quads, int qlen, int lastQuadBytes)
         throws JsonParseException, StreamConstraintsException
     {
@@ -793,18 +793,5 @@ public abstract class NonBlockingJsonParserBase
             _throwInvalidSpace(c);
         }
         _reportInvalidInitial(c);
-    }
-
-    protected void _reportInvalidInitial(int mask) throws JsonParseException {
-        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
-    }
-
-    protected void _reportInvalidOther(int mask, int ptr) throws JsonParseException {
-        _inputPtr = ptr;
-        _reportInvalidOther(mask);
-    }
-
-    protected void _reportInvalidOther(int mask) throws JsonParseException {
-        _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
 }

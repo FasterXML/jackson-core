@@ -2367,7 +2367,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
-            name = _addName(quads, qlen, currQuadBytes);
+            name = _decodeAndAddUTF8Name(_symbols, quads, qlen, currQuadBytes);
         }
         return _fieldComplete(name);
     }
@@ -2462,7 +2462,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            // [core#1748]: must pad, as with quoted names, to avoid [core#148] collisions
+            // 09-Oct-2026, tatu: [core#1748] must pad, as with quoted names, to avoid
+            //   [core#148] collisions
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
         return _fieldComplete(_findOrAddUnquotedUTF8Name(_symbols, quads, qlen, currQuadBytes));
@@ -2587,7 +2588,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
-            name = _addName(quads, qlen, currQuadBytes);
+            name = _decodeAndAddUTF8Name(_symbols, quads, qlen, currQuadBytes);
         }
         return _fieldComplete(name);
     }

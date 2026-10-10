@@ -2152,7 +2152,8 @@ public class UTF8StreamJsonParser
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            // [core#1748]: must pad, as with quoted names, to avoid [core#148] collisions
+            // 09-Oct-2026, tatu: [core#1748] must pad, as with quoted names, to avoid
+            //   [core#148] collisions
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
         return _findOrAddUnquotedUTF8Name(_symbols, quads, qlen, currQuadBytes);
@@ -2316,7 +2317,7 @@ public class UTF8StreamJsonParser
         int[] quads = _quadBuffer;
         quads[0] = q1;
         quads[1] = q2;
-        quads[2] = _padLastQuad(q3, lastQuadBytes);
+        quads[2] = q3; // already padded
         return _decodeAndAddUTF8Name(_symbols, quads, 3, lastQuadBytes);
     }
 
@@ -3626,21 +3627,6 @@ public class UTF8StreamJsonParser
             _throwInvalidSpace(c);
         }
         _reportInvalidInitial(c);
-    }
-
-    protected void _reportInvalidInitial(int mask) throws JsonParseException {
-        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
-    }
-
-    protected void _reportInvalidOther(int mask) throws JsonParseException {
-        _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
-    }
-
-    protected void _reportInvalidOther(int mask, int ptr)
-        throws JsonParseException
-    {
-        _inputPtr = ptr;
-        _reportInvalidOther(mask);
     }
 
     /*

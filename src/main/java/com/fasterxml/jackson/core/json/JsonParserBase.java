@@ -308,10 +308,11 @@ public abstract class JsonParserBase
                     ch &= 0x07;
                     needed = 3;
                 } else { // 5- and 6-byte chars not valid json chars
-                    _reportInvalidUTF8NameByte("start", ch);
+                    _reportInvalidInitial(ch);
                     needed = ch = 1; // never really gets this far
                 }
-                // [core#1748]: name bytes are complete, so this is a truncated sequence, not EOF
+                // 09-Oct-2026, tatu: [core#1748] name bytes are complete, so this is
+                //   a truncated sequence, not EOF
                 if ((ix + needed) > byteLen) {
                     _reportError("Invalid UTF-8: incomplete multi-byte sequence in field name");
                 }
@@ -323,7 +324,7 @@ public abstract class JsonParserBase
                 ++ix;
 
                 if ((ch2 & 0xC0) != 0x080) {
-                    _reportInvalidUTF8NameByte("middle", ch2 & 0xFF);
+                    _reportInvalidOther(ch2 & 0xFF);
                 }
                 ch = (ch << 6) | (ch2 & 0x3F);
                 if (needed > 1) {
@@ -333,7 +334,7 @@ public abstract class JsonParserBase
                     ++ix;
 
                     if ((ch2 & 0xC0) != 0x080) {
-                        _reportInvalidUTF8NameByte("middle", ch2 & 0xFF);
+                        _reportInvalidOther(ch2 & 0xFF);
                     }
                     ch = (ch << 6) | (ch2 & 0x3F);
                     if (needed > 2) { // 4 bytes? (need surrogates on output)
@@ -342,7 +343,7 @@ public abstract class JsonParserBase
                         ch2 = (ch2 >> ((3 - byteIx) << 3));
                         ++ix;
                         if ((ch2 & 0xC0) != 0x080) {
-                            _reportInvalidUTF8NameByte("middle", ch2 & 0xFF);
+                            _reportInvalidOther(ch2 & 0xFF);
                         }
                         ch = (ch << 6) | (ch2 & 0x3F);
                     }
@@ -376,13 +377,27 @@ public abstract class JsonParserBase
         return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
     }
 
-    private void _reportInvalidUTF8NameByte(String type, int b) throws JsonParseException {
-        _reportError("Invalid UTF-8 "+type+" byte 0x"+Integer.toHexString(b));
+    // 09-Oct-2026, tatu: [core#1748] Moved from `UTF8StreamJsonParser`,
+    //   `UTF8DataInputJsonParser` and `NonBlockingJsonParserBase`
+    // @since 2.23
+    protected void _reportInvalidInitial(int mask) throws JsonParseException {
+        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
 
-    // [core#1748]: rejects overlong encodings, surrogates and code points beyond U+10FFFF
-    // for code point decoded from multi-byte UTF-8 sequence (with `needed` continuation bytes)
-    // in a property name
+    // @since 2.23
+    protected void _reportInvalidOther(int mask) throws JsonParseException {
+        _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
+    }
+
+    // @since 2.23
+    protected void _reportInvalidOther(int mask, int ptr) throws JsonParseException {
+        _inputPtr = ptr;
+        _reportInvalidOther(mask);
+    }
+
+    // 09-Oct-2026, tatu: [core#1748] rejects overlong encodings, surrogates and code points
+    //   beyond U+10FFFF for code point decoded from multi-byte UTF-8 sequence (with `needed`
+    //   continuation bytes) in a property name
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
         if (needed == 1) {
             if (ch < 0x80) {

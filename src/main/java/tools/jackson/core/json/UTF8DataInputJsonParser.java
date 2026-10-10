@@ -2771,10 +2771,6 @@ public class UTF8DataInputJsonParser
                 needed = 2;
             } else if ((c & 0xF8) == 0xF0) {
                 // 4 bytes; double-char with surrogates and all...
-                // [core#1728]: 0xF5 - 0xF7 would exceed U+10FFFF
-                if (c > 0xF4) {
-                    _reportInvalidInitial(c);
-                }
                 c &= 0x07;
                 needed = 3;
             } else {
@@ -2787,9 +2783,8 @@ public class UTF8DataInputJsonParser
                 _reportInvalidOther(d & 0xFF);
             }
             c = (c << 6) | (d & 0x3F);
-            // [core#1728]: 0xF4 followed by 0x90 or above would exceed U+10FFFF
-            if ((needed > 2) && (c > 0x10F)) {
-                _reportInvalidOther(d & 0xFF);
+            if (needed > 2) {
+                _verifyUtf8_4Range(c);
             }
 
             if (needed > 1) { // needed == 1 means 2 bytes total

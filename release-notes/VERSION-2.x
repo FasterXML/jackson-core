@@ -42,6 +42,9 @@ a pure JSON library.
 #1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
   with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
  (fix by @pjfanning)
+#1750: `ALLOW_UNESCAPED_CONTROL_CHARS` ignored for single-quoted string values
+  in UTF-8 byte parsers
+ (fix by @pjfanning)
 
 2.22.3 (21-Sep-2026)
 
@@ -91,6 +94,9 @@ No changes since 2.21
  (fix by @pjfanning)
 #1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
   with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
+ (fix by @pjfanning)
+#1750: `ALLOW_UNESCAPED_CONTROL_CHARS` ignored for single-quoted string values
+  in UTF-8 byte parsers
  (fix by @pjfanning)
 
 2.21.7 (21-Sep-2026)

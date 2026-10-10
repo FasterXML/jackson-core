@@ -786,12 +786,4 @@ public abstract class NonBlockingJsonParserBase
         _tokenInputCol = ptr - _currInputRowStart;
         _tokenInputTotal = _currInputProcessed + (ptr - _currBufferStart);
     }
-
-    protected void _reportInvalidChar(int c) throws JsonParseException {
-        // Either invalid WS or illegal UTF-8 start char
-        if (c < INT_SPACE) {
-            _throwInvalidSpace(c);
-        }
-        _reportInvalidInitial(c);
-    }
 }

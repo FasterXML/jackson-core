@@ -181,6 +181,23 @@ public abstract class JsonParserBase
         }
     }
 
+    // 09-Oct-2026, tatu: [core#1750] Handling of a String value char that is neither
+    //   escape nor valid (UTF-8) start char: control chars are only allowed (and returned
+    //   from) with ALLOW_UNESCAPED_CONTROL_CHARS; must not be reduced to a plain
+    //   "_reportInvalidChar()" call.
+    // @since 2.21.8
+    protected void _handleInvalidStringChar(int c) throws IOException {
+        if (c >= INT_SPACE) {
+            _reportInvalidChar(c);
+            return; // never gets here
+        }
+        // Throws unless control chars allowed
+        _throwUnquotedSpace(c, "string value");
+        if (c == INT_LF || c == INT_CR) {
+            _handleLinefeedInString(c);
+        }
+    }
+
     /**
      * Helper method used by UTF-8 byte-based parsers to decode property name from
      * quads collected while scanning it, and add it to the symbol table.
@@ -380,11 +397,6 @@ public abstract class JsonParserBase
     // 09-Oct-2026, tatu: [core#1748] Moved from `UTF8StreamJsonParser`,
     //   `UTF8DataInputJsonParser` and `NonBlockingJsonParserBase`
     // @since 2.23
-    protected void _reportInvalidInitial(int mask) throws JsonParseException {
-        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
-    }
-
-    // @since 2.23
     protected void _reportInvalidOther(int mask) throws JsonParseException {
         _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
@@ -416,5 +428,32 @@ public abstract class JsonParserBase
         } else if (ch > 0x10FFFF) {
             _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
         }
+    }
+
+    /**
+     * Method called for an unescaped linefeed (allowed by
+     * {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}) within a String value,
+     * to update row tracking. Default implementation does nothing.
+     *
+     * @param c Linefeed character ({@code '\r'} or {@code '\n'})
+     *
+     * @throws IOException for low-level read issues
+     *
+     * @since 2.21.8
+     */
+    protected void _handleLinefeedInString(int c) throws IOException { }
+
+    // @since 2.21.8 (moved from sub-classes)
+    protected void _reportInvalidChar(int c) throws JsonParseException {
+        // Either invalid WS or illegal UTF-8 start char
+        if (c < INT_SPACE) {
+            _throwInvalidSpace(c);
+        }
+        _reportInvalidInitial(c);
+    }
+
+    // @since 2.21.8 (moved from sub-classes)
+    protected void _reportInvalidInitial(int mask) throws JsonParseException {
+        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
 }

@@ -2926,13 +2926,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // And let the other char output down below
                     break;
                 default:
-                    if (c < INT_SPACE) {
-                        // Note: call can now actually return (to allow unquoted linefeeds)
-                        _throwUnquotedSpace(c, "string value");
-                    } else {
-                        // Is this good enough error message?
-                        _reportInvalidChar(c);
-                    }
+                    _inputPtr = ptr; // for location, row tracking
+                    _handleInvalidStringChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -3051,13 +3046,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // And let the other char output down below
                     break;
                 default:
-                    if (c < INT_SPACE) {
-                        // Note: call can now actually return (to allow unquoted linefeeds)
-                        _throwUnquotedSpace(c, "string value");
-                    } else {
-                        // Is this good enough error message?
-                        _reportInvalidChar(c);
-                    }
+                    _inputPtr = ptr; // for location, row tracking
+                    _handleInvalidStringChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -3110,16 +3100,22 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_VALUE_STRING_UTF8_4;
             return false;
         default:
-            if (c < INT_SPACE) {
-                // Note: call can now actually return (to allow unquoted linefeeds)
-                _throwUnquotedSpace(c, "string value");
-            } else {
-                // Is this good enough error message?
-                _reportInvalidChar(c);
-            }
+            _handleInvalidStringChar(c);
             _textBuffer.append((char) c);
             return true;
         }
+    }
+
+    @Override // @since 2.21.8
+    protected void _handleLinefeedInString(int c)
+    {
+        // Like "_skipWS()": '\r' tracked separately, to handle "\r\n"
+        if (c == INT_LF) {
+            ++_currInputRow;
+        } else {
+            ++_currInputRowAlt;
+        }
+        _currInputRowStart = _inputPtr;
     }
 
     private final boolean _decodeSplitUTF8_3(int prev, int prevCount, int next)

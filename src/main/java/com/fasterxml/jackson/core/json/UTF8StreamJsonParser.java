@@ -2152,7 +2152,8 @@ public class UTF8StreamJsonParser
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            quads[qlen++] = currQuad;
+            // [core#1748]: must pad, as with quoted names, to avoid [core#148] collisions
+            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
@@ -2346,11 +2347,6 @@ public class UTF8StreamJsonParser
         throws JsonParseException, StreamConstraintsException
     {
         return _decodeAndAddUTF8Name(_symbols, quads, qlen, lastQuadBytes);
-    }
-
-    // Helper method needed to fix [jackson-core#148], masking of 0x00 character
-    private final static int _padLastQuad(int q, int bytes) {
-        return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
     }
 
     /*

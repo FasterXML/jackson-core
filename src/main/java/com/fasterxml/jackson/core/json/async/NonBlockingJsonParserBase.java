@@ -713,11 +713,6 @@ public abstract class NonBlockingJsonParserBase
         return _decodeAndAddUTF8Name(_symbols, quads, qlen, lastQuadBytes);
     }
 
-    // Helper method needed to fix [jackson-core#148], masking of 0x00 character
-    protected final static int _padLastQuad(int q, int bytes) {
-        return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
-    }
-
     /*
     /**********************************************************************
     /* Internal methods, state changes

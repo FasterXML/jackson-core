@@ -314,6 +314,12 @@ public abstract class JsonParserBase
         return symbols.addName(baseName, quads, qlen);
     }
 
+    // Helper method needed to fix [jackson-core#148], masking of 0x00 character
+    // @since 2.23
+    protected final static int _padLastQuad(int q, int bytes) {
+        return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
+    }
+
     private void _reportInvalidUTF8NameByte(String type, int b) throws JsonParseException {
         _reportError("Invalid UTF-8 "+type+" byte 0x"+Integer.toHexString(b));
     }

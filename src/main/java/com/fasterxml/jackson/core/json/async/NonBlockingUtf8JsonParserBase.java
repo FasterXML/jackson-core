@@ -2461,7 +2461,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            quads[qlen++] = currQuad;
+            // [core#1748]: must pad, as with quoted names, to avoid [core#148] collisions
+            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {

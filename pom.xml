@@ -152,7 +152,6 @@ tools.jackson.core.*;version=${project.version}
           <!-- 14-Aug-2026, pjfanning: [core#1652] Need to open up XJB to unit tests -->
           <argLine>@{argLine}
             --add-exports tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
-            --add-opens tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
             --add-opens tools.jackson.core/tools.jackson.core.json=tools.jackson.core.unittest
            </argLine>
         </configuration>

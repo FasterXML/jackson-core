@@ -274,12 +274,7 @@ public abstract class JsonParserBase
                         _reportInvalidUTF8NameByte("middle", ch2);
                     }
                     ch = (ch << 6) | (ch2 & 0x3F);
-                    // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8 for 3-byte sequences
-                    if (needed == 2) {
-                        if (ch >= 0xD800 && ch <= 0xDFFF) {
-                            _reportInvalidUTF8Surrogate(ch);
-                        }
-                    } else { // 4 bytes? (need surrogates on output)
+                    if (needed > 2) { // 4 bytes? (need surrogates on output)
                         ch2 = quads[ix >> 2];
                         byteIx = (ix & 3);
                         ch2 = (ch2 >> ((3 - byteIx) << 3));
@@ -323,7 +318,7 @@ public abstract class JsonParserBase
         _reportError("Invalid UTF-8 "+type+" byte 0x"+Integer.toHexString(b));
     }
 
-    // [core#1748]: rejects overlong encodings and code points beyond U+10FFFF
+    // [core#1748]: rejects overlong encodings, surrogates and code points beyond U+10FFFF
     // for code point decoded from multi-byte UTF-8 sequence (with `needed` continuation bytes)
     // in a property name
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
@@ -334,6 +329,10 @@ public abstract class JsonParserBase
         } else if (needed == 2) {
             if (ch < 0x800) {
                 _reportError("Invalid UTF-8: overlong 3-byte encoding of 0x"+Integer.toHexString(ch));
+            }
+            // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
+            if (ch >= 0xD800 && ch <= 0xDFFF) {
+                _reportInvalidUTF8Surrogate(ch);
             }
         } else if (ch < 0x10000) {
             _reportError("Invalid UTF-8: overlong 4-byte encoding of 0x"+Integer.toHexString(ch));

@@ -758,8 +758,9 @@ public abstract class NonBlockingJsonParserBase
                     _reportInvalidInitial(ch);
                     needed = ch = 1; // never really gets this far
                 }
+                // [core#1748]: name bytes are complete, so this is a truncated sequence, not EOF
                 if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportError("Invalid UTF-8: incomplete multi-byte sequence in field name");
                 }
 
                 // Ok, always need at least one more:
@@ -798,6 +799,7 @@ public abstract class NonBlockingJsonParserBase
                         ch = (ch << 6) | (ch2 & 0x3F);
                     }
                 }
+                _verifyUTF8NameCodePoint(ch, needed);
                 if (needed > 2) { // surrogate pair? once again, let's output one here, one later on
                     ch -= 0x10000; // to normalize it starting with 0x0
                     if (cix >= cbuf.length) {

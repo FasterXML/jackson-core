@@ -164,4 +164,24 @@ public abstract class JsonParserBase
     protected void _reportLeadingPlusSignNotAllowed() throws JsonParseException {
         _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
     }
+
+    // [core#1748]: rejects overlong encodings and code points beyond U+10FFFF
+    // for code point decoded from multi-byte UTF-8 sequence (with `needed` continuation bytes)
+    // in a property name
+    // @since 2.23
+    protected void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
+        if (needed == 1) {
+            if (ch < 0x80) {
+                _reportError("Invalid UTF-8: overlong 2-byte encoding of 0x"+Integer.toHexString(ch));
+            }
+        } else if (needed == 2) {
+            if (ch < 0x800) {
+                _reportError("Invalid UTF-8: overlong 3-byte encoding of 0x"+Integer.toHexString(ch));
+            }
+        } else if (ch < 0x10000) {
+            _reportError("Invalid UTF-8: overlong 4-byte encoding of 0x"+Integer.toHexString(ch));
+        } else if (ch > 0x10FFFF) {
+            _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
+        }
+    }
 }

@@ -572,7 +572,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_FIELD_LEADING_WS;
             return _updateTokenToNA();
         }
-        ch = getByteFromBuffer(ptr);
+        ch = getByteFromBuffer(ptr) & 0xFF;
         _inputPtr = ptr+1;
         if (ch <= 0x0020) {
             ch = _skipWS(ch);
@@ -712,7 +712,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_VALUE_WS_AFTER_COMMA;
             return _updateTokenToNA();
         }
-        ch = getByteFromBuffer(ptr);
+        ch = getByteFromBuffer(ptr) & 0xFF;
         _inputPtr = ptr+1;
         if (ch <= 0x0020) {
             ch = _skipWS(ch);
@@ -804,7 +804,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _minorState = MINOR_VALUE_LEADING_WS;
             return _updateTokenToNA();
         }
-        ch = getByteFromBuffer(ptr);
+        ch = getByteFromBuffer(ptr) & 0xFF;
         _inputPtr = ptr+1;
         if (ch <= 0x0020) {
             ch = _skipWS(ch); // will skip through all available ws (and comments)
@@ -960,6 +960,10 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishNonStdToken(NON_STD_TOKEN_NAN, 1);
         case 'I':
             return _finishNonStdToken(NON_STD_TOKEN_INFINITY, 1);
+        }
+        // 09-Oct-2026, tatu: [core#1748] Decode multi-byte UTF-8 char, as blocking parsers do
+        if (ch > 0x7F) {
+            ch = _decodeCharForError(ch);
         }
         // !!! TODO: maybe try to collect more information for better diagnostics
         _reportUnexpectedChar(ch, "expected a valid value "+_validJsonValueList());
@@ -2363,7 +2367,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
-            name = _addName(quads, qlen, currQuadBytes);
+            name = _decodeAndAddUTF8Name(_symbols, quads, qlen, currQuadBytes);
         }
         return _fieldComplete(name);
     }
@@ -2397,10 +2401,11 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         // allow unquoted names if feature enabled:
         if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
-         // !!! TODO: Decode UTF-8 characters properly...
-//            char c = (char) _decodeCharForError(ch);
-            char c = (char) ch;
-            _reportUnexpectedChar(c, "was expecting double-quote to start field name");
+            // 09-Oct-2026, tatu: [core#1748] Decode multi-byte UTF-8 char, as blocking parsers do
+            if (ch > 0x7F) {
+                ch = _decodeCharForError(ch);
+            }
+            _reportUnexpectedChar(ch, "was expecting double-quote to start field name");
         }
         // Also: note that although we use a different table here, it does NOT handle UTF-8
         // decoding. It'll just pass those high-bit codes as acceptable for later decoding.
@@ -2457,13 +2462,11 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            quads[qlen++] = currQuad;
+            // 09-Oct-2026, tatu: [core#1748] must pad, as with quoted names, to avoid
+            //   [core#148] collisions
+            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
-        String name = _symbols.findName(quads, qlen);
-        if (name == null) {
-            name = _addName(quads, qlen, currQuadBytes);
-        }
-        return _fieldComplete(name);
+        return _fieldComplete(_findOrAddUnquotedUTF8Name(_symbols, quads, qlen, currQuadBytes));
     }
 
     private JsonToken _finishAposName(int qlen, int currQuad, int currQuadBytes)
@@ -2585,7 +2588,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
-            name = _addName(quads, qlen, currQuadBytes);
+            name = _decodeAndAddUTF8Name(_symbols, quads, qlen, currQuadBytes);
         }
         return _fieldComplete(name);
     }

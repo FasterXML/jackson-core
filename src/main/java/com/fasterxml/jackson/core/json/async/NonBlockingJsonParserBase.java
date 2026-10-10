@@ -670,7 +670,7 @@ public abstract class NonBlockingJsonParserBase
         }
         // If not, more work. We'll need add stuff to buffer
         _quadBuffer[0] = q1;
-        return _addName(_quadBuffer, 1, lastQuadBytes);
+        return _decodeAndAddUTF8Name(_symbols, _quadBuffer, 1, lastQuadBytes);
     }
 
     protected final String _findName(int q1, int q2, int lastQuadBytes)
@@ -685,7 +685,7 @@ public abstract class NonBlockingJsonParserBase
         // If not, more work. We'll need add stuff to buffer
         _quadBuffer[0] = q1;
         _quadBuffer[1] = q2;
-        return _addName(_quadBuffer, 2, lastQuadBytes);
+        return _decodeAndAddUTF8Name(_symbols, _quadBuffer, 2, lastQuadBytes);
     }
 
     protected final String _findName(int q1, int q2, int q3, int lastQuadBytes)
@@ -699,136 +699,18 @@ public abstract class NonBlockingJsonParserBase
         int[] quads = _quadBuffer;
         quads[0] = q1;
         quads[1] = q2;
-        quads[2] = _padLastQuad(q3, lastQuadBytes);
-        return _addName(quads, 3, lastQuadBytes);
+        quads[2] = q3; // already padded
+        return _decodeAndAddUTF8Name(_symbols, quads, 3, lastQuadBytes);
     }
 
-    // This is the main workhorse method used when we take a symbol
-    // table miss. It needs to demultiplex individual bytes, decode
-    // multi-byte chars (if any), and then construct Name instance
-    // and add it to the symbol table.
+    /**
+     * @deprecated Since 2.23 use {@link #_decodeAndAddUTF8Name} instead
+     */
+    @Deprecated // @since 2.23
     protected final String _addName(int[] quads, int qlen, int lastQuadBytes)
-            throws JsonParseException, StreamConstraintsException
+        throws JsonParseException, StreamConstraintsException
     {
-        /* Ok: must decode UTF-8 chars. No other validation is
-         * needed, since unescaping has been done earlier, as necessary
-         * (as well as error reporting for unescaped control chars)
-         */
-        // 4 bytes per quad, except last one maybe less
-        final int byteLen = (qlen << 2) - 4 + lastQuadBytes;
-        _streamReadConstraints.validateNameLength(byteLen);
-
-        /* And last one is not correctly aligned (leading zero bytes instead
-         * need to shift a bit, instead of trailing). Only need to shift it
-         * for UTF-8 decoding; need revert for storage (since key will not
-         * be aligned, to optimize lookup speed)
-         */
-        int lastQuad;
-
-        if (lastQuadBytes < 4) {
-            lastQuad = quads[qlen-1];
-            // 8/16/24 bit left shift
-            quads[qlen-1] = (lastQuad << ((4 - lastQuadBytes) << 3));
-        } else {
-            lastQuad = 0;
-        }
-
-        // Need some working space, TextBuffer works well:
-        char[] cbuf = _textBuffer.emptyAndGetCurrentSegment();
-        int cix = 0;
-
-        for (int ix = 0; ix < byteLen; ) {
-            int ch = quads[ix >> 2]; // current quad, need to shift+mask
-            int byteIx = (ix & 3);
-            ch = (ch >> ((3 - byteIx) << 3)) & 0xFF;
-            ++ix;
-
-            if (ch > 127) { // multi-byte
-                int needed;
-                if ((ch & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
-                    ch &= 0x1F;
-                    needed = 1;
-                } else if ((ch & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
-                    ch &= 0x0F;
-                    needed = 2;
-                } else if ((ch & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
-                    ch &= 0x07;
-                    needed = 3;
-                } else { // 5- and 6-byte chars not valid xml chars
-                    _reportInvalidInitial(ch);
-                    needed = ch = 1; // never really gets this far
-                }
-                if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
-                }
-
-                // Ok, always need at least one more:
-                int ch2 = quads[ix >> 2]; // current quad, need to shift+mask
-                byteIx = (ix & 3);
-                ch2 = (ch2 >> ((3 - byteIx) << 3));
-                ++ix;
-
-                if ((ch2 & 0xC0) != 0x080) {
-                    _reportInvalidOther(ch2);
-                }
-                ch = (ch << 6) | (ch2 & 0x3F);
-                if (needed > 1) {
-                    ch2 = quads[ix >> 2];
-                    byteIx = (ix & 3);
-                    ch2 = (ch2 >> ((3 - byteIx) << 3));
-                    ++ix;
-
-                    if ((ch2 & 0xC0) != 0x080) {
-                        _reportInvalidOther(ch2);
-                    }
-                    ch = (ch << 6) | (ch2 & 0x3F);
-                    // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8 for 3-byte sequences
-                    if (needed == 2) {
-                        if (ch >= 0xD800 && ch <= 0xDFFF) {
-                            _reportInvalidUTF8Surrogate(ch);
-                        }
-                    } else { // 4 bytes? (need surrogates on output)
-                        ch2 = quads[ix >> 2];
-                        byteIx = (ix & 3);
-                        ch2 = (ch2 >> ((3 - byteIx) << 3));
-                        ++ix;
-                        if ((ch2 & 0xC0) != 0x080) {
-                            _reportInvalidOther(ch2 & 0xFF);
-                        }
-                        ch = (ch << 6) | (ch2 & 0x3F);
-                    }
-                }
-                if (needed > 2) { // surrogate pair? once again, let's output one here, one later on
-                    ch -= 0x10000; // to normalize it starting with 0x0
-                    if (cix >= cbuf.length) {
-                        cbuf = _textBuffer.expandCurrentSegment();
-                    }
-                    cbuf[cix++] = (char) (0xD800 + (ch >> 10));
-                    ch = 0xDC00 | (ch & 0x03FF);
-                }
-            }
-            if (cix >= cbuf.length) {
-                cbuf = _textBuffer.expandCurrentSegment();
-            }
-            cbuf[cix++] = (char) ch;
-        }
-
-        // Ok. Now we have the character array, and can construct the String
-        String baseName = new String(cbuf, 0, cix);
-        // 5-May-2023, ckozak: [core#1015] respect CANONICALIZE_FIELD_NAMES factory config.
-        if (!_symbols.isCanonicalizing()) {
-            return baseName;
-        }
-        // And finally, un-align if necessary
-        if (lastQuadBytes < 4) {
-            quads[qlen-1] = lastQuad;
-        }
-        return _symbols.addName(baseName, quads, qlen);
-    }
-
-    // Helper method needed to fix [jackson-core#148], masking of 0x00 character
-    protected final static int _padLastQuad(int q, int bytes) {
-        return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
+        return _decodeAndAddUTF8Name(_symbols, quads, qlen, lastQuadBytes);
     }
 
     /*
@@ -903,14 +785,5 @@ public abstract class NonBlockingJsonParserBase
         final int ptr = _inputPtr;
         _tokenInputCol = ptr - _currInputRowStart;
         _tokenInputTotal = _currInputProcessed + (ptr - _currBufferStart);
-    }
-
-    protected void _reportInvalidOther(int mask, int ptr) throws JsonParseException {
-        _inputPtr = ptr;
-        _reportInvalidOther(mask);
-    }
-
-    protected void _reportInvalidOther(int mask) throws JsonParseException {
-        _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
 }

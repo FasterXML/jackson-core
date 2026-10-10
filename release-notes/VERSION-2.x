@@ -20,6 +20,9 @@ a pure JSON library.
   based on supplied length
  (requested by @kilink)
  (contributed by @seonwooj0810)
+#1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
+  `ALLOW_UNQUOTED_FIELD_NAMES`
+ (fix by @pjfanning)
 
 2.22.4 (not yet released)
 

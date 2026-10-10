@@ -2947,8 +2947,10 @@ public class UTF8DataInputJsonParser
                  }
                  ch = readUnsignedByte();
              }
-         } catch (IOException e) {
+         } catch (EOFException e) {
              ; // ok since we are just trying to get token for diagnostics
+         } catch (IOException e) {
+             throw _wrapIOFailure(e);
          }
          _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
      }

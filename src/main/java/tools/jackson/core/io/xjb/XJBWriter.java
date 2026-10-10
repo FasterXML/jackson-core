@@ -91,37 +91,9 @@ public final class XJBWriter {
             setInt(buf, pos, 0x302E30);
             pos += 3;
         } else {
-            int m2IEEE = bits & 0x7FFFFF;
-            int e2 = e2IEEE - 150;
-            int m2 = m2IEEE | 0x800000;
-            int m10 = 0, e10 = 0;
-            if (e2 == 0) {
-                m10 = m2;
-            } else if ((e2 >= -23 && e2 < 0) && (m2 << e2) == 0) {
-                m10 = m2 >> -e2;
-            } else {
-                if (e2IEEE == 0) {
-                    m2 = m2IEEE;
-                    e2 = -149;
-                }
-                if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
-                else e10 = (e2 * 315653) >> 20;
-                int h = (((e10 + 1) * -217707) >> 16) + e2;
-                long pow10 = FLOAT_POW10S[31 - e10];
-                long halfUlpPlusEven = (pow10 >>> (28 - h)) + ((m2IEEE + 1) & 1);
-                long hi64 = unsignedMultiplyHigh1(pow10, ((long) m2) << (h + 37));
-                long dotOne = hi64 & 0xFFFFFFFFFL;
-                m10 = (int) (hi64 >>> 36) * 10;
-                long cmp = (m2IEEE == 0) ? (halfUlpPlusEven >>> 1) : halfUlpPlusEven;
-                if (Long.compareUnsigned(cmp, dotOne) <= 0) {
-                    if (Long.compareUnsigned(halfUlpPlusEven, 0xFFFFFFFFFL - dotOne) > 0) {
-                        m10 += 10;
-                    } else {
-                        m10 += (int) ((dotOne * 20 + ((int) (hi64 >>> 32) & 0xF) + 0xFFFFFFFF9L) >>> 37);
-                    }
-                }
-                if (m2IEEE == 0 && ((e2 == -119) || (e2 == 64) || (e2 == 67))) m10 += 1;
-            }
+            long dec = floatToDecimal(bits);
+            int m10 = (int) dec;
+            int e10 = (int) (dec >> 32);
             int len = digitCount(m10);
             e10 += len - 1;
             short[] ds = DIGITS;
@@ -220,57 +192,8 @@ public final class XJBWriter {
             setInt(buf, pos, 0x302E30);
             pos += 3;
         } else {
-            long m2IEEE = bits & 0xFFFFFFFFFFFFFL;
-            int e2 = e2IEEE - 1075;
-            long m2 = m2IEEE | 0x10000000000000L;
-            long m10 = 0L;
-            int e10 = 0;
-            if (e2 == 0) {
-                m10 = m2;
-            } else if ((e2 >= -52 && e2 < 0) && (m2 << e2) == 0) {
-                m10 = m2 >> -e2;
-            } else {
-                if (e2IEEE == 0) {
-                    m2 = m2IEEE;
-                    e2 = -1074;
-                }
-                if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
-                else e10 = (e2 * 315653) >> 20;
-                int h = (((e10 + 1) * -217707) >> 16) + e2;
-                int i = (292 - e10) << 1;
-                long pow10_1 = DOUBLE_POW10S[i];
-                long pow10_2 = DOUBLE_POW10S[i + 1];
-                long halfUlpPlusEven = (pow10_1 >>> -h) + (((int) m2 + 1) & 1);
-                long cb = m2 << (h + 7);
-                long lo64_1 = unsignedMultiplyHigh2(pow10_2, cb);
-                long lo64_2 = pow10_1 * cb;
-                long hi64 = unsignedMultiplyHigh1(pow10_1, cb);
-                long lo64 = lo64_1 + lo64_2;
-                hi64 += Long.compareUnsigned(lo64, lo64_1) >>> 31;
-                long dotOne = (hi64 << 58) | (lo64 >>> 6);
-                int mCorr = 0;
-                boolean roundUp;
-                if (Long.compareUnsigned(-1L - dotOne, halfUlpPlusEven) < 0) {
-                    mCorr = 10;
-                    roundUp = false;
-                } else if (m2IEEE != 0) {
-                    roundUp = Long.compareUnsigned(halfUlpPlusEven, dotOne) <= 0;
-                } else {
-                    long tmp = (dotOne >>> 4) * 10L;
-                    if (Long.compareUnsigned(tmp & 0x0FFFFFFFFFFFFFFFL, (halfUlpPlusEven >>> 4) * 5L) > 0) {
-                        mCorr = (int) (tmp >>> 60) + 1;
-                        roundUp = false;
-                    } else {
-                        roundUp = Long.compareUnsigned(halfUlpPlusEven >>> 1, dotOne) <= 0;
-                    }
-                }
-                if (roundUp) {
-                    m10 = (hi64 * 10L + unsignedMultiplyHigh2(lo64, 10L)
-                            + (dotOne == 0x4000000000000000L ? 0x1FL : 0x20L)) >>> 6;
-                } else {
-                    m10 = (hi64 >>> 6) * 10L + mCorr;
-                }
-            }
+            int e10 = doubleExponent(bits);
+            long m10 = doubleSignificand(bits, e10);
             int len = digitCount(m10);
             e10 += len - 1;
             short[] ds = DIGITS;
@@ -374,37 +297,9 @@ public final class XJBWriter {
             buf[pos] = '0'; buf[pos + 1] = '.'; buf[pos + 2] = '0';
             pos += 3;
         } else {
-            int m2IEEE = bits & 0x7FFFFF;
-            int e2 = e2IEEE - 150;
-            int m2 = m2IEEE | 0x800000;
-            int m10 = 0, e10 = 0;
-            if (e2 == 0) {
-                m10 = m2;
-            } else if ((e2 >= -23 && e2 < 0) && (m2 << e2) == 0) {
-                m10 = m2 >> -e2;
-            } else {
-                if (e2IEEE == 0) {
-                    m2 = m2IEEE;
-                    e2 = -149;
-                }
-                if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
-                else e10 = (e2 * 315653) >> 20;
-                int h = (((e10 + 1) * -217707) >> 16) + e2;
-                long pow10 = FLOAT_POW10S[31 - e10];
-                long halfUlpPlusEven = (pow10 >>> (28 - h)) + ((m2IEEE + 1) & 1);
-                long hi64 = unsignedMultiplyHigh1(pow10, ((long) m2) << (h + 37));
-                long dotOne = hi64 & 0xFFFFFFFFFL;
-                m10 = (int) (hi64 >>> 36) * 10;
-                long cmp = (m2IEEE == 0) ? (halfUlpPlusEven >>> 1) : halfUlpPlusEven;
-                if (Long.compareUnsigned(cmp, dotOne) <= 0) {
-                    if (Long.compareUnsigned(halfUlpPlusEven, 0xFFFFFFFFFL - dotOne) > 0) {
-                        m10 += 10;
-                    } else {
-                        m10 += (int) ((dotOne * 20 + ((int) (hi64 >>> 32) & 0xF) + 0xFFFFFFFF9L) >>> 37);
-                    }
-                }
-                if (m2IEEE == 0 && ((e2 == -119) || (e2 == 64) || (e2 == 67))) m10 += 1;
-            }
+            long dec = floatToDecimal(bits);
+            int m10 = (int) dec;
+            int e10 = (int) (dec >> 32);
             int len = digitCount(m10);
             e10 += len - 1;
             short[] ds = DIGITS;
@@ -516,57 +411,8 @@ public final class XJBWriter {
             buf[pos] = '0'; buf[pos + 1] = '.'; buf[pos + 2] = '0';
             pos += 3;
         } else {
-            long m2IEEE = bits & 0xFFFFFFFFFFFFFL;
-            int e2 = e2IEEE - 1075;
-            long m2 = m2IEEE | 0x10000000000000L;
-            long m10 = 0L;
-            int e10 = 0;
-            if (e2 == 0) {
-                m10 = m2;
-            } else if ((e2 >= -52 && e2 < 0) && (m2 << e2) == 0) {
-                m10 = m2 >> -e2;
-            } else {
-                if (e2IEEE == 0) {
-                    m2 = m2IEEE;
-                    e2 = -1074;
-                }
-                if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
-                else e10 = (e2 * 315653) >> 20;
-                int h = (((e10 + 1) * -217707) >> 16) + e2;
-                int i = (292 - e10) << 1;
-                long pow10_1 = DOUBLE_POW10S[i];
-                long pow10_2 = DOUBLE_POW10S[i + 1];
-                long halfUlpPlusEven = (pow10_1 >>> -h) + (((int) m2 + 1) & 1);
-                long cb = m2 << (h + 7);
-                long lo64_1 = unsignedMultiplyHigh2(pow10_2, cb);
-                long lo64_2 = pow10_1 * cb;
-                long hi64 = unsignedMultiplyHigh1(pow10_1, cb);
-                long lo64 = lo64_1 + lo64_2;
-                hi64 += Long.compareUnsigned(lo64, lo64_1) >>> 31;
-                long dotOne = (hi64 << 58) | (lo64 >>> 6);
-                int mCorr = 0;
-                boolean roundUp;
-                if (Long.compareUnsigned(-1L - dotOne, halfUlpPlusEven) < 0) {
-                    mCorr = 10;
-                    roundUp = false;
-                } else if (m2IEEE != 0) {
-                    roundUp = Long.compareUnsigned(halfUlpPlusEven, dotOne) <= 0;
-                } else {
-                    long tmp = (dotOne >>> 4) * 10L;
-                    if (Long.compareUnsigned(tmp & 0x0FFFFFFFFFFFFFFFL, (halfUlpPlusEven >>> 4) * 5L) > 0) {
-                        mCorr = (int) (tmp >>> 60) + 1;
-                        roundUp = false;
-                    } else {
-                        roundUp = Long.compareUnsigned(halfUlpPlusEven >>> 1, dotOne) <= 0;
-                    }
-                }
-                if (roundUp) {
-                    m10 = (hi64 * 10L + unsignedMultiplyHigh2(lo64, 10L)
-                            + (dotOne == 0x4000000000000000L ? 0x1FL : 0x20L)) >>> 6;
-                } else {
-                    m10 = (hi64 >>> 6) * 10L + mCorr;
-                }
-            }
+            int e10 = doubleExponent(bits);
+            long m10 = doubleSignificand(bits, e10);
             int len = digitCount(m10);
             e10 += len - 1;
             short[] ds = DIGITS;
@@ -639,6 +485,121 @@ public final class XJBWriter {
             }
         }
         return pos;
+    }
+
+    // ------------------------------------------------------------------
+    // Binary-to-decimal conversion, shared by byte[] and char[] writers
+    // ------------------------------------------------------------------
+
+    // Decimal significand m10 (low 32 bits) and exponent e10 (high 32 bits) of a finite,
+    // non-zero float (sign ignored), such that |x| == m10 * 10^e10 when parsed back
+    // (m10 may have trailing zeroes)
+    private static long floatToDecimal(int bits) {
+        int e2IEEE = (bits >> 23) & 0xFF;
+        int m2IEEE = bits & 0x7FFFFF;
+        int e2 = e2IEEE - 150;
+        int m2 = m2IEEE | 0x800000;
+        int m10 = 0, e10 = 0;
+        if (e2 == 0) {
+            m10 = m2;
+        } else if ((e2 >= -23 && e2 < 0) && (m2 << e2) == 0) {
+            m10 = m2 >> -e2;
+        } else {
+            if (e2IEEE == 0) {
+                m2 = m2IEEE;
+                e2 = -149;
+            }
+            if (m2IEEE == 0) e10 = (e2 * 315653 - 131237) >> 20;
+            else e10 = (e2 * 315653) >> 20;
+            int h = (((e10 + 1) * -217707) >> 16) + e2;
+            long pow10 = FLOAT_POW10S[31 - e10];
+            long halfUlpPlusEven = (pow10 >>> (28 - h)) + ((m2IEEE + 1) & 1);
+            long hi64 = unsignedMultiplyHigh1(pow10, ((long) m2) << (h + 37));
+            long dotOne = hi64 & 0xFFFFFFFFFL;
+            m10 = (int) (hi64 >>> 36) * 10;
+            long cmp = (m2IEEE == 0) ? (halfUlpPlusEven >>> 1) : halfUlpPlusEven;
+            if (Long.compareUnsigned(cmp, dotOne) <= 0) {
+                if (Long.compareUnsigned(halfUlpPlusEven, 0xFFFFFFFFFL - dotOne) > 0) {
+                    m10 += 10;
+                } else {
+                    m10 += (int) ((dotOne * 20 + ((int) (hi64 >>> 32) & 0xF) + 0xFFFFFFFF9L) >>> 37);
+                }
+            }
+            if (m2IEEE == 0 && ((e2 == -119) || (e2 == 64) || (e2 == 67))) m10 += 1;
+        }
+        return ((long) e10 << 32) | m10;
+    }
+
+    // Decimal significand m10 of a finite, non-zero double (sign ignored), such that
+    // |x| == m10 * 10^e10 when parsed back (m10 may have trailing zeroes);
+    // e10 must come from doubleExponent(bits)
+    private static long doubleSignificand(long bits, int e10) {
+        int e2IEEE = (int) (bits >> 52) & 0x7FF;
+        long m2IEEE = bits & 0xFFFFFFFFFFFFFL;
+        int e2 = e2IEEE - 1075;
+        long m2 = m2IEEE | 0x10000000000000L;
+        long m10 = 0L;
+        if (e2 == 0) {
+            m10 = m2;
+        } else if ((e2 >= -52 && e2 < 0) && (m2 << e2) == 0) {
+            m10 = m2 >> -e2;
+        } else {
+            if (e2IEEE == 0) {
+                m2 = m2IEEE;
+                e2 = -1074;
+            }
+            int h = (((e10 + 1) * -217707) >> 16) + e2;
+            int i = (292 - e10) << 1;
+            long pow10_1 = DOUBLE_POW10S[i];
+            long pow10_2 = DOUBLE_POW10S[i + 1];
+            long halfUlpPlusEven = (pow10_1 >>> -h) + (((int) m2 + 1) & 1);
+            long cb = m2 << (h + 7);
+            long lo64_1 = unsignedMultiplyHigh2(pow10_2, cb);
+            long lo64_2 = pow10_1 * cb;
+            long hi64 = unsignedMultiplyHigh1(pow10_1, cb);
+            long lo64 = lo64_1 + lo64_2;
+            hi64 += Long.compareUnsigned(lo64, lo64_1) >>> 31;
+            long dotOne = (hi64 << 58) | (lo64 >>> 6);
+            int mCorr = 0;
+            boolean roundUp;
+            if (Long.compareUnsigned(-1L - dotOne, halfUlpPlusEven) < 0) {
+                mCorr = 10;
+                roundUp = false;
+            } else if (m2IEEE != 0) {
+                roundUp = Long.compareUnsigned(halfUlpPlusEven, dotOne) <= 0;
+            } else {
+                long tmp = (dotOne >>> 4) * 10L;
+                if (Long.compareUnsigned(tmp & 0x0FFFFFFFFFFFFFFFL, (halfUlpPlusEven >>> 4) * 5L) > 0) {
+                    mCorr = (int) (tmp >>> 60) + 1;
+                    roundUp = false;
+                } else {
+                    roundUp = Long.compareUnsigned(halfUlpPlusEven >>> 1, dotOne) <= 0;
+                }
+            }
+            if (roundUp) {
+                m10 = (hi64 * 10L + unsignedMultiplyHigh2(lo64, 10L)
+                        + (dotOne == 0x4000000000000000L ? 0x1FL : 0x20L)) >>> 6;
+            } else {
+                m10 = (hi64 >>> 6) * 10L + mCorr;
+            }
+        }
+        return m10;
+    }
+
+    // Decimal exponent e10 of a finite, non-zero double, for doubleSignificand()
+    private static int doubleExponent(long bits) {
+        int e2IEEE = (int) (bits >> 52) & 0x7FF;
+        long m2IEEE = bits & 0xFFFFFFFFFFFFFL;
+        int e2 = e2IEEE - 1075;
+        long m2 = m2IEEE | 0x10000000000000L;
+        if (e2 == 0 || ((e2 >= -52 && e2 < 0) && (m2 << e2) == 0)) {
+            return 0;
+        }
+        if (e2IEEE == 0) {
+            e2 = -1074;
+        }
+        if (m2IEEE == 0) return (e2 * 315653 - 131237) >> 20;
+        return (e2 * 315653) >> 20;
     }
 
     // ------------------------------------------------------------------

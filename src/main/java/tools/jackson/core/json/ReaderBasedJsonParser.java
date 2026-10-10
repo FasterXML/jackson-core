@@ -1463,11 +1463,9 @@ public class ReaderBasedJsonParser
                 ++fractLen;
             }
             // must be followed by sequence of ints, one minimum
-            if (fractLen == 0) {
-                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
-                    _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-                }
-            } else if (ch == INT_PERIOD) {
+            _verifyFractionDigits(fractLen, intLen, ch);
+            // [core#679]: no second decimal point
+            if ((fractLen > 0) && (ch == INT_PERIOD)) {
                 _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
             }
         }
@@ -1674,11 +1672,9 @@ public class ReaderBasedJsonParser
                 outBuf[outPtr++] = c;
             }
             // must be followed by sequence of ints, one minimum
-            if (fractLen == 0) {
-                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
-                    _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
-                }
-            } else if (c == INT_PERIOD) {
+            _verifyFractionDigits(fractLen, intLen, c);
+            // [core#679]: no second decimal point
+            if ((fractLen > 0) && (c == INT_PERIOD)) {
                 _reportUnexpectedNumberChar(c, "Cannot parse number with more than one decimal point");
             }
         }
@@ -1887,7 +1883,7 @@ public class ReaderBasedJsonParser
             }
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS) && hasSign && !negative) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
         final String message = negative ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :
@@ -2941,6 +2937,12 @@ public class ReaderBasedJsonParser
             break;
 
         default:
+            // 09-Oct-2026, tatu: [core#1744] Backslash-escaped raw surrogate (half of
+            //   supplementary character) not allowed, same as with byte-based parsers
+            if (Character.isSurrogate(c)) {
+                throw _constructReadException("Unrecognized character escape "+_getCharDesc(c),
+                        _currentLocationMinusOne());
+            }
             return _handleUnrecognizedCharacterEscape(c);
         }
 

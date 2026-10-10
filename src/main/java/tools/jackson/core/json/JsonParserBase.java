@@ -282,7 +282,9 @@ public abstract class JsonParserBase
             if (len == 19) {
                 char[] buf = _textBuffer.getTextBuffer();
                 int offset = _textBuffer.getTextOffset();
-                if (_numberNegative) {
+                // 09-Oct-2026, tatu: [core#784] leading '+' is retained in text
+                //    (if enabled), so must be skipped same as '-'
+                if (_numberNegative || (buf[offset] == '+')) {
                     ++offset;
                 }
                 if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
@@ -632,5 +634,69 @@ public abstract class JsonParserBase
 
     protected boolean _isAllowedCtrlCharRS(int i) {
         return (i == INT_RS) && JsonReadFeature.ALLOW_RS_CONTROL_CHAR.enabledIn(_formatReadFeatures);
+    }
+
+    // 09-Oct-2026, tatu: [core#1746] Decimal point must be followed by a digit,
+    //   unless trailing decimal point is allowed AND there is an integer part
+    // @since 3.1.8
+    protected boolean _missingFractionDigits(int fractLen, int intLen) {
+        return (fractLen == 0)
+                && ((intLen == 0) || !isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS));
+    }
+
+    // @since 3.1.8
+    protected void _verifyFractionDigits(int fractLen, int intLen, int ch) throws StreamReadException {
+        if (_missingFractionDigits(fractLen, intLen)) {
+            _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+        }
+    }
+
+    // @since 3.1.8
+    protected void _reportLeadingPlusSignNotAllowed() throws StreamReadException {
+        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+    }
+
+    // 09-Oct-2026, tatu: [core#1750] Handling of a String value char that is neither
+    //   escape nor valid (UTF-8) start char: control chars are only allowed (and returned
+    //   from) with ALLOW_UNESCAPED_CONTROL_CHARS; must not be reduced to a plain
+    //   "_reportInvalidChar()" call.
+    // @since 3.1.8
+    protected void _handleInvalidStringChar(int c) throws JacksonException {
+        if (c >= INT_SPACE) {
+            _reportInvalidChar(c);
+            return; // never gets here
+        }
+        // Throws unless control chars allowed
+        _throwUnquotedSpace(c, "string value");
+        if (c == INT_LF || c == INT_CR) {
+            _handleLinefeedInString(c);
+        }
+    }
+
+    /**
+     * Method called for an unescaped linefeed (allowed by
+     * {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}) within a String value,
+     * to update row tracking. Default implementation does nothing.
+     *
+     * @param c Linefeed character ({@code '\r'} or {@code '\n'})
+     *
+     * @throws JacksonException for low-level read issues
+     *
+     * @since 3.1.8
+     */
+    protected void _handleLinefeedInString(int c) throws JacksonException { }
+
+    // @since 3.1.8 (moved from sub-classes)
+    protected <T> T _reportInvalidChar(int c) throws StreamReadException {
+        // Either invalid WS or illegal UTF-8 start char
+        if (c < INT_SPACE) {
+            _reportInvalidSpace(c);
+        }
+        return _reportInvalidInitial(c);
+    }
+
+    // @since 3.1.8 (moved from sub-classes)
+    protected <T> T _reportInvalidInitial(int mask) throws StreamReadException {
+        return _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
 }

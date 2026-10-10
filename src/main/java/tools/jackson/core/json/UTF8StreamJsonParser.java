@@ -2135,12 +2135,10 @@ public class UTF8StreamJsonParser
                 outBuf[outPtr++] = (char) c;
             }
             // must be followed by sequence of ints, one minimum
-            if (fractLen == 0) {
-                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
-                    return _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
-                }
-            } else if (c == INT_PERIOD) {
-                return _reportUnexpectedNumberChar(c, "Cannot parse number with more than one decimal point");
+            _verifyFractionDigits(fractLen, integerPartLength, c);
+            // [core#679]: no second decimal point
+            if ((fractLen > 0) && (c == INT_PERIOD)) {
+                _reportUnexpectedNumberChar(c, "Cannot parse number with more than one decimal point");
             }
         }
 
@@ -2537,58 +2535,36 @@ public class UTF8StreamJsonParser
                 // 7-bit ASCII. Gets pretty messy. If this happens often, may
                 // want to use different name canonicalization to avoid these hits.
                 if (ch > 127) {
-                    // Ok, we'll need room for first byte right away
-                    if (currQuadBytes >= 4) {
-                        if (qlen >= quads.length) {
-                            _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                        }
-                        quads[qlen++] = currQuad;
-                        currQuad = 0;
-                        currQuadBytes = 0;
-                    }
-                    if (ch < 0x800) { // 2-byte
-                        currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
-                        ++currQuadBytes;
-                        // Second byte gets output below:
+                    // 09-Oct-2026, tatu: [core#1744] UTF-8 encode all but the last byte here
+                    //   (last byte gets output below)
+                    int b, shift;
+                    if (ch < 0x800) { // 2 bytes
+                        b = 0xc0 | (ch >> 6);
+                        shift = 0;
                     } else if (ch < 0x10000) { // 3 bytes
-                        currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
-                        ++currQuadBytes;
-                        // need room for middle byte?
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xe0 | (ch >> 12);
+                        shift = 6;
                     } else { // 4 bytes (supplementary character)
-                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xf0 | (ch >> 18);
+                        shift = 12;
                     }
-                    // And same last byte in both cases, gets output below:
+                    while (true) {
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | b;
+                        ++currQuadBytes;
+                        if (shift == 0) {
+                            break;
+                        }
+                        b = 0x80 | ((ch >> shift) & 0x3f);
+                        shift -= 6;
+                    }
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -2763,58 +2739,36 @@ public class UTF8StreamJsonParser
                 }
                 // as per main code, inefficient but will have to do
                 if (ch > 127) {
-                    // Ok, we'll need room for first byte right away
-                    if (currQuadBytes >= 4) {
-                        if (qlen >= quads.length) {
-                            _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                        }
-                        quads[qlen++] = currQuad;
-                        currQuad = 0;
-                        currQuadBytes = 0;
-                    }
-                    if (ch < 0x800) { // 2-byte
-                        currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
-                        ++currQuadBytes;
-                        // Second byte gets output below:
+                    // 09-Oct-2026, tatu: [core#1744] UTF-8 encode all but the last byte here
+                    //   (last byte gets output below)
+                    int b, shift;
+                    if (ch < 0x800) { // 2 bytes
+                        b = 0xc0 | (ch >> 6);
+                        shift = 0;
                     } else if (ch < 0x10000) { // 3 bytes
-                        currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
-                        ++currQuadBytes;
-                        // need room for middle byte?
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xe0 | (ch >> 12);
+                        shift = 6;
                     } else { // 4 bytes (supplementary character)
-                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xf0 | (ch >> 18);
+                        shift = 12;
                     }
-                    // And same last byte in both cases, gets output below:
+                    while (true) {
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | b;
+                        ++currQuadBytes;
+                        if (shift == 0) {
+                            break;
+                        }
+                        b = 0x80 | ((ch >> shift) & 0x3f);
+                        shift -= 6;
+                    }
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -3175,13 +3129,7 @@ public class UTF8StreamJsonParser
                 // And let the other char output down below
                 break;
             default:
-                if (c < INT_SPACE) {
-                    // As per [JACKSON-208], call can now return:
-                    _throwUnquotedSpace(c, "string value");
-                } else {
-                    // Is this good enough error message?
-                    _reportInvalidChar(c);
-                }
+                _handleInvalidStringChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -3251,12 +3199,7 @@ public class UTF8StreamJsonParser
                 _skipUtf8_4(c);
                 break;
             default:
-                if (c < INT_SPACE) {
-                    _throwUnquotedSpace(c, "string value");
-                } else {
-                    // Is this good enough error message?
-                    _reportInvalidChar(c);
-                }
+                _handleInvalidStringChar(c);
             }
         }
     }
@@ -3352,11 +3295,9 @@ public class UTF8StreamJsonParser
                 break;
             }
             default:
-                if (c < INT_SPACE) {
-                    _throwUnquotedSpace(c, "string value");
-                } else {
-                    _reportInvalidChar(c);
-                }
+                _handleInvalidStringChar(c);
+                // 09-Oct-2026, tatu: [core#1750] allowed control char must be retained
+                outBuf[outPtr++] = (char) c;
             }
         }
 
@@ -3529,11 +3470,7 @@ public class UTF8StreamJsonParser
                 // And let the other char output down below
                 break;
             default:
-                if (c < INT_SPACE) {
-                    _throwUnquotedSpace(c, "string value");
-                }
-                // Is this good enough error message?
-                _reportInvalidChar(c);
+                _handleInvalidStringChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -3586,7 +3523,7 @@ public class UTF8StreamJsonParser
                     match);
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS) && hasSign && !neg) {
-            return _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportLeadingPlusSignNotAllowed();
         }
         final String message = neg ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :
@@ -4096,7 +4033,7 @@ public class UTF8StreamJsonParser
             break;
 
         default:
-            return _handleUnrecognizedCharacterEscape((char) _decodeCharForError(c));
+            return _decodeEscapedRawChar(c);
         }
 
         // Ok, a hex escape. Need 4 characters
@@ -4115,6 +4052,19 @@ public class UTF8StreamJsonParser
             value = (value << 4) | digit;
         }
         return (char) value;
+    }
+
+    // 09-Oct-2026, tatu: [core#1744] Decodes (possibly multi-byte) raw character after
+    //   backslash: supplementary characters (cannot be returned as `char`) and
+    //   surrogates (invalid in UTF-8) are rejected, instead of being truncated
+    private char _decodeEscapedRawChar(int firstByte) throws JacksonException
+    {
+        final int cp = _decodeCharForError(firstByte);
+        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
+            throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
+                    _currentLocationMinusOne());
+        }
+        return _handleUnrecognizedCharacterEscape((char) cp);
     }
 
     protected int _decodeCharForError(int firstByte) throws JacksonException
@@ -4413,17 +4363,16 @@ public class UTF8StreamJsonParser
         throw _constructReadException(fullMsg, loc);
     }
 
-    protected <T> T _reportInvalidChar(int c) throws StreamReadException
+    @Override // @since 2.21.8
+    protected void _handleLinefeedInString(int c) throws JacksonException
     {
-        // Either invalid WS or illegal UTF-8 start char
-        if (c < INT_SPACE) {
-            _reportInvalidSpace(c);
+        // with "\r\n", count row on '\n' instead
+        if (c == INT_CR
+                && (_inputPtr < _inputEnd || _loadMore()) && _inputBuffer[_inputPtr] == BYTE_LF) {
+            return;
         }
-        return _reportInvalidInitial(c);
-    }
-
-    protected <T> T _reportInvalidInitial(int mask) throws StreamReadException {
-        return _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
+        ++_currInputRow;
+        _currInputRowStart = _inputPtr;
     }
 
     protected <T> T _reportInvalidOther(int mask) throws StreamReadException {

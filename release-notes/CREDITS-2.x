@@ -569,3 +569,8 @@ Elankumaran Srinivasan (@elang2)
  * Contributed #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
    surrogates in field names (mirror of #1541 fix in `UTF8StreamJsonParser`)
   (2.21.8)
+
+@ItsDeadlyProgrammer
+ * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
+   after backslash escape
+  (2.23.0)

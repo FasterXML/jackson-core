@@ -23,6 +23,9 @@ a pure JSON library.
 #1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
   `ALLOW_UNQUOTED_FIELD_NAMES`
  (fix by @pjfanning)
+#1756: Non-blocking parser does not decode multi-byte UTF-8 character after
+  backslash escape
+ (contributed by @ItsDeadlyProgrammer)
 
 2.22.4 (not yet released)
 

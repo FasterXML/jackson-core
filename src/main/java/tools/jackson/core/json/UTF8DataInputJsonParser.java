@@ -2080,7 +2080,7 @@ public class UTF8DataInputJsonParser
                 _skipUtf8_3(c);
                 break;
             case 4: // 4-byte UTF
-                _skipUtf8_4();
+                _skipUtf8_4(c);
                 break;
             default:
                 _handleInvalidStringChar(c);
@@ -2616,7 +2616,7 @@ public class UTF8DataInputJsonParser
                     _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
-                    _skipUtf8_4();
+                    _skipUtf8_4(i);
                     break;
                 default: // e.g. -1
                     // Is this good enough error message?
@@ -2662,7 +2662,7 @@ public class UTF8DataInputJsonParser
                     _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
-                    _skipUtf8_4();
+                    _skipUtf8_4(i);
                     break;
                 default: // e.g. -1
                     if (code < 0) {
@@ -2851,6 +2851,7 @@ public class UTF8DataInputJsonParser
             _reportInvalidOther(d & 0xFF);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
+        _verifyUtf8_4Range(c);
         d = readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
@@ -2897,12 +2898,14 @@ public class UTF8DataInputJsonParser
         }
     }
 
-    private final void _skipUtf8_4() throws IOException
+    private final void _skipUtf8_4(int c) throws IOException
     {
         int d = readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
+        c = ((c & 0x07) << 6) | (d & 0x3F);
+        _verifyUtf8_4Range(c);
         d = readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);

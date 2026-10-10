@@ -4138,6 +4138,8 @@ public class UTF8StreamJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
+        c = ((c & 0x07) << 6) | (d & 0x3F);
+        _verifyUtf8_4Range(c);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }

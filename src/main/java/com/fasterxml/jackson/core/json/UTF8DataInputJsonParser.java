@@ -2012,12 +2012,7 @@ public class UTF8DataInputJsonParser
                 // And let the other char output down below
                 break;
             default:
-                if (c < INT_SPACE) {
-                    _throwUnquotedSpace(c, "string value");
-                } else {
-                    // Is this good enough error message?
-                    _reportInvalidChar(c);
-                }
+                _handleInvalidStringChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -2076,12 +2071,7 @@ public class UTF8DataInputJsonParser
                 _skipUtf8_4();
                 break;
             default:
-                if (c < INT_SPACE) {
-                    _throwUnquotedSpace(c, "string value");
-                } else {
-                    // Is this good enough error message?
-                    _reportInvalidChar(c);
-                }
+                _handleInvalidStringChar(c);
             }
         }
     }
@@ -2218,11 +2208,7 @@ public class UTF8DataInputJsonParser
                 // And let the other char output down below
                 break;
             default:
-                if (c < INT_SPACE) {
-                    _throwUnquotedSpace(c, "string value");
-                }
-                // Is this good enough error message?
-                _reportInvalidChar(c);
+                _handleInvalidStringChar(c);
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -2854,20 +2840,11 @@ public class UTF8DataInputJsonParser
          _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
      }
 
-    protected void _reportInvalidChar(int c)
-        throws JsonParseException
+    @Override // @since 2.21.8
+    protected void _handleLinefeedInString(int c)
     {
-        // Either invalid WS or illegal UTF-8 start char
-        if (c < INT_SPACE) {
-            _throwInvalidSpace(c);
-        }
-        _reportInvalidInitial(c);
-    }
-
-    protected void _reportInvalidInitial(int mask)
-        throws JsonParseException
-    {
-        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
+        // No lookahead available: like "_skipWS()", count both '\r' and '\n'
+        ++_currInputRow;
     }
 
     private void _reportInvalidOther(int mask)

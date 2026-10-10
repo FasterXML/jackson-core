@@ -39,6 +39,49 @@ class UTF8InvalidCodePoint1753Test
     }
 
     @Test
+    void acceptUtf8CodePointAtSupplementaryMinimum() throws Exception
+    {
+        byte[] json = _quotedUtf8Sequence((byte) 0xF0, (byte) 0x90, (byte) 0x80, (byte) 0x80);
+
+        for (int mode : STREAM_MODES) {
+            try (JsonParser p = createParser(FACTORY, mode, json)) {
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                assertEquals("\uD800\uDC00", p.getString(), "mode=" + mode);
+            }
+        }
+    }
+
+    // Overlong 4-byte encodings (of code points below U+10000) must be rejected
+    @Test
+    void rejectOverlongUtf8_4ByteSequences() throws Exception
+    {
+        byte[][] invalidSequences = {
+                { (byte) 0xF0, (byte) 0x80, (byte) 0x80, (byte) 0x80 },
+                { (byte) 0xF0, (byte) 0x8F, (byte) 0xBF, (byte) 0xBF },
+                // overlong encoding of surrogate U+D800
+                { (byte) 0xF0, (byte) 0x8D, (byte) 0xA0, (byte) 0x80 }
+        };
+
+        for (byte[] sequence : invalidSequences) {
+            byte[] json = _quotedUtf8Sequence(sequence);
+            final String expMsg = String.format(
+                    "Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): overlong encoding",
+                    sequence[0] & 0xFF, sequence[1] & 0xFF);
+
+            for (int mode : STREAM_MODES) {
+                StreamReadException read = assertThrows(StreamReadException.class, () -> {
+                    try (JsonParser p = createParser(FACTORY, mode, json)) {
+                        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                        p.getString();
+                    }
+                }, "read path, mode=" + mode);
+
+                verifyException(read, expMsg);
+            }
+        }
+    }
+
+    @Test
     void rejectUtf8CodePointsAboveUnicodeMaximum() throws Exception
     {
         byte[][] invalidSequences = {

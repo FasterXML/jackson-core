@@ -657,12 +657,18 @@ public abstract class JsonParserBase
     }
 
     // [core#1728], [core#1753]: for a 4-byte UTF-8 sequence, lead byte (3 bits) plus
-    //   first continuation byte (6 bits) above 0x10F would exceed U+10FFFF
+    //   first continuation byte (6 bits) must be within [0x010, 0x10F]: above would
+    //   exceed U+10FFFF, below is an overlong encoding (of a code point below U+10000)
     // @since 3.3
     protected void _verifyUtf8_4Range(int c) throws StreamReadException {
         if (c > 0x10F) {
             _reportError(String.format(
                     "Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): code point exceeds U+10FFFF",
+                    0xF0 | (c >> 6), 0x80 | (c & 0x3F)));
+        }
+        if (c < 0x010) {
+            _reportError(String.format(
+                    "Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): overlong encoding",
                     0xF0 | (c >> 6), 0x80 | (c & 0x3F)));
         }
     }

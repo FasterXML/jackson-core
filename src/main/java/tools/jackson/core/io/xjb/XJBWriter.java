@@ -1,8 +1,9 @@
 package tools.jackson.core.io.xjb;
 
 import tools.jackson.core.io.NumberOutput;
-import tools.jackson.core.util.ByteArrayUtil;
-
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -781,54 +782,30 @@ public final class XJBWriter {
     }
 
     // ------------------------------------------------------------------
-    // Little-endian byte array access: VarHandle via XJBVarHandleAccess where available,
-    // ByteArrayUtil byte-shifting fallback where it is not (Android API < 33, or any
-    // runtime where XJBVarHandleAccess fails to initialize)
+    // Little-endian byte array access
     // ------------------------------------------------------------------
 
-    // Decided once at class init; `static final` so JIT folds the branch away.
-    // XJBVarHandleAccess is referenced directly (no reflection), so it survives
-    // R8/ProGuard shrinking and GraalVM native-image without extra metadata;
-    // it is only linked when first executed, so a failed probe never touches it again.
-    private static final boolean USE_VAR_HANDLE = _varHandleUsable();
-
-    private static boolean _varHandleUsable() {
-        try {
-            return XJBVarHandleAccess.selfTest();
-        } catch (Throwable t) { // LinkageError, UnsupportedOperationException, etc
-            return false;
-        }
-    }
+    private static final VarHandle INT_LE =
+            MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
+    private static final VarHandle SHORT_LE =
+            MethodHandles.byteArrayViewVarHandle(short[].class, ByteOrder.LITTLE_ENDIAN);
+    private static final VarHandle LONG_LE =
+            MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
 
     private static void setInt(byte[] buf, int pos, int v) {
-        if (USE_VAR_HANDLE) {
-            XJBVarHandleAccess.setInt(buf, pos, v);
-        } else {
-            ByteArrayUtil.setIntLE(buf, pos, v);
-        }
+        INT_LE.set(buf, pos, v);
     }
 
     private static void setShort(byte[] buf, int pos, short v) {
-        if (USE_VAR_HANDLE) {
-            XJBVarHandleAccess.setShort(buf, pos, v);
-        } else {
-            ByteArrayUtil.setShortLE(buf, pos, v);
-        }
+        SHORT_LE.set(buf, pos, v);
     }
 
     private static void setLong(byte[] buf, int pos, long v) {
-        if (USE_VAR_HANDLE) {
-            XJBVarHandleAccess.setLong(buf, pos, v);
-        } else {
-            ByteArrayUtil.setLongLE(buf, pos, v);
-        }
+        LONG_LE.set(buf, pos, v);
     }
 
     private static long getLong(byte[] buf, int pos) {
-        if (USE_VAR_HANDLE) {
-            return XJBVarHandleAccess.getLong(buf, pos);
-        }
-        return ByteArrayUtil.getLongLE(buf, pos);
+        return (long) LONG_LE.get(buf, pos);
     }
 
     // ------------------------------------------------------------------
@@ -870,8 +847,8 @@ public final class XJBWriter {
             12345, 12601, 12857, 13113, 13369, 13625, 13881, 14137, 14393, 14649
     };
 
-    // Table of 64-bit approximations of powers of ten used for float conversion,
-    // indexed by (exponent + 32) for exponents -32..44.
+    // Normalized 64-bit significands of 10^k (rounded up unless exact) for k = -32..44,
+    // used for float conversion: entry i holds 10^(i - 32); looked up as [31 - e10].
     private static final long[] FLOAT_POW10S = {
             0xCFB11EAD453994BBL, 0x81CEB32C4B43FCF5L, 0xA2425FF75E14FC32L, 0xCAD2F7F5359A3B3FL,
             0xFD87B5F28300CA0EL, 0x9E74D1B791E07E49L, 0xC612062576589DDBL, 0xF79687AED3EEC552L,

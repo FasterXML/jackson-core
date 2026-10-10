@@ -17,7 +17,8 @@ public final class NumberOutput
     /**
      * Maximum number of bytes {@link #outputFloat(float, byte[], int)} may touch,
      * including padding written by the algorithm's wide (2/4/8-byte) stores.
-     * Equals {@code H + 6} where {@code H = 9} (digit count).
+     * Equals the longest output, like {@code -1.00000075E-36}: wide stores never
+     * reach past it (but may reach past the returned end position of shorter outputs).
      * @since 3.2.2
      */
     public static final int MAX_FLOAT_BYTES = 15;
@@ -25,7 +26,8 @@ public final class NumberOutput
     /**
      * Maximum number of bytes {@link #outputDouble(double, byte[], int)} may touch,
      * including padding written by the algorithm's wide (2/4/8-byte) stores.
-     * Equals {@code H + 7} where {@code H = 17} (digit count).
+     * Equals the longest output, like {@code -2.2250738585072014E-308}: wide stores never
+     * reach past it (but may reach past the returned end position of shorter outputs).
      * @since 3.2.2
      */
     public static final int MAX_DOUBLE_BYTES = 24;

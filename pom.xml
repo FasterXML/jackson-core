@@ -382,9 +382,9 @@ tools.jackson.core.*;version=${project.version}
             <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
             <version>${version.android.sdk.signature}</version>
           </signature>
-          <!-- 12-Aug-2026, pjfanning: [core#1652] XJBVarHandleAccess calls signature-polymorphic
+          <!-- 12-Aug-2026, pjfanning: [core#1652] XJBWriter calls signature-polymorphic
                VarHandle.get/set, which animal-sniffer cannot match against signatures
-               (VarHandle exists in Android API 33+; XJBWriter falls back without it)
+               (VarHandle exists in Android API 33+)
             -->
           <ignores>
             <ignore>java.lang.invoke.VarHandle</ignore>

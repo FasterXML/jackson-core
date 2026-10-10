@@ -2007,23 +2007,7 @@ public class UTF8StreamJsonParser
                 }
                 // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
-                    // Must be followed by low surrogate escape
-                    if (_inputPtr >= _inputEnd) {
-                        if (!_loadMore()) {
-                            _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
-                        }
-                    }
-                    if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                        _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate, got 0x"
-                                + Integer.toHexString(_inputBuffer[_inputPtr] & 0xFF));
-                    }
-                    ++_inputPtr;
-                    int lo = _decodeEscaped();
-                    if (lo < 0xDC00 || lo > 0xDFFF) {
-                        _reportError(String.format(
-                                "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
-                    }
-                    ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
+                    ch = _decodeSurrogatePairInName(ch);
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
                     _reportError("Unexpected low surrogate in field name: 0x" + Integer.toHexString(ch));
                 }
@@ -2031,58 +2015,36 @@ public class UTF8StreamJsonParser
                 // 7-bit ASCII. Gets pretty messy. If this happens often, may
                 // want to use different name canonicalization to avoid these hits.
                 if (ch > 127) {
-                    // Ok, we'll need room for first byte right away
-                    if (currQuadBytes >= 4) {
-                        if (qlen >= quads.length) {
-                            _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                        }
-                        quads[qlen++] = currQuad;
-                        currQuad = 0;
-                        currQuadBytes = 0;
-                    }
-                    if (ch < 0x800) { // 2-byte
-                        currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
-                        ++currQuadBytes;
-                        // Second byte gets output below:
+                    // 09-Oct-2026, tatu: [core#1744] UTF-8 encode all but the last byte here
+                    //   (last byte gets output below)
+                    int b, shift;
+                    if (ch < 0x800) { // 2 bytes
+                        b = 0xc0 | (ch >> 6);
+                        shift = 0;
                     } else if (ch < 0x10000) { // 3 bytes
-                        currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
-                        ++currQuadBytes;
-                        // need room for middle byte?
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xe0 | (ch >> 12);
+                        shift = 6;
                     } else { // 4 bytes (supplementary character)
-                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xf0 | (ch >> 18);
+                        shift = 12;
                     }
-                    // And same last byte in both cases, gets output below:
+                    while (true) {
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | b;
+                        ++currQuadBytes;
+                        if (shift == 0) {
+                            break;
+                        }
+                        b = 0x80 | ((ch >> shift) & 0x3f);
+                        shift -= 6;
+                    }
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -2239,79 +2201,42 @@ public class UTF8StreamJsonParser
                 }
                 // [jackson-core#1541]: Handle JSON-escaped surrogate pairs in field names
                 if (ch >= 0xD800 && ch <= 0xDBFF) { // high surrogate
-                    if (_inputPtr >= _inputEnd) {
-                        if (!_loadMore()) {
-                            _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
-                        }
-                    }
-                    if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
-                        _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate, got 0x"
-                                + Integer.toHexString(_inputBuffer[_inputPtr] & 0xFF));
-                    }
-                    ++_inputPtr;
-                    int lo = _decodeEscaped();
-                    if (lo < 0xDC00 || lo > 0xDFFF) {
-                        _reportError(String.format(
-                                "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
-                    }
-                    ch = 0x10000 + ((ch - 0xD800) << 10) + (lo - 0xDC00);
+                    ch = _decodeSurrogatePairInName(ch);
                 } else if (ch >= 0xDC00 && ch <= 0xDFFF) { // lone low surrogate
                     _reportError("Unexpected low surrogate in field name: 0x" + Integer.toHexString(ch));
                 }
                 // as per main code, inefficient but will have to do
                 if (ch > 127) {
-                    // Ok, we'll need room for first byte right away
-                    if (currQuadBytes >= 4) {
-                        if (qlen >= quads.length) {
-                            _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                        }
-                        quads[qlen++] = currQuad;
-                        currQuad = 0;
-                        currQuadBytes = 0;
-                    }
-                    if (ch < 0x800) { // 2-byte
-                        currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
-                        ++currQuadBytes;
-                        // Second byte gets output below:
+                    // 09-Oct-2026, tatu: [core#1744] UTF-8 encode all but the last byte here
+                    //   (last byte gets output below)
+                    int b, shift;
+                    if (ch < 0x800) { // 2 bytes
+                        b = 0xc0 | (ch >> 6);
+                        shift = 0;
                     } else if (ch < 0x10000) { // 3 bytes
-                        currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
-                        ++currQuadBytes;
-                        // need room for middle byte?
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xe0 | (ch >> 12);
+                        shift = 6;
                     } else { // 4 bytes (supplementary character)
-                        currQuad = (currQuad << 8) | (0xf0 | (ch >> 18));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 12) & 0x3f));
-                        ++currQuadBytes;
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
+                        b = 0xf0 | (ch >> 18);
+                        shift = 12;
                     }
-                    // And same last byte in both cases, gets output below:
+                    while (true) {
+                        if (currQuadBytes >= 4) {
+                            if (qlen >= quads.length) {
+                                _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
+                            }
+                            quads[qlen++] = currQuad;
+                            currQuad = 0;
+                            currQuadBytes = 0;
+                        }
+                        currQuad = (currQuad << 8) | b;
+                        ++currQuadBytes;
+                        if (shift == 0) {
+                            break;
+                        }
+                        b = 0x80 | ((ch >> shift) & 0x3f);
+                        shift -= 6;
+                    }
                     ch = 0x80 | (ch & 0x3f);
                 }
             }
@@ -3485,7 +3410,7 @@ public class UTF8StreamJsonParser
             break;
 
         default:
-            return _handleUnrecognizedCharacterEscape((char) _decodeCharForError(c));
+            return _decodeEscapedRawChar(c);
         }
 
         // Ok, a hex escape. Need 4 characters
@@ -3504,6 +3429,41 @@ public class UTF8StreamJsonParser
             value = (value << 4) | digit;
         }
         return (char) value;
+    }
+
+    // 09-Oct-2026, tatu: [core#1744] Decodes low surrogate escape that must follow
+    //   JSON-escaped high surrogate in a field name; returns combined code point
+    private int _decodeSurrogatePairInName(int hi) throws IOException
+    {
+        if (_inputPtr >= _inputEnd) {
+            if (!_loadMore()) {
+                _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+            }
+        }
+        if (_inputBuffer[_inputPtr] != INT_BACKSLASH) {
+            _reportError("Broken surrogate pair in field name: expected '\\' to start low surrogate, got 0x"
+                    + Integer.toHexString(_inputBuffer[_inputPtr] & 0xFF));
+        }
+        ++_inputPtr;
+        int lo = _decodeEscaped();
+        if (lo < 0xDC00 || lo > 0xDFFF) {
+            _reportError(String.format(
+                    "Broken surrogate pair in field name: expected low surrogate, got 0x%04X", lo));
+        }
+        return Character.toCodePoint((char) hi, (char) lo);
+    }
+
+    // 09-Oct-2026, tatu: [core#1744] Decodes (possibly multi-byte) raw character after
+    //   backslash: supplementary characters (cannot be returned as `char`) and
+    //   surrogates (invalid in UTF-8) are rejected, instead of being truncated
+    private char _decodeEscapedRawChar(int firstByte) throws IOException
+    {
+        final int cp = _decodeCharForError(firstByte);
+        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
+            throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
+                    _currentLocationMinusOne());
+        }
+        return _handleUnrecognizedCharacterEscape((char) cp);
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException

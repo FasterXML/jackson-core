@@ -24,7 +24,7 @@ class UnquotedNameSymbolCollision1748Test extends JUnit5TestBase
         { "{ab:1, \"\\u0000\\u0000ab\":2}", "ab", "\u0000\u0000ab" },
         { "{\"\\u0000\\u0000ab\":1, ab:2}", "\u0000\u0000ab", "ab" },
         { "{abcdef:1, \"abcd\\u0000\\u0000ef\":2}", "abcdef", "abcd\u0000\u0000ef" },
-        { "{\"\\u0000\\u00E9\":1, é:2}", "\u0000é", "é" }
+        { "{\"\\u0000\\u00E9\":1, \u00E9:2}", "\u0000\u00E9", "\u00E9" }
     };
 
     @Test

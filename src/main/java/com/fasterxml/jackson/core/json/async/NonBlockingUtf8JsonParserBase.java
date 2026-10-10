@@ -2401,10 +2401,11 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         // allow unquoted names if feature enabled:
         if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
-         // !!! TODO: Decode UTF-8 characters properly...
-//            char c = (char) _decodeCharForError(ch);
-            char c = (char) ch;
-            _reportUnexpectedChar(c, "was expecting double-quote to start field name");
+            // 09-Oct-2026, tatu: [core#1748] Decode multi-byte UTF-8 char, as blocking parsers do
+            if (ch > 0x7F) {
+                ch = _decodeCharForError(ch);
+            }
+            _reportUnexpectedChar(ch, "was expecting double-quote to start field name");
         }
         // Also: note that although we use a different table here, it does NOT handle UTF-8
         // decoding. It'll just pass those high-bit codes as acceptable for later decoding.
@@ -2464,11 +2465,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             // [core#1748]: must pad, as with quoted names, to avoid [core#148] collisions
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
-        String name = _symbols.findName(quads, qlen);
-        if (name == null) {
-            name = _addName(quads, qlen, currQuadBytes);
-        }
-        return _fieldComplete(_verifyUnquotedName(name));
+        return _fieldComplete(_findOrAddUnquotedUTF8Name(_symbols, quads, qlen, currQuadBytes));
     }
 
     private JsonToken _finishAposName(int qlen, int currQuad, int currQuadBytes)

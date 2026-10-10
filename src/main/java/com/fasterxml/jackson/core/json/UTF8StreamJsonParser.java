@@ -2076,7 +2076,7 @@ public class UTF8StreamJsonParser
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
-            name = addName(quads, qlen, currQuadBytes);
+            name = _decodeAndAddUTF8Name(_symbols, quads, qlen, currQuadBytes);
         }
         return name;
     }
@@ -2155,11 +2155,7 @@ public class UTF8StreamJsonParser
             // [core#1748]: must pad, as with quoted names, to avoid [core#148] collisions
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
-        String name = _symbols.findName(quads, qlen);
-        if (name == null) {
-            name = addName(quads, qlen, currQuadBytes);
-        }
-        return _verifyUnquotedName(name);
+        return _findOrAddUnquotedUTF8Name(_symbols, quads, qlen, currQuadBytes);
     }
 
     // Parsing to support apostrope-quoted names. Plenty of duplicated code;
@@ -2269,7 +2265,7 @@ public class UTF8StreamJsonParser
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
-            name = addName(quads, qlen, currQuadBytes);
+            name = _decodeAndAddUTF8Name(_symbols, quads, qlen, currQuadBytes);
         }
         return name;
     }
@@ -2291,7 +2287,7 @@ public class UTF8StreamJsonParser
         }
         // If not, more work. We'll need add stuff to buffer
         _quadBuffer[0] = q1;
-        return addName(_quadBuffer, 1, lastQuadBytes);
+        return _decodeAndAddUTF8Name(_symbols, _quadBuffer, 1, lastQuadBytes);
     }
 
     private final String findName(int q1, int q2, int lastQuadBytes)
@@ -2306,7 +2302,7 @@ public class UTF8StreamJsonParser
         // If not, more work. We'll need add stuff to buffer
         _quadBuffer[0] = q1;
         _quadBuffer[1] = q2;
-        return addName(_quadBuffer, 2, lastQuadBytes);
+        return _decodeAndAddUTF8Name(_symbols, _quadBuffer, 2, lastQuadBytes);
     }
 
     private final String findName(int q1, int q2, int q3, int lastQuadBytes)
@@ -2321,7 +2317,7 @@ public class UTF8StreamJsonParser
         quads[0] = q1;
         quads[1] = q2;
         quads[2] = _padLastQuad(q3, lastQuadBytes);
-        return addName(quads, 3, lastQuadBytes);
+        return _decodeAndAddUTF8Name(_symbols, quads, 3, lastQuadBytes);
     }
 
     private final String findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes)
@@ -2333,20 +2329,9 @@ public class UTF8StreamJsonParser
         quads[qlen++] = _padLastQuad(lastQuad, lastQuadBytes);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
-            return addName(quads, qlen, lastQuadBytes);
+            return _decodeAndAddUTF8Name(_symbols, quads, qlen, lastQuadBytes);
         }
         return name;
-    }
-
-    /* This is the main workhorse method used when we take a symbol
-     * table miss. It needs to demultiplex individual bytes, decode
-     * multi-byte chars (if any), and then construct Name instance
-     * and add it to the symbol table.
-     */
-    private final String addName(int[] quads, int qlen, int lastQuadBytes)
-        throws JsonParseException, StreamConstraintsException
-    {
-        return _decodeAndAddUTF8Name(_symbols, quads, qlen, lastQuadBytes);
     }
 
     /*

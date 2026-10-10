@@ -152,6 +152,80 @@ class UnquotedNonAsciiNames1748Test extends JUnit5TestBase
         }
     }
 
+    @SuppressWarnings("serial")
+    static class SymbolCountingFactory extends JsonFactory
+    {
+        public int byteSymbolCount() { return _byteSymbolCanonicalizer.size(); }
+
+        @Override // needed for DataInput support
+        public String getFormatName() { return FORMAT_NAME_JSON; }
+    }
+
+    // Rejected unquoted names must not be added to (root) symbol table
+    @Test
+    void invalidUnquotedNamesNotCanonicalized() throws Exception
+    {
+        final String doc = "{ok:1, a\u00D7b:2}";
+        for (int mode : ALL_BINARY_MODES) {
+            SymbolCountingFactory f = _symbolCountingFactory();
+            try (JsonParser p = createParser(f, mode, doc)) {
+                _verifyRejected(p::nextToken, doc + ", mode " + mode);
+            }
+            assertEquals(1, f.byteSymbolCount(), "mode " + mode);
+        }
+        byte[] b = doc.getBytes(StandardCharsets.UTF_8);
+        for (int bytesPerRead : new int[] { 1, 100 }) {
+            SymbolCountingFactory f = _symbolCountingFactory();
+            try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(f, bytesPerRead, b, 0)) {
+                _verifyRejected(p::nextToken, doc + ", async");
+            }
+            assertEquals(1, f.byteSymbolCount(), "async");
+            f = _symbolCountingFactory();
+            try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(f, bytesPerRead, b, 0)) {
+                _verifyRejected(p::nextToken, doc + ", async ByteBuffer");
+            }
+            assertEquals(1, f.byteSymbolCount(), "async ByteBuffer");
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static SymbolCountingFactory _symbolCountingFactory() {
+        SymbolCountingFactory f = new SymbolCountingFactory();
+        f.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+        return f;
+    }
+
+    // Invalid middle byte must be reported as is, not with neighboring bytes
+    @Test
+    void invalidMiddleByteInName() throws Exception
+    {
+        _testInvalid(new int[] { 0xC3, 0x41 }, "Invalid UTF-8 middle byte 0x41");
+        _testInvalid(new int[] { 0xE2, 0x82, 0x41 }, "Invalid UTF-8 middle byte 0x41");
+        _testInvalid(new int[] { 0xF0, 0x9F, 0x98, 0x41 }, "Invalid UTF-8 middle byte 0x41");
+    }
+
+    // Async parsers must report decoded UTF-8 char if unquoted names not enabled
+    @Test
+    void nonAsciiNameStartNotAllowedAsync() throws Exception
+    {
+        final JsonFactory f = newStreamFactory();
+        final String doc = "{\u00E9:1}";
+        byte[] b = doc.getBytes(StandardCharsets.UTF_8);
+        for (AsyncReaderWrapper p : new AsyncReaderWrapper[] {
+                AsyncTestBase.asyncForBytes(f, 100, b, 0),
+                AsyncTestBase.asyncForByteBuffer(f, 100, b, 0) }) {
+            try {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                p.nextToken();
+                fail("Should not pass: " + doc);
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('\u00E9' (code 233)");
+            } finally {
+                p.close();
+            }
+        }
+    }
+
     // Async parsers must report decoded UTF-8 char for unexpected value,
     // with or without whitespace after separator
     @Test

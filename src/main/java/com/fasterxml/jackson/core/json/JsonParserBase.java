@@ -170,8 +170,7 @@ public abstract class JsonParserBase
     // 09-Oct-2026, tatu: [core#1748] Byte-based parsers accept all multi-byte UTF-8
     //   characters when scanning unquoted names, so decoded name must be verified to
     //   only contain chars `ReaderBasedJsonParser` accepts (Java identifier parts)
-    // @since 2.23
-    protected String _verifyUnquotedName(String name) throws JsonParseException {
+    private void _verifyUnquotedName(String name) throws JsonParseException {
         for (int i = 0, len = name.length(); i < len; ++i) {
             final char c = name.charAt(i);
             if ((c > 0x7F) && !Character.isJavaIdentifierPart(c)) {
@@ -180,7 +179,6 @@ public abstract class JsonParserBase
                         : "was expecting a colon to separate field name and value");
             }
         }
-        return name;
     }
 
     /**
@@ -188,7 +186,7 @@ public abstract class JsonParserBase
      * quads collected while scanning it, and add it to the symbol table.
      *
      * @param symbols Symbol table to add name to
-     * @param quads Name bytes, packed 4 per quad (big-endian)
+     * @param quads Name bytes, packed 4 per quad (big-endian), last quad padded
      * @param qlen Number of quads used
      * @param lastQuadBytes Number of bytes used in the last quad (1 - 4)
      *
@@ -200,6 +198,70 @@ public abstract class JsonParserBase
     //   `UTF8DataInputJsonParser` and `NonBlockingJsonParserBase`
     protected final String _decodeAndAddUTF8Name(ByteQuadsCanonicalizer symbols,
             int[] quads, int qlen, int lastQuadBytes)
+        throws JsonParseException, StreamConstraintsException
+    {
+        return _addUTF8Name(symbols, _decodeUTF8Name(quads, qlen, lastQuadBytes), quads, qlen);
+    }
+
+    /**
+     * Helper method used by UTF-8 byte-based parsers to find or decode unquoted
+     * property name, verifying it to only contain valid name characters before
+     * adding it to the symbol table.
+     *
+     * @param symbols Symbol table to find name in or add it to
+     * @param quads Name bytes, packed 4 per quad (big-endian), last quad padded
+     * @param qlen Number of quads used
+     * @param lastQuadBytes Number of bytes used in the last quad (1 - 4)
+     *
+     * @return Decoded (and canonicalized, if enabled) name
+     *
+     * @since 2.23
+     */
+    protected final String _findOrAddUnquotedUTF8Name(ByteQuadsCanonicalizer symbols,
+            int[] quads, int qlen, int lastQuadBytes)
+        throws JsonParseException, StreamConstraintsException
+    {
+        final boolean nonAscii = _hasNonAsciiBytes(quads, qlen, lastQuadBytes);
+        String name = symbols.findName(quads, qlen);
+        if (name == null) {
+            name = _decodeUTF8Name(quads, qlen, lastQuadBytes);
+            // Must verify before adding, to not add invalid names in symbol table
+            if (nonAscii) {
+                _verifyUnquotedName(name);
+            }
+            return _addUTF8Name(symbols, name, quads, qlen);
+        }
+        // Found names may have been added as quoted names, so need to verify too
+        if (nonAscii) {
+            _verifyUnquotedName(name);
+        }
+        return name;
+    }
+
+    private static boolean _hasNonAsciiBytes(int[] quads, int qlen, int lastQuadBytes) {
+        int bits = 0;
+        for (int i = 0, end = qlen - 1; i < end; ++i) {
+            bits |= quads[i];
+        }
+        // Last quad is padded with 0xFF bytes, need to mask those out
+        final int last = quads[qlen - 1];
+        bits |= (lastQuadBytes == 4) ? last : (last & ((1 << (lastQuadBytes << 3)) - 1));
+        return (bits & 0x80808080) != 0;
+    }
+
+    private String _addUTF8Name(ByteQuadsCanonicalizer symbols, String name,
+            int[] quads, int qlen)
+        throws StreamConstraintsException
+    {
+        // 5-May-2023, ckozak: [core#1015] respect CANONICALIZE_FIELD_NAMES factory config.
+        if (!symbols.isCanonicalizing()) {
+            return name;
+        }
+        return symbols.addName(name, quads, qlen);
+    }
+
+    // Decodes name from quads; last quad must be restored before returning
+    private String _decodeUTF8Name(int[] quads, int qlen, int lastQuadBytes)
         throws JsonParseException, StreamConstraintsException
     {
         // Ok: must decode UTF-8 chars. No other validation is needed, since unescaping
@@ -261,7 +323,7 @@ public abstract class JsonParserBase
                 ++ix;
 
                 if ((ch2 & 0xC0) != 0x080) {
-                    _reportInvalidUTF8NameByte("middle", ch2);
+                    _reportInvalidUTF8NameByte("middle", ch2 & 0xFF);
                 }
                 ch = (ch << 6) | (ch2 & 0x3F);
                 if (needed > 1) {
@@ -271,7 +333,7 @@ public abstract class JsonParserBase
                     ++ix;
 
                     if ((ch2 & 0xC0) != 0x080) {
-                        _reportInvalidUTF8NameByte("middle", ch2);
+                        _reportInvalidUTF8NameByte("middle", ch2 & 0xFF);
                     }
                     ch = (ch << 6) | (ch2 & 0x3F);
                     if (needed > 2) { // 4 bytes? (need surrogates on output)
@@ -301,17 +363,11 @@ public abstract class JsonParserBase
             cbuf[cix++] = (char) ch;
         }
 
-        // Ok. Now we have the character array, and can construct the String
-        String baseName = new String(cbuf, 0, cix);
-        // 5-May-2023, ckozak: [core#1015] respect CANONICALIZE_FIELD_NAMES factory config.
-        if (!symbols.isCanonicalizing()) {
-            return baseName;
-        }
         // And finally, un-align if necessary
         if (lastQuadBytes < 4) {
             quads[qlen-1] = lastQuad;
         }
-        return symbols.addName(baseName, quads, qlen);
+        return new String(cbuf, 0, cix);
     }
 
     // Helper method needed to fix [jackson-core#148], masking of 0x00 character

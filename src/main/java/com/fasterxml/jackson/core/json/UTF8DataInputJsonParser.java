@@ -2525,10 +2525,12 @@ public class UTF8DataInputJsonParser
         if (lead < 0x80) {
             return _handleUnrecognizedCharacterEscape((char) lead);
         }
-        // 10-Oct-2026, tatu: [core#1756] invalid lead bytes reported by `_decodeCharForError()`;
-        //   overlong encodings by `_handleEscapedUTF8Char()`
-        final int cp = _decodeCharForError(lead);
-        return _handleEscapedUTF8Char(cp, _utf8ContinuationCount(lead));
+        // 10-Oct-2026, tatu: [core#1756] also reject invalid lead bytes, overlong encodings
+        final int needed = _utf8ContinuationCount(lead);
+        if (needed < 0) {
+            _reportInvalidInitial(lead);
+        }
+        return _handleEscapedUTF8Char(_decodeMultiByteChar(lead, needed), needed);
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException
@@ -2540,28 +2542,22 @@ public class UTF8DataInputJsonParser
             if (needed < 0) {
                 _reportInvalidInitial(c);
             }
-            c &= (0x3F >> needed); // 0x1F, 0x0F or 0x07
+            c = _decodeMultiByteChar(c, needed);
+        }
+        return c;
+    }
 
-            int d = _inputData.readUnsignedByte();
+    // Decodes rest of multi-byte character, given its lead byte and number of
+    // continuation bytes
+    private int _decodeMultiByteChar(int lead, int needed) throws IOException
+    {
+        int c = lead & (0x3F >> needed); // 0x1F, 0x0F or 0x07
+        for (int i = 0; i < needed; ++i) {
+            final int d = _inputData.readUnsignedByte();
             if ((d & 0xC0) != 0x080) {
                 _reportInvalidOther(d & 0xFF);
             }
             c = (c << 6) | (d & 0x3F);
-
-            if (needed > 1) { // needed == 1 means 2 bytes total
-                d = _inputData.readUnsignedByte(); // 3rd byte
-                if ((d & 0xC0) != 0x080) {
-                    _reportInvalidOther(d & 0xFF);
-                }
-                c = (c << 6) | (d & 0x3F);
-                if (needed > 2) { // 4 bytes? (need surrogates)
-                    d = _inputData.readUnsignedByte();
-                    if ((d & 0xC0) != 0x080) {
-                        _reportInvalidOther(d & 0xFF);
-                    }
-                    c = (c << 6) | (d & 0x3F);
-                }
-            }
         }
         return c;
     }

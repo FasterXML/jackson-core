@@ -450,18 +450,17 @@ public abstract class JsonParserBase
     //   after backslash (with `needed` continuation bytes) decoded as `cp`: overlong
     //   encodings are rejected as invalid UTF-8; supplementary characters (cannot be
     //   returned as `char`) and surrogates (invalid in UTF-8) as unrecognized escapes,
-    //   instead of being truncated. Otherwise only allowed (being non-ASCII, so not
-    //   apostrophe) if escaping of any character is enabled.
+    //   instead of being truncated. Others are passed to
+    //   `_handleUnrecognizedCharacterEscape()`, like ASCII characters.
     // @since 2.23
     protected char _handleEscapedUTF8Char(int cp, int needed) throws IOException {
         _verifyUTF8NotOverlong(cp, needed);
-        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)
-                || !isEnabled(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER.mappedFeature())) {
+        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
             // point to lead byte of character, not its last byte
             throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
                     _currentLocationMinus(needed + 1));
         }
-        return (char) cp;
+        return _handleUnrecognizedCharacterEscape((char) cp);
     }
 
     /**

@@ -50,8 +50,9 @@ public abstract class NonBlockingUtf8JsonParserBase
     // In name, high surrogate escape decoded, but not backslash of low surrogate escape
     private final static int QUOTED_BEFORE_LOW_SURROGATE = -2;
 
-    // `QUOTED_UTF8_BASE - n` (-4 to -6): within multi-byte UTF-8 character after
-    // backslash, `n` (1 to 3) bytes still needed
+    // `QUOTED_UTF8_BASE - (needed * 4 + remaining)` (-8 to -18): within multi-byte
+    // UTF-8 character after backslash, with `needed` (1 to 3) continuation bytes in
+    // total (to detect overlong encodings), `remaining` (1 to `needed`) not yet read
     private final static int QUOTED_UTF8_BASE = -3;
 
     /*
@@ -67,18 +68,6 @@ public abstract class NonBlockingUtf8JsonParserBase
      * information when the block has been completed.
      */
     protected int _origBufferLen;
-
-    /*
-    /**********************************************************************
-    /* Decoding state
-    /**********************************************************************
-     */
-
-    /**
-     * Number of continuation bytes of multi-byte UTF-8 character after backslash
-     * being decoded, needed to detect overlong encodings once character is complete.
-     */
-    private int _escapedUTF8Needed;
 
     /*
     /**********************************************************************
@@ -2774,7 +2763,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return -1;
         }
         if (bytesRead < QUOTED_UTF8_BASE) { // within multi-byte UTF-8 character after backslash
-            return _decodeEscapedUTF8(value, QUOTED_UTF8_BASE - bytesRead);
+            final int state = QUOTED_UTF8_BASE - bytesRead;
+            return _decodeEscapedUTF8(value, state >> 2, state & 3);
         }
         int c = getNextSignedByteFromBuffer();
         if (bytesRead == QUOTED_AFTER_BACKSLASH) { // expecting first char after backslash
@@ -3297,23 +3287,22 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     // 10-Oct-2026, tatu: [core#1756] Decodes (possibly split) multi-byte UTF-8 character
     //   after backslash, like blocking parsers do ([core#1744]). If input runs out,
-    //   suspends with `_quotedDigits` of `QUOTED_UTF8_BASE - n` (`n` bytes still needed)
+    //   suspends with `_quotedDigits` of `QUOTED_UTF8_BASE - (needed * 4 + remaining)`
     private int _startEscapedUTF8(int lead) throws IOException
     {
         final int needed = _utf8ContinuationCount(lead);
         if (needed < 0) {
             _reportInvalidInitial(lead);
         }
-        _escapedUTF8Needed = needed;
-        return _decodeEscapedUTF8(lead & (0x3F >> needed), needed);
+        return _decodeEscapedUTF8(lead & (0x3F >> needed), needed, needed);
     }
 
-    private int _decodeEscapedUTF8(int value, int needed) throws IOException
+    private int _decodeEscapedUTF8(int value, int needed, int remaining) throws IOException
     {
         do {
             if (_inputPtr >= _inputEnd) {
                 _quoted32 = value;
-                _quotedDigits = QUOTED_UTF8_BASE - needed;
+                _quotedDigits = QUOTED_UTF8_BASE - ((needed << 2) + remaining);
                 return -1;
             }
             int d = getNextUnsignedByteFromBuffer();
@@ -3321,8 +3310,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportInvalidOther(d, _inputPtr);
             }
             value = (value << 6) | (d & 0x3F);
-        } while (--needed > 0);
-        return _handleEscapedUTF8Char(value, _escapedUTF8Needed);
+        } while (--remaining > 0);
+        return _handleEscapedUTF8Char(value, needed);
     }
 
     private final int _decodeUTF8_2(int c, int d) throws IOException

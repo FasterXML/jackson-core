@@ -244,15 +244,13 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
         }
     }
 
-    // Rejected escaped character should be reported at its lead byte: supplementary
-    // one always, BMP one if escaping any character not enabled
+    // Rejected escaped supplementary character should be reported at its lead byte
     @ParameterizedTest
     @EnumSource(Variant.class)
     void escapedCharErrorLocation(Variant v) throws Exception
     {
         _testErrorLocation(v, ANY_ESCAPE, SMILEY);
-        _testErrorLocation(v, FACTORY, "€");
-        _testErrorLocation(v, FACTORY, "é");
+        _testErrorLocation(v, FACTORY, SMILEY);
     }
 
     private void _testErrorLocation(Variant v, JsonFactory f, String ch) throws Exception

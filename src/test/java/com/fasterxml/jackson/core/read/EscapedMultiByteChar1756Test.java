@@ -70,15 +70,13 @@ class EscapedMultiByteChar1756Test extends JUnit5TestBase
         }
     }
 
-    // Rejected escaped character should be reported at its lead byte: supplementary
-    // one always, BMP one if escaping any character not enabled
+    // Rejected escaped supplementary character should be reported at its lead byte
     // (DataInput-backed parser does not track offsets)
     @Test
     void escapedCharErrorLocation() throws Exception
     {
         _testErrorLocation(ANY_ESCAPE, SMILEY);
-        _testErrorLocation(FACTORY, "€");
-        _testErrorLocation(FACTORY, "é");
+        _testErrorLocation(FACTORY, SMILEY);
     }
 
     private void _testErrorLocation(JsonFactory f, String ch) throws Exception

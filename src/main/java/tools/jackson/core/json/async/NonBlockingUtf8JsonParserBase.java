@@ -3280,6 +3280,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportInvalidOther(next & 0xFF, _inputPtr);
             }
             prev = (prev << 6) | (next & 0x3F);
+            _verifyUtf8_4Range(prev);
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_VALUE_STRING_UTF8_4;
                 _pending32 = prev;
@@ -3484,6 +3485,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
+        _verifyUtf8_4Range(c);
         if ((e & 0xC0) != 0x080) {
             _reportInvalidOther(e & 0xFF, _inputPtr);
         }

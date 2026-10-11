@@ -113,3 +113,8 @@ David R. MacIver (@DRMacIver)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (3.1.8)
+
+@curforever
+ * Contributed #1761: Distinguish truncated DataInput JSON from I/O failures,
+   accepting complete root scalars at end-of-input
+  (3.1.8)

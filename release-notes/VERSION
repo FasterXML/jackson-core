@@ -17,6 +17,11 @@ JSON library.
 
 3.1.8 (not yet released)
 
+#1761: Report truncated DataInput JSON as `UnexpectedEndOfInputException`,
+  while accepting complete root scalars at end-of-input
+ (reported by @cowtowncoder)
+ (contributed by @curforever)
+
 #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
   surrogates in property names (mirror of #1541 fix in `UTF8StreamJsonParser`)
  (fix by @elang2)

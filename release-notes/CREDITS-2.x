@@ -573,4 +573,4 @@ Elankumaran Srinivasan (@elang2)
 @ItsDeadlyProgrammer
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
-  (2.23.0)
+  (2.21.8)

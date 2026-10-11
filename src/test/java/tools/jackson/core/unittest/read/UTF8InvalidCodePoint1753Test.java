@@ -6,6 +6,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
 import tools.jackson.core.unittest.async.AsyncTestBase;
 import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
@@ -15,12 +16,44 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests for [jackson-core#1753]: 4-byte UTF-8 sequences outside of
- * [U+10000, U+10FFFF] must be rejected when decoding String values.
+ * [U+10000, U+10FFFF] must be rejected when decoding String values,
+ * skipping String values and skipping comments.
  */
 class UTF8InvalidCodePoint1753Test
     extends JacksonCoreTestBase
 {
-    private final JsonFactory FACTORY = newStreamFactory();
+    private final static String OVERLONG = "overlong encoding";
+    private final static String ABOVE_MAX = "code point exceeds U+10FFFF";
+
+    private record Rejected(int[] bytes, String reason) { }
+
+    private final static Rejected[] REJECTED = {
+        new Rejected(new int[] { 0xF0, 0x80, 0x80, 0x80 }, OVERLONG),
+        new Rejected(new int[] { 0xF0, 0x8F, 0xBF, 0xBF }, OVERLONG),
+        new Rejected(new int[] { 0xF0, 0x8D, 0xA0, 0x80 }, OVERLONG), // surrogate U+D800
+        new Rejected(new int[] { 0xF4, 0x90, 0x80, 0x80 }, ABOVE_MAX),
+        new Rejected(new int[] { 0xF5, 0x80, 0x80, 0x80 }, ABOVE_MAX),
+        new Rejected(new int[] { 0xF7, 0xBF, 0xBF, 0xBF }, ABOVE_MAX),
+        // Range must be checked before (invalid) 3rd byte
+        new Rejected(new int[] { 0xF0, 0x80, 0x41, 0x41 }, OVERLONG),
+        new Rejected(new int[] { 0xF4, 0x90, 0x41, 0x41 }, ABOVE_MAX),
+    };
+
+    // Content around invalid sequence; all documents are `[ ... 1]` with
+    // either String value or comment before the number
+    private final static String[][] CONTEXTS = {
+        { "[\"", "\",1]" },
+        { "[/*", "*/1]" },
+        { "[//", "\n1]" },
+        { "[#", "\n1]" },
+    };
+
+    private final static int[] BYTES_PER_READ = { 1, 2, 3, 100 };
+
+    private final JsonFactory FACTORY = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+            .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
+            .build();
 
     @Test
     void acceptUtf8CodePointsAtRangeBoundaries() throws Exception
@@ -32,125 +65,133 @@ class UTF8InvalidCodePoint1753Test
     @Test
     void rejectUtf8CodePointsOutsideRange() throws Exception
     {
-        _verifyRejectedSequences(false);
-    }
-
-    @Test
-    void rejectUtf8CodePointsOutsideRangeWhenSkipped() throws Exception
-    {
-        _verifyRejectedSequences(true);
+        for (Rejected r : REJECTED) {
+            for (String[] ctxt : CONTEXTS) {
+                final byte[] doc = _doc(ctxt, r.bytes);
+                final boolean isString = (ctxt == CONTEXTS[0]);
+                _verifyRejected(r, doc, isString, false);
+                if (isString) {
+                    _verifyRejected(r, doc, true, true);
+                }
+            }
+        }
     }
 
     @Test
     void rejectUtf8CodePointsOutsideRangeAsync() throws Exception
     {
-        final String OVERLONG = "overlong encoding";
-        final String ABOVE_MAX = "code point exceeds U+10FFFF";
-
-        _verifyRejectedAsync(new int[] { 0xF0, 0x80, 0x80, 0x80 }, OVERLONG);
-        _verifyRejectedAsync(new int[] { 0xF0, 0x8F, 0xBF, 0xBF }, OVERLONG);
-        _verifyRejectedAsync(new int[] { 0xF0, 0x8D, 0xA0, 0x80 }, OVERLONG); // surrogate U+D800
-        _verifyRejectedAsync(new int[] { 0xF4, 0x90, 0x80, 0x80 }, ABOVE_MAX);
-        _verifyRejectedAsync(new int[] { 0xF5, 0x80, 0x80, 0x80 }, ABOVE_MAX);
-        _verifyRejectedAsync(new int[] { 0xF7, 0xBF, 0xBF, 0xBF }, ABOVE_MAX);
-    }
-
-    @Test
-    void rejectSplitUtf8CodePointAfterSecondByteAsync() throws Exception
-    {
-        _verifyRejectedAsync(new int[] { 0xF0, 0x80, 0x41, 0x41 }, "overlong encoding");
-        _verifyRejectedAsync(new int[] { 0xF4, 0x90, 0x41, 0x41 }, "code point exceeds U+10FFFF");
+        for (Rejected r : REJECTED) {
+            for (String[] ctxt : CONTEXTS) {
+                _verifyRejectedAsync(r, _doc(ctxt, r.bytes));
+            }
+        }
     }
 
     private void _verifyAccepted(int[] sequence, String expected) throws Exception
     {
         for (int mode : ALL_BINARY_MODES) {
-            try (JsonParser p = createParser(FACTORY, mode, _quoted(sequence))) {
+            try (JsonParser p = createParser(FACTORY, mode, _doc(CONTEXTS[0], sequence))) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
                 assertEquals(expected, p.getString(), "mode=" + mode);
             }
+            for (String[] ctxt : CONTEXTS) {
+                try (JsonParser p = createParser(FACTORY, mode, _doc(ctxt, sequence))) {
+                    _verifyAcceptedTokens(p.nextToken(), p.nextToken(), p.nextToken());
+                }
+            }
+        }
+        for (int bytesPerRead : BYTES_PER_READ) {
+            for (String[] ctxt : CONTEXTS) {
+                final byte[] doc = _doc(ctxt, sequence);
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(FACTORY, bytesPerRead, doc, 0)) {
+                    _verifyAcceptedTokens(p.nextToken(), p.nextToken(), p.nextToken());
+                }
+                try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(FACTORY, bytesPerRead, doc, 0)) {
+                    _verifyAcceptedTokens(p.nextToken(), p.nextToken(), p.nextToken());
+                }
+            }
         }
     }
 
-    private void _verifyRejectedSequences(boolean skipped) throws Exception
+    private void _verifyAcceptedTokens(JsonToken t1, JsonToken t2, JsonToken t3)
     {
-        final String OVERLONG = "overlong encoding";
-        final String ABOVE_MAX = "code point exceeds U+10FFFF";
-
-        _verifyRejected(new int[] { 0xF0, 0x80, 0x80, 0x80 }, OVERLONG, skipped);
-        _verifyRejected(new int[] { 0xF0, 0x8F, 0xBF, 0xBF }, OVERLONG, skipped);
-        _verifyRejected(new int[] { 0xF0, 0x8D, 0xA0, 0x80 }, OVERLONG, skipped); // surrogate U+D800
-        _verifyRejected(new int[] { 0xF4, 0x90, 0x80, 0x80 }, ABOVE_MAX, skipped);
-        _verifyRejected(new int[] { 0xF5, 0x80, 0x80, 0x80 }, ABOVE_MAX, skipped);
-        _verifyRejected(new int[] { 0xF7, 0xBF, 0xBF, 0xBF }, ABOVE_MAX, skipped);
+        assertToken(JsonToken.START_ARRAY, t1);
+        if (t2 == JsonToken.VALUE_STRING) {
+            t2 = t3;
+        }
+        assertToken(JsonToken.VALUE_NUMBER_INT, t2);
     }
 
-    private void _verifyRejected(int[] sequence, String reason, boolean skipped) throws Exception
+    private void _verifyRejected(Rejected r, byte[] doc, boolean isString, boolean skipString)
+        throws Exception
     {
-        final String expMsg = String.format("Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): %s",
-                sequence[0], sequence[1], reason);
         for (int mode : ALL_BINARY_MODES) {
             StreamReadException e = assertThrows(StreamReadException.class, () -> {
-                try (JsonParser p = createParser(FACTORY, mode,
-                        skipped ? _arrayWithString(sequence) : _quoted(sequence))) {
-                    if (skipped) {
-                        assertToken(JsonToken.START_ARRAY, p.nextToken());
-                        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                        p.nextToken();
-                    } else {
-                        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                        p.getString();
+                try (JsonParser p = createParser(FACTORY, mode, doc)) {
+                    assertToken(JsonToken.START_ARRAY, p.nextToken());
+                    JsonToken t = p.nextToken();
+                    if (isString) {
+                        assertToken(JsonToken.VALUE_STRING, t);
+                        if (skipString) {
+                            p.nextToken();
+                        } else {
+                            p.getString();
+                        }
                     }
                 }
-            }, "mode=" + mode);
-            verifyException(e, expMsg);
+            }, "mode=" + mode + ", doc=" + _desc(doc));
+            verifyException(e, _expMessage(r));
         }
     }
 
-    private void _verifyRejectedAsync(int[] sequence, String reason) throws Exception
+    private void _verifyRejectedAsync(Rejected r, byte[] doc) throws Exception
     {
-        final byte[] doc = _arrayWithString(sequence);
-        final String expMsg = String.format("Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): %s",
-                sequence[0], sequence[1], reason);
-        for (int bytesPerRead : new int[] { 1, 100 }) {
-            try (AsyncReaderWrapper p = AsyncTestBase.asyncForBytes(FACTORY, bytesPerRead, doc, 0)) {
-                assertToken(JsonToken.START_ARRAY, p.nextToken());
-                StreamReadException e = assertThrows(StreamReadException.class, p::nextToken,
-                        "bytesPerRead=" + bytesPerRead);
-                verifyException(e, expMsg);
-            }
-            try (AsyncReaderWrapper p = AsyncTestBase.asyncForByteBuffer(FACTORY, bytesPerRead, doc, 0)) {
-                assertToken(JsonToken.START_ARRAY, p.nextToken());
-                StreamReadException e = assertThrows(StreamReadException.class, p::nextToken,
-                        "byteBuffer bytesPerRead=" + bytesPerRead);
-                verifyException(e, expMsg);
+        for (int bytesPerRead : BYTES_PER_READ) {
+            for (boolean byteBuffer : new boolean[] { false, true }) {
+                try (AsyncReaderWrapper p = byteBuffer
+                        ? AsyncTestBase.asyncForByteBuffer(FACTORY, bytesPerRead, doc, 0)
+                        : AsyncTestBase.asyncForBytes(FACTORY, bytesPerRead, doc, 0)) {
+                    assertToken(JsonToken.START_ARRAY, p.nextToken());
+                    StreamReadException e = assertThrows(StreamReadException.class, p::nextToken,
+                            "byteBuffer=" + byteBuffer + ", bytesPerRead=" + bytesPerRead
+                            + ", doc=" + _desc(doc));
+                    verifyException(e, _expMessage(r));
+                }
             }
         }
     }
 
-    private static byte[] _quoted(int[] sequence)
+    private static String _expMessage(Rejected r)
     {
-        byte[] json = new byte[sequence.length + 2];
-        json[0] = '"';
-        for (int i = 0; i < sequence.length; ++i) {
-            json[i + 1] = (byte) sequence[i];
-        }
-        json[json.length - 1] = '"';
-        return json;
+        return String.format("Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): %s",
+                r.bytes[0], r.bytes[1], r.reason);
     }
 
-    private static byte[] _arrayWithString(int[] sequence)
+    private static byte[] _doc(String[] ctxt, int[] sequence)
     {
-        byte[] json = new byte[sequence.length + 6];
-        json[0] = '[';
-        json[1] = '"';
+        final byte[] prefix = utf8Bytes(ctxt[0]);
+        final byte[] suffix = utf8Bytes(ctxt[1]);
+        final byte[] doc = new byte[prefix.length + sequence.length + suffix.length];
+        System.arraycopy(prefix, 0, doc, 0, prefix.length);
         for (int i = 0; i < sequence.length; ++i) {
-            json[i + 2] = (byte) sequence[i];
+            doc[prefix.length + i] = (byte) sequence[i];
         }
-        json[json.length - 4] = '"';
-        json[json.length - 3] = ',';
-        json[json.length - 2] = '1';
-        json[json.length - 1] = ']';
-        return json;
+        System.arraycopy(suffix, 0, doc, prefix.length + sequence.length, suffix.length);
+        return doc;
+    }
+
+    private static String _desc(byte[] doc)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : doc) {
+            int i = b & 0xFF;
+            if (i >= 0x20 && i < 0x7F) {
+                sb.append((char) i);
+            } else {
+                sb.append(String.format("<%02X>", i));
+            }
+        }
+        return sb.toString();
     }
 }

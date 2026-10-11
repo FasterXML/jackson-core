@@ -327,13 +327,12 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_COMMENT_LEADING_SLASH:
             return _startSlashComment(_pending32);
         case MINOR_COMMENT_CLOSING_ASTERISK:
-            return _finishCComment(_pending32, true);
+            return _finishCComment(_pending32, true, _pendingBytes);
         case MINOR_COMMENT_C:
-            return _finishCComment(_pending32, false);
+            return _finishCComment(_pending32, false, _pendingBytes);
         case MINOR_COMMENT_CPP:
-            return _finishCppComment(_pending32);
         case MINOR_COMMENT_YAML:
-            return _finishHashComment(_pending32);
+            return _finishLineComment(_pending32, _minorState, _pendingBytes);
         }
         VersionUtil.throwInternal();
         return null;
@@ -1049,17 +1048,19 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCppComment(int fromMinorState) throws JacksonException
+    private final JsonToken _finishLineComment(int fromMinorState, int commentState,
+            int utf8Lead) throws JacksonException
     {
-        if (!_skipCppComment(fromMinorState)) {
+        if (!_skipLineComment(fromMinorState, commentState, utf8Lead)) {
             return _updateTokenToNA();
         }
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws JacksonException
+    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar,
+            int utf8Lead) throws JacksonException
     {
-        if (!_skipCComment(fromMinorState, gotStar)) {
+        if (!_skipCComment(fromMinorState, gotStar, utf8Lead)) {
             return _updateTokenToNA();
         }
         return _startAfterComment(fromMinorState);
@@ -1080,7 +1081,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         int ch = getNextSignedByteFromBuffer();
         if (ch == INT_ASTERISK) { // c-style
-            return _skipCComment(fromMinorState, false);
+            return _skipCComment(fromMinorState, false, 0);
         }
         if (ch == INT_SLASH) { // c++-style
             return _skipCppComment(fromMinorState);
@@ -1095,24 +1096,33 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
-        return _skipLineComment(fromMinorState, MINOR_COMMENT_YAML);
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_YAML, 0);
     }
 
     private final boolean _skipCppComment(int fromMinorState) throws JacksonException
     {
-        return _skipLineComment(fromMinorState, MINOR_COMMENT_CPP);
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_CPP, 0);
     }
 
-    private final boolean _skipLineComment(int fromMinorState, int commentState) throws JacksonException
+    // @param utf8Lead 4-byte UTF-8 lead byte from previous chunk, if any (0 if none)
+    private final boolean _skipLineComment(int fromMinorState, int commentState,
+            int utf8Lead) throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = commentState;
                 _pending32 = fromMinorState;
+                _pendingBytes = utf8Lead;
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
-            if (ch < 0x020) {
+            if (utf8Lead != 0) {
+                _verifyUtf8_4LeadInComment(utf8Lead, ch);
+                utf8Lead = 0;
+            }
+            if ((ch & 0xF8) == 0xF0) {
+                utf8Lead = ch;
+            } else if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
                     _currInputRowStart = _inputPtr;
@@ -1128,16 +1138,25 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
     }
 
-    private final boolean _skipCComment(int fromMinorState, boolean gotStar) throws JacksonException
+    // @param utf8Lead 4-byte UTF-8 lead byte from previous chunk, if any (0 if none)
+    private final boolean _skipCComment(int fromMinorState, boolean gotStar,
+            int utf8Lead) throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = gotStar ? MINOR_COMMENT_CLOSING_ASTERISK : MINOR_COMMENT_C;
                 _pending32 = fromMinorState;
+                _pendingBytes = utf8Lead;
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
-            if (ch < 0x020) {
+            if (utf8Lead != 0) {
+                _verifyUtf8_4LeadInComment(utf8Lead, ch);
+                utf8Lead = 0;
+            }
+            if ((ch & 0xF8) == 0xF0) {
+                utf8Lead = ch;
+            } else if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
                     _currInputRowStart = _inputPtr;
@@ -1156,6 +1175,15 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
             }
             gotStar = false;
+        }
+    }
+
+    // [core#1753]: comment contents are not otherwise UTF-8 decoded, but 4-byte sequences
+    //   must still be range checked to match blocking parsers
+    private final void _verifyUtf8_4LeadInComment(int lead, int ch) throws JacksonException
+    {
+        if ((ch & 0xC0) == 0x80) {
+            _verifyUtf8_4Range(((lead & 0x07) << 6) | (ch & 0x3F));
         }
     }
 

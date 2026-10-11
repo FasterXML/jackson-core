@@ -823,6 +823,12 @@ public abstract class ParserMinimalBase extends JsonParser
     
     protected final static String _getCharDesc(int ch)
     {
+        // 10-Oct-2026, tatu: [core#1756] code point beyond BMP is not a single `char`
+        if (ch > 0xFFFF) {
+            final String code = "(code "+ch+" / 0x"+Integer.toHexString(ch)+")";
+            return Character.isValidCodePoint(ch)
+                    ? "'"+new String(Character.toChars(ch))+"' "+code : code;
+        }
         char c = (char) ch;
         if (Character.isISOControl(c)) {
             return "(CTRL-CHAR, code "+ch+")";

@@ -430,6 +430,50 @@ public abstract class JsonParserBase
         }
     }
 
+    // 10-Oct-2026, tatu: [core#1756] Number of continuation bytes for multi-byte
+    //   UTF-8 lead byte; or -1 if not a valid lead byte (including 0xC0/0xC1 that
+    //   only start overlong encodings, and 0xF5 - 0xF7 that start ones beyond U+10FFFF)
+    // @since 2.23
+    protected final static int _utf8ContinuationCount(int lead) {
+        if (lead < 0xC2) {
+            return -1;
+        }
+        if (lead < 0xE0) {
+            return 1;
+        }
+        if (lead < 0xF0) {
+            return 2;
+        }
+        return (lead < 0xF5) ? 3 : -1;
+    }
+
+    // 10-Oct-2026, tatu: [core#1756] Verifies that multi-byte UTF-8 character with
+    //   lead byte `lead` and first continuation byte `second` is not overlong: shortest
+    //   form of 3-byte (lead 0xE0) and 4-byte (lead 0xF0) characters needs `second` of
+    //   at least 0xA0 and 0x90, respectively (Unicode Table 3-7). Overlong 2-byte ones
+    //   are excluded by `_utf8ContinuationCount()` (lead 0xC0/0xC1).
+    // @since 2.23
+    protected void _verifyUTF8NotOverlong(int lead, int second) throws JsonParseException {
+        if ((lead == 0xE0 && second < 0xA0) || (lead == 0xF0 && second < 0x90)) {
+            _reportError("Invalid UTF-8: overlong encoding (lead byte 0x"+Integer.toHexString(lead)
+                    +", second byte 0x"+Integer.toHexString(second)+")");
+        }
+    }
+
+    // 10-Oct-2026, tatu: [core#1744], [core#1756] Handles (non-overlong) multi-byte UTF-8
+    //   character after backslash, decoded as `cp`: supplementary characters (cannot be
+    //   returned as `char`) and surrogates (invalid in UTF-8) are rejected, instead of being
+    //   truncated. Others are passed to `_handleUnrecognizedCharacterEscape()`, like ASCII
+    //   characters.
+    // @since 2.23
+    protected char _handleEscapedUTF8Char(int cp) throws IOException {
+        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
+            throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
+                    _currentLocationMinusOne());
+        }
+        return _handleUnrecognizedCharacterEscape((char) cp);
+    }
+
     /**
      * Method called for an unescaped linefeed (allowed by
      * {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}) within a String value,

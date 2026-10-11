@@ -86,6 +86,9 @@ DongNyoung Lee (@Dongnyoung)
   (3.1.8)
  * Fixed #1727: UTF-8 surrogate code points not rejected when skipping String values
   (3.3.0)
+ * Reported, fixed #1752: `UTF8DataInputJsonParser` should preserve I/O failures
+   during invalid token reporting
+  (3.3.0)
  * Reported, fixed #1753: Reject 4-byte UTF-8 sequences exceeding U+10FFFF in
    String values of `UTF8StreamJsonParser`
   (3.3.0)
@@ -160,4 +163,9 @@ Elankumaran Srinivasan (@elang2)
 David R. MacIver (@DRMacIver)
  * Reported #1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
    a feed ends inside an escaped surrogate pair in a property name
+  (3.1.8)
+
+@ItsDeadlyProgrammer
+ * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
+   after backslash escape
   (3.1.8)

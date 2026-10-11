@@ -64,6 +64,9 @@ JSON library.
 #1738: Add `GuardedOutputStream` (non-flushing, non-closing `OutputStream` wrapper)
   for textual format backends
  (fix by @cowtowncoder, w/ Claude code)
+#1752: `UTF8DataInputJsonParser` should preserve I/O failures during invalid
+  token reporting
+ (reported, fix by DongNyoung L)
 #1753: Reject 4-byte UTF-8 sequences exceeding U+10FFFF in String values
   of `UTF8StreamJsonParser`
  (reported, fix by DongNyoung L)

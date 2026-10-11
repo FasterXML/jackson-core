@@ -125,3 +125,8 @@ David R. MacIver (@DRMacIver)
  * Reported #1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
    a feed ends inside an escaped surrogate pair in a property name
   (3.1.8)
+
+@ItsDeadlyProgrammer
+ * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
+   after backslash escape
+  (3.1.8)

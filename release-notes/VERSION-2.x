@@ -45,6 +45,9 @@ a pure JSON library.
 #1750: `ALLOW_UNESCAPED_CONTROL_CHARS` ignored for single-quoted string values
   in UTF-8 byte parsers
  (fix by @pjfanning)
+#1756: Non-blocking parser does not decode multi-byte UTF-8 character after
+  backslash escape
+ (contributed by @ItsDeadlyProgrammer)
 
 2.22.3 (21-Sep-2026)
 
@@ -98,6 +101,9 @@ No changes since 2.21
 #1750: `ALLOW_UNESCAPED_CONTROL_CHARS` ignored for single-quoted string values
   in UTF-8 byte parsers
  (fix by @pjfanning)
+#1756: Non-blocking parser does not decode multi-byte UTF-8 character after
+  backslash escape
+ (contributed by @ItsDeadlyProgrammer)
 
 2.21.7 (21-Sep-2026)
 

@@ -1117,7 +1117,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
-            utf8Lead = _checkUtf8_4InComment(utf8Lead, ch);
+            utf8Lead = (ch < 0x80) ? 0 : _checkUtf8_4InComment(utf8Lead, ch);
             if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
@@ -1146,7 +1146,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
-            utf8Lead = _checkUtf8_4InComment(utf8Lead, ch);
+            utf8Lead = (ch < 0x80) ? 0 : _checkUtf8_4InComment(utf8Lead, ch);
             if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
@@ -3218,7 +3218,6 @@ public abstract class NonBlockingUtf8JsonParserBase
             return true;
         case 2: // 2-byte UTF; easy, either got both, or just miss one
             if (gotNext) {
-                // NOTE: always succeeds, no need to check
                 c = _decodeUTF8_2(c, getNextSignedByteFromBuffer(), _inputPtr);
                 _textBuffer.append((char) c);
                 return true;
@@ -3475,7 +3474,8 @@ public abstract class NonBlockingUtf8JsonParserBase
     }
 
     // 10-Oct-2026, tatu: [core#1753] `ptr` (end of sequence) passed separately as
-    //   fast-path callers do not sync `_inputPtr`; only set for error reporting
+    //   fast-path callers do not sync `_inputPtr`; only set for error reporting, to
+    //   point right after offending byte (same as blocking and split-input decoding)
     private final int _decodeUTF8_2(int c, int d, int ptr) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
@@ -3488,7 +3488,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         c &= 0x0F;
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, ptr);
+            _reportInvalidOther(d & 0xFF, ptr - 1);
         }
         c = (c << 6) | (d & 0x3F);
         if ((e & 0xC0) != 0x080) {
@@ -3508,15 +3508,12 @@ public abstract class NonBlockingUtf8JsonParserBase
     private final int _decodeUTF8_4(int c, int d, int e, int f, int ptr) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, ptr);
+            _reportInvalidOther(d & 0xFF, ptr - 2);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
-        if (c < 0x010 || c > 0x10F) {
-            _inputPtr = ptr;
-            _verifyUtf8_4Range(c);
-        }
+        _verifyUtf8_4Range(c, ptr - 2);
         if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, ptr);
+            _reportInvalidOther(e & 0xFF, ptr - 1);
         }
         c = (c << 6) | (e & 0x3F);
         if ((f & 0xC0) != 0x080) {

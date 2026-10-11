@@ -663,7 +663,14 @@ public abstract class JsonParserBase
     //   exceed U+10FFFF, below is an overlong encoding (of a code point below U+10000)
     // @since 3.3
     protected void _verifyUtf8_4Range(int c) throws StreamReadException {
+        _verifyUtf8_4Range(c, _inputPtr);
+    }
+
+    // As above, but with input pointer (for error location) only updated if check fails
+    // @since 3.3
+    protected void _verifyUtf8_4Range(int c, int ptr) throws StreamReadException {
         if (c < 0x010 || c > 0x10F) {
+            _inputPtr = ptr;
             _reportError(String.format("Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): %s",
                     0xF0 | (c >> 6), 0x80 | (c & 0x3F),
                     (c < 0x010) ? "overlong encoding" : "code point exceeds U+10FFFF"));

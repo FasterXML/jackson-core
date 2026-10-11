@@ -88,14 +88,20 @@ class UTF8InvalidCodePoint1753Test
         }
     }
 
-    // Error location must point to invalid sequence, not start of String
+    // Error location must point to invalid byte (not start of String), and be
+    // the same regardless of input source or how input is split
     @Test
     void errorLocationForInvalidUtf8() throws Exception
     {
         _verifyErrorLocation(REJECTED[3].bytes, _expMessage(REJECTED[3]));
         // and same for other invalid multi-byte sequences
-        _verifyErrorLocation(new int[] { 0xC3, 0x41 }, "Invalid UTF-8 middle byte 0x41");
-        _verifyErrorLocation(new int[] { 0xE2, 0x41, 0x80 }, "Invalid UTF-8 middle byte 0x41");
+        final String MIDDLE = "Invalid UTF-8 middle byte 0x41";
+        _verifyErrorLocation(new int[] { 0xC3, 0x41 }, MIDDLE);
+        _verifyErrorLocation(new int[] { 0xE2, 0x41, 0x80 }, MIDDLE);
+        _verifyErrorLocation(new int[] { 0xE2, 0x82, 0x41 }, MIDDLE);
+        _verifyErrorLocation(new int[] { 0xF0, 0x41, 0x80, 0x80 }, MIDDLE);
+        _verifyErrorLocation(new int[] { 0xF0, 0x90, 0x41, 0x80 }, MIDDLE);
+        _verifyErrorLocation(new int[] { 0xF0, 0x90, 0x80, 0x41 }, MIDDLE);
         _verifyErrorLocation(new int[] { 0xED, 0xA0, 0x80 }, "Illegal surrogate character 0xd800");
     }
 
@@ -105,7 +111,8 @@ class UTF8InvalidCodePoint1753Test
         // invalid sequence on its fast (non-split) path, with `_inputPtr` not synced
         final String prefix = "[\"\u00E9" + "a".repeat(40);
         final byte[] doc = _doc(new String[] { prefix, "\",1,2,3,4,5,6,7,8,9]" }, sequence);
-        final int minColumn = prefix.length() + 1;
+        final String docDesc = "doc=" + _desc(doc);
+        int expColumn = -1;
         // (DataInput-backed parser does not track location)
         for (int mode : new int[] { MODE_INPUT_STREAM, MODE_INPUT_STREAM_THROTTLED }) {
             StreamReadException e = assertThrows(StreamReadException.class, () -> {
@@ -115,24 +122,28 @@ class UTF8InvalidCodePoint1753Test
                     p.getString();
                 }
             });
-            _verifyColumn(e, expMsg, minColumn, "mode=" + mode + ", doc=" + _desc(doc));
+            verifyException(e, expMsg);
+            final int column = e.getLocation().getColumnNr();
+            if (expColumn < 0) {
+                // must be past the leading content, within the sequence
+                assertTrue(column > prefix.length() + 1, docDesc + ": column " + column);
+                expColumn = column;
+            }
+            assertEquals(expColumn, column, "mode=" + mode + ", " + docDesc);
         }
-        for (boolean byteBuffer : new boolean[] { false, true }) {
-            try (AsyncReaderWrapper p = byteBuffer
-                    ? AsyncTestBase.asyncForByteBuffer(FACTORY, 1000, doc, 0)
-                    : AsyncTestBase.asyncForBytes(FACTORY, 1000, doc, 0)) {
-                assertToken(JsonToken.START_ARRAY, p.nextToken());
-                StreamReadException e = assertThrows(StreamReadException.class, p::nextToken);
-                _verifyColumn(e, expMsg, minColumn, "byteBuffer=" + byteBuffer + ", doc=" + _desc(doc));
+        for (int bytesPerRead : BYTES_PER_READ) {
+            for (boolean byteBuffer : new boolean[] { false, true }) {
+                try (AsyncReaderWrapper p = byteBuffer
+                        ? AsyncTestBase.asyncForByteBuffer(FACTORY, bytesPerRead, doc, 0)
+                        : AsyncTestBase.asyncForBytes(FACTORY, bytesPerRead, doc, 0)) {
+                    assertToken(JsonToken.START_ARRAY, p.nextToken());
+                    StreamReadException e = assertThrows(StreamReadException.class, p::nextToken);
+                    verifyException(e, expMsg);
+                    assertEquals(expColumn, e.getLocation().getColumnNr(),
+                            "byteBuffer=" + byteBuffer + ", bytesPerRead=" + bytesPerRead + ", " + docDesc);
+                }
             }
         }
-    }
-
-    private void _verifyColumn(StreamReadException e, String expMsg, int minColumn, String desc)
-    {
-        verifyException(e, expMsg);
-        final int column = e.getLocation().getColumnNr();
-        assertTrue(column >= minColumn, desc + ": column " + column + " < " + minColumn);
     }
 
     private void _verifyAccepted(int[] sequence, String expected) throws Exception

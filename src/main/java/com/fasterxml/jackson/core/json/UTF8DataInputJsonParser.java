@@ -2584,19 +2584,22 @@ public class UTF8DataInputJsonParser
     // number of continuation bytes
     private int _decodeMultiByteChar(int lead, int needed) throws IOException
     {
-        int c = lead & (0x3F >> needed); // 0x1F, 0x0F or 0x07
-        for (int i = 0; i < needed; ++i) {
-            final int d = _inputData.readUnsignedByte();
+        int d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d);
+        }
+        _verifyUTF8NotOverlong(lead, d);
+        int c = ((lead & (0x3F >> needed)) << 6) | (d & 0x3F);
+        while (--needed > 0) {
+            d = _inputData.readUnsignedByte();
             if ((d & 0xC0) != 0x080) {
-                _reportInvalidOther(d & 0xFF);
-            }
-            if (i == 0) {
-                _verifyUTF8NotOverlong(lead, d & 0xFF);
+                _reportInvalidOther(d);
             }
             c = (c << 6) | (d & 0x3F);
         }
         return c;
     }
+
 
     /*
     /**********************************************************

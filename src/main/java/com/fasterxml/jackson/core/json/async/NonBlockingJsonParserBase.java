@@ -375,14 +375,7 @@ public abstract class NonBlockingJsonParserBase
 
     @Override // @since 2.17
     protected JsonLocation _currentLocationMinusOne() {
-        return _currentLocationMinus(1);
-    }
-
-    // 10-Oct-2026, tatu: [core#1756] Also works if input was split: `_currInputRowStart`
-    //   and `_currBufferStart` are relative to current buffer
-    @Override // @since 2.23
-    protected JsonLocation _currentLocationMinus(int count) {
-        final int prevInputPtr = _inputPtr - count;
+        final int prevInputPtr = _inputPtr - 1;
         int row = Math.max(_currInputRow, _currInputRowAlt);
         final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_contentReference(),

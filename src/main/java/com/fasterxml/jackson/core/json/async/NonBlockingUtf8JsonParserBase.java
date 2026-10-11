@@ -2773,7 +2773,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         // within multi-byte UTF-8 character after backslash?
         if (bytesRead == QUOTED_UTF8_LEAD) {
-            return _startEscapedUTF8(value);
+            return _decodeEscapedUTF8Second(value, _utf8ContinuationCount(value));
         }
         if (bytesRead < QUOTED_UTF8_LEAD) {
             return _decodeEscapedUTF8(value, QUOTED_UTF8_LEAD - bytesRead);
@@ -3313,6 +3313,14 @@ public abstract class NonBlockingUtf8JsonParserBase
             _quotedDigits = QUOTED_UTF8_LEAD;
             return -1;
         }
+        return _decodeEscapedUTF8Second(lead, needed);
+    }
+
+    // Decodes first continuation byte (second byte) of multi-byte UTF-8 character
+    // after backslash, with valid lead byte (and `needed` continuation bytes);
+    // caller ensures it is available
+    private int _decodeEscapedUTF8Second(int lead, int needed) throws IOException
+    {
         int d = getNextUnsignedByteFromBuffer();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d, _inputPtr);

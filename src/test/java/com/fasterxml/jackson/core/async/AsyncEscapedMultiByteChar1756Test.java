@@ -244,7 +244,8 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
         }
     }
 
-    // Rejected escaped supplementary character should be reported at its lead byte
+    // Rejected escaped supplementary character reported at its last byte, like other
+    // unrecognized escapes
     @ParameterizedTest
     @EnumSource(Variant.class)
     void escapedCharErrorLocation(Variant v) throws Exception
@@ -266,9 +267,9 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
                 } catch (StreamReadException e) {
                     verifyException(e, "Unrecognized character escape");
                     final String desc = "bytesPerRead=" + bytesPerRead + ", doc " + doc;
-                    assertEquals(3L, e.getLocation().getByteOffset(), desc);
+                    assertEquals(6L, e.getLocation().getByteOffset(), desc);
                     assertEquals(1, e.getLocation().getLineNr(), desc);
-                    assertEquals(4, e.getLocation().getColumnNr(), desc);
+                    assertEquals(7, e.getLocation().getColumnNr(), desc);
                 }
             }
         }

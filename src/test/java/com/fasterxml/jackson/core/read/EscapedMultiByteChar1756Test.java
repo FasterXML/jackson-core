@@ -70,7 +70,8 @@ class EscapedMultiByteChar1756Test extends JUnit5TestBase
         }
     }
 
-    // Rejected escaped supplementary character should be reported at its lead byte
+    // Rejected escaped supplementary character reported at its last byte, like other
+    // unrecognized escapes
     // (DataInput-backed parser does not track offsets)
     @Test
     void escapedCharErrorLocation() throws Exception
@@ -90,9 +91,9 @@ class EscapedMultiByteChar1756Test extends JUnit5TestBase
                     fail("Should not pass for mode " + mode);
                 } catch (StreamReadException e) {
                     verifyException(e, "Unrecognized character escape");
-                    assertEquals(3L, e.getLocation().getByteOffset());
+                    assertEquals(6L, e.getLocation().getByteOffset());
                     assertEquals(1, e.getLocation().getLineNr());
-                    assertEquals(4, e.getLocation().getColumnNr());
+                    assertEquals(7, e.getLocation().getColumnNr());
                 }
             }
         }

@@ -468,28 +468,10 @@ public abstract class JsonParserBase
     // @since 2.23
     protected char _handleEscapedUTF8Char(int cp) throws IOException {
         if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
-            // point to lead byte of character (4 or 3 bytes long), not its last byte
             throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
-                    _currentLocationMinus((cp > 0xFFFF) ? 4 : 3));
+                    _currentLocationMinusOne());
         }
         return _handleUnrecognizedCharacterEscape((char) cp);
-    }
-
-
-    /**
-     * Variant of {@link #_currentLocationMinusOne()} for location of {@code count}
-     * bytes (or chars) before current input position, used to point to start of a
-     * multi-byte character just decoded. Default implementation simply delegates to
-     * {@link #_currentLocationMinusOne()}.
-     *
-     * @param count Number of bytes (or chars) to go back
-     *
-     * @return Location {@code count} bytes (or chars) before current position
-     *
-     * @since 2.23
-     */
-    protected JsonLocation _currentLocationMinus(int count) {
-        return _currentLocationMinusOne();
     }
 
     /**

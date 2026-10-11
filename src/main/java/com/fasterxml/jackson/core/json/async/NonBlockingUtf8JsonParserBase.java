@@ -1431,8 +1431,15 @@ public abstract class NonBlockingUtf8JsonParserBase
     private final int _decodeCharForError(int firstByte)
     {
         final int c = firstByte & 0xFF;
-        final int needed = _utf8ContinuationCount(c);
-        if (needed < 0) { // invalid lead byte; report as-is
+        final int needed;
+
+        if ((c & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
+            needed = 1;
+        } else if ((c & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
+            needed = 2;
+        } else if ((c & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
+            needed = 3;
+        } else { // invalid lead byte; report as-is
             return c;
         }
         if ((_inputPtr + needed) > _inputEnd) { // not (yet) buffered; report as-is
@@ -3293,6 +3300,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         final int needed = _utf8ContinuationCount(lead);
         if (needed < 0) {
             _reportInvalidInitial(lead);
+            return -1; // never gets here
         }
         return _decodeEscapedUTF8(lead & (0x3F >> needed), needed, needed);
     }

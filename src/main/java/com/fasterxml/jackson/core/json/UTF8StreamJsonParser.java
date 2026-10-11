@@ -3324,6 +3324,7 @@ public class UTF8StreamJsonParser
         final int needed = _utf8ContinuationCount(lead);
         if (needed < 0) {
             _reportInvalidInitial(lead);
+            return 0; // never gets here
         }
         return _handleEscapedUTF8Char(_decodeMultiByteChar(lead, needed), needed);
     }
@@ -3332,12 +3333,44 @@ public class UTF8StreamJsonParser
     {
         int c = firstByte & 0xFF;
         if (c > 0x7F) { // if >= 0, is ascii and fine as is
+            int needed;
+
             // Ok; if we end here, we got multi-byte combination
-            final int needed = _utf8ContinuationCount(c);
-            if (needed < 0) {
-                _reportInvalidInitial(c);
+            if ((c & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
+                c &= 0x1F;
+                needed = 1;
+            } else if ((c & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
+                c &= 0x0F;
+                needed = 2;
+            } else if ((c & 0xF8) == 0xF0) {
+                // 4 bytes; double-char with surrogates and all...
+                c &= 0x07;
+                needed = 3;
+            } else {
+                _reportInvalidInitial(c & 0xFF);
+                needed = 1; // never gets here
             }
-            c = _decodeMultiByteChar(c, needed);
+
+            int d = nextByte();
+            if ((d & 0xC0) != 0x080) {
+                _reportInvalidOther(d & 0xFF);
+            }
+            c = (c << 6) | (d & 0x3F);
+
+            if (needed > 1) { // needed == 1 means 2 bytes total
+                d = nextByte(); // 3rd byte
+                if ((d & 0xC0) != 0x080) {
+                    _reportInvalidOther(d & 0xFF);
+                }
+                c = (c << 6) | (d & 0x3F);
+                if (needed > 2) { // 4 bytes? (need surrogates)
+                    d = nextByte();
+                    if ((d & 0xC0) != 0x080) {
+                        _reportInvalidOther(d & 0xFF);
+                    }
+                    c = (c << 6) | (d & 0x3F);
+                }
+            }
         }
         return c;
     }

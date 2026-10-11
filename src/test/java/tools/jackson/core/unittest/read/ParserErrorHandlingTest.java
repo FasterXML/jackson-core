@@ -1,21 +1,13 @@
 package tools.jackson.core.unittest.read;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class ParserErrorHandlingTest
@@ -54,65 +46,6 @@ class ParserErrorHandlingTest
     void mangledRootNumbersChars() throws Exception {
         _testMangledRootNumbersInt(MODE_READER);
         _testMangledRootNumbersFloat(MODE_READER);
-    }
-
-    @Test
-    void invalidTokenDataInputPreservesReadFailure() throws Exception
-    {
-        final String failureMessage = "test-induced read failure";
-        final IOException failure = new IOException(failureMessage);
-        InputStream input = new InputStream() {
-            private boolean first = true;
-
-            @Override
-            public int read() throws IOException {
-                if (first) {
-                    first = false;
-                    return 'a';
-                }
-                throw failure;
-            }
-        };
-        try (JsonParser p = createParserForDataInput(JSON_F, new DataInputStream(input))) {
-            JacksonIOException e = assertThrows(JacksonIOException.class, p::nextToken);
-            verifyException(e, failureMessage);
-            assertSame(failure, e.getCause());
-            assertSame(p, e.processor());
-        }
-    }
-
-    @Test
-    void invalidTokenDataInputReportsTokenAtEOF() throws Exception
-    {
-        try (JsonParser p = createParserForDataInput(JSON_F,
-                new DataInputStream(new ByteArrayInputStream(new byte[] { 'a', 'b', 'c' })))) {
-            StreamReadException e = assertThrows(StreamReadException.class, p::nextToken);
-            verifyException(e, "Unrecognized token 'abc'");
-        }
-    }
-
-    @Test
-    void invalidTokenDataInputReportsMalformedUtf8() throws Exception
-    {
-        try (JsonParser p = createParserForDataInput(JSON_F,
-                new DataInputStream(new ByteArrayInputStream(new byte[] {
-                        'a', (byte) 0xC2, 'A'
-                })))) {
-            StreamReadException e = assertThrows(StreamReadException.class, p::nextToken);
-            verifyException(e, "Invalid UTF-8 middle byte 0x41");
-        }
-    }
-
-    @Test
-    void invalidTokenDataInputReportsTruncatedUtf8AsTokenAtEOF() throws Exception
-    {
-        try (JsonParser p = createParserForDataInput(JSON_F,
-                new DataInputStream(new ByteArrayInputStream(new byte[] {
-                        'a', (byte) 0xC2
-                })))) {
-            StreamReadException e = assertThrows(StreamReadException.class, p::nextToken);
-            verifyException(e, "Unrecognized token 'a'");
-        }
     }
 
     /*

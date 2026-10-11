@@ -405,9 +405,13 @@ public class UTF8DataInputJsonParser
         if (_tokenIncomplete) {
             try {
                 _binaryValue = _decodeBase64(b64variant);
-            } catch (IOException e) {
+            } catch (IllegalArgumentException e) {
                 throw _constructReadException("Failed to decode VALUE_STRING as base64 (%s): %s",
                         b64variant, e.getMessage());
+            } catch (EOFException e) {
+                _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
             }
             /* let's clear incomplete only now; allows for accessing other
              * textual content in error cases
@@ -1696,7 +1700,7 @@ public class UTF8DataInputJsonParser
         }
         if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
             // [core#1728]: pass the decoded code point through; a char cast drops supplementary planes
-            _reportUnexpectedChar(_decodeCharForError(ch),
+            _reportUnexpectedChar(_decodeCharForErrorOrEOF(ch),
                     "was expecting double-quote to start property name");
         }
         /* Also: note that although we use a different table here,
@@ -2235,10 +2239,10 @@ public class UTF8DataInputJsonParser
         }
         // [core#77] Try to decode most likely token
         if (c > 0x7F) { // multi-byte UTF-8 char: decode first (consumes rest of its bytes)
-            c = _decodeCharForError(c);
+            c = _decodeCharForErrorOrEOF(c);
             if (Character.isJavaIdentifierStart(c)) {
                 // [core#1728]: keep full code point (no char cast)
-                _reportInvalidToken(readUnsignedByte(), new String(Character.toChars(c)),
+                _reportInvalidToken(_readByteOrEOF(), new String(Character.toChars(c)),
                         _validJsonTokenList());
             }
         } else if (Character.isJavaIdentifierStart(c)) {
@@ -2363,7 +2367,7 @@ public class UTF8DataInputJsonParser
     {
         final int len = matchStr.length();
         do {
-            int ch = readUnsignedByte();
+            int ch = _readByteOrEOF();
             if (ch != matchStr.charAt(i)) {
                 _reportInvalidToken(ch, matchStr.substring(0, i));
             }
@@ -2379,11 +2383,11 @@ public class UTF8DataInputJsonParser
     private final void _checkMatchEnd(String matchStr, int i, int ch) throws IOException {
         // but actually only alphanums are problematic
         // [core#1728]: keep full code point (no char cast)
-        final int c = _decodeCharForError(ch);
+        final int c = _decodeCharForErrorOrEOF(ch);
         if (Character.isJavaIdentifierPart(c)) {
             // 'c' already decoded (all of its bytes consumed): include it as matched,
             // continue from the following byte
-            _reportInvalidToken(readUnsignedByte(),
+            _reportInvalidToken(_readByteOrEOF(),
                     matchStr.substring(0, i) + new String(Character.toChars(c)));
         }
         // Multi-byte char fully consumed, cannot push back: must report here
@@ -2756,6 +2760,27 @@ public class UTF8DataInputJsonParser
         return _handleUnrecognizedCharacterEscape((char) cp);
     }
 
+    // 10-Oct-2026, tatu: [core#1752] Variant of `_decodeCharForError()` that reports
+    //   end-of-input within a multi-byte character as such, instead of I/O failure
+    private int _decodeCharForErrorOrEOF(int firstByte) throws IOException
+    {
+        try {
+            return _decodeCharForError(firstByte);
+        } catch (EOFException e) {
+            return _reportInvalidEOF();
+        }
+    }
+
+    // 10-Oct-2026, tatu: [core#1752] Read for error reporting: returns -1 at end-of-input
+    private int _readByteOrEOF() throws IOException
+    {
+        try {
+            return readUnsignedByte();
+        } catch (EOFException e) {
+            return -1;
+        }
+    }
+
     protected int _decodeCharForError(int firstByte) throws IOException
     {
         int c = firstByte & 0xFF;
@@ -2934,7 +2959,8 @@ public class UTF8DataInputJsonParser
          // regular Java identifier character rules. It's just a heuristic,
          // nothing fancy here (nor fast).
          try {
-             while (true) {
+             // [core#1752]: -1 means end-of-input already reached
+             while (ch >= 0) {
                  // [core#1728]: keep full code point (no char cast)
                  final int c = _decodeCharForError(ch);
                  if (!Character.isJavaIdentifierPart(c)) {
@@ -2945,10 +2971,10 @@ public class UTF8DataInputJsonParser
                      sb.append("...");
                      break;
                  }
-                 ch = readUnsignedByte();
+                 ch = _readByteOrEOF();
              }
          } catch (EOFException e) {
-             ; // ok since we are just trying to get token for diagnostics
+             ; // truncated multi-byte char: ok since we are just trying to get token for diagnostics
          } catch (IOException e) {
              throw _wrapIOFailure(e);
          }

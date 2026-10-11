@@ -409,7 +409,7 @@ public class UTF8DataInputJsonParser
                 throw _constructReadException("Failed to decode VALUE_STRING as base64 (%s): %s",
                         b64variant, e.getMessage());
             } catch (EOFException e) {
-                _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
+                return _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
             } catch (IOException e) {
                 throw _wrapIOFailure(e);
             }
@@ -1702,7 +1702,7 @@ public class UTF8DataInputJsonParser
         }
         if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
             // [core#1728]: pass the decoded code point through; a char cast drops supplementary planes
-            _reportUnexpectedChar(_decodeCharForErrorOrEOF(ch),
+            _reportUnexpectedChar(_decodeCharForErrorOrEOF(ch, JsonToken.PROPERTY_NAME),
                     "was expecting double-quote to start property name");
         }
         /* Also: note that although we use a different table here,
@@ -2241,7 +2241,7 @@ public class UTF8DataInputJsonParser
         }
         // [core#77] Try to decode most likely token
         if (c > 0x7F) { // multi-byte UTF-8 char: decode first (consumes rest of its bytes)
-            c = _decodeCharForErrorOrEOF(c);
+            c = _decodeCharForErrorOrEOF(c, null);
             if (Character.isJavaIdentifierStart(c)) {
                 // [core#1728]: keep full code point (no char cast)
                 _reportInvalidToken(_readByteOrEOF(), new String(Character.toChars(c)),
@@ -2385,7 +2385,7 @@ public class UTF8DataInputJsonParser
     private final void _checkMatchEnd(String matchStr, int i, int ch) throws IOException {
         // but actually only alphanums are problematic
         // [core#1728]: keep full code point (no char cast)
-        final int c = _decodeCharForErrorOrEOF(ch);
+        final int c = _decodeCharForErrorOrEOF(ch, null);
         if (Character.isJavaIdentifierPart(c)) {
             // 'c' already decoded (all of its bytes consumed): include it as matched,
             // continue from the following byte
@@ -2763,13 +2763,14 @@ public class UTF8DataInputJsonParser
     }
 
     // 10-Oct-2026, tatu: [core#1752] Variant of `_decodeCharForError()` that reports
-    //   end-of-input within a multi-byte character as such, instead of I/O failure
-    private int _decodeCharForErrorOrEOF(int firstByte) throws IOException
+    //   end-of-input within a multi-byte character as such, instead of I/O failure.
+    //   `tokenType` is the token being decoded, if known (null if not)
+    private int _decodeCharForErrorOrEOF(int firstByte, JsonToken tokenType) throws IOException
     {
         try {
             return _decodeCharForError(firstByte);
         } catch (EOFException e) {
-            return _reportInvalidEOF(" in a multi-byte UTF-8 character", _currToken);
+            return _reportInvalidEOF(" in a multi-byte UTF-8 character", tokenType);
         }
     }
 

@@ -281,7 +281,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_VALUE_STRING:
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_2:
-            _textBuffer.append((char) _decodeUTF8_2(_pending32, getNextSignedByteFromBuffer()));
+            _textBuffer.append((char) _decodeUTF8_2(_pending32, getNextSignedByteFromBuffer(), _inputPtr));
             if (_minorStateAfterSplit == MINOR_VALUE_APOS_STRING) {
                 return _finishAposString();
             }
@@ -3053,17 +3053,14 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
-                    _inputPtr = ptr; // for error location
-                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++), ptr);
                     break;
                 case 3: // 3-byte UTF
-                    _inputPtr = ptr; // for error location
-                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++), ptr);
                     break;
                 case 4: // 4-byte UTF
-                    _inputPtr = ptr; // for error location
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
-                            getByteFromBuffer(ptr++));
+                            getByteFromBuffer(ptr++), ptr);
                     // Let's add first part right away:
                     outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                     if (outPtr >= outBuf.length) {
@@ -3176,17 +3173,14 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
-                    _inputPtr = ptr; // for error location
-                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++), ptr);
                     break;
                 case 3: // 3-byte UTF
-                    _inputPtr = ptr; // for error location
-                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++), ptr);
                     break;
                 case 4: // 4-byte UTF
-                    _inputPtr = ptr; // for error location
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
-                            getByteFromBuffer(ptr++));
+                            getByteFromBuffer(ptr++), ptr);
                     // Let's add first part right away:
                     outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                     if (outPtr >= outBuf.length) {
@@ -3225,7 +3219,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case 2: // 2-byte UTF; easy, either got both, or just miss one
             if (gotNext) {
                 // NOTE: always succeeds, no need to check
-                c = _decodeUTF8_2(c, getNextSignedByteFromBuffer());
+                c = _decodeUTF8_2(c, getNextSignedByteFromBuffer(), _inputPtr);
                 _textBuffer.append((char) c);
                 return true;
             }
@@ -3480,27 +3474,30 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _handleEscapedUTF8Char(value);
     }
 
-    private final int _decodeUTF8_2(int c, int d) throws JacksonException
+    // 10-Oct-2026, tatu: [core#1753] `ptr` (end of sequence) passed separately as
+    //   fast-path callers do not sync `_inputPtr`; only set for error reporting
+    private final int _decodeUTF8_2(int c, int d, int ptr) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr);
         }
         return ((c & 0x1F) << 6) | (d & 0x3F);
     }
 
-    private final int _decodeUTF8_3(int c, int d, int e) throws JacksonException
+    private final int _decodeUTF8_3(int c, int d, int e, int ptr) throws JacksonException
     {
         c &= 0x0F;
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr);
         }
         c = (c << 6) | (d & 0x3F);
         if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, _inputPtr);
+            _reportInvalidOther(e & 0xFF, ptr);
         }
         c = (c << 6) | (e & 0x3F);
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
+            _inputPtr = ptr;
             _reportInvalidUTF8Surrogate(c);
         }
         return c;
@@ -3508,19 +3505,22 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     // @return Character value <b>minus 0x10000</c>; this so that caller
     //    can readily expand it to actual surrogates
-    private final int _decodeUTF8_4(int c, int d, int e, int f) throws JacksonException
+    private final int _decodeUTF8_4(int c, int d, int e, int f, int ptr) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
-        _verifyUtf8_4Range(c);
+        if (c < 0x010 || c > 0x10F) {
+            _inputPtr = ptr;
+            _verifyUtf8_4Range(c);
+        }
         if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, _inputPtr);
+            _reportInvalidOther(e & 0xFF, ptr);
         }
         c = (c << 6) | (e & 0x3F);
         if ((f & 0xC0) != 0x080) {
-            _reportInvalidOther(f & 0xFF, _inputPtr);
+            _reportInvalidOther(f & 0xFF, ptr);
         }
         return ((c << 6) | (f & 0x3F)) - 0x10000;
     }

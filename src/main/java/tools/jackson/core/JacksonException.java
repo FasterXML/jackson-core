@@ -419,13 +419,15 @@ public class JacksonException
     /**
      * Accessor for location information related to position within input
      * or output (depending on operation), if available; if not available
-     * may return {@link TokenStreamLocation#NA} (but never {@code null}).
+     * usually returns {@link TokenStreamLocation#NA}. May return {@code null}
+     * after {@link #clearLocation()} has been called.
      *<p>
      * Accuracy of location information depends on backend (format) as well
      * as (in some cases) operation being performed.
      *
      * @return Location in input or output that triggered the problem reported, if
-     *    available; {@code null} otherwise.
+     *    available; {@link TokenStreamLocation#NA} if not available; {@code null}
+     *    if cleared.
      */
     public TokenStreamLocation getLocation() { return _location; }
 

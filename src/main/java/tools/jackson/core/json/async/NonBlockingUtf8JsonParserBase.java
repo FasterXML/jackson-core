@@ -2735,6 +2735,9 @@ public abstract class NonBlockingUtf8JsonParserBase
             _quotedDigits = bytesRead;
             return -1;
         }
+        if (bytesRead < -2) { // within multi-byte UTF-8 character after backslash
+            return _decodeEscapedUTF8(value, -2 - bytesRead);
+        }
         int c = getNextSignedByteFromBuffer();
         if (bytesRead == -1) { // expecting first char after backslash
             switch (c) {
@@ -2760,12 +2763,10 @@ public abstract class NonBlockingUtf8JsonParserBase
                 break;
 
             default:
-                {
-                 // !!! TODO: Decode UTF-8 characters properly...
-    //              char ch = (char) _decodeCharForError(c);
-                    char ch = (char) c;
-                    return _handleUnrecognizedCharacterEscape(ch);
+                if (c < 0) {
+                    return _startEscapedUTF8(c & 0xFF);
                 }
+                return _handleUnrecognizedCharacterEscape((char) c);
             }
             if (_inputPtr >= _inputEnd) {
                 _quotedDigits = 0;
@@ -3214,12 +3215,10 @@ public abstract class NonBlockingUtf8JsonParserBase
             break;
 
         default:
-            {
-             // !!! TODO: Decode UTF-8 characters properly...
-//              char ch = (char) _decodeCharForError(c);
-                char ch = (char) c;
-                return _handleUnrecognizedCharacterEscape(ch);
+            if (c < 0) { // callers ensure input has enough bytes, so cannot suspend
+                return _startEscapedUTF8(c & 0xFF);
             }
+            return _handleUnrecognizedCharacterEscape((char) c);
         }
 
         int ch = getNextSignedByteFromBuffer();
@@ -3252,6 +3251,48 @@ public abstract class NonBlockingUtf8JsonParserBase
     /* Internal methods, UTF8 decoding
     /**********************************************************************
      */
+
+    // 10-Oct-2026, tatu: [core#1756] Decodes (possibly split) multi-byte UTF-8 character
+    //   after backslash, like blocking parsers do ([core#1744]). If input runs out,
+    //   suspends with `_quotedDigits` of -3, -4 or -5 (1, 2 or 3 bytes still needed)
+    private int _startEscapedUTF8(int lead) throws JacksonException
+    {
+        final int needed;
+        if ((lead & 0xE0) == 0xC0) {
+            needed = 1;
+        } else if ((lead & 0xF0) == 0xE0) {
+            needed = 2;
+        } else if ((lead & 0xF8) == 0xF0) {
+            needed = 3;
+        } else {
+            _reportInvalidInitial(lead);
+            return -1; // never gets here
+        }
+        return _decodeEscapedUTF8(lead & (0x7F >> (needed + 1)), needed);
+    }
+
+    private int _decodeEscapedUTF8(int value, int needed) throws JacksonException
+    {
+        do {
+            if (_inputPtr >= _inputEnd) {
+                _quoted32 = value;
+                _quotedDigits = -2 - needed;
+                return -1;
+            }
+            int d = getNextUnsignedByteFromBuffer();
+            if ((d & 0xC0) != 0x080) {
+                _reportInvalidOther(d, _inputPtr);
+            }
+            value = (value << 6) | (d & 0x3F);
+        } while (--needed > 0);
+        // supplementary characters (cannot be returned as `char`) and surrogates
+        // (invalid in UTF-8) are rejected, instead of being truncated
+        if (value > 0xFFFF || (value >= 0xD800 && value <= 0xDFFF)) {
+            throw _constructReadException("Unrecognized character escape "+_getCharDesc(value),
+                    _currentLocationMinusOne());
+        }
+        return _handleUnrecognizedCharacterEscape((char) value);
+    }
 
     private final int _decodeUTF8_2(int c, int d) throws JacksonException
     {

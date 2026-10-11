@@ -168,8 +168,17 @@ public abstract class NonBlockingJsonParserBase
 
     protected int _pendingBytes;
 
+    /**
+     * Partially decoded value of escape sequence split across input buffers.
+     */
     protected int _quoted32;
 
+    /**
+     * State of escape sequence split across input buffers: non-negative value
+     * is the number of hex digits of unicode escape read so far; negative values
+     * are special states (see {@code QUOTED_xxx} constants of
+     * {@link NonBlockingUtf8JsonParserBase}).
+     */
     protected int _quotedDigits;
 
     /**

@@ -36,6 +36,22 @@ public abstract class NonBlockingUtf8JsonParserBase
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
 
+    // Special (negative) values of `_quotedDigits`, for resuming decoding of
+    // escape split across input buffers:
+
+    // Backslash read, nothing after it yet
+    private final static int QUOTED_AFTER_BACKSLASH = -1;
+
+    // In name, high surrogate escape decoded, but not backslash of low surrogate escape
+    private final static int QUOTED_BEFORE_LOW_SURROGATE = -2;
+
+    // Lead byte (in `_quoted32`) of multi-byte UTF-8 character after backslash read,
+    // but not first continuation byte
+    private final static int QUOTED_UTF8_LEAD = -3;
+
+    // `QUOTED_UTF8_LEAD - n` (-4 or -5): within multi-byte UTF-8 character after
+    // backslash, first continuation byte read, `n` (1 or 2) bytes still needed
+
     /*
     /**********************************************************************
     /* Input source config
@@ -2695,7 +2711,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         _pendingSurrogateInName = highSurrogate;
         _quoted32 = 0;
-        _quotedDigits = -2;
+        _quotedDigits = QUOTED_BEFORE_LOW_SURROGATE;
         return _finishLowSurrogateInName();
     }
 
@@ -2704,7 +2720,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // Clear up-front so failures below do not leave stale state; restored if suspending
         final int highSurrogate = _pendingSurrogateInName;
         _pendingSurrogateInName = 0;
-        if (_quotedDigits == -2) {
+        if (_quotedDigits == QUOTED_BEFORE_LOW_SURROGATE) {
             // Need to read the backslash that starts the low surrogate escape
             if (_inputPtr >= _inputEnd) {
                 _pendingSurrogateInName = highSurrogate;
@@ -2715,11 +2731,11 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportError("Broken surrogate pair in property name: expected '\\' to start low surrogate, got 0x"
                         + Integer.toHexString(b));
             }
-            _quotedDigits = -1;
+            _quotedDigits = QUOTED_AFTER_BACKSLASH;
             _quoted32 = 0;
         }
         // Nothing after backslash read yet? Can use fast path if fully buffered
-        int ch = (_quotedDigits == -1) ? _decodeCharEscape()
+        int ch = (_quotedDigits == QUOTED_AFTER_BACKSLASH) ? _decodeCharEscape()
                 : _decodeSplitEscaped(_quoted32, _quotedDigits);
         if (ch < 0) {
             _pendingSurrogateInName = highSurrogate;
@@ -2735,11 +2751,15 @@ public abstract class NonBlockingUtf8JsonParserBase
             _quotedDigits = bytesRead;
             return -1;
         }
-        if (bytesRead < -2) { // within multi-byte UTF-8 character after backslash
-            return _decodeEscapedUTF8(value, -2 - bytesRead);
+        // within multi-byte UTF-8 character after backslash?
+        if (bytesRead == QUOTED_UTF8_LEAD) {
+            return _decodeEscapedUTF8Second(value, _utf8ContinuationCount(value));
+        }
+        if (bytesRead < QUOTED_UTF8_LEAD) {
+            return _decodeEscapedUTF8(value, QUOTED_UTF8_LEAD - bytesRead);
         }
         int c = getNextSignedByteFromBuffer();
-        if (bytesRead == -1) { // expecting first char after backslash
+        if (bytesRead == QUOTED_AFTER_BACKSLASH) { // expecting first char after backslash
             switch (c) {
                 // First, ones that are mapped
             case 'b':
@@ -3048,7 +3068,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         switch (type) {
         case 1:
-            c = _decodeSplitEscaped(0, -1);
+            c = _decodeSplitEscaped(0, QUOTED_AFTER_BACKSLASH);
             if (c < 0) {
                 _minorState = MINOR_VALUE_STRING_ESCAPE;
                 return false;
@@ -3184,7 +3204,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         int left = _inputEnd - _inputPtr;
         if (left < 5) { // offline boundary-checking case:
-            return _decodeSplitEscaped(0, -1);
+            return _decodeSplitEscaped(0, QUOTED_AFTER_BACKSLASH);
         }
         return _decodeFastCharEscape();
     }
@@ -3215,8 +3235,13 @@ public abstract class NonBlockingUtf8JsonParserBase
             break;
 
         default:
-            if (c < 0) { // callers ensure input has enough bytes, so cannot suspend
-                return _startEscapedUTF8(c & 0xFF);
+            if (c < 0) {
+                c = _startEscapedUTF8(c & 0xFF);
+                // callers ensure at least 4 bytes after backslash, so cannot suspend
+                if (c < 0) {
+                    _throwInternal();
+                }
+                return c;
             }
             return _handleUnrecognizedCharacterEscape((char) c);
         }
@@ -3254,29 +3279,46 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     // 10-Oct-2026, tatu: [core#1756] Decodes (possibly split) multi-byte UTF-8 character
     //   after backslash, like blocking parsers do ([core#1744]). If input runs out,
-    //   suspends with `_quotedDigits` of -3, -4 or -5 (1, 2 or 3 bytes still needed)
+    //   suspends with `_quotedDigits` of `QUOTED_UTF8_LEAD` (before first continuation
+    //   byte, checked against lead byte for overlong encodings) or `QUOTED_UTF8_LEAD - n`
     private int _startEscapedUTF8(int lead) throws JacksonException
     {
-        final int needed;
-        if ((lead & 0xE0) == 0xC0) {
-            needed = 1;
-        } else if ((lead & 0xF0) == 0xE0) {
-            needed = 2;
-        } else if ((lead & 0xF8) == 0xF0) {
-            needed = 3;
-        } else {
+        final int needed = _utf8ContinuationCount(lead);
+        if (needed < 0) {
             _reportInvalidInitial(lead);
             return -1; // never gets here
         }
-        return _decodeEscapedUTF8(lead & (0x7F >> (needed + 1)), needed);
+        if (_inputPtr >= _inputEnd) {
+            _quoted32 = lead;
+            _quotedDigits = QUOTED_UTF8_LEAD;
+            return -1;
+        }
+        return _decodeEscapedUTF8Second(lead, needed);
     }
 
-    private int _decodeEscapedUTF8(int value, int needed) throws JacksonException
+    // Decodes first continuation byte (second byte) of multi-byte UTF-8 character
+    // after backslash, with valid lead byte (and `needed` continuation bytes);
+    // caller ensures it is available
+    private int _decodeEscapedUTF8Second(int lead, int needed) throws JacksonException
+    {
+        int d = getNextUnsignedByteFromBuffer();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d, _inputPtr);
+        }
+        _verifyUTF8NotOverlong(lead, d);
+        int value = ((lead & (0x3F >> needed)) << 6) | (d & 0x3F);
+        if (needed == 1) {
+            return _handleEscapedUTF8Char(value);
+        }
+        return _decodeEscapedUTF8(value, needed - 1);
+    }
+
+    private int _decodeEscapedUTF8(int value, int remaining) throws JacksonException
     {
         do {
             if (_inputPtr >= _inputEnd) {
                 _quoted32 = value;
-                _quotedDigits = -2 - needed;
+                _quotedDigits = QUOTED_UTF8_LEAD - remaining;
                 return -1;
             }
             int d = getNextUnsignedByteFromBuffer();
@@ -3284,14 +3326,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportInvalidOther(d, _inputPtr);
             }
             value = (value << 6) | (d & 0x3F);
-        } while (--needed > 0);
-        // supplementary characters (cannot be returned as `char`) and surrogates
-        // (invalid in UTF-8) are rejected, instead of being truncated
-        if (value > 0xFFFF || (value >= 0xD800 && value <= 0xDFFF)) {
-            throw _constructReadException("Unrecognized character escape "+_getCharDesc(value),
-                    _currentLocationMinusOne());
-        }
-        return _handleUnrecognizedCharacterEscape((char) value);
+        } while (--remaining > 0);
+        return _handleEscapedUTF8Char(value);
     }
 
     private final int _decodeUTF8_2(int c, int d) throws JacksonException

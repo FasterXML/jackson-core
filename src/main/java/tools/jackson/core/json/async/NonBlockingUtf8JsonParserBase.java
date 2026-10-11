@@ -3318,6 +3318,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             prevCount = 2;
             next = getNextSignedByteFromBuffer();
         }
+        // [core#1753]: if suspended with `prevCount` of 2 or 3, range was verified above
         if (prevCount == 2) {
             if ((next & 0xC0) != 0x080) {
                 _reportInvalidOther(next & 0xFF, _inputPtr);

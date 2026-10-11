@@ -170,8 +170,19 @@ public abstract class NonBlockingJsonParserBase
 
     protected int _quad1;
 
+    /**
+     * Partially decoded state split across input buffers; for UTF-8 sequences
+     * in String values, bits decoded so far. For comments, minor state to
+     * return to after comment.
+     */
     protected int _pending32;
 
+    /**
+     * Companion to {@link #_pending32}: for UTF-8 sequences in String values,
+     * number of bytes decoded so far (for 4-byte sequences, range has already
+     * been verified if 2 or more). For comments, 4-byte UTF-8 lead byte whose
+     * range is yet to be verified against the following byte (0 if none).
+     */
     protected int _pendingBytes;
 
     /**

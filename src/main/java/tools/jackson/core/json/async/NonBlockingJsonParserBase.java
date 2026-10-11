@@ -170,8 +170,27 @@ public abstract class NonBlockingJsonParserBase
 
     protected int _quad1;
 
+    /**
+     * State of token suspended at end of input, meaning depends on minor state:
+     *<ul>
+     * <li>Property names: current (partial) quad</li>
+     * <li>UTF-8 sequences in String values: bits decoded so far</li>
+     * <li>Keywords, BOM: number of bytes matched so far</li>
+     * <li>Comments: minor state to return to after comment</li>
+     *</ul>
+     */
     protected int _pending32;
 
+    /**
+     * Companion to {@link #_pending32}, meaning depends on minor state:
+     *<ul>
+     * <li>Property names: number of bytes in current quad</li>
+     * <li>UTF-8 sequences in String values: number of bytes decoded so far
+     *   (for 4-byte sequences, range already verified if 2 or more)</li>
+     * <li>Comments: 4-byte UTF-8 lead byte whose range is yet to be verified
+     *   against the following byte (0 if none)</li>
+     *</ul>
+     */
     protected int _pendingBytes;
 
     /**

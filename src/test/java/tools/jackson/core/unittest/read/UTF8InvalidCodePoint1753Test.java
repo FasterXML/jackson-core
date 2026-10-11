@@ -13,6 +13,7 @@ import tools.jackson.core.unittest.testutil.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for [jackson-core#1753]: 4-byte UTF-8 sequences outside of
@@ -85,6 +86,53 @@ class UTF8InvalidCodePoint1753Test
                 _verifyRejectedAsync(r, _doc(ctxt, r.bytes));
             }
         }
+    }
+
+    // Error location must point to invalid sequence, not start of String
+    @Test
+    void errorLocationForInvalidUtf8() throws Exception
+    {
+        _verifyErrorLocation(REJECTED[3].bytes, _expMessage(REJECTED[3]));
+        // and same for other invalid multi-byte sequences
+        _verifyErrorLocation(new int[] { 0xC3, 0x41 }, "Invalid UTF-8 middle byte 0x41");
+        _verifyErrorLocation(new int[] { 0xE2, 0x41, 0x80 }, "Invalid UTF-8 middle byte 0x41");
+        _verifyErrorLocation(new int[] { 0xED, 0xA0, 0x80 }, "Illegal surrogate character 0xd800");
+    }
+
+    private void _verifyErrorLocation(int[] sequence, String expMsg) throws Exception
+    {
+        // Leading multi-byte char and trailing content to get async parser to decode
+        // invalid sequence on its fast (non-split) path, with `_inputPtr` not synced
+        final String prefix = "[\"\u00E9" + "a".repeat(40);
+        final byte[] doc = _doc(new String[] { prefix, "\",1,2,3,4,5,6,7,8,9]" }, sequence);
+        final int minColumn = prefix.length() + 1;
+        // (DataInput-backed parser does not track location)
+        for (int mode : new int[] { MODE_INPUT_STREAM, MODE_INPUT_STREAM_THROTTLED }) {
+            StreamReadException e = assertThrows(StreamReadException.class, () -> {
+                try (JsonParser p = createParser(FACTORY, mode, doc)) {
+                    assertToken(JsonToken.START_ARRAY, p.nextToken());
+                    assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                    p.getString();
+                }
+            });
+            _verifyColumn(e, expMsg, minColumn, "mode=" + mode + ", doc=" + _desc(doc));
+        }
+        for (boolean byteBuffer : new boolean[] { false, true }) {
+            try (AsyncReaderWrapper p = byteBuffer
+                    ? AsyncTestBase.asyncForByteBuffer(FACTORY, 1000, doc, 0)
+                    : AsyncTestBase.asyncForBytes(FACTORY, 1000, doc, 0)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                StreamReadException e = assertThrows(StreamReadException.class, p::nextToken);
+                _verifyColumn(e, expMsg, minColumn, "byteBuffer=" + byteBuffer + ", doc=" + _desc(doc));
+            }
+        }
+    }
+
+    private void _verifyColumn(StreamReadException e, String expMsg, int minColumn, String desc)
+    {
+        verifyException(e, expMsg);
+        final int column = e.getLocation().getColumnNr();
+        assertTrue(column >= minColumn, desc + ": column " + column + " < " + minColumn);
     }
 
     private void _verifyAccepted(int[] sequence, String expected) throws Exception

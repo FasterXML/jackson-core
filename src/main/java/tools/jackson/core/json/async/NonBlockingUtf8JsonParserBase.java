@@ -332,7 +332,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishCComment(_pending32, false, _pendingBytes);
         case MINOR_COMMENT_CPP:
         case MINOR_COMMENT_YAML:
-            return _finishLineComment(_pending32, _minorState, _pendingBytes);
+            return _resumeLineComment(_pending32, _minorState, _pendingBytes);
         }
         VersionUtil.throwInternal();
         return null;
@@ -1048,7 +1048,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishLineComment(int fromMinorState, int commentState,
+    // Resumption only: comment feature already verified when comment started
+    private final JsonToken _resumeLineComment(int fromMinorState, int commentState,
             int utf8Lead) throws JacksonException
     {
         if (!_skipLineComment(fromMinorState, commentState, utf8Lead)) {
@@ -1116,13 +1117,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
-            if (utf8Lead != 0) {
-                _verifyUtf8_4LeadInComment(utf8Lead, ch);
-                utf8Lead = 0;
-            }
-            if ((ch & 0xF8) == 0xF0) {
-                utf8Lead = ch;
-            } else if (ch < 0x020) {
+            utf8Lead = _checkUtf8_4InComment(utf8Lead, ch);
+            if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
                     _currInputRowStart = _inputPtr;
@@ -1150,13 +1146,8 @@ public abstract class NonBlockingUtf8JsonParserBase
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
-            if (utf8Lead != 0) {
-                _verifyUtf8_4LeadInComment(utf8Lead, ch);
-                utf8Lead = 0;
-            }
-            if ((ch & 0xF8) == 0xF0) {
-                utf8Lead = ch;
-            } else if (ch < 0x020) {
+            utf8Lead = _checkUtf8_4InComment(utf8Lead, ch);
+            if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
                     _currInputRowStart = _inputPtr;
@@ -1178,13 +1169,15 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
     }
 
-    // [core#1753]: comment contents are not otherwise UTF-8 decoded, but 4-byte sequences
-    //   must still be range checked to match blocking parsers
-    private final void _verifyUtf8_4LeadInComment(int lead, int ch) throws JacksonException
+    // 10-Oct-2026, tatu: [core#1753] Comment contents are not otherwise UTF-8 decoded,
+    //   but 4-byte sequences are range checked like blocking parsers do
+    // @return `ch` if it is a 4-byte UTF-8 lead byte (to check against next byte); 0 if not
+    private final int _checkUtf8_4InComment(int utf8Lead, int ch) throws JacksonException
     {
-        if ((ch & 0xC0) == 0x80) {
-            _verifyUtf8_4Range(((lead & 0x07) << 6) | (ch & 0x3F));
+        if ((utf8Lead != 0) && ((ch & 0xC0) == 0x80)) {
+            _verifyUtf8_4Range(((utf8Lead & 0x07) << 6) | (ch & 0x3F));
         }
+        return ((ch & 0xF8) == 0xF0) ? ch : 0;
     }
 
     private final JsonToken _startAfterComment(int fromMinorState) throws JacksonException
@@ -3060,12 +3053,15 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
+                    _inputPtr = ptr; // for error location
                     c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
                     break;
                 case 3: // 3-byte UTF
+                    _inputPtr = ptr; // for error location
                     c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
                     break;
                 case 4: // 4-byte UTF
+                    _inputPtr = ptr; // for error location
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
                             getByteFromBuffer(ptr++));
                     // Let's add first part right away:
@@ -3180,12 +3176,15 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
+                    _inputPtr = ptr; // for error location
                     c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
                     break;
                 case 3: // 3-byte UTF
+                    _inputPtr = ptr; // for error location
                     c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
                     break;
                 case 4: // 4-byte UTF
+                    _inputPtr = ptr; // for error location
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
                             getByteFromBuffer(ptr++));
                     // Let's add first part right away:
@@ -3318,7 +3317,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             prevCount = 2;
             next = getNextSignedByteFromBuffer();
         }
-        // [core#1753]: if suspended with `prevCount` of 2 or 3, range was verified above
+        // 10-Oct-2026, tatu: [core#1753] If suspended with `prevCount` of 2 or 3,
+        //   range was already verified above
         if (prevCount == 2) {
             if ((next & 0xC0) != 0x080) {
                 _reportInvalidOther(next & 0xFF, _inputPtr);

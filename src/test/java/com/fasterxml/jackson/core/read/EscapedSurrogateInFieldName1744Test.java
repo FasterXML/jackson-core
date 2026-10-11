@@ -101,10 +101,10 @@ class EscapedSurrogateInFieldName1744Test extends JUnit5TestBase
         // CESU-8 style encoded high surrogate U+D83D
         final int[] cesu = { 0xED, 0xA0, 0xBD };
         for (int mode : ALL_BINARY_MODES) {
-            _testBroken(f, mode, concat("{\"\\", tooBig, "\":1}"), "Unrecognized character escape");
-            _testBroken(f, mode, concat("[\"\\", tooBig, "\"]"), "Unrecognized character escape");
-            _testBroken(f, mode, concat("{\"\\", cesu, "\\uDE00\":1}"), "Unrecognized character escape");
-            _testBroken(f, mode, concat("[\"\\", cesu, "\\uDE00\"]"), "Unrecognized character escape");
+            _testBroken(f, mode, utf8Bytes("{\"\\", tooBig, "\":1}"), "Unrecognized character escape");
+            _testBroken(f, mode, utf8Bytes("[\"\\", tooBig, "\"]"), "Unrecognized character escape");
+            _testBroken(f, mode, utf8Bytes("{\"\\", cesu, "\\uDE00\":1}"), "Unrecognized character escape");
+            _testBroken(f, mode, utf8Bytes("[\"\\", cesu, "\\uDE00\"]"), "Unrecognized character escape");
         }
     }
 
@@ -188,16 +188,5 @@ class EscapedSurrogateInFieldName1744Test extends JUnit5TestBase
         } catch (StreamReadException e) {
             verifyException(e, expMsg);
         }
-    }
-
-    private static byte[] concat(String a, int[] bytes, String b) {
-        byte[] ab = utf8Bytes(a), bb = utf8Bytes(b);
-        byte[] result = new byte[ab.length + bytes.length + bb.length];
-        System.arraycopy(ab, 0, result, 0, ab.length);
-        for (int i = 0; i < bytes.length; ++i) {
-            result[ab.length + i] = (byte) bytes[i];
-        }
-        System.arraycopy(bb, 0, result, ab.length + bytes.length, bb.length);
-        return result;
     }
 }

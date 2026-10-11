@@ -153,10 +153,11 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
         final String apos = new String(Character.toChars(0x10027));
         for (String suffix : SUFFIXES) {
             for (JsonFactory f : new JsonFactory[] { FACTORY, ANY_ESCAPE }) {
+                // full character in message, not truncated to 16 bits
                 _testBroken(v, f, utf8Bytes("{\"\\" + SMILEY + suffix + "\":1}"),
-                        "Unrecognized character escape");
+                        "Unrecognized character escape '" + SMILEY + "' (code 128512 / 0x1f600)");
                 _testBroken(v, f, utf8Bytes("[\"\\" + SMILEY + suffix + "\"]"),
-                        "Unrecognized character escape");
+                        "Unrecognized character escape '" + SMILEY + "' (code 128512 / 0x1f600)");
             }
             _testBroken(v, APOS_FACTORY, utf8Bytes("{'\\" + apos + suffix + "':1}"),
                     "Unrecognized character escape");
@@ -174,24 +175,24 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
         // CESU-8 style encoded high surrogate U+D83D
         final int[] cesu = { 0xED, 0xA0, 0xBD };
         for (String suffix : SUFFIXES) {
-            _testBroken(v, ANY_ESCAPE, concat("{\"\\", tooBig, suffix + "\":1}"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", tooBig, suffix + "\":1}"),
                     "Unrecognized character escape");
-            _testBroken(v, ANY_ESCAPE, concat("[\"\\", tooBig, suffix + "\"]"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", tooBig, suffix + "\"]"),
                     "Unrecognized character escape");
-            _testBroken(v, ANY_ESCAPE, concat("{\"\\", cesu, "\\uDE00" + suffix + "\":1}"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", cesu, "\\uDE00" + suffix + "\":1}"),
                     "Unrecognized character escape");
-            _testBroken(v, ANY_ESCAPE, concat("[\"\\", cesu, "\\uDE00" + suffix + "\"]"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", cesu, "\\uDE00" + suffix + "\"]"),
                     "Unrecognized character escape");
 
             // continuation byte expected but not found
-            _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xC3, 0x41 }, suffix + "\"]"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xC3, 0x41 }, suffix + "\"]"),
                     "Invalid UTF-8 middle byte 0x41");
-            _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { 0xE2, 0x82, 0x41 }, suffix + "\":1}"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", new int[] { 0xE2, 0x82, 0x41 }, suffix + "\":1}"),
                     "Invalid UTF-8 middle byte 0x41");
             // not a valid lead byte
-            _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0x80 }, suffix + "\"]"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0x80 }, suffix + "\"]"),
                     "Invalid UTF-8 start byte 0x80");
-            _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { 0xF8 }, suffix + "\":1}"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", new int[] { 0xF8 }, suffix + "\":1}"),
                     "Invalid UTF-8 start byte 0xf8");
         }
     }
@@ -205,24 +206,24 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
         for (String suffix : SUFFIXES) {
             // 0xC0 and 0xC1 can only start overlong 2-byte encodings
             for (JsonFactory f : new JsonFactory[] { FACTORY, ANY_ESCAPE }) {
-                _testBroken(v, f, concat("[\"\\", new int[] { 0xC0, 0xA2 }, suffix + "\"]"),
+                _testBroken(v, f, utf8Bytes("[\"\\", new int[] { 0xC0, 0xA2 }, suffix + "\"]"),
                         "Invalid UTF-8 start byte 0xc0");
-                _testBroken(v, f, concat("{\"\\", new int[] { 0xC1, 0x9C }, suffix + "\":1}"),
+                _testBroken(v, f, utf8Bytes("{\"\\", new int[] { 0xC1, 0x9C }, suffix + "\":1}"),
                         "Invalid UTF-8 start byte 0xc1");
             }
             // 3-byte encoding of '"', 4-byte encodings of '\'' and NUL
-            _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xE0, 0x80, 0xA2 }, suffix + "\"]"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xE0, 0x80, 0xA2 }, suffix + "\"]"),
                     "Invalid UTF-8: overlong 3-byte encoding of 0x22");
-            _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { 0xE0, 0x80, 0xA2 }, suffix + "\":1}"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", new int[] { 0xE0, 0x80, 0xA2 }, suffix + "\":1}"),
                     "Invalid UTF-8: overlong 3-byte encoding of 0x22");
-            _testBroken(v, APOS_FACTORY, concat("['\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, suffix + "']"),
+            _testBroken(v, APOS_FACTORY, utf8Bytes("['\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, suffix + "']"),
                     "Invalid UTF-8: overlong 4-byte encoding of 0x27");
-            _testBroken(v, APOS_FACTORY, concat("{'\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, suffix + "':1}"),
+            _testBroken(v, APOS_FACTORY, utf8Bytes("{'\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, suffix + "':1}"),
                     "Invalid UTF-8: overlong 4-byte encoding of 0x27");
-            _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xF0, 0x80, 0x80, 0x80 }, suffix + "\"]"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xF0, 0x80, 0x80, 0x80 }, suffix + "\"]"),
                     "Invalid UTF-8: overlong 4-byte encoding of 0x0");
             // 3-byte encoding of 'é' (needs only 2 bytes)
-            _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xE0, 0x83, 0xA9 }, suffix + "\"]"),
+            _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xE0, 0x83, 0xA9 }, suffix + "\"]"),
                     "Invalid UTF-8: overlong 3-byte encoding of 0xe9");
         }
     }
@@ -235,23 +236,31 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
         for (String suffix : SUFFIXES) {
             for (int lead : new int[] { 0xF5, 0xF6, 0xF7 }) {
                 final String exp = "Invalid UTF-8 start byte 0x" + Integer.toHexString(lead);
-                _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { lead, 0x80, 0x80, 0x80 }, suffix + "\"]"),
+                _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { lead, 0x80, 0x80, 0x80 }, suffix + "\"]"),
                         exp);
-                _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { lead, 0x80, 0x80, 0x80 }, suffix + "\":1}"),
+                _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", new int[] { lead, 0x80, 0x80, 0x80 }, suffix + "\":1}"),
                         exp);
             }
         }
     }
 
-    // Rejected escaped character should be reported at its lead byte
+    // Rejected escaped character should be reported at its lead byte: supplementary
+    // one always, BMP one if escaping any character not enabled
     @ParameterizedTest
     @EnumSource(Variant.class)
-    void escapedSupplementaryCharErrorLocation(Variant v) throws Exception
+    void escapedCharErrorLocation(Variant v) throws Exception
     {
-        for (String doc : new String[] { "{\"\\" + SMILEY + "\":1}", "[\"\\" + SMILEY + "\"]" }) {
+        _testErrorLocation(v, ANY_ESCAPE, SMILEY);
+        _testErrorLocation(v, FACTORY, "€");
+        _testErrorLocation(v, FACTORY, "é");
+    }
+
+    private void _testErrorLocation(Variant v, JsonFactory f, String ch) throws Exception
+    {
+        for (String doc : new String[] { "{\"\\" + ch + "\":1}", "[\"\\" + ch + "\"]" }) {
             final byte[] data = utf8Bytes(doc);
             for (int bytesPerRead = 1; bytesPerRead <= data.length; ++bytesPerRead) {
-                try (AsyncReaderWrapper r = v.wrap(ANY_ESCAPE, bytesPerRead, data)) {
+                try (AsyncReaderWrapper r = v.wrap(f, bytesPerRead, data)) {
                     while (r.nextToken() != null) {
                         r.currentText();
                     }
@@ -271,10 +280,10 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
     @EnumSource(Variant.class)
     void eofWithinEscapedMultiByteChar(Variant v) throws Exception
     {
-        _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xC3 }, ""), "Unexpected end-of-input");
-        _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xE2, 0x82 }, ""), "Unexpected end-of-input");
-        _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { 0xC3 }, ""), "Unexpected end-of-input");
-        _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { 0xE2, 0x82 }, ""), "Unexpected end-of-input");
+        _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xC3 }, ""), "Unexpected end-of-input");
+        _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xE2, 0x82 }, ""), "Unexpected end-of-input");
+        _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", new int[] { 0xC3 }, ""), "Unexpected end-of-input");
+        _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", new int[] { 0xE2, 0x82 }, ""), "Unexpected end-of-input");
     }
 
     /*
@@ -319,14 +328,4 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
         }
     }
 
-    private static byte[] concat(String a, int[] bytes, String b) {
-        byte[] ab = utf8Bytes(a), bb = utf8Bytes(b);
-        byte[] result = new byte[ab.length + bytes.length + bb.length];
-        System.arraycopy(ab, 0, result, 0, ab.length);
-        for (int i = 0; i < bytes.length; ++i) {
-            result[ab.length + i] = (byte) bytes[i];
-        }
-        System.arraycopy(bb, 0, result, ab.length + bytes.length, bb.length);
-        return result;
-    }
 }

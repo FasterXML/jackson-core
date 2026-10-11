@@ -50,9 +50,9 @@ public abstract class NonBlockingUtf8JsonParserBase
     // In name, high surrogate escape decoded, but not backslash of low surrogate escape
     private final static int QUOTED_BEFORE_LOW_SURROGATE = -2;
 
-    // `QUOTED_UTF8_BASE - n` (-3 to -5): within multi-byte UTF-8 character after
+    // `QUOTED_UTF8_BASE - n` (-4 to -6): within multi-byte UTF-8 character after
     // backslash, `n` (1 to 3) bytes still needed
-    private final static int QUOTED_UTF8_BASE = -2;
+    private final static int QUOTED_UTF8_BASE = -3;
 
     /*
     /**********************************************************************

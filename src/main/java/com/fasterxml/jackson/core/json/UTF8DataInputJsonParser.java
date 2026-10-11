@@ -2525,35 +2525,22 @@ public class UTF8DataInputJsonParser
         if (lead < 0x80) {
             return _handleUnrecognizedCharacterEscape((char) lead);
         }
-        // 10-Oct-2026, tatu: [core#1756] also reject invalid lead bytes, overlong encodings
-        final int needed = _utf8ContinuationCount(lead);
-        if (needed < 0) {
-            _reportInvalidInitial(lead);
-        }
-        return _handleEscapedUTF8Char(_decodeCharForError(lead), needed);
+        // 10-Oct-2026, tatu: [core#1756] invalid lead bytes reported by `_decodeCharForError()`;
+        //   overlong encodings by `_handleEscapedUTF8Char()`
+        final int cp = _decodeCharForError(lead);
+        return _handleEscapedUTF8Char(cp, _utf8ContinuationCount(lead));
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException
     {
         int c = firstByte & 0xFF;
         if (c > 0x7F) { // if >= 0, is ascii and fine as is
-            int needed;
-
             // Ok; if we end here, we got multi-byte combination
-            if ((c & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
-                c &= 0x1F;
-                needed = 1;
-            } else if ((c & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
-                c &= 0x0F;
-                needed = 2;
-            } else if ((c & 0xF8) == 0xF0) {
-                // 4 bytes; double-char with surrogates and all...
-                c &= 0x07;
-                needed = 3;
-            } else {
-                _reportInvalidInitial(c & 0xFF);
-                needed = 1; // never gets here
+            final int needed = _utf8ContinuationCount(c);
+            if (needed < 0) {
+                _reportInvalidInitial(c);
             }
+            c &= (0x3F >> needed); // 0x1F, 0x0F or 0x07
 
             int d = _inputData.readUnsignedByte();
             if ((d & 0xC0) != 0x080) {

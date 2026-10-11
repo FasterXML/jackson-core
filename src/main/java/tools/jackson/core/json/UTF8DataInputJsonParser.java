@@ -445,6 +445,8 @@ public class UTF8DataInputJsonParser
         byte[] buf = _ioContext.allocBase64Buffer();
         try {
             return _readBinary(b64variant, out, buf);
+        } catch (EOFException e) {
+            return _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         } finally {
@@ -2767,7 +2769,7 @@ public class UTF8DataInputJsonParser
         try {
             return _decodeCharForError(firstByte);
         } catch (EOFException e) {
-            return _reportInvalidEOF();
+            return _reportInvalidEOF(" in a multi-byte UTF-8 character", _currToken);
         }
     }
 

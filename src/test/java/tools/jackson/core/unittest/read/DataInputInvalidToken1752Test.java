@@ -1,6 +1,7 @@
 package tools.jackson.core.unittest.read;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,6 +66,18 @@ class DataInputInvalidToken1752Test
     }
 
     @Test
+    void readBinaryTruncatedAtEOF() throws Exception
+    {
+        for (int mode : BYTE_MODES) {
+            try (JsonParser p = createParser(JSON_F, mode, utf8Bytes("\"AQID"))) {
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                assertThrows(UnexpectedEndOfInputException.class,
+                        () -> p.readBinaryValue(new ByteArrayOutputStream()));
+            }
+        }
+    }
+
+    @Test
     void invalidTokenAtEOF() throws Exception
     {
         _testInvalidToken("abc", "abc");
@@ -122,9 +135,12 @@ class DataInputInvalidToken1752Test
     {
         for (int mode : BYTE_MODES) {
             try (JsonParser p = createParser(JSON_F, mode, doc)) {
-                assertThrows(UnexpectedEndOfInputException.class, () -> {
+                UnexpectedEndOfInputException e = assertThrows(UnexpectedEndOfInputException.class, () -> {
                     while (p.nextToken() != null) { }
                 });
+                if (mode == MODE_DATA_INPUT) {
+                    verifyException(e, "in a multi-byte UTF-8 character");
+                }
             }
         }
     }

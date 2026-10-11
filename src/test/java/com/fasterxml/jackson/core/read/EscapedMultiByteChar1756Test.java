@@ -43,15 +43,15 @@ class EscapedMultiByteChar1756Test extends JUnit5TestBase
             }
             // 3-byte encoding of '"', 4-byte encodings of '\'' and NUL
             _testBroken(ANY_ESCAPE, mode, utf8Bytes("[\"\\", new int[] { 0xE0, 0x80, 0xA2 }, "\"]"),
-                    "Invalid UTF-8: overlong 3-byte encoding of 0x22");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xe0, second byte 0x80)");
             _testBroken(ANY_ESCAPE, mode, utf8Bytes("{\"\\", new int[] { 0xE0, 0x80, 0xA2 }, "\":1}"),
-                    "Invalid UTF-8: overlong 3-byte encoding of 0x22");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xe0, second byte 0x80)");
             _testBroken(APOS_FACTORY, mode, utf8Bytes("['\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, "']"),
-                    "Invalid UTF-8: overlong 4-byte encoding of 0x27");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x80)");
             _testBroken(APOS_FACTORY, mode, utf8Bytes("{'\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, "':1}"),
-                    "Invalid UTF-8: overlong 4-byte encoding of 0x27");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x80)");
             _testBroken(ANY_ESCAPE, mode, utf8Bytes("[\"\\", new int[] { 0xF0, 0x80, 0x80, 0x80 }, "\"]"),
-                    "Invalid UTF-8: overlong 4-byte encoding of 0x0");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x80)");
         }
     }
 

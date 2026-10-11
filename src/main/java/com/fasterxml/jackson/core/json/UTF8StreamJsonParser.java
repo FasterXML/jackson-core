@@ -3326,7 +3326,7 @@ public class UTF8StreamJsonParser
             _reportInvalidInitial(lead);
             return 0; // never gets here
         }
-        return _handleEscapedUTF8Char(_decodeMultiByteChar(lead, needed), needed);
+        return _handleEscapedUTF8Char(_decodeMultiByteChar(lead, needed));
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException
@@ -3375,8 +3375,8 @@ public class UTF8StreamJsonParser
         return c;
     }
 
-    // Decodes rest of multi-byte character, given its lead byte and number of
-    // continuation bytes
+    // Decodes rest of multi-byte character after backslash, given its lead byte and
+    // number of continuation bytes
     private int _decodeMultiByteChar(int lead, int needed) throws IOException
     {
         int c = lead & (0x3F >> needed); // 0x1F, 0x0F or 0x07
@@ -3384,6 +3384,9 @@ public class UTF8StreamJsonParser
             final int d = nextByte();
             if ((d & 0xC0) != 0x080) {
                 _reportInvalidOther(d & 0xFF);
+            }
+            if (i == 0) {
+                _verifyUTF8NotOverlong(lead, d & 0xFF);
             }
             c = (c << 6) | (d & 0x3F);
         }

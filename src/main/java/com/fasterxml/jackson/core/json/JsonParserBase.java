@@ -411,21 +411,22 @@ public abstract class JsonParserBase
     //   beyond U+10FFFF for code point decoded from multi-byte UTF-8 sequence (with `needed`
     //   continuation bytes) in a property name
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
-        _verifyUTF8NotOverlong(ch, needed);
-        if (needed == 2) {
+        if (needed == 1) {
+            if (ch < 0x80) {
+                _reportError("Invalid UTF-8: overlong 2-byte encoding of 0x"+Integer.toHexString(ch));
+            }
+        } else if (needed == 2) {
+            if (ch < 0x800) {
+                _reportError("Invalid UTF-8: overlong 3-byte encoding of 0x"+Integer.toHexString(ch));
+            }
             // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
             if (ch >= 0xD800 && ch <= 0xDFFF) {
                 _reportInvalidUTF8Surrogate(ch);
             }
+        } else if (ch < 0x10000) {
+            _reportError("Invalid UTF-8: overlong 4-byte encoding of 0x"+Integer.toHexString(ch));
         } else if (ch > 0x10FFFF) {
             _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
-        }
-    }
-
-    private void _verifyUTF8NotOverlong(int ch, int needed) throws JsonParseException {
-        final int min = (needed == 1) ? 0x80 : ((needed == 2) ? 0x800 : 0x10000);
-        if (ch < min) {
-            _reportError("Invalid UTF-8: overlong "+(needed+1)+"-byte encoding of 0x"+Integer.toHexString(ch));
         }
     }
 
@@ -446,22 +447,34 @@ public abstract class JsonParserBase
         return (lead < 0xF5) ? 3 : -1;
     }
 
-    // 10-Oct-2026, tatu: [core#1744], [core#1756] Handles multi-byte UTF-8 character
-    //   after backslash (with `needed` continuation bytes) decoded as `cp`: overlong
-    //   encodings are rejected as invalid UTF-8; supplementary characters (cannot be
-    //   returned as `char`) and surrogates (invalid in UTF-8) as unrecognized escapes,
-    //   instead of being truncated. Others are passed to
-    //   `_handleUnrecognizedCharacterEscape()`, like ASCII characters.
+    // 10-Oct-2026, tatu: [core#1756] Verifies that multi-byte UTF-8 character with
+    //   lead byte `lead` and first continuation byte `second` is not overlong: shortest
+    //   form of 3-byte (lead 0xE0) and 4-byte (lead 0xF0) characters needs `second` of
+    //   at least 0xA0 and 0x90, respectively (Unicode Table 3-7). Overlong 2-byte ones
+    //   are excluded by `_utf8ContinuationCount()` (lead 0xC0/0xC1).
     // @since 2.23
-    protected char _handleEscapedUTF8Char(int cp, int needed) throws IOException {
-        _verifyUTF8NotOverlong(cp, needed);
+    protected void _verifyUTF8NotOverlong(int lead, int second) throws JsonParseException {
+        if ((lead == 0xE0 && second < 0xA0) || (lead == 0xF0 && second < 0x90)) {
+            _reportError("Invalid UTF-8: overlong encoding (lead byte 0x"+Integer.toHexString(lead)
+                    +", second byte 0x"+Integer.toHexString(second)+")");
+        }
+    }
+
+    // 10-Oct-2026, tatu: [core#1744], [core#1756] Handles (non-overlong) multi-byte UTF-8
+    //   character after backslash, decoded as `cp`: supplementary characters (cannot be
+    //   returned as `char`) and surrogates (invalid in UTF-8) are rejected, instead of being
+    //   truncated. Others are passed to `_handleUnrecognizedCharacterEscape()`, like ASCII
+    //   characters.
+    // @since 2.23
+    protected char _handleEscapedUTF8Char(int cp) throws IOException {
         if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
-            // point to lead byte of character, not its last byte
+            // point to lead byte of character (4 or 3 bytes long), not its last byte
             throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
-                    _currentLocationMinus(needed + 1));
+                    _currentLocationMinus((cp > 0xFFFF) ? 4 : 3));
         }
         return _handleUnrecognizedCharacterEscape((char) cp);
     }
+
 
     /**
      * Variant of {@link #_currentLocationMinusOne()} for location of {@code count}

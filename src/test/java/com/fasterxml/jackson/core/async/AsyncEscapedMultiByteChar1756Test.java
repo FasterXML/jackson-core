@@ -213,18 +213,18 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
             }
             // 3-byte encoding of '"', 4-byte encodings of '\'' and NUL
             _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xE0, 0x80, 0xA2 }, suffix + "\"]"),
-                    "Invalid UTF-8: overlong 3-byte encoding of 0x22");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xe0, second byte 0x80)");
             _testBroken(v, ANY_ESCAPE, utf8Bytes("{\"\\", new int[] { 0xE0, 0x80, 0xA2 }, suffix + "\":1}"),
-                    "Invalid UTF-8: overlong 3-byte encoding of 0x22");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xe0, second byte 0x80)");
             _testBroken(v, APOS_FACTORY, utf8Bytes("['\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, suffix + "']"),
-                    "Invalid UTF-8: overlong 4-byte encoding of 0x27");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x80)");
             _testBroken(v, APOS_FACTORY, utf8Bytes("{'\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, suffix + "':1}"),
-                    "Invalid UTF-8: overlong 4-byte encoding of 0x27");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x80)");
             _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xF0, 0x80, 0x80, 0x80 }, suffix + "\"]"),
-                    "Invalid UTF-8: overlong 4-byte encoding of 0x0");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x80)");
             // 3-byte encoding of 'é' (needs only 2 bytes)
             _testBroken(v, ANY_ESCAPE, utf8Bytes("[\"\\", new int[] { 0xE0, 0x83, 0xA9 }, suffix + "\"]"),
-                    "Invalid UTF-8: overlong 3-byte encoding of 0xe9");
+                    "Invalid UTF-8: overlong encoding (lead byte 0xe0, second byte 0x83)");
         }
     }
 

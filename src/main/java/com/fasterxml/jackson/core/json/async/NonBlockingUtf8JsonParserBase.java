@@ -50,10 +50,12 @@ public abstract class NonBlockingUtf8JsonParserBase
     // In name, high surrogate escape decoded, but not backslash of low surrogate escape
     private final static int QUOTED_BEFORE_LOW_SURROGATE = -2;
 
-    // `QUOTED_UTF8_BASE - (needed * 4 + remaining)` (-8 to -18): within multi-byte
-    // UTF-8 character after backslash, with `needed` (1 to 3) continuation bytes in
-    // total (to detect overlong encodings), `remaining` (1 to `needed`) not yet read
-    private final static int QUOTED_UTF8_BASE = -3;
+    // Lead byte (in `_quoted32`) of multi-byte UTF-8 character after backslash read,
+    // but not first continuation byte
+    private final static int QUOTED_UTF8_LEAD = -3;
+
+    // `QUOTED_UTF8_LEAD - n` (-4 or -5): within multi-byte UTF-8 character after
+    // backslash, first continuation byte read, `n` (1 or 2) bytes still needed
 
     /*
     /**********************************************************************
@@ -2769,9 +2771,12 @@ public abstract class NonBlockingUtf8JsonParserBase
             _quotedDigits = bytesRead;
             return -1;
         }
-        if (bytesRead < QUOTED_UTF8_BASE) { // within multi-byte UTF-8 character after backslash
-            final int state = QUOTED_UTF8_BASE - bytesRead;
-            return _decodeEscapedUTF8(value, state >> 2, state & 3);
+        // within multi-byte UTF-8 character after backslash?
+        if (bytesRead == QUOTED_UTF8_LEAD) {
+            return _startEscapedUTF8(value);
+        }
+        if (bytesRead < QUOTED_UTF8_LEAD) {
+            return _decodeEscapedUTF8(value, QUOTED_UTF8_LEAD - bytesRead);
         }
         int c = getNextSignedByteFromBuffer();
         if (bytesRead == QUOTED_AFTER_BACKSLASH) { // expecting first char after backslash
@@ -3294,7 +3299,8 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     // 10-Oct-2026, tatu: [core#1756] Decodes (possibly split) multi-byte UTF-8 character
     //   after backslash, like blocking parsers do ([core#1744]). If input runs out,
-    //   suspends with `_quotedDigits` of `QUOTED_UTF8_BASE - (needed * 4 + remaining)`
+    //   suspends with `_quotedDigits` of `QUOTED_UTF8_LEAD` (before first continuation
+    //   byte, checked against lead byte for overlong encodings) or `QUOTED_UTF8_LEAD - n`
     private int _startEscapedUTF8(int lead) throws IOException
     {
         final int needed = _utf8ContinuationCount(lead);
@@ -3302,15 +3308,29 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidInitial(lead);
             return -1; // never gets here
         }
-        return _decodeEscapedUTF8(lead & (0x3F >> needed), needed, needed);
+        if (_inputPtr >= _inputEnd) {
+            _quoted32 = lead;
+            _quotedDigits = QUOTED_UTF8_LEAD;
+            return -1;
+        }
+        int d = getNextUnsignedByteFromBuffer();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d, _inputPtr);
+        }
+        _verifyUTF8NotOverlong(lead, d);
+        int value = ((lead & (0x3F >> needed)) << 6) | (d & 0x3F);
+        if (needed == 1) {
+            return _handleEscapedUTF8Char(value);
+        }
+        return _decodeEscapedUTF8(value, needed - 1);
     }
 
-    private int _decodeEscapedUTF8(int value, int needed, int remaining) throws IOException
+    private int _decodeEscapedUTF8(int value, int remaining) throws IOException
     {
         do {
             if (_inputPtr >= _inputEnd) {
                 _quoted32 = value;
-                _quotedDigits = QUOTED_UTF8_BASE - ((needed << 2) + remaining);
+                _quotedDigits = QUOTED_UTF8_LEAD - remaining;
                 return -1;
             }
             int d = getNextUnsignedByteFromBuffer();
@@ -3319,7 +3339,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             value = (value << 6) | (d & 0x3F);
         } while (--remaining > 0);
-        return _handleEscapedUTF8Char(value, needed);
+        return _handleEscapedUTF8Char(value);
     }
 
     private final int _decodeUTF8_2(int c, int d) throws IOException

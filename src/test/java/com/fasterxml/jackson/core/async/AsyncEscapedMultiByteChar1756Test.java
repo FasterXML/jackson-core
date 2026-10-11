@@ -53,8 +53,9 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
             .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
             .build();
 
-    // 2-byte and 3-byte UTF-8, including highest non-surrogate range
-    private static final String[] BMP_CHARS = { "é", "€", "中", "�" };
+    // 2-byte and 3-byte UTF-8, including highest BMP character (not U+FFFD,
+    // which lossy decoding would produce)
+    private static final String[] BMP_CHARS = { "é", "€", "中", "\uFFFF" };
 
     // vary quad alignment for names
     private static final String[] PREFIXES = { "", "a", "ab", "abc", "abcd", "abcdefghijklm" };
@@ -192,6 +193,77 @@ class AsyncEscapedMultiByteChar1756Test extends AsyncTestBase
                     "Invalid UTF-8 start byte 0x80");
             _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { 0xF8 }, suffix + "\":1}"),
                     "Invalid UTF-8 start byte 0xf8");
+        }
+    }
+
+    // Overlong encodings must not be accepted as (different) character, especially
+    // not as quote, apostrophe or backslash
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void escapedOverlongUTF8Rejected(Variant v) throws Exception
+    {
+        for (String suffix : SUFFIXES) {
+            // 0xC0 and 0xC1 can only start overlong 2-byte encodings
+            for (JsonFactory f : new JsonFactory[] { FACTORY, ANY_ESCAPE }) {
+                _testBroken(v, f, concat("[\"\\", new int[] { 0xC0, 0xA2 }, suffix + "\"]"),
+                        "Invalid UTF-8 start byte 0xc0");
+                _testBroken(v, f, concat("{\"\\", new int[] { 0xC1, 0x9C }, suffix + "\":1}"),
+                        "Invalid UTF-8 start byte 0xc1");
+            }
+            // 3-byte encoding of '"', 4-byte encodings of '\'' and NUL
+            _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xE0, 0x80, 0xA2 }, suffix + "\"]"),
+                    "Invalid UTF-8: overlong 3-byte encoding of 0x22");
+            _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { 0xE0, 0x80, 0xA2 }, suffix + "\":1}"),
+                    "Invalid UTF-8: overlong 3-byte encoding of 0x22");
+            _testBroken(v, APOS_FACTORY, concat("['\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, suffix + "']"),
+                    "Invalid UTF-8: overlong 4-byte encoding of 0x27");
+            _testBroken(v, APOS_FACTORY, concat("{'\\", new int[] { 0xF0, 0x80, 0x80, 0xA7 }, suffix + "':1}"),
+                    "Invalid UTF-8: overlong 4-byte encoding of 0x27");
+            _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xF0, 0x80, 0x80, 0x80 }, suffix + "\"]"),
+                    "Invalid UTF-8: overlong 4-byte encoding of 0x0");
+            // 3-byte encoding of 'é' (needs only 2 bytes)
+            _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { 0xE0, 0x83, 0xA9 }, suffix + "\"]"),
+                    "Invalid UTF-8: overlong 3-byte encoding of 0xe9");
+        }
+    }
+
+    // 0xF5 - 0xF7 can only start encodings beyond U+10FFFF
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void escapedLeadByteBeyondUnicodeRejected(Variant v) throws Exception
+    {
+        for (String suffix : SUFFIXES) {
+            for (int lead : new int[] { 0xF5, 0xF6, 0xF7 }) {
+                final String exp = "Invalid UTF-8 start byte 0x" + Integer.toHexString(lead);
+                _testBroken(v, ANY_ESCAPE, concat("[\"\\", new int[] { lead, 0x80, 0x80, 0x80 }, suffix + "\"]"),
+                        exp);
+                _testBroken(v, ANY_ESCAPE, concat("{\"\\", new int[] { lead, 0x80, 0x80, 0x80 }, suffix + "\":1}"),
+                        exp);
+            }
+        }
+    }
+
+    // Rejected escaped character should be reported at its lead byte
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void escapedSupplementaryCharErrorLocation(Variant v) throws Exception
+    {
+        for (String doc : new String[] { "{\"\\" + SMILEY + "\":1}", "[\"\\" + SMILEY + "\"]" }) {
+            final byte[] data = utf8Bytes(doc);
+            for (int bytesPerRead = 1; bytesPerRead <= data.length; ++bytesPerRead) {
+                try (AsyncReaderWrapper r = v.wrap(ANY_ESCAPE, bytesPerRead, data)) {
+                    while (r.nextToken() != null) {
+                        r.currentText();
+                    }
+                    fail("Should not pass with bytesPerRead=" + bytesPerRead);
+                } catch (StreamReadException e) {
+                    verifyException(e, "Unrecognized character escape");
+                    final String desc = "bytesPerRead=" + bytesPerRead + ", doc " + doc;
+                    assertEquals(3L, e.getLocation().getByteOffset(), desc);
+                    assertEquals(1, e.getLocation().getLineNr(), desc);
+                    assertEquals(4, e.getLocation().getColumnNr(), desc);
+                }
+            }
         }
     }
 

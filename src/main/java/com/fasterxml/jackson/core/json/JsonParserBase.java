@@ -411,23 +411,71 @@ public abstract class JsonParserBase
     //   beyond U+10FFFF for code point decoded from multi-byte UTF-8 sequence (with `needed`
     //   continuation bytes) in a property name
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
-        if (needed == 1) {
-            if (ch < 0x80) {
-                _reportError("Invalid UTF-8: overlong 2-byte encoding of 0x"+Integer.toHexString(ch));
-            }
-        } else if (needed == 2) {
-            if (ch < 0x800) {
-                _reportError("Invalid UTF-8: overlong 3-byte encoding of 0x"+Integer.toHexString(ch));
-            }
+        _verifyUTF8NotOverlong(ch, needed);
+        if (needed == 2) {
             // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
             if (ch >= 0xD800 && ch <= 0xDFFF) {
                 _reportInvalidUTF8Surrogate(ch);
             }
-        } else if (ch < 0x10000) {
-            _reportError("Invalid UTF-8: overlong 4-byte encoding of 0x"+Integer.toHexString(ch));
         } else if (ch > 0x10FFFF) {
             _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
         }
+    }
+
+    private void _verifyUTF8NotOverlong(int ch, int needed) throws JsonParseException {
+        final int min = (needed == 1) ? 0x80 : ((needed == 2) ? 0x800 : 0x10000);
+        if (ch < min) {
+            _reportError("Invalid UTF-8: overlong "+(needed+1)+"-byte encoding of 0x"+Integer.toHexString(ch));
+        }
+    }
+
+    // 10-Oct-2026, tatu: [core#1756] Number of continuation bytes for multi-byte
+    //   UTF-8 lead byte; or -1 if not a valid lead byte (including 0xC0/0xC1 that
+    //   only start overlong encodings, and 0xF5 - 0xF7 that start ones beyond U+10FFFF)
+    // @since 2.23
+    protected final static int _utf8ContinuationCount(int lead) {
+        if (lead < 0xC2) {
+            return -1;
+        }
+        if (lead < 0xE0) {
+            return 1;
+        }
+        if (lead < 0xF0) {
+            return 2;
+        }
+        return (lead < 0xF5) ? 3 : -1;
+    }
+
+    // 10-Oct-2026, tatu: [core#1744], [core#1756] Handles multi-byte UTF-8 character
+    //   after backslash (with `needed` continuation bytes) decoded as `cp`: overlong
+    //   encodings are rejected as invalid UTF-8; supplementary characters (cannot be
+    //   returned as `char`) and surrogates (invalid in UTF-8) as unrecognized escapes,
+    //   instead of being truncated
+    // @since 2.23
+    protected char _handleEscapedUTF8Char(int cp, int needed) throws IOException {
+        _verifyUTF8NotOverlong(cp, needed);
+        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
+            // point to lead byte of character, not its last byte
+            throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
+                    _currentLocationMinus(needed + 1));
+        }
+        return _handleUnrecognizedCharacterEscape((char) cp);
+    }
+
+    /**
+     * Variant of {@link #_currentLocationMinusOne()} for location of {@code count}
+     * bytes (or chars) before current input position, used to point to start of a
+     * multi-byte character just decoded. Default implementation simply delegates to
+     * {@link #_currentLocationMinusOne()}.
+     *
+     * @param count Number of bytes (or chars) to go back
+     *
+     * @return Location {@code count} bytes (or chars) before current position
+     *
+     * @since 2.23
+     */
+    protected JsonLocation _currentLocationMinus(int count) {
+        return _currentLocationMinusOne();
     }
 
     /**

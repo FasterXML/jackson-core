@@ -164,8 +164,17 @@ public abstract class NonBlockingJsonParserBase
 
     protected int _pendingBytes;
 
+    /**
+     * Partially decoded value of escape sequence split across input buffers.
+     */
     protected int _quoted32;
 
+    /**
+     * State of escape sequence split across input buffers: non-negative value
+     * is the number of hex digits of unicode escape read so far; negative values
+     * are special states (see {@code QUOTED_xxx} constants of
+     * {@link NonBlockingUtf8JsonParserBase}).
+     */
     protected int _quotedDigits;
 
     /**
@@ -366,7 +375,14 @@ public abstract class NonBlockingJsonParserBase
 
     @Override // @since 2.17
     protected JsonLocation _currentLocationMinusOne() {
-        final int prevInputPtr = _inputPtr - 1;
+        return _currentLocationMinus(1);
+    }
+
+    // 10-Oct-2026, tatu: [core#1756] Also works if input was split: `_currInputRowStart`
+    //   and `_currBufferStart` are relative to current buffer
+    @Override // @since 2.23
+    protected JsonLocation _currentLocationMinus(int count) {
+        final int prevInputPtr = _inputPtr - count;
         int row = Math.max(_currInputRow, _currInputRowAlt);
         final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_contentReference(),

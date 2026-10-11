@@ -3316,12 +3316,16 @@ public class UTF8StreamJsonParser
     //   surrogates (invalid in UTF-8) are rejected, instead of being truncated
     private char _decodeEscapedRawChar(int firstByte) throws IOException
     {
-        final int cp = _decodeCharForError(firstByte);
-        if (cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
-            throw _constructReadException("Unrecognized character escape "+_getCharDesc(cp),
-                    _currentLocationMinusOne());
+        final int lead = firstByte & 0xFF;
+        if (lead < 0x80) {
+            return _handleUnrecognizedCharacterEscape((char) lead);
         }
-        return _handleUnrecognizedCharacterEscape((char) cp);
+        // 10-Oct-2026, tatu: [core#1756] also reject invalid lead bytes, overlong encodings
+        final int needed = _utf8ContinuationCount(lead);
+        if (needed < 0) {
+            _reportInvalidInitial(lead);
+        }
+        return _handleEscapedUTF8Char(_decodeCharForError(lead), needed);
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException
@@ -3765,7 +3769,12 @@ public class UTF8StreamJsonParser
 
     @Override // @since 2.17
     protected JsonLocation _currentLocationMinusOne() {
-        final int prevInputPtr = _inputPtr - 1;
+        return _currentLocationMinus(1);
+    }
+
+    @Override // @since 2.23
+    protected JsonLocation _currentLocationMinus(int count) {
+        final int prevInputPtr = _inputPtr - count;
         final int col = prevInputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_contentReference(),
                 _currInputProcessed + prevInputPtr, -1L, // bytes, chars

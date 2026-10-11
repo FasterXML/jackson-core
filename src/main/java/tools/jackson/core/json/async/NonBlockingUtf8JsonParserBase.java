@@ -1937,6 +1937,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _minorState = requireFirst ? MINOR_NUMBER_HEX_PREFIX : MINOR_NUMBER_HEX_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
+                // Validate accumulated digit length before yielding, as with decimal integers
+                _streamReadConstraints.validateIntegerLength(outPtr - prefixLen);
                 return _updateTokenToNA();
             }
             int ch = getByteFromBuffer(_inputPtr) & 0xFF;

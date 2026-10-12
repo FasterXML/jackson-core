@@ -8,7 +8,7 @@ Current status of open branches, with new releases, can be found from [Jackson R
 
 ## Reporting a Vulnerability
 
-The main [jackson/Security and quality](https://github.com/FasterXML/jackson/security) page explains full Jackson Security Policy: usually you should just click ["Report a vulnerability"](../../../security/advisories/new) you can see on the upper right corner of this page to report the vulnerability if it is related to code in this repository.
+The main [jackson/Security and quality](https://github.com/FasterXML/jackson/security) page explains full Jackson Security Policy: usually you should just click ["Report a vulnerability"](../../security/advisories/new) you can see on the upper right corner of this page to report the vulnerability if it is related to code in this repository.
 
 ## Verifying Artifact signatures
 

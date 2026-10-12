@@ -56,7 +56,8 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
         }
 
         JsonParser p = jsonF.createParser(ObjectReadContext.empty(),
-                a2q("{'a':123,'b':'foobar'}"));
+                """
+                        {"a":123,"b":"foobar"}""");
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
@@ -68,7 +69,14 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("foobar", p.getString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        
+
+        p.close();
+
+        if (expSizeAfter != null) {
+            assertEquals(expSizeAfter, pool.pooledCount());
+        }
+
+        // Second close() must not release the recycler again
         p.close();
 
         if (expSizeAfter != null) {
@@ -112,7 +120,8 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
         }
 
         StringWriter w = new StringWriter();
-        try (JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w)) {
+        JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w);
+        try (g) {
             g.writeStartObject();
             g.writeNumberProperty("a", -42);
             g.writeStringProperty("b", "barfoo");
@@ -123,7 +132,15 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
             assertEquals(expSizeAfter, pool.pooledCount());
         }
 
-        assertEquals(a2q("{'a':-42,'b':'barfoo'}"), w.toString());
+        // Second close() must not release the recycler again
+        g.close();
+
+        if (expSizeAfter != null) {
+            assertEquals(expSizeAfter, pool.pooledCount());
+        }
+
+        assertEquals("""
+                {"a":-42,"b":"barfoo"}""", w.toString());
     }
 
     // // Read-and-Write: Parser and Generator, overlapping usage
@@ -156,7 +173,8 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
                 .recyclerPool(pool)
                 .build();
 
-        final String DOC = a2q("{'a':123,'b':'foobar'}");
+        final String DOC = """
+                {"a":123,"b":"foobar"}""";
         JsonParser p = jsonF.createParser(ObjectReadContext.empty(), DOC);
         StringWriter w = new StringWriter();
         JsonGenerator g = jsonF.createGenerator(ObjectWriteContext.empty(), w);

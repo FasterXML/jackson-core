@@ -39,7 +39,8 @@ class ParserFiltering700Test extends JacksonCoreTestBase
     @Test
     void skippingRootLevel() throws Exception
     {
-        final String json = a2q("{'@type':'yyy','value':12}");
+        final String json = """
+                {"@type":"yyy","value":12}""";
         // should become: {"value":12}
         JsonParser p0 = _createParser(JSON_F, json);
         JsonParser p = new FilteringParserDelegate(p0,
@@ -69,7 +70,8 @@ class ParserFiltering700Test extends JacksonCoreTestBase
     @Test
     void skippingOneNested() throws Exception
     {
-        final String json = a2q("{'value':{'@type':'yyy','a':12}}");
+        final String json = """
+                {"value":{"@type":"yyy","a":12}}""";
         // should become: {"value":{"a":12}}
         JsonParser p0 = _createParser(JSON_F, json);
         JsonParser p = new FilteringParserDelegate(p0,
@@ -109,7 +111,8 @@ class ParserFiltering700Test extends JacksonCoreTestBase
 
     private void _testSkippingForSingleWithPath(boolean useNextName) throws Exception
     {
-        final String json = a2q("{'@type':'xxx','value':{'@type':'yyy','a':99}}");
+        final String json = """
+                {"@type":"xxx","value":{"@type":"yyy","a":99}}""";
         // should become: {"value":{"a":99}}
 
         JsonParser p0 = _createParser(JSON_F, json);

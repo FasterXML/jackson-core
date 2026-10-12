@@ -104,8 +104,8 @@ public class JsonParserSequence extends JsonParserDelegate
     {
         for (int i = _nextParserIndex-1, len = _parsers.length; i < len; ++i) {
             JsonParser p = _parsers[i];
-            if (p instanceof JsonParserSequence jps) {
-                jps.addFlattenedActiveParsers(listToAddIn);
+            if (p instanceof JsonParserSequence jpe) {
+                jpe.addFlattenedActiveParsers(listToAddIn);
             } else {
                 listToAddIn.add(p);
             }
@@ -245,7 +245,7 @@ public class JsonParserSequence extends JsonParserDelegate
         return false;
     }
 
-    protected JsonToken switchAndReturnNext() throws JacksonException
+    protected JsonToken switchAndReturnNext()
     {
         while (_nextParserIndex < _parsers.length) {
             delegate = _parsers[_nextParserIndex++];

@@ -37,8 +37,10 @@ public interface Named {
         @Override
         public boolean equals(Object o) {
             if (o == this) return true;
-            if (!(o instanceof StringAsNamed)) return false;
-            return _name.equals(((StringAsNamed) o)._name);
+            if (o instanceof StringAsNamed named) {
+                return _name.equals(named._name);
+            }
+            return false;
         }
     }
 }

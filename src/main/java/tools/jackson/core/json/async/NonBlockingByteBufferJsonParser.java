@@ -2,6 +2,7 @@ package tools.jackson.core.json.async;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -80,8 +81,17 @@ public class NonBlockingByteBufferJsonParser
         final int avail = _inputEnd - _inputPtr;
         if (avail > 0) {
             final WritableByteChannel channel = Channels.newChannel(out);
+            // 05-Aug-2026, dnlee: [core#1646] Must write unconsumed range only, and via
+            //   duplicate() so that buffer caller fed us is left untouched.
+            //   NOTE: must call methods via `Buffer`, not `ByteBuffer`: covariant overrides
+            //   are Java 9+ and animal-sniffer checks us against Android SDK 26.
+            //   Also: limit() before position(), as former never fails for valid range.
+            final ByteBuffer buffer = _inputBuffer.duplicate();
+            final Buffer baseBuffer = buffer;
+            baseBuffer.limit(_inputEnd);
+            baseBuffer.position(_inputPtr);
             try {
-                channel.write(_inputBuffer);
+                channel.write(buffer);
             } catch (IOException e) {
                 throw _wrapIOFailure(e);
             }

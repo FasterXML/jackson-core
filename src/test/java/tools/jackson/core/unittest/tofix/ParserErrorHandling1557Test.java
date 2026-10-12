@@ -10,50 +10,51 @@ import tools.jackson.core.unittest.testutil.failure.JacksonTestFailureExpected;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class ParserErrorHandling679Test
+//Failing tests for non-root-token problem [core#1557]
+class ParserErrorHandling1557Test
     extends tools.jackson.core.unittest.JacksonCoreTestBase
 {
-    // [core#679]
+    // [core#1557]
     @JacksonTestFailureExpected
     @Test
-    void nonRootMangledFloats679Bytes() throws Exception {
-        _testNonRootMangledFloats679(MODE_INPUT_STREAM);
-        _testNonRootMangledFloats679(MODE_INPUT_STREAM_THROTTLED);
+    void nonRootMangledFloats1557Bytes() throws Exception {
+        _testNonRootMangledFloats1557(MODE_INPUT_STREAM);
+        _testNonRootMangledFloats1557(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    // [core#679]
+    // [core#1557]
     @JacksonTestFailureExpected
     @Test
-    void nonRootMangledFloats679DataInput() throws Exception {
-        _testNonRootMangledFloats679(MODE_DATA_INPUT);
+    void nonRootMangledFloats1557DataInput() throws Exception {
+        _testNonRootMangledFloats1557(MODE_DATA_INPUT);
     }
 
-    // [core#679]
+    // [core#1557]
     @Test
     @JacksonTestFailureExpected
-    void nonRootMangledFloats679Chars() throws Exception {
-        _testNonRootMangledFloats679(MODE_READER);
+    void nonRootMangledFloats1557Chars() throws Exception {
+        _testNonRootMangledFloats1557(MODE_READER);
     }
 
-    // [core#679]
+    // [core#1557]
     @JacksonTestFailureExpected
     @Test
-    void nonRootMangledInts679Bytes() throws Exception {
+    void nonRootMangledInts1557Bytes() throws Exception {
         _testNonRootMangledInts(MODE_INPUT_STREAM);
         _testNonRootMangledInts(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    // [core#679]
+    // [core#1557]
     @JacksonTestFailureExpected
     @Test
-    void nonRootMangledInts679DataInput() throws Exception {
+    void nonRootMangledInts1557DataInput() throws Exception {
         _testNonRootMangledInts(MODE_DATA_INPUT);
     }
 
-    // [core#679]
+    // [core#1557]
     @JacksonTestFailureExpected
     @Test
-    void nonRootMangledInts679Chars() throws Exception {
+    void nonRootMangledInts1557Chars() throws Exception {
         _testNonRootMangledInts(MODE_READER);
     }
 
@@ -63,12 +64,11 @@ class ParserErrorHandling679Test
     /**********************************************************************
      */
 
-    private void _testNonRootMangledFloats679(int mode) throws Exception {
-        _testNonRootMangledFloats679(mode, "1.5x");
-        _testNonRootMangledFloats679(mode, "1.5.00");
+    private void _testNonRootMangledFloats1557(int mode) throws Exception {
+        _testNonRootMangledFloats1557(mode, "1.5x");
     }
 
-    private void _testNonRootMangledFloats679(int mode, String value) throws Exception
+    private void _testNonRootMangledFloats1557(int mode, String value) throws Exception
     {
         // Also test with floats
         try (JsonParser p = createParser(mode, "[ "+value+" ]")) {

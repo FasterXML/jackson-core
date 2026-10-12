@@ -36,6 +36,22 @@ public abstract class NonBlockingUtf8JsonParserBase
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
 
+    // Special (negative) values of `_quotedDigits`, for resuming decoding of
+    // escape split across input buffers:
+
+    // Backslash read, nothing after it yet
+    private final static int QUOTED_AFTER_BACKSLASH = -1;
+
+    // In name, high surrogate escape decoded, but not backslash of low surrogate escape
+    private final static int QUOTED_BEFORE_LOW_SURROGATE = -2;
+
+    // Lead byte (in `_quoted32`) of multi-byte UTF-8 character after backslash read,
+    // but not first continuation byte
+    private final static int QUOTED_UTF8_LEAD = -3;
+
+    // `QUOTED_UTF8_LEAD - n` (-4 or -5): within multi-byte UTF-8 character after
+    // backslash, first continuation byte read, `n` (1 or 2) bytes still needed
+
     /*
     /**********************************************************************
     /* Input source config
@@ -256,10 +272,16 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_NUMBER_EXPONENT_DIGITS:
             return _finishFloatExponent(false, getNextUnsignedByteFromBuffer());
 
+        // [core#707] JSON5 hex resumption
+        case MINOR_NUMBER_HEX_PREFIX:
+            return _finishHexDigits(true);
+        case MINOR_NUMBER_HEX_DIGITS:
+            return _finishHexDigits(false);
+
         case MINOR_VALUE_STRING:
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_2:
-            _textBuffer.append((char) _decodeUTF8_2(_pending32, getNextSignedByteFromBuffer()));
+            _textBuffer.append((char) _decodeUTF8_2(_pending32, getNextSignedByteFromBuffer(), _inputPtr));
             if (_minorStateAfterSplit == MINOR_VALUE_APOS_STRING) {
                 return _finishAposString();
             }
@@ -305,13 +327,12 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_COMMENT_LEADING_SLASH:
             return _startSlashComment(_pending32);
         case MINOR_COMMENT_CLOSING_ASTERISK:
-            return _finishCComment(_pending32, true);
+            return _finishCComment(_pending32, true, _pendingBytes);
         case MINOR_COMMENT_C:
-            return _finishCComment(_pending32, false);
+            return _finishCComment(_pending32, false, _pendingBytes);
         case MINOR_COMMENT_CPP:
-            return _finishCppComment(_pending32);
         case MINOR_COMMENT_YAML:
-            return _finishHashComment(_pending32);
+            return _resumeLineComment(_pending32, _minorState, _pendingBytes);
         }
         VersionUtil.throwInternal();
         return null;
@@ -373,7 +394,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishKeywordTokenWithEOF("false", _pending32, JsonToken.VALUE_FALSE);
         case MINOR_VALUE_TOKEN_NON_STD:
             return _finishNonStdTokenWithEOF(_nonStdTokenType, _pending32);
-        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
+        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need to tokenize for error
             return _finishErrorTokenWithEOF();
 
         // Number-parsing states; valid stopping points, more explicit errors
@@ -414,6 +435,14 @@ public abstract class NonBlockingUtf8JsonParserBase
             return null; // never gets here
         case MINOR_NUMBER_EXPONENT_MARKER:
             _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
+
+        // [core#707] JSON5 hex EOF handling
+        case MINOR_NUMBER_HEX_PREFIX:
+            _reportInvalidEOF(": expected at least one hexadecimal digit after '0x'/'0X' prefix",
+                    JsonToken.VALUE_NUMBER_INT);
+        case MINOR_NUMBER_HEX_DIGITS:
+            // Suspended with at least one hex digit accumulated; finalize.
+            return _completeHexNumber();
 
             // How about comments?
             // Inside C-comments; not legal
@@ -1019,17 +1048,20 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCppComment(int fromMinorState) throws JacksonException
+    // Resumption only: comment feature already verified when comment started
+    private final JsonToken _resumeLineComment(int fromMinorState, int commentState,
+            int utf8Lead) throws JacksonException
     {
-        if (!_skipCppComment(fromMinorState)) {
+        if (!_skipLineComment(fromMinorState, commentState, utf8Lead)) {
             return _updateTokenToNA();
         }
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws JacksonException
+    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar,
+            int utf8Lead) throws JacksonException
     {
-        if (!_skipCComment(fromMinorState, gotStar)) {
+        if (!_skipCComment(fromMinorState, gotStar, utf8Lead)) {
             return _updateTokenToNA();
         }
         return _startAfterComment(fromMinorState);
@@ -1050,7 +1082,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         int ch = getNextSignedByteFromBuffer();
         if (ch == INT_ASTERISK) { // c-style
-            return _skipCComment(fromMinorState, false);
+            return _skipCComment(fromMinorState, false, 0);
         }
         if (ch == INT_SLASH) { // c++-style
             return _skipCppComment(fromMinorState);
@@ -1065,23 +1097,27 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
-        return _skipLineComment(fromMinorState, MINOR_COMMENT_YAML);
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_YAML, 0);
     }
 
     private final boolean _skipCppComment(int fromMinorState) throws JacksonException
     {
-        return _skipLineComment(fromMinorState, MINOR_COMMENT_CPP);
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_CPP, 0);
     }
 
-    private final boolean _skipLineComment(int fromMinorState, int commentState) throws JacksonException
+    // @param utf8Lead 4-byte UTF-8 lead byte from previous chunk, if any (0 if none)
+    private final boolean _skipLineComment(int fromMinorState, int commentState,
+            int utf8Lead) throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = commentState;
                 _pending32 = fromMinorState;
+                _pendingBytes = utf8Lead;
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
+            utf8Lead = (ch < 0x80) ? 0 : _checkUtf8_4InComment(utf8Lead, ch);
             if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
@@ -1098,15 +1134,19 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
     }
 
-    private final boolean _skipCComment(int fromMinorState, boolean gotStar) throws JacksonException
+    // @param utf8Lead 4-byte UTF-8 lead byte from previous chunk, if any (0 if none)
+    private final boolean _skipCComment(int fromMinorState, boolean gotStar,
+            int utf8Lead) throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = gotStar ? MINOR_COMMENT_CLOSING_ASTERISK : MINOR_COMMENT_C;
                 _pending32 = fromMinorState;
+                _pendingBytes = utf8Lead;
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
+            utf8Lead = (ch < 0x80) ? 0 : _checkUtf8_4InComment(utf8Lead, ch);
             if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
@@ -1127,6 +1167,17 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             gotStar = false;
         }
+    }
+
+    // 10-Oct-2026, tatu: [core#1753] Comment contents are not otherwise UTF-8 decoded,
+    //   but 4-byte sequences are range checked like blocking parsers do
+    // @return `ch` if it is a 4-byte UTF-8 lead byte (to check against next byte); 0 if not
+    private final int _checkUtf8_4InComment(int utf8Lead, int ch) throws JacksonException
+    {
+        if ((utf8Lead != 0) && ((ch & 0xC0) == 0x80)) {
+            _verifyUtf8_4Range(((utf8Lead & 0x07) << 6) | (ch & 0x3F));
+        }
+        return ((ch & 0xF8) == 0xF0) ? ch : 0;
     }
 
     private final JsonToken _startAfterComment(int fromMinorState) throws JacksonException
@@ -1687,6 +1738,12 @@ public abstract class NonBlockingUtf8JsonParserBase
                 outBuf[0] = '0';
                 return _startFloat(outBuf, 1, ch);
             }
+            // [core#707] JSON5 hexadecimal literal?
+            if (ch == 'x' || ch == 'X') {
+                _inputPtr = ptr; // consume the 'x'/'X'
+                _checkHexNumbersAllowed(ch);
+                return _startHexNumber(false, (char) ch);
+            }
             // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
             //    reported as missing separator (root) or missing comma (otherwise)
         } else { // leading zero case (zero followed by a digit)
@@ -1770,6 +1827,11 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _intLength = 1;
                     return _startFloat(outBuf, 1, ch);
                 }
+                // [core#707] JSON5 hexadecimal literal?
+                if (ch == 'x' || ch == 'X') {
+                    _checkHexNumbersAllowed(ch);
+                    return _startHexNumber(false, (char) ch);
+                }
                 // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
                 //    reported as missing separator (root) or missing comma (otherwise)
             } else { // Number between 0 and 9
@@ -1805,7 +1867,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                // [core#1614]: separate state for "+0" to retain '+' on resumption
+                // Use MINOR_NUMBER_PLUSZERO for explicit-plus paths so the sign is
+                // preserved on resumption (callers reach here via
+                // _finishNumberLeadingPosZeroes / _finishNumberLeadingNegZeroes only).
                 _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_PLUSZERO;
                 return _updateTokenToNA();
             }
@@ -1825,6 +1889,11 @@ public abstract class NonBlockingUtf8JsonParserBase
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
+                }
+                // [core#707] JSON5 hexadecimal literal?
+                if (ch == 'x' || ch == 'X') {
+                    _checkHexNumbersAllowed(ch);
+                    return _startHexNumberWithSign(negative, (char) ch);
                 }
                 // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
                 //    reported as missing separator (root) or missing comma (otherwise)
@@ -1847,6 +1916,86 @@ public abstract class NonBlockingUtf8JsonParserBase
             --_inputPtr;
             return _numberCompleteZero(negative ? "-0" : "+0");
         }
+    }
+
+    // [core#707] JSON5 hex helpers - start collecting digits after detecting
+    // the '0x'/'0X' prefix. Two entry points differ only by whether a sign char
+    // ('-' / '+') needs to be prepended to the buffered literal.
+    //
+    // @since 3.2
+    protected JsonToken _startHexNumber(boolean negative, char prefixChar) throws JacksonException {
+        _numberNegative = negative;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        int outPtr = 0;
+        if (negative) {
+            outBuf[outPtr++] = '-';
+        }
+        outBuf[outPtr++] = '0';
+        outBuf[outPtr++] = prefixChar;
+        _textBuffer.setCurrentLength(outPtr);
+        return _finishHexDigits(true);
+    }
+
+    protected JsonToken _startHexNumberWithSign(boolean negative, char prefixChar) throws JacksonException {
+        _numberNegative = negative;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = negative ? '-' : '+';
+        outBuf[1] = '0';
+        outBuf[2] = prefixChar;
+        _textBuffer.setCurrentLength(3);
+        return _finishHexDigits(true);
+    }
+
+    protected JsonToken _finishHexDigits(boolean requireFirst) throws JacksonException {
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        // Sign-prefixed buffers carry '+'/'-' at index 0, so prefix length is 3;
+        // otherwise it is 2 ("0x"/"0X").
+        final boolean hasSignChar = (outBuf[0] == '-' || outBuf[0] == '+');
+        final int prefixLen = hasSignChar ? 3 : 2;
+
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _minorState = requireFirst ? MINOR_NUMBER_HEX_PREFIX : MINOR_NUMBER_HEX_DIGITS;
+                _textBuffer.setCurrentLength(outPtr);
+                return _updateTokenToNA();
+            }
+            int ch = getByteFromBuffer(_inputPtr) & 0xFF;
+            if (CharTypes.charToHex(ch) < 0) {
+                if (requireFirst) {
+                    return _reportUnexpectedNumberChar(ch,
+                            _hexPrefixNotFollowedMessage(outBuf[prefixLen - 1]));
+                }
+                break;
+            }
+            ++_inputPtr;
+            if (outPtr >= outBuf.length) {
+                // Validate accumulated digit length at every segment boundary so
+                // that a pathological hex literal (e.g. millions of digits) is
+                // rejected early rather than after full buffering.
+                _streamReadConstraints.validateIntegerLength(outPtr - prefixLen);
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            requireFirst = false;
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        final int hexLen = outPtr - prefixLen;
+        resetIntHex(_numberNegative, hexLen);
+        // As per #105, need separating space between root values (checked by
+        // `_numberComplete()`); `_inputPtr` points AT the terminator
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
+    }
+
+    // Called from _finishTokenWithEOF when input ends while collecting hex digits.
+    private JsonToken _completeHexNumber() throws JacksonException {
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        final boolean hasSignChar = (outBuf[0] == '-' || outBuf[0] == '+');
+        final int prefixLen = hasSignChar ? 3 : 2;
+        final int hexLen = outPtr - prefixLen;
+        resetIntHex(_numberNegative, hexLen);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws JacksonException {
@@ -1916,6 +2065,10 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // character ends the number, as with blocking parsers (and
                     // regardless of where input chunk boundaries fall)
                     _verifyFractionDigits(fractLen, _intLength, ch);
+                    // [core#679]: no second decimal point
+                    if ((fractLen > 0) && (ch == INT_PERIOD)) {
+                        _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
+                    }
                     break;
                 }
                 if (outPtr >= outBuf.length) {
@@ -2006,6 +2159,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         ch &= 0xFF; // mask to unsigned 8-bit, as with `_startFloat()`
         // must be followed by sequence of ints, one minimum (same as `_startFloat()`)
         _verifyFractionDigits(fractLen, _intLength, ch);
+        // [core#679]: no second decimal point (same as `_startFloat()`)
+        if ((fractLen > 0) && (ch == INT_PERIOD)) {
+            _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
+        }
         _setFractLength(fractLen);
         _textBuffer.setCurrentLength(outPtr);
 
@@ -2695,7 +2852,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         _pendingSurrogateInName = highSurrogate;
         _quoted32 = 0;
-        _quotedDigits = -2;
+        _quotedDigits = QUOTED_BEFORE_LOW_SURROGATE;
         return _finishLowSurrogateInName();
     }
 
@@ -2704,7 +2861,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         // Clear up-front so failures below do not leave stale state; restored if suspending
         final int highSurrogate = _pendingSurrogateInName;
         _pendingSurrogateInName = 0;
-        if (_quotedDigits == -2) {
+        if (_quotedDigits == QUOTED_BEFORE_LOW_SURROGATE) {
             // Need to read the backslash that starts the low surrogate escape
             if (_inputPtr >= _inputEnd) {
                 _pendingSurrogateInName = highSurrogate;
@@ -2715,11 +2872,11 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportError("Broken surrogate pair in property name: expected '\\' to start low surrogate, got 0x"
                         + Integer.toHexString(b));
             }
-            _quotedDigits = -1;
+            _quotedDigits = QUOTED_AFTER_BACKSLASH;
             _quoted32 = 0;
         }
         // Nothing after backslash read yet? Can use fast path if fully buffered
-        int ch = (_quotedDigits == -1) ? _decodeCharEscape()
+        int ch = (_quotedDigits == QUOTED_AFTER_BACKSLASH) ? _decodeCharEscape()
                 : _decodeSplitEscaped(_quoted32, _quotedDigits);
         if (ch < 0) {
             _pendingSurrogateInName = highSurrogate;
@@ -2735,11 +2892,15 @@ public abstract class NonBlockingUtf8JsonParserBase
             _quotedDigits = bytesRead;
             return -1;
         }
-        if (bytesRead < -2) { // within multi-byte UTF-8 character after backslash
-            return _decodeEscapedUTF8(value, -2 - bytesRead);
+        // within multi-byte UTF-8 character after backslash?
+        if (bytesRead == QUOTED_UTF8_LEAD) {
+            return _decodeEscapedUTF8Second(value, _utf8ContinuationCount(value));
+        }
+        if (bytesRead < QUOTED_UTF8_LEAD) {
+            return _decodeEscapedUTF8(value, QUOTED_UTF8_LEAD - bytesRead);
         }
         int c = getNextSignedByteFromBuffer();
-        if (bytesRead == -1) { // expecting first char after backslash
+        if (bytesRead == QUOTED_AFTER_BACKSLASH) { // expecting first char after backslash
             switch (c) {
                 // First, ones that are mapped
             case 'b':
@@ -2892,14 +3053,14 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
-                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++), ptr);
                     break;
                 case 3: // 3-byte UTF
-                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++), ptr);
                     break;
                 case 4: // 4-byte UTF
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
-                            getByteFromBuffer(ptr++));
+                            getByteFromBuffer(ptr++), ptr);
                     // Let's add first part right away:
                     outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                     if (outPtr >= outBuf.length) {
@@ -3012,14 +3173,14 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
-                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++), ptr);
                     break;
                 case 3: // 3-byte UTF
-                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++), ptr);
                     break;
                 case 4: // 4-byte UTF
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
-                            getByteFromBuffer(ptr++));
+                            getByteFromBuffer(ptr++), ptr);
                     // Let's add first part right away:
                     outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                     if (outPtr >= outBuf.length) {
@@ -3048,7 +3209,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         switch (type) {
         case 1:
-            c = _decodeSplitEscaped(0, -1);
+            c = _decodeSplitEscaped(0, QUOTED_AFTER_BACKSLASH);
             if (c < 0) {
                 _minorState = MINOR_VALUE_STRING_ESCAPE;
                 return false;
@@ -3057,8 +3218,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return true;
         case 2: // 2-byte UTF; easy, either got both, or just miss one
             if (gotNext) {
-                // NOTE: always succeeds, no need to check
-                c = _decodeUTF8_2(c, getNextSignedByteFromBuffer());
+                c = _decodeUTF8_2(c, getNextSignedByteFromBuffer(), _inputPtr);
                 _textBuffer.append((char) c);
                 return true;
             }
@@ -3140,6 +3300,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportInvalidOther(next & 0xFF, _inputPtr);
             }
             prev = (prev << 6) | (next & 0x3F);
+            _verifyUtf8_4Range(prev);
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_VALUE_STRING_UTF8_4;
                 _pending32 = prev;
@@ -3149,6 +3310,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             prevCount = 2;
             next = getNextSignedByteFromBuffer();
         }
+        // 10-Oct-2026, tatu: [core#1753] If suspended with `prevCount` of 2 or 3,
+        //   range was already verified above
         if (prevCount == 2) {
             if ((next & 0xC0) != 0x080) {
                 _reportInvalidOther(next & 0xFF, _inputPtr);
@@ -3184,7 +3347,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     {
         int left = _inputEnd - _inputPtr;
         if (left < 5) { // offline boundary-checking case:
-            return _decodeSplitEscaped(0, -1);
+            return _decodeSplitEscaped(0, QUOTED_AFTER_BACKSLASH);
         }
         return _decodeFastCharEscape();
     }
@@ -3215,8 +3378,13 @@ public abstract class NonBlockingUtf8JsonParserBase
             break;
 
         default:
-            if (c < 0) { // callers ensure input has enough bytes, so cannot suspend
-                return _startEscapedUTF8(c & 0xFF);
+            if (c < 0) {
+                c = _startEscapedUTF8(c & 0xFF);
+                // callers ensure at least 4 bytes after backslash, so cannot suspend
+                if (c < 0) {
+                    _throwInternal();
+                }
+                return c;
             }
             return _handleUnrecognizedCharacterEscape((char) c);
         }
@@ -3254,29 +3422,46 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     // 10-Oct-2026, tatu: [core#1756] Decodes (possibly split) multi-byte UTF-8 character
     //   after backslash, like blocking parsers do ([core#1744]). If input runs out,
-    //   suspends with `_quotedDigits` of -3, -4 or -5 (1, 2 or 3 bytes still needed)
+    //   suspends with `_quotedDigits` of `QUOTED_UTF8_LEAD` (before first continuation
+    //   byte, checked against lead byte for overlong encodings) or `QUOTED_UTF8_LEAD - n`
     private int _startEscapedUTF8(int lead) throws JacksonException
     {
-        final int needed;
-        if ((lead & 0xE0) == 0xC0) {
-            needed = 1;
-        } else if ((lead & 0xF0) == 0xE0) {
-            needed = 2;
-        } else if ((lead & 0xF8) == 0xF0) {
-            needed = 3;
-        } else {
+        final int needed = _utf8ContinuationCount(lead);
+        if (needed < 0) {
             _reportInvalidInitial(lead);
             return -1; // never gets here
         }
-        return _decodeEscapedUTF8(lead & (0x7F >> (needed + 1)), needed);
+        if (_inputPtr >= _inputEnd) {
+            _quoted32 = lead;
+            _quotedDigits = QUOTED_UTF8_LEAD;
+            return -1;
+        }
+        return _decodeEscapedUTF8Second(lead, needed);
     }
 
-    private int _decodeEscapedUTF8(int value, int needed) throws JacksonException
+    // Decodes first continuation byte (second byte) of multi-byte UTF-8 character
+    // after backslash, with valid lead byte (and `needed` continuation bytes);
+    // caller ensures it is available
+    private int _decodeEscapedUTF8Second(int lead, int needed) throws JacksonException
+    {
+        int d = getNextUnsignedByteFromBuffer();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d, _inputPtr);
+        }
+        _verifyUTF8NotOverlong(lead, d);
+        int value = ((lead & (0x3F >> needed)) << 6) | (d & 0x3F);
+        if (needed == 1) {
+            return _handleEscapedUTF8Char(value);
+        }
+        return _decodeEscapedUTF8(value, needed - 1);
+    }
+
+    private int _decodeEscapedUTF8(int value, int remaining) throws JacksonException
     {
         do {
             if (_inputPtr >= _inputEnd) {
                 _quoted32 = value;
-                _quotedDigits = -2 - needed;
+                _quotedDigits = QUOTED_UTF8_LEAD - remaining;
                 return -1;
             }
             int d = getNextUnsignedByteFromBuffer();
@@ -3284,37 +3469,35 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportInvalidOther(d, _inputPtr);
             }
             value = (value << 6) | (d & 0x3F);
-        } while (--needed > 0);
-        // supplementary characters (cannot be returned as `char`) and surrogates
-        // (invalid in UTF-8) are rejected, instead of being truncated
-        if (value > 0xFFFF || (value >= 0xD800 && value <= 0xDFFF)) {
-            throw _constructReadException("Unrecognized character escape "+_getCharDesc(value),
-                    _currentLocationMinusOne());
-        }
-        return _handleUnrecognizedCharacterEscape((char) value);
+        } while (--remaining > 0);
+        return _handleEscapedUTF8Char(value);
     }
 
-    private final int _decodeUTF8_2(int c, int d) throws JacksonException
+    // 10-Oct-2026, tatu: [core#1753] `ptr` (end of sequence) passed separately as
+    //   fast-path callers do not sync `_inputPtr`; only set for error reporting, to
+    //   point right after offending byte (same as blocking and split-input decoding)
+    private final int _decodeUTF8_2(int c, int d, int ptr) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr);
         }
         return ((c & 0x1F) << 6) | (d & 0x3F);
     }
 
-    private final int _decodeUTF8_3(int c, int d, int e) throws JacksonException
+    private final int _decodeUTF8_3(int c, int d, int e, int ptr) throws JacksonException
     {
         c &= 0x0F;
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr - 1);
         }
         c = (c << 6) | (d & 0x3F);
         if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, _inputPtr);
+            _reportInvalidOther(e & 0xFF, ptr);
         }
         c = (c << 6) | (e & 0x3F);
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
+            _inputPtr = ptr;
             _reportInvalidUTF8Surrogate(c);
         }
         return c;
@@ -3322,18 +3505,19 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     // @return Character value <b>minus 0x10000</c>; this so that caller
     //    can readily expand it to actual surrogates
-    private final int _decodeUTF8_4(int c, int d, int e, int f) throws JacksonException
+    private final int _decodeUTF8_4(int c, int d, int e, int f, int ptr) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr - 2);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
+        _verifyUtf8_4Range(c, ptr - 2);
         if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, _inputPtr);
+            _reportInvalidOther(e & 0xFF, ptr - 1);
         }
         c = (c << 6) | (e & 0x3F);
         if ((f & 0xC0) != 0x080) {
-            _reportInvalidOther(f & 0xFF, _inputPtr);
+            _reportInvalidOther(f & 0xFF, ptr);
         }
         return ((c << 6) | (f & 0x3F)) - 0x10000;
     }

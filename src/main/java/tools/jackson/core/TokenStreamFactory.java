@@ -1222,8 +1222,8 @@ public abstract class TokenStreamFactory
         Object content = (contentRef == null) ? null : contentRef.getRawContent();
         // 18-Jan-2024, tatu: [core#1195] Let's see if we can reuse already allocated recycler
         //   (is the case when SegmentedStringWriter / ByteArrayBuilder passed)
-        if (content instanceof BufferRecycler.Gettable) {
-            br = ((BufferRecycler.Gettable) content).bufferRecycler();
+        if (content instanceof BufferRecycler.Gettable gettable) {
+            br = gettable.bufferRecycler();
         }
         boolean recyclerExternal = (br != null);
         if (!recyclerExternal) {

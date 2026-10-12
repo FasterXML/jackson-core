@@ -234,37 +234,17 @@ public enum JsonToken
         if (t == null) {
             return "<end of input>";
         }
-        switch (t) {
-        case START_OBJECT:
-        case END_OBJECT:
-        case PROPERTY_NAME:
-            return "Object value";
-
-        case START_ARRAY:
-        case END_ARRAY:
-            return "Array value";
-
-        case VALUE_FALSE:
-        case VALUE_TRUE:
-            return "Boolean value";
-
-        case VALUE_EMBEDDED_OBJECT:
-            return "Embedded Object value";
-
-        case VALUE_NUMBER_FLOAT:
-            return "Floating-point value";
-        case VALUE_NUMBER_INT:
-            return "Integer value";
-        case VALUE_STRING:
-            return "String value";
-
-        case VALUE_NULL:
-            return "Null value";
-
-        case NOT_AVAILABLE:
-        default:
-            return "[Unavailable value]";
-        }
+        return switch (t) {
+            case START_OBJECT, END_OBJECT, PROPERTY_NAME -> "Object value";
+            case START_ARRAY, END_ARRAY -> "Array value";
+            case VALUE_FALSE, VALUE_TRUE -> "Boolean value";
+            case VALUE_EMBEDDED_OBJECT -> "Embedded Object value";
+            case VALUE_NUMBER_FLOAT -> "Floating-point value";
+            case VALUE_NUMBER_INT -> "Integer value";
+            case VALUE_STRING -> "String value";
+            case VALUE_NULL -> "Null value";
+            default -> "[Unavailable value]";
+        };
 
     }
 }

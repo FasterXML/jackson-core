@@ -89,8 +89,11 @@ public class BufferRecycler
     public final static int CHAR_NAME_COPY_BUFFER = 3;
 
     // Buffer lengths
+    // 22-Jun-2026, [core#1622]: bumped default base64 codec buffer (index
+    //   BYTE_BASE64_CODEC_BUFFER) from 2000 to 4000 to reduce InputStream
+    //   reads when encoding binary content of unknown/large length.
 
-    private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 2000 };
+    private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 4000 };
     private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };
 
     // Note: changed from simple array in 2.10:
@@ -166,11 +169,10 @@ public class BufferRecycler
 
     public void releaseByteBuffer(int ix, byte[] buffer) {
         // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
-        byte[] oldBuffer = _byteBuffers.get(ix);
-        if ((oldBuffer == null) || buffer.length > oldBuffer.length) {
-            // Could use CAS, but should not really matter
-            _byteBuffers.set(ix, buffer);
-        }
+        // Use accumulateAndGet to atomically update the slot, avoiding the
+        // TOCTOU race of a non-atomic get+conditional-set sequence.
+        _byteBuffers.accumulateAndGet(ix, buffer,
+                (current, b) -> (current == null || b.length > current.length) ? b : current);
     }
 
     /*
@@ -196,12 +198,11 @@ public class BufferRecycler
     }
 
     public void releaseCharBuffer(int ix, char[] buffer) {
-        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
-        char[] oldBuffer = _charBuffers.get(ix);
-        if ((oldBuffer == null) || buffer.length > oldBuffer.length) {
-            // Could use CAS, but should not really matter
-            _charBuffers.set(ix, buffer);
-        }
+        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial.
+        // Use accumulateAndGet to atomically update the slot, avoiding the
+        // TOCTOU race of a non-atomic get+conditional-set sequence.
+        _charBuffers.accumulateAndGet(ix, buffer,
+                (current, b) -> (current == null || b.length > current.length) ? b : current);
     }
 
     /*

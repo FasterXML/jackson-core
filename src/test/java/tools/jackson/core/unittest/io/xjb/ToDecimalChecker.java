@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-package tools.jackson.core.unittest.io.schubfach;
+package tools.jackson.core.unittest.io.xjb;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -34,6 +34,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 A checker for the Javadoc specification.
 It just relies on straightforward use of (expensive) BigDecimal arithmetic,
 not optimized at all.
+
+09-Oct-2026, tatu: [core#1652] Adapted for XJBWriter: unlike Float/Double.toString
+(and Schubfach), XJB does not require 2 significant digits: the shortest decimal may
+have just one (e.g. Double.MIN_VALUE is "5.0E-324", not "4.9E-324"); the closest
+decimal of that length must still be chosen.
  */
 abstract class ToDecimalChecker {
 
@@ -71,6 +76,11 @@ abstract class ToDecimalChecker {
             high = new BigDecimal(BigInteger.ONE, -e);
         }
         return e;
+    }
+
+    // floor(log10(2^e)), as in Schubfach's MathUtils
+    static int flog10pow2(int e) {
+        return (int) (e * 661_971_961_083L >> 41);
     }
 
     static long cTiny(int qMin, int kMin) {
@@ -321,14 +331,14 @@ abstract class ToDecimalChecker {
             return false;
         }
 
-        // Get rid of trailing zeroes, still ensuring at least 2 digits
-        while (len10 > 2 && c % 10 == 0) {
+        // Get rid of trailing zeroes, down to a single digit
+        while (len10 > 1 && c % 10 == 0) {
             c /= 10;
             q += 1;
             len10 -= 1;
         }
 
-        if (len10 > 2) {
+        if (len10 > 1) {
             // Try with a shorter number less than v...
             if (recovers(BigDecimal.valueOf(c / 10, -q - 1))) {
                 return false;
@@ -341,8 +351,8 @@ abstract class ToDecimalChecker {
         }
 
         // Try with the decimal predecessor...
-        BigDecimal dp = c == 10 ?
-                BigDecimal.valueOf(99, -q + 1) :
+        BigDecimal dp = c == 1 ?
+                BigDecimal.valueOf(9, -q + 1) :
                 BigDecimal.valueOf(c - 1, -q);
         if (recovers(dp)) {
             BigDecimal bv = toBigDecimal();

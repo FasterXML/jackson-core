@@ -1,6 +1,7 @@
 package tools.jackson.core.io;
 
 import java.io.*;
+import java.util.Objects;
 
 
 /**
@@ -112,13 +113,14 @@ public class UTF32Reader extends Reader
     @Override
     public int read(char[] cbuf, int start, int len) throws IOException
     {
-        // Already EOF?
-        if (_buffer == null) { return -1; }
-        if (len < 1) { return len; }
+        Objects.requireNonNull(cbuf, "cbuf");
         // Let's then ensure there's enough room...
         if (start < 0 || len < 0 || start > (cbuf.length - len)) {
             reportBounds(cbuf, start, len);
         }
+        // Already EOF?
+        if (_buffer == null) { return -1; }
+        if (len < 1) { return len; }
 
         int outPtr = start;
         final int outEnd = len+start;

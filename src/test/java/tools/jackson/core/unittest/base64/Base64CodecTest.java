@@ -133,6 +133,74 @@ class Base64CodecTest
         assertEquals(exp.replace("##", "<%>"), std.encode(data, false, "<%>"));
     }
 
+    @Test
+    void convenienceMethodShortInputs() throws Exception
+    {
+        final Base64Variant std = Base64Variants.MIME;
+        assertEquals("", std.encode(new byte[0], false));
+        assertEquals("\"\"", std.encode(new byte[0], true));
+        assertEquals("AQ==", std.encode(new byte[] { 1 }, false));
+        assertEquals("AQE=", std.encode(new byte[] { 1, 1 }, false));
+        assertEquals("AQEB", std.encode(new byte[] { 1, 1, 1 }, false));
+
+        // Without padding, trailing partial chunk is 2 or 3 chars instead of 4
+        final Base64Variant url = Base64Variants.MODIFIED_FOR_URL;
+        assertEquals("AQ", url.encode(new byte[] { 1 }, false));
+        assertEquals("AQE", url.encode(new byte[] { 1, 1 }, false));
+    }
+
+    @Test
+    void convenienceMethodAtLineBoundary() throws Exception
+    {
+        // 48 bytes == 16 chunks == exactly one 64-char PEM line, so content ends
+        // with a linefeed and quotes (if any) follow it
+        final byte[] data = new byte[48];
+        Arrays.fill(data, (byte) 1);
+        final String line = "AQEB".repeat(16);
+
+        assertEquals(line + "\\n", Base64Variants.PEM.encode(data, false));
+        assertEquals("\"" + line + "\\n\"", Base64Variants.PEM.encode(data, true));
+        assertEquals(line, Base64Variants.PEM.encode(data, false, ""));
+
+        // MIME uses 76-char lines, so no linefeed at all for this input
+        assertEquals(line, Base64Variants.MIME.encode(data, false));
+        assertEquals(line, Base64Variants.MIME_NO_LINEFEEDS.encode(data, false));
+    }
+
+    @Test
+    void convenienceMethodWithShortLineLength() throws Exception
+    {
+        // Constructor does not reject line lengths below one 4-char chunk;
+        // encoder emits a linefeed after every chunk for those
+        final byte[] data = new byte[9];
+        Arrays.fill(data, (byte) 1);
+        final String exp = "AQEB\\nAQEB\\nAQEB\\n";
+
+        for (int maxLineLength : new int[] { 0, 1, 4 }) {
+            Base64Variant v = new Base64Variant(Base64Variants.MIME,
+                    "test-"+maxLineLength, maxLineLength);
+            assertEquals(exp, v.encode(data, false), "maxLineLength="+maxLineLength);
+        }
+    }
+
+    @Test
+    void convenienceMethodNullLinefeed() throws Exception
+    {
+        final byte[] data = new byte[9];
+        Arrays.fill(data, (byte) 1);
+
+        // Even variants that never emit a linefeed must reject `null`
+        for (Base64Variant v : Arrays.asList(Base64Variants.MIME,
+                Base64Variants.MIME_NO_LINEFEEDS, Base64Variants.PEM)) {
+            try {
+                v.encode(data, false, null);
+                fail("Should not pass");
+            } catch (NullPointerException e) {
+                verifyException(e, "\"linefeed\" cannot be null");
+            }
+        }
+    }
+
     @SuppressWarnings("unused")
     @Test
     void errors() throws Exception

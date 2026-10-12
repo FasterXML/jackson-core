@@ -14,11 +14,10 @@ import tools.jackson.core.JacksonException;
  * {@link JacksonException} subtypes available.
  *<p>
  * NOTE: use of {@link java.io.UncheckedIOException} would seem like
- * an alternative, but cannot be used as it is a checked exception
- * unlike {@link JacksonException} used for other read/write problems.
+ * an alternative, but it is not a {@link JacksonException}.
  * Because of this, an alternative is used.
- * Additionally extending {@link JacksonException} allows bit more convenient
- * catching of everything Jackson throws or re-throws.
+ * Extending {@link JacksonException} allows bit more convenient catching
+ * of everything Jackson throws or re-throws.
  *
  * @since 3.0
  */

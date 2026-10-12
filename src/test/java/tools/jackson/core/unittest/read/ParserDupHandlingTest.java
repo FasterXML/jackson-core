@@ -15,18 +15,19 @@ class ParserDupHandlingTest
     extends JacksonCoreTestBase
 {
     private final String[] DUP_DOCS = new String[] {
-            "{ 'a':1, 'a':2 }",
-            "[{ 'a':1, 'a':2 }]",
-            "{ 'a':1, 'b':2, 'c':3,'a':true,'e':false }",
-            "{ 'foo': { 'bar': [ [ { 'x':3, 'a':1 } ]], 'x':0, 'a':'y', 'b':3,'a':13 } }",
-            "[{'b':1},{'b\":3},[{'a':3}], {'a':1,'a':2}]",
-            "{'b':1,'array':[{'b':3}],'ob':{'b':4,'x':0,'y':3,'a':true,'a':false }}",
+            """
+            { "a":1, "a":2 }""",
+            """
+            [{ "a":1, "a":2 }]""",
+            """
+            { "a":1, "b":2, "c":3,"a":true,"e":false }""",
+            """
+            { "foo": { "bar": [ [ { "x":3, "a":1 } ]], "x":0, "a":"y", "b":3,"a":13 } }""",
+            """
+            [{"b":1},{"b":3},[{"a":3}], {"a":1,"a":2}]""",
+            """
+            {"b":1,"array":[{"b":3}],"ob":{"b":4,"x":0,"y":3,"a":true,"a":false }}""",
     };
-    {
-        for (int i = 0; i < DUP_DOCS.length; ++i) {
-            DUP_DOCS[i] = a2q(DUP_DOCS[i]);
-        }
-    }
 
     @Test
     void simpleDupCheckDisabled() throws Exception

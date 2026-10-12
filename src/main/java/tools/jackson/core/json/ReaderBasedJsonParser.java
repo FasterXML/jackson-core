@@ -8,6 +8,7 @@ import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
+import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.*;
 
 import static tools.jackson.core.JsonTokenId.*;
@@ -179,6 +180,11 @@ public class ReaderBasedJsonParser
     }
 
     @Override public Object streamReadInputSource() { return _reader; }
+
+    @Override
+    public boolean willInternPropertyNames() {
+        return _symbols.willInternStrings();
+    }
 
     protected char getNextChar(String eofMsg, JsonToken forToken) throws JacksonException {
         if (_inputPtr >= _inputEnd) {
@@ -1032,6 +1038,26 @@ public class ReaderBasedJsonParser
         return name;
     }
 
+    // 07-Sep-2026, tatu: [core#1688] On a match, commit the value token that
+    //    `nextName()` already classified into `_nextToken`, instead of paying
+    //    for a separate `nextToken()` call
+    @Override
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException
+    {
+        String name = nextName();
+        if (name != null) {
+            int match = matcher.matchName(name);
+            if (match >= 0) {
+                _nextAfterName();
+            }
+            return match;
+        }
+        if (_currToken == JsonToken.END_OBJECT) {
+            return PropertyNameMatcher.MATCH_END_OBJECT;
+        }
+        return PropertyNameMatcher.MATCH_ODD_TOKEN;
+    }
+
     private final void _isNextTokenNameYes(int i) throws JacksonException
     {
         _updateToken(JsonToken.PROPERTY_NAME);
@@ -1438,6 +1464,10 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             _verifyFractionDigits(fractLen, intLen, ch);
+            // [core#679]: no second decimal point
+            if ((fractLen > 0) && (ch == INT_PERIOD)) {
+                _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
+            }
         }
         int expLen = 0;
         if ((ch | 0x20) == INT_e) { // ~ 'eE' and/or exponent
@@ -1570,6 +1600,17 @@ public class ReaderBasedJsonParser
         char c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
                 : getNextChar("No digit following sign", JsonToken.VALUE_NUMBER_INT);
         if (c == '0') {
+            // [core#707]: JSON5 hexadecimal literal ('0x' / '0X')?
+            // Must be checked BEFORE _verifyNoLeadingZeroes(): leading zeros are
+            // valid in hex regardless of ALLOW_LEADING_ZEROS_FOR_NUMBERS.
+            if (_inputPtr < _inputEnd || _loadMore()) {
+                char peek = _inputBuffer[_inputPtr];
+                if (peek == 'x' || peek == 'X') {
+                    ++_inputPtr;
+                    _checkHexNumbersAllowed(peek);
+                    return _finishHexNumber(neg, outBuf, outPtr, peek);
+                }
+            }
             c = _verifyNoLeadingZeroes();
         }
         boolean eof = false;
@@ -1579,6 +1620,7 @@ public class ReaderBasedJsonParser
         while (c >= '0' && c <= '9') {
             ++intLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateIntegerLength(intLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -1621,6 +1663,9 @@ public class ReaderBasedJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer;
+                    //   `expLen` still -1 ("none") here so must not over-estimate
+                    _streamReadConstraints.validateFPLength(intLen + fractLen - 1);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1628,6 +1673,10 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             _verifyFractionDigits(fractLen, intLen, c);
+            // [core#679]: no second decimal point
+            if ((fractLen > 0) && (c == INT_PERIOD)) {
+                _reportUnexpectedNumberChar(c, "Cannot parse number with more than one decimal point");
+            }
         }
 
         int expLen = -1;
@@ -1657,6 +1706,7 @@ public class ReaderBasedJsonParser
             while (c <= INT_9 && c >= INT_0) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1689,6 +1739,68 @@ public class ReaderBasedJsonParser
             return resetInt(neg, intLen);
         }
         return resetFloat(neg, intLen, fractLen, expLen);
+    }
+
+    // [core#707] Finish parsing a JSON5 hexadecimal integer literal once
+    // '0' + 'x'/'X' has been recognized. The current text buffer already
+    // contains the optional sign and the leading '0'; we append 'x'/'X' and
+    // then all hex digits, then validate proper termination.
+    //
+    // @since 3.2
+    private final JsonToken _finishHexNumber(boolean neg,
+            char[] outBuf, int outPtr, char prefixChar)
+        throws JacksonException
+    {
+        // Append the '0' and the 'x'/'X'
+        if (outPtr >= outBuf.length) {
+            outBuf = _textBuffer.finishCurrentSegment();
+            outPtr = 0;
+        }
+        outBuf[outPtr++] = '0';
+        if (outPtr >= outBuf.length) {
+            outBuf = _textBuffer.finishCurrentSegment();
+            outPtr = 0;
+        }
+        outBuf[outPtr++] = prefixChar;
+
+        int hexLen = 0;
+        boolean eof = false;
+        char c = CHAR_NULL;
+
+        hex_loop:
+        while (true) {
+            if (_inputPtr >= _inputEnd && !_loadMore()) {
+                eof = true;
+                break hex_loop;
+            }
+            c = _inputBuffer[_inputPtr++];
+            if (CharTypes.charToHex(c) < 0) {
+                break hex_loop;
+            }
+            ++hexLen;
+            if (outPtr >= outBuf.length) {
+                // Validate accumulated length at every segment boundary so that a
+                // pathological hex literal (e.g. millions of digits) is rejected
+                // early rather than after full buffering.
+                _streamReadConstraints.validateIntegerLength(hexLen);
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
+            outBuf[outPtr++] = c;
+        }
+
+        if (hexLen == 0) {
+            return _reportUnexpectedNumberChar(c, _hexPrefixNotFollowedMessage(prefixChar));
+        }
+
+        if (!eof) {
+            --_inputPtr; // push back the terminating non-hex char
+            if (_streamReadContext.inRoot()) {
+                _verifyRootSpace(c);
+            }
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        return resetIntHex(neg, hexLen);
     }
 
     // Method called when we have seen one zero, and want to ensure

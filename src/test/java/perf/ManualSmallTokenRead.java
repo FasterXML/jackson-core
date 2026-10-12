@@ -27,9 +27,8 @@ public class ManualSmallTokenRead extends ManualPerfTestBase
             System.exit(1);
         }
         final JsonFactory f = new JsonFactory();
-        final String jsonStr = a2q(
-"{'data':[true,false,null,false,null,true],'last':true}"
-                );
+        final String jsonStr = """
+                {"data":[true,false,null,false,null,true],"last":true}""";
         new ManualSmallTokenRead(f, jsonStr).test("char[]", "byte[]", jsonStr.length());
     }
 

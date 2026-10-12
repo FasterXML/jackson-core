@@ -27,10 +27,10 @@ class AsyncStringObjectTest extends AsyncTestBase
     @Test
     void basicFieldsNames() throws IOException
     {
-        final String json = a2q(String.format("{'%s':'%s','%s':'%s','%s':'%s'}",
+        final String json = String.format("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
             UNICODE_SHORT_NAME, UNICODE_LONG_NAME,
             UNICODE_LONG_NAME, UNICODE_SHORT_NAME,
-            ASCII_SHORT_NAME, ASCII_SHORT_NAME));
+            ASCII_SHORT_NAME, ASCII_SHORT_NAME);
 
         final JsonFactory f = JSON_F;
 
@@ -124,7 +124,8 @@ class AsyncStringObjectTest extends AsyncTestBase
     @Test
     void readStringNotSupported() throws IOException
     {
-        final String json = a2q("{'name':'value'}");
+        final String json = """
+                {"name":"value"}""";
         byte[] data = _jsonDoc(json);
 
         _testReadStringNotSupported(data, 0, 100);
@@ -163,7 +164,8 @@ class AsyncStringObjectTest extends AsyncTestBase
     void readStringNotSupportedForVariousTokens() throws IOException
     {
         // Test with different token types to ensure consistent behavior
-        final String json = a2q("{'prop':'text','num':42,'flag':true,'nul':null}");
+        final String json = """
+                {"prop":"text","num":42,"flag":true,"nul":null}""";
         byte[] data = _jsonDoc(json);
 
         try (AsyncReaderWrapper r = asyncForBytes(JSON_F, 100, data, 0)) {
@@ -207,7 +209,8 @@ class AsyncStringObjectTest extends AsyncTestBase
     {
         // Test with a longer string to ensure it's not a length-related issue
         final String longValue = "x".repeat(1000);
-        final String json = a2q("{'data':'" + longValue + "'}");
+        final String json = """
+            {"data":"%s"}""".formatted(longValue);
         byte[] data = _jsonDoc(json);
 
         try (AsyncReaderWrapper r = asyncForBytes(JSON_F, 100, data, 0)) {

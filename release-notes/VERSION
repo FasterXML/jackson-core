@@ -15,47 +15,153 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-3.1.8 (not yet released)
+3.3.0 (not yet released)
 
 #1761: Report truncated DataInput JSON as `UnexpectedEndOfInputException`,
   while accepting complete root scalars at end-of-input
  (reported by @cowtowncoder)
  (contributed by @curforever)
 
-#1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
-  surrogates in property names (mirror of #1541 fix in `UTF8StreamJsonParser`)
- (fix by @elang2)
-#1728: Quote supplementary code points in unexpected-character messages
-  instead of the 16-bit truncation
- (reported by @bodograumann)
+#1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match
+ (contributed by @scottslewis)
+#1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
+  already-consumed bytes
+ (reported, fix by DongNyoung L)
+#1652: Replace Schubfach with XJB algorithm for `USE_FAST_DOUBLE_WRITER`,
+  allowing no-allocation writes of `float`/`double`; output differs from
+  JDK for some subnormals (e.g. `Double.MIN_VALUE` as `5.0E-324`, not `4.9E-324`)
+ (requested by @westinrm)
+ (contributed by @pjfanning, w/ Claude code)
+#1654: Stale symbol table child can replace a newer root table
+ (reported by DongNyoung L)
+#1664: UTF-8 byte-backed parsers report raw byte instead of decoded character
+  for invalid root-value separator
+ (reported, fix by DongNyoung L)
+#1674: Optimize `Base64Variant.encode()` to write into exactly-sized `char[]`
+  instead of `StringBuilder`
+ (contributed by @pjfanning, w/ Claude code)
+#1675: Allocate ByteArrayBuilder past-block list lazily
+ (contributed by @pjfanning, w/ Claude code)
+#1685: Lower `BigDecimalParser` FastDoubleParser cutoff from 500 to 200 characters
+ (reported, fix by DongNyoung L)
+#1686: Synchronous decimal number parsing buffers oversized values before
+  `maxNumberLength` validation
+ (reported, fix by DongNyoung L)
+#1688: Add `JsonParser.nextNameMatchAndToken()`, fused property name match
+  plus value token advance
+ (contributed by @stevenschlansker)
+#1697: Add `ByteArrayUtil` with helper methods for byte encoding
+#1704: Add `NumberOutput.outputDouble/outputFloat(char[])`, use in
+  `WriterBasedJsonGenerator` with `USE_FAST_DOUBLE_WRITER`
+ (contributed by @pjfanning, w/ Claude code)
+#1706: Write number text directly as ASCII bytes in `UTF8JsonGenerator`
+ (contributed by @pjfanning, w/ Claude code)
+#1715: Add `StreamReadConstraints.getMaxBigIntegerScale()` accessor for maximum
+  `BigDecimal` scale magnitude convertible to `BigInteger`.
+ (fix by @cowtowncoder, w/ Claude code)
+#1727: UTF-8 surrogate code points not rejected when skipping String values
+ (fix by DongNyoung L)
+#1731: `FilteringGeneratorDelegate.writeUTF8String()` and
+  `writeRawUTF8String()` filtered via `includeRawValue()` instead of
+  `includeString()`
+ (reported by @cowtowncoder)
+ (fix by @kalayciburak)
+#1738: Add `GuardedOutputStream` (non-flushing, non-closing `OutputStream` wrapper)
+  for textual format backends
+ (fix by @cowtowncoder, w/ Claude code)
+#1752: `UTF8DataInputJsonParser` should preserve I/O failures during invalid
+  token reporting
+ (reported, fix by DongNyoung L)
+#1753: Reject 4-byte UTF-8 sequences exceeding U+10FFFF in String values
+  of `UTF8StreamJsonParser`
+ (reported, fix by DongNyoung L)
+
+3.2.3 (21-Sep-2026)
+
+#1667: `JsonParser.willInternPropertyNames()` returns `true` even when
+  `CANONICALIZE_PROPERTY_NAMES` is disabled
+ (contributed by @Dongnyoung)
+#1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom escape
+  lands at the output buffer boundary
+ (reported by @hdimitrieski)
+ (fix by @kalayciburak)
+#1673: `readString(Writer)` AIOOBE when an escape or multi-byte character
+  lands at the output buffer boundary
+ (fix by @pjfanning)
+#1692: Fix loss of buffered content when `createGenerator(OutputStream, JsonEncoding)`
+  is used with non-UTF-8 encoding and generator is configured to neither close
+  nor flush the target; also close streams opened for `File`/`Path` targets when
+  generator construction fails
+ (fix by @pjfanning)
+#1693: Close streams Jackson opened for `File`/`Path` sources when construction
+  of parser fails
+ (fix by @pjfanning)
+#1694: Release `IOContext` (and `BufferRecycler` lease it holds) when construction of
+  parser or generator fails
+ (fix by @pjfanning)
+#1695: Release encoding buffer and close underlying stream in `UTF8Writer.close()`
+  even if writing of pending content fails
+ (fix by @pjfanning)
+#1698: `UTF8DataInputJsonParser` does not honor `maxErrorTokenLength`
+  when reporting an unrecognized token [CVE-2026-89425]
+ (fix by @pjfanning)
+#1703: Validate name length in `UTF8DataInputJsonParser` before quad buffer growth
+ (reported, fix by DongNyoung L)
+#1711: `File`/`Path` generator targets may be leaked, double-closed or truncated
+  when construction fails
+ (reported, fix by DongNyoung L)
+#1713: `UTF32Reader` corrupts or drops the low surrogate when a supplementary
+  character splits across a `read()` boundary
+ (reported by @youdie006)
+ (fix by @pjfanning)
+#1718: `File`/`Path` parser sources leak if decorated stream `close()` fails
+  on failed construction
+ (reported by @cowtowncoder)
  (fix by @kalayciburak)
 
-#1724: Use target exception's original message and type when wrapping
-  `InvocationTargetException` with path information
- (reported by Lee Dongnyoung)
- (fix by @CCCLL)
-#1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
-  typed `writeArray()` and raw/binary values consistently
- (fix by @pjfanning)
-#1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
-  a feed ends inside an escaped surrogate pair in a property name
- (reported by @DRMacIver)
- (fix by @pjfanning)
-#1744: Backslash-escaped supplementary characters (with
-  `ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER`) truncated to 16 bits; now rejected
- (fix by @pjfanning)
-#1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
-  with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
- (fix by @pjfanning)
-#1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
-  `ALLOW_UNQUOTED_PROPERTY_NAMES`
- (fix by @pjfanning)
-#1750: `ALLOW_UNESCAPED_CONTROL_CHARS` ignored for single-quoted string values
-  in UTF-8 byte parsers (and allowed control chars dropped by `readString(Writer)`)
- (fix by @pjfanning)
-#1756: Non-blocking parser does not decode multi-byte UTF-8 character after
-  backslash escape
- (contributed by @ItsDeadlyProgrammer)
+3.2.2 (14-Aug-2026)
+
+#1630: `UTF8StreamJsonParser.nextName()` ignores
+  `JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
+ (reported by @jng260)
+ (fix by @cowtowncoder, w/ Claude code)
+#1642: Fix maxDocumentLength bypass in async parser single-feedInput() case
+  [GHSA-2c4j-63jj-9fqr]
+ (fix by Revanth M)
+#1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser [CVE-2026-68498]
+ (fix by @tinyb0y)
+#1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]
+ (fix by @cowtowncoder, w/ Claude code)
+#1657: UTF8JsonGenerator: writeNumber fast path that avoids extra String allocation
+ (implemented by @pjfanning)
+
+3.2.1 (10-Jul-2026)
+
+No changes since 3.2.0
+
+3.2.0 (08-Jun-2026)
+
+#679: Number parsing should fail for trailing dot (period)
+ (fix by @cowtowncoder, w/ Claude code)
+#707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS` for JSON5-style hexadecimal
+  integer literals
+ (implementation by @seonwooj0810)
+#1211: Add `JsonParser.willInternPropertyNames()` to check whether
+  property name interning is enabled
+ (contributed by Max P)
+#1544: Validate `read()` parameters in `MergedStream` and `UTF32Reader`
+ (implemented by @pjfanning)
+#1545: Increase Android baseline from 26 to 34 in Jackson 3.2
+#1564: Add `SimpleStreamReadContext.rollbackValueRead()` method
+#1575: Implement document length tracking for `DataInput`-backed
+  JSON parsers via subclass
+ (implemented by @pjfanning)
+#1576: Use Java 17 intrinstics for long multiplication
+ (contributed by @xtonik)
+#1593: Add `JsonGenerator.writeComment(String)`, `JsonGenerator.canWriteComments()`
+ (implemented by @cowtowncoder, w/ Claude code)
+#1598: Possible TOCTOU timing bug in `BufferRecycler`
+ (implemented by @pjfanning)
 
 3.1.7 (21-Sep-2026)
 

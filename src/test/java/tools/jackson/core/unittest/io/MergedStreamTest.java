@@ -54,4 +54,40 @@ class MergedStreamTest
 
         ms.close();
     }
+
+    @Test
+    void parameterValidation() throws Exception
+    {
+        IOContext ctxt = testIOContext();
+        byte[] first = ctxt.allocReadIOBuffer();
+        System.arraycopy("ABC".getBytes("UTF-8"), 0, first, 0, 3);
+        byte[] second = "DEF".getBytes("UTF-8");
+        
+        MergedStream ms = new MergedStream(ctxt, new ByteArrayInputStream(second),
+                                           first, 0, 3);
+        byte[] buffer = new byte[10];
+
+        // Test null byte array
+        assertThrows(NullPointerException.class, () -> {
+            ms.read(null, 0, 5);
+        });
+
+        // Test negative offset
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            ms.read(buffer, -1, 5);
+        });
+
+        // Test negative length
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            ms.read(buffer, 0, -1);
+        });
+
+        // Test offset + length > array length
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            ms.read(buffer, 5, 10);
+        });
+
+        ms.close();
+        ctxt.close();
+    }
 }

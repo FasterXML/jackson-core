@@ -31,12 +31,24 @@ Copyright © 2023 Werner Randelshofer, Switzerland. MIT License.
 See FastDoubleParser-LICENSE and also FastDoubleParser-ThirdParty-LICENSE for details of other source code
 included in FastDoubleParser and the licenses and copyrights that apply to that code.
 
-## Schubfach
+## jsoniter-scala
 
-jackson-core bundles a copy of the Schubfach number writing code <https://github.com/c4f7fcce9cb06515/Schubfach>.
-That code is available under an MIT license <https://github.com/c4f7fcce9cb06515/Schubfach/blob/master/todec/LICENSE>
+jackson-core bundles a Java port of the float/double-to-decimal-string code from
+jsoniter-scala <https://github.com/plokhotnyuk/jsoniter-scala> (its `JsonWriter`).
+That code is available under an MIT license <https://github.com/plokhotnyuk/jsoniter-scala/blob/master/LICENSE>
 under the following copyright.
 
-Copyright 2018-2020 Raffaello Giulietti
+Copyright (c) 2017-2026 Andriy Plokhotnyuk, and respective contributors
 
-See Schubfach-LICENSE.
+See jsoniter-scala-LICENSE.
+
+## xjb
+
+The jsoniter-scala code above implements the "xjb: Fast Float to String Algorithm" by
+Xiang JunBo and Wang TieJun <https://github.com/xjb714/xjb>.
+That reference implementation is available under the Apache License 2.0
+<https://github.com/xjb714/xjb/blob/main/LICENSE> under the following copyright.
+
+Copyright 2026 xjb714 and contributors
+
+See xjb-LICENSE.

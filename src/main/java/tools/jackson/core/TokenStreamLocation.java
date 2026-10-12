@@ -222,20 +222,20 @@ public class TokenStreamLocation
     {
         if (other == this) return true;
         if (other == null) return false;
-        if (!(other instanceof TokenStreamLocation)) return false;
-        TokenStreamLocation otherLoc = (TokenStreamLocation) other;
+        if (other instanceof TokenStreamLocation otherLoc) {
+            if (_contentReference == null) {
+                if (otherLoc._contentReference != null) return false;
+            } else if (!_contentReference.equals(otherLoc._contentReference)) {
+                return false;
+            }
 
-        if (_contentReference == null) {
-            if (otherLoc._contentReference != null) return false;
-        } else if (!_contentReference.equals(otherLoc._contentReference)) {
-            return false;
+            return (_lineNr == otherLoc._lineNr)
+                    && (_columnNr == otherLoc._columnNr)
+                    && (_totalChars == otherLoc._totalChars)
+                    && (_totalBytes == otherLoc._totalBytes)
+                    ;
         }
-
-        return (_lineNr == otherLoc._lineNr)
-            && (_columnNr == otherLoc._columnNr)
-            && (_totalChars == otherLoc._totalChars)
-            && (_totalBytes == otherLoc._totalBytes)
-            ;
+        return false;
     }
 
     @Override

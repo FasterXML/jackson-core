@@ -279,6 +279,22 @@ public abstract class JsonGenerator
 
     /**
      * Introspection method that may be called to see if the underlying
+     * data format supports writing of Comments (most do not;
+     * for example, JSON doesn't, but YAML and XML do).
+     *<p>
+     * Default implementation returns {@code false}; overridden by data formats
+     * that do support writing of Comments.
+     *
+     * @return {@code True} if this generator is capable of writing Comments
+     *   (which is typically determined by capabilities of the underlying format),
+     *   {@code false} if not
+     *
+     * @since 3.2
+     */
+    public boolean canWriteComments() { return false; }
+
+    /**
+     * Introspection method that may be called to see if the underlying
      * data format supports some kind of Object Ids natively (many do not;
      * for example, JSON doesn't).
      * This method <b>must</b> be called prior to calling
@@ -1305,8 +1321,8 @@ public abstract class JsonGenerator
             writeNull();
             return this;
         }
-        if (object instanceof byte[]) {
-            writeBinary((byte[]) object);
+        if (object instanceof byte[] array) {
+            writeBinary(array);
             return this;
         }
         throw _constructWriteException("No native support for writing embedded objects of type %s",
@@ -1505,7 +1521,7 @@ public abstract class JsonGenerator
                 // unusually, need to output AFTER value. And no real wrapper...
                 {
                     Object id = typeIdDef.id;
-                    String idStr = (id instanceof String) ? (String) id : String.valueOf(id);
+                    String idStr = (id instanceof String str) ? str : String.valueOf(id);
                     writeStringProperty(typeIdDef.asProperty, idStr);
                 }
                 break;
@@ -1520,6 +1536,42 @@ public abstract class JsonGenerator
             }
         }
         return typeIdDef;
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, write methods, comments
+    /**********************************************************************
+     */
+
+    /**
+     * Method for writing a Comment to the output. Whether this is possible
+     * depends on the underlying data format: for example, JSON does not support
+     * comments, but formats like YAML and XML do.
+     *<p>
+     * The exact output format depends on the data format and the generator
+     * implementation; for example, YAML would use {@code # comment} notation.
+     *<p>
+     * Default implementation throws a {@link StreamWriteException} indicating
+     * that the format does not support writing comments. Backends that do support
+     * comments should override this method and {@link #canWriteComments()}.
+     *
+     * @param comment Comment text to write; the generator is responsible for
+     *   adding any necessary decoration (such as {@code #} prefix in YAML).
+     *   May be {@code null}, in which case generator will not write a comment
+     *   (but some have special handling: YAML generator writes empty line)
+     *
+     * @return This generator, to allow call chaining
+     *
+     * @throws JacksonIOException if there is an underlying I/O problem
+     * @throws StreamWriteException if the underlying format does not support
+     *   writing comments, or if there is a problem writing the comment
+     *
+     * @since 3.2
+     */
+    public JsonGenerator writeComment(String comment) throws JacksonException {
+        return _reportUnsupportedOperation("This generator (of type "
+                + getClass().getName() + ") does not support writing Comments");
     }
 
     /*
@@ -2311,8 +2363,8 @@ public abstract class JsonGenerator
     protected void _copyCurrentFloatValueExact(JsonParser p) throws JacksonException
     {
         Number n = p.getNumberValueExact();
-        if (n instanceof BigDecimal) {
-            writeNumber((BigDecimal) n);
+        if (n instanceof BigDecimal bigDecimal) {
+            writeNumber(bigDecimal);
         } else if (n instanceof Double) {
             writeNumber(n.doubleValue());
         } else {

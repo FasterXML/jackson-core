@@ -398,7 +398,10 @@ public abstract class ParserBase extends ParserMinimalBase
         return resetFloat(negative, intLen, fractLen, expLen);
     }
 
-    protected final JsonToken resetInt(boolean negative, int intLen)
+    // NOTE: was `final` before 3.2; relaxed so that `JsonParserBase` can
+    // override to clear hex-specific state on integer reset (the sibling
+    // `resetFloat` / `resetAsNaN` remain `final`).
+    protected JsonToken resetInt(boolean negative, int intLen)
         throws JacksonException
     {
         // May throw StreamConstraintsException:

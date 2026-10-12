@@ -36,19 +36,19 @@ class SimpleParserTest extends JacksonCoreTestBase
         JsonParser p = createParser(MODE_READER, "[ ]");
         Object src = p.streamReadInputSource();
         assertNotNull(src);
-        assertTrue(src instanceof Reader);
+        assertInstanceOf(Reader.class, src);
         p.close();
 
         p = createParser(MODE_INPUT_STREAM, "[ ]");
         src = p.streamReadInputSource();
         assertNotNull(src);
-        assertTrue(src instanceof InputStream);
+        assertInstanceOf(InputStream.class, src);
         p.close();
 
         p = createParser(MODE_DATA_INPUT, "[ ]");
         src = p.streamReadInputSource();
         assertNotNull(src);
-        assertTrue(src instanceof DataInput);
+        assertInstanceOf(DataInput.class, src);
         p.close();
     }
 
@@ -192,37 +192,55 @@ class SimpleParserTest extends JacksonCoreTestBase
         assertEquals("key1", ctxt.currentName());
 
         ctxt = p.streamReadContext();
-        assertEquals(1, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
+        assertEquals(1, ctxt.getEntryCount());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key2");
         ctxt = p.streamReadContext();
-        assertEquals(2, ctxt.getEntryCount());
         assertEquals(1, ctxt.getCurrentIndex());
+        assertEquals(2, ctxt.getEntryCount());
         assertEquals("key2", ctxt.currentName());
 
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertEquals(1, ctxt.getCurrentIndex());
+        assertEquals(2, ctxt.getEntryCount());
         assertEquals("key2", ctxt.currentName());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key3");
+        assertEquals(2, ctxt.getCurrentIndex());
+        assertEquals(3, ctxt.getEntryCount());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+        assertEquals(2, ctxt.getCurrentIndex());
+        assertEquals(3, ctxt.getEntryCount());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key4");
+        assertEquals(3, ctxt.getCurrentIndex());
+        assertEquals(4, ctxt.getEntryCount());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         ctxt = p.streamReadContext();
         assertTrue(ctxt.inArray());
         assertNull(ctxt.currentName());
+        assertEquals(0, ctxt.getCurrentIndex());
+        assertEquals(0, ctxt.getEntryCount());
         assertEquals("key4", ctxt.getParent().currentName());
 
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+        assertEquals(0, ctxt.getCurrentIndex());
+        assertEquals(1, ctxt.getEntryCount());
         assertEquals("[0]", ctxt.toString());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
+        assertEquals(1, ctxt.getCurrentIndex());
+        assertEquals(2, ctxt.getEntryCount());
+
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertEquals(2, ctxt.getCurrentIndex());
+        assertEquals(3, ctxt.getEntryCount());
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
         ctxt = p.streamReadContext();
@@ -246,9 +264,8 @@ class SimpleParserTest extends JacksonCoreTestBase
     {
         // InputData has some limitations to take into consideration
         boolean isInputData = (mode == MODE_DATA_INPUT);
-        String DOC = a2q(
-            "[ 1, 3, [ true, null ], 3, { 'a\\\\b':'quoted: \\'stuff\\'' }, [ [ ] ], { } ]"
-        );
+        String DOC = """
+                [ 1, 3, [ true, null ], 3, { "a\\\\b":"quoted: \\"stuff\\"" }, [ [ ] ], { } ]""";
         JsonParser p = createParser(mode, DOC);
 
         // First, skipping of the whole thing

@@ -23,13 +23,14 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 
 ## Status
 
+
 | Type | Status |
 | ---- | ------ |
 | Build (CI) | [![Build (github)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml) |
-| Artifact | ![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.core/jackson-core) |
+| Artifact | [![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.core/jackson-core.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/tools.jackson.core/jackson-core) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/tools.jackson.core/jackson-core.svg)](https://javadoc.io/doc/tools.jackson.core/jackson-core) |
-| Code coverage (3.x) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=3.x)](https://codecov.io/github/FasterXML/jackson-core?branch=3.x) |
+| Code coverage (3.x) (latest) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=3.x)](https://codecov.io/github/FasterXML/jackson-core?branch=3.x) |
 | OpenSSF Score | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-core/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-core) |
 
 # Get it!
@@ -48,12 +49,12 @@ To use the package, you need to use following Maven dependency:
 <dependency> <!-- Jackson 3.x -->
     <groupId>tools.jackson.core</groupId>
     <artifactId>jackson-core</artifactId>
-    <version>3.1.1</version>
+    <version>3.2.3</version>
 </dependency>
 <dependency> <!-- Jackson 2.x -->
     <groupId>com.fasterxml.jackson.core</groupId>
     <artifactId>jackson-core</artifactId>
-    <version>2.21.2</version>
+    <version>2.21.5</version>
 </dependency>
 ```
 
@@ -64,7 +65,7 @@ Package has no external dependencies, except for testing (which uses `JUnit`).
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/).
+For non-Maven use cases, you download jars from [Central Maven repository](https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-core/).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
@@ -98,14 +99,14 @@ JsonFactory factory = objectMapper.tokenStreamFactory();
 All reading is by using `JsonParser` (or its sub-classes, in case of data formats other than JSON),
 instance of which is constructed by `JsonFactory`.
 
-An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
+An example can be found from [Reading and Writing Event Streams](https://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 ## Usage, simple writing
 
 All writing is by using `JsonGenerator` (or its sub-classes, in case of data formats other than JSON),
 instance of which is constructed by `JsonFactory`:
 
-An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
+An example can be found from [Reading and Writing Event Streams](https://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 ## Processing limits
 
@@ -213,7 +214,7 @@ Jackson components are supported by the Jackson community through mailing lists,
 
 ### Enterprise support
 
-Available as part of the [Tidelift](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind) Subscription.
+Available as part of the [Tidelift](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core) Subscription.
 
 The maintainers of `jackson-core` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
 

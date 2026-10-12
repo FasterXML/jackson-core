@@ -64,21 +64,6 @@ public class SimpleStreamReadContext extends TokenStreamContext
         _index = -1;
     }
 
-    // REMOVE as soon as nothing uses this
-    @Deprecated
-    public SimpleStreamReadContext(int type, SimpleStreamReadContext parent,
-            DupDetector dups,
-            int lineNr, int colNr) {
-        super();
-        _parent = parent;
-        _dups = dups;
-        _type = type;
-        _lineNr = lineNr;
-        _columnNr = colNr;
-        _index = -1;
-        _nestingDepth = -1;
-    }
-
     protected void reset(int type, int lineNr, int colNr) {
         _type = type;
         _currentValue = null;
@@ -206,6 +191,21 @@ public class SimpleStreamReadContext extends TokenStreamContext
     }
 
     /**
+     * Method to call to "undo" previous call to {@link #valueRead()}; will
+     * decrement {@code _index} unless it is already negative.
+     *
+     * @return Index after rollback
+     *
+     * @since 3.2
+     */
+    public int rollbackValueRead() {
+        if (_index >= 0) {
+            --_index;
+        }
+        return _index;
+    }
+
+    /**
      * Method called to indicate what the "current" name (Object property name
      * just decoded) is: may also trigger duplicate detection.
      *
@@ -225,7 +225,7 @@ public class SimpleStreamReadContext extends TokenStreamContext
     {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new StreamReadException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
+            throw new StreamReadException(((src instanceof JsonParser jsonParser) ? jsonParser : null),
                     "Duplicate Object property \""+name+"\"");
         }
     }

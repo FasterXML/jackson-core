@@ -147,6 +147,18 @@ public class JacksonTestUtilBase
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
+    // UTF-8 encoded `prefix`, followed by raw (possibly invalid UTF-8) bytes, and `suffix`
+    public static byte[] utf8Bytes(String prefix, int[] rawBytes, String suffix) {
+        byte[] pb = utf8Bytes(prefix), sb = utf8Bytes(suffix);
+        byte[] result = new byte[pb.length + rawBytes.length + sb.length];
+        System.arraycopy(pb, 0, result, 0, pb.length);
+        for (int i = 0; i < rawBytes.length; ++i) {
+            result[pb.length + i] = (byte) rawBytes[i];
+        }
+        System.arraycopy(sb, 0, result, pb.length + rawBytes.length, sb.length);
+        return result;
+    }
+
     public String utf8String(ByteArrayOutputStream bytes) {
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }

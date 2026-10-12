@@ -24,6 +24,11 @@ import tools.jackson.core.io.NumberInput;
  *  <li>TextBuffer is not synchronized.
  *    </li>
  * </ul>
+ *<p>
+ * NOTE: this base class does not enforce any length limits: methods that declare
+ * {@link JacksonException} for exceeding maximum String length only throw it
+ * when used via {@link ReadConstrainedTextBuffer}, which enforces
+ * {@link tools.jackson.core.StreamReadConstraints#getMaxStringLength()}.
  */
 public class TextBuffer
 {
@@ -257,7 +262,7 @@ public class TextBuffer
      * @param buf Buffer that contains new contents
      * @param offset Offset of the first content character in {@code buf}
      * @param len Length of content in {@code buf}
-     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the buffer has grown too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public void resetWithCopy(char[] buf, int offset, int len) throws JacksonException
     {
@@ -282,7 +287,7 @@ public class TextBuffer
      * @param text String that contains new contents
      * @param start Offset of the first content character in {@code text}
      * @param len Length of content in {@code text}
-     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the buffer has grown too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public void resetWithCopy(String text, int start, int len) throws JacksonException
     {
@@ -304,7 +309,7 @@ public class TextBuffer
 
     /**
      * @param value to replace existing buffer
-     * @throws JacksonException if the value is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the value is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public void resetWithString(String value) throws JacksonException
     {
@@ -326,6 +331,12 @@ public class TextBuffer
      * Init method called to reset buffer with contents of given ASCII byte array.
      * Used to reduce JDK overhead in post-JDK8 world
      * where {@code String} uses {@code byte[]} internally.
+     *
+     * @param buffer Buffer that contains new contents
+     * @param offset Offset of the first content byte in {@code buffer}
+     * @param len Length of content in {@code buffer}
+     * @return Contents as {@code String}
+     * @throws JacksonException if the value is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      *
      * @since 3.1
      */
@@ -352,6 +363,12 @@ public class TextBuffer
      * Init method called to reset buffer with contents of given UTF-8 byte array.
      * Used to reduce JDK overhead in post-JDK8 world
      * where {@code String} uses {@code byte[]} internally.
+     *
+     * @param buffer Buffer that contains new contents
+     * @param offset Offset of the first content byte in {@code buffer}
+     * @param len Length of content in {@code buffer}
+     * @return Contents as {@code String}
+     * @throws JacksonException if the value is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      *
      * @since 3.1
      */
@@ -470,7 +487,7 @@ public class TextBuffer
      * fashion or not: this typically require allocation of the result buffer.
      *
      * @return Aggregated {@code char[]} that contains all buffered content
-     * @throws JacksonException if the text is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public char[] getTextBuffer() throws JacksonException
     {
@@ -500,7 +517,7 @@ public class TextBuffer
      * fashion or not: this typically require construction of the result String.
      *
      * @return Aggregated buffered contents as a {@link java.lang.String}
-     * @throws JacksonException if the contents are too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the contents are too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public String contentsAsString() throws JacksonException
     {
@@ -557,7 +574,7 @@ public class TextBuffer
 
     /**
      * @return char array
-     * @throws JacksonException if the text is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public char[] contentsAsArray() throws JacksonException {
         char[] result = _resultArray;
@@ -582,6 +599,7 @@ public class TextBuffer
      *
      * @throws NumberFormatException may (but is not guaranteed!) be thrown
      *    if contents are not a valid JSON floating-point number representation
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException
     {
@@ -621,6 +639,7 @@ public class TextBuffer
      *
      * @throws NumberFormatException may (but is not guaranteed!) be thrown
      *    if contents are not a valid JSON floating-point number representation
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException
     {
@@ -646,6 +665,15 @@ public class TextBuffer
     }
 
     /**
+     * Convenience method for converting contents of the buffer
+     * into a {@link BigDecimal} value.
+     *
+     * @param useFastParser whether to use {@code FastDoubleParser}
+     * @return Buffered text value parsed as a {@link BigDecimal}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid number representation
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
+     *
      * @since 2.18
      */
     public BigDecimal contentsAsDecimal(final boolean useFastParser) throws NumberFormatException
@@ -735,7 +763,7 @@ public class TextBuffer
      * @throws IOException if the write using given {@code Writer} fails (exception
      *   that {@code Writer} throws)
      */
-    public int contentsToWriter(Writer w) throws IOException, JacksonException
+    public int contentsToWriter(Writer w) throws IOException
     {
         if (_resultArray != null) {
             w.write(_resultArray);
@@ -789,7 +817,7 @@ public class TextBuffer
 
     /**
      * @param c char to append
-     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the buffer has grown too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public void append(char c) throws JacksonException {
         // Using shared buffer so far?
@@ -813,7 +841,7 @@ public class TextBuffer
      * @param c char array to append
      * @param start the start index within the array (from which we read chars to append)
      * @param len number of chars to take from the array
-     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the buffer has grown too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public void append(char[] c, int start, int len) throws JacksonException
     {
@@ -858,7 +886,7 @@ public class TextBuffer
      * @param str string to append
      * @param offset the start index within the string (from which we read chars to append)
      * @param len number of chars to take from the string
-     * @throws JacksonException if the buffer has grown too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the buffer has grown too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public void append(String str, int offset, int len) throws JacksonException
     {
@@ -967,7 +995,7 @@ public class TextBuffer
      * @param len Length of content (in characters) of the current active segment
      *
      * @return String that contains all buffered content
-     * @throws JacksonException if the text is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public String setCurrentAndReturn(int len) throws JacksonException {
         _currentSize = len;
@@ -985,7 +1013,7 @@ public class TextBuffer
 
     /**
      * @return char array
-     * @throws JacksonException if the text is too large, see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)}
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public char[] finishCurrentSegment() throws JacksonException {
         if (_segments == null) {
@@ -1019,6 +1047,7 @@ public class TextBuffer
      *    delimiter or end-of-line
      * @param trimTrailingSpaces Whether trailing spaces should be trimmed or not
      * @return token as text
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      */
     public String finishAndReturn(int lastSegmentEnd, boolean trimTrailingSpaces)
         throws JacksonException
@@ -1228,15 +1257,14 @@ public class TextBuffer
     }
 
     /**
-     * Convenience method that can be used to verify that a String
-     * of specified length does not exceed maximum specific by this
-     * constraints object: if it does, a
-     * {@link JacksonException}
-     * is thrown.
+     * Method called to verify that a String of specified length does not
+     * exceed the maximum allowed length. Default implementation does nothing;
+     * {@link ReadConstrainedTextBuffer} overrides it to enforce
+     * {@link tools.jackson.core.StreamReadConstraints#getMaxStringLength()}.
      *
-     * @param length Length of string in input units
+     * @param length Length of String in characters
      *
-     * @throws JacksonException If length exceeds maximum
+     * @throws JacksonException If length exceeds maximum (not thrown by default implementation)
      * @since 2.15
      */
     protected void validateStringLength(int length) throws JacksonException

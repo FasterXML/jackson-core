@@ -35,9 +35,9 @@ class AsyncSimpleObjectTest extends AsyncTestBase
     void booleans()
     {
         final JsonFactory f = JSON_F;
-        byte[] data = _jsonDoc(a2q(
-"{ 'a':true, 'b':false, 'acdc':true, '"+UNICODE_SHORT_NAME+"':true, 'a1234567':false,"
-+"'"+UNICODE_LONG_NAME+"':   true }"));
+        byte[] data = _jsonDoc("""
+            { "a":true, "b":false, "acdc":true, "%s":true, "a1234567":false, "%s":   true }""".formatted(
+                    UNICODE_SHORT_NAME, UNICODE_LONG_NAME));
         // first, no offsets
         _testBooleans(f, data, 0, 100);
         _testBooleans(f, data, 0, 3);

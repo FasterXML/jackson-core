@@ -23,8 +23,8 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     @Test
     void stuffInObject() throws Exception
     {
-        byte[] data = _jsonDoc(a2q(
-                "{'foobar':[1,2,-999],'emptyObject':{},'emptyArray':[], 'other':{'':null} }"));
+        byte[] data = _jsonDoc("""
+                {"foobar":[1,2,-999],"emptyObject":{},"emptyArray":[], "other":{"":null} }""");
 
         JsonFactory f = JSON_F;
         _testStuffInObject(f, data, 0, 100);
@@ -89,7 +89,8 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     @Test
     void stuffInArray() throws Exception
     {
-        byte[] data = _jsonDoc(a2q("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
+        byte[] data = _jsonDoc("""
+                [true,{"moreStuff":0},[null],{"extraOrdinary":23}]""");
         JsonFactory f = JSON_F;
 
         _testStuffInArray(f, data, 0, 100);
@@ -137,9 +138,9 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     @Test
     void stuffInArray2() throws Exception
     {
-        byte[] data = _jsonDoc(a2q(String.format(
-                "[{'%s':true},{'%s':false},{'%s':true},{'%s':false}]",
-                SHORT_NAME, LONG_NAME, LONG_NAME, SHORT_NAME)));
+        byte[] data = _jsonDoc("""
+                [{"%s":true},{"%s":false},{"%s":true},{"%s":false}]""".formatted(
+                        SHORT_NAME, LONG_NAME, LONG_NAME, SHORT_NAME));
         JsonFactory f = JSON_F;
 
         _testStuffInArray2(f, data, 0, 100);
@@ -194,7 +195,7 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     @Test
     void mismatchedArray() throws Exception
     {
-        byte[] data = _jsonDoc(a2q("[  }"));
+        byte[] data = _jsonDoc("[  }");
 
         JsonFactory f = JSON_F;
         _testMismatchedArray(f, data, 0, 99);
@@ -223,7 +224,7 @@ class AsyncSimpleNestedTest extends AsyncTestBase
     @Test
     void mismatchedObject() throws Exception
     {
-        byte[] data = _jsonDoc(a2q("{ ]"));
+        byte[] data = _jsonDoc("{ ]");
 
         JsonFactory f = JSON_F;
         _testMismatchedObject(f, data, 0, 99);

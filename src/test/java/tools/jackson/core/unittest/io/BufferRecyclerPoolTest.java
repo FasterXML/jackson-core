@@ -2,10 +2,15 @@ package tools.jackson.core.unittest.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.base.GeneratorBase;
 import tools.jackson.core.json.JsonFactory;
@@ -38,6 +43,112 @@ class BufferRecyclerPoolTest extends JacksonCoreTestBase
     @Test
     void bounded() throws Exception {
         checkBufferRecyclerPoolImpl(JsonRecyclerPools.newBoundedPool(1), true, true);
+    }
+
+    @Test
+    void boundedPoolDoesNotExceedCapacity() {
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newBoundedPool(2);
+
+        BufferRecycler br1 = pool.acquireAndLinkPooled();
+        BufferRecycler br2 = pool.acquireAndLinkPooled();
+        BufferRecycler br3 = pool.acquireAndLinkPooled();
+
+        br1.releaseToPool();
+        br2.releaseToPool();
+        br3.releaseToPool();
+
+        assertEquals(2, pool.pooledCount());
+    }
+
+    @Test
+    void boundedPoolClearDropsRetainedRecyclers() {
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newBoundedPool(2);
+
+        BufferRecycler br1 = pool.acquireAndLinkPooled();
+        BufferRecycler br2 = pool.acquireAndLinkPooled();
+
+        br1.releaseToPool();
+        br2.releaseToPool();
+
+        assertEquals(2, pool.pooledCount());
+
+        assertTrue(pool.clear());
+        assertEquals(0, pool.pooledCount());
+    }
+
+    @Test
+    void bufferRecyclerReleaseToPoolIsIdempotent() {
+        TestPool pool = new TestPool();
+        BufferRecycler recycler = pool.acquireAndLinkPooled();
+
+        recycler.releaseToPool();
+        recycler.releaseToPool();
+
+        assertEquals(1, pool.pooledCount());
+    }
+
+    // NOTE: parser/generator close() releasing the recycler exactly once is covered
+    // by `JsonBufferRecyclersTest`, for all pool implementations
+
+    @Test
+    void boundedPoolConcurrentUseDoesNotShareRecyclers() throws Exception {
+        final int capacity = 4;
+        final int threadCount = 8;
+        final int iterations = 1_000;
+
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newBoundedPool(capacity);
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .recyclerPool(pool)
+                .build();
+
+        // Recyclers held by a live generator: pool must never hand the same instance
+        // to two holders at once. `BufferRecycler.withPool()` already throws on an
+        // overlapping acquisition; this tracks it independently, and also covers
+        // sharing that would slip past that linkage check. Identity-based since
+        // `BufferRecycler` does not override equals()/hashCode(). Parsers exercise the
+        // pool too, but only `GeneratorBase` exposes its `IOContext`, so only
+        // generators can be tracked.
+        final Set<BufferRecycler> inUse = ConcurrentHashMap.newKeySet();
+        final AtomicInteger sharedCount = new AtomicInteger();
+
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        try {
+            ArrayList<Future<?>> futures = new ArrayList<>();
+            for (int i = 0; i < threadCount; ++i) {
+                futures.add(executor.submit(() -> {
+                    for (int j = 0; j < iterations; ++j) {
+                        read(jsonFactory);
+
+                        NopOutputStream out = new NopOutputStream();
+                        JsonGenerator gen = jsonFactory.createGenerator(
+                                ObjectWriteContext.empty(), out);
+                        BufferRecycler br = ((GeneratorBase) gen).ioContext().bufferRecycler();
+                        if (!inUse.add(br)) {
+                            sharedCount.incrementAndGet();
+                        }
+                        gen.writeString("test");
+                        // Must stop tracking before close(), which returns it to the pool
+                        inUse.remove(br);
+                        gen.close();
+                    }
+                    return null;
+                }));
+            }
+
+            for (Future<?> future : futures) {
+                future.get();
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+
+        assertEquals(0, sharedCount.get(),
+                "BufferRecycler handed out to more than one holder at a time");
+        assertEquals(0, inUse.size());
+        // Bounded queue must retain releases, up to but not beyond capacity
+        int pooled = pool.pooledCount();
+        assertTrue(pooled > 0 && pooled <= capacity,
+                "Unexpected pooledCount(): "+pooled);
     }
 
     @Test
@@ -74,6 +185,13 @@ class BufferRecyclerPoolTest extends JacksonCoreTestBase
             assertNotSame(usedBufferRecycler, br2);
         } else {
             assertFalse(pool.clear());
+        }
+    }
+
+    private void read(JsonFactory jsonFactory) throws Exception {
+        try (JsonParser p = createParser(jsonFactory, MODE_INPUT_STREAM,
+                a2q("{'a':123,'b':'foobar'}"))) {
+            while (p.nextToken() != null) { }
         }
     }
 

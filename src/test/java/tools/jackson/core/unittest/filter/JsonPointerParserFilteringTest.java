@@ -17,9 +17,11 @@ class JsonPointerParserFilteringTest extends tools.jackson.core.unittest.Jackson
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    final String SIMPLEST_INPUT = a2q("{'a':1,'b':2,'c':3}");
+    final String SIMPLEST_INPUT = """
+            {"a":1,"b":2,"c":3}""";
 
-    final String SIMPLE_INPUT = a2q("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
+    final String SIMPLE_INPUT = """
+            {"a":1,"b":[1,2,3],"c":{"d":{"a":true}},"d":null}""";
 
     @Test
     void simplestWithPath() throws Exception

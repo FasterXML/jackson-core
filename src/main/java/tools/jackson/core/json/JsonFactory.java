@@ -10,7 +10,6 @@ import java.util.Locale;
 
 import tools.jackson.core.*;
 import tools.jackson.core.base.TextualTSFactory;
-import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.io.*;
 import tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;
 import tools.jackson.core.json.async.NonBlockingByteBufferJsonParser;
@@ -444,17 +443,17 @@ public class JsonFactory
             DataInput input)
         throws JacksonException
     {
-        // [core#1570] DataInput reads byte-by-byte so we cannot efficiently enforce
-        //   maxDocumentLength. Fail fast if the limit has been configured.
-        if (_streamReadConstraints.hasMaxDocumentLength()) {
-            throw new StreamConstraintsException(
-                    "Can not enforce `StreamReadConstraints.getMaxDocumentLength()` limit with `DataInput`-backed parser: "
-                    +"use other input source types, or remove the max-document-length limit");
-        }
         // Also: while we can't do full bootstrapping (due to read-ahead limitations), should
         // at least handle possible UTF-8 BOM
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChildOrPlaceholder(_factoryFeatures);
+        // [core#1575]: Support max doc length constraints with separate impl
+        if (_streamReadConstraints.hasMaxDocumentLength()) {
+            return new UTF8DataInputWithDocLengthJsonParser(readCtxt, ioCtxt,
+                    readCtxt.getStreamReadFeatures(_streamReadFeatures),
+                    readCtxt.getFormatReadFeatures(_formatReadFeatures),
+                    input, can, firstByte);
+        }
         return new UTF8DataInputJsonParser(readCtxt, ioCtxt,
                 readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),

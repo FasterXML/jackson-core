@@ -29,9 +29,8 @@ public class ManualIntRead extends ManualPerfTestBase
             System.exit(1);
         }
         final JsonFactory f = new JsonFactory();
-        final String jsonStr = a2q(
-"{'data':[1,-2,138,-78,0,12435,-12,-9],'last':12345}"
-                );
+        final String jsonStr = """
+                {"data":[1,-2,138,-78,0,12435,-12,-9],"last":12345}""";
         new ManualIntRead(f, jsonStr).test("char[]", "byte[]", jsonStr.length());
     }
 

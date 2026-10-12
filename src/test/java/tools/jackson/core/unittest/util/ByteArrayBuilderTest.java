@@ -86,6 +86,36 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
         byteArrayBuilder.close();
     }
 
+    // Content spanning multiple blocks, then reuse of the same builder: exercises
+    // the lazily-created past-block list, including reset() before it exists
+    @Test
+    void testMultipleBlocksAndReuse() throws Exception
+    {
+        ByteArrayBuilder b = new ByteArrayBuilder(null, 10);
+
+        // First round: single block only, no overflow
+        b.write(new byte[] { 1, 2, 3 });
+        assertArrayEquals(new byte[] { 1, 2, 3 }, b.toByteArray());
+
+        // Second round: enough to overflow into several blocks
+        b.reset();
+        byte[] input = new byte[5000];
+        for (int i = 0; i < input.length; ++i) {
+            input[i] = (byte) i;
+        }
+        b.write(input);
+        assertEquals(input.length, b.size());
+        assertArrayEquals(input, b.toByteArray());
+
+        // Third round: back to a single block; past blocks must not linger
+        b.reset();
+        b.append(42);
+        assertArrayEquals(new byte[] { 42 }, b.toByteArray());
+
+        b.release();
+        b.close();
+    }
+
     // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
     @Test
     void testBufferRecyclerReuse() throws Exception

@@ -90,4 +90,41 @@ class MergedStreamTest
         ms.close();
         ctxt.close();
     }
+
+    @Test
+    void skipNonPositive() throws Exception
+    {
+        IOContext ctxt = testIOContext();
+        byte[] first = ctxt.allocReadIOBuffer();
+        System.arraycopy("ABC".getBytes("UTF-8"), 0, first, 0, 3);
+        MergedStream ms = new MergedStream(ctxt, new ByteArrayInputStream(new byte[0]),
+                                           first, 0, 3);
+        assertEquals('A', ms.read());
+        assertEquals(0, ms.skip(-1));
+        assertEquals(0, ms.skip(0));
+        // must not have rewound
+        assertEquals('B', ms.read());
+        assertEquals(1, ms.available());
+        ms.close();
+        ctxt.close();
+    }
+
+    @Test
+    void emptyPushback() throws Exception
+    {
+        IOContext ctxt = testIOContext();
+        byte[] first = ctxt.allocReadIOBuffer();
+        first[5] = (byte) 'X';
+        MergedStream ms = new MergedStream(ctxt, new ByteArrayInputStream("DEF".getBytes("UTF-8")),
+                                           first, 5, 5);
+        assertEquals(3, ms.available());
+        byte[] buffer = new byte[10];
+        assertEquals(1, ms.read(buffer, 0, 1));
+        assertEquals((byte) 'D', buffer[0]);
+        assertEquals('E', ms.read());
+        assertEquals('F', ms.read());
+        assertEquals(-1, ms.read());
+        ms.close();
+        ctxt.close();
+    }
 }

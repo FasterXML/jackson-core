@@ -75,12 +75,7 @@ public final class MergedStream extends InputStream
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         Objects.requireNonNull(b, "b");
-        // 12-Oct-2026, pjfanning: not `Objects.checkFromIndexSize()`, which is Android API 30+
-        if (off < 0 || len < 0 || off > b.length - len) {
-            throw new IndexOutOfBoundsException(String.format(
-                    "Invalid 'off' (%d) and/or 'len' (%d) arguments for `byte[]` of length %d",
-                    off, len, b.length));
-        }
+        Objects.checkFromIndexSize(off, len, b.length);
         if (_b != null) {
             int avail = _end - _ptr;
             if (len > avail) {

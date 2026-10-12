@@ -149,4 +149,20 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
         br.releaseToPool();
         assertFalse(br.isLinkedWithPool());
     }
+
+    @Test
+    void writeInvalidBounds() throws Exception
+    {
+        ByteArrayBuilder bab = new ByteArrayBuilder(10);
+        byte[] src = new byte[25];
+        assertThrows(NullPointerException.class, () -> bab.write(null, 0, 1));
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, -1, 5));
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 0, -1));
+        // spans more than one block: must fail before anything is written
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 5, 21));
+        assertEquals(0, bab.size());
+        bab.write(src, 5, 20);
+        assertEquals(20, bab.size());
+        bab.release();
+    }
 }

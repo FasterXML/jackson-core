@@ -278,6 +278,8 @@ public final class ByteArrayBuilder
     @Override
     public void write(byte[] b, int off, int len)
     {
+        // 12-Oct-2026, pjfanning: validate up front, to avoid partial writes
+        Objects.checkFromIndexSize(off, len, b.length);
         while (true) {
             int max = _currBlock.length - _currBlockPtr;
             int toCopy = Math.min(max, len);

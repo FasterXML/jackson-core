@@ -1665,7 +1665,7 @@ public class ReaderBasedJsonParser
                 if (outPtr >= outBuf.length) {
                     // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer;
                     //   `expLen` still -1 ("none") here so must not over-estimate
-                    _streamReadConstraints.validateFPLength(intLen + fractLen - 1);
+                    _streamReadConstraints.validateFPLength(intLen + fractLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1706,7 +1706,7 @@ public class ReaderBasedJsonParser
             while (c <= INT_9 && c >= INT_0) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
-                    _streamReadConstraints.validateFPLength(intLen + fractLen + expLen);
+                    _streamReadConstraints.validateFPLength(intLen + Math.max(fractLen, 0) + expLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1738,7 +1738,7 @@ public class ReaderBasedJsonParser
         if (fractLen < 0 && expLen < 0) { // integer
             return resetInt(neg, intLen);
         }
-        return resetFloat(neg, intLen, fractLen, expLen);
+        return resetFloat(neg, intLen, Math.max(fractLen, 0), Math.max(expLen, 0));
     }
 
     // [core#707] Finish parsing a JSON5 hexadecimal integer literal once

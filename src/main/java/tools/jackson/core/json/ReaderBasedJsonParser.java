@@ -1641,10 +1641,13 @@ public class ReaderBasedJsonParser
             }
         }
 
-        int fractLen = -1;
+        // 13-Oct-2026, tatu: [core#1766] Lengths start at 0 (not -1 for "absent");
+        //   `isFloat` tracks whether fraction and/or exponent was seen
+        boolean isFloat = false;
+        int fractLen = 0;
         // And then see if we get other parts
         if (c == '.') { // yes, fraction
-            fractLen = 0;
+            isFloat = true;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -1663,9 +1666,8 @@ public class ReaderBasedJsonParser
                 }
                 ++fractLen;
                 if (outPtr >= outBuf.length) {
-                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer;
-                    //   `expLen` still -1 ("none") here so must not over-estimate
-                    _streamReadConstraints.validateFPLength(intLen + fractLen - 1);
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                    _streamReadConstraints.validateFPLength(intLen + fractLen);
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -1679,9 +1681,9 @@ public class ReaderBasedJsonParser
             }
         }
 
-        int expLen = -1;
+        int expLen = 0;
         if ((c | 0x20) == INT_e) { // ~ 'eE' exponent?
-            expLen = 0;
+            isFloat = true;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -1735,7 +1737,7 @@ public class ReaderBasedJsonParser
         // And there we have it!
         // 26-Jun-2022, tatu: Careful here, as non-standard numbers can
         //    cause surprises - cannot use plain "reset()" but apply diff logic
-        if (fractLen < 0 && expLen < 0) { // integer
+        if (!isFloat) {
             return resetInt(neg, intLen);
         }
         return resetFloat(neg, intLen, fractLen, expLen);

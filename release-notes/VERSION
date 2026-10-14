@@ -70,6 +70,9 @@ JSON library.
 #1753: Reject 4-byte UTF-8 sequences exceeding U+10FFFF in String values
   of `UTF8StreamJsonParser`
  (reported, fix by DongNyoung L)
+#1766: `ReaderBasedJsonParser` undercounts number length when fraction or
+  exponent is absent
+ (reported, fix by DongNyoung L)
 #1768: `MergedStream` edge cases: negative `skip()`, empty pushback range
  (fix by @pjfanning, w/ Claude code)
 #1771: `ByteArrayBuilder.write(byte[], int, int)` does not validate `off`/`len`

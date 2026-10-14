@@ -275,6 +275,14 @@ public final class ByteArrayBuilder
         _write(b, 0, b.length);
     }
 
+    /**
+     * Appends {@code len} bytes from {@code b} starting at {@code off}.
+     * Bounds are validated before anything is written: on failure no content
+     * is appended.
+     *
+     * @throws IndexOutOfBoundsException if {@code off} or {@code len} is negative,
+     *    or {@code off + len > b.length}
+     */
     @Override
     public void write(byte[] b, int off, int len)
     {
@@ -303,7 +311,7 @@ public final class ByteArrayBuilder
      */
 
     // No bounds checks: callers must validate
-    private final void _write(byte[] b, int off, int len)
+    private void _write(byte[] b, int off, int len)
     {
         while (true) {
             int max = _currBlock.length - _currBlockPtr;

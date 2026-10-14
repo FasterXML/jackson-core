@@ -272,24 +272,23 @@ public final class ByteArrayBuilder
 
     @Override
     public void write(byte[] b) {
-        write(b, 0, b.length);
+        _write(b, 0, b.length);
     }
 
+    /**
+     * Appends {@code len} bytes from {@code b} starting at {@code off}.
+     * Bounds are validated before anything is written: on failure no content
+     * is appended.
+     *
+     * @throws IndexOutOfBoundsException if {@code off} or {@code len} is negative,
+     *    or {@code off + len > b.length}
+     */
     @Override
     public void write(byte[] b, int off, int len)
     {
-        while (true) {
-            int max = _currBlock.length - _currBlockPtr;
-            int toCopy = Math.min(max, len);
-            if (toCopy > 0) {
-                System.arraycopy(b, off, _currBlock, _currBlockPtr, toCopy);
-                off += toCopy;
-                _currBlockPtr += toCopy;
-                len -= toCopy;
-            }
-            if (len <= 0) break;
-            _allocMore();
-        }
+        // 12-Oct-2026, pjfanning: validate up front, to avoid partial writes
+        Objects.checkFromIndexSize(off, len, b.length);
+        _write(b, off, len);
     }
 
     @Override
@@ -310,6 +309,23 @@ public final class ByteArrayBuilder
     /* Internal methods
     /**********************************************************************
      */
+
+    // No bounds checks: callers must validate
+    private void _write(byte[] b, int off, int len)
+    {
+        while (true) {
+            int max = _currBlock.length - _currBlockPtr;
+            int toCopy = Math.min(max, len);
+            if (toCopy > 0) {
+                System.arraycopy(b, off, _currBlock, _currBlockPtr, toCopy);
+                off += toCopy;
+                _currBlockPtr += toCopy;
+                len -= toCopy;
+            }
+            if (len <= 0) break;
+            _allocMore();
+        }
+    }
 
     private void _allocMore()
     {

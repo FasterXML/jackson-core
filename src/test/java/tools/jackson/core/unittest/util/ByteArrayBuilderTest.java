@@ -149,4 +149,39 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
         br.releaseToPool();
         assertFalse(br.isLinkedWithPool());
     }
+
+    @Test
+    void writeInvalidBounds() throws Exception
+    {
+        ByteArrayBuilder bab = new ByteArrayBuilder(10);
+        byte[] src = new byte[25];
+        for (int i = 0; i < src.length; ++i) {
+            src[i] = (byte) i;
+        }
+        assertThrows(NullPointerException.class, () -> bab.write(null));
+        assertThrows(NullPointerException.class, () -> bab.write(null, 0, 1));
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, -1, 5));
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 0, -1));
+        // offset past end, even with zero length
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 26, 0));
+        // `off + len` overflows int
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 1, Integer.MAX_VALUE));
+        // spans more than one block: must fail before anything is written
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 5, 21));
+        assertEquals(0, bab.size());
+
+        // valid edge cases
+        bab.write(src, 25, 0);
+        assertEquals(0, bab.size());
+        bab.write(src, 5, 20);
+        assertEquals(20, bab.size());
+        bab.write(src);
+        assertEquals(45, bab.size());
+
+        byte[] exp = new byte[45];
+        System.arraycopy(src, 5, exp, 0, 20);
+        System.arraycopy(src, 0, exp, 20, 25);
+        assertArrayEquals(exp, bab.toByteArray());
+        bab.release();
+    }
 }

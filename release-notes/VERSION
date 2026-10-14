@@ -72,6 +72,8 @@ JSON library.
  (reported, fix by DongNyoung L)
 #1768: `MergedStream` edge cases: negative `skip()`, empty pushback range
  (fix by @pjfanning, w/ Claude code)
+#1771: `ByteArrayBuilder.write(byte[], int, int)` does not validate `off`/`len`
+ (fix by @pjfanning, w/ Claude code)
 
 3.2.3 (21-Sep-2026)
 

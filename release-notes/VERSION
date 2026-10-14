@@ -52,7 +52,7 @@ JSON library.
   backslash escape
  (contributed by @ItsDeadlyProgrammer)
 #1765: Non-blocking parser does not validate hex number length when input
-  runs out mid-number (with `ALLOW_HEXADECIMAL_NUMBERS`)
+  runs out mid-number (with `ALLOW_HEXADECIMAL_NUMBERS`) [CVE-2026-110729]
  (fix by @pjfanning)
 
 3.2.3 (21-Sep-2026)

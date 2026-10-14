@@ -51,9 +51,6 @@ JSON library.
 #1756: Non-blocking parser does not decode multi-byte UTF-8 character after
   backslash escape
  (contributed by @ItsDeadlyProgrammer)
-#1765: Non-blocking parser does not validate hex number length when input
-  runs out mid-number (with `ALLOW_HEXADECIMAL_NUMBERS`)
- (fix by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 

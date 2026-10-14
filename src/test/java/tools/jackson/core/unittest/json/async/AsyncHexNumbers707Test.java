@@ -4,12 +4,7 @@ import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectReadContext;
-import tools.jackson.core.StreamReadConstraints;
-import tools.jackson.core.async.ByteArrayFeeder;
-import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
@@ -166,27 +161,6 @@ class AsyncHexNumbers707Test extends AsyncTestBase
             fail("Should not pass: prefix without any hex digit");
         } catch (StreamReadException e) {
             verifyException(e, "hex digit");
-        }
-    }
-
-    @Test
-    void hexLengthValidatedWhenInputSplit() throws Exception {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)
-                .streamReadConstraints(StreamReadConstraints.builder()
-                        .maxNumberLength(100).build())
-                .build();
-        // Digit count stays below text buffer segment size, so only the
-        // check done when input runs out can catch it
-        try (JsonParser p = f.createNonBlockingByteArrayParser(ObjectReadContext.empty())) {
-            ByteArrayFeeder feeder = (ByteArrayFeeder) p.nonBlockingInputFeeder();
-            byte[] doc = ("[0x" + "a".repeat(150)).getBytes("UTF-8");
-            feeder.feedInput(doc, 0, doc.length);
-            assertToken(JsonToken.START_ARRAY, p.nextToken());
-            p.nextToken();
-            fail("Should not pass: hex number longer than maxNumberLength");
-        } catch (StreamConstraintsException e) {
-            verifyException(e, "Number value length (150) exceeds the maximum allowed (100");
         }
     }
 

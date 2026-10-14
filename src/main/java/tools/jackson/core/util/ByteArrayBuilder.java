@@ -272,16 +272,14 @@ public final class ByteArrayBuilder
 
     @Override
     public void write(byte[] b) {
-        Objects.requireNonNull(b, "b");
         _write(b, 0, b.length);
     }
 
     @Override
     public void write(byte[] b, int off, int len)
     {
-        Objects.requireNonNull(b, "b");
         // 12-Oct-2026, pjfanning: validate up front, to avoid partial writes
-        Objects.checkFromIndexSize(off, len, len);
+        Objects.checkFromIndexSize(off, len, b.length);
         _write(b, off, len);
     }
 

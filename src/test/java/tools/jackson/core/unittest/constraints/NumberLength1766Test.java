@@ -20,7 +20,7 @@ class NumberLength1766Test extends JacksonCoreTestBase
     void exactLimitAccepted() throws Exception
     {
         JsonFactory f = factory(5);
-        for (String doc : new String[] { "123.45", "123e45", "12.3e45" }) {
+        for (String doc : new String[] { "123.45", "123e45", "12.3e45", "-123.45" }) {
             assertParses(f, doc);
         }
         f = factory(1000);
@@ -32,7 +32,7 @@ class NumberLength1766Test extends JacksonCoreTestBase
     void oneOverLimitRejected() throws Exception
     {
         JsonFactory f = factory(5);
-        for (String doc : new String[] { "123.456", "12345e1", "12.34e56" }) {
+        for (String doc : new String[] { "123.456", "12345e1", "12.34e56", "-12345e1" }) {
             assertTooLong(f, doc);
         }
         // long enough to span TextBuffer segments

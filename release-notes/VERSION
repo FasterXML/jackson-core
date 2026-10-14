@@ -61,15 +61,44 @@ JSON library.
   `includeString()`
  (reported by @cowtowncoder)
  (fix by @kalayciburak)
+#1724: Use target exception's original message and type when wrapping
+  `InvocationTargetException` with path information
+ (reported by Lee Dongnyoung)
+ (fix by @CCCLL)
+#1730: Make `FilteringGeneratorDelegate` handle `writeEmbeddedObject()`,
+  typed `writeArray()` and raw/binary values consistently
+ (fix by @pjfanning)
 #1738: Add `GuardedOutputStream` (non-flushing, non-closing `OutputStream` wrapper)
   for textual format backends
  (fix by @cowtowncoder, w/ Claude code)
+#1742: Non-blocking parser returns `NOT_AVAILABLE` but does not resume when
+  a feed ends inside an escaped surrogate pair in a property name
+ (reported by @DRMacIver)
+ (fix by @pjfanning)
+#1744: Backslash-escaped supplementary characters (with
+  `ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER`) truncated to 16 bits; now rejected
+ (fix by @pjfanning)
+#1746: Non-blocking parser rejects leading-decimal-point numbers after `,` or `:`
+  with `ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS`
+ (fix by @pjfanning)
+#1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
+  `ALLOW_UNQUOTED_PROPERTY_NAMES`
+ (fix by @pjfanning)
+#1750: `ALLOW_UNESCAPED_CONTROL_CHARS` ignored for single-quoted string values
+  in UTF-8 byte parsers (and allowed control chars dropped by `readString(Writer)`)
+ (fix by @pjfanning)
 #1752: `UTF8DataInputJsonParser` should preserve I/O failures during invalid
   token reporting
  (reported, fix by DongNyoung L)
 #1753: Reject 4-byte UTF-8 sequences exceeding U+10FFFF in String values
   of `UTF8StreamJsonParser`
  (reported, fix by DongNyoung L)
+#1756: Non-blocking parser does not decode multi-byte UTF-8 character after
+  backslash escape
+ (contributed by @ItsDeadlyProgrammer)
+#1765: Non-blocking parser does not validate hex number length when input
+  runs out mid-number (with `ALLOW_HEXADECIMAL_NUMBERS`) [CVE-2026-110729]
+ (fix by @pjfanning)
 #1766: `ReaderBasedJsonParser` undercounts number length when fraction or
   exponent is absent
  (reported, fix by DongNyoung L)

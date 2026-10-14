@@ -272,26 +272,17 @@ public final class ByteArrayBuilder
 
     @Override
     public void write(byte[] b) {
-        write(b, 0, b.length);
+        Objects.requireNonNull(b, "b");
+        _write(b, 0, b.length);
     }
 
     @Override
     public void write(byte[] b, int off, int len)
     {
+        Objects.requireNonNull(b, "b");
         // 12-Oct-2026, pjfanning: validate up front, to avoid partial writes
-        Objects.checkFromIndexSize(off, len, b.length);
-        while (true) {
-            int max = _currBlock.length - _currBlockPtr;
-            int toCopy = Math.min(max, len);
-            if (toCopy > 0) {
-                System.arraycopy(b, off, _currBlock, _currBlockPtr, toCopy);
-                off += toCopy;
-                _currBlockPtr += toCopy;
-                len -= toCopy;
-            }
-            if (len <= 0) break;
-            _allocMore();
-        }
+        Objects.checkFromIndexSize(off, len, len);
+        _write(b, off, len);
     }
 
     @Override
@@ -312,6 +303,23 @@ public final class ByteArrayBuilder
     /* Internal methods
     /**********************************************************************
      */
+
+    // No bounds checks: callers must validate
+    private final void _write(byte[] b, int off, int len)
+    {
+        while (true) {
+            int max = _currBlock.length - _currBlockPtr;
+            int toCopy = Math.min(max, len);
+            if (toCopy > 0) {
+                System.arraycopy(b, off, _currBlock, _currBlockPtr, toCopy);
+                off += toCopy;
+                _currBlockPtr += toCopy;
+                len -= toCopy;
+            }
+            if (len <= 0) break;
+            _allocMore();
+        }
+    }
 
     private void _allocMore()
     {

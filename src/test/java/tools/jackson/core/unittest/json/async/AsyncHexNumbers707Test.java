@@ -1,6 +1,8 @@
 package tools.jackson.core.unittest.json.async;
 
 import java.math.BigInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +34,12 @@ class AsyncHexNumbers707Test extends AsyncTestBase
     private final JsonFactory HEX_AND_PLUS_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)
             .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)
+            .build();
+
+    private final JsonFactory HEX_MAX100_F = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)
+            .streamReadConstraints(StreamReadConstraints.builder()
+                    .maxNumberLength(100).build())
             .build();
 
     @Test
@@ -171,14 +179,9 @@ class AsyncHexNumbers707Test extends AsyncTestBase
 
     @Test
     void hexLengthValidatedWhenInputSplit() throws Exception {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)
-                .streamReadConstraints(StreamReadConstraints.builder()
-                        .maxNumberLength(100).build())
-                .build();
         // Digit count stays below text buffer segment size, so only the
         // check done when input runs out can catch it
-        try (JsonParser p = f.createNonBlockingByteArrayParser(ObjectReadContext.empty())) {
+        try (JsonParser p = HEX_MAX100_F.createNonBlockingByteArrayParser(ObjectReadContext.empty())) {
             ByteArrayFeeder feeder = (ByteArrayFeeder) p.nonBlockingInputFeeder();
             byte[] doc = ("[0x" + "a".repeat(150)).getBytes("UTF-8");
             feeder.feedInput(doc, 0, doc.length);
@@ -187,6 +190,58 @@ class AsyncHexNumbers707Test extends AsyncTestBase
             fail("Should not pass: hex number longer than maxNumberLength");
         } catch (StreamConstraintsException e) {
             verifyException(e, "Number value length (150) exceeds the maximum allowed (100");
+        }
+    }
+
+    // [core#1765]: signed and unsigned, resumed across multiple feeds, both parser types
+    @Test
+    void hexLengthValidatedWhenInputSplitMultiFeed() throws Exception {
+        for (String sign : new String[] { "", "-" }) {
+            byte[] doc = _jsonDoc("[" + sign + "0x" + "a".repeat(150) + "]");
+            for (int readSize : new int[] { 1, 5 }) {
+                _verifyHexTooLong(asyncForBytes(HEX_MAX100_F, readSize, doc, 0), readSize);
+                _verifyHexTooLong(asyncForByteBuffer(HEX_MAX100_F, readSize, doc, 0), readSize);
+            }
+        }
+    }
+
+    // [core#1765]: hex literal of exactly maxNumberLength digits must still pass
+    @Test
+    void hexAtMaxLengthAcceptedWhenInputSplit() throws Exception {
+        for (String sign : new String[] { "", "-" }) {
+            String literal = sign + "0x" + "a".repeat(100);
+            byte[] doc = _jsonDoc("[" + literal + "]");
+            for (int readSize : new int[] { 1, 5, 1000 }) {
+                _verifyHexAtMax(asyncForBytes(HEX_MAX100_F, readSize, doc, 0), literal);
+                _verifyHexAtMax(asyncForByteBuffer(HEX_MAX100_F, readSize, doc, 0), literal);
+            }
+        }
+    }
+
+    private void _verifyHexTooLong(AsyncReaderWrapper r, int readSize) throws Exception
+    {
+        try (r) {
+            assertToken(JsonToken.START_ARRAY, r.nextToken());
+            r.nextToken();
+            fail("Should not pass: hex number longer than maxNumberLength");
+        } catch (StreamConstraintsException e) {
+            verifyException(e, "exceeds the maximum allowed (100");
+            // Must fail as soon as accumulated digits exceed the limit, not at end of number
+            Matcher m = Pattern.compile("Number value length \\((\\d+)\\)").matcher(e.getMessage());
+            assertTrue(m.find(), "Unexpected message: " + e.getMessage());
+            int len = Integer.parseInt(m.group(1));
+            assertTrue(len > 100 && len <= 100 + readSize,
+                    "Unexpected reported length " + len + " (readSize " + readSize + ")");
+        }
+    }
+
+    private void _verifyHexAtMax(AsyncReaderWrapper r, String literal) throws Exception
+    {
+        try (r) {
+            assertToken(JsonToken.START_ARRAY, r.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
+            assertEquals(literal, r.currentText());
+            assertToken(JsonToken.END_ARRAY, r.nextToken());
         }
     }
 

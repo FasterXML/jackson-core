@@ -255,6 +255,9 @@ public final class ByteSourceJsonBootstrapper
                     // need to merge that input in:
                     if (_inputPtr < _inputEnd) {
                         in = new MergedStream(_context, in, _inputBuffer, _inputPtr, _inputEnd);
+                    } else if (_bufferRecyclable) {
+                        // 13-Oct-2026, tatu: [core#1768] nothing to merge, release buffer
+                        _context.releaseReadIOBuffer(_inputBuffer);
                     }
                 }
                 try {

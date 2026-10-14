@@ -34,7 +34,7 @@ Use the Maven wrapper (`./mvnw`), not a system `mvn`.
 ./mvnw test -Dtest='*Filtering*'                         # pattern
 
 ./mvnw test jacoco:report                   # coverage report (separate goal; not part of `verify`)
-./mvnw clean package animal-sniffer:check   # verify Android SDK 26 API compatibility
+./mvnw clean package animal-sniffer:check   # verify Android SDK API compatibility (34; 26 on `3.1`)
 ```
 
 Note `verify` binds the JaCoCo *agent* and an enforcer rule that requires `jacoco.exec` to exist —
@@ -44,7 +44,7 @@ and runs `animal-sniffer:check` only on the release-build matrix entry.
 Baseline is **JDK 17** (source/target); CI builds on 17, 21, and 25 (plus 17 on Windows). Normal
 development works on JDK 17, but *releases* must be built with **JDK 21+** — the enforcer plugin
 fails otherwise, because JDK 17 produces an incomplete `-javadoc.jar` (see #1561 / #1625).
-`animal-sniffer` additionally restricts you to the Android SDK 26 API subset.
+`animal-sniffer` additionally restricts you to the Android SDK 34 API subset (26 on `3.1`).
 
 Tests are JUnit 5 (`org.junit.jupiter`) with AssertJ available. `src/test/java/perf/` holds manual
 benchmark drivers, not unit tests.

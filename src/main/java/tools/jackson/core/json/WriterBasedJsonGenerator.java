@@ -1220,9 +1220,9 @@ public class WriterBasedJsonGenerator
             }
 
             // Ok, bumped into something that needs escaping.
-            /* First things first: need to flush the buffer.
-             * Inlined, as we don't want to lose tail pointer
-             */
+
+            // First things first: need to flush the buffer.
+            // Inlined, as we don't want to lose tail pointer
             int flushLen = (_outputTail - _outputHead);
             if (flushLen > 0) {
                 try {
@@ -1231,9 +1231,8 @@ public class WriterBasedJsonGenerator
                     throw _wrapIOFailure(e);
                 }
             }
-            /* In any case, tail will be the new start, so hopefully
-             * we have room now.
-             */
+            // In any case, tail will be the new start, so hopefully
+            // we have room now.
             char c = _outputBuffer[_outputTail++];
             _prependOrWriteCharacterEscape(c, escCodes[c]);
         }
@@ -1299,9 +1298,9 @@ public class WriterBasedJsonGenerator
             }
 
             // Ok, bumped into something that needs escaping.
-            /* First things first: need to flush the buffer.
-             * Inlined, as we don't want to lose tail pointer
-             */
+
+            // First things first: need to flush the buffer.
+            // Inlined, as we don't want to lose tail pointer
             int flushLen = (ptr - start);
             if (flushLen > 0) {
                 try {

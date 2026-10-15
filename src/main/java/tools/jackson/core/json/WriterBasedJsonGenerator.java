@@ -1212,18 +1212,22 @@ public class WriterBasedJsonGenerator
 
         output_loop:
         while (_outputTail < end) {
-            // Fast loop for chars not needing escaping
-            escape_loop:
+            // Fast loop for chars not needing escaping. Uses a local pointer as C2 would
+            // otherwise store `_outputTail` on every iteration.
+            final char[] buf = _outputBuffer;
+            int ptr = _outputTail;
             while (true) {
-                char c = _outputBuffer[_outputTail];
+                char c = buf[ptr];
                 if (stdEsc ? (c < 0x20 || c == '"' || c == '\\')
                         : (c < escLen && escCodes[c] != 0)) {
-                    break escape_loop;
+                    break;
                 }
-                if (++_outputTail >= end) {
+                if (++ptr >= end) {
+                    _outputTail = ptr;
                     break output_loop;
                 }
             }
+            _outputTail = ptr;
 
             // Ok, bumped into something that needs escaping.
 

@@ -1204,6 +1204,11 @@ public class WriterBasedJsonGenerator
         final int end = _outputTail + len;
         final int[] escCodes = _outputEscapes;
         final int escLen = escCodes.length;
+        // 15-Oct-2026, pjfanning: [core#1680] For the standard table the test is expressible
+        //   with constants; C2 unswitches on this flag so that clone has no per-character
+        //   table load. A custom quote char, escaped slashes or CharacterEscapes give a
+        //   different array and fall back to the lookup below.
+        final boolean stdEsc = (escCodes == CharTypes.get7BitOutputEscapes());
 
         output_loop:
         while (_outputTail < end) {
@@ -1211,7 +1216,8 @@ public class WriterBasedJsonGenerator
             escape_loop:
             while (true) {
                 char c = _outputBuffer[_outputTail];
-                if (c < escLen && escCodes[c] != 0) {
+                if (stdEsc ? (c < 0x20 || c == '"' || c == '\\')
+                        : (c < escLen && escCodes[c] != 0)) {
                     break escape_loop;
                 }
                 if (++_outputTail >= end) {
@@ -1280,6 +1286,8 @@ public class WriterBasedJsonGenerator
     {
         final int[] escCodes = _outputEscapes;
         final int escLen = escCodes.length;
+        // [core#1680]: constant test for standard escapes, see _writeString2()
+        final boolean stdEsc = (escCodes == CharTypes.get7BitOutputEscapes());
 
         int ptr = 0;
         int start = ptr;
@@ -1290,7 +1298,8 @@ public class WriterBasedJsonGenerator
             char c;
             while (true) {
                 c = _outputBuffer[ptr];
-                if (c < escLen && escCodes[c] != 0) {
+                if (stdEsc ? (c < 0x20 || c == '"' || c == '\\')
+                        : (c < escLen && escCodes[c] != 0)) {
                     break;
                 }
                 if (++ptr >= end) {
@@ -1340,12 +1349,15 @@ public class WriterBasedJsonGenerator
         len += offset; // -> len marks the end from now on
         final int[] escCodes = _outputEscapes;
         final int escLen = escCodes.length;
+        // [core#1680]: constant test for standard escapes, see _writeString2()
+        final boolean stdEsc = (escCodes == CharTypes.get7BitOutputEscapes());
         while (offset < len) {
             int start = offset;
 
             while (true) {
                 char c = text[offset];
-                if (c < escLen && escCodes[c] != 0) {
+                if (stdEsc ? (c < 0x20 || c == '"' || c == '\\')
+                        : (c < escLen && escCodes[c] != 0)) {
                     break;
                 }
                 if (++offset >= len) {

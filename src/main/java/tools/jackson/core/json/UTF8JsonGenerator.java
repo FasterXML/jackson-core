@@ -1599,11 +1599,15 @@ public class UTF8JsonGenerator
             int outputPtr = _outputTail;
             final byte[] outputBuffer = _outputBuffer;
             final int[] escCodes = _outputEscapes;
+            // [core#1680]: For the standard table the test is expressible with constants;
+            //   C2 unswitches on this flag so that clone has no per-character table load.
+            final boolean stdEsc = (escCodes == CharTypes.get7BitOutputEscapes());
 
             while (offset < len) {
                 int ch = text.charAt(offset);
                 // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-                if (ch > 0x7F || escCodes[ch] != 0) {
+                if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                        : (ch > 0x7F || escCodes[ch] != 0)) {
                     break;
                 }
                 outputBuffer[outputPtr++] = (byte) ch;

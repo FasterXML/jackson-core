@@ -1419,10 +1419,12 @@ public class WriterBasedJsonGenerator
         output_loop:
         while (_outputTail < end) {
             char c;
-            // Fast loop for chars not needing escaping
+            // Fast loop for chars not needing escaping; local pointer, see _writeString2()
+            final char[] buf = _outputBuffer;
+            int ptr = _outputTail;
             escape_loop:
             while (true) {
-                c = _outputBuffer[_outputTail];
+                c = buf[ptr];
                 if (c < escLimit) {
                     escCode = escCodes[c];
                     if (escCode != 0) {
@@ -1432,10 +1434,12 @@ public class WriterBasedJsonGenerator
                     escCode = CharacterEscapes.ESCAPE_STANDARD;
                     break escape_loop;
                 }
-                if (++_outputTail >= end) {
+                if (++ptr >= end) {
+                    _outputTail = ptr;
                     break output_loop;
                 }
             }
+            _outputTail = ptr;
             int flushLen = (_outputTail - _outputHead);
             if (flushLen > 0) {
                 try {
@@ -1577,10 +1581,12 @@ public class WriterBasedJsonGenerator
         output_loop:
         while (_outputTail < end) {
             char c;
-            // Fast loop for chars not needing escaping
+            // Fast loop for chars not needing escaping; local pointer, see _writeString2()
+            final char[] buf = _outputBuffer;
+            int ptr = _outputTail;
             escape_loop:
             while (true) {
-                c = _outputBuffer[_outputTail];
+                c = buf[ptr];
                 if (c < escLimit) {
                     escCode = escCodes[c];
                     if (escCode != 0) {
@@ -1595,10 +1601,12 @@ public class WriterBasedJsonGenerator
                         break escape_loop;
                     }
                 }
-                if (++_outputTail >= end) {
+                if (++ptr >= end) {
+                    _outputTail = ptr;
                     break output_loop;
                 }
             }
+            _outputTail = ptr;
             int flushLen = (_outputTail - _outputHead);
             if (flushLen > 0) {
                 try {

@@ -29,6 +29,9 @@ public class UTF8JsonGenerator
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;
 
+    // [core#1680]: minimum String segment length for scan-then-bulk-copy fast path
+    private final static int MIN_SEGMENT_FOR_BULK_COPY = 32;
+
     private final static byte[] HEX_BYTES_UPPER = CharTypes.copyHexBytes(true);
     private final static byte[] HEX_BYTES_LOWER = CharTypes.copyHexBytes(false);
 
@@ -1584,26 +1587,45 @@ public class UTF8JsonGenerator
         }
     }
 
+    @SuppressWarnings("deprecation")
     private final void _writeStringSegment(String text, int offset, int len) throws JacksonException
     {
         // note: caller MUST ensure (via flushing) there's room for ASCII only
-        // Fast+tight loop for ASCII-only, no-escaping-needed output
-        len += offset; // becomes end marker, then
-
-        int outputPtr = _outputTail;
-        final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
 
-        while (offset < len) {
-            int ch = text.charAt(offset);
-            // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
-                break;
+        if (len >= MIN_SEGMENT_FOR_BULK_COPY) {
+            // 15-Oct-2026, pjfanning: [core#1680] For longer segments, scanning first and then
+            //   bulk-copying is faster than the fused loop below: `String.getBytes()` is
+            //   an array copy for Latin-1 Strings. Low-byte copy is exact as scanned chars are ASCII.
+            len += offset;
+            final int start = offset;
+            while (offset < len) {
+                int ch = text.charAt(offset);
+                if (ch > 0x7F || escCodes[ch] != 0) {
+                    break;
+                }
+                ++offset;
             }
-            outputBuffer[outputPtr++] = (byte) ch;
-            ++offset;
+            text.getBytes(start, offset, _outputBuffer, _outputTail);
+            _outputTail += (offset - start);
+        } else {
+            // Fast+tight loop for ASCII-only, no-escaping-needed output
+            len += offset; // becomes end marker, then
+
+            int outputPtr = _outputTail;
+            final byte[] outputBuffer = _outputBuffer;
+
+            while (offset < len) {
+                int ch = text.charAt(offset);
+                // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
+                if (ch > 0x7F || escCodes[ch] != 0) {
+                    break;
+                }
+                outputBuffer[outputPtr++] = (byte) ch;
+                ++offset;
+            }
+            _outputTail = outputPtr;
         }
-        _outputTail = outputPtr;
         if (offset < len) {
             if (_characterEscapes != null) {
                 _writeCustomStringSegment2(text, offset, len);

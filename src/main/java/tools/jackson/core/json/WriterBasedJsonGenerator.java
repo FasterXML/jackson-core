@@ -1204,20 +1204,30 @@ public class WriterBasedJsonGenerator
         final int end = _outputTail + len;
         final int[] escCodes = _outputEscapes;
         final int escLen = escCodes.length;
+        // 15-Oct-2026, pjfanning: [core#1680] For the standard table the test is expressible
+        //   with constants; C2 unswitches on this flag so that clone has no per-character
+        //   table load. A custom quote char, escaped slashes or CharacterEscapes give a
+        //   different array and fall back to the lookup below.
+        final boolean stdEsc = (escCodes == CharTypes.get7BitOutputEscapes());
 
         output_loop:
         while (_outputTail < end) {
-            // Fast loop for chars not needing escaping
-            escape_loop:
+            // Fast loop for chars not needing escaping. Uses a local pointer as C2 would
+            // otherwise store `_outputTail` on every iteration.
+            final char[] buf = _outputBuffer;
+            int ptr = _outputTail;
             while (true) {
-                char c = _outputBuffer[_outputTail];
-                if (c < escLen && escCodes[c] != 0) {
-                    break escape_loop;
+                char c = buf[ptr];
+                if (stdEsc ? (c < 0x20 || c == '"' || c == '\\')
+                        : (c < escLen && escCodes[c] != 0)) {
+                    break;
                 }
-                if (++_outputTail >= end) {
+                if (++ptr >= end) {
+                    _outputTail = ptr;
                     break output_loop;
                 }
             }
+            _outputTail = ptr;
 
             // Ok, bumped into something that needs escaping.
 
@@ -1279,6 +1289,8 @@ public class WriterBasedJsonGenerator
     {
         final int[] escCodes = _outputEscapes;
         final int escLen = escCodes.length;
+        // [core#1680]: constant test for standard escapes, see _writeString2()
+        final boolean stdEsc = (escCodes == CharTypes.get7BitOutputEscapes());
 
         int ptr = 0;
         int start = ptr;
@@ -1289,7 +1301,8 @@ public class WriterBasedJsonGenerator
             char c;
             while (true) {
                 c = _outputBuffer[ptr];
-                if (c < escLen && escCodes[c] != 0) {
+                if (stdEsc ? (c < 0x20 || c == '"' || c == '\\')
+                        : (c < escLen && escCodes[c] != 0)) {
                     break;
                 }
                 if (++ptr >= end) {
@@ -1339,12 +1352,15 @@ public class WriterBasedJsonGenerator
         len += offset; // -> len marks the end from now on
         final int[] escCodes = _outputEscapes;
         final int escLen = escCodes.length;
+        // [core#1680]: constant test for standard escapes, see _writeString2()
+        final boolean stdEsc = (escCodes == CharTypes.get7BitOutputEscapes());
         while (offset < len) {
             int start = offset;
 
             while (true) {
                 char c = text[offset];
-                if (c < escLen && escCodes[c] != 0) {
+                if (stdEsc ? (c < 0x20 || c == '"' || c == '\\')
+                        : (c < escLen && escCodes[c] != 0)) {
                     break;
                 }
                 if (++offset >= len) {
@@ -1403,10 +1419,12 @@ public class WriterBasedJsonGenerator
         output_loop:
         while (_outputTail < end) {
             char c;
-            // Fast loop for chars not needing escaping
+            // Fast loop for chars not needing escaping; local pointer, see _writeString2()
+            final char[] buf = _outputBuffer;
+            int ptr = _outputTail;
             escape_loop:
             while (true) {
-                c = _outputBuffer[_outputTail];
+                c = buf[ptr];
                 if (c < escLimit) {
                     escCode = escCodes[c];
                     if (escCode != 0) {
@@ -1416,10 +1434,12 @@ public class WriterBasedJsonGenerator
                     escCode = CharacterEscapes.ESCAPE_STANDARD;
                     break escape_loop;
                 }
-                if (++_outputTail >= end) {
+                if (++ptr >= end) {
+                    _outputTail = ptr;
                     break output_loop;
                 }
             }
+            _outputTail = ptr;
             int flushLen = (_outputTail - _outputHead);
             if (flushLen > 0) {
                 try {
@@ -1561,10 +1581,12 @@ public class WriterBasedJsonGenerator
         output_loop:
         while (_outputTail < end) {
             char c;
-            // Fast loop for chars not needing escaping
+            // Fast loop for chars not needing escaping; local pointer, see _writeString2()
+            final char[] buf = _outputBuffer;
+            int ptr = _outputTail;
             escape_loop:
             while (true) {
-                c = _outputBuffer[_outputTail];
+                c = buf[ptr];
                 if (c < escLimit) {
                     escCode = escCodes[c];
                     if (escCode != 0) {
@@ -1579,10 +1601,12 @@ public class WriterBasedJsonGenerator
                         break escape_loop;
                     }
                 }
-                if (++_outputTail >= end) {
+                if (++ptr >= end) {
+                    _outputTail = ptr;
                     break output_loop;
                 }
             }
+            _outputTail = ptr;
             int flushLen = (_outputTail - _outputHead);
             if (flushLen > 0) {
                 try {

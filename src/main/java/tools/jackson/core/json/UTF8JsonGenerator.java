@@ -1587,33 +1587,18 @@ public class UTF8JsonGenerator
         }
     }
 
-    @SuppressWarnings("deprecation")
     private final void _writeStringSegment(String text, int offset, int len) throws JacksonException
     {
         // note: caller MUST ensure (via flushing) there's room for ASCII only
-        final int[] escCodes = _outputEscapes;
+        len += offset; // becomes end marker, then
 
-        if (len >= MIN_SEGMENT_FOR_BULK_COPY) {
-            // 15-Oct-2026, pjfanning: [core#1680] For longer segments, scanning first and then
-            //   bulk-copying is faster than the fused loop below: `String.getBytes()` is
-            //   an array copy for Latin-1 Strings. Low-byte copy is exact as scanned chars are ASCII.
-            len += offset;
-            final int start = offset;
-            while (offset < len) {
-                int ch = text.charAt(offset);
-                if (ch > 0x7F || escCodes[ch] != 0) {
-                    break;
-                }
-                ++offset;
-            }
-            text.getBytes(start, offset, _outputBuffer, _outputTail);
-            _outputTail += (offset - start);
+        if ((len - offset) >= MIN_SEGMENT_FOR_BULK_COPY) {
+            offset = _writeUnescapedAsciiBulk(text, offset, len);
         } else {
             // Fast+tight loop for ASCII-only, no-escaping-needed output
-            len += offset; // becomes end marker, then
-
             int outputPtr = _outputTail;
             final byte[] outputBuffer = _outputBuffer;
+            final int[] escCodes = _outputEscapes;
 
             while (offset < len) {
                 int ch = text.charAt(offset);
@@ -1635,6 +1620,27 @@ public class UTF8JsonGenerator
                 _writeStringSegmentASCII2(text, offset, len);
             }
         }
+    }
+
+    // 15-Oct-2026, pjfanning: [core#1680] For longer segments, scanning first and then
+    //   bulk-copying is faster than the fused check-and-copy loop: `String.getBytes()` is
+    //   an array copy for Latin-1 Strings. Low-byte copy is exact as scanned chars are ASCII.
+    //   Kept separate so that the short-segment path stays compact.
+    @SuppressWarnings("deprecation")
+    private final int _writeUnescapedAsciiBulk(String text, int offset, final int end)
+    {
+        final int[] escCodes = _outputEscapes;
+        final int start = offset;
+        while (offset < end) {
+            int ch = text.charAt(offset);
+            if (ch > 0x7F || escCodes[ch] != 0) {
+                break;
+            }
+            ++offset;
+        }
+        text.getBytes(start, offset, _outputBuffer, _outputTail);
+        _outputTail += (offset - start);
+        return offset;
     }
 
     /**

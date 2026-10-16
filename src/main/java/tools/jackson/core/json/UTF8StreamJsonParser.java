@@ -1872,7 +1872,11 @@ public class UTF8StreamJsonParser
         // And then figure out how far we can read without further checks
         // for either input or output
         final int end = Math.min(_inputEnd, _inputPtr + outBuf.length - 1); // 1 == outPtr
-        // With this, we have a nice and tight loop:
+        // With this, we have a nice and tight loop.
+        // 16-Oct-2026, pjfanning: unlike other scan loops, this one deliberately keeps
+        //   using `_inputPtr`: with a local pointer C2 treats it as a counted loop and
+        //   unrolls it, which helps long numbers but made typical short ints 6-12% slower
+        //   on JDK 25 (same in _parseSignedNumber())
         while (true) {
             if (_inputPtr >= end) { // split across boundary, offline
                 return _parseNumber2(outBuf, outPtr, false, intLen);
@@ -1939,7 +1943,7 @@ public class UTF8StreamJsonParser
         // And then figure out how far we can read without further checks
         // for either input or output
         final int end = Math.min(_inputEnd, _inputPtr + outBuf.length - outPtr);
-        // With this, we have a nice and tight loop:
+        // With this, we have a nice and tight loop (keeps `_inputPtr`, see _parseUnsignedNumber()):
         while (true) {
             if (_inputPtr >= end) {
                 // Long enough to be split across boundary, so:
@@ -2121,18 +2125,28 @@ public class UTF8StreamJsonParser
                     eof = true;
                     break fract_loop;
                 }
-                c = _inputBuffer[_inputPtr++] & 0xFF;
-                if (c < INT_0 || c > INT_9) {
-                    break fract_loop;
+                // Scan what is in the buffer using a local pointer, as C2 would otherwise
+                // store `_inputPtr` on every iteration
+                final byte[] inputBuffer = _inputBuffer;
+                final int end = _inputEnd;
+                int ptr = _inputPtr;
+                while (ptr < end) {
+                    c = inputBuffer[ptr++] & 0xFF;
+                    if (c < INT_0 || c > INT_9) {
+                        _inputPtr = ptr;
+                        break fract_loop;
+                    }
+                    ++fractLen;
+                    if (outPtr >= outBuf.length) {
+                        _inputPtr = ptr;
+                        // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                        _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
+                        outBuf = _textBuffer.finishCurrentSegment();
+                        outPtr = 0;
+                    }
+                    outBuf[outPtr++] = (char) c;
                 }
-                ++fractLen;
-                if (outPtr >= outBuf.length) {
-                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
-                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
-                    outBuf = _textBuffer.finishCurrentSegment();
-                    outPtr = 0;
-                }
-                outBuf[outPtr++] = (char) c;
+                _inputPtr = ptr;
             }
             // must be followed by sequence of ints, one minimum
             _verifyFractionDigits(fractLen, integerPartLength, c);
@@ -2396,64 +2410,74 @@ public class UTF8StreamJsonParser
 
     protected final String parseLongName(int q, final int q2, int q3) throws JacksonException
     {
-        _quadBuffer[0] = _quad1;
-        _quadBuffer[1] = q2;
-        _quadBuffer[2] = q3;
+        int[] quads = _quadBuffer;
+        quads[0] = _quad1;
+        quads[1] = q2;
+        quads[2] = q3;
 
         // As explained above, will ignore UTF-8 encoding at this point
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
+        // Local pointer and quad buffer: C2 would otherwise store `_inputPtr` on
+        // every byte and reload `_quadBuffer` on every quad.
+        final int end = _inputEnd - 4;
+        int ptr = _inputPtr;
         int qlen = 3;
 
-        while ((_inputPtr + 4) <= _inputEnd) {
-            int i = input[_inputPtr++] & 0xFF;
+        while (ptr <= end) {
+            int i = input[ptr++] & 0xFF;
             if (codes[i] != 0) {
+                _inputPtr = ptr;
                 if (i == INT_QUOTE) {
-                    return findName(_quadBuffer, qlen, q, 1);
+                    return findName(quads, qlen, q, 1);
                 }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 1);
+                return parseEscapedName(quads, qlen, q, i, 1);
             }
 
             q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
+            i = input[ptr++] & 0xFF;
             if (codes[i] != 0) {
+                _inputPtr = ptr;
                 if (i == INT_QUOTE) {
-                    return findName(_quadBuffer, qlen, q, 2);
+                    return findName(quads, qlen, q, 2);
                 }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 2);
+                return parseEscapedName(quads, qlen, q, i, 2);
             }
 
             q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
+            i = input[ptr++] & 0xFF;
             if (codes[i] != 0) {
+                _inputPtr = ptr;
                 if (i == INT_QUOTE) {
-                    return findName(_quadBuffer, qlen, q, 3);
+                    return findName(quads, qlen, q, 3);
                 }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 3);
+                return parseEscapedName(quads, qlen, q, i, 3);
             }
 
             q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
+            i = input[ptr++] & 0xFF;
             if (codes[i] != 0) {
+                _inputPtr = ptr;
                 if (i == INT_QUOTE) {
-                    return findName(_quadBuffer, qlen, q, 4);
+                    return findName(quads, qlen, q, 4);
                 }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 4);
+                return parseEscapedName(quads, qlen, q, i, 4);
             }
 
             // Nope, no end in sight. Need to grow quad array etc
-            if (qlen >= _quadBuffer.length) {
-                _quadBuffer = _growNameDecodeBuffer(_quadBuffer, qlen);
+            if (qlen >= quads.length) {
+                _quadBuffer = quads = _growNameDecodeBuffer(quads, qlen);
             }
-            _quadBuffer[qlen++] = q;
+            quads[qlen++] = q;
             q = i;
         }
+        _inputPtr = ptr;
 
         /* Let's offline if we hit buffer boundary (otherwise would
          * need to [try to] align input, which is bit complicated
          * and may not always be possible)
          */
-        return parseEscapedName(_quadBuffer, qlen, 0, q, 0);
+        return parseEscapedName(quads, qlen, 0, q, 0);
     }
 
     // Method called when not even first 8 bytes are guaranteed

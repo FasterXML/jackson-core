@@ -172,3 +172,8 @@ David R. MacIver (@DRMacIver)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (3.1.8)
+
+Francesco Nigro (@franz1981)
+ * Reported #1680: Speed up `UTF8JsonGenerator` ASCII fast path for longer `String`
+   values
+  (3.3.0)

@@ -70,7 +70,7 @@ a pure JSON library.
 
 No changes since 2.21
 
-2.21.8 (not yet released)
+2.21.8 (17-Oct-2026)
 
 #1683: JSON`\uXXXX` escape accepts lone surrogates in field names for
   `ReaderBasedJsonParser`

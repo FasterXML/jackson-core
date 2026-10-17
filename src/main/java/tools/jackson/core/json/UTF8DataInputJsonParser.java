@@ -445,8 +445,6 @@ public class UTF8DataInputJsonParser
         byte[] buf = _ioContext.allocBase64Buffer();
         try {
             return _readBinary(b64variant, out, buf);
-        } catch (EOFException e) {
-            return _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         } finally {
@@ -466,7 +464,7 @@ public class UTF8DataInputJsonParser
             // first, we'll skip preceding white space, if any
             int ch;
             do {
-                ch = readUnsignedByte();
+                ch = _readRequiredStringByte();
             } while (ch <= INT_SPACE);
             int bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) { // reached the end, fair and square?
@@ -489,7 +487,7 @@ public class UTF8DataInputJsonParser
             int decodedData = bits;
 
             // then second base64 char; can't get padding yet, nor ws
-            ch = readUnsignedByte();
+            ch = _readRequiredStringByte();
             bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 bits = _decodeBase64Escape(b64variant, ch, 1);
@@ -497,7 +495,7 @@ public class UTF8DataInputJsonParser
             decodedData = (decodedData << 6) | bits;
 
             // third base64 char; can be padding, but not ws
-            ch = readUnsignedByte();
+            ch = _readRequiredStringByte();
             bits = b64variant.decodeBase64Char(ch);
 
             // First branch: can get padding (-> 1 byte)
@@ -516,7 +514,7 @@ public class UTF8DataInputJsonParser
                 }
                 if (bits == Base64Variant.BASE64_VALUE_PADDING) {
                     // Ok, must get padding
-                    ch = readUnsignedByte();
+                    ch = _readRequiredStringByte();
                     if (!b64variant.usesPaddingChar(ch)) {
                         if ((ch != INT_BACKSLASH)
                                 || _decodeBase64Escape(b64variant, ch, 3) != Base64Variant.BASE64_VALUE_PADDING) {
@@ -532,7 +530,7 @@ public class UTF8DataInputJsonParser
             // Nope, 2 or 3 bytes
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
-            ch = readUnsignedByte();
+            ch = _readRequiredStringByte();
             bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
@@ -598,6 +596,8 @@ public class UTF8DataInputJsonParser
                 return _nextAfterName();
             }
             return _nextToken();
+        } catch (EOFException e) {
+            return _reportInvalidEOF();
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         }
@@ -799,6 +799,8 @@ public class UTF8DataInputJsonParser
     public String nextName() throws JacksonException {
         try {
             return _nextName();
+        } catch (EOFException e) {
+            return _reportInvalidEOF();
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         }
@@ -1079,7 +1081,7 @@ public class UTF8DataInputJsonParser
             }
         } else {
             outBuf[0] = (char) c;
-            c = readUnsignedByte();
+            c = _readByteAfterValue(true);
             outPtr = 1;
         }
         int intLen = outPtr;
@@ -1093,7 +1095,7 @@ public class UTF8DataInputJsonParser
                 outPtr = 0;
             }
             outBuf[outPtr++] = (char) c;
-            c = readUnsignedByte();
+            c = _readByteAfterValue(true);
         }
         if (c == '.' || (c | 0x20) == INT_e) { // ~ '.eE'
             return _parseFloat(outBuf, outPtr, c, false, intLen);
@@ -1148,7 +1150,7 @@ public class UTF8DataInputJsonParser
             if (c > INT_9) {
                 return _handleInvalidNumberStart(c, negative, true);
             }
-            c = readUnsignedByte();
+            c = _readByteAfterValue(true);
         }
         // Ok: we can first just add digit we saw first:
         int intLen = 1;
@@ -1162,7 +1164,7 @@ public class UTF8DataInputJsonParser
                 outPtr = 0;
             }
             outBuf[outPtr++] = (char) c;
-            c = readUnsignedByte();
+            c = _readByteAfterValue(true);
         }
         if (c == '.' || (c | 0x20) == INT_e) { // ~ '.eE'
             return _parseFloat(outBuf, outPtr, c, negative, intLen);
@@ -1235,7 +1237,7 @@ public class UTF8DataInputJsonParser
      */
     private final int _handleLeadingZeroes() throws IOException
     {
-        int ch = readUnsignedByte();
+        int ch = _readByteAfterValue(true);
         // if not followed by a number (probably '.'); return zero as is, to be included
         if (ch < INT_0 || ch > INT_9) {
             return ch;
@@ -1246,7 +1248,7 @@ public class UTF8DataInputJsonParser
         }
         // if so, just need to skip either all zeroes (if followed by number); or all but one (if non-number)
         while (ch == INT_0) {
-            ch = readUnsignedByte();
+            ch = _readByteAfterValue(true);
         }
         return ch;
     }
@@ -1267,7 +1269,8 @@ public class UTF8DataInputJsonParser
 
             fract_loop:
             while (true) {
-                c = readUnsignedByte();
+                c = _readByteAfterValue(fractLen > 0
+                        || isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS));
                 if (c < INT_0 || c > INT_9) {
                     break fract_loop;
                 }
@@ -1313,7 +1316,7 @@ public class UTF8DataInputJsonParser
                     outPtr = 0;
                 }
                 outBuf[outPtr++] = (char) c;
-                c = readUnsignedByte();
+                c = _readByteAfterValue(true);
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
@@ -1953,6 +1956,8 @@ public class UTF8DataInputJsonParser
                 outBuf[outPtr++] = (char) c;
             } while (outPtr < outEnd);
             _finishString2(outBuf, outPtr, readUnsignedByte());
+        } catch (EOFException e) {
+            _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         }
@@ -1978,6 +1983,8 @@ public class UTF8DataInputJsonParser
                 outBuf[outPtr++] = (char) c;
             } while (outPtr < outEnd);
             _finishString2(outBuf, outPtr, readUnsignedByte());
+        } catch (EOFException e) {
+            return _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         }
@@ -2125,7 +2132,7 @@ public class UTF8DataInputJsonParser
                         _streamReadConstraints.validateStringLengthLong(totalLen);
                     }
                 }
-                c = readUnsignedByte();
+                c = _readRequiredStringByte();
                 if (codes[c] != 0) {
                     break ascii_loop;
                 }
@@ -2375,7 +2382,7 @@ public class UTF8DataInputJsonParser
             }
         } while (++i < len);
 
-        int ch = readUnsignedByte();
+        int ch = _readByteAfterValue(true);
         if (ch >= '0' && ch != ']' && ch != '}') { // expected/allowed chars
             _checkMatchEnd(matchStr, i, ch);
         }
@@ -2684,6 +2691,8 @@ public class UTF8DataInputJsonParser
     protected char _decodeEscaped() throws JacksonException {
         try {
             return _decodeEscaped2();
+        } catch (EOFException e) {
+            return _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         }
@@ -2864,9 +2873,30 @@ public class UTF8DataInputJsonParser
     /**********************************************************************
      */
 
+    // 11-Oct-2026, curforever: [core#1761] Keep input EOF separate from output I/O.
+    private int _readRequiredStringByte() throws IOException {
+        try {
+            return readUnsignedByte();
+        } catch (EOFException e) {
+            return _reportInvalidEOFInValue(JsonToken.VALUE_STRING);
+        }
+    }
+
+    // A complete root scalar may end without a following delimiter; containers may not.
+    private int _readByteAfterValue(boolean valueComplete) throws IOException {
+        try {
+            return readUnsignedByte();
+        } catch (EOFException e) {
+            if (valueComplete && _streamReadContext.inRoot()) {
+                return -1;
+            }
+            throw e;
+        }
+    }
+
     private final int _decodeUtf8_2(int c) throws IOException
     {
-        int d = readUnsignedByte();
+        int d = _readRequiredStringByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
@@ -2876,12 +2906,12 @@ public class UTF8DataInputJsonParser
     private final int _decodeUtf8_3(int c1) throws IOException
     {
         c1 &= 0x0F;
-        int d = readUnsignedByte();
+        int d = _readRequiredStringByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
         int c = (c1 << 6) | (d & 0x3F);
-        d = readUnsignedByte();
+        d = _readRequiredStringByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
@@ -2899,18 +2929,18 @@ public class UTF8DataInputJsonParser
      */
     private final int _decodeUtf8_4(int c) throws IOException
     {
-        int d = readUnsignedByte();
+        int d = _readRequiredStringByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
         _verifyUtf8_4Range(c);
-        d = readUnsignedByte();
+        d = _readRequiredStringByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
-        d = readUnsignedByte();
+        d = _readRequiredStringByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
@@ -3045,7 +3075,7 @@ public class UTF8DataInputJsonParser
             // first, we'll skip preceding white space, if any
             int ch;
             do {
-                ch = readUnsignedByte();
+                ch = _readRequiredStringByte();
             } while (ch <= INT_SPACE);
             int bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) { // reached the end, fair and square?
@@ -3060,14 +3090,14 @@ public class UTF8DataInputJsonParser
             int decodedData = bits;
 
             // then second base64 char; can't get padding yet, nor ws
-            ch = readUnsignedByte();
+            ch = _readRequiredStringByte();
             bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 bits = _decodeBase64Escape(b64variant, ch, 1);
             }
             decodedData = (decodedData << 6) | bits;
             // third base64 char; can be padding, but not ws
-            ch = readUnsignedByte();
+            ch = _readRequiredStringByte();
             bits = b64variant.decodeBase64Char(ch);
 
             // First branch: can get padding (-> 1 byte)
@@ -3085,7 +3115,7 @@ public class UTF8DataInputJsonParser
                     bits = _decodeBase64Escape(b64variant, ch, 2);
                 }
                 if (bits == Base64Variant.BASE64_VALUE_PADDING) {
-                    ch = readUnsignedByte();
+                    ch = _readRequiredStringByte();
                     if (!b64variant.usesPaddingChar(ch)) {
                         if ((ch != INT_BACKSLASH)
                                 || _decodeBase64Escape(b64variant, ch, 3) != Base64Variant.BASE64_VALUE_PADDING) {
@@ -3101,7 +3131,7 @@ public class UTF8DataInputJsonParser
             // Nope, 2 or 3 bytes
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
-            ch = readUnsignedByte();
+            ch = _readRequiredStringByte();
             bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {

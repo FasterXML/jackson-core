@@ -24,7 +24,7 @@ a pure JSON library.
   `ALLOW_UNQUOTED_FIELD_NAMES`
  (fix by @pjfanning)
 
-2.22.4 (not yet released)
+2.22.4 (17-Oct-2026)
 
 #1683: JSON`\uXXXX` escape accepts lone surrogates in field names for
   `ReaderBasedJsonParser`

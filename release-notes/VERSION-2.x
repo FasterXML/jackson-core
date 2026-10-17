@@ -196,6 +196,10 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
+2.18.12 (17-Oct-2026)
+
+No changes since 2.18.11
+
 2.18.11 (20-Sep-2026)
 
 #1649: Optimize `NumberInput.looksLikeValidNumber` [CVE-2026-89407]

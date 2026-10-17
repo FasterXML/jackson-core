@@ -1348,7 +1348,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             // Decode a deferred double before discarding its textual representation.
             if ((_numTypesValid & NR_DOUBLE) != 0) {
-                _getNumberDouble();
+                _numberDouble = _getNumberDouble();
             }
             _numberString = null;
         }

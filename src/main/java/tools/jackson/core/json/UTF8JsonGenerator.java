@@ -1564,11 +1564,17 @@ public class UTF8JsonGenerator
         int outputPtr = _outputTail;
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
+        // 01-Sep-2026, franz1981: [core#1680] For the standard table the test is expressible
+        //   with constants; C2 unswitches on this flag so that clone has no per-character
+        //   table load. A custom quote char, escaped slashes or CharacterEscapes give a
+        //   different array and fall back to the lookup below.
+        final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
 
         while (offset < len) {
             int ch = cbuf[offset];
             // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
+            if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                    : (ch > 0x7F || escCodes[ch] != 0)) {
                 break;
             }
             outputBuffer[outputPtr++] = (byte) ch;
@@ -1601,7 +1607,7 @@ public class UTF8JsonGenerator
             final int[] escCodes = _outputEscapes;
             // [core#1680]: For the standard table the test is expressible with constants;
             //   C2 unswitches on this flag so that clone has no per-character table load.
-            final boolean stdEsc = (escCodes == CharTypes.get7BitOutputEscapes());
+            final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
 
             while (offset < len) {
                 int ch = text.charAt(offset);

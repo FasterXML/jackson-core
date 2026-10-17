@@ -42,6 +42,8 @@ JSON library.
 #1686: Synchronous decimal number parsing buffers oversized values before
   `maxNumberLength` validation
  (reported, fix by DongNyoung L)
+#1687: Add `StripedArrayPool` and virtual-thread-aware `HybridPool` recycler pools
+ (contributed by @stevenschlansker, w/ Claude code)
 #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property name match
   plus value token advance
  (contributed by @stevenschlansker)

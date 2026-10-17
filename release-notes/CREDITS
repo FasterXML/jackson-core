@@ -135,6 +135,9 @@ Burak KALAYCI (@kalayciburak)
   (3.3.0)
 
 Steven Schlansker (@stevenschlansker)
+ * Contributed #1687: Add `StripedArrayPool` and virtual-thread-aware `HybridPool`
+   recycler pools
+  (3.3.0)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
   (3.3.0)

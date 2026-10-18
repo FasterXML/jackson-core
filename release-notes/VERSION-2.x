@@ -24,7 +24,7 @@ a pure JSON library.
   `ALLOW_UNQUOTED_FIELD_NAMES`
  (fix by @pjfanning)
 
-2.22.4 (not yet released)
+2.22.4 (17-Oct-2026)
 
 #1683: JSON`\uXXXX` escape accepts lone surrogates in field names for
   `ReaderBasedJsonParser`
@@ -80,7 +80,7 @@ a pure JSON library.
 
 No changes since 2.21
 
-2.21.8 (not yet released)
+2.21.8 (17-Oct-2026)
 
 #1683: JSON`\uXXXX` escape accepts lone surrogates in field names for
   `ReaderBasedJsonParser`
@@ -261,6 +261,10 @@ No changes since 2.19.1
 #1421: Make `JsonReadContext` non-final
  (requested by Ilenia S)
  (fixed by @pjfanning)
+
+2.18.12 (17-Oct-2026)
+
+No changes since 2.18.11
 
 2.18.11 (20-Sep-2026)
 

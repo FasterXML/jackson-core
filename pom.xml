@@ -14,7 +14,7 @@
   <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>
-  <version>3.2.4</version>
+  <version>3.2.5-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>Core Jackson processing abstractions (aka Streaming API), implementation for JSON</description>
   <inceptionYear>2007</inceptionYear>
@@ -68,7 +68,7 @@ tools.jackson.core.*;version=${project.version}
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2026-10-18T22:39:02Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-10-18T22:40:27Z</project.build.outputTimestamp>
 
     <!-- for validation of JaCoCo execution -->
     <jacocoStrict>false</jacocoStrict>

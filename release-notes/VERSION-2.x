@@ -14,6 +14,11 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.21.9 (not yet released)
+
+#1780: Reject overlong 2- and 3-byte UTF-8 sequences in String values
+ (fix by @pjfanning)
+
 2.21.8 (17-Oct-2026)
 
 #1683: JSON`\uXXXX` escape accepts lone surrogates in field names for

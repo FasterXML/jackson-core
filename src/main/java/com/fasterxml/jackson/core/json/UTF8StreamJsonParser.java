@@ -2537,10 +2537,10 @@ public class UTF8StreamJsonParser
                 _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
-                _skipUtf8_2();
+                _skipUtf8_2(c);
                 break;
             case 3: // 3-byte UTF
-                _skipUtf8_3();
+                _skipUtf8_3(c);
                 break;
             case 4: // 4-byte UTF
                 _skipUtf8_4(c);
@@ -3170,10 +3170,10 @@ public class UTF8StreamJsonParser
                     _skipCR();
                     break;
                 case 2: // 2-byte UTF
-                    _skipUtf8_2();
+                    _skipUtf8_2(i);
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3();
+                    _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
                     _skipUtf8_4(i);
@@ -3217,10 +3217,10 @@ public class UTF8StreamJsonParser
                 case '*': // nop for these comments
                     break;
                 case 2: // 2-byte UTF
-                    _skipUtf8_2();
+                    _skipUtf8_2(i);
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3();
+                    _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
                     _skipUtf8_4(i);
@@ -3411,7 +3411,11 @@ public class UTF8StreamJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        return ((c & 0x1F) << 6) | (d & 0x3F);
+        c = ((c & 0x1F) << 6) | (d & 0x3F);
+        if (c < 0x80) {
+            _reportOverlongUTF8(c, 2);
+        }
+        return c;
     }
 
     private final int _decodeUtf8_3(int c1) throws IOException
@@ -3433,6 +3437,9 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
+        if (c < 0x800) {
+            _reportOverlongUTF8(c, 3);
+        }
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
             _reportInvalidUTF8Surrogate(c);
@@ -3453,6 +3460,9 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
+        if (c < 0x800) {
+            _reportOverlongUTF8(c, 3);
+        }
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
             _reportInvalidUTF8Surrogate(c);
@@ -3495,36 +3505,44 @@ public class UTF8StreamJsonParser
         return ((c << 6) | (d & 0x3F)) - 0x10000;
     }
 
-    private final void _skipUtf8_2() throws IOException
+    private final void _skipUtf8_2(int c) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        int c = _inputBuffer[_inputPtr++];
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF, _inputPtr);
+        int d = _inputBuffer[_inputPtr++];
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
+        }
+        c = ((c & 0x1F) << 6) | (d & 0x3F);
+        if (c < 0x80) {
+            _reportOverlongUTF8(c, 2);
         }
     }
 
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3() throws IOException
+    private final void _skipUtf8_3(int c) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        //c &= 0x0F;
-        int c = _inputBuffer[_inputPtr++];
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF, _inputPtr);
+        int d = _inputBuffer[_inputPtr++];
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
         }
+        c = ((c & 0x0F) << 6) | (d & 0x3F);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        c = _inputBuffer[_inputPtr++];
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF, _inputPtr);
+        d = _inputBuffer[_inputPtr++];
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
+        }
+        c = (c << 6) | (d & 0x3F);
+        if (c < 0x800) {
+            _reportOverlongUTF8(c, 3);
         }
     }
 

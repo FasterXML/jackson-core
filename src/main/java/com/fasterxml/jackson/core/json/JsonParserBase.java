@@ -413,21 +413,29 @@ public abstract class JsonParserBase
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
         if (needed == 1) {
             if (ch < 0x80) {
-                _reportError("Invalid UTF-8: overlong 2-byte encoding of 0x"+Integer.toHexString(ch));
+                _reportOverlongUTF8(ch, 2);
             }
         } else if (needed == 2) {
             if (ch < 0x800) {
-                _reportError("Invalid UTF-8: overlong 3-byte encoding of 0x"+Integer.toHexString(ch));
+                _reportOverlongUTF8(ch, 3);
             }
             // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
             if (ch >= 0xD800 && ch <= 0xDFFF) {
                 _reportInvalidUTF8Surrogate(ch);
             }
         } else if (ch < 0x10000) {
-            _reportError("Invalid UTF-8: overlong 4-byte encoding of 0x"+Integer.toHexString(ch));
+            _reportOverlongUTF8(ch, 4);
         } else if (ch > 0x10FFFF) {
             _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
         }
+    }
+
+    // 18-Oct-2026, pj: Overlong (non-shortest form) UTF-8 encodings are invalid
+    //   (RFC 3629); called when `byteCount`-byte sequence decodes to `ch` that
+    //   needs fewer bytes
+    // @since 2.23
+    protected void _reportOverlongUTF8(int ch, int byteCount) throws JsonParseException {
+        _reportError("Invalid UTF-8: overlong "+byteCount+"-byte encoding of 0x"+Integer.toHexString(ch));
     }
 
     // 10-Oct-2026, tatu: [core#1756] Number of continuation bytes for multi-byte

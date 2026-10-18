@@ -23,6 +23,8 @@ a pure JSON library.
 #1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
   `ALLOW_UNQUOTED_FIELD_NAMES`
  (fix by @pjfanning)
+#1781: Reject overlong 2- and 3-byte UTF-8 sequences in String values
+ (fix by @pjfanning)
 
 2.22.4 (17-Oct-2026)
 

@@ -208,4 +208,12 @@ public abstract class JsonParserBase
     protected void _reportInvalidInitial(int mask) throws JsonParseException {
         _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
+
+    // 18-Oct-2026, pj: Overlong (non-shortest form) UTF-8 encodings are invalid
+    //   (RFC 3629); called when `byteCount`-byte sequence decodes to `ch` that
+    //   needs fewer bytes
+    // @since 2.21.9
+    protected void _reportOverlongUTF8(int ch, int byteCount) throws JsonParseException {
+        _reportError("Invalid UTF-8: overlong "+byteCount+"-byte encoding of 0x"+Integer.toHexString(ch));
+    }
 }

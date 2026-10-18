@@ -2062,10 +2062,10 @@ public class UTF8DataInputJsonParser
                 _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
-                _skipUtf8_2();
+                _skipUtf8_2(c);
                 break;
             case 3: // 3-byte UTF
-                _skipUtf8_3();
+                _skipUtf8_3(c);
                 break;
             case 4: // 4-byte UTF
                 _skipUtf8_4();
@@ -2507,10 +2507,10 @@ public class UTF8DataInputJsonParser
                     ++_currInputRow;
                     break;
                 case 2: // 2-byte UTF
-                    _skipUtf8_2();
+                    _skipUtf8_2(i);
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3();
+                    _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
                     _skipUtf8_4();
@@ -2553,10 +2553,10 @@ public class UTF8DataInputJsonParser
                 case '*': // nop for these comments
                     break;
                 case 2: // 2-byte UTF
-                    _skipUtf8_2();
+                    _skipUtf8_2(i);
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3();
+                    _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
                     _skipUtf8_4();
@@ -2714,7 +2714,11 @@ public class UTF8DataInputJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
-        return ((c & 0x1F) << 6) | (d & 0x3F);
+        c = ((c & 0x1F) << 6) | (d & 0x3F);
+        if (c < 0x80) {
+            _reportOverlongUTF8(c, 2);
+        }
+        return c;
     }
 
     private final int _decodeUtf8_3(int c1) throws IOException
@@ -2730,6 +2734,9 @@ public class UTF8DataInputJsonParser
             _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
+        if (c < 0x800) {
+            _reportOverlongUTF8(c, 3);
+        }
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
             _reportInvalidUTF8Surrogate(c);
@@ -2764,27 +2771,35 @@ public class UTF8DataInputJsonParser
         return ((c << 6) | (d & 0x3F)) - 0x10000;
     }
 
-    private final void _skipUtf8_2() throws IOException
+    private final void _skipUtf8_2(int c) throws IOException
     {
-        int c = _inputData.readUnsignedByte();
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF);
+        int d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF);
+        }
+        c = ((c & 0x1F) << 6) | (d & 0x3F);
+        if (c < 0x80) {
+            _reportOverlongUTF8(c, 2);
         }
     }
 
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3() throws IOException
+    private final void _skipUtf8_3(int c) throws IOException
     {
-        //c &= 0x0F;
-        int c = _inputData.readUnsignedByte();
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF);
+        int d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF);
         }
-        c = _inputData.readUnsignedByte();
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF);
+        c = ((c & 0x0F) << 6) | (d & 0x3F);
+        d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF);
+        }
+        c = (c << 6) | (d & 0x3F);
+        if (c < 0x800) {
+            _reportOverlongUTF8(c, 3);
         }
     }
 

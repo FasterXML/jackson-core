@@ -3139,6 +3139,9 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
         int c = (prev << 6) | (next & 0x3F);
+        if (c < 0x800) {
+            _reportOverlongUTF8(c, 3);
+        }
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
             _reportInvalidUTF8Surrogate(c);
@@ -3316,7 +3319,11 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        return ((c & 0x1F) << 6) | (d & 0x3F);
+        c = ((c & 0x1F) << 6) | (d & 0x3F);
+        if (c < 0x80) {
+            _reportOverlongUTF8(c, 2);
+        }
+        return c;
     }
 
     private final int _decodeUTF8_3(int c, int d, int e) throws IOException
@@ -3330,6 +3337,9 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(e & 0xFF, _inputPtr);
         }
         c = (c << 6) | (e & 0x3F);
+        if (c < 0x800) {
+            _reportOverlongUTF8(c, 3);
+        }
         // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
         if (c >= 0xD800 && c <= 0xDFFF) {
             _reportInvalidUTF8Surrogate(c);

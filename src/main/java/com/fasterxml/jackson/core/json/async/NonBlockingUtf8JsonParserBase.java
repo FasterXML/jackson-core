@@ -2362,7 +2362,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
+            quads[qlen++] = _padAndValidateLastQuad(currQuad, currQuadBytes);
         } else if (qlen == 0) { // rare, but may happen
             return _fieldComplete("");
         }
@@ -2465,7 +2465,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             // 09-Oct-2026, tatu: [core#1748] must pad, as with quoted names, to avoid
             //   [core#148] collisions
-            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
+            quads[qlen++] = _padAndValidateLastQuad(currQuad, currQuadBytes);
         }
         return _fieldComplete(_findOrAddUnquotedUTF8Name(_symbols, quads, qlen, currQuadBytes));
     }
@@ -2583,7 +2583,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
+            quads[qlen++] = _padAndValidateLastQuad(currQuad, currQuadBytes);
         } else if (qlen == 0) { // rare case but possible
             return _fieldComplete("");
         }

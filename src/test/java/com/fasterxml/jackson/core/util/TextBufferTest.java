@@ -213,25 +213,29 @@ class TextBufferTest
         assertEquals(2, textBuffer.size());
     }
 
-    public void testContentsAsFloat() throws IOException {
+    @Test
+    void testContentsAsFloat() throws IOException {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.2345678");
         assertEquals(1.2345678f,  textBuffer.contentsAsFloat(false));
     }
 
-    public void testContentsAsFloatFastParser() throws IOException {
+    @Test
+    void testContentsAsFloatFastParser() throws IOException {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.2345678");
         assertEquals(1.2345678f,  textBuffer.contentsAsFloat(true));
     }
 
-    public void testContentsAsDouble() throws IOException {
+    @Test
+    void testContentsAsDouble() throws IOException {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.234567890123456789");
         assertEquals(1.234567890123456789d,  textBuffer.contentsAsDouble(false));
     }
 
-    public void testContentsAsDoubleFastParser() throws IOException {
+    @Test
+    void testContentsAsDoubleFastParser() throws IOException {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.234567890123456789");
         assertEquals(1.234567890123456789d,  textBuffer.contentsAsDouble(true));

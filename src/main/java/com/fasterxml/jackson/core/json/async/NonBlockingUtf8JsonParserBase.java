@@ -2820,7 +2820,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (true) {
             int digit = CharTypes.charToHex(c);
             if (digit < 0) {
-                _reportUnexpectedChar(c & 0xFF, "expected a hex-digit for character escape sequence");
+                _reportUnexpectedChar(_decodeCharForError(c), "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
             if (++bytesRead == 4) {
@@ -3287,7 +3287,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
             }
         }
-        _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
+        _reportUnexpectedChar(_decodeCharForError(ch), "expected a hex-digit for character escape sequence");
         return -1;
     }
 

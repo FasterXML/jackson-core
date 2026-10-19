@@ -2483,7 +2483,7 @@ public class UTF8DataInputJsonParser
                 int ch = _inputData.readUnsignedByte();
                 int digit = CharTypes.charToHex(ch);
                 if (digit < 0) {
-                    _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
+                    _reportUnexpectedChar(_decodeCharForError(ch), "expected a hex-digit for character escape sequence");
                 }
                 value = (value << 4) | digit;
             }

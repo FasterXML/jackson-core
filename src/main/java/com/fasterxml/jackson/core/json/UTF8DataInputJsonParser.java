@@ -2483,7 +2483,7 @@ public class UTF8DataInputJsonParser
                 int ch = _inputData.readUnsignedByte();
                 int digit = CharTypes.charToHex(ch);
                 if (digit < 0) {
-                    _reportUnexpectedChar(_decodeCharForError(ch), "expected a hex-digit for character escape sequence");
+                    _reportUnexpectedChar(_decodeCharForHexError(ch), "expected a hex-digit for character escape sequence");
                 }
                 value = (value << 4) | digit;
             }
@@ -2532,6 +2532,24 @@ public class UTF8DataInputJsonParser
             return 0; // never gets here
         }
         return _handleEscapedUTF8Char(_decodeMultiByteChar(lead, needed));
+    }
+
+    // 19-Oct-2026, tatu: [core#1787] Best-effort decoding of (possibly multi-byte)
+    //   char for "expected a hex-digit" error: reads rest of UTF-8 sequence, if any;
+    //   lead byte returned as-is if sequence is invalid or truncated
+    private int _decodeCharForHexError(int firstByte) throws IOException
+    {
+        final byte[] buf = new byte[4];
+        buf[0] = (byte) firstByte;
+        final int needed = _utf8ContinuationCount(firstByte);
+        int len = 1;
+        try {
+            while (len <= needed) {
+                buf[len++] = (byte) _inputData.readUnsignedByte();
+            }
+        } catch (EOFException e) { // truncated; leave `len` short
+        }
+        return _decodeUTF8ForError(buf, 0, len);
     }
 
     protected int _decodeCharForError(int firstByte) throws IOException

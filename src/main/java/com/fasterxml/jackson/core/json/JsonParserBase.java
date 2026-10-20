@@ -447,6 +447,27 @@ public abstract class JsonParserBase
         return (lead < 0xF5) ? 3 : -1;
     }
 
+    // 19-Oct-2026, tatu: [core#1787] Best-effort decoding of (possibly multi-byte)
+    //   UTF-8 char starting at `buf[ptr]`, for error messages only: returns lead
+    //   byte as-is if sequence is invalid or not complete before `end`
+    // @since 2.23
+    protected final static int _decodeUTF8ForError(byte[] buf, int ptr, int end) {
+        final int c = buf[ptr] & 0xFF;
+        final int needed = _utf8ContinuationCount(c);
+        if ((needed < 0) || ((ptr + needed) >= end)) {
+            return c;
+        }
+        int value = c & (0x3F >> needed); // 0x1F, 0x0F or 0x07
+        for (int i = 1; i <= needed; ++i) {
+            final int d = buf[ptr + i];
+            if ((d & 0xC0) != 0x080) {
+                return c;
+            }
+            value = (value << 6) | (d & 0x3F);
+        }
+        return value;
+    }
+
     // 10-Oct-2026, tatu: [core#1756] Verifies that multi-byte UTF-8 character with
     //   lead byte `lead` and first continuation byte `second` is not overlong: shortest
     //   form of 3-byte (lead 0xE0) and 4-byte (lead 0xF0) characters needs `second` of

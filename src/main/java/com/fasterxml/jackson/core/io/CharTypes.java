@@ -268,9 +268,11 @@ public final class CharTypes
 
     public static int charToHex(int ch)
     {
-        // 08-Nov-2019, tatu: As per [core#540] and [core#578], changed to
-        //   force masking here so caller need not do that.
-        return sHexValues[ch & 0xFF];
+        // 08-Nov-2019, tatu: As per [core#540] and [core#578], callers may pass
+        //   signed bytes, so index must be guarded.
+        // 19-Oct-2026, pjfanning: [core#1787] range check, not mask: masking
+        //   aliased non-Latin1 chars like U+2042 onto ASCII hex digits
+        return ((ch & ~0xFF) == 0) ? sHexValues[ch] : -1;
     }
 
     // @since 2.13

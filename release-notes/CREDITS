@@ -130,3 +130,8 @@ David R. MacIver (@DRMacIver)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (3.1.8)
+
+PJ Fanning (@pjfanning)
+ * Contributed #1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8
+   sequences in String values
+  (3.1.9, 3.2.5)

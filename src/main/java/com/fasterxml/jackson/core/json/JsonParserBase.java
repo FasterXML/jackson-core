@@ -413,28 +413,60 @@ public abstract class JsonParserBase
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
         if (needed == 1) {
             if (ch < 0x80) {
-                _reportOverlongUTF8(ch, 2);
+                _reportInvalidUTF8CodePoint(ch, 2);
             }
         } else if (needed == 2) {
-            if (ch < 0x800) {
-                _reportOverlongUTF8(ch, 3);
-            }
-            // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-            if (ch >= 0xD800 && ch <= 0xDFFF) {
-                _reportInvalidUTF8Surrogate(ch);
-            }
-        } else if (ch < 0x10000) {
-            _reportOverlongUTF8(ch, 4);
-        } else if (ch > 0x10FFFF) {
-            _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
+            _verifyUTF8CodePoint3(ch);
+        } else {
+            _verifyUTF8CodePoint4(ch);
         }
     }
 
-    // 18-Oct-2026, pj: Overlong (non-shortest form) UTF-8 encodings are invalid
-    //   (RFC 3629); called when `byteCount`-byte sequence decodes to `ch` that
-    //   needs fewer bytes
-    // @since 2.23
-    protected void _reportOverlongUTF8(int ch, int byteCount) throws JsonParseException {
+    /**
+     * Method for verifying code point decoded from a 3-byte UTF-8 sequence:
+     * overlong (non-shortest form) encodings and surrogates are invalid (RFC 3629).
+     *<p>
+     * No such check is needed for 2-byte sequences: lead bytes 0xC0 and 0xC1 of
+     * overlong ones are marked invalid by {@code CharTypes.getInputCodeUtf8()}.
+     *
+     * @param ch Decoded code point
+     *
+     * @throws JsonParseException If code point is invalid
+     *
+     * @since 2.23
+     */
+    protected final void _verifyUTF8CodePoint3(int ch) throws JsonParseException {
+        if ((ch < 0x800) || ((ch & 0xF800) == 0xD800)) {
+            _reportInvalidUTF8CodePoint(ch, 3);
+        }
+    }
+
+    /**
+     * Method for verifying code point decoded from a 4-byte UTF-8 sequence:
+     * overlong (non-shortest form) encodings and code points beyond U+10FFFF
+     * are invalid (RFC 3629).
+     *
+     * @param ch Decoded code point (not yet offset by -0x10000)
+     *
+     * @throws JsonParseException If code point is invalid
+     *
+     * @since 2.23
+     */
+    protected final void _verifyUTF8CodePoint4(int ch) throws JsonParseException {
+        if ((ch < 0x10000) || (ch > 0x10FFFF)) {
+            _reportInvalidUTF8CodePoint(ch, 4);
+        }
+    }
+
+    // Off-lined to keep `_verifyUTF8CodePoint3()`/`_verifyUTF8CodePoint4()` small (inlinable)
+    private void _reportInvalidUTF8CodePoint(int ch, int byteCount) throws JsonParseException {
+        if (ch > 0x10FFFF) {
+            _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
+        }
+        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
+        if ((ch & 0xF800) == 0xD800) {
+            _reportInvalidUTF8Surrogate(ch);
+        }
         _reportError("Invalid UTF-8: overlong "+byteCount+"-byte encoding of 0x"+Integer.toHexString(ch));
     }
 

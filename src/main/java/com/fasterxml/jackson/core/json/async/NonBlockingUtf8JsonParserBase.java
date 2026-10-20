@@ -3147,13 +3147,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
         int c = (prev << 6) | (next & 0x3F);
-        if (c < 0x800) {
-            _reportOverlongUTF8(c, 3);
-        }
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c);
         _textBuffer.append((char) c);
         return true;
     }
@@ -3193,7 +3187,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((next & 0xC0) != 0x080) {
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
-        int c = ((prev << 6) | (next & 0x3F)) - 0x10000;
+        int c = (prev << 6) | (next & 0x3F);
+        _verifyUTF8CodePoint4(c);
+        c -= 0x10000;
         // Let's add first part right away:
         _textBuffer.append((char) (0xD800 | (c >> 10)));
         c = 0xDC00 | (c & 0x3FF);
@@ -3343,11 +3339,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        c = ((c & 0x1F) << 6) | (d & 0x3F);
-        if (c < 0x80) {
-            _reportOverlongUTF8(c, 2);
-        }
-        return c;
+        return ((c & 0x1F) << 6) | (d & 0x3F);
     }
 
     private final int _decodeUTF8_3(int c, int d, int e) throws IOException
@@ -3361,13 +3353,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(e & 0xFF, _inputPtr);
         }
         c = (c << 6) | (e & 0x3F);
-        if (c < 0x800) {
-            _reportOverlongUTF8(c, 3);
-        }
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c);
         return c;
     }
 
@@ -3386,7 +3372,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((f & 0xC0) != 0x080) {
             _reportInvalidOther(f & 0xFF, _inputPtr);
         }
-        return ((c << 6) | (f & 0x3F)) - 0x10000;
+        c = (c << 6) | (f & 0x3F);
+        _verifyUTF8CodePoint4(c);
+        return c - 0x10000;
     }
 
     /*

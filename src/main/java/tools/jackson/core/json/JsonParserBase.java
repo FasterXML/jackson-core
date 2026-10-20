@@ -705,8 +705,14 @@ public abstract class JsonParserBase
     }
 
     // Helper method needed to fix [jackson-core#148], masking of 0x00 character
+    // 19-Oct-2026, pjfanning: [core#1784] padding uses 0xFF bytes, so a last quad
+    //   starting with 0xFF could match a shorter name in the symbol table, skipping
+    //   UTF-8 validation of the name; 0xFF is never valid in UTF-8, so reject it here
     // @since 3.1.8
-    protected final static int _padLastQuad(int q, int bytes) {
+    protected final int _padLastQuad(int q, int bytes) throws StreamReadException {
+        if (((q >>> ((bytes - 1) << 3)) & 0xFF) == 0xFF) {
+            _reportInvalidInitial(0xFF);
+        }
         return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
     }
 

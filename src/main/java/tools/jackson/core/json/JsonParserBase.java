@@ -767,7 +767,7 @@ public abstract class JsonParserBase
     //   UTF-8 char starting at `buf[ptr]`, for error messages only: returns lead
     //   byte as-is if sequence is invalid (incl. overlong, surrogate, beyond U+10FFFF)
     //   or not complete before `end`
-    // @since 2.23
+    // @since 3.1.9
     protected final static int _decodeUTF8ForError(byte[] buf, int ptr, int end) {
         final int c = buf[ptr] & 0xFF;
         final int needed = _utf8ContinuationCount(c);

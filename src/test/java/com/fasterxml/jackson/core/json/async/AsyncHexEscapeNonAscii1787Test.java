@@ -39,6 +39,10 @@ class AsyncHexEscapeNonAscii1787Test extends AsyncTestBase
         _testBrokenBytes(new int[] { 0xFF }, "\"]", "'\u00FF' (code 255)");
         _testBrokenBytes(new int[] { 0xC3, 'A' }, "\"]", "'\u00C3' (code 195)");
         _testBrokenBytes(new int[] { 0xE2, 0x81, 'B' }, "\"]", "'\u00E2' (code 226)");
+        _testBrokenBytes(new int[] { 0xC0, 0x80 }, "\"]", "'\u00C0' (code 192)");
+        _testBrokenBytes(new int[] { 0xF5, 0x80, 0x80, 0x80 }, "\"]", "'\u00F5' (code 245)");
+        _testBrokenBytes(new int[] { 0xE0, 0x80, 0x80 }, "\"]", "'\u00E0' (code 224)");
+        _testBrokenBytes(new int[] { 0xED, 0xA0, 0x80 }, "\"]", "'\u00ED' (code 237)");
         // truncated at end-of-input
         _testBrokenBytes(new int[] { 0xE2, 0x81 }, "", "'\u00E2' (code 226)");
     }

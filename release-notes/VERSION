@@ -106,6 +106,8 @@ JSON library.
  (fix by @pjfanning, w/ Claude code)
 #1771: `ByteArrayBuilder.write(byte[], int, int)` does not validate `off`/`len`
  (fix by @pjfanning, w/ Claude code)
+#1778: Use local pointer in `UTF8StreamJsonParser` long-name scanning loops
+ (contributed by @pjfanning)
 #1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
   in String values (and comments, except for non-blocking parser)
  (fix by @pjfanning)

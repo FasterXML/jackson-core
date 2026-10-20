@@ -3084,7 +3084,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return true;
         case 2: // 2-byte UTF; easy, either got both, or just miss one
             if (gotNext) {
-                // NOTE: always succeeds, no need to check
+                // NOTE: never needs more input (but throws if second byte is invalid)
                 c = _decodeUTF8_2(c, getNextSignedByteFromBuffer(), _inputPtr);
                 _textBuffer.append((char) c);
                 return true;

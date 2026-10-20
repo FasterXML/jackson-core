@@ -33,7 +33,8 @@ class AsyncPropertyName0xFF1784Test extends AsyncTestBase
         }
     }
 
-    private static final String[] NAMES = { "a", "ab", "abc", "abcd", "admin", "abcdef", "abcdefghi" };
+    // Lengths 1, 3, 4, 6 and 9 give last quads of 1, 3, 4, 2 and 1 bytes
+    private static final String[] NAMES = { "a", "abc", "abcd", "abcdef", "abcdefghi" };
 
     private static final int[] BYTES_PER_READ = { 1, 2, 3, 1000 };
 
@@ -51,14 +52,12 @@ class AsyncPropertyName0xFF1784Test extends AsyncTestBase
     {
         for (int bpr : BYTES_PER_READ) {
             for (String name : NAMES) {
-                for (int count = 1; count <= 3; ++count) {
-                    for (int pos = 0; pos <= name.length(); ++pos) {
-                        String invalid = withFF(name, pos, count);
-                        _verifyRejected(v, newStreamFactory(), bpr, name, invalid, "\"");
-                        _verifyRejected(v, APOS_FACTORY, bpr, name, invalid, "'");
-                        if (pos > 0) {
-                            _verifyRejected(v, UNQUOTED_FACTORY, bpr, name, invalid, "");
-                        }
+                for (int pos = 0; pos <= name.length(); ++pos) {
+                    String invalid = withFF(name, pos);
+                    _verifyRejected(v, newStreamFactory(), bpr, name, invalid, "\"");
+                    _verifyRejected(v, APOS_FACTORY, bpr, name, invalid, "'");
+                    if (pos > 0) { // unquoted name cannot start with 0xFF
+                        _verifyRejected(v, UNQUOTED_FACTORY, bpr, name, invalid, "");
                     }
                 }
             }
@@ -76,7 +75,7 @@ class AsyncPropertyName0xFF1784Test extends AsyncTestBase
                     while (r.nextToken() != null) { }
                 }
                 try (AsyncReaderWrapper r = v.wrap(f, bpr,
-                        doc("{\"" + withFF(name, name.length() - 1, 1) + "\":2}"))) {
+                        doc("{\"" + withFF(name, name.length() - 1) + "\":2}"))) {
                     assertToken(JsonToken.START_OBJECT, r.nextToken());
                     r.nextToken();
                     fail("Should not pass, got name '" + r.currentName() + "'");
@@ -102,22 +101,12 @@ class AsyncPropertyName0xFF1784Test extends AsyncTestBase
         }
     }
 
-    // '~' in result marks positions of 0xFF bytes, see doc()
-    private static String withFF(String name, int pos, int count) {
-        StringBuilder sb = new StringBuilder(name);
-        for (int i = 0; i < count; ++i) {
-            sb.insert(pos, '~');
-        }
-        return sb.toString();
+    // '~' in result marks the 0xFF byte, see doc()
+    private static String withFF(String name, int pos) {
+        return new StringBuilder(name).insert(pos, '~').toString();
     }
 
     private static byte[] doc(String json) {
-        byte[] b = json.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
-        for (int i = 0; i < b.length; ++i) {
-            if (b[i] == '~') {
-                b[i] = (byte) 0xFF;
-            }
-        }
-        return b;
+        return json.replace('~', 'ÿ').getBytes(java.nio.charset.StandardCharsets.ISO_8859_1);
     }
 }

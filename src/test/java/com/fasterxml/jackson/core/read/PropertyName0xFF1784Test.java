@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.read;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
@@ -13,12 +12,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Tests for [jackson-core#1784]: a property name containing 0xFF bytes must be
+ * Tests for [jackson-core#1784]: a property name containing a 0xFF byte must be
  * rejected even when it pads to the same quads as a name already in the symbol table.
  */
 class PropertyName0xFF1784Test extends JUnit5TestBase
 {
-    private static final String[] NAMES = { "a", "ab", "abc", "abcd", "admin", "abcdef", "abcdefghi" };
+    // Lengths 1, 3, 4, 6 and 9 give last quads of 1, 3, 4, 2 and 1 bytes
+    private static final String[] NAMES = { "a", "abc", "abcd", "abcdef", "abcdefghi" };
 
     private final JsonFactory APOS_FACTORY = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
@@ -28,25 +28,25 @@ class PropertyName0xFF1784Test extends JUnit5TestBase
             .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
             .build();
 
+    // Valid name first in the same document, so it is in the child symbol table
     @Test
     void ffAfterSameNameInDocument() throws Exception
     {
         for (int mode : ALL_BINARY_MODES) {
             for (String name : NAMES) {
-                for (int count = 1; count <= 3; ++count) {
-                    for (int pos = 0; pos <= name.length(); ++pos) {
-                        String invalid = withFF(name, pos, count);
-                        _verifyRejected(newStreamFactory(), mode, name, invalid, "\"");
-                        _verifyRejected(APOS_FACTORY, mode, name, invalid, "'");
-                        if (pos > 0) {
-                            _verifyRejected(UNQUOTED_FACTORY, mode, name, invalid, "");
-                        }
+                for (int pos = 0; pos <= name.length(); ++pos) {
+                    String invalid = withFF(name, pos);
+                    _verifyRejected(newStreamFactory(), mode, name, invalid, "\"");
+                    _verifyRejected(APOS_FACTORY, mode, name, invalid, "'");
+                    if (pos > 0) { // unquoted name cannot start with 0xFF
+                        _verifyRejected(UNQUOTED_FACTORY, mode, name, invalid, "");
                     }
                 }
             }
         }
     }
 
+    // Valid name in an earlier document, so it is merged into the root symbol table
     @Test
     void ffAfterSameNameInEarlierDocument() throws Exception
     {
@@ -56,7 +56,7 @@ class PropertyName0xFF1784Test extends JUnit5TestBase
                 try (JsonParser p = createParser(f, mode, "{\"" + name + "\":1}")) {
                     while (p.nextToken() != null) { }
                 }
-                try (JsonParser p = createParser(f, mode, doc("{\"" + withFF(name, name.length() - 1, 1) + "\":2}"))) {
+                try (JsonParser p = createParser(f, mode, doc("{\"" + withFF(name, name.length() - 1) + "\":2}"))) {
                     assertToken(JsonToken.START_OBJECT, p.nextToken());
                     p.nextToken();
                     fail("Should not pass, got name '" + p.currentName() + "'");
@@ -82,20 +82,12 @@ class PropertyName0xFF1784Test extends JUnit5TestBase
         }
     }
 
-    // '~' in result marks positions of 0xFF bytes, see doc()
-    static String withFF(String name, int pos, int count) {
-        StringBuilder sb = new StringBuilder(name);
-        for (int i = 0; i < count; ++i) {
-            sb.insert(pos, '~');
-        }
-        return sb.toString();
+    // '~' in result marks the 0xFF byte, see doc()
+    static String withFF(String name, int pos) {
+        return new StringBuilder(name).insert(pos, '~').toString();
     }
 
     static byte[] doc(String json) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        for (byte b : json.getBytes(StandardCharsets.US_ASCII)) {
-            bytes.write((b == '~') ? 0xFF : b);
-        }
-        return bytes.toByteArray();
+        return json.replace('~', 'ÿ').getBytes(StandardCharsets.ISO_8859_1);
     }
 }

@@ -578,3 +578,8 @@ Elankumaran Srinivasan (@elang2)
 @Marcono1234
  * Reported #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
   (2.23.0)
+
+@un5h4d0w
+ * Reported #1784: UTF-8 parsers may return wrong cached property name for names
+   containing 0xFF bytes
+  (2.23.0)

@@ -1430,7 +1430,7 @@ public abstract class NonBlockingUtf8JsonParserBase
      * @return Decoded character (code point) if decodable; lead byte if not
      */
     // 21-Aug-2026, tatu: [core#1664]
-    // 19-Oct-2026, tatu: [core#1787] use shared decoding, for consistency with blocking parsers
+    // 19-Oct-2026, tatu: [core#1787] use shared, validating decoding (see `_decodeUTF8ForError()`)
     private final int _decodeCharForError(int firstByte)
     {
         final byte[] buf = new byte[4];

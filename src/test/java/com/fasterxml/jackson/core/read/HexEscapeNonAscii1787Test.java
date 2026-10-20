@@ -101,8 +101,9 @@ class HexEscapeNonAscii1787Test extends JUnit5TestBase
                     fail("Should not pass for mode " + mode + ", doc: " + doc);
                 } catch (StreamReadException e) {
                     verifyException(e, "expected a hex-digit for character escape sequence");
-                    // best-effort decoding needs whole char buffered
-                    if (expCharDesc != null && mode != MODE_INPUT_STREAM_THROTTLED) {
+                    // best-effort decoding needs whole char buffered (DataInput: never decoded)
+                    if (expCharDesc != null && mode != MODE_INPUT_STREAM_THROTTLED
+                            && mode != MODE_DATA_INPUT) {
                         verifyException(e, "Unexpected character (" + expCharDesc + ")");
                     }
                 }

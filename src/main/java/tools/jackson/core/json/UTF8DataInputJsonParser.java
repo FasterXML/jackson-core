@@ -1986,10 +1986,10 @@ public class UTF8DataInputJsonParser
                 _skipUtf8_2();
                 break;
             case 3: // 3-byte UTF
-                _skipUtf8_3();
+                _skipUtf8_3(c);
                 break;
             case 4: // 4-byte UTF
-                _skipUtf8_4();
+                _skipUtf8_4(c);
                 break;
             default:
                 _handleInvalidStringChar(c);
@@ -2522,10 +2522,10 @@ public class UTF8DataInputJsonParser
                     _skipUtf8_2();
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3();
+                    _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
-                    _skipUtf8_4();
+                    _skipUtf8_4(i);
                     break;
                 default: // e.g. -1
                     // Is this good enough error message?
@@ -2568,10 +2568,10 @@ public class UTF8DataInputJsonParser
                     _skipUtf8_2();
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3();
+                    _skipUtf8_3(i);
                     break;
                 case 4: // 4-byte UTF
-                    _skipUtf8_4();
+                    _skipUtf8_4(i);
                     break;
                 default: // e.g. -1
                     if (code < 0) {
@@ -2774,10 +2774,7 @@ public class UTF8DataInputJsonParser
             _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -2801,11 +2798,9 @@ public class UTF8DataInputJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
-
-        /* note: won't change it to negative here, since caller
-         * already knows it'll need a surrogate
-         */
-        return ((c << 6) | (d & 0x3F)) - 0x10000;
+        c = (c << 6) | (d & 0x3F);
+        _verifyUTF8CodePoint4(c, _inputPtr);
+        return c - 0x10000;
     }
 
     private final void _skipUtf8_2() throws IOException
@@ -2819,25 +2814,26 @@ public class UTF8DataInputJsonParser
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3() throws IOException
-    {
-        //c &= 0x0F;
-        int c = _inputData.readUnsignedByte();
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF);
-        }
-        c = _inputData.readUnsignedByte();
-        if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF);
-        }
-    }
-
-    private final void _skipUtf8_4() throws IOException
+    private final void _skipUtf8_3(int c) throws IOException
     {
         int d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
+        _verifyUTF8SecondByte(c, d);
+        d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF);
+        }
+    }
+
+    private final void _skipUtf8_4(int c) throws IOException
+    {
+        int d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF);
+        }
+        _verifyUTF8SecondByte(c, d);
         d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);

@@ -15,6 +15,12 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.1.9 (not yet released)
+
+#1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
+  in String values (and comments, except for non-blocking parser)
+ (fix by @pjfanning)
+
 3.1.8 (17-Oct-2026)
 
 #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone

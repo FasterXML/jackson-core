@@ -105,7 +105,7 @@ class UTF8InvalidCodePoint1753Test
         _verifyErrorLocation(new int[] { 0xED, 0xA0, 0x80 }, "Illegal surrogate character 0xd800");
     }
 
-    private void _verifyErrorLocation(int[] sequence, String expMsg) throws Exception
+    private void _verifyErrorLocation(int[] sequence, String... expMsg) throws Exception
     {
         // Leading multi-byte char and trailing content to get async parser to decode
         // invalid sequence on its fast (non-split) path, with `_inputPtr` not synced
@@ -221,10 +221,19 @@ class UTF8InvalidCodePoint1753Test
         }
     }
 
-    private static String _expMessage(Rejected r)
+    // 20-Oct-2026, tatu: [core#1782] Different code paths report the same problem
+    //   differently (decoding vs skipping vs lead byte check): accept any
+    private static String[] _expMessage(Rejected r)
     {
-        return String.format("Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): %s",
-                r.bytes[0], r.bytes[1], r.reason);
+        final boolean overlong = (r.reason == OVERLONG);
+        return new String[] {
+            String.format("Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): %s",
+                    r.bytes[0], r.bytes[1], r.reason),
+            String.format("Invalid UTF-8: %s (lead byte 0x%02x, second byte 0x%02x)",
+                    overlong ? "overlong encoding" : "code point beyond U+10FFFF",
+                    r.bytes[0], r.bytes[1]),
+            String.format("Invalid UTF-8 start byte 0x%02x", r.bytes[0])
+        };
     }
 
     private static byte[] _doc(String[] ctxt, int[] sequence)

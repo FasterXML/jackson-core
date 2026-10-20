@@ -135,3 +135,8 @@ PJ Fanning (@pjfanning)
  * Contributed #1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8
    sequences in String values
   (3.1.9, 3.2.5)
+
+@un5h4d0w
+ * Reported #1784: UTF-8 parsers may return wrong cached property name for names
+   containing 0xFF bytes
+  (3.1.9, 3.2.5)

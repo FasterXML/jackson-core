@@ -25,6 +25,7 @@ a pure JSON library.
  (fix by @pjfanning)
 #1784: UTF-8 parsers may return wrong cached property name for names
   containing 0xFF bytes
+ (reported by @un5h4d0w)
  (fix by @pjfanning)
 #1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
   in String values (and comments, except for non-blocking parser)

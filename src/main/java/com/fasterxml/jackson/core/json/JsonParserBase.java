@@ -413,12 +413,12 @@ public abstract class JsonParserBase
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
         if (needed == 1) {
             if (ch < 0x80) {
-                _reportInvalidUTF8CodePoint(ch, 2);
+                _reportInvalidUTF8CodePoint(ch, 2, _inputPtr);
             }
         } else if (needed == 2) {
-            _verifyUTF8CodePoint3(ch);
+            _verifyUTF8CodePoint3(ch, _inputPtr);
         } else {
-            _verifyUTF8CodePoint4(ch);
+            _verifyUTF8CodePoint4(ch, _inputPtr);
         }
     }
 
@@ -432,14 +432,15 @@ public abstract class JsonParserBase
      * (like property name decoding) need to check those separately.
      *
      * @param ch Decoded code point
+     * @param ptr Input pointer to set (for error location) if code point is invalid
      *
      * @throws JsonParseException If code point is invalid
      *
      * @since 2.23
      */
-    protected final void _verifyUTF8CodePoint3(int ch) throws JsonParseException {
+    protected final void _verifyUTF8CodePoint3(int ch, int ptr) throws JsonParseException {
         if ((ch < 0x800) || ((ch & 0xF800) == 0xD800)) {
-            _reportInvalidUTF8CodePoint(ch, 3);
+            _reportInvalidUTF8CodePoint(ch, 3, ptr);
         }
     }
 
@@ -449,64 +450,54 @@ public abstract class JsonParserBase
      * are invalid (RFC 3629).
      *
      * @param ch Decoded code point (not yet offset by -0x10000)
+     * @param ptr Input pointer to set (for error location) if code point is invalid
      *
      * @throws JsonParseException If code point is invalid
      *
      * @since 2.23
      */
-    protected final void _verifyUTF8CodePoint4(int ch) throws JsonParseException {
+    protected final void _verifyUTF8CodePoint4(int ch, int ptr) throws JsonParseException {
         if ((ch < 0x10000) || (ch > 0x10FFFF)) {
-            _reportInvalidUTF8CodePoint(ch, 4);
+            _reportInvalidUTF8CodePoint(ch, 4, ptr);
         }
     }
 
     /**
-     * Method for verifying 3-byte UTF-8 sequence that is skipped instead of decoded,
-     * given lead byte {@code c} and continuation bytes {@code d} and {@code e}
-     * (already verified to be continuation bytes).
+     * Method for verifying lead byte and first continuation byte of a 3- or 4-byte
+     * UTF-8 sequence that is skipped instead of decoded: together they determine
+     * whether sequence is overlong, a surrogate or beyond U+10FFFF (Unicode Table 3-7).
      *
-     * @param c Lead byte (unsigned)
-     * @param d First continuation byte
-     * @param e Second continuation byte
+     * @param lead Lead byte (unsigned)
+     * @param second First continuation byte (unsigned)
      *
      * @throws JsonParseException If sequence is invalid
      *
      * @since 2.23
      */
-    protected final void _verifyUTF8Skipped3(int c, int d, int e) throws JsonParseException {
-        // 19-Oct-2026, tatu: [core#1782] only lead bytes 0xE0 (overlong) and 0xED
-        //   (surrogate) can start invalid sequences, so no need to decode others
-        if ((c == 0xE0) || (c == 0xED)) {
-            _verifyUTF8CodePoint3(((c & 0x0F) << 12) | ((d & 0x3F) << 6) | (e & 0x3F));
-        }
-    }
-
-    /**
-     * Method for verifying 4-byte UTF-8 sequence that is skipped instead of decoded,
-     * given lead byte {@code c} and continuation bytes {@code d}, {@code e} and {@code f}
-     * (already verified to be continuation bytes).
-     *
-     * @param c Lead byte (unsigned)
-     * @param d First continuation byte
-     * @param e Second continuation byte
-     * @param f Third continuation byte
-     *
-     * @throws JsonParseException If sequence is invalid
-     *
-     * @since 2.23
-     */
-    protected final void _verifyUTF8Skipped4(int c, int d, int e, int f) throws JsonParseException {
-        // 19-Oct-2026, tatu: [core#1782] only lead bytes 0xF0 (overlong) and 0xF4
-        //   (beyond U+10FFFF) can start invalid sequences, so no need to decode others
-        if ((c == 0xF0) || (c == 0xF4)) {
-            _verifyUTF8CodePoint4(((c & 0x07) << 18) | ((d & 0x3F) << 12)
-                    | ((e & 0x3F) << 6) | (f & 0x3F));
+    protected final void _verifyUTF8SecondByte(int lead, int second) throws JsonParseException {
+        // 19-Oct-2026, tatu: [core#1782] only these lead bytes restrict second byte range
+        switch (lead) {
+        case 0xE0:
+        case 0xF0:
+            _verifyUTF8NotOverlong(lead, second);
+            break;
+        case 0xED:
+            if (second >= 0xA0) {
+                _reportInvalidUTF8SecondByte("surrogate", lead, second);
+            }
+            break;
+        case 0xF4:
+            if (second >= 0x90) {
+                _reportInvalidUTF8SecondByte("code point beyond U+10FFFF", lead, second);
+            }
+            break;
         }
     }
 
     // 19-Oct-2026, tatu: [core#1782] Off-lined to keep `_verifyUTF8CodePoint3()` and
     //   `_verifyUTF8CodePoint4()` small (inlinable)
-    private void _reportInvalidUTF8CodePoint(int ch, int byteCount) throws JsonParseException {
+    private void _reportInvalidUTF8CodePoint(int ch, int byteCount, int ptr) throws JsonParseException {
+        _inputPtr = ptr;
         if (ch > 0x10FFFF) {
             _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
         }
@@ -569,9 +560,13 @@ public abstract class JsonParserBase
     // @since 2.23
     protected void _verifyUTF8NotOverlong(int lead, int second) throws JsonParseException {
         if ((lead == 0xE0 && second < 0xA0) || (lead == 0xF0 && second < 0x90)) {
-            _reportError("Invalid UTF-8: overlong encoding (lead byte 0x"+Integer.toHexString(lead)
-                    +", second byte 0x"+Integer.toHexString(second)+")");
+            _reportInvalidUTF8SecondByte("overlong encoding", lead, second);
         }
+    }
+
+    private void _reportInvalidUTF8SecondByte(String desc, int lead, int second) throws JsonParseException {
+        _reportError("Invalid UTF-8: "+desc+" (lead byte 0x"+Integer.toHexString(lead)
+                +", second byte 0x"+Integer.toHexString(second)+")");
     }
 
     // 10-Oct-2026, tatu: [core#1744], [core#1756] Handles (non-overlong) multi-byte UTF-8

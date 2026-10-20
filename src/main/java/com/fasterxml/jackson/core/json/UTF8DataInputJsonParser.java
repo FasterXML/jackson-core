@@ -2631,7 +2631,7 @@ public class UTF8DataInputJsonParser
             _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
-        _verifyUTF8CodePoint3(c);
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -2656,7 +2656,7 @@ public class UTF8DataInputJsonParser
             _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
-        _verifyUTF8CodePoint4(c);
+        _verifyUTF8CodePoint4(c, _inputPtr);
         return c - 0x10000;
     }
 
@@ -2677,11 +2677,11 @@ public class UTF8DataInputJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
-        int e = _inputData.readUnsignedByte();
-        if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF);
+        _verifyUTF8SecondByte(c, d);
+        d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF);
         }
-        _verifyUTF8Skipped3(c, d, e);
     }
 
     private final void _skipUtf8_4(int c) throws IOException
@@ -2690,15 +2690,15 @@ public class UTF8DataInputJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
-        int e = _inputData.readUnsignedByte();
-        if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF);
+        _verifyUTF8SecondByte(c, d);
+        d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF);
         }
-        int f = _inputData.readUnsignedByte();
-        if ((f & 0xC0) != 0x080) {
-            _reportInvalidOther(f & 0xFF);
+        d = _inputData.readUnsignedByte();
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF);
         }
-        _verifyUTF8Skipped4(c, d, e, f);
     }
 
     /*

@@ -65,6 +65,25 @@ class UTF8Overlong1782Test extends JUnit5TestBase
         "Invalid UTF-8 start byte 0xf7",
     };
 
+    // Skipped (not decoded) sequences are reported based on lead and second byte
+    static final String[] INVALID_SKIP_MSG = {
+        "Invalid UTF-8 start byte 0xc0",
+        "Invalid UTF-8 start byte 0xc0",
+        "Invalid UTF-8 start byte 0xc1",
+        "Invalid UTF-8 start byte 0xc1",
+        "Invalid UTF-8: overlong encoding (lead byte 0xe0, second byte 0x80)",
+        "Invalid UTF-8: overlong encoding (lead byte 0xe0, second byte 0x80)",
+        "Invalid UTF-8: overlong encoding (lead byte 0xe0, second byte 0x9f)",
+        "Invalid UTF-8: surrogate (lead byte 0xed, second byte 0xa0)",
+        "Invalid UTF-8: surrogate (lead byte 0xed, second byte 0xbf)",
+        "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x80)",
+        "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x8f)",
+        "Invalid UTF-8: overlong encoding (lead byte 0xf0, second byte 0x8d)",
+        "Invalid UTF-8: code point beyond U+10FFFF (lead byte 0xf4, second byte 0x90)",
+        "Invalid UTF-8 start byte 0xf5",
+        "Invalid UTF-8 start byte 0xf7",
+    };
+
     // Shortest-form boundary characters: must still be accepted
     static final int[][] VALID = {
         { 0xC2, 0x80 }, // U+0080
@@ -120,7 +139,7 @@ class UTF8Overlong1782Test extends JUnit5TestBase
                         p.nextToken();
                         fail("Should not pass for mode " + mode + ", sequence " + hex(seq));
                     } catch (StreamReadException e) {
-                        verifyException(e, INVALID_MSG[i]);
+                        verifyException(e, INVALID_SKIP_MSG[i]);
                     }
                 }
             }
@@ -161,7 +180,7 @@ class UTF8Overlong1782Test extends JUnit5TestBase
                         p.nextToken();
                         fail("Should not pass for mode " + mode + ", sequence " + hex(seq));
                     } catch (StreamReadException e) {
-                        verifyException(e, INVALID_MSG[i]);
+                        verifyException(e, INVALID_SKIP_MSG[i]);
                     }
                 }
             }

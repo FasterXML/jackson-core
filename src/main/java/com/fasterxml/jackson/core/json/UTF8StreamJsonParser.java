@@ -3433,7 +3433,7 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
-        _verifyUTF8CodePoint3(c);
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -3450,7 +3450,7 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
-        _verifyUTF8CodePoint3(c);
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -3483,7 +3483,7 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
-        _verifyUTF8CodePoint4(c);
+        _verifyUTF8CodePoint4(c, _inputPtr);
         return c - 0x10000;
     }
 
@@ -3510,14 +3510,14 @@ public class UTF8StreamJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
+        _verifyUTF8SecondByte(c, d & 0xFF);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        int e = _inputBuffer[_inputPtr++];
-        if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, _inputPtr);
+        d = _inputBuffer[_inputPtr++];
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        _verifyUTF8Skipped3(c, d, e);
     }
 
     private final void _skipUtf8_4(int c) throws IOException
@@ -3529,21 +3529,21 @@ public class UTF8StreamJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
+        _verifyUTF8SecondByte(c, d & 0xFF);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        int e = _inputBuffer[_inputPtr++];
-        if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, _inputPtr);
+        d = _inputBuffer[_inputPtr++];
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        int f = _inputBuffer[_inputPtr++];
-        if ((f & 0xC0) != 0x080) {
-            _reportInvalidOther(f & 0xFF, _inputPtr);
+        d = _inputBuffer[_inputPtr++];
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        _verifyUTF8Skipped4(c, d, e, f);
     }
 
     /*

@@ -128,6 +128,18 @@ class AsyncUTF8Overlong1782Test extends AsyncTestBase
             verifyException(e, "Illegal surrogate character 0xd800");
             assertEquals(prefix.length() + seq.length, e.getLocation().getByteOffset());
         }
+        // and invalid continuation byte just past itself, not rest of sequence
+        doc = _doc(prefix, new int[] { 0xE4, 0x41, 0x42 }, "zzzzzzzzzz\"}");
+        try (AsyncReaderWrapper r = v.wrap(FACTORY, 1000, doc)) {
+            assertToken(JsonToken.START_OBJECT, r.nextToken());
+            assertToken(JsonToken.FIELD_NAME, r.nextToken());
+            r.nextToken();
+            r.currentText();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, "Invalid UTF-8 middle byte 0x41");
+            assertEquals(prefix.length() + 2, e.getLocation().getByteOffset());
+        }
     }
 
     @ParameterizedTest

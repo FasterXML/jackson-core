@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -214,28 +212,28 @@ class TextBufferTest
     }
 
     @Test
-    void testContentsAsFloat() throws IOException {
+    void contentsAsFloat() throws Exception {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.2345678");
         assertEquals(1.2345678f,  textBuffer.contentsAsFloat(false));
     }
 
     @Test
-    void testContentsAsFloatFastParser() throws IOException {
+    void contentsAsFloatFastParser() throws Exception {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.2345678");
         assertEquals(1.2345678f,  textBuffer.contentsAsFloat(true));
     }
 
     @Test
-    void testContentsAsDouble() throws IOException {
+    void contentsAsDouble() throws Exception {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.234567890123456789");
         assertEquals(1.234567890123456789d,  textBuffer.contentsAsDouble(false));
     }
 
     @Test
-    void testContentsAsDoubleFastParser() throws IOException {
+    void contentsAsDoubleFastParser() throws Exception {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.resetWithString("1.234567890123456789");
         assertEquals(1.234567890123456789d,  textBuffer.contentsAsDouble(true));

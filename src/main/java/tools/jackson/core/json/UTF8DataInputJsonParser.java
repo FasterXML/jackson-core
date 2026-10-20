@@ -147,7 +147,7 @@ public class UTF8DataInputJsonParser
      * @since 3.2
      */
     protected int readUnsignedByte() throws IOException {
-        return readUnsignedByte();
+        return _inputData.readUnsignedByte();
     }
 
     /**

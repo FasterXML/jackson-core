@@ -671,7 +671,7 @@ public abstract class NonBlockingJsonParserBase
     protected final String _findName(int q1, int lastQuadBytes)
             throws JsonParseException, StreamConstraintsException
     {
-        q1 = _padAndValidateLastQuad(q1, lastQuadBytes);
+        q1 = _padLastQuad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
         String name = _symbols.findName(q1);
         if (name != null) {
@@ -685,7 +685,7 @@ public abstract class NonBlockingJsonParserBase
     protected final String _findName(int q1, int q2, int lastQuadBytes)
             throws JsonParseException, StreamConstraintsException
     {
-        q2 = _padAndValidateLastQuad(q2, lastQuadBytes);
+        q2 = _padLastQuad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
         String name = _symbols.findName(q1, q2);
         if (name != null) {
@@ -700,7 +700,7 @@ public abstract class NonBlockingJsonParserBase
     protected final String _findName(int q1, int q2, int q3, int lastQuadBytes)
             throws JsonParseException, StreamConstraintsException
     {
-        q3 = _padAndValidateLastQuad(q3, lastQuadBytes);
+        q3 = _padLastQuad(q3, lastQuadBytes);
         String name = _symbols.findName(q1, q2, q3);
         if (name != null) {
             return name;

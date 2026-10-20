@@ -1536,7 +1536,7 @@ public class UTF8DataInputJsonParser
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            quads[qlen++] = _padAndValidateLastQuad(currQuad, currQuadBytes);
+            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
@@ -1612,7 +1612,7 @@ public class UTF8DataInputJsonParser
             }
             // 09-Oct-2026, tatu: [core#1748] must pad, as with quoted names, to avoid
             //   [core#148] collisions
-            quads[qlen++] = _padAndValidateLastQuad(currQuad, currQuadBytes);
+            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
         return _findOrAddUnquotedUTF8Name(_symbols, quads, qlen, currQuadBytes);
     }
@@ -1715,7 +1715,7 @@ public class UTF8DataInputJsonParser
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
             }
-            quads[qlen++] = _padAndValidateLastQuad(currQuad, currQuadBytes);
+            quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
@@ -1733,7 +1733,7 @@ public class UTF8DataInputJsonParser
     private final String findName(int q1, int lastQuadBytes)
             throws JsonParseException, StreamConstraintsException
     {
-        q1 = _padAndValidateLastQuad(q1, lastQuadBytes);
+        q1 = _padLastQuad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
         String name = _symbols.findName(q1);
         if (name != null) {
@@ -1747,7 +1747,7 @@ public class UTF8DataInputJsonParser
     private final String findName(int q1, int q2, int lastQuadBytes)
             throws JsonParseException, StreamConstraintsException
     {
-        q2 = _padAndValidateLastQuad(q2, lastQuadBytes);
+        q2 = _padLastQuad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
         String name = _symbols.findName(q1, q2);
         if (name != null) {
@@ -1762,7 +1762,7 @@ public class UTF8DataInputJsonParser
     private final String findName(int q1, int q2, int q3, int lastQuadBytes)
             throws JsonParseException, StreamConstraintsException
     {
-        q3 = _padAndValidateLastQuad(q3, lastQuadBytes);
+        q3 = _padLastQuad(q3, lastQuadBytes);
         String name = _symbols.findName(q1, q2, q3);
         if (name != null) {
             return name;
@@ -1780,7 +1780,7 @@ public class UTF8DataInputJsonParser
         if (qlen >= quads.length) {
             _quadBuffer = quads = _growNameDecodeBuffer(quads, quads.length);
         }
-        quads[qlen++] = _padAndValidateLastQuad(lastQuad, lastQuadBytes);
+        quads[qlen++] = _padLastQuad(lastQuad, lastQuadBytes);
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             return _decodeAndAddUTF8Name(_symbols, quads, qlen, lastQuadBytes);

@@ -1465,32 +1465,17 @@ public abstract class NonBlockingUtf8JsonParserBase
      * @return Decoded character (code point) if decodable; lead byte if not
      */
     // 21-Aug-2026, tatu: [core#1664]
+    // 19-Oct-2026, tatu: [core#1787] use shared, validating decoding (see `_decodeUTF8ForError()`)
     private final int _decodeCharForError(int firstByte)
     {
-        final int c = firstByte & 0xFF;
-        final int needed;
-
-        if ((c & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
-            needed = 1;
-        } else if ((c & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
-            needed = 2;
-        } else if ((c & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
-            needed = 3;
-        } else { // invalid lead byte; report as-is
-            return c;
+        final byte[] buf = new byte[4];
+        buf[0] = (byte) firstByte;
+        final int len = 1 + Math.min(Math.max(_utf8ContinuationCount(firstByte & 0xFF), 0),
+                _inputEnd - _inputPtr);
+        for (int i = 1; i < len; ++i) {
+            buf[i] = getByteFromBuffer(_inputPtr + i - 1);
         }
-        if ((_inputPtr + needed) > _inputEnd) { // not (yet) buffered; report as-is
-            return c;
-        }
-        int value = c & (0x3F >> needed); // 0x1F, 0x0F or 0x07
-        for (int i = 0; i < needed; ++i) {
-            final int d = getByteFromBuffer(_inputPtr + i) & 0xFF;
-            if ((d & 0xC0) != 0x080) { // invalid continuation byte; report lead byte as-is
-                return c;
-            }
-            value = (value << 6) | (d & 0x3F);
-        }
-        return value;
+        return _decodeUTF8ForError(buf, 0, len);
     }
 
     /*
@@ -1958,6 +1943,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _minorState = requireFirst ? MINOR_NUMBER_HEX_PREFIX : MINOR_NUMBER_HEX_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
+                // [core#1765]: validate accumulated hex digit length so far before yielding
+                _streamReadConstraints.validateIntegerLength(outPtr - prefixLen);
                 return _updateTokenToNA();
             }
             int ch = getByteFromBuffer(_inputPtr) & 0xFF;
@@ -2941,7 +2928,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (true) {
             int digit = CharTypes.charToHex(c);
             if (digit < 0) {
-                _reportUnexpectedChar(c & 0xFF, "expected a hex-digit for character escape sequence");
+                _reportUnexpectedChar(_decodeCharForError(c), "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
             if (++bytesRead == 4) {
@@ -3053,6 +3040,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
+                    // 19-Oct-2026, tatu: [core#1782] pass `ptr` (past sequence) for error location
                     c = _decodeUTF8_2(c, getByteFromBuffer(ptr++), ptr);
                     break;
                 case 3: // 3-byte UTF
@@ -3173,6 +3161,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
+                    // 19-Oct-2026, tatu: [core#1782] pass `ptr` (past sequence) for error location
                     c = _decodeUTF8_2(c, getByteFromBuffer(ptr++), ptr);
                     break;
                 case 3: // 3-byte UTF
@@ -3218,6 +3207,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return true;
         case 2: // 2-byte UTF; easy, either got both, or just miss one
             if (gotNext) {
+                // NOTE: never needs more input (but throws if second byte is invalid)
                 c = _decodeUTF8_2(c, getNextSignedByteFromBuffer(), _inputPtr);
                 _textBuffer.append((char) c);
                 return true;
@@ -3282,10 +3272,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
         int c = (prev << 6) | (next & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, _inputPtr);
         _textBuffer.append((char) c);
         return true;
     }
@@ -3328,7 +3315,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((next & 0xC0) != 0x080) {
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
-        int c = ((prev << 6) | (next & 0x3F)) - 0x10000;
+        int c = (prev << 6) | (next & 0x3F);
+        _verifyUTF8CodePoint4(c, _inputPtr);
+        c -= 0x10000;
         // Let's add first part right away:
         _textBuffer.append((char) (0xD800 | (c >> 10)));
         c = 0xDC00 | (c & 0x3FF);
@@ -3410,7 +3399,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
             }
         }
-        _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
+        _reportUnexpectedChar(_decodeCharForError(ch), "expected a hex-digit for character escape sequence");
         return -1;
     }
 
@@ -3495,11 +3484,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(e & 0xFF, ptr);
         }
         c = (c << 6) | (e & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _inputPtr = ptr;
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, ptr);
         return c;
     }
 
@@ -3519,7 +3504,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((f & 0xC0) != 0x080) {
             _reportInvalidOther(f & 0xFF, ptr);
         }
-        return ((c << 6) | (f & 0x3F)) - 0x10000;
+        c = (c << 6) | (f & 0x3F);
+        _verifyUTF8CodePoint4(c, ptr);
+        return c - 0x10000;
     }
 
     /*

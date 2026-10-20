@@ -2736,6 +2736,8 @@ public class UTF8DataInputJsonParser
                 int ch = readUnsignedByte();
                 int digit = CharTypes.charToHex(ch);
                 if (digit < 0) {
+                    // 19-Oct-2026, tatu: [core#1787] report lead byte as-is: reading rest of
+                    //   (possibly multi-byte) char could block, just for error message
                     _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
                 }
                 value = (value << 4) | digit;
@@ -2851,14 +2853,14 @@ public class UTF8DataInputJsonParser
     // number of continuation bytes
     private int _decodeMultiByteChar(int lead, int needed) throws IOException
     {
-        int d = _inputData.readUnsignedByte();
+        int d = readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d);
         }
         _verifyUTF8NotOverlong(lead, d);
         int c = ((lead & (0x3F >> needed)) << 6) | (d & 0x3F);
         while (--needed > 0) {
-            d = _inputData.readUnsignedByte();
+            d = readUnsignedByte();
             if ((d & 0xC0) != 0x080) {
                 _reportInvalidOther(d);
             }
@@ -2916,10 +2918,7 @@ public class UTF8DataInputJsonParser
             _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -2944,11 +2943,9 @@ public class UTF8DataInputJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
-
-        /* note: won't change it to negative here, since caller
-         * already knows it'll need a surrogate
-         */
-        return ((c << 6) | (d & 0x3F)) - 0x10000;
+        c = (c << 6) | (d & 0x3F);
+        _verifyUTF8CodePoint4(c, _inputPtr);
+        return c - 0x10000;
     }
 
     private final void _skipUtf8_2() throws IOException
@@ -2962,22 +2959,16 @@ public class UTF8DataInputJsonParser
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3(int c1) throws IOException
+    private final void _skipUtf8_3(int c) throws IOException
     {
-        c1 &= 0x0F;
         int d = readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
-        int c = (c1 << 6) | (d & 0x3F);
+        _verifyUTF8SecondByte(c, d);
         d = readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
-        }
-        c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
         }
     }
 
@@ -2987,8 +2978,7 @@ public class UTF8DataInputJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);
         }
-        c = ((c & 0x07) << 6) | (d & 0x3F);
-        _verifyUtf8_4Range(c);
+        _verifyUTF8SecondByte(c, d);
         d = readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF);

@@ -2125,28 +2125,20 @@ public class UTF8StreamJsonParser
                     eof = true;
                     break fract_loop;
                 }
-                // Scan what is in the buffer using a local pointer, as C2 would otherwise
-                // store `_inputPtr` on every iteration
-                final byte[] inputBuffer = _inputBuffer;
-                final int end = _inputEnd;
-                int ptr = _inputPtr;
-                while (ptr < end) {
-                    c = inputBuffer[ptr++] & 0xFF;
-                    if (c < INT_0 || c > INT_9) {
-                        _inputPtr = ptr;
-                        break fract_loop;
-                    }
-                    ++fractLen;
-                    if (outPtr >= outBuf.length) {
-                        _inputPtr = ptr;
-                        // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
-                        _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
-                        outBuf = _textBuffer.finishCurrentSegment();
-                        outPtr = 0;
-                    }
-                    outBuf[outPtr++] = (char) c;
+                // Keeps `_inputPtr` (see _parseUnsignedNumber()): a local pointer made
+                // typical 1-2 digit fractions slower
+                c = _inputBuffer[_inputPtr++] & 0xFF;
+                if (c < INT_0 || c > INT_9) {
+                    break fract_loop;
                 }
-                _inputPtr = ptr;
+                ++fractLen;
+                if (outPtr >= outBuf.length) {
+                    // 07-Sep-2026, tatu: [core#1686] Check length before growing buffer
+                    _streamReadConstraints.validateFPLength(integerPartLength + fractLen);
+                    outBuf = _textBuffer.finishCurrentSegment();
+                    outPtr = 0;
+                }
+                outBuf[outPtr++] = (char) c;
             }
             // must be followed by sequence of ints, one minimum
             _verifyFractionDigits(fractLen, integerPartLength, c);

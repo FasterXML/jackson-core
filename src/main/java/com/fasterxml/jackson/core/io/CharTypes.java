@@ -51,16 +51,18 @@ public final class CharTypes
             int code;
 
             // We'll add number of bytes needed for decoding
-            if ((c & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
-                code = 2;
-            } else if ((c & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
-                code = 3;
-            } else if ((c & 0xF8) == 0xF0) {
-                // 4 bytes; double-char with surrogates and all...
-                code = 4;
-            } else {
+            // 19-Oct-2026, tatu: [core#1782] 0xC0/0xC1 only start overlong encodings and
+            //   0xF5 - 0xF7 ones beyond U+10FFFF, so they are invalid lead bytes (RFC 3629)
+            if ((c < 0xC2) || (c > 0xF4)) {
                 // And -1 seems like a good "universal" error marker...
                 code = -1;
+            } else if (c < 0xE0) { // 2 bytes (0x0080 - 0x07FF)
+                code = 2;
+            } else if (c < 0xF0) { // 3 bytes (0x0800 - 0xFFFF)
+                code = 3;
+            } else {
+                // 4 bytes; double-char with surrogates and all...
+                code = 4;
             }
             table[c] = code;
         }

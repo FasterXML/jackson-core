@@ -278,7 +278,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_VALUE_STRING:
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_2:
-            _textBuffer.append((char) _decodeUTF8_2(_pending32, getNextSignedByteFromBuffer()));
+            _textBuffer.append((char) _decodeUTF8_2(_pending32, getNextSignedByteFromBuffer(), _inputPtr));
             if (_minorStateAfterSplit == MINOR_VALUE_APOS_STRING) {
                 return _finishAposString();
             }
@@ -2917,14 +2917,15 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
-                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
+                    // 19-Oct-2026, tatu: [core#1782] pass `ptr` (past sequence) for error location
+                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++), ptr);
                     break;
                 case 3: // 3-byte UTF
-                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++), ptr);
                     break;
                 case 4: // 4-byte UTF
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
-                            getByteFromBuffer(ptr++));
+                            getByteFromBuffer(ptr++), ptr);
                     // Let's add first part right away:
                     outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                     if (outPtr >= outBuf.length) {
@@ -3037,14 +3038,15 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
-                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
+                    // 19-Oct-2026, tatu: [core#1782] pass `ptr` (past sequence) for error location
+                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++), ptr);
                     break;
                 case 3: // 3-byte UTF
-                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
+                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++), ptr);
                     break;
                 case 4: // 4-byte UTF
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
-                            getByteFromBuffer(ptr++));
+                            getByteFromBuffer(ptr++), ptr);
                     // Let's add first part right away:
                     outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                     if (outPtr >= outBuf.length) {
@@ -3082,8 +3084,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             return true;
         case 2: // 2-byte UTF; easy, either got both, or just miss one
             if (gotNext) {
-                // NOTE: always succeeds, no need to check
-                c = _decodeUTF8_2(c, getNextSignedByteFromBuffer());
+                // NOTE: never needs more input (but throws if second byte is invalid)
+                c = _decodeUTF8_2(c, getNextSignedByteFromBuffer(), _inputPtr);
                 _textBuffer.append((char) c);
                 return true;
             }
@@ -3147,10 +3149,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
         int c = (prev << 6) | (next & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, _inputPtr);
         _textBuffer.append((char) c);
         return true;
     }
@@ -3190,7 +3189,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((next & 0xC0) != 0x080) {
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
-        int c = ((prev << 6) | (next & 0x3F)) - 0x10000;
+        int c = (prev << 6) | (next & 0x3F);
+        _verifyUTF8CodePoint4(c, _inputPtr);
+        c -= 0x10000;
         // Let's add first part right away:
         _textBuffer.append((char) (0xD800 | (c >> 10)));
         c = 0xDC00 | (c & 0x3FF);
@@ -3335,48 +3336,48 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _handleEscapedUTF8Char(value);
     }
 
-    private final int _decodeUTF8_2(int c, int d) throws IOException
+    // `ptr` points past the whole sequence (for error location)
+    private final int _decodeUTF8_2(int c, int d, int ptr) throws IOException
     {
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr);
         }
         return ((c & 0x1F) << 6) | (d & 0x3F);
     }
 
-    private final int _decodeUTF8_3(int c, int d, int e) throws IOException
+    private final int _decodeUTF8_3(int c, int d, int e, int ptr) throws IOException
     {
         c &= 0x0F;
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr - 1);
         }
         c = (c << 6) | (d & 0x3F);
         if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, _inputPtr);
+            _reportInvalidOther(e & 0xFF, ptr);
         }
         c = (c << 6) | (e & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, ptr);
         return c;
     }
 
     // @return Character value <b>minus 0x10000</c>; this so that caller
     //    can readily expand it to actual surrogates
-    private final int _decodeUTF8_4(int c, int d, int e, int f) throws IOException
+    private final int _decodeUTF8_4(int c, int d, int e, int f, int ptr) throws IOException
     {
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF, ptr - 2);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
         if ((e & 0xC0) != 0x080) {
-            _reportInvalidOther(e & 0xFF, _inputPtr);
+            _reportInvalidOther(e & 0xFF, ptr - 1);
         }
         c = (c << 6) | (e & 0x3F);
         if ((f & 0xC0) != 0x080) {
-            _reportInvalidOther(f & 0xFF, _inputPtr);
+            _reportInvalidOther(f & 0xFF, ptr);
         }
-        return ((c << 6) | (f & 0x3F)) - 0x10000;
+        c = (c << 6) | (f & 0x3F);
+        _verifyUTF8CodePoint4(c, ptr);
+        return c - 0x10000;
     }
 
     /*

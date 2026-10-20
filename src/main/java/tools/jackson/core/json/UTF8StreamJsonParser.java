@@ -4052,10 +4052,7 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -4072,10 +4069,7 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -4108,11 +4102,9 @@ public class UTF8StreamJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-
-        /* note: won't change it to negative here, since caller
-         * already knows it'll need a surrogate
-         */
-        return ((c << 6) | (d & 0x3F)) - 0x10000;
+        c = (c << 6) | (d & 0x3F);
+        _verifyUTF8CodePoint4(c, _inputPtr);
+        return c - 0x10000;
     }
 
     private final void _skipUtf8_2() throws JacksonException
@@ -4129,28 +4121,22 @@ public class UTF8StreamJsonParser
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3(int c1) throws JacksonException
+    private final void _skipUtf8_3(int c) throws JacksonException
     {
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        c1 &= 0x0F;
         int d = _inputBuffer[_inputPtr++];
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        int c = (c1 << 6) | (d & 0x3F);
+        _verifyUTF8SecondByte(c, d & 0xFF);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
         d = _inputBuffer[_inputPtr++];
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
-        }
-        c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
         }
     }
 
@@ -4163,8 +4149,7 @@ public class UTF8StreamJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        c = ((c & 0x07) << 6) | (d & 0x3F);
-        _verifyUtf8_4Range(c);
+        _verifyUTF8SecondByte(c, d & 0xFF);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }

@@ -2704,6 +2704,8 @@ public class UTF8DataInputJsonParser
                 int ch = readUnsignedByte();
                 int digit = CharTypes.charToHex(ch);
                 if (digit < 0) {
+                    // 19-Oct-2026, tatu: [core#1787] report lead byte as-is: reading rest of
+                    //   (possibly multi-byte) char could block, just for error message
                     _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
                 }
                 value = (value << 4) | digit;

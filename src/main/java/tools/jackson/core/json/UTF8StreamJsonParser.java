@@ -2466,6 +2466,7 @@ public class UTF8StreamJsonParser
 
             // Nope, no end in sight. Need to grow quad array etc
             if (qlen >= quads.length) {
+                _inputPtr = ptr; // grow may throw; keep location accurate
                 _quadBuffer = quads = _growNameDecodeBuffer(quads, qlen);
             }
             quads[qlen++] = q;

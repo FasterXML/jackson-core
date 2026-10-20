@@ -25,6 +25,9 @@ a pure JSON library.
  (fix by @pjfanning)
 #1782: Reject overlong 2- and 3-byte UTF-8 sequences in String values
  (fix by @pjfanning)
+#1787: `CharTypes#charToHex` handles non-ASCII incorrectly
+ (reported by @Marcono1234)
+ (fix by @pjfanning)
 
 2.22.4 (17-Oct-2026)
 

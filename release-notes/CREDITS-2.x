@@ -574,3 +574,7 @@ Elankumaran Srinivasan (@elang2)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (2.21.8)
+
+@Marcono1234
+ * Reported #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
+  (2.23.0)

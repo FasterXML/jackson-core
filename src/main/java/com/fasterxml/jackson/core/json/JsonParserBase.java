@@ -413,7 +413,7 @@ public abstract class JsonParserBase
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws JsonParseException {
         if (needed == 1) {
             if (ch < 0x80) {
-                _reportInvalidUTF8CodePoint(ch, 2, _inputPtr);
+                _reportInvalidUTF8Overlong(ch, 2, _inputPtr);
             }
         } else if (needed == 2) {
             _verifyUTF8CodePoint3(ch, _inputPtr);
@@ -439,8 +439,13 @@ public abstract class JsonParserBase
      * @since 2.23
      */
     protected final void _verifyUTF8CodePoint3(int ch, int ptr) throws JsonParseException {
-        if ((ch < 0x800) || ((ch & 0xF800) == 0xD800)) {
-            _reportInvalidUTF8CodePoint(ch, 3, ptr);
+        if (ch < 0x800) {
+            _reportInvalidUTF8Overlong(ch, 3, ptr);
+        }
+        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
+        if ((ch & 0xF800) == 0xD800) {
+            _inputPtr = ptr;
+            _reportInvalidUTF8Surrogate(ch);
         }
     }
 
@@ -457,8 +462,12 @@ public abstract class JsonParserBase
      * @since 2.23
      */
     protected final void _verifyUTF8CodePoint4(int ch, int ptr) throws JsonParseException {
-        if ((ch < 0x10000) || (ch > 0x10FFFF)) {
-            _reportInvalidUTF8CodePoint(ch, 4, ptr);
+        if (ch < 0x10000) {
+            _reportInvalidUTF8Overlong(ch, 4, ptr);
+        }
+        if (ch > 0x10FFFF) {
+            _inputPtr = ptr;
+            _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
         }
     }
 
@@ -496,16 +505,8 @@ public abstract class JsonParserBase
 
     // 19-Oct-2026, tatu: [core#1782] Off-lined to keep `_verifyUTF8CodePoint3()` and
     //   `_verifyUTF8CodePoint4()` small (inlinable)
-    private void _reportInvalidUTF8CodePoint(int ch, int byteCount, int ptr) throws JsonParseException {
+    private void _reportInvalidUTF8Overlong(int ch, int byteCount, int ptr) throws JsonParseException {
         _inputPtr = ptr;
-        if (ch > 0x10FFFF) {
-            _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
-        }
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8; but
-        //   4-byte sequence decoding to one is overlong, reported as such
-        if ((byteCount == 3) && ((ch & 0xF800) == 0xD800)) {
-            _reportInvalidUTF8Surrogate(ch);
-        }
         _reportError("Invalid UTF-8: overlong "+byteCount+"-byte encoding of 0x"+Integer.toHexString(ch));
     }
 

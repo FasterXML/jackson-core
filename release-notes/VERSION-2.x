@@ -24,7 +24,7 @@ a pure JSON library.
   `ALLOW_UNQUOTED_FIELD_NAMES`
  (fix by @pjfanning)
 #1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
-  in String values and comments
+  in String values (and comments, except for non-blocking parser)
  (fix by @pjfanning)
 #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
  (reported by @Marcono1234)

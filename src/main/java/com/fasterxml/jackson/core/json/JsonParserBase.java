@@ -426,8 +426,10 @@ public abstract class JsonParserBase
      * Method for verifying code point decoded from a 3-byte UTF-8 sequence:
      * overlong (non-shortest form) encodings and surrogates are invalid (RFC 3629).
      *<p>
-     * No such check is needed for 2-byte sequences: lead bytes 0xC0 and 0xC1 of
-     * overlong ones are marked invalid by {@code CharTypes.getInputCodeUtf8()}.
+     * No such check is needed for 2-byte sequences whose length is determined using
+     * {@code CharTypes.getInputCodeUtf8()} (or tables derived from it), since lead bytes
+     * 0xC0 and 0xC1 of overlong ones are marked invalid there; other callers
+     * (like property name decoding) need to check those separately.
      *
      * @param ch Decoded code point
      *
@@ -458,13 +460,59 @@ public abstract class JsonParserBase
         }
     }
 
-    // Off-lined to keep `_verifyUTF8CodePoint3()`/`_verifyUTF8CodePoint4()` small (inlinable)
+    /**
+     * Method for verifying 3-byte UTF-8 sequence that is skipped instead of decoded,
+     * given lead byte {@code c} and continuation bytes {@code d} and {@code e}
+     * (already verified to be continuation bytes).
+     *
+     * @param c Lead byte (unsigned)
+     * @param d First continuation byte
+     * @param e Second continuation byte
+     *
+     * @throws JsonParseException If sequence is invalid
+     *
+     * @since 2.23
+     */
+    protected final void _verifyUTF8Skipped3(int c, int d, int e) throws JsonParseException {
+        // 19-Oct-2026, tatu: [core#1782] only lead bytes 0xE0 (overlong) and 0xED
+        //   (surrogate) can start invalid sequences, so no need to decode others
+        if ((c == 0xE0) || (c == 0xED)) {
+            _verifyUTF8CodePoint3(((c & 0x0F) << 12) | ((d & 0x3F) << 6) | (e & 0x3F));
+        }
+    }
+
+    /**
+     * Method for verifying 4-byte UTF-8 sequence that is skipped instead of decoded,
+     * given lead byte {@code c} and continuation bytes {@code d}, {@code e} and {@code f}
+     * (already verified to be continuation bytes).
+     *
+     * @param c Lead byte (unsigned)
+     * @param d First continuation byte
+     * @param e Second continuation byte
+     * @param f Third continuation byte
+     *
+     * @throws JsonParseException If sequence is invalid
+     *
+     * @since 2.23
+     */
+    protected final void _verifyUTF8Skipped4(int c, int d, int e, int f) throws JsonParseException {
+        // 19-Oct-2026, tatu: [core#1782] only lead bytes 0xF0 (overlong) and 0xF4
+        //   (beyond U+10FFFF) can start invalid sequences, so no need to decode others
+        if ((c == 0xF0) || (c == 0xF4)) {
+            _verifyUTF8CodePoint4(((c & 0x07) << 18) | ((d & 0x3F) << 12)
+                    | ((e & 0x3F) << 6) | (f & 0x3F));
+        }
+    }
+
+    // 19-Oct-2026, tatu: [core#1782] Off-lined to keep `_verifyUTF8CodePoint3()` and
+    //   `_verifyUTF8CodePoint4()` small (inlinable)
     private void _reportInvalidUTF8CodePoint(int ch, int byteCount) throws JsonParseException {
         if (ch > 0x10FFFF) {
             _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
         }
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if ((ch & 0xF800) == 0xD800) {
+        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8; but
+        //   4-byte sequence decoding to one is overlong, reported as such
+        if ((byteCount == 3) && ((ch & 0xF800) == 0xD800)) {
             _reportInvalidUTF8Surrogate(ch);
         }
         _reportError("Invalid UTF-8: overlong "+byteCount+"-byte encoding of 0x"+Integer.toHexString(ch));

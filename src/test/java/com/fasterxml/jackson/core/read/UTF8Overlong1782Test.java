@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * surrogates, code points beyond U+10FFFF) in String values and comments,
  * whether decoded or skipped.
  */
-class UTF8OverlongStringValueTest extends JUnit5TestBase
+class UTF8Overlong1782Test extends JUnit5TestBase
 {
     private final JsonFactory FACTORY = newStreamFactory();
 
@@ -41,6 +41,7 @@ class UTF8OverlongStringValueTest extends JUnit5TestBase
         { 0xED, 0xBF, 0xBF }, // U+DFFF (surrogate)
         { 0xF0, 0x80, 0x80, 0xAF }, // '/'
         { 0xF0, 0x8F, 0xBF, 0xBF }, // U+FFFF
+        { 0xF0, 0x8D, 0xA0, 0x80 }, // U+D800: overlong, not (just) surrogate
         { 0xF4, 0x90, 0x80, 0x80 }, // U+110000
         { 0xF5, 0x80, 0x80, 0x80 }, // U+140000
         { 0xF7, 0xBF, 0xBF, 0xBF }, // U+1FFFFF
@@ -58,6 +59,7 @@ class UTF8OverlongStringValueTest extends JUnit5TestBase
         "Invalid UTF-8: Illegal surrogate character 0xdfff",
         "Invalid UTF-8: overlong 4-byte encoding of 0x2f",
         "Invalid UTF-8: overlong 4-byte encoding of 0xffff",
+        "Invalid UTF-8: overlong 4-byte encoding of 0xd800",
         "Invalid UTF-8: code point 0x110000 beyond U+10FFFF",
         "Invalid UTF-8 start byte 0xf5",
         "Invalid UTF-8 start byte 0xf7",

@@ -2917,12 +2917,16 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
+                    // 19-Oct-2026, tatu: [core#1782] update for error location
+                    _inputPtr = ptr + 1;
                     c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
                     break;
                 case 3: // 3-byte UTF
+                    _inputPtr = ptr + 2;
                     c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
                     break;
                 case 4: // 4-byte UTF
+                    _inputPtr = ptr + 3;
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
                             getByteFromBuffer(ptr++));
                     // Let's add first part right away:
@@ -3037,12 +3041,16 @@ public abstract class NonBlockingUtf8JsonParserBase
                     ptr = _inputPtr;
                     break;
                 case 2: // 2-byte UTF
+                    // 19-Oct-2026, tatu: [core#1782] update for error location
+                    _inputPtr = ptr + 1;
                     c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
                     break;
                 case 3: // 3-byte UTF
+                    _inputPtr = ptr + 2;
                     c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
                     break;
                 case 4: // 4-byte UTF
+                    _inputPtr = ptr + 3;
                     c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
                             getByteFromBuffer(ptr++));
                     // Let's add first part right away:

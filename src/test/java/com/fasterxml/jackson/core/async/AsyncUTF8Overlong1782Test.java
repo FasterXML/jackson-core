@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * surrogates, code points beyond U+10FFFF) in String values, regardless of where
  * input is split.
  */
-class AsyncUTF8OverlongStringValueTest extends AsyncTestBase
+class AsyncUTF8Overlong1782Test extends AsyncTestBase
 {
     enum Variant {
         BYTE_ARRAY, BYTE_BUFFER;
@@ -52,6 +52,7 @@ class AsyncUTF8OverlongStringValueTest extends AsyncTestBase
         { 0xED, 0xBF, 0xBF }, // U+DFFF (surrogate)
         { 0xF0, 0x80, 0x80, 0xAF }, // '/'
         { 0xF0, 0x8F, 0xBF, 0xBF }, // U+FFFF
+        { 0xF0, 0x8D, 0xA0, 0x80 }, // U+D800: overlong, not (just) surrogate
         { 0xF4, 0x90, 0x80, 0x80 }, // U+110000
         { 0xF5, 0x80, 0x80, 0x80 }, // U+140000
         { 0xF7, 0xBF, 0xBF, 0xBF }, // U+1FFFFF
@@ -69,6 +70,7 @@ class AsyncUTF8OverlongStringValueTest extends AsyncTestBase
         "Invalid UTF-8: Illegal surrogate character 0xdfff",
         "Invalid UTF-8: overlong 4-byte encoding of 0x2f",
         "Invalid UTF-8: overlong 4-byte encoding of 0xffff",
+        "Invalid UTF-8: overlong 4-byte encoding of 0xd800",
         "Invalid UTF-8: code point 0x110000 beyond U+10FFFF",
         "Invalid UTF-8 start byte 0xf5",
         "Invalid UTF-8 start byte 0xf7",
@@ -105,6 +107,27 @@ class AsyncUTF8OverlongStringValueTest extends AsyncTestBase
     void rejectOverlongInAposValue(Variant v) throws Exception
     {
         _rejectOverlong(v, APOS_FACTORY, '\'');
+    }
+
+    // Error location must point past invalid sequence, also when decoded
+    // without split (fast path)
+    @ParameterizedTest
+    @EnumSource(Variant.class)
+    void invalidSequenceLocation(Variant v) throws Exception
+    {
+        final String prefix = "{\"a\":\"abcdefghij";
+        final int[] seq = { 0xED, 0xA0, 0x80 };
+        byte[] doc = _doc(prefix, seq, "zzzzzzzzzz\"}");
+        try (AsyncReaderWrapper r = v.wrap(FACTORY, 1000, doc)) {
+            assertToken(JsonToken.START_OBJECT, r.nextToken());
+            assertToken(JsonToken.FIELD_NAME, r.nextToken());
+            r.nextToken();
+            r.currentText();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, "Illegal surrogate character 0xd800");
+            assertEquals(prefix.length() + seq.length, e.getLocation().getByteOffset());
+        }
     }
 
     @ParameterizedTest

@@ -51,8 +51,8 @@ public final class CharTypes
             int code;
 
             // We'll add number of bytes needed for decoding
-            // 19-Oct-2026, tatu: 0xC0/0xC1 only start overlong encodings and 0xF5 - 0xF7
-            //   ones beyond U+10FFFF, so they are invalid lead bytes (RFC 3629)
+            // 19-Oct-2026, tatu: [core#1782] 0xC0/0xC1 only start overlong encodings and
+            //   0xF5 - 0xF7 ones beyond U+10FFFF, so they are invalid lead bytes (RFC 3629)
             if ((c < 0xC2) || (c > 0xF4)) {
                 // And -1 seems like a good "universal" error marker...
                 code = -1;

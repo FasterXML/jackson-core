@@ -2681,11 +2681,7 @@ public class UTF8DataInputJsonParser
         if ((e & 0xC0) != 0x080) {
             _reportInvalidOther(e & 0xFF);
         }
-        // 19-Oct-2026, tatu: only lead bytes 0xE0 (overlong) and 0xED (surrogate)
-        //   can start invalid sequences, so no need to decode others
-        if ((c == 0xE0) || (c == 0xED)) {
-            _verifyUTF8CodePoint3(((c & 0x0F) << 12) | ((d & 0x3F) << 6) | (e & 0x3F));
-        }
+        _verifyUTF8Skipped3(c, d, e);
     }
 
     private final void _skipUtf8_4(int c) throws IOException
@@ -2702,12 +2698,7 @@ public class UTF8DataInputJsonParser
         if ((f & 0xC0) != 0x080) {
             _reportInvalidOther(f & 0xFF);
         }
-        // 19-Oct-2026, tatu: only lead bytes 0xF0 (overlong) and 0xF4 (beyond U+10FFFF)
-        //   can start invalid sequences, so no need to decode others
-        if ((c == 0xF0) || (c == 0xF4)) {
-            _verifyUTF8CodePoint4(((c & 0x07) << 18) | ((d & 0x3F) << 12)
-                    | ((e & 0x3F) << 6) | (f & 0x3F));
-        }
+        _verifyUTF8Skipped4(c, d, e, f);
     }
 
     /*

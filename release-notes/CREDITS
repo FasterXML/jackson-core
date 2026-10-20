@@ -173,6 +173,11 @@ David R. MacIver (@DRMacIver)
    after backslash escape
   (3.1.8)
 
+@un5h4d0w
+ * Reported #1784: UTF-8 parsers may return wrong cached property name for names
+   containing 0xFF bytes
+  (3.1.9)
+
 Francesco Nigro (@franz1981)
  * Reported #1680: Speed up `UTF8JsonGenerator` ASCII fast path for longer `String`
    values

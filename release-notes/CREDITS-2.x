@@ -574,3 +574,12 @@ Elankumaran Srinivasan (@elang2)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (2.21.8)
+
+@Marcono1234
+ * Reported #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
+  (2.23.0)
+
+@un5h4d0w
+ * Reported #1784: UTF-8 parsers may return wrong cached property name for names
+   containing 0xFF bytes
+  (2.23.0)

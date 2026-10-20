@@ -3946,7 +3946,7 @@ public class UTF8StreamJsonParser
             int ch = _inputBuffer[_inputPtr++];
             int digit = CharTypes.charToHex(ch);
             if (digit < 0) {
-                _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
+                _reportUnexpectedChar(_decodeUTF8ForError(_inputBuffer, _inputPtr - 1, _inputEnd), "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
         }

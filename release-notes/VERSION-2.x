@@ -23,6 +23,9 @@ a pure JSON library.
 #1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
   `ALLOW_UNQUOTED_FIELD_NAMES`
  (fix by @pjfanning)
+#1787: `CharTypes#charToHex` handles non-ASCII incorrectly
+ (reported by @Marcono1234)
+ (fix by @pjfanning)
 
 2.22.4 (17-Oct-2026)
 

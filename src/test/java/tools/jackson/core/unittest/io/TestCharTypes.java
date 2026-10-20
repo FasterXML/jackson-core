@@ -31,7 +31,8 @@ class TestCharTypes
     @Test
     void hexOutOfRange()
     {
-        final int[] inputs = {0, -1, 1, 129, -129};
+        // [core#1787]: non-Latin1 chars whose low byte is an ASCII hex digit
+        final int[] inputs = {0, -1, 1, 129, -129, 0x2042, 0x141, 0x130, 0x1F600};
         for (int input : inputs) {
             assertEquals(-1, CharTypes.charToHex(input));
         }

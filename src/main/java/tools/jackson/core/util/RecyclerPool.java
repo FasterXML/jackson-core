@@ -319,7 +319,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * and unlike {@link BoundedPoolBase} there is no lock on either path.
      *<p>
      * This is a "bounded" pool: it will never hold on to more pooled instances
-     * than its slot count (default {@link StripedArrayPoolBase#DEFAULT_CAPACITY});
+     * than its slot count (default {@link StripedArrayPoolBase#DEFAULT_CAPACITY},
+     * at most {@link StripedArrayPoolBase#MAX_CAPACITY});
      * an instance released when every slot is occupied is dropped.
      * Special thanks to the Vert.x project for the approach.
      *
@@ -335,6 +336,14 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          * ever retained for reuse.
          */
         public final static int DEFAULT_CAPACITY = 16;
+
+        /**
+         * Maximum number of slots: larger requested sizes are clamped to this.
+         * Each slot takes {@code 1 << SLOT_SHIFT} array entries, and scans
+         * may touch every slot, so very large pools are both memory-heavy
+         * and slow; this also keeps the backing array size from overflowing.
+         */
+        public final static int MAX_CAPACITY = 1024;
 
         /**
          * Spacing between slots in the backing array, as a shift: slots are
@@ -365,6 +374,9 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         private static int _powerOfTwoCapacity(int capacityAsId) {
             if (capacityAsId <= 0) {
                 return DEFAULT_CAPACITY;
+            }
+            if (capacityAsId >= MAX_CAPACITY) {
+                return MAX_CAPACITY;
             }
             // Round up so any positive requested size works; the mask-based
             // slot indexing requires a power of two.

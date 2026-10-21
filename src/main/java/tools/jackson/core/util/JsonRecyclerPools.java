@@ -114,7 +114,8 @@ public final class JsonRecyclerPools
      * instance.
      *
      * @param size Maximum number of values to pool; rounded up to the next
-     *   power of two
+     *   power of two, and clamped to
+     *   {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}
      *
      * @return New instance of {@link StripedArrayPool}
      *
@@ -152,7 +153,8 @@ public final class JsonRecyclerPools
      * Accessor for constructing a new, non-shared {@link HybridPool} instance.
      *
      * @param size Maximum number of values to pool for virtual threads;
-     *   rounded up to the next power of two
+     *   rounded up to the next power of two, and clamped to
+     *   {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}
      *
      * @return New instance of {@link HybridPool}
      *

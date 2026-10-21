@@ -76,6 +76,23 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
                 () -> JsonRecyclerPools.newStripedArrayPool(0));
     }
 
+    // Oversized requests must clamp, not overflow the slot array
+    @Test
+    void stripedPoolCapacityClampedToMax() {
+        final int max = RecyclerPool.StripedArrayPoolBase.MAX_CAPACITY;
+        assertEquals(max, capacityOf(JsonRecyclerPools.newStripedArrayPool(max)));
+        assertEquals(max, capacityOf(JsonRecyclerPools.newStripedArrayPool(max + 1)));
+        for (int size : new int[] { 1_000_000, 100_000_000, (1 << 28) - 1,
+                (1 << 30) + 1, Integer.MAX_VALUE }) {
+            RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newStripedArrayPool(size);
+            assertEquals(max, capacityOf(pool));
+            BufferRecycler br = pool.acquireAndLinkPooled();
+            br.releaseToPool();
+            assertEquals(1, pool.pooledCount());
+        }
+        assertEquals(max, capacityOf(JsonRecyclerPools.newHybridPool(Integer.MAX_VALUE)));
+    }
+
     private static int capacityOf(RecyclerPool<BufferRecycler> pool) {
         return ((RecyclerPool.StripedArrayPoolBase<BufferRecycler>) pool).capacity();
     }

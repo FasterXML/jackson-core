@@ -323,6 +323,11 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * at most {@link StripedArrayPoolBase#MAX_CAPACITY});
      * an instance released when every slot is occupied is dropped.
      * Special thanks to the Vert.x project for the approach.
+     *<p>
+     * The slot array is {@code transient} and is not restored on
+     * deserialization: concrete subclasses must implement {@code readResolve}
+     * to return a newly constructed (or shared) instance, as
+     * {@link JsonRecyclerPools.StripedArrayPool} does.
      *
      * @since 3.3
      */
@@ -471,6 +476,23 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * a {@link MethodHandle} resolved once per JVM, so it does not require
      * {@code Thread.isVirtual()} to exist at run time (and this class does
      * not reference it at compile time).
+     *<p>
+     * Thread type is checked on every call, including direct
+     * {@link #acquirePooled()} / {@link #releasePooled} use, so platform threads
+     * never touch the shared slots. An instance acquired on a platform thread is
+     * that thread's leave-in: it must not be passed to {@link #releasePooled}
+     * from another thread, or it may be handed out while still in use.
+     *<p>
+     * {@link #pooledCount()} counts the shared (virtual-thread) slots only;
+     * per-thread leave-in instances are not tracked, as with
+     * {@link ThreadLocalPoolBase}. Leave-ins are held per pool instance, so a
+     * platform thread using several {@code HybridPoolBase} instances holds one
+     * leave-in for each.
+     *<p>
+     * As with {@link StripedArrayPoolBase}, per-thread and slot state is
+     * {@code transient} and not restored on deserialization: concrete
+     * subclasses must implement {@code readResolve}, as
+     * {@link JsonRecyclerPools.HybridPool} does.
      *
      * @since 3.3
      */
@@ -520,8 +542,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         /**
          * Per-platform-thread leave-in instance, exactly as
-         * {@link ThreadLocalPoolBase} keeps it. Rebuilt via
-         * {@code readResolve} on deserialization, like the slot array.
+         * {@link ThreadLocalPoolBase} keeps it. Not serialized: see class
+         * Javadoc for {@code readResolve} requirement.
          */
         private final transient ThreadLocal<SoftReference<P>> _perThread = new ThreadLocal<>();
 
@@ -534,26 +556,37 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         @Override
         public P acquireAndLinkPooled() {
             if (_isVirtual(Thread.currentThread())) {
-                return acquirePooled().withPool(this);
+                return super.acquirePooled().withPool(this);
             }
+            // Not linked: releaseToPool() is then a no-op, the instance stays
+            // in the ThreadLocal, and no other thread ever sees it.
+            return _leaveIn();
+        }
+
+        @Override
+        public P acquirePooled() {
+            if (_isVirtual(Thread.currentThread())) {
+                return super.acquirePooled();
+            }
+            return _leaveIn();
+        }
+
+        @Override
+        public void releasePooled(P pooled) {
+            if (_isVirtual(Thread.currentThread())) {
+                super.releasePooled(pooled);
+            }
+            // Platform thread: nothing to do, the leave-in stays in the ThreadLocal
+        }
+
+        private P _leaveIn() {
             SoftReference<P> ref = _perThread.get();
             P pooled = (ref == null) ? null : ref.get();
             if (pooled == null) {
                 pooled = createPooled();
                 _perThread.set(new SoftReference<>(pooled));
             }
-            // Not linked: releaseToPool() is then a no-op, the instance stays
-            // in the ThreadLocal, and no other thread ever sees it.
             return pooled;
-        }
-
-        /**
-         * Counts the shared (virtual-thread) slots only; per-thread leave-in
-         * instances are not tracked, as with {@link ThreadLocalPoolBase}.
-         */
-        @Override
-        public int pooledCount() {
-            return super.pooledCount();
         }
 
         /**

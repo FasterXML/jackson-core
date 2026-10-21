@@ -7,7 +7,9 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -135,6 +137,18 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertSame(br, pool.acquireAndLinkPooled());
     }
 
+    // Direct (unlinked) API must also use the leave-in, not the shared slots
+    @Test
+    void hybridPoolPlatformThreadDirectAcquireRelease() {
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newHybridPool(4);
+
+        BufferRecycler br = pool.acquirePooled();
+        assertSame(br, pool.acquireAndLinkPooled());
+        pool.releasePooled(br);
+        assertEquals(0, pool.pooledCount(), "platform release must not fill slots");
+        assertSame(br, pool.acquirePooled());
+    }
+
     @Test
     void hybridPoolDistinctInstancePerPlatformThread() throws Exception {
         RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newHybridPool(4);
@@ -204,6 +218,8 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         final ConcurrentHashMap<BufferRecycler, Thread> owners = new ConcurrentHashMap<>();
         final AtomicInteger doubleLeases = new AtomicInteger();
         final CountDownLatch start = new CountDownLatch(1);
+        // Virtual threads are not run via executor, so failures must be captured
+        final Queue<Throwable> virtualFailures = new ConcurrentLinkedQueue<>();
 
         Runnable work = () -> {
             try {
@@ -239,7 +255,7 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
             List<Thread> virtualThreads = new ArrayList<>();
             if (useVirtual) {
                 for (int i = 0; i < threads; ++i) {
-                    virtualThreads.add(startVirtualThread(work));
+                    virtualThreads.add(startVirtualThread(work, virtualFailures));
                 }
             }
             start.countDown();
@@ -254,6 +270,7 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
             exec.shutdownNow();
         }
 
+        assertNoFailures(virtualFailures);
         assertEquals(0, doubleLeases.get(), "instance leased to two owners at once");
         int pooled = pool.pooledCount();
         assertTrue(pooled >= 0 && pooled <= 4, "retention bound exceeded: "+pooled);
@@ -324,14 +341,36 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         }
     }
 
-    private static Thread startVirtualThread(Runnable r) throws Exception {
+    // Runs `r` in a new virtual thread, recording anything it throws into `failures`
+    private static Thread startVirtualThread(Runnable r, Queue<Throwable> failures)
+        throws Exception
+    {
+        Runnable wrapped = () -> {
+            try {
+                r.run();
+            } catch (Throwable t) {
+                failures.add(t);
+            }
+        };
         Method m = Thread.class.getMethod("startVirtualThread", Runnable.class);
-        return (Thread) m.invoke(null, r);
+        return (Thread) m.invoke(null, wrapped);
     }
 
     private static void runInVirtualThread(Runnable r) throws Exception {
-        Thread t = startVirtualThread(r);
+        Queue<Throwable> failures = new ConcurrentLinkedQueue<>();
+        Thread t = startVirtualThread(r, failures);
         t.join(TimeUnit.SECONDS.toMillis(30));
         assertFalse(t.isAlive(), "virtual thread did not finish");
+        assertNoFailures(failures);
+    }
+
+    private static void assertNoFailures(Queue<Throwable> failures) {
+        Throwable first = failures.peek();
+        if (first != null) {
+            AssertionError e = new AssertionError(failures.size()
+                    +" virtual thread(s) failed; first: "+first, first);
+            failures.stream().skip(1).forEach(e::addSuppressed);
+            throw e;
+        }
     }
 }

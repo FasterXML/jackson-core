@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -68,13 +69,14 @@ public class ManualRecyclerPoolThroughput
 
     void run() throws Exception
     {
-        Map<String, RecyclerPool<BufferRecycler>> pools = new LinkedHashMap<>();
-        pools.put("nonRecycling", JsonRecyclerPools.nonRecyclingPool());
-        pools.put("threadLocal", JsonRecyclerPools.threadLocalPool());
-        pools.put("concurrentDeque", JsonRecyclerPools.newConcurrentDequePool());
-        pools.put("bounded", JsonRecyclerPools.newBoundedPool(100));
-        pools.put("stripedArray", JsonRecyclerPools.newStripedArrayPool());
-        pools.put("hybrid", JsonRecyclerPools.newHybridPool());
+        // Suppliers so that each pass starts from a fresh pool
+        Map<String, Supplier<RecyclerPool<BufferRecycler>>> pools = new LinkedHashMap<>();
+        pools.put("nonRecycling", JsonRecyclerPools::nonRecyclingPool);
+        pools.put("threadLocal", JsonRecyclerPools::threadLocalPool);
+        pools.put("concurrentDeque", JsonRecyclerPools::newConcurrentDequePool);
+        pools.put("bounded", () -> JsonRecyclerPools.newBoundedPool(100));
+        pools.put("stripedArray", JsonRecyclerPools::newStripedArrayPool);
+        pools.put("hybrid", JsonRecyclerPools::newHybridPool);
 
         System.out.printf("Platform threads (%d):%n", _threadCount);
         runPools(pools, Lifecycle.PLATFORM);
@@ -89,12 +91,12 @@ public class ManualRecyclerPoolThroughput
         }
     }
 
-    private void runPools(Map<String, RecyclerPool<BufferRecycler>> pools,
+    private void runPools(Map<String, Supplier<RecyclerPool<BufferRecycler>>> pools,
             Lifecycle lifecycle)
         throws Exception
     {
-        for (Map.Entry<String, RecyclerPool<BufferRecycler>> e : pools.entrySet()) {
-            long opsPerSec = runPass(e.getValue(), lifecycle);
+        for (Map.Entry<String, Supplier<RecyclerPool<BufferRecycler>>> e : pools.entrySet()) {
+            long opsPerSec = runPass(e.getValue().get(), lifecycle);
             System.out.printf(" * %-16s %,12d ops/s%n", e.getKey(), opsPerSec);
         }
     }
@@ -127,12 +129,12 @@ public class ManualRecyclerPoolThroughput
                             Thread vt = startVirtualThread(() -> {
                                 try {
                                     oneCycle(jsonF);
+                                    ops.incrementAndGet();
                                 } catch (Exception e) {
                                     System.err.println("ERROR: worker failed: "+e);
                                 }
                             });
                             vt.join();
-                            ops.incrementAndGet();
                         }
                     } else {
                         while (System.currentTimeMillis() < endMsecs) {

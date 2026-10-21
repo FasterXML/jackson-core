@@ -20,6 +20,7 @@ import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.util.DefaultPrettyPrinter;
+import tools.jackson.core.util.BufferRecycler;
 import tools.jackson.core.util.JsonRecyclerPools;
 import tools.jackson.core.util.RecyclerPool;
 
@@ -150,11 +151,34 @@ class JDKSerializabilityTest
         JsonRecyclerPools.BoundedPool bounded = (JsonRecyclerPools.BoundedPool)
                 _testRecyclerPoolGlobal(JsonRecyclerPools.sharedBoundedPool());
         assertEquals(RecyclerPool.BoundedPoolBase.DEFAULT_CAPACITY, bounded.capacity());
+        JsonRecyclerPools.StripedArrayPool striped = (JsonRecyclerPools.StripedArrayPool)
+                _testRecyclerPoolGlobal(JsonRecyclerPools.sharedStripedArrayPool());
+        assertEquals(RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY, striped.capacity());
+        _testRecyclerPoolUsable(striped);
+        JsonRecyclerPools.HybridPool hybrid = (JsonRecyclerPools.HybridPool)
+                _testRecyclerPoolGlobal(JsonRecyclerPools.sharedHybridPool());
+        assertEquals(RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY, hybrid.capacity());
+        _testRecyclerPoolUsable(hybrid);
 
         _testRecyclerPoolNonShared(JsonRecyclerPools.newConcurrentDequePool());
         bounded = (JsonRecyclerPools.BoundedPool)
                 _testRecyclerPoolNonShared(JsonRecyclerPools.newBoundedPool(250));
         assertEquals(250, bounded.capacity());
+        striped = (JsonRecyclerPools.StripedArrayPool)
+                _testRecyclerPoolNonShared(JsonRecyclerPools.newStripedArrayPool(32));
+        assertEquals(32, striped.capacity());
+        _testRecyclerPoolUsable(striped);
+        hybrid = (JsonRecyclerPools.HybridPool)
+                _testRecyclerPoolNonShared(JsonRecyclerPools.newHybridPool(32));
+        assertEquals(32, hybrid.capacity());
+        _testRecyclerPoolUsable(hybrid);
+    }
+
+    // Transient state (slots, per-thread holder) must be rebuilt on deserialization
+    private void _testRecyclerPoolUsable(RecyclerPool<BufferRecycler> pool) {
+        BufferRecycler br = pool.acquireAndLinkPooled();
+        assertNotNull(br);
+        br.releaseToPool();
     }
 
     private <T extends RecyclerPool<?>> T _testRecyclerPoolGlobal(T pool) throws Exception {

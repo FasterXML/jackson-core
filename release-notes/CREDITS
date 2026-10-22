@@ -186,4 +186,4 @@ PJ Fanning (@pjfanning)
 @un5h4d0w
  * Reported #1784: UTF-8 parsers may return wrong cached property name for names
    containing 0xFF bytes
-  (3.1.9, 3.2.5, 3.3.0)
+  (3.1.9)

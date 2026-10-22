@@ -179,6 +179,8 @@ public class UTF32Reader extends Reader
                     _surrogate = (char) lo;
                     break main_loop;
                 }
+            } else if ((lo & 0xF800) == 0xD800) { // surrogates (0xD800 - 0xDFFF) are illegal in UTF-32
+                reportInvalid(lo, outPtr-start, " (surrogate)");
             }
             cbuf[outPtr++] = (char) lo;
         }

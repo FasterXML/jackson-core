@@ -63,6 +63,39 @@ class UTF32ParseTest extends JacksonCoreTestBase
         parser.close();
     }
 
+    // Surrogate code points are not valid UTF-32, same as with UTF-8
+    @Test
+    void surrogateCodeUnitsInUTF32() throws Exception
+    {
+        // String value with D83D, DE00 as separate UTF-32BE code units
+        byte[] data = {
+                0x00, 0x00, 0x00, '"',
+                0x00, 0x00, (byte) 0xD8, 0x3D,
+                0x00, 0x00, (byte) 0xDE, 0x00,
+                0x00, 0x00, 0x00, '"'
+        };
+        _verifySurrogateFail(data, "Invalid UTF-32 character 0xd83d");
+
+        // and lone low surrogate in UTF-32LE
+        data = new byte[] {
+                '"', 0x00, 0x00, 0x00,
+                0x00, (byte) 0xDC, 0x00, 0x00,
+                '"', 0x00, 0x00, 0x00
+        };
+        _verifySurrogateFail(data, "Invalid UTF-32 character 0xdc00");
+    }
+
+    private void _verifySurrogateFail(byte[] data, String msg) throws Exception
+    {
+        try (JsonParser parser = FACTORY.createParser(ObjectReadContext.empty(), data)) {
+            parser.nextToken();
+            parser.getString();
+            fail("Should not pass");
+        } catch (JacksonException e) {
+            verifyException(e, msg);
+        }
+    }
+
     @Test
     void simpleSevenNullBytes() throws Exception {
         byte[] data = new byte[7];

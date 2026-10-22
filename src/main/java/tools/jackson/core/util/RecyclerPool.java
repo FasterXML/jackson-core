@@ -320,7 +320,9 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      *<p>
      * This is a "bounded" pool: it will never hold on to more pooled instances
      * than its slot count (default {@link StripedArrayPoolBase#DEFAULT_CAPACITY},
-     * at most {@link StripedArrayPoolBase#MAX_CAPACITY});
+     * at most {@link StripedArrayPoolBase#MAX_CAPACITY}; requested counts are
+     * rounded up to the next power of two, so unlike {@link BoundedPoolBase}
+     * it may retain up to almost twice the requested number);
      * an instance released when every slot is occupied is dropped.
      * Special thanks to the Vert.x project for the approach.
      *<p>
@@ -339,6 +341,11 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         /**
          * Default number of slots, and so the maximum number of instances
          * ever retained for reuse.
+         *<p>
+         * Note: requested slot counts are rounded up to the next power of two
+         * (required by slot indexing), so a pool may retain up to almost twice
+         * as many instances as requested; e.g. a request for 513 gives 1024
+         * slots. Use {@link #capacity()} to see the actual count.
          */
         public final static int DEFAULT_CAPACITY = 16;
 
@@ -503,10 +510,9 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         // 07-Sep-2026, steven: [core#1687] every java.lang.invoke reference
         //   lives in this nested holder, and the one call site catches
-        //   Throwable, so a runtime without method-handle support (Android
+        //   LinkageError, so a runtime without method-handle support (Android
         //   before API 26) degrades to the platform path instead of failing:
-        //   loading, initializing, or executing the holder can throw
-        //   LinkageError there, and all of it lands in the same handler.
+        //   loading or initializing the holder throws LinkageError there.
         private static final class VirtualProbe {
             /**
              * {@code Thread#isVirtual()} when the runtime has it,
@@ -520,7 +526,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
                 try {
                     return MethodHandles.publicLookup().findVirtual(Thread.class,
                             "isVirtual", MethodType.methodType(boolean.class));
-                } catch (Throwable t) {
+                } catch (ReflectiveOperationException | RuntimeException e) {
                     return null;
                 }
             }
@@ -533,10 +539,14 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         protected static boolean _isVirtual(Thread thread) {
             try {
                 return VirtualProbe.isVirtual(thread);
-            } catch (Throwable t) {
-                // No method-handle support (or, in principle, an exact-handle
-                // invocation failure): treat as a platform thread.
+            } catch (LinkageError e) {
+                // No method-handle support: treat as a platform thread
                 return false;
+            } catch (RuntimeException | Error e) {
+                throw e;
+            } catch (Throwable t) {
+                // Cannot happen: Thread.isVirtual() throws no checked exceptions
+                throw new IllegalStateException(t);
             }
         }
 

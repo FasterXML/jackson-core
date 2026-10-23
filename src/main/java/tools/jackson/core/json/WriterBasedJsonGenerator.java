@@ -1607,14 +1607,7 @@ public class WriterBasedJsonGenerator
                     escCode = CharacterEscapes.ESCAPE_STANDARD;
                     break escape_loop;
                 } else {
-                    try {
-                        _currentEscape = customEscapes.getEscapeSequence(c);
-                    } catch (Throwable t) {
-                        // Sync only on failure, to keep scanned prefix flushable
-                        _outputTail = ptr;
-                        throw t;
-                    }
-                    if (_currentEscape != null) {
+                    if ((_currentEscape = customEscapes.getEscapeSequence(c)) != null) {
                         escCode = CharacterEscapes.ESCAPE_CUSTOM;
                         break escape_loop;
                     }

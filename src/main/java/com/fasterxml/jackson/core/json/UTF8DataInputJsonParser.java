@@ -714,7 +714,7 @@ public class UTF8DataInputJsonParser
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;
         _nextToken = null;
-        // Value starts on the row we are at after skipping the colon
+        // 23-Oct-2026, tatu: [core#1795] Value starts on the row we are at after colon
         _tokenInputRow = _currInputRow;
 
         // Also: may need to start new context?
@@ -756,7 +756,8 @@ public class UTF8DataInputJsonParser
         if (_tokenIncomplete) {
             _skipString();
         }
-        // Same as `nextToken()`: may be at end-of-input (or RS) between root values
+        // 23-Oct-2026, tatu: [core#1795] Same as `nextToken()`: may be at end-of-input
+        //   (or RS) between root values
         int i = _skipWSOrEnd();
         if (i < 0) { // end-of-input
             close();
@@ -2183,7 +2184,7 @@ public class UTF8DataInputJsonParser
         while (true) {
             if (i > INT_SPACE) {
                 if (i == INT_SLASH || i == INT_HASH) {
-                    return _skipWSComment(i);
+                    return _skipWSComment(i, false);
                 }
                 return i;
             }
@@ -2212,7 +2213,7 @@ public class UTF8DataInputJsonParser
         while (true) {
             if (i > INT_SPACE) {
                 if (i == INT_SLASH || i == INT_HASH) {
-                    return _skipWSComment(i);
+                    return _skipWSComment(i, true);
                 }
                 return i;
             }
@@ -2224,24 +2225,41 @@ public class UTF8DataInputJsonParser
         }
     }
 
-    private final int _skipWSComment(int i) throws IOException
+    // 23-Oct-2026, tatu: [core#1795] With `orEnd`, end-of-input after comment
+    //   (or white space following it) is a valid end of content
+    private final int _skipWSComment(int i, boolean orEnd) throws IOException
     {
         while (true) {
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
-                    _skipComment();
-                } else if (i == INT_HASH) {
-                    if (!_skipYAMLComment()) {
-                        return i;
-                    }
+                    i = _skipComment();
+                } else if (i == INT_HASH && (_features & FEAT_MASK_ALLOW_YAML_COMMENTS) != 0) {
+                    i = _skipLine();
                 } else {
                     return i;
                 }
-                i = _nextByteAfterComment();
+                if (i < 0) {
+                    return _eofAfterComment(orEnd);
+                }
+            } else if (orEnd) {
+                try {
+                    i = _skipWSByte(i, false);
+                } catch (EOFException e) {
+                    return _eofAsNextChar();
+                }
             } else {
                 i = _skipWSByte(i, false);
             }
         }
+    }
+
+    private final int _eofAfterComment(boolean orEnd) throws IOException
+    {
+        if (orEnd) {
+            return _eofAsNextChar();
+        }
+        _reportInvalidEOF(" within/between "+_parsingContext.typeDesc()+" entries", null);
+        return -1; // never gets here
     }
 
     /**
@@ -2265,17 +2283,6 @@ public class UTF8DataInputJsonParser
             _throwInvalidSpace(i);
         }
         return _inputData.readUnsignedByte();
-    }
-
-    // Since `_skipLine()` leaves the linefeed it ends at in `_nextByte`
-    private final int _nextByteAfterComment() throws IOException
-    {
-        int i = _nextByte;
-        if (i < 0) {
-            return _inputData.readUnsignedByte();
-        }
-        _nextByte = -1;
-        return i;
     }
 
     private final int _skipColon() throws IOException
@@ -2336,15 +2343,18 @@ public class UTF8DataInputJsonParser
         while (true) {
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
-                    _skipComment();
-                    i = _nextByteAfterComment();
+                    i = _skipComment();
+                    if (i < 0) {
+                        _eofAfterComment(false);
+                    }
                     continue;
                 }
-                if (i == INT_HASH) {
-                    if (_skipYAMLComment()) {
-                        i = _nextByteAfterComment();
-                        continue;
+                if (i == INT_HASH && (_features & FEAT_MASK_ALLOW_YAML_COMMENTS) != 0) {
+                    i = _skipLine();
+                    if (i < 0) {
+                        _eofAfterComment(false);
                     }
+                    continue;
                 }
                 if (gotColon) {
                     return i;
@@ -2360,22 +2370,49 @@ public class UTF8DataInputJsonParser
         }
     }
 
-    private final void _skipComment() throws IOException
+    /**
+     * @return Next byte after the comment (for line comment, the linefeed
+     *   that ends it), or -1 for end-of-input
+     */
+    private final int _skipComment() throws IOException
     {
         if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
-        int c = _inputData.readUnsignedByte();
+        int c = _readByteOrEOF();
         if (c == '/') {
-            _skipLine();
-        } else if (c == '*') {
+            return _skipLine();
+        }
+        if (c == '*') {
             _skipCComment();
-        } else {
-            _reportUnexpectedChar(c, "was expecting either '*' or '/' for a comment");
+            return _readByteOrEOF();
+        }
+        if (c < 0) {
+            _reportInvalidEOF(" in a comment", null);
+        }
+        _reportUnexpectedChar(c, "was expecting either '*' or '/' for a comment");
+        return -1; // never gets here
+    }
+
+    private final int _readByteOrEOF() throws IOException
+    {
+        try {
+            return _inputData.readUnsignedByte();
+        } catch (EOFException e) {
+            return -1;
         }
     }
 
     private final void _skipCComment() throws IOException
+    {
+        try {
+            _skipCComment2();
+        } catch (EOFException e) {
+            _reportInvalidEOF(" in a comment", null);
+        }
+    }
+
+    private final void _skipCComment2() throws IOException
     {
         // Need to be UTF-8 aware here to decode content (for skipping)
         final int[] codes = CharTypes.getInputCodeComment();
@@ -2421,33 +2458,28 @@ public class UTF8DataInputJsonParser
         }
     }
 
-    private final boolean _skipYAMLComment() throws IOException
-    {
-        if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
-            return false;
-        }
-        _skipLine();
-        return true;
-    }
-
     /**
      * Method for skipping contents of an input line; usually for CPP
      * and YAML style comments.
+     *
+     * @return Linefeed (CR or LF) that ends the line, for caller to handle
+     *   (to count CR-LF as one linefeed); or -1 for end-of-input
      */
-    private final void _skipLine() throws IOException
+    private final int _skipLine() throws IOException
     {
         // Ok: need to find EOF or linefeed
         final int[] codes = CharTypes.getInputCodeComment();
         while (true) {
-            int i = _inputData.readUnsignedByte();
+            int i = _readByteOrEOF();
+            if (i < 0) {
+                return i;
+            }
             int code = codes[i];
             if (code != 0) {
                 switch (code) {
                 case INT_LF:
                 case INT_CR:
-                    // Leave linefeed for caller's white-space skipping to count
-                    _nextByte = i;
-                    return;
+                    return i;
                 case '*': // nop for these comments
                     break;
                 case 2: // 2-byte UTF
@@ -2765,7 +2797,8 @@ public class UTF8DataInputJsonParser
     @Override // @since 2.21.8
     protected void _handleLinefeedInString(int c)
     {
-        // No lookahead available: like "_skipWS()", count both '\r' and '\n'
+        // No lookahead available: count both '\r' and '\n' (unlike white space
+        // skipping, which counts CR-LF as one linefeed)
         ++_currInputRow;
     }
 

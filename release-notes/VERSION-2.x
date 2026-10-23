@@ -34,8 +34,9 @@ a pure JSON library.
  (reported by @Marcono1234)
  (fix by @pjfanning)
 #1795: `UTF8DataInputJsonParser` accepts any control character as white space
-  between tokens
- (reported and fix by @ItsDeadlyProgrammer)
+  between tokens (also: CR-LF and token line numbers; Record Separator no longer
+  accepted directly after root-level number or comment, same as other parsers)
+ (reported, fix by @ItsDeadlyProgrammer)
 
 2.22.4 (17-Oct-2026)
 

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.read;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,7 @@ class ControlCharBetweenTokens1795Test
         for (String doc : new String[] { "123\u0001", "1\u0001 2", "1.5\u0001", "-1\u0001" }) {
             for (int mode : ALL_MODES) {
                 try (JsonParser p = createParser(JSON_F, mode, doc)) {
-                    _consume(p);
+                    _consume(p, mode);
                     fail("Should not pass for mode " + mode + ", doc: " + doc);
                 } catch (StreamReadException e) {
                     verifyException(e, "CTRL-CHAR, code 1");
@@ -93,17 +94,19 @@ class ControlCharBetweenTokens1795Test
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(JSON_F, mode,
                     " \t\r\n{ \"a\" \t:\r\n 1 , \"b\"\n:\t2}\r\n ")) {
-                _consume(p);
+                _consume(p, mode);
             }
         }
     }
 
-    // Like the other parsers, only allow Record Separator between root values
+    // Like the other parsers, Record Separator is accepted where token skipping starts
+    // (between root values, but also e.g. after '[' or before ',' and ']'); not after
+    // comma or colon, nor directly after a root-level number or a comment
     @Test
     void recordSeparatorAllowedBetweenRootValues() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(RS_F, mode, "[1]\u001E[2]\u001E")) {
-                _consume(p);
+                _consume(p, mode);
             }
         }
     }
@@ -136,10 +139,55 @@ class ControlCharBetweenTokens1795Test
     }
 
     @Test
+    void recordSeparatorRejectedAfterRootNumberOrComment() throws Exception {
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_RS_CONTROL_CHAR)
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                .build();
+        for (String doc : new String[] { "1\u001E2", "[1]/* c */\u001E[2]" }) {
+            for (int mode : ALL_MODES) {
+                try (JsonParser p = createParser(f, mode, doc)) {
+                    _consume(p, mode);
+                    fail("Should not pass for mode " + mode + ", doc: " + doc);
+                } catch (StreamReadException e) {
+                    verifyException(e, "CTRL-CHAR, code 30");
+                }
+            }
+        }
+    }
+
+    // Comment (and white space after it) at the end of content is valid
+    @Test
+    void commentAtEndOfInput() throws Exception {
+        for (String doc : new String[] { "[1] // c", "[1] // c\r\n ", "[1] # c\n",
+                "[1] /* c */", "[1] /* c */ \n", "1 /* c */" }) {
+            for (int mode : ALL_MODES) {
+                try (JsonParser p = createParser(COMMENTS_F, mode, doc)) {
+                    _consume(p, mode);
+                }
+            }
+        }
+    }
+
+    @Test
+    void unterminatedComment() throws Exception {
+        for (String doc : new String[] { "[1] /* c", "[1] /", "[1, // c" }) {
+            for (int mode : ALL_MODES) {
+                try (JsonParser p = createParser(COMMENTS_F, mode, doc)) {
+                    _consume(p, mode);
+                    fail("Should not pass for mode " + mode + ", doc: " + doc);
+                } catch (StreamReadException e) {
+                    verifyException(e, "Unexpected end-of-input");
+                }
+            }
+        }
+    }
+
+    @Test
     void recordSeparatorRejectedInsideValue() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(RS_F, mode, "[1,\u001E2]")) {
-                _consume(p);
+                _consume(p, mode);
                 fail("Should not pass for mode " + mode);
             } catch (StreamReadException e) {
                 verifyException(e, "Illegal character ((CTRL-CHAR, code 30))");
@@ -150,7 +198,7 @@ class ControlCharBetweenTokens1795Test
     private void _verifyRejected(String doc) throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(JSON_F, mode, doc)) {
-                _consume(p);
+                _consume(p, mode);
                 fail("Should not pass for mode " + mode + ", doc: " + doc);
             } catch (StreamReadException e) {
                 verifyException(e, "Illegal character ((CTRL-CHAR, code 1))");
@@ -169,11 +217,11 @@ class ControlCharBetweenTokens1795Test
         }
     }
 
-    private void _consume(JsonParser p) throws Exception {
+    private void _consume(JsonParser p, int mode) throws Exception {
         int tokens = 0;
         while (p.nextToken() != null) {
             ++tokens;
         }
-        assertEquals(true, tokens > 0);
+        assertTrue(tokens > 0, "No tokens for mode " + mode);
     }
 }

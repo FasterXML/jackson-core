@@ -33,6 +33,9 @@ a pure JSON library.
 #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
  (reported by @Marcono1234)
  (fix by @pjfanning)
+#1795: `UTF8DataInputJsonParser` accepts any control character as white space
+  between tokens
+ (reported and fix by @ItsDeadlyProgrammer)
 
 2.22.4 (17-Oct-2026)
 

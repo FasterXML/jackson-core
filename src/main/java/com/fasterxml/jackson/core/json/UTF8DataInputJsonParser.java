@@ -2181,10 +2181,12 @@ public class UTF8DataInputJsonParser
                 }
                 return i;
             } else {
-                // 06-May-2016, tatu: Could verify validity of WS, but for now why bother.
-                //   ... but line number is useful thingy
+                // Only space, tab, CR and LF are valid white space; same check as in
+                // `UTF8StreamJsonParser` (and the line number is a useful thing to track)
                 if (i == INT_CR || i == INT_LF) {
                     ++_currInputRow;
+                } else if (i != INT_SPACE && i != INT_TAB) {
+                    _throwInvalidSpace(i);
                 }
             }
             i = _inputData.readUnsignedByte();
@@ -2216,10 +2218,12 @@ public class UTF8DataInputJsonParser
                 }
                 return i;
             } else {
-                // 06-May-2016, tatu: Could verify validity of WS, but for now why bother.
-                //   ... but line number is useful thingy
+                // Only space, tab, CR and LF are valid white space; same check as in
+                // `UTF8StreamJsonParser` (and the line number is a useful thing to track)
                 if (i == INT_CR || i == INT_LF) {
                     ++_currInputRow;
+                } else if (i != INT_SPACE && i != INT_TAB && !_isAllowedCtrlCharRS(i)) {
+                    _throwInvalidSpace(i);
                 }
             }
             try {
@@ -2244,16 +2248,13 @@ public class UTF8DataInputJsonParser
                     return i;
                 }
             } else {
-                // 06-May-2016, tatu: Could verify validity of WS, but for now why bother.
-                //   ... but line number is useful thingy
+                // Only space, tab, CR and LF are valid white space; same check as in
+                // `UTF8StreamJsonParser` (and the line number is a useful thing to track)
                 if (i == INT_CR || i == INT_LF) {
                     ++_currInputRow;
-                }
-                /*
-                if ((i != INT_SPACE) && (i != INT_LF) && (i != INT_CR)) {
+                } else if (i != INT_SPACE && i != INT_TAB) {
                     _throwInvalidSpace(i);
                 }
-                */
             }
             i = _inputData.readUnsignedByte();
         }
@@ -2333,10 +2334,12 @@ public class UTF8DataInputJsonParser
                 }
                 gotColon = true;
             } else {
-                // 06-May-2016, tatu: Could verify validity of WS, but for now why bother.
-                //   ... but line number is useful thingy
+                // Only space, tab, CR and LF are valid white space; same check as in
+                // `UTF8StreamJsonParser` (and the line number is a useful thing to track)
                 if (i == INT_CR || i == INT_LF) {
                     ++_currInputRow;
+                } else if (i != INT_SPACE && i != INT_TAB) {
+                    _throwInvalidSpace(i);
                 }
             }
         }

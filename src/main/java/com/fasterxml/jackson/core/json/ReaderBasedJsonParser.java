@@ -308,6 +308,7 @@ public class ReaderBasedJsonParser
                 _tokenIncomplete = false;
                 _finishString(); // only strings can be incomplete
             }
+            _streamReadConstraints.validateStringLength(_textBuffer.size());
             return _textBuffer.contentsToWriter(writer);
         }
         if (t == JsonToken.FIELD_NAME) {

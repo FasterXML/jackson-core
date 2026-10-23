@@ -72,15 +72,16 @@ class WriterBasedJsonGeneratorTest extends JacksonCoreTestBase
         };
         JsonFactory f = JsonFactory.builder().characterEscapes(failing).build();
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), sw);
-        gen.writeStartArray();
-        try {
-            gen.writeString("abc\u00E9def");
-            fail("expected IllegalStateException");
-        } catch (IllegalStateException e) {
-            assertThat(e.getMessage()).isEqualTo("fail on 0xe9");
+        try (JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), sw)) {
+            gen.writeStartArray();
+            try {
+                gen.writeString("abc\u00E9def");
+                fail("expected IllegalStateException");
+            } catch (IllegalStateException e) {
+                assertThat(e.getMessage()).isEqualTo("fail on 0xe9");
+            }
+            gen.flush();
+            assertThat(sw.toString()).isEqualTo("[\"abc");
         }
-        gen.flush();
-        assertThat(sw.toString()).isEqualTo("[\"abc");
     }
 }

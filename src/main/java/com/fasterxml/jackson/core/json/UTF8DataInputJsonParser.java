@@ -578,6 +578,7 @@ public class UTF8DataInputJsonParser
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
+            _tokenInputRow = _currInputRow;
 
             // Was that a trailing comma?
             if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
@@ -713,6 +714,8 @@ public class UTF8DataInputJsonParser
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;
         _nextToken = null;
+        // Value starts on the row we are at after skipping the colon
+        _tokenInputRow = _currInputRow;
 
         // Also: may need to start new context?
         if (t == JsonToken.START_ARRAY) {
@@ -753,7 +756,13 @@ public class UTF8DataInputJsonParser
         if (_tokenIncomplete) {
             _skipString();
         }
-        int i = _skipWS();
+        // Same as `nextToken()`: may be at end-of-input (or RS) between root values
+        int i = _skipWSOrEnd();
+        if (i < 0) { // end-of-input
+            close();
+            _updateTokenToNull();
+            return null;
+        }
         _binaryValue = null;
         _tokenInputRow = _currInputRow;
 
@@ -768,6 +777,7 @@ public class UTF8DataInputJsonParser
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
+            _tokenInputRow = _currInputRow;
 
             // Was that a trailing comma?
             if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
@@ -1214,24 +1224,20 @@ public class UTF8DataInputJsonParser
     }
 
     /*
-     * Method called to ensure that a root-value is followed by a space token,
-     * if possible.
-     *<p>
-     * NOTE: with {@link DataInput} source, not really feasible, up-front.
-     * If we did want, we could rearrange things to require space before
-     * next read, but initially let's just do nothing.
+     * Method called to ensure that a root-value is followed by a space token.
+     * Valid white space is left in {@code _nextByte} for the following
+     * white-space skipping to handle (including line counting).
      */
     private final void _verifyRootSpace() throws IOException
     {
-        int ch = _nextByte;
-        if (ch <= INT_SPACE) {
-            _nextByte = -1;
-            if (ch == INT_CR || ch == INT_LF) {
-                ++_currInputRow;
-            }
+        switch (_nextByte) {
+        case INT_SPACE:
+        case INT_TAB:
+        case INT_CR:
+        case INT_LF:
             return;
         }
-        _reportMissingRootWS(ch);
+        _reportMissingRootWS(_nextByte);
     }
 
     /*
@@ -2180,16 +2186,8 @@ public class UTF8DataInputJsonParser
                     return _skipWSComment(i);
                 }
                 return i;
-            } else {
-                // Only space, tab, CR and LF are valid white space; same check as in
-                // `UTF8StreamJsonParser` (and the line number is a useful thing to track)
-                if (i == INT_CR || i == INT_LF) {
-                    ++_currInputRow;
-                } else if (i != INT_SPACE && i != INT_TAB) {
-                    _throwInvalidSpace(i);
-                }
             }
-            i = _inputData.readUnsignedByte();
+            i = _skipWSByte(i, false);
         }
     }
 
@@ -2217,17 +2215,9 @@ public class UTF8DataInputJsonParser
                     return _skipWSComment(i);
                 }
                 return i;
-            } else {
-                // Only space, tab, CR and LF are valid white space; same check as in
-                // `UTF8StreamJsonParser` (and the line number is a useful thing to track)
-                if (i == INT_CR || i == INT_LF) {
-                    ++_currInputRow;
-                } else if (i != INT_SPACE && i != INT_TAB && !_isAllowedCtrlCharRS(i)) {
-                    _throwInvalidSpace(i);
-                }
             }
             try {
-                i = _inputData.readUnsignedByte();
+                i = _skipWSByte(i, true);
             } catch (EOFException e) {
                 return _eofAsNextChar();
             }
@@ -2247,17 +2237,45 @@ public class UTF8DataInputJsonParser
                 } else {
                     return i;
                 }
+                i = _nextByteAfterComment();
             } else {
-                // Only space, tab, CR and LF are valid white space; same check as in
-                // `UTF8StreamJsonParser` (and the line number is a useful thing to track)
-                if (i == INT_CR || i == INT_LF) {
-                    ++_currInputRow;
-                } else if (i != INT_SPACE && i != INT_TAB) {
-                    _throwInvalidSpace(i);
-                }
+                i = _skipWSByte(i, false);
             }
-            i = _inputData.readUnsignedByte();
         }
+    }
+
+    /**
+     * Helper method for white-space skipping: verifies that given byte
+     * (with code {@code <= 0x20}) is valid white space (space, tab, CR, LF;
+     * or RS if allowed), updates line number and returns the next byte to process.
+     * CR-LF pair counts as a single linefeed, same as with other parsers.
+     */
+    private final int _skipWSByte(int i, boolean allowRS) throws IOException
+    {
+        if (i == INT_LF) {
+            ++_currInputRow;
+        } else if (i == INT_CR) {
+            ++_currInputRow;
+            i = _inputData.readUnsignedByte();
+            if (i != INT_LF) {
+                return i;
+            }
+        } else if (i != INT_SPACE && i != INT_TAB
+                && !(allowRS && _isAllowedCtrlCharRS(i))) {
+            _throwInvalidSpace(i);
+        }
+        return _inputData.readUnsignedByte();
+    }
+
+    // Since `_skipLine()` leaves the linefeed it ends at in `_nextByte`
+    private final int _nextByteAfterComment() throws IOException
+    {
+        int i = _nextByte;
+        if (i < 0) {
+            return _inputData.readUnsignedByte();
+        }
+        _nextByte = -1;
+        return i;
     }
 
     private final int _skipColon() throws IOException
@@ -2315,14 +2333,16 @@ public class UTF8DataInputJsonParser
 
     private final int _skipColon2(int i, boolean gotColon) throws IOException
     {
-        for (;; i = _inputData.readUnsignedByte()) {
+        while (true) {
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
                     _skipComment();
+                    i = _nextByteAfterComment();
                     continue;
                 }
                 if (i == INT_HASH) {
                     if (_skipYAMLComment()) {
+                        i = _nextByteAfterComment();
                         continue;
                     }
                 }
@@ -2333,14 +2353,9 @@ public class UTF8DataInputJsonParser
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
                 gotColon = true;
+                i = _inputData.readUnsignedByte();
             } else {
-                // Only space, tab, CR and LF are valid white space; same check as in
-                // `UTF8StreamJsonParser` (and the line number is a useful thing to track)
-                if (i == INT_CR || i == INT_LF) {
-                    ++_currInputRow;
-                } else if (i != INT_SPACE && i != INT_TAB) {
-                    _throwInvalidSpace(i);
-                }
+                i = _skipWSByte(i, false);
             }
         }
     }
@@ -2379,9 +2394,15 @@ public class UTF8DataInputJsonParser
                     }
                     continue main_loop;
                 case INT_LF:
-                case INT_CR:
                     ++_currInputRow;
                     break;
+                case INT_CR: // CR-LF counts as a single linefeed
+                    ++_currInputRow;
+                    i = _inputData.readUnsignedByte();
+                    if (i == INT_LF) {
+                        break;
+                    }
+                    continue main_loop;
                 case 2: // 2-byte UTF
                     _skipUtf8_2();
                     break;
@@ -2424,7 +2445,8 @@ public class UTF8DataInputJsonParser
                 switch (code) {
                 case INT_LF:
                 case INT_CR:
-                    ++_currInputRow;
+                    // Leave linefeed for caller's white-space skipping to count
+                    _nextByte = i;
                     return;
                 case '*': // nop for these comments
                     break;

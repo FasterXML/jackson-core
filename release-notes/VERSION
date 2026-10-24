@@ -24,6 +24,11 @@ JSON library.
 #1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
   in String values (and comments, except for non-blocking parser)
  (fix by @pjfanning)
+#1795: `UTF8DataInputJsonParser` accepts any control character as white space
+  between tokens (also: CR-LF and token line numbers; Record Separator no longer
+  accepted directly after root-level number or comment, same as other parsers)
+ (reported by @ItsDeadlyProgrammer)
+ (fix by @ItsDeadlyProgrammer)
 
 3.2.4 (18-Oct-2026)
 
@@ -161,6 +166,11 @@ No changes since 3.2.0
 #1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
   in String values (and comments, except for non-blocking parser)
  (fix by @pjfanning)
+#1795: `UTF8DataInputJsonParser` accepts any control character as white space
+  between tokens (also: CR-LF and token line numbers; Record Separator no longer
+  accepted directly after root-level number or comment, same as other parsers)
+ (reported by @ItsDeadlyProgrammer)
+ (fix by @ItsDeadlyProgrammer)
 
 3.1.8 (17-Oct-2026)
 

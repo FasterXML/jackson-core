@@ -2837,6 +2837,11 @@ public class UTF8DataInputJsonParser
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws IOException
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
+        // 19-Oct-2026, ubeddulla: decoded content is materialized, so `maxStringLength`
+        //   has to apply as it does for `getText()`: count Base64 characters consumed
+        //   (4 per quartet, whitespace excluded) and verify before decoding further
+        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
+        long totalLen = 0;
 
         //main_loop:
         while (true) {
@@ -2855,6 +2860,12 @@ public class UTF8DataInputJsonParser
                     continue;
                 }
             }
+            // Quartets counted so far were complete (4 chars each; one cut short by the
+            // closing quote returns), so count can not exceed actual String length
+            if (totalLen > maxStringLen) {
+                _streamReadConstraints.validateStringLength((int) Math.min(totalLen, Integer.MAX_VALUE));
+            }
+            totalLen += 4;
             int decodedData = bits;
 
             // then second base64 char; can't get padding yet, nor ws

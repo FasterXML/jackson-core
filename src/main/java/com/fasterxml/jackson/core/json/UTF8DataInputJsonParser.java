@@ -86,10 +86,10 @@ public class UTF8DataInputJsonParser
     protected int _nextByte = -1;
 
     /**
-     * Row at which value following a property name starts (value is parsed
-     * along with name, but returned as the next token)
+     * Row at which current property name starts: needed since value following
+     * name is parsed along with it (and {@code _tokenInputRow} refers to value)
      */
-    private int _valueInputRow;
+    private int _nameStartRow;
 
     /*
     /**********************************************************
@@ -562,7 +562,7 @@ public class UTF8DataInputJsonParser
         if (_tokenIncomplete) {
             _skipString(); // only strings can be partial
         }
-        int i = _skipWSOrEnd();
+        int i = _skipWS(true);
         if (i < 0) { // end-of-input
             // Close/release things like input source, symbol table and recyclable buffers
             close();
@@ -583,7 +583,7 @@ public class UTF8DataInputJsonParser
             if (i != INT_COMMA) {
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
-            i = _skipWS();
+            i = _skipWS(false);
             _tokenInputRow = _currInputRow;
 
             // Was that a trailing comma?
@@ -608,7 +608,8 @@ public class UTF8DataInputJsonParser
         _updateToken(JsonToken.FIELD_NAME);
 
         i = _skipColon();
-        _valueInputRow = _currInputRow;
+        _nameStartRow = _tokenInputRow;
+        _tokenInputRow = _currInputRow;
 
         // Ok: we must have a value... what is it? Strings are very common, check first:
         if (i == INT_QUOTE) {
@@ -721,8 +722,6 @@ public class UTF8DataInputJsonParser
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;
         _nextToken = null;
-        // 23-Oct-2026, tatu: [core#1795] Value may start on a later row than name
-        _tokenInputRow = _valueInputRow;
 
         // Also: may need to start new context?
         if (t == JsonToken.START_ARRAY) {
@@ -765,7 +764,7 @@ public class UTF8DataInputJsonParser
         }
         // 23-Oct-2026, tatu: [core#1795] Same as `nextToken()`: may be at end-of-input
         //   (or RS) between root values
-        int i = _skipWSOrEnd();
+        int i = _skipWS(true);
         if (i < 0) { // end-of-input
             close();
             _updateTokenToNull();
@@ -784,7 +783,7 @@ public class UTF8DataInputJsonParser
             if (i != INT_COMMA) {
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
-            i = _skipWS();
+            i = _skipWS(false);
             _tokenInputRow = _currInputRow;
 
             // Was that a trailing comma?
@@ -806,7 +805,8 @@ public class UTF8DataInputJsonParser
         _updateToken(JsonToken.FIELD_NAME);
 
         i = _skipColon();
-        _valueInputRow = _currInputRow;
+        _nameStartRow = _tokenInputRow;
+        _tokenInputRow = _currInputRow;
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
             _nextToken = JsonToken.VALUE_STRING;
@@ -873,7 +873,6 @@ public class UTF8DataInputJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _tokenInputRow = _valueInputRow;
             _updateToken(t);
             if (t == JsonToken.VALUE_STRING) {
                 if (_tokenIncomplete) {
@@ -900,7 +899,6 @@ public class UTF8DataInputJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _tokenInputRow = _valueInputRow;
             _updateToken(t);
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return getIntValue();
@@ -923,7 +921,6 @@ public class UTF8DataInputJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _tokenInputRow = _valueInputRow;
             _updateToken(t);
             if (t == JsonToken.VALUE_NUMBER_INT) {
                 return getLongValue();
@@ -946,7 +943,6 @@ public class UTF8DataInputJsonParser
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
-            _tokenInputRow = _valueInputRow;
             _updateToken(t);
             if (t == JsonToken.VALUE_TRUE) {
                 return Boolean.TRUE;
@@ -2185,36 +2181,13 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    private final int _skipWS() throws IOException
-    {
-        try {
-            int i = _nextByte;
-            if (i < 0) {
-                i = _inputData.readUnsignedByte();
-            } else {
-                _nextByte = -1;
-            }
-            while (true) {
-                if (i > INT_SPACE) {
-                    if (i == INT_SLASH || i == INT_HASH) {
-                        return _skipWSComment(i, false);
-                    }
-                    return i;
-                }
-                i = (i == INT_SPACE) ? _inputData.readUnsignedByte() : _skipWSByte(i, false);
-            }
-        } catch (EOFException e) {
-            return _eofInWS(false);
-        }
-    }
-
     /**
-     * Alternative to {@link #_skipWS} that handles possible {@link EOFException}
-     * caused by trying to read past the end of the {@link DataInput}.
+     * Method for skipping white space (and comments, if enabled) before the next token.
      *
-     * @since 2.9
+     * @param orEnd True if not directly after a comma: end-of-input is then passed
+     *   to {@link #_eofAsNextChar()} and Record Separator is allowed (if enabled)
      */
-    private final int _skipWSOrEnd() throws IOException
+    private final int _skipWS(boolean orEnd) throws IOException
     {
         try {
             int i = _nextByte;
@@ -2226,14 +2199,14 @@ public class UTF8DataInputJsonParser
             while (true) {
                 if (i > INT_SPACE) {
                     if (i == INT_SLASH || i == INT_HASH) {
-                        return _skipWSComment(i, true);
+                        return _skipWSComment(i, orEnd);
                     }
                     return i;
                 }
-                i = (i == INT_SPACE) ? _inputData.readUnsignedByte() : _skipWSByte(i, true);
+                i = (i == INT_SPACE) ? _inputData.readUnsignedByte() : _skipWSByte(i, orEnd);
             }
         } catch (EOFException e) {
-            return _eofAsNextChar();
+            return _eofInWS(orEnd);
         }
     }
 
@@ -2300,94 +2273,87 @@ public class UTF8DataInputJsonParser
     private final int _skipColon() throws IOException
     {
         try {
-            return _skipColonFast();
-        } catch (EOFException e) {
-            return _eofInWS(false);
-        }
-    }
-
-    private final int _skipColonFast() throws IOException
-    {
-        int i = _nextByte;
-        if (i < 0) {
-            i = _inputData.readUnsignedByte();
-        } else {
-            _nextByte = -1;
-        }
-        // Fast path: colon with optional single-space/tab before and/or after:
-        if (i == INT_COLON) { // common case, no leading space
-            i = _inputData.readUnsignedByte();
-            if (i > INT_SPACE) { // nor trailing
-                if (i == INT_SLASH || i == INT_HASH) {
-                    return _skipColon2(i, true);
-                }
-                return i;
-            }
-            if (i == INT_SPACE || i == INT_TAB) {
+            int i = _nextByte;
+            if (i < 0) {
                 i = _inputData.readUnsignedByte();
-                if (i > INT_SPACE) {
+            } else {
+                _nextByte = -1;
+            }
+            // Fast path: colon with optional single-space/tab before and/or after:
+            if (i == INT_COLON) { // common case, no leading space
+                i = _inputData.readUnsignedByte();
+                if (i > INT_SPACE) { // nor trailing
                     if (i == INT_SLASH || i == INT_HASH) {
                         return _skipColon2(i, true);
                     }
                     return i;
                 }
-            }
-            return _skipColon2(i, true); // true -> skipped colon
-        }
-        if (i == INT_SPACE || i == INT_TAB) {
-            i = _inputData.readUnsignedByte();
-        }
-        if (i == INT_COLON) {
-            i = _inputData.readUnsignedByte();
-            if (i > INT_SPACE) {
-                if (i == INT_SLASH || i == INT_HASH) {
-                    return _skipColon2(i, true);
-                }
-                return i;
-            }
-            if (i == INT_SPACE || i == INT_TAB) {
-                i = _inputData.readUnsignedByte();
-                if (i > INT_SPACE) {
-                    if (i == INT_SLASH || i == INT_HASH) {
-                        return _skipColon2(i, true);
-                    }
-                    return i;
-                }
-            }
-            return _skipColon2(i, true);
-        }
-        return _skipColon2(i, false);
-    }
-
-    private final int _skipColon2(int i, boolean gotColon) throws IOException
-    {
-        try {
-            while (true) {
-                if (i > INT_SPACE) {
-                    if (_isCommentStart(i)) {
-                        i = _skipComment(i);
-                        continue;
-                    }
-                    if (gotColon) {
+                if (i == INT_SPACE || i == INT_TAB) {
+                    i = _inputData.readUnsignedByte();
+                    if (i > INT_SPACE) {
+                        if (i == INT_SLASH || i == INT_HASH) {
+                            return _skipColon2(i, true);
+                        }
                         return i;
                     }
-                    if (i != INT_COLON) {
-                        _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
-                    }
-                    gotColon = true;
-                    i = _inputData.readUnsignedByte();
-                } else {
-                    i = (i == INT_SPACE) ? _inputData.readUnsignedByte() : _skipWSByte(i, false);
                 }
+                return _skipColon2(i, true); // true -> skipped colon
             }
+            if (i == INT_SPACE || i == INT_TAB) {
+                i = _inputData.readUnsignedByte();
+            }
+            if (i == INT_COLON) {
+                i = _inputData.readUnsignedByte();
+                if (i > INT_SPACE) {
+                    if (i == INT_SLASH || i == INT_HASH) {
+                        return _skipColon2(i, true);
+                    }
+                    return i;
+                }
+                if (i == INT_SPACE || i == INT_TAB) {
+                    i = _inputData.readUnsignedByte();
+                    if (i > INT_SPACE) {
+                        if (i == INT_SLASH || i == INT_HASH) {
+                            return _skipColon2(i, true);
+                        }
+                        return i;
+                    }
+                }
+                return _skipColon2(i, true);
+            }
+            return _skipColon2(i, false);
         } catch (EOFException e) {
             return _eofInWS(false);
+        }
+    }
+
+    // NOTE: only called from within `_skipColon()`, which handles end-of-input
+    private final int _skipColon2(int i, boolean gotColon) throws IOException
+    {
+        while (true) {
+            if (i > INT_SPACE) {
+                if (_isCommentStart(i)) {
+                    i = _skipComment(i);
+                    continue;
+                }
+                if (gotColon) {
+                    return i;
+                }
+                if (i != INT_COLON) {
+                    _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
+                }
+                gotColon = true;
+                i = _inputData.readUnsignedByte();
+            } else {
+                i = (i == INT_SPACE) ? _inputData.readUnsignedByte() : _skipWSByte(i, false);
+            }
         }
     }
 
     /**
      * Method for skipping a comment starting with given byte: either '/'
-     * or (if YAML comments are enabled) '#'.
+     * or '#' (caller must have checked YAML comments are enabled, see
+     * {@link #_isCommentStart})
      *
      * @return Next byte after the comment (for line comment, the linefeed
      *   that ends it)
@@ -2397,9 +2363,6 @@ public class UTF8DataInputJsonParser
     private final int _skipComment(int i) throws IOException
     {
         if (i == INT_HASH) {
-            if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
-                _reportUnexpectedChar(i, "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
-            }
             return _skipLine();
         }
         if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
@@ -2426,55 +2389,50 @@ public class UTF8DataInputJsonParser
     private final void _skipCComment() throws IOException
     {
         try {
-            _skipCComment2();
+            // Need to be UTF-8 aware here to decode content (for skipping)
+            final int[] codes = CharTypes.getInputCodeComment();
+            int i = _inputData.readUnsignedByte();
+
+            // Ok: need the matching '*/'
+            main_loop:
+            while (true) {
+                int code = codes[i];
+                if (code != 0) {
+                    switch (code) {
+                    case '*':
+                        i = _inputData.readUnsignedByte();
+                        if (i == INT_SLASH) {
+                            return;
+                        }
+                        continue main_loop;
+                    case INT_LF:
+                        ++_currInputRow;
+                        break;
+                    case INT_CR: // CR-LF counts as a single linefeed
+                        ++_currInputRow;
+                        i = _inputData.readUnsignedByte();
+                        if (i == INT_LF) {
+                            break;
+                        }
+                        continue main_loop;
+                    case 2: // 2-byte UTF
+                        _skipUtf8_2();
+                        break;
+                    case 3: // 3-byte UTF
+                        _skipUtf8_3(i);
+                        break;
+                    case 4: // 4-byte UTF
+                        _skipUtf8_4(i);
+                        break;
+                    default: // e.g. -1
+                        // Is this good enough error message?
+                        _reportInvalidChar(i);
+                    }
+                }
+                i = _inputData.readUnsignedByte();
+            }
         } catch (EOFException e) {
             _reportInvalidEOF(" in a comment", null);
-        }
-    }
-
-    private final void _skipCComment2() throws IOException
-    {
-        // Need to be UTF-8 aware here to decode content (for skipping)
-        final int[] codes = CharTypes.getInputCodeComment();
-        int i = _inputData.readUnsignedByte();
-
-        // Ok: need the matching '*/'
-        main_loop:
-        while (true) {
-            int code = codes[i];
-            if (code != 0) {
-                switch (code) {
-                case '*':
-                    i = _inputData.readUnsignedByte();
-                    if (i == INT_SLASH) {
-                        return;
-                    }
-                    continue main_loop;
-                case INT_LF:
-                    ++_currInputRow;
-                    break;
-                case INT_CR: // CR-LF counts as a single linefeed
-                    ++_currInputRow;
-                    i = _inputData.readUnsignedByte();
-                    if (i == INT_LF) {
-                        break;
-                    }
-                    continue main_loop;
-                case 2: // 2-byte UTF
-                    _skipUtf8_2();
-                    break;
-                case 3: // 3-byte UTF
-                    _skipUtf8_3(i);
-                    break;
-                case 4: // 4-byte UTF
-                    _skipUtf8_4(i);
-                    break;
-                default: // e.g. -1
-                    // Is this good enough error message?
-                    _reportInvalidChar(i);
-                }
-            }
-            i = _inputData.readUnsignedByte();
         }
     }
 
@@ -2964,17 +2922,11 @@ public class UTF8DataInputJsonParser
 
     @Override
     public JsonLocation currentTokenLocation() {
-        // 03-Jan-2020, tatu: Should probably track this, similar to how
-        //   streaming parsers do it, but... not done yet
-
-//        if (_currToken == JsonToken.FIELD_NAME) {
-//           return new JsonLocation(_getSourceReference(),
-//                    -1L, -1L, _nameStartRow, _nameStartCol);
-//        }
-
         // No column tracking since we do not have pointers, DataInput has no offset
-
-        return new JsonLocation(_contentReference(), -1L, -1L, _tokenInputRow, -1);
+        // 23-Oct-2026, tatu: [core#1795] Value after name is parsed along with name,
+        //   so `_tokenInputRow` refers to value while FIELD_NAME is current token
+        final int row = (_currToken == JsonToken.FIELD_NAME) ? _nameStartRow : _tokenInputRow;
+        return new JsonLocation(_contentReference(), -1L, -1L, row, -1);
     }
 
     /*

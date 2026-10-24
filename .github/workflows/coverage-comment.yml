@@ -13,7 +13,11 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
     steps:
+    # Only 3.x-line `main.yml` uploads this; PR builds against 2.x branches
+    # (same workflow name) also trigger this run, with nothing to post
     - name: Download comment artifact
+      id: download
+      continue-on-error: true
       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
         name: pr-comment
@@ -22,6 +26,7 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Post coverage comment
+      if: steps.download.outcome == 'success'
       run: |
         set -e  # Exit on error
 

@@ -159,7 +159,7 @@ class ControlCharBetweenTokens1795Test
     // Comment (and white space after it) at the end of content is valid
     @Test
     void commentAtEndOfInput() throws Exception {
-        for (String doc : new String[] { "[1] // c", "[1] // c\r\n ", "[1] # c\n",
+        for (String doc : new String[] { "[1] // c", "[1] // c\r\n ", "[1] # c\n", "[1]\r",
                 "[1] /* c */", "[1] /* c */ \n", "1 /* c */" }) {
             for (int mode : ALL_MODES) {
                 try (JsonParser p = createParser(COMMENTS_F, mode, doc)) {
@@ -170,8 +170,10 @@ class ControlCharBetweenTokens1795Test
     }
 
     @Test
-    void unterminatedComment() throws Exception {
-        for (String doc : new String[] { "[1] /* c", "[1] /", "[1, // c" }) {
+    void eofInsideValueWhiteSpaceOrComment() throws Exception {
+        for (String doc : new String[] { "[1] /* c", "[1] /", "[1, // c",
+                "[1, // c\n", "[1, /* c */ ", "[1, # c\r", "{\"a\" // c\n", "{\"a\": /* c */\r\n",
+                "[1,\r", "[1,", "[1, ", "{\"a\"", "{\"a\" ", "{\"a\":", "{\"a\": ", "{\"a\":\t\n" }) {
             for (int mode : ALL_MODES) {
                 try (JsonParser p = createParser(COMMENTS_F, mode, doc)) {
                     _consume(p, mode);
@@ -179,6 +181,43 @@ class ControlCharBetweenTokens1795Test
                 } catch (StreamReadException e) {
                     verifyException(e, "Unexpected end-of-input");
                 }
+            }
+        }
+    }
+
+    @Test
+    void truncatedUtf8InCommentAtEnd() throws Exception {
+        final byte[] doc = new byte[] { '[', '1', ']', ' ', '/', '/', ' ', (byte) 0xC3 };
+        for (int mode : ALL_BINARY_MODES) {
+            try (JsonParser p = createParser(COMMENTS_F, mode, doc)) {
+                _consume(p, mode);
+                fail("Should not pass for mode " + mode);
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected end-of-input");
+            }
+        }
+    }
+
+    // Value following property name must report its own start row
+    @Test
+    void valueLocationAfterName() throws Exception {
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                .build();
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(f, mode, "{\"a\":\n'x\ny',\"b\"\r\n:\r\n[1]}")) {
+                assertToken(JsonToken.START_OBJECT, p.nextToken());
+                assertEquals("a", p.nextFieldName());
+                assertEquals(1, p.currentTokenLocation().getLineNr(), "mode " + mode);
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                assertEquals(2, p.currentTokenLocation().getLineNr(), "mode " + mode);
+                assertEquals("b", p.nextFieldName());
+                assertEquals(3, p.currentTokenLocation().getLineNr(), "mode " + mode);
+                // via `nextTextValue()` which handles deferred value separately
+                assertNull(p.nextTextValue());
+                assertToken(JsonToken.START_ARRAY, p.currentToken());
+                assertEquals(5, p.currentTokenLocation().getLineNr(), "mode " + mode);
             }
         }
     }

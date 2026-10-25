@@ -172,6 +172,9 @@ David R. MacIver (@DRMacIver)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (3.1.8)
+ * Reported, contributed fix for #1795: `UTF8DataInputJsonParser` accepts any control
+   character as white space between tokens
+  (3.1.9, 3.2.5)
 
 @un5h4d0w
  * Reported #1784: UTF-8 parsers may return wrong cached property name for names
@@ -179,6 +182,6 @@ David R. MacIver (@DRMacIver)
   (3.1.9)
 
 Francesco Nigro (@franz1981)
- * Reported #1680: Speed up `UTF8JsonGenerator` ASCII fast path for longer `String`
-   values
+ * Reported, contributed fix for #1680: Avoid per-character escape-table load in
+   JSON generator String fast loops
   (3.3.0)

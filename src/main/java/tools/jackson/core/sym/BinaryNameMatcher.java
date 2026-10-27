@@ -97,6 +97,16 @@ public final class BinaryNameMatcher
      */
     private int _longNameOffset;
 
+    /**
+     * Whether unused high bytes of the last partial quad of a name are padded
+     * with {@code 0xFF} (as done by {@code ByteQuadsCanonicalizer}), to avoid
+     * names with leading NUL bytes in the last quad from matching shorter names.
+     * If enabled, callers must pad quads they pass to {@code matchByQuad()} similarly.
+     *
+     * @since 3.3
+     */
+    private final boolean _padLastQuad;
+
     /*
     /**********************************************************************
     /* Life-cycle: constructors
@@ -112,10 +122,13 @@ public final class BinaryNameMatcher
      * @param nameLookup Set of names to match
      * @param hashSize Estimated basic hash area size to use (slightly bigger than number
      *    of entries in {@code nameLookup} array
+     * @param padLastQuad Whether to pad last partial quad of names (see {@link #_padLastQuad})
      */
-    private BinaryNameMatcher(SimpleNameMatcher matcher, String[] nameLookup, int hashSize)
+    private BinaryNameMatcher(SimpleNameMatcher matcher, String[] nameLookup, int hashSize,
+            boolean padLastQuad)
     {
         super(matcher, nameLookup);
+        _padLastQuad = padLastQuad;
         _count = 0;
         _hashSize = hashSize; // 8x, 4 ints per entry for main area, then sec/ter and spill over
         _hashArea = new int[hashSize << 3];
@@ -149,29 +162,76 @@ public final class BinaryNameMatcher
 
     public static BinaryNameMatcher constructFrom(List<Named> propertyNames, boolean alreadyInterned)
     {
-        return construct(stringsFromNames(propertyNames, alreadyInterned));
+        return constructFrom(propertyNames, alreadyInterned, false);
+    }
+
+    /**
+     * @param propertyNames Names to match
+     * @param alreadyInterned Whether names are already {@code intern()}ed
+     * @param padLastQuad Whether last partial quad of names is padded with
+     *    {@code 0xFF} bytes (and quads passed to {@code matchByQuad()} must be too)
+     *
+     * @return Matcher constructed
+     *
+     * @since 3.3
+     */
+    public static BinaryNameMatcher constructFrom(List<Named> propertyNames, boolean alreadyInterned,
+            boolean padLastQuad)
+    {
+        return construct(stringsFromNames(propertyNames, alreadyInterned), padLastQuad);
     }
 
     public static BinaryNameMatcher construct(List<String> symbols)
     {
+        return construct(symbols, false);
+    }
+
+    /**
+     * @param symbols Names to match
+     * @param padLastQuad Whether last partial quad of names is padded with
+     *    {@code 0xFF} bytes (and quads passed to {@code matchByQuad()} must be too)
+     *
+     * @return Matcher constructed
+     *
+     * @since 3.3
+     */
+    public static BinaryNameMatcher construct(List<String> symbols, boolean padLastQuad)
+    {
         // Two-step process: since we need backup string-based lookup (when matching
         // current name, buffered etc etc), start with that
-        return _construct(symbols, SimpleNameMatcher.construct(null, symbols));
+        return _construct(symbols, SimpleNameMatcher.construct(null, symbols), padLastQuad);
     }
 
     public static BinaryNameMatcher constructCaseInsensitive(Locale locale,
             List<Named> propertyNames, boolean alreadyInterned)
     {
+        return constructCaseInsensitive(locale, propertyNames, alreadyInterned, false);
+    }
+
+    /**
+     * @param locale Locale to use for case-insensitive matching
+     * @param propertyNames Names to match
+     * @param alreadyInterned Whether names are already {@code intern()}ed
+     * @param padLastQuad Whether last partial quad of names is padded with
+     *    {@code 0xFF} bytes (and quads passed to {@code matchByQuad()} must be too)
+     *
+     * @return Matcher constructed
+     *
+     * @since 3.3
+     */
+    public static BinaryNameMatcher constructCaseInsensitive(Locale locale,
+            List<Named> propertyNames, boolean alreadyInterned, boolean padLastQuad)
+    {
         final List<String> names = PropertyNameMatcher.stringsFromNames(propertyNames, alreadyInterned);
-        return _construct(names, SimpleNameMatcher.constructCaseInsensitive(locale, names));
+        return _construct(names, SimpleNameMatcher.constructCaseInsensitive(locale, names), padLastQuad);
     }
 
     private static BinaryNameMatcher _construct(List<String> symbols,
-            SimpleNameMatcher base)
+            SimpleNameMatcher base, boolean padLastQuad)
     {
         int sz = _findSize(symbols.size());
         String[] lookup = symbols.toArray(new String[0]);
-        BinaryNameMatcher matcher = new BinaryNameMatcher(base, lookup, sz);
+        BinaryNameMatcher matcher = new BinaryNameMatcher(base, lookup, sz, padLastQuad);
         for (String name : symbols) {
             matcher.addName(name);
         }
@@ -188,17 +248,19 @@ public final class BinaryNameMatcher
         byte[] ch = name.getBytes(StandardCharsets.UTF_8);
         int len = ch.length;
 
+        final boolean pad = _padLastQuad;
+
         if (len <= 12) {
             if (len <= 4) {
-                return addName(name, _decodeLast(ch, 0, len));
+                return addName(name, _decodeLast(ch, 0, len, pad));
             }
             int q1 = _decodeFull(ch, 0);
             if (len <= 8) {
-                return addName(name, q1, _decodeLast(ch, 4, len-4));
+                return addName(name, q1, _decodeLast(ch, 4, len-4, pad));
             }
-            return addName(name, q1, _decodeFull(ch, 4), _decodeLast(ch, 8, len-8));
+            return addName(name, q1, _decodeFull(ch, 4), _decodeLast(ch, 8, len-8, pad));
         }
-        int[] quads = _quads(name);
+        int[] quads = _quads(name, pad);
         return addName(name, quads, quads.length);
     }
 
@@ -750,6 +812,18 @@ public final class BinaryNameMatcher
      */
 
     public static int[] _quads(String name) {
+        return _quads(name, false);
+    }
+
+    /**
+     * @param name Name to encode as quads
+     * @param padLastQuad Whether to pad last partial quad with {@code 0xFF} bytes
+     *
+     * @return Quads for the UTF-8 encoded name
+     *
+     * @since 3.3
+     */
+    public static int[] _quads(String name, boolean padLastQuad) {
         final byte[] b = name.getBytes(StandardCharsets.UTF_8);
         final int len = b.length;
         int[] buf = new int[(len + 3) >> 2];
@@ -762,7 +836,7 @@ public final class BinaryNameMatcher
             buf[out++] = _decodeFull(b, in);
             in += 4;
         }
-        buf[out++] = _decodeLast(b, in, left);
+        buf[out++] = _decodeLast(b, in, left, padLastQuad);
         return buf;
     }
 
@@ -771,9 +845,10 @@ public final class BinaryNameMatcher
                 + ((b[offset+2] & 0xFF) << 8) + (b[offset+3] & 0xFF);
     }
 
-    private static int _decodeLast(byte[] b, int offset, int bytes) {
-        // 22-Nov-2017, tatu: Padding apparently not used with fully binary property names,
-        //     unlike with JSON. May or may not want to change this in future.
+    private static int _decodeLast(byte[] b, int offset, int bytes, boolean pad) {
+        // 22-Nov-2017, tatu: Padding not used with binary property names by default.
+        // 26-Oct-2026, tatu: [core#1798] ... but without it, leading NULs of last
+        //   partial quad are lost, so it is now optional
         int value = b[offset++] & 0xFF;
         switch (bytes) {
         case 4:
@@ -782,6 +857,9 @@ public final class BinaryNameMatcher
             value = (value << 8) | (b[offset++] & 0xFF);
         case 2:
             value = (value << 8) | (b[offset++] & 0xFF);
+        }
+        if (pad && (bytes < 4)) {
+            value |= (-1 << (bytes << 3));
         }
         return value;
     }

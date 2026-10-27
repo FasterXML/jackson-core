@@ -529,12 +529,12 @@ public class JsonFactory
 
     @Override
     public PropertyNameMatcher constructNameMatcher(List<Named> matches, boolean alreadyInterned) {
-        return BinaryNameMatcher.constructFrom(matches, alreadyInterned);
+        return BinaryNameMatcher.constructFrom(matches, alreadyInterned, false);
     }
 
     @Override
     public PropertyNameMatcher constructCINameMatcher(List<Named> matches, boolean alreadyInterned,
             Locale locale) {
-        return BinaryNameMatcher.constructCaseInsensitive(locale, matches, alreadyInterned);
+        return BinaryNameMatcher.constructCaseInsensitive(locale, matches, alreadyInterned, false);
     }
 }

@@ -160,6 +160,10 @@ public final class BinaryNameMatcher
     /**********************************************************************
      */
 
+    /**
+     * @deprecated Since 3.3 use {@link #constructFrom(List, boolean, boolean)} instead
+     */
+    @Deprecated // since 3.3
     public static BinaryNameMatcher constructFrom(List<Named> propertyNames, boolean alreadyInterned)
     {
         return constructFrom(propertyNames, alreadyInterned, false);
@@ -181,6 +185,10 @@ public final class BinaryNameMatcher
         return construct(stringsFromNames(propertyNames, alreadyInterned), padLastQuad);
     }
 
+    /**
+     * @deprecated Since 3.3 use {@link #construct(List, boolean)} instead
+     */
+    @Deprecated // since 3.3
     public static BinaryNameMatcher construct(List<String> symbols)
     {
         return construct(symbols, false);
@@ -202,6 +210,10 @@ public final class BinaryNameMatcher
         return _construct(symbols, SimpleNameMatcher.construct(null, symbols), padLastQuad);
     }
 
+    /**
+     * @deprecated Since 3.3 use {@link #constructCaseInsensitive(Locale, List, boolean, boolean)} instead
+     */
+    @Deprecated // since 3.3
     public static BinaryNameMatcher constructCaseInsensitive(Locale locale,
             List<Named> propertyNames, boolean alreadyInterned)
     {
@@ -811,6 +823,10 @@ public final class BinaryNameMatcher
     /**********************************************************************
      */
 
+    /**
+     * @deprecated Since 3.3 use {@link #_quads(String, boolean)} instead
+     */
+    @Deprecated // since 3.3
     public static int[] _quads(String name) {
         return _quads(name, false);
     }

@@ -93,7 +93,7 @@ public class BinaryNameMatcherPadding1798Test extends JacksonCoreTestBase
     @Test
     public void testUnpaddedDefault()
     {
-        BinaryNameMatcher matcher = BinaryNameMatcher.construct(NAMES);
+        BinaryNameMatcher matcher = BinaryNameMatcher.construct(NAMES, false);
         for (int i = 0; i < NAMES.size(); ++i) {
             assertEquals(i, _match(matcher, NAMES.get(i), false));
         }

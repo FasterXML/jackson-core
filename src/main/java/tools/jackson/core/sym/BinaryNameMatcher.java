@@ -99,7 +99,7 @@ public final class BinaryNameMatcher
 
     /**
      * Whether unused high bytes of the last partial quad of a name are padded
-     * with {@code 0xFF} (as done by {@code ByteQuadsCanonicalizer}), to avoid
+     * with {@code 0xFF} (as done by JSON parsers, see {@code JsonParserBase._padLastQuad()}), to avoid
      * names with leading NUL bytes in the last quad from matching shorter names.
      * If enabled, callers must pad quads they pass to {@code matchByQuad()} similarly.
      *

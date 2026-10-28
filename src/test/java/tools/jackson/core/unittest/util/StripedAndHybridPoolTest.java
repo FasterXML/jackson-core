@@ -137,16 +137,18 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertSame(br, pool.acquireAndLinkPooled());
     }
 
-    // Direct (unlinked) API must also use the leave-in, not the shared slots
+    // Direct (unlinked) API uses the shared slots, never the leave-in
     @Test
     void hybridPoolPlatformThreadDirectAcquireRelease() {
         RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newHybridPool(4);
 
+        BufferRecycler leaveIn = pool.acquireAndLinkPooled();
         BufferRecycler br = pool.acquirePooled();
-        assertSame(br, pool.acquireAndLinkPooled());
+        assertNotSame(leaveIn, br);
         pool.releasePooled(br);
-        assertEquals(0, pool.pooledCount(), "platform release must not fill slots");
+        assertEquals(1, pool.pooledCount());
         assertSame(br, pool.acquirePooled());
+        assertSame(leaveIn, pool.acquireAndLinkPooled());
     }
 
     @Test
@@ -190,9 +192,46 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
                 "second virtual thread must recycle the first one's instance");
     }
 
+    // An instance acquired directly on a platform thread and released on a
+    // virtual thread must not stay the platform thread's leave-in
+    @Test
+    void hybridPoolNoDoubleLeaseAcrossThreadTypes() throws Exception {
+        Assumptions.assumeTrue(VIRTUAL_THREADS_AVAILABLE, "virtual threads unavailable");
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newHybridPool(4);
+
+        BufferRecycler br = pool.acquirePooled();
+        runInVirtualThread(() -> pool.releasePooled(br));
+        BufferRecycler[] onVirtual = new BufferRecycler[1];
+        runInVirtualThread(() -> onVirtual[0] = pool.acquireAndLinkPooled());
+
+        assertSame(br, onVirtual[0]);
+        assertNotSame(onVirtual[0], pool.acquireAndLinkPooled(),
+                "instance leased to a virtual thread and a platform thread at once");
+        assertNotSame(onVirtual[0], pool.acquirePooled(),
+                "instance leased to a virtual thread and a platform thread at once");
+    }
+
+    // A linked instance acquired on a virtual thread and released on a
+    // platform thread must return to the shared slots
+    @Test
+    void hybridPoolVirtualAcquirePlatformRelease() throws Exception {
+        Assumptions.assumeTrue(VIRTUAL_THREADS_AVAILABLE, "virtual threads unavailable");
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newHybridPool(4);
+
+        BufferRecycler[] acquired = new BufferRecycler[2];
+        runInVirtualThread(() -> acquired[0] = pool.acquireAndLinkPooled());
+        assertTrue(acquired[0].isLinkedWithPool());
+        acquired[0].releaseToPool();
+        assertEquals(1, pool.pooledCount(),
+                "release on a platform thread must return the instance to the slots");
+
+        runInVirtualThread(() -> acquired[1] = pool.acquireAndLinkPooled());
+        assertSame(acquired[0], acquired[1]);
+    }
+
     /*
     /**********************************************************************
-    /* Double-lease stress (linked instances only)
+    /* Double-lease stress
     /**********************************************************************
      */
 
@@ -207,9 +246,11 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
     }
 
     // Hammers acquire/release from platform threads (and virtual threads when
-    // available) and verifies no linked instance is ever held by two owners.
-    // Platform-thread leave-ins from HybridPool are unlinked and thread-confined,
-    // so only linked instances participate in ownership tracking.
+    // available) and verifies no instance is ever held by two owners. Half the
+    // cycles use the direct API; some instances are released by another thread
+    // (of either type) than the one that acquired them. Platform-thread
+    // leave-ins from HybridPool are unlinked and thread-confined, so they are
+    // not tracked.
     private void assertNoDoubleLease(RecyclerPool<BufferRecycler> pool, boolean useVirtual)
         throws Exception
     {
@@ -218,6 +259,9 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         final ConcurrentHashMap<BufferRecycler, Thread> owners = new ConcurrentHashMap<>();
         final AtomicInteger doubleLeases = new AtomicInteger();
         final CountDownLatch start = new CountDownLatch(1);
+        // Acquired but not yet released; any thread may release them
+        final Queue<BufferRecycler> linkedHandoff = new ConcurrentLinkedQueue<>();
+        final Queue<BufferRecycler> directHandoff = new ConcurrentLinkedQueue<>();
         // Virtual threads are not run via executor, so failures must be captured
         final Queue<Throwable> virtualFailures = new ConcurrentLinkedQueue<>();
 
@@ -229,20 +273,32 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
                 return;
             }
             for (int i = 0; i < iterations; ++i) {
-                BufferRecycler br = pool.acquireAndLinkPooled();
-                if (br.isLinkedWithPool()) {
-                    if (owners.putIfAbsent(br, Thread.currentThread()) != null) {
-                        doubleLeases.incrementAndGet();
-                    }
-                    // Touch a buffer like real use does
-                    br.releaseByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER,
-                            br.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER));
-                    if (ThreadLocalRandom.current().nextInt(8) == 0) {
-                        Thread.yield();
-                    }
-                    owners.remove(br);
+                releaseHandedOff(pool, owners, linkedHandoff, directHandoff);
+                final boolean direct = (i & 1) != 0;
+                BufferRecycler br = direct ? pool.acquirePooled() : pool.acquireAndLinkPooled();
+                if (!direct && !br.isLinkedWithPool()) {
+                    br.releaseToPool(); // leave-in: no-op
+                    continue;
                 }
-                br.releaseToPool();
+                if (owners.putIfAbsent(br, Thread.currentThread()) != null) {
+                    doubleLeases.incrementAndGet();
+                }
+                // Touch a buffer like real use does
+                br.releaseByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER,
+                        br.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER));
+                final int r = ThreadLocalRandom.current().nextInt(8);
+                if (r == 0) {
+                    Thread.yield();
+                } else if (r == 1) {
+                    (direct ? directHandoff : linkedHandoff).add(br);
+                    continue;
+                }
+                owners.remove(br);
+                if (direct) {
+                    pool.releasePooled(br);
+                } else {
+                    br.releaseToPool();
+                }
             }
         };
 
@@ -269,11 +325,31 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         } finally {
             exec.shutdownNow();
         }
+        while (releaseHandedOff(pool, owners, linkedHandoff, directHandoff)) { }
 
         assertNoFailures(virtualFailures);
         assertEquals(0, doubleLeases.get(), "instance leased to two owners at once");
         int pooled = pool.pooledCount();
         assertTrue(pooled >= 0 && pooled <= 4, "retention bound exceeded: "+pooled);
+    }
+
+    private static boolean releaseHandedOff(RecyclerPool<BufferRecycler> pool,
+            ConcurrentHashMap<BufferRecycler, Thread> owners,
+            Queue<BufferRecycler> linkedHandoff, Queue<BufferRecycler> directHandoff)
+    {
+        BufferRecycler br = linkedHandoff.poll();
+        if (br != null) {
+            owners.remove(br);
+            br.releaseToPool();
+            return true;
+        }
+        br = directHandoff.poll();
+        if (br != null) {
+            owners.remove(br);
+            pool.releasePooled(br);
+            return true;
+        }
+        return false;
     }
 
     /*

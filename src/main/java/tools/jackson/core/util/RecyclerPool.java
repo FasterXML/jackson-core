@@ -469,28 +469,31 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
     }
 
     /**
-     * {@link RecyclerPool} implementation that gives platform threads the
-     * {@link ThreadLocalPoolBase} behavior (one leave-in instance per thread,
-     * held through a {@link java.lang.ref.SoftReference}, released by doing
-     * nothing) and routes virtual threads to the {@link StripedArrayPoolBase}
-     * slots it extends. Virtual threads are typically created per task, so a
+     * {@link RecyclerPool} implementation whose {@link #acquireAndLinkPooled()}
+     * gives platform threads the {@link ThreadLocalPoolBase} behavior (one
+     * leave-in instance per thread, held through a
+     * {@link java.lang.ref.SoftReference}, released by doing nothing) and
+     * routes virtual threads to the {@link StripedArrayPoolBase} slots it
+     * extends. Virtual threads are typically created per task, so a
      * per-thread instance would be abandoned after a single use; the shared
      * slots let their instances recycle across threads.
      *<p>
+     * Only {@link #acquireAndLinkPooled()} checks the thread type.
+     * {@link #acquirePooled()} and {@link #releasePooled} use the shared slots
+     * on every thread, so an instance acquired on a virtual thread may be
+     * released on a platform thread, and the other way around. The leave-in
+     * that {@link #acquireAndLinkPooled()} returns on a platform thread is not
+     * linked and stays with that thread: do not pass it to
+     * {@link #releasePooled}, or another thread may acquire it while it is
+     * still in use.
+     *<p>
      * On runtimes without virtual threads (JDK before 21, Android) every
-     * thread takes the platform path, which makes this pool behave exactly
-     * like {@link ThreadLocalPoolBase}. The virtual-thread check goes through
-     * a {@link MethodHandle} resolved once per JVM, so it does not require
-     * {@code Thread.isVirtual()} to exist at run time (and this class does
-     * not reference it at compile time).
+     * {@link #acquireAndLinkPooled()} takes the platform path. The
+     * virtual-thread check goes through a {@link MethodHandle} resolved once
+     * per JVM, so it does not require {@code Thread.isVirtual()} to exist at
+     * run time (and this class does not reference it at compile time).
      *<p>
-     * Thread type is checked on every call, including direct
-     * {@link #acquirePooled()} / {@link #releasePooled} use, so platform threads
-     * never touch the shared slots. An instance acquired on a platform thread is
-     * that thread's leave-in: it must not be passed to {@link #releasePooled}
-     * from another thread, or it may be handed out while still in use.
-     *<p>
-     * {@link #pooledCount()} counts the shared (virtual-thread) slots only;
+     * {@link #pooledCount()} counts the shared slots only;
      * per-thread leave-in instances are not tracked, as with
      * {@link ThreadLocalPoolBase}. Leave-ins are held per pool instance, so a
      * platform thread using several {@code HybridPoolBase} instances holds one
@@ -571,22 +574,6 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             // Not linked: releaseToPool() is then a no-op, the instance stays
             // in the ThreadLocal, and no other thread ever sees it.
             return _leaveIn();
-        }
-
-        @Override
-        public P acquirePooled() {
-            if (_isVirtual(Thread.currentThread())) {
-                return super.acquirePooled();
-            }
-            return _leaveIn();
-        }
-
-        @Override
-        public void releasePooled(P pooled) {
-            if (_isVirtual(Thread.currentThread())) {
-                super.releasePooled(pooled);
-            }
-            // Platform thread: nothing to do, the leave-in stays in the ThreadLocal
         }
 
         private P _leaveIn() {

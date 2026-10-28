@@ -123,6 +123,8 @@ JSON library.
   accepted directly after root-level number or comment, same as other parsers)
  (reported by @ItsDeadlyProgrammer)
  (fix by @ItsDeadlyProgrammer)
+#1798: `BinaryNameMatcher` does not pad partial quads: binary parsers match
+  NUL-containing names to known properties (add optional padding)
 
 3.2.5 (not yet released)
 

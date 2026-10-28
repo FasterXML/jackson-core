@@ -110,9 +110,9 @@ public class BinaryNameHashTest extends JacksonCoreTestBase
     }
 
     private BinaryNameMatcher _construct(List<String> names) {
-        return BinaryNameMatcher.construct(names);
+        return BinaryNameMatcher.construct(names, false);
         /*
-        BinaryNameMatcher m = BinaryNameMatcher.construct(names);
+        BinaryNameMatcher m = BinaryNameMatcher.construct(names, false);
         System.err.println("DEBUG: matcher == "+m);
         for (String n : names) {
             System.err.println(" '"+n+"'");

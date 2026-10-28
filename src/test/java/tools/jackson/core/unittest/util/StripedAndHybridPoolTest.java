@@ -478,14 +478,15 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
     /**********************************************************************
      */
 
-    private static final boolean VIRTUAL_THREADS_AVAILABLE = _virtualThreadsAvailable();
+    private static final Method START_VIRTUAL_THREAD = _findStartVirtualThread();
 
-    private static boolean _virtualThreadsAvailable() {
+    private static final boolean VIRTUAL_THREADS_AVAILABLE = (START_VIRTUAL_THREAD != null);
+
+    private static Method _findStartVirtualThread() {
         try {
-            Thread.class.getMethod("ofVirtual");
-            return true;
+            return Thread.class.getMethod("startVirtualThread", Runnable.class);
         } catch (NoSuchMethodException e) {
-            return false;
+            return null;
         }
     }
 
@@ -500,8 +501,7 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
                 failures.add(t);
             }
         };
-        Method m = Thread.class.getMethod("startVirtualThread", Runnable.class);
-        return (Thread) m.invoke(null, wrapped);
+        return (Thread) START_VIRTUAL_THREAD.invoke(null, wrapped);
     }
 
     private static void runInVirtualThread(Runnable r) throws Exception {

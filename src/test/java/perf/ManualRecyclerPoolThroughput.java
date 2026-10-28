@@ -187,20 +187,25 @@ public class ManualRecyclerPoolThroughput
         return t;
     }
 
-    // Reflective so the harness compiles and runs on the JDK 17 floor
-    private static boolean virtualThreadsAvailable() {
+    // Reflective so the harness compiles and runs on the JDK 17 floor;
+    // null where virtual threads do not exist
+    private static final Method START_VIRTUAL_THREAD = findStartVirtualThread();
+
+    private static Method findStartVirtualThread() {
         try {
-            Thread.class.getMethod("startVirtualThread", Runnable.class);
-            return true;
+            return Thread.class.getMethod("startVirtualThread", Runnable.class);
         } catch (NoSuchMethodException e) {
-            return false;
+            return null;
         }
+    }
+
+    private static boolean virtualThreadsAvailable() {
+        return START_VIRTUAL_THREAD != null;
     }
 
     private static Thread startVirtualThread(Runnable r) {
         try {
-            Method m = Thread.class.getMethod("startVirtualThread", Runnable.class);
-            return (Thread) m.invoke(null, r);
+            return (Thread) START_VIRTUAL_THREAD.invoke(null, r);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }

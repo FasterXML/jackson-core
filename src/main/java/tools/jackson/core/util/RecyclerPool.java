@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.ref.SoftReference;
 import java.util.Deque;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -33,8 +33,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  *  atomic slots, allocation-free on both acquire and release (default slot count
  *  being {@link StripedArrayPoolBase#DEFAULT_CAPACITY}).
  * </li>
- * <li>{@link HybridPoolBase} gives platform threads the {@link ThreadLocalPoolBase}
- *  behavior and routes virtual threads to shared {@link StripedArrayPoolBase} slots.
+ * <li>{@link HybridPoolBase} combines a {@link ThreadLocalPoolBase} for platform
+ *  threads with shared {@link StripedArrayPoolBase} slots for virtual threads.
  * </li>
  *</ul>
  *
@@ -469,45 +469,44 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
     }
 
     /**
-     * {@link RecyclerPool} implementation whose {@link #acquireAndLinkPooled()}
-     * gives platform threads the {@link ThreadLocalPoolBase} behavior (one
-     * leave-in instance per thread, held through a
-     * {@link java.lang.ref.SoftReference}, released by doing nothing) and
-     * routes virtual threads to the {@link StripedArrayPoolBase} slots it
-     * extends. Virtual threads are typically created per task, so a
-     * per-thread instance would be abandoned after a single use; the shared
-     * slots let their instances recycle across threads.
+     * {@link RecyclerPool} implementation that combines a
+     * {@link ThreadLocalPoolBase} for platform threads with shared
+     * {@link StripedArrayPoolBase} slots for virtual threads. Virtual threads
+     * are typically created per task, so a per-thread instance would be
+     * abandoned after a single use; the shared slots let their instances
+     * recycle across threads.
      *<p>
-     * Only {@link #acquireAndLinkPooled()} checks the thread type.
+     * Only {@link #acquireAndLinkPooled()} checks the thread type. On a
+     * platform thread it returns the leave-in instance of the
+     * {@code ThreadLocalPoolBase}: not linked, so releasing it does nothing,
+     * and it stays with that thread. On a virtual thread it returns an
+     * instance from the shared slots, linked to this pool.
      * {@link #acquirePooled()} and {@link #releasePooled} use the shared slots
      * on every thread, so an instance acquired on a virtual thread may be
-     * released on a platform thread, and the other way around. The leave-in
-     * that {@link #acquireAndLinkPooled()} returns on a platform thread is not
-     * linked and stays with that thread: do not pass it to
-     * {@link #releasePooled}, or another thread may acquire it while it is
-     * still in use.
+     * released on a platform thread, and the other way around. Do not pass a
+     * leave-in to {@link #releasePooled}: another thread could then acquire it
+     * while it is still in use.
      *<p>
-     * On runtimes without virtual threads (JDK before 21, Android) every
-     * {@link #acquireAndLinkPooled()} takes the platform path. The
-     * virtual-thread check goes through a {@link MethodHandle} resolved once
-     * per JVM, so it does not require {@code Thread.isVirtual()} to exist at
-     * run time (and this class does not reference it at compile time).
+     * {@link #capacity()} and {@link #pooledCount()} describe the shared slots
+     * only, and leave-ins are not counted. {@link #clear()} empties the shared
+     * slots and returns {@code false}, because leave-ins cannot be dropped.
+     * The shared slots are allocated by the first release into them, so a pool
+     * that only platform threads use through {@link #acquireAndLinkPooled()},
+     * as Jackson uses it, never allocates them.
      *<p>
-     * {@link #pooledCount()} counts the shared slots only;
-     * per-thread leave-in instances are not tracked, as with
-     * {@link ThreadLocalPoolBase}. Leave-ins are held per pool instance, so a
-     * platform thread using several {@code HybridPoolBase} instances holds one
-     * leave-in for each.
+     * The virtual-thread check goes through a {@link MethodHandle} resolved
+     * once per JVM, so this class also runs where {@code Thread.isVirtual()}
+     * does not exist (JDK before 19, Android); every thread is then a
+     * platform thread.
      *<p>
-     * As with {@link StripedArrayPoolBase}, per-thread and slot state is
-     * {@code transient} and not restored on deserialization: concrete
-     * subclasses must implement {@code readResolve}, as
+     * Pool state is {@code transient} and not restored on deserialization:
+     * concrete subclasses must implement {@code readResolve}, as
      * {@link JsonRecyclerPools.HybridPool} does.
      *
      * @since 3.3
      */
     abstract class HybridPoolBase<P extends WithPool<P>>
-        extends StripedArrayPoolBase<P>
+        extends StatefulImplBase<P>
     {
         private static final long serialVersionUID = 1L;
 
@@ -541,15 +540,24 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             }
         }
 
-        /**
-         * Per-platform-thread leave-in instance, exactly as
-         * {@link ThreadLocalPoolBase} keeps it. Not serialized: see class
-         * Javadoc for {@code readResolve} requirement.
-         */
-        private final transient ThreadLocal<SoftReference<P>> _perThread = new ThreadLocal<>();
+        private final transient ThreadLocalPoolBase<P> _platformPool;
 
-        protected HybridPoolBase(int capacityAsId) {
+        /**
+         * Shared slots; {@code null} until the first release into them.
+         */
+        private transient volatile StripedArrayPoolBase<P> _shared;
+
+        // // // Life-cycle (constructors, factory methods)
+
+        /**
+         * @param capacityAsId Requested number of shared slots, as with
+         *   {@link StripedArrayPoolBase}
+         * @param platformPool Pool that gives each platform thread its
+         *   leave-in instance
+         */
+        protected HybridPoolBase(int capacityAsId, ThreadLocalPoolBase<P> platformPool) {
             super(capacityAsId);
+            _platformPool = Objects.requireNonNull(platformPool);
         }
 
         // // // Actual API implementation
@@ -557,33 +565,79 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         @Override
         public P acquireAndLinkPooled() {
             if (_isVirtual(Thread.currentThread())) {
-                return super.acquirePooled().withPool(this);
+                return acquirePooled().withPool(this);
             }
-            // Not linked: releaseToPool() is then a no-op, the instance stays
-            // in the ThreadLocal, and no other thread ever sees it.
-            return _leaveIn();
+            return _platformPool.acquireAndLinkPooled();
         }
 
-        private P _leaveIn() {
-            SoftReference<P> ref = _perThread.get();
-            P pooled = (ref == null) ? null : ref.get();
-            if (pooled == null) {
-                pooled = createPooled();
-                _perThread.set(new SoftReference<>(pooled));
+        @Override
+        public P acquirePooled() {
+            final StripedArrayPoolBase<P> shared = _shared;
+            return (shared == null) ? createPooled() : shared.acquirePooled();
+        }
+
+        @Override
+        public void releasePooled(P pooled) {
+            StripedArrayPoolBase<P> shared = _shared;
+            if (shared == null) {
+                shared = _allocateShared();
             }
-            return pooled;
+            shared.releasePooled(pooled);
+        }
+
+        private synchronized StripedArrayPoolBase<P> _allocateShared() {
+            StripedArrayPoolBase<P> shared = _shared;
+            if (shared == null) {
+                _shared = shared = new SharedSlots<>(_serialization, this);
+            }
+            return shared;
+        }
+
+        @Override
+        public int pooledCount() {
+            final StripedArrayPoolBase<P> shared = _shared;
+            return (shared == null) ? 0 : shared.pooledCount();
         }
 
         /**
-         * Drops the contents of the shared (virtual-thread) slots, but
-         * returns {@code false} because the per-thread leave-in instances are
-         * not tracked and cannot be dropped, as with
-         * {@link ThreadLocalPoolBase}.
+         * Empties the shared slots, but returns {@code false} because the
+         * leave-in instances of platform threads cannot be dropped.
          */
         @Override
         public boolean clear() {
-            super.clear();
+            final StripedArrayPoolBase<P> shared = _shared;
+            if (shared != null) {
+                shared.clear();
+            }
             return false;
+        }
+
+        // // // Other methods
+
+        /**
+         * @return Number of shared slots: requested count rounded up to a
+         *    power of two, at most {@link StripedArrayPoolBase#MAX_CAPACITY}
+         */
+        public int capacity() {
+            return StripedArrayPoolBase._powerOfTwoCapacity(_serialization);
+        }
+
+        private static final class SharedSlots<P extends WithPool<P>>
+            extends StripedArrayPoolBase<P>
+        {
+            private static final long serialVersionUID = 1L;
+
+            private final HybridPoolBase<P> _owner;
+
+            SharedSlots(int capacityAsId, HybridPoolBase<P> owner) {
+                super(capacityAsId);
+                _owner = owner;
+            }
+
+            @Override
+            public P createPooled() {
+                return _owner.createPooled();
+            }
         }
     }
 

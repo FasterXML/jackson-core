@@ -139,7 +139,7 @@ public final class JsonRecyclerPools
 
     /**
      * Accessor for constructing a new, non-shared {@link HybridPool} instance
-     * with the default slot count for its virtual-thread side
+     * with the default number of shared slots
      * ({@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY}).
      *
      * @return New instance of {@link HybridPool}
@@ -153,7 +153,7 @@ public final class JsonRecyclerPools
     /**
      * Accessor for constructing a new, non-shared {@link HybridPool} instance.
      *
-     * @param size Requested number of slots for virtual threads; rounded up
+     * @param size Requested number of shared slots; rounded up
      *   to the next power of two (so up to almost twice as many values may be
      *   pooled; 513 gives 1024 slots), and clamped to
      *   {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}
@@ -352,8 +352,9 @@ public final class JsonRecyclerPools
 
     /**
      * {@link RecyclerPool} implementation that recycles
-     * {@link BufferRecycler} instances through a per-thread leave-in for
-     * platform threads and shared atomic slots for virtual threads:
+     * {@link BufferRecycler} instances through {@link ThreadLocalPool} for
+     * platform threads (so a platform thread uses the same instance as with
+     * {@link #threadLocalPool()}) and shared atomic slots for virtual threads:
      * see {@link RecyclerPool.HybridPoolBase} for full explanation
      * of functioning.
      *
@@ -368,7 +369,7 @@ public final class JsonRecyclerPools
         // // // Life-cycle (constructors, factory methods)
 
         protected HybridPool(int capacityAsId) {
-            super(capacityAsId);
+            super(capacityAsId, ThreadLocalPool.GLOBAL);
         }
 
         public static HybridPool construct(int capacity) {

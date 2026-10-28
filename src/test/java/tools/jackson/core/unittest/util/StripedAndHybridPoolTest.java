@@ -96,6 +96,9 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
     }
 
     private static int capacityOf(RecyclerPool<BufferRecycler> pool) {
+        if (pool instanceof RecyclerPool.HybridPoolBase<BufferRecycler> hybrid) {
+            return hybrid.capacity();
+        }
         return ((RecyclerPool.StripedArrayPoolBase<BufferRecycler>) pool).capacity();
     }
 
@@ -149,6 +152,31 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertEquals(1, pool.pooledCount());
         assertSame(br, pool.acquirePooled());
         assertSame(leaveIn, pool.acquireAndLinkPooled());
+    }
+
+    // Platform threads use the ThreadLocalPool leave-in: one per thread for all
+    // pools, not one per pool
+    @Test
+    void hybridPoolSharesThreadLocalPoolLeaveIn() {
+        BufferRecycler leaveIn = JsonRecyclerPools.threadLocalPool().acquireAndLinkPooled();
+        assertSame(leaveIn, JsonRecyclerPools.newHybridPool(4).acquireAndLinkPooled());
+        assertSame(leaveIn, JsonRecyclerPools.sharedHybridPool().acquireAndLinkPooled());
+    }
+
+    // capacity() and pooledCount() describe the shared slots only
+    @Test
+    void hybridPoolCountsSharedSlotsOnly() {
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newHybridPool(10);
+        assertEquals(16, capacityOf(pool));
+
+        pool.acquireAndLinkPooled();
+        assertEquals(0, pool.pooledCount());
+        BufferRecycler br = pool.acquirePooled();
+        pool.releasePooled(br);
+        assertEquals(1, pool.pooledCount());
+        assertFalse(pool.clear());
+        assertEquals(0, pool.pooledCount());
+        assertEquals(16, capacityOf(pool));
     }
 
     @Test

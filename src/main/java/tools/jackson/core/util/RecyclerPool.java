@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * API for object pools that control creation and possible reuse of
@@ -324,9 +325,10 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * at most {@link StripedArrayPoolBase#MAX_CAPACITY}; requested counts are
      * rounded up to the next power of two, so unlike {@link BoundedPoolBase}
      * it may retain up to almost twice the requested number).
-     * Each scan looks at no more than 8 slots, so its cost does not grow with
-     * the slot count: a release that finds the scanned slots occupied drops
-     * the instance, and an acquire that finds them empty creates a new one,
+     * Each scan looks at no more than half of
+     * {@link StripedArrayPoolBase#DEFAULT_CAPACITY} slots, so its cost does
+     * not grow with the slot count: a release that finds the scanned slots
+     * occupied drops the instance, and an acquire that finds them empty creates a new one,
      * even if slots outside the scan are empty or occupied.
      * Special thanks to the Vert.x project for the approach.
      *<p>
@@ -363,20 +365,21 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         /**
          * Spacing between slots in the backing array, as a shift: slots are
-         * 16 references (64 bytes with compressed references) apart, so
-         * threads working on different slots do not contend on one cache
-         * line. Without the spacing all 16 default slots share a line, and
-         * the contended throughput of this pool falls below no pooling.
+         * 16 references apart, which is 64 bytes only with compressed oops.
+         * On 64-byte cache lines this puts each slot on its own line, so
+         * threads working on different slots do not contend on one line.
+         * Without the spacing all 16 default slots share a line, and the
+         * contended throughput of this pool falls below no pooling.
          */
         private static final int SLOT_SHIFT = 4;
 
         /**
-         * Maximum number of slots one acquire or release scans: half the
-         * default slot count, so that a thread with a new home slot (such as
-         * a new virtual thread) still finds most retained instances, while
-         * the cost of a scan stays bounded for large pools.
+         * Maximum number of slots one acquire or release scans: half of
+         * {@link #DEFAULT_CAPACITY}, so that a thread with a new home slot
+         * (such as a new virtual thread) still finds most retained instances,
+         * while the cost of a scan stays bounded for large pools.
          */
-        private static final int MAX_PROBE = 8;
+        private static final int MAX_PROBE = DEFAULT_CAPACITY / 2;
 
         /**
          * Slot {@code i} is at index {@code (i + 1) << SLOT_SHIFT}: the
@@ -393,6 +396,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         /**
          * Shift that keeps the top {@code log2(capacity)} bits of a hash.
+         * At capacity 1 the shift is 32, which Java reduces to 0; the result
+         * is still correct because {@link #_mask} is 0.
          */
         private final transient int _hashShift;
 
@@ -580,6 +585,11 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          */
         private transient volatile StripedArrayPoolBase<P> _shared;
 
+        @SuppressWarnings("rawtypes")
+        private static final AtomicReferenceFieldUpdater<HybridPoolBase, StripedArrayPoolBase> SHARED_UPDATER
+            = AtomicReferenceFieldUpdater.newUpdater(HybridPoolBase.class,
+                    StripedArrayPoolBase.class, "_shared");
+
         // // // Life-cycle (constructors, factory methods)
 
         /**
@@ -623,12 +633,12 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             shared._release(pooled, Thread.currentThread());
         }
 
-        private synchronized StripedArrayPoolBase<P> _allocateShared() {
-            StripedArrayPoolBase<P> shared = _shared;
-            if (shared == null) {
-                _shared = shared = new SharedSlots<>(_serialization, this);
+        private StripedArrayPoolBase<P> _allocateShared() {
+            final StripedArrayPoolBase<P> created = new SharedSlots<>(_serialization, this);
+            if (SHARED_UPDATER.compareAndSet(this, null, created)) {
+                return created;
             }
-            return shared;
+            return _shared;
         }
 
         @Override

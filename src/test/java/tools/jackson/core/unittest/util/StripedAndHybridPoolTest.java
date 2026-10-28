@@ -73,7 +73,7 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertEquals(4, capacityOf(JsonRecyclerPools.newStripedArrayPool(3)));
         assertEquals(4, capacityOf(JsonRecyclerPools.newStripedArrayPool(4)));
         assertEquals(16, capacityOf(JsonRecyclerPools.newStripedArrayPool(10)));
-        assertEquals(16, capacityOf(JsonRecyclerPools.newStripedArrayPool()));
+        assertEquals(16, capacityOf(JsonRecyclerPools.sharedStripedArrayPool()));
         assertThrows(IllegalArgumentException.class,
                 () -> JsonRecyclerPools.newStripedArrayPool(0));
     }

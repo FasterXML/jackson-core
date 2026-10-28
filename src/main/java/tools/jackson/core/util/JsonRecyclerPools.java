@@ -98,19 +98,6 @@ public final class JsonRecyclerPools
 
     /**
      * Accessor for constructing a new, non-shared {@link StripedArrayPool}
-     * instance with the default slot count
-     * ({@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY}).
-     *
-     * @return New instance of {@link StripedArrayPool}
-     *
-     * @since 3.3
-     */
-    public static RecyclerPool<BufferRecycler> newStripedArrayPool() {
-        return StripedArrayPool.construct(RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY);
-    }
-
-    /**
-     * Accessor for constructing a new, non-shared {@link StripedArrayPool}
      * instance.
      *
      * @param size Requested number of slots; rounded up to the next power of
@@ -135,19 +122,6 @@ public final class JsonRecyclerPools
      */
     public static RecyclerPool<BufferRecycler> sharedHybridPool() {
         return HybridPool.GLOBAL;
-    }
-
-    /**
-     * Accessor for constructing a new, non-shared {@link HybridPool} instance
-     * with the default number of shared slots
-     * ({@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY}).
-     *
-     * @return New instance of {@link HybridPool}
-     *
-     * @since 3.3
-     */
-    public static RecyclerPool<BufferRecycler> newHybridPool() {
-        return HybridPool.construct(RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY);
     }
 
     /**

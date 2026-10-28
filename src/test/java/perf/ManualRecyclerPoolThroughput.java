@@ -75,8 +75,10 @@ public class ManualRecyclerPoolThroughput
         pools.put("threadLocal", JsonRecyclerPools::threadLocalPool);
         pools.put("concurrentDeque", JsonRecyclerPools::newConcurrentDequePool);
         pools.put("bounded", () -> JsonRecyclerPools.newBoundedPool(100));
-        pools.put("stripedArray", JsonRecyclerPools::newStripedArrayPool);
-        pools.put("hybrid", JsonRecyclerPools::newHybridPool);
+        pools.put("stripedArray", () -> JsonRecyclerPools.newStripedArrayPool(
+                RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY));
+        pools.put("hybrid", () -> JsonRecyclerPools.newHybridPool(
+                RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY));
 
         System.out.printf("Platform threads (%d):%n", _threadCount);
         runPools(pools, Lifecycle.PLATFORM);

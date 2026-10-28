@@ -171,11 +171,13 @@ public class RecyclerPoolTest
                     .build(),
                 RUNTIME_SECS),
             test.testPool(JsonFactory.builder()
-                    .recyclerPool(JsonRecyclerPools.newStripedArrayPool())
+                    .recyclerPool(JsonRecyclerPools.newStripedArrayPool(
+                            RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY))
                     .build(),
                 RUNTIME_SECS),
             test.testPool(JsonFactory.builder()
-                    .recyclerPool(JsonRecyclerPools.newHybridPool())
+                    .recyclerPool(JsonRecyclerPools.newHybridPool(
+                            RecyclerPool.StripedArrayPoolBase.DEFAULT_CAPACITY))
                     .build(),
                 RUNTIME_SECS)
         );

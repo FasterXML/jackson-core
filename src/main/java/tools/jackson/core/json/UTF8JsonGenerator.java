@@ -1640,10 +1640,12 @@ public class UTF8JsonGenerator
     private final int _writeUnescapedAsciiBulk(String text, int offset, final int end)
     {
         final int[] escCodes = _outputEscapes;
+        final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
         final int start = offset;
         while (offset < end) {
             int ch = text.charAt(offset);
-            if (ch > 0x7F || escCodes[ch] != 0) {
+            if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                    : (ch > 0x7F || escCodes[ch] != 0)) {
                 break;
             }
             ++offset;

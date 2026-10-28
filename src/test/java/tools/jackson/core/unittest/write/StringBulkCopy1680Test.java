@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.util.DefaultPrettyPrinter;
 import tools.jackson.core.util.JsonpCharacterEscapes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -68,16 +69,37 @@ class StringBulkCopy1680Test extends tools.jackson.core.unittest.JacksonCoreTest
 
     private void _verify(JsonFactory f, String value) throws Exception
     {
+        _verify(f, value, false);
+        // pretty-printing writes names via a different path
+        _verify(f, value, true);
+    }
+
+    private void _verify(JsonFactory f, String value, boolean pretty) throws Exception
+    {
         StringWriter w = new StringWriter();
-        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), w)) {
+        try (JsonGenerator g = _createGenerator(f, w, null, pretty)) {
             _write(g, value);
         }
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes)) {
+        try (JsonGenerator g = _createGenerator(f, null, bytes, pretty)) {
             _write(g, value);
         }
         assertEquals(w.toString(), bytes.toString(StandardCharsets.UTF_8),
-                "Mismatch for value of length "+value.length());
+                "Mismatch for value of length "+value.length()+" (pretty: "+pretty+")");
+    }
+
+    private JsonGenerator _createGenerator(JsonFactory f, StringWriter w, ByteArrayOutputStream out,
+            boolean pretty)
+    {
+        ObjectWriteContext ctxt = pretty
+                ? new ObjectWriteContext.Base() {
+                    @Override
+                    public PrettyPrinter getPrettyPrinter() {
+                        return new DefaultPrettyPrinter();
+                    }
+                }
+                : ObjectWriteContext.empty();
+        return (w != null) ? f.createGenerator(ctxt, w) : f.createGenerator(ctxt, out);
     }
 
     private void _write(JsonGenerator g, String value)

@@ -12,6 +12,34 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  * Set of {@link RecyclerPool} implementations to be used by the default
  * JSON-backed {@link JsonFactory} for recycling {@link BufferRecycler}
  * containers.
+ *<p>
+ * Choosing a pool:
+ *<ul>
+ * <li>{@link #defaultPool()} ({@link ConcurrentDequePool}): shared and unbounded,
+ *  with no per-thread state; allocates a queue node per release, and all
+ *  threads contend on the ends of one queue.
+ *  </li>
+ * <li>{@link #newHybridPool(int)} ({@link HybridPool}): when per-thread retention
+ *  is acceptable. Platform threads keep one instance each, as with
+ *  {@link #threadLocalPool()}; virtual threads share bounded striped slots.
+ *  </li>
+ * <li>{@link #newStripedArrayPool(int)} ({@link StripedArrayPool}): shared and
+ *  bounded, with no per-thread state; replaces the default where per-thread
+ *  retention is not wanted (large or changing thread pools, or many
+ *  short-lived threads).
+ *  </li>
+ * <li>{@link #threadLocalPool()} ({@link ThreadLocalPool}): one instance per
+ *  thread, held by a {@link SoftReference}, never shared; poor for virtual
+ *  threads, which each abandon their instance.
+ *  </li>
+ * <li>{@link #newBoundedPool(int)} ({@link BoundedPool}): shared, backed by an
+ *  {@link ArrayBlockingQueue} of fixed size that drops releases when full
+ *  (it never blocks).
+ *  </li>
+ * <li>{@link #nonRecyclingPool()} ({@link NonRecyclingPool}): no recycling;
+ *  every acquire creates a new instance.
+ *  </li>
+ *</ul>
  */
 public final class JsonRecyclerPools
 {
@@ -289,6 +317,9 @@ public final class JsonRecyclerPools
      * slots for recycling {@link BufferRecycler} instances:
      * see {@link RecyclerPool.StripedArrayPoolBase} for full explanation
      * of functioning.
+     *<p>
+     * Choose this pool over {@link HybridPool} when instances must not be
+     * retained per thread: its slot count bounds all retention.
      *
      * @since 3.3
      */
@@ -331,6 +362,10 @@ public final class JsonRecyclerPools
      * {@link #threadLocalPool()}) and shared atomic slots for virtual threads:
      * see {@link RecyclerPool.HybridPoolBase} for full explanation
      * of functioning.
+     *<p>
+     * Choose this pool over {@link StripedArrayPool} when retaining one
+     * instance per platform thread is acceptable: platform threads then
+     * acquire without touching shared state.
      *
      * @since 3.3
      */

@@ -49,16 +49,18 @@ public final class CharTypes
             int code;
 
             // We'll add number of bytes needed for decoding
-            if ((c & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
-                code = 2;
-            } else if ((c & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
-                code = 3;
-            } else if ((c & 0xF8) == 0xF0) {
-                // 4 bytes; double-char with surrogates and all...
-                code = 4;
-            } else {
+            // 19-Oct-2026, tatu: [core#1782] 0xC0/0xC1 only start overlong encodings and
+            //   0xF5 - 0xF7 ones beyond U+10FFFF, so they are invalid lead bytes (RFC 3629)
+            if ((c < 0xC2) || (c > 0xF4)) {
                 // And -1 seems like a good "universal" error marker...
                 code = -1;
+            } else if (c < 0xE0) { // 2 bytes (0x0080 - 0x07FF)
+                code = 2;
+            } else if (c < 0xF0) { // 3 bytes (0x0800 - 0xFFFF)
+                code = 3;
+            } else {
+                // 4 bytes; double-char with surrogates and all...
+                code = 4;
             }
             table[c] = code;
         }
@@ -251,9 +253,11 @@ public final class CharTypes
 
     public static int charToHex(int ch)
     {
-        // 08-Nov-2019, tatu: As per [core#540] and [core#578], changed to
-        //   force masking here so caller need not do that.
-        return sHexValues[ch & 0xFF];
+        // 08-Nov-2019, tatu: As per [core#540] and [core#578], callers may pass
+        //   signed bytes, so index must be guarded.
+        // 19-Oct-2026, pjfanning: [core#1787] range check, not mask: masking
+        //   aliased non-Latin1 chars like U+2042 onto ASCII hex digits
+        return ((ch & ~0xFF) == 0) ? sHexValues[ch] : -1;
     }
 
     // @since 2.13

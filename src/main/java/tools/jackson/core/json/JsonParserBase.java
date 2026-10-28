@@ -882,8 +882,14 @@ public abstract class JsonParserBase
     }
 
     // Helper method needed to fix [jackson-core#148], masking of 0x00 character
+    // 19-Oct-2026, pjfanning: [core#1784] padding uses 0xFF bytes, so a last quad
+    //   starting with 0xFF could match a shorter name in the symbol table, skipping
+    //   UTF-8 validation of the name; 0xFF is never valid in UTF-8, so reject it here
     // @since 3.1.8
-    protected final static int _padLastQuad(int q, int bytes) {
+    protected final int _padLastQuad(int q, int bytes) throws StreamReadException {
+        if (((q >>> ((bytes - 1) << 3)) & 0xFF) == 0xFF) {
+            _reportInvalidInitial(0xFF);
+        }
         return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
     }
 
@@ -906,21 +912,101 @@ public abstract class JsonParserBase
     private void _verifyUTF8NameCodePoint(int ch, int needed) throws StreamReadException {
         if (needed == 1) {
             if (ch < 0x80) {
-                _reportError("Invalid UTF-8: overlong 2-byte encoding of 0x"+Integer.toHexString(ch));
+                _reportInvalidUTF8Overlong(ch, 2, _inputPtr);
             }
         } else if (needed == 2) {
-            if (ch < 0x800) {
-                _reportError("Invalid UTF-8: overlong 3-byte encoding of 0x"+Integer.toHexString(ch));
-            }
-            // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-            if (ch >= 0xD800 && ch <= 0xDFFF) {
-                _reportInvalidUTF8Surrogate(ch);
-            }
-        } else if (ch < 0x10000) {
-            _reportError("Invalid UTF-8: overlong 4-byte encoding of 0x"+Integer.toHexString(ch));
-        } else if (ch > 0x10FFFF) {
+            _verifyUTF8CodePoint3(ch, _inputPtr);
+        } else {
+            _verifyUTF8CodePoint4(ch, _inputPtr);
+        }
+    }
+
+    /**
+     * Method for verifying code point decoded from a 3-byte UTF-8 sequence:
+     * overlong (non-shortest form) encodings and surrogates are invalid (RFC 3629).
+     *<p>
+     * No such check is needed for 2-byte sequences whose length is determined using
+     * {@code CharTypes.getInputCodeUtf8()} (or tables derived from it), since lead bytes
+     * 0xC0 and 0xC1 of overlong ones are marked invalid there; other callers
+     * (like property name decoding) need to check those separately.
+     *
+     * @param ch Decoded code point
+     * @param ptr Input pointer to set (for error location) if code point is invalid
+     *
+     * @throws StreamReadException If code point is invalid
+     *
+     * @since 3.1.9
+     */
+    protected final void _verifyUTF8CodePoint3(int ch, int ptr) throws StreamReadException {
+        if (ch < 0x800) {
+            _reportInvalidUTF8Overlong(ch, 3, ptr);
+        }
+        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
+        if ((ch & 0xF800) == 0xD800) {
+            _inputPtr = ptr;
+            _reportInvalidUTF8Surrogate(ch);
+        }
+    }
+
+    /**
+     * Method for verifying code point decoded from a 4-byte UTF-8 sequence:
+     * overlong (non-shortest form) encodings and code points beyond U+10FFFF
+     * are invalid (RFC 3629).
+     *
+     * @param ch Decoded code point (not yet offset by -0x10000)
+     * @param ptr Input pointer to set (for error location) if code point is invalid
+     *
+     * @throws StreamReadException If code point is invalid
+     *
+     * @since 3.1.9
+     */
+    protected final void _verifyUTF8CodePoint4(int ch, int ptr) throws StreamReadException {
+        if (ch < 0x10000) {
+            _reportInvalidUTF8Overlong(ch, 4, ptr);
+        }
+        if (ch > 0x10FFFF) {
+            _inputPtr = ptr;
             _reportError("Invalid UTF-8: code point 0x"+Integer.toHexString(ch)+" beyond U+10FFFF");
         }
+    }
+
+    /**
+     * Method for verifying lead byte and first continuation byte of a 3- or 4-byte
+     * UTF-8 sequence that is skipped instead of decoded: together they determine
+     * whether sequence is overlong, a surrogate or beyond U+10FFFF (Unicode Table 3-7).
+     *
+     * @param lead Lead byte (unsigned)
+     * @param second First continuation byte (unsigned)
+     *
+     * @throws StreamReadException If sequence is invalid
+     *
+     * @since 3.1.9
+     */
+    protected final void _verifyUTF8SecondByte(int lead, int second) throws StreamReadException {
+        // 19-Oct-2026, tatu: [core#1782] only these lead bytes restrict second byte range
+        switch (lead) {
+        case 0xE0:
+        case 0xF0:
+            _verifyUTF8NotOverlong(lead, second);
+            break;
+        case 0xED:
+            if (second >= 0xA0) {
+                _reportInvalidUTF8SecondByte("surrogate", lead, second);
+            }
+            break;
+        case 0xF4:
+            if (second >= 0x90) {
+                _reportInvalidUTF8SecondByte("code point beyond U+10FFFF", lead, second);
+            }
+            break;
+        }
+    }
+
+    // 19-Oct-2026, tatu: [core#1782] Off-lined to keep `_verifyUTF8CodePoint3()` and
+    //   `_verifyUTF8CodePoint4()` small (inlinable)
+    private void _reportInvalidUTF8Overlong(int ch, int byteCount, int ptr) throws StreamReadException {
+        _inputPtr = ptr;
+        _reportError("Invalid UTF-8: overlong "+byteCount+"-byte encoding of 0x"+Integer.toHexString(ch));
     }
 
     // 10-Oct-2026, tatu: [core#1756] Number of continuation bytes for multi-byte
@@ -940,6 +1026,32 @@ public abstract class JsonParserBase
         return (lead < 0xF5) ? 3 : -1;
     }
 
+    // 19-Oct-2026, tatu: [core#1787] Best-effort decoding of (possibly multi-byte)
+    //   UTF-8 char starting at `buf[ptr]`, for error messages only: returns lead
+    //   byte as-is if sequence is invalid (incl. overlong, surrogate, beyond U+10FFFF)
+    //   or not complete before `end`
+    // @since 3.1.9
+    protected final static int _decodeUTF8ForError(byte[] buf, int ptr, int end) {
+        final int c = buf[ptr] & 0xFF;
+        final int needed = _utf8ContinuationCount(c);
+        if ((needed < 0) || ((ptr + needed) >= end)) {
+            return c;
+        }
+        int value = c & (0x3F >> needed); // 0x1F, 0x0F or 0x07
+        for (int i = 1; i <= needed; ++i) {
+            final int d = buf[ptr + i];
+            if ((d & 0xC0) != 0x080) {
+                return c;
+            }
+            value = (value << 6) | (d & 0x3F);
+        }
+        final int min = (needed == 1) ? 0x80 : ((needed == 2) ? 0x800 : 0x10000);
+        if ((value < min) || (value > 0x10FFFF) || ((value >= 0xD800) && (value <= 0xDFFF))) {
+            return c;
+        }
+        return value;
+    }
+
     // 10-Oct-2026, tatu: [core#1756] Verifies that multi-byte UTF-8 character with
     //   lead byte `lead` and first continuation byte `second` is not overlong: shortest
     //   form of 3-byte (lead 0xE0) and 4-byte (lead 0xF0) characters needs `second` of
@@ -948,9 +1060,13 @@ public abstract class JsonParserBase
     // @since 3.1.8
     protected void _verifyUTF8NotOverlong(int lead, int second) throws StreamReadException {
         if ((lead == 0xE0 && second < 0xA0) || (lead == 0xF0 && second < 0x90)) {
-            _reportError("Invalid UTF-8: overlong encoding (lead byte 0x"+Integer.toHexString(lead)
-                    +", second byte 0x"+Integer.toHexString(second)+")");
+            _reportInvalidUTF8SecondByte("overlong encoding", lead, second);
         }
+    }
+
+    private void _reportInvalidUTF8SecondByte(String desc, int lead, int second) throws StreamReadException {
+        _reportError("Invalid UTF-8: "+desc+" (lead byte 0x"+Integer.toHexString(lead)
+                +", second byte 0x"+Integer.toHexString(second)+")");
     }
 
     // 10-Oct-2026, tatu: [core#1744], [core#1756] Handles (non-overlong) multi-byte UTF-8

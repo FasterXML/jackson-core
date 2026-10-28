@@ -1872,7 +1872,11 @@ public class UTF8StreamJsonParser
         // And then figure out how far we can read without further checks
         // for either input or output
         final int end = Math.min(_inputEnd, _inputPtr + outBuf.length - 1); // 1 == outPtr
-        // With this, we have a nice and tight loop:
+        // With this, we have a nice and tight loop.
+        // 16-Oct-2026, pjfanning: unlike other scan loops, this one deliberately keeps
+        //   using `_inputPtr`: with a local pointer C2 treats it as a counted loop and
+        //   unrolls it, which helps long numbers but made typical short ints 6-12% slower
+        //   on JDK 25 (same in _parseSignedNumber())
         while (true) {
             if (_inputPtr >= end) { // split across boundary, offline
                 return _parseNumber2(outBuf, outPtr, false, intLen);
@@ -1939,7 +1943,7 @@ public class UTF8StreamJsonParser
         // And then figure out how far we can read without further checks
         // for either input or output
         final int end = Math.min(_inputEnd, _inputPtr + outBuf.length - outPtr);
-        // With this, we have a nice and tight loop:
+        // With this, we have a nice and tight loop (keeps `_inputPtr`, see _parseUnsignedNumber()):
         while (true) {
             if (_inputPtr >= end) {
                 // Long enough to be split across boundary, so:
@@ -2121,6 +2125,8 @@ public class UTF8StreamJsonParser
                     eof = true;
                     break fract_loop;
                 }
+                // Keeps `_inputPtr` (see _parseUnsignedNumber()): a local pointer made
+                // typical 1-2 digit fractions slower
                 c = _inputBuffer[_inputPtr++] & 0xFF;
                 if (c < INT_0 || c > INT_9) {
                     break fract_loop;
@@ -2396,64 +2402,75 @@ public class UTF8StreamJsonParser
 
     protected final String parseLongName(int q, final int q2, int q3) throws JacksonException
     {
-        _quadBuffer[0] = _quad1;
-        _quadBuffer[1] = q2;
-        _quadBuffer[2] = q3;
+        int[] quads = _quadBuffer;
+        quads[0] = _quad1;
+        quads[1] = q2;
+        quads[2] = q3;
 
         // As explained above, will ignore UTF-8 encoding at this point
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
+        // Local pointer and quad buffer: C2 would otherwise store `_inputPtr` on
+        // every byte and reload `_quadBuffer` on every quad.
+        final int end = _inputEnd - 4;
+        int ptr = _inputPtr;
         int qlen = 3;
 
-        while ((_inputPtr + 4) <= _inputEnd) {
-            int i = input[_inputPtr++] & 0xFF;
+        while (ptr <= end) {
+            int i = input[ptr++] & 0xFF;
             if (codes[i] != 0) {
+                _inputPtr = ptr;
                 if (i == INT_QUOTE) {
-                    return findName(_quadBuffer, qlen, q, 1);
+                    return findName(quads, qlen, q, 1);
                 }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 1);
+                return parseEscapedName(quads, qlen, q, i, 1);
             }
 
             q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
+            i = input[ptr++] & 0xFF;
             if (codes[i] != 0) {
+                _inputPtr = ptr;
                 if (i == INT_QUOTE) {
-                    return findName(_quadBuffer, qlen, q, 2);
+                    return findName(quads, qlen, q, 2);
                 }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 2);
+                return parseEscapedName(quads, qlen, q, i, 2);
             }
 
             q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
+            i = input[ptr++] & 0xFF;
             if (codes[i] != 0) {
+                _inputPtr = ptr;
                 if (i == INT_QUOTE) {
-                    return findName(_quadBuffer, qlen, q, 3);
+                    return findName(quads, qlen, q, 3);
                 }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 3);
+                return parseEscapedName(quads, qlen, q, i, 3);
             }
 
             q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
+            i = input[ptr++] & 0xFF;
             if (codes[i] != 0) {
+                _inputPtr = ptr;
                 if (i == INT_QUOTE) {
-                    return findName(_quadBuffer, qlen, q, 4);
+                    return findName(quads, qlen, q, 4);
                 }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 4);
+                return parseEscapedName(quads, qlen, q, i, 4);
             }
 
             // Nope, no end in sight. Need to grow quad array etc
-            if (qlen >= _quadBuffer.length) {
-                _quadBuffer = _growNameDecodeBuffer(_quadBuffer, qlen);
+            if (qlen >= quads.length) {
+                _inputPtr = ptr; // grow may throw; keep location accurate
+                _quadBuffer = quads = _growNameDecodeBuffer(quads, qlen);
             }
-            _quadBuffer[qlen++] = q;
+            quads[qlen++] = q;
             q = i;
         }
+        _inputPtr = ptr;
 
         /* Let's offline if we hit buffer boundary (otherwise would
          * need to [try to] align input, which is bit complicated
          * and may not always be possible)
          */
-        return parseEscapedName(_quadBuffer, qlen, 0, q, 0);
+        return parseEscapedName(quads, qlen, 0, q, 0);
     }
 
     // Method called when not even first 8 bytes are guaranteed
@@ -3921,7 +3938,7 @@ public class UTF8StreamJsonParser
             int ch = _inputBuffer[_inputPtr++];
             int digit = CharTypes.charToHex(ch);
             if (digit < 0) {
-                _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
+                _reportUnexpectedChar(_decodeUTF8ForError(_inputBuffer, _inputPtr - 1, _inputEnd), "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
         }
@@ -4052,10 +4069,7 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -4072,10 +4086,7 @@ public class UTF8StreamJsonParser
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
         c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
-        }
+        _verifyUTF8CodePoint3(c, _inputPtr);
         return c;
     }
 
@@ -4108,11 +4119,9 @@ public class UTF8StreamJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-
-        /* note: won't change it to negative here, since caller
-         * already knows it'll need a surrogate
-         */
-        return ((c << 6) | (d & 0x3F)) - 0x10000;
+        c = (c << 6) | (d & 0x3F);
+        _verifyUTF8CodePoint4(c, _inputPtr);
+        return c - 0x10000;
     }
 
     private final void _skipUtf8_2() throws JacksonException
@@ -4129,28 +4138,22 @@ public class UTF8StreamJsonParser
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3(int c1) throws JacksonException
+    private final void _skipUtf8_3(int c) throws JacksonException
     {
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        c1 &= 0x0F;
         int d = _inputBuffer[_inputPtr++];
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        int c = (c1 << 6) | (d & 0x3F);
+        _verifyUTF8SecondByte(c, d & 0xFF);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
         d = _inputBuffer[_inputPtr++];
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
-        }
-        c = (c << 6) | (d & 0x3F);
-        // [jackson-core#363]: Surrogates (0xD800 - 0xDFFF) are illegal in UTF-8
-        if (c >= 0xD800 && c <= 0xDFFF) {
-            _reportInvalidUTF8Surrogate(c);
         }
     }
 
@@ -4163,8 +4166,7 @@ public class UTF8StreamJsonParser
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
         }
-        c = ((c & 0x07) << 6) | (d & 0x3F);
-        _verifyUtf8_4Range(c);
+        _verifyUTF8SecondByte(c, d & 0xFF);
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }

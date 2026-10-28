@@ -86,7 +86,7 @@ public class BinaryNameMatcherTest extends JacksonCoreTestBase
     private BinaryNameMatcher _construct(List<String> names)
     {
         // note: strings MUST be intern()ed already
-        BinaryNameMatcher matcher = BinaryNameMatcher.construct(names);
+        BinaryNameMatcher matcher = BinaryNameMatcher.construct(names, false);
         // ensure `toString()` is legal (just for funsies)
         assertNotNull(matcher.toString());
         return matcher;
@@ -122,7 +122,7 @@ public class BinaryNameMatcherTest extends JacksonCoreTestBase
 
     private int _match(BinaryNameMatcher matcher, String name)
     {
-        int[] quads = BinaryNameMatcher._quads(name);
+        int[] quads = BinaryNameMatcher._quads(name, false);
         switch (quads.length) {
         case 1:
             return matcher.matchByQuad(quads[0]);

@@ -1650,8 +1650,10 @@ public class UTF8JsonGenerator
             }
             ++offset;
         }
-        text.getBytes(start, offset, _outputBuffer, _outputTail);
-        _outputTail += (offset - start);
+        if (offset > start) {
+            text.getBytes(start, offset, _outputBuffer, _outputTail);
+            _outputTail += (offset - start);
+        }
         return offset;
     }
 

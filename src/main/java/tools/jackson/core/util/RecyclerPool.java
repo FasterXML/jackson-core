@@ -365,13 +365,17 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         /**
          * Spacing between slots in the backing array, as a shift: slots are
-         * 16 references apart, which is 64 bytes only with compressed oops.
-         * On 64-byte cache lines this puts each slot on its own line, so
-         * threads working on different slots do not contend on one line.
+         * 32 references apart, 128 bytes with compressed oops (256 bytes
+         * without, which is harmless). This matches the JDK's {@code @Contended}
+         * padding ({@code -XX:ContendedPaddingWidth}, 128 bytes by default)
+         * used by the {@code Striped64} cells behind {@code LongAdder}: it
+         * covers 128-byte cache lines (as on Apple silicon) and the x86
+         * adjacent-line prefetcher, which fetches 64-byte lines in pairs.
+         * So threads working on different slots do not contend on one line.
          * Without the spacing all 16 default slots share a line, and the
          * contended throughput of this pool falls below no pooling.
          */
-        private static final int SLOT_SHIFT = 4;
+        private static final int SLOT_SHIFT = 5;
 
         /**
          * Maximum number of slots one acquire or release scans: half of

@@ -99,6 +99,20 @@ class BufferRecyclerPoolTest extends JacksonCoreTestBase
         assertEquals(1, pool.pooledCount());
     }
 
+    // An instance from acquireAndLinkPooled() is released with releaseToPool(),
+    // which unlinks it; releasePooled() leaves it linked, so the next acquire fails
+    @Test
+    void linkedRecyclerMustBeReleasedWithReleaseToPool() {
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newBoundedPool(1);
+
+        BufferRecycler br = pool.acquireAndLinkPooled();
+        br.releaseToPool();
+        assertSame(br, pool.acquireAndLinkPooled());
+
+        pool.releasePooled(br);
+        assertThrows(IllegalStateException.class, pool::acquireAndLinkPooled);
+    }
+
     // NOTE: parser/generator close() releasing the recycler exactly once is covered
     // by `JsonBufferRecyclersTest`, for all pool implementations
 

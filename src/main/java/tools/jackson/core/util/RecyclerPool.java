@@ -73,14 +73,16 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * Method called to acquire a Pooled value from this pool
      * AND make sure it is linked back to this
      * {@link RecyclerPool} as necessary for it to be
-     * released (see {@link #releasePooled}) later after usage ends.
+     * released (see {@link WithPool#releaseToPool}) later after usage ends.
      * Actual acquisition is done by a call to {@link #acquirePooled()}.
      *<p>
      * Default implementation calls {@link #acquirePooled()} followed by
      * a call to {@link WithPool#withPool}.
      *
      * @return Pooled instance for caller to use; caller expected
-     *   to call {@link #releasePooled} after it is done using instance.
+     *   to call {@link WithPool#releaseToPool} after it is done using instance,
+     *   not {@link #releasePooled}: that would leave the instance linked, so
+     *   that linking it again on a later acquire fails.
      */
     default P acquireAndLinkPooled() {
         return acquirePooled().withPool(this);
@@ -89,15 +91,20 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
     /**
      * Method for sub-classes to implement for actual acquire logic; called
      * by {@link #acquireAndLinkPooled()}.
+     * The instance is not linked to this pool: callers that use this method
+     * directly release it with {@link #releasePooled}.
      *
      * @return Instance acquired (pooled or just constructed)
      */
     P acquirePooled();
 
     /**
-     * Method that should be called when previously acquired (see {@link #acquireAndLinkPooled})
+     * Method that should be called when previously acquired (see {@link #acquirePooled})
      * pooled value that is no longer needed; this lets pool to take ownership
      * for possible reuse.
+     * Instances acquired with {@link #acquireAndLinkPooled} are instead released
+     * with {@link WithPool#releaseToPool}, which unlinks them and then calls
+     * this method.
      *
      * @param pooled Pooled instance to release back to pool
      */

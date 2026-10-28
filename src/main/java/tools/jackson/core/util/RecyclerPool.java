@@ -313,17 +313,21 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * atomic slots for recycling instances: acquire takes a slot with an
      * atomic get-and-clear (so an instance can never be handed to two
      * acquirers), release stores into the first empty slot with compare-and-set,
-     * and both scans start from a slot indexed off the current thread id, which
-     * keeps contention and buffer reuse thread-local. Unlike
-     * {@link ConcurrentDequePoolBase} no queue node is allocated on release,
-     * and unlike {@link BoundedPoolBase} there is no lock on either path.
+     * and both scans start from a slot derived from the identity hash of the
+     * current thread, which keeps contention and buffer reuse thread-local.
+     * Unlike {@link ConcurrentDequePoolBase} no queue node is allocated on
+     * release, and unlike {@link BoundedPoolBase} there is no lock on either
+     * path.
      *<p>
      * This is a "bounded" pool: it will never hold on to more pooled instances
      * than its slot count (default {@link StripedArrayPoolBase#DEFAULT_CAPACITY},
      * at most {@link StripedArrayPoolBase#MAX_CAPACITY}; requested counts are
      * rounded up to the next power of two, so unlike {@link BoundedPoolBase}
-     * it may retain up to almost twice the requested number);
-     * an instance released when every slot is occupied is dropped.
+     * it may retain up to almost twice the requested number).
+     * Each scan looks at no more than 8 slots, so its cost does not grow with
+     * the slot count: a release that finds the scanned slots occupied drops
+     * the instance, and an acquire that finds them empty creates a new one,
+     * even if slots outside the scan are empty or occupied.
      * Special thanks to the Vert.x project for the approach.
      *<p>
      * The slot array is {@code transient} and is not restored on
@@ -351,9 +355,9 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         /**
          * Maximum number of slots: larger requested sizes are clamped to this.
-         * Each slot takes {@code 1 << SLOT_SHIFT} array entries, and scans
-         * may touch every slot, so very large pools are both memory-heavy
-         * and slow; this also keeps the backing array size from overflowing.
+         * Each slot takes {@code 1 << SLOT_SHIFT} array entries, so this
+         * bounds the memory of a pool and keeps the backing array size from
+         * overflowing.
          */
         public final static int MAX_CAPACITY = 1024;
 
@@ -366,6 +370,19 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          */
         private static final int SLOT_SHIFT = 4;
 
+        /**
+         * Maximum number of slots one acquire or release scans: half the
+         * default slot count, so that a thread with a new home slot (such as
+         * a new virtual thread) still finds most retained instances, while
+         * the cost of a scan stays bounded for large pools.
+         */
+        private static final int MAX_PROBE = 8;
+
+        /**
+         * Slot {@code i} is at index {@code (i + 1) << SLOT_SHIFT}: the
+         * first stride is padding that keeps slot 0 off the cache line of
+         * the array header and length.
+         */
         private final transient AtomicReferenceArray<P> _slots;
 
         /**
@@ -374,13 +391,22 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          */
         private final transient int _mask;
 
+        /**
+         * Shift that keeps the top {@code log2(capacity)} bits of a hash.
+         */
+        private final transient int _hashShift;
+
+        private final transient int _probeLength;
+
         // // // Life-cycle (constructors, factory methods)
 
         protected StripedArrayPoolBase(int capacityAsId) {
             super(capacityAsId);
             final int capacity = _powerOfTwoCapacity(capacityAsId);
-            _slots = new AtomicReferenceArray<>(capacity << SLOT_SHIFT);
+            _slots = new AtomicReferenceArray<>((capacity + 1) << SLOT_SHIFT);
             _mask = capacity - 1;
+            _hashShift = Integer.numberOfLeadingZeros(capacity) + 1;
+            _probeLength = Math.min(capacity, MAX_PROBE);
         }
 
         private static int _powerOfTwoCapacity(int capacityAsId) {
@@ -397,28 +423,26 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         }
 
         /**
-         * Slot index to start acquire/release scans from, derived from the
-         * current thread id. Different threads start at different slots, so
-         * under contention they mostly touch disjoint slots, and a thread
-         * tends to get back the instance (and so the warmed buffers) it
-         * released last.
+         * Slot to start acquire/release scans from, derived from the identity
+         * hash of the thread with Fibonacci hashing. Different threads start
+         * at different slots, so under contention they mostly touch disjoint
+         * slots, and a thread tends to get back the instance (and so the
+         * warmed buffers) it released last.
          */
-        private int _startingSlot() {
-            final long id = Thread.currentThread().getId();
-            final int h = (int) (id * 0x9E3779B97F4A7C15L >>> 32);
-            return h & _mask;
+        private int _homeSlot(Thread thread) {
+            return (System.identityHashCode(thread) * 0x9E3779B9) >>> _hashShift;
         }
 
-        // // // Actual API implementation
+        private int _index(int slot) {
+            return ((slot & _mask) + 1) << SLOT_SHIFT;
+        }
 
-        @Override
-        public P acquirePooled() {
-            final int end = _mask;
-            final int start = _startingSlot();
-            for (int i = 0; i <= end; ++i) {
-                final int slot = (start + i) & _mask;
-                if (_slots.get(slot << SLOT_SHIFT) != null) {
-                    P pooled = _slots.getAndSet(slot << SLOT_SHIFT, null);
+        private P _acquire(Thread thread) {
+            final int home = _homeSlot(thread);
+            for (int i = 0; i < _probeLength; ++i) {
+                final int ix = _index(home + i);
+                if (_slots.get(ix) != null) {
+                    P pooled = _slots.getAndSet(ix, null);
                     if (pooled != null) {
                         return pooled;
                     }
@@ -427,26 +451,35 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             return createPooled();
         }
 
-        @Override
-        public void releasePooled(P pooled) {
-            final int end = _mask;
-            final int start = _startingSlot();
-            for (int i = 0; i <= end; ++i) {
-                final int slot = (start + i) & _mask;
-                if ((_slots.get(slot << SLOT_SHIFT) == null)
-                        && _slots.compareAndSet(slot << SLOT_SHIFT, null, pooled)) {
+        private void _release(P pooled, Thread thread) {
+            final int home = _homeSlot(thread);
+            for (int i = 0; i < _probeLength; ++i) {
+                final int ix = _index(home + i);
+                if ((_slots.get(ix) == null) && _slots.compareAndSet(ix, null, pooled)) {
                     return;
                 }
             }
-            // All slots occupied: drop the instance. This is the retention
+            // Scanned slots occupied: drop the instance. This is the retention
             // bound that keeps the pool from growing without limit.
+        }
+
+        // // // Actual API implementation
+
+        @Override
+        public P acquirePooled() {
+            return _acquire(Thread.currentThread());
+        }
+
+        @Override
+        public void releasePooled(P pooled) {
+            _release(pooled, Thread.currentThread());
         }
 
         @Override
         public int pooledCount() {
             int count = 0;
             for (int i = 0; i <= _mask; ++i) {
-                if (_slots.get(i << SLOT_SHIFT) != null) {
+                if (_slots.get(_index(i)) != null) {
                     ++count;
                 }
             }
@@ -456,7 +489,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         @Override
         public boolean clear() {
             for (int i = 0; i <= _mask; ++i) {
-                _slots.set(i << SLOT_SHIFT, null);
+                _slots.set(_index(i), null);
             }
             return true;
         }
@@ -564,16 +597,21 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         @Override
         public P acquireAndLinkPooled() {
-            if (_isVirtual(Thread.currentThread())) {
-                return acquirePooled().withPool(this);
+            final Thread thread = Thread.currentThread();
+            if (_isVirtual(thread)) {
+                return _acquireShared(thread).withPool(this);
             }
             return _platformPool.acquireAndLinkPooled();
         }
 
         @Override
         public P acquirePooled() {
+            return _acquireShared(Thread.currentThread());
+        }
+
+        private P _acquireShared(Thread thread) {
             final StripedArrayPoolBase<P> shared = _shared;
-            return (shared == null) ? createPooled() : shared.acquirePooled();
+            return (shared == null) ? createPooled() : shared._acquire(thread);
         }
 
         @Override
@@ -582,7 +620,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             if (shared == null) {
                 shared = _allocateShared();
             }
-            shared.releasePooled(pooled);
+            shared._release(pooled, Thread.currentThread());
         }
 
         private synchronized StripedArrayPoolBase<P> _allocateShared() {

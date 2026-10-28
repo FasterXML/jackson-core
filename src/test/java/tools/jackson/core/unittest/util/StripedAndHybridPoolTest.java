@@ -68,6 +68,50 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertEquals(4, pool.pooledCount());
     }
 
+    // A release scans at most 8 slots from the thread's home slot, so one
+    // thread fills at most 8 of a larger pool
+    @Test
+    void stripedPoolReleaseScanIsBounded() {
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newStripedArrayPool(64);
+
+        List<BufferRecycler> burst = new ArrayList<>();
+        for (int i = 0; i < 20; ++i) {
+            burst.add(pool.acquirePooled());
+        }
+        for (BufferRecycler br : burst) {
+            pool.releasePooled(br);
+        }
+        assertEquals(8, pool.pooledCount());
+    }
+
+    // An acquire scans at most 8 slots from the thread's home slot, so threads
+    // whose scans do not overlap that of the releasing thread find nothing
+    @Test
+    void stripedPoolAcquireScanIsBounded() throws Exception {
+        final int max = RecyclerPool.StripedArrayPoolBase.MAX_CAPACITY;
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newStripedArrayPool(max);
+
+        List<BufferRecycler> burst = new ArrayList<>();
+        for (int i = 0; i < 8; ++i) {
+            burst.add(pool.acquirePooled());
+        }
+        for (BufferRecycler br : burst) {
+            pool.releasePooled(br);
+        }
+        assertEquals(8, pool.pooledCount());
+
+        // Each new thread has a random home slot: with 1024 slots, its scan
+        // overlaps the 8 filled ones with probability 15/1024, so 16 threads
+        // take about 0.2 of them on average, and all 8 only with an
+        // unbounded scan
+        for (int i = 0; i < 16; ++i) {
+            Thread t = new Thread(pool::acquirePooled);
+            t.start();
+            t.join();
+        }
+        assertTrue(pool.pooledCount() > 0, "acquire scanned beyond its probe limit");
+    }
+
     @Test
     void stripedPoolCapacityRoundsUpToPowerOfTwo() {
         assertEquals(4, capacityOf(JsonRecyclerPools.newStripedArrayPool(3)));

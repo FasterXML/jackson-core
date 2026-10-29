@@ -16,26 +16,28 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  * Choosing a pool:
  *<ul>
  * <li>{@link #defaultPool()} ({@link ConcurrentDequePool}): a new pool on each
- *  call, shared across threads and unbounded, with no per-thread state;
- *  allocates a queue node per release, and all threads contend on the ends
- *  of one queue.
+ *  call. It is unbounded and has no per-thread state: all threads that use
+ *  it contend on the ends of one queue, and each release allocates a queue
+ *  node.
  *  </li>
  * <li>{@link #newHybridPool(int)} ({@link HybridPool}): when per-thread retention
  *  is acceptable. Platform threads keep one instance each, as with
  *  {@link #threadLocalPool()}; virtual threads share bounded striped slots.
  *  </li>
- * <li>{@link #newStripedArrayPool(int)} ({@link StripedArrayPool}): shared
- *  across threads and bounded, with no per-thread state; replaces the
- *  default where per-thread retention is not wanted (large or changing
- *  thread pools, or many short-lived threads).
+ * <li>{@link #newStripedArrayPool(int)} ({@link StripedArrayPool}): bounded,
+ *  with no per-thread state. It replaces the default where per-thread
+ *  retention is not wanted (large or changing thread pools, or many
+ *  short-lived threads).
  *  </li>
  * <li>{@link #threadLocalPool()} ({@link ThreadLocalPool}): one instance per
  *  thread, held by a {@link SoftReference}, never shared between threads;
  *  poor for virtual threads, which each abandon their instance.
  *  </li>
- * <li>{@link #newBoundedPool(int)} ({@link BoundedPool}): shared across threads,
- *  backed by an {@link ArrayBlockingQueue} of fixed size that drops
- *  releases when full (it never blocks).
+ * <li>{@link #newBoundedPool(int)} ({@link BoundedPool}): bounded, with no
+ *  per-thread state. Its {@link ArrayBlockingQueue} of fixed size takes one
+ *  lock on each acquire and release. A release drops the instance when the
+ *  queue is full, and an acquire creates one when the queue is empty, so
+ *  neither waits.
  *  </li>
  * <li>{@link #nonRecyclingPool()} ({@link NonRecyclingPool}): no recycling;
  *  every acquire creates a new instance.
@@ -46,9 +48,9 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  * Size such a pool near the peak number of threads (for the hybrid pool,
  * virtual threads) that hold an instance at the same time, up to
  * {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}: beyond its slot
- * count, acquires create new instances and releases drop them. The shared
- * instances have {@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY}
- * slots.
+ * count, acquires create new instances and releases drop them.
+ * {@link #sharedStripedArrayPool()} and {@link #sharedHybridPool()} have
+ * {@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY} slots.
  */
 public final class JsonRecyclerPools
 {

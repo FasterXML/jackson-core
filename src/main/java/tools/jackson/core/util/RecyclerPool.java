@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  *  {@link BoundedPoolBase#DEFAULT_CAPACITY}) at any given time.
  *  </li>
  * <li>{@link StripedArrayPoolBase} retains at most N objects in a fixed array of
- *  atomic slots, allocation-free on both acquire and release (default slot count
+ *  atomic slots, with no lock and no queue node per release (default slot count
  *  being {@link StripedArrayPoolBase#DEFAULT_CAPACITY}).
  * </li>
  * <li>{@link HybridPoolBase} combines a {@link ThreadLocalPoolBase} for platform
@@ -538,10 +538,10 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * as Jackson uses it, never allocates them.
      *<p>
      * The virtual-thread check goes through a {@link MethodHandle} resolved
-     * once per JVM, so this class also runs where {@code Thread.isVirtual()}
-     * does not exist (JDK before 19, Android) or cannot be looked up (such as
-     * a native image without reflection metadata for it). Every thread is
-     * then a platform thread.
+     * once, when this class is initialized, so this class also runs where
+     * {@code Thread.isVirtual()} does not exist (JDK before 19, Android) or
+     * cannot be looked up (such as a native image without reflection
+     * metadata for it). Every thread is then a platform thread.
      *<p>
      * Pool state is {@code transient} and not restored on deserialization:
      * concrete subclasses must implement {@code readResolve}, as

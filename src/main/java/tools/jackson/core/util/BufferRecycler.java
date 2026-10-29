@@ -1,7 +1,8 @@
 package tools.jackson.core.util;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * This is a small utility class, whose main functionality is to allow
@@ -96,13 +97,35 @@ public class BufferRecycler
     private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 4000 };
     private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };
 
-    // Note: changed from simple array in 2.10:
-    protected final AtomicReferenceArray<byte[]> _byteBuffers;
+    /**
+     * Number of unused slots at each end of {@link #_slots}.
+     * A pool keeps a recycler for a long time, and each use of the recycler
+     * writes its slots. Without padding, these slots share cache lines with
+     * other objects that other threads read, such as serializers and the
+     * values that they write. Each write then takes those lines away from
+     * the other cores (false sharing). 32 references are 128 bytes with
+     * compressed oops (256 bytes without), the default padding of the JDK's
+     * {@code @Contended}. This covers 128-byte cache lines (as on Apple
+     * silicon) and the x86 adjacent-line prefetcher, which fetches 64-byte
+     * lines in pairs.
+     */
+    private final static int SLOT_PADDING = 32;
 
-    // Note: changed from simple array in 2.10:
-    protected final AtomicReferenceArray<char[]> _charBuffers;
+    private final static int POOL_SLOT = SLOT_PADDING;
 
-    private RecyclerPool<BufferRecycler> _pool;
+    private final static int FIRST_BYTE_SLOT = POOL_SLOT + 1;
+
+    private final static VarHandle SLOTS = MethodHandles.arrayElementVarHandle(Object[].class);
+
+    /**
+     * Pool link, then the byte buffers, then the char buffers, with
+     * {@link #SLOT_PADDING} unused slots before and after them.
+     */
+    private final Object[] _slots;
+
+    private final int _byteBufferCount;
+
+    private final int _charBufferCount;
 
     /*
     /**********************************************************
@@ -126,8 +149,12 @@ public class BufferRecycler
      * @param cbCount Number of {@code char[]} buffers to allocate
      */
     protected BufferRecycler(int bbCount, int cbCount) {
-        _byteBuffers = new AtomicReferenceArray<>(bbCount);
-        _charBuffers = new AtomicReferenceArray<>(cbCount);
+        if (bbCount < 0 || cbCount < 0) {
+            throw new IllegalArgumentException("Negative buffer count: bbCount="+bbCount+", cbCount="+cbCount);
+        }
+        _slots = new Object[FIRST_BYTE_SLOT + bbCount + cbCount + SLOT_PADDING];
+        _byteBufferCount = bbCount;
+        _charBufferCount = cbCount;
     }
 
     /**
@@ -137,7 +164,7 @@ public class BufferRecycler
      * @since 2.17
      */
     public boolean isLinkedWithPool() {
-        return _pool != null;
+        return _slots[POOL_SLOT] != null;
     }
 
     /*
@@ -160,7 +187,7 @@ public class BufferRecycler
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
-        byte[] buffer = _byteBuffers.getAndSet(ix, null);
+        byte[] buffer = (byte[]) SLOTS.getAndSet(_slots, _byteSlot(ix), null);
         if (buffer == null || buffer.length < minSize) {
             buffer = balloc(minSize);
         }
@@ -168,11 +195,17 @@ public class BufferRecycler
     }
 
     public void releaseByteBuffer(int ix, byte[] buffer) {
-        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial:
-        // Use accumulateAndGet to atomically update the slot, avoiding the
-        // TOCTOU race of a non-atomic get+conditional-set sequence.
-        _byteBuffers.accumulateAndGet(ix, buffer,
-                (current, b) -> (current == null || b.length > current.length) ? b : current);
+        // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial.
+        // 21-Apr-2026, pjfanning: [core#1598] Update the slot atomically, to
+        // avoid the TOCTOU race of a non-atomic get+conditional-set sequence.
+        final int slot = _byteSlot(ix);
+        Object current;
+        do {
+            current = SLOTS.getVolatile(_slots, slot);
+            if (current != null && ((byte[]) current).length >= buffer.length) {
+                return;
+            }
+        } while (!SLOTS.compareAndSet(_slots, slot, current, buffer));
     }
 
     /*
@@ -190,7 +223,7 @@ public class BufferRecycler
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
-        char[] buffer = _charBuffers.getAndSet(ix, null);
+        char[] buffer = (char[]) SLOTS.getAndSet(_slots, _charSlot(ix), null);
         if (buffer == null || buffer.length < minSize) {
             buffer = calloc(minSize);
         }
@@ -199,10 +232,24 @@ public class BufferRecycler
 
     public void releaseCharBuffer(int ix, char[] buffer) {
         // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial.
-        // Use accumulateAndGet to atomically update the slot, avoiding the
-        // TOCTOU race of a non-atomic get+conditional-set sequence.
-        _charBuffers.accumulateAndGet(ix, buffer,
-                (current, b) -> (current == null || b.length > current.length) ? b : current);
+        // 21-Apr-2026, pjfanning: [core#1598] Update the slot atomically, to
+        // avoid the TOCTOU race of a non-atomic get+conditional-set sequence.
+        final int slot = _charSlot(ix);
+        Object current;
+        do {
+            current = SLOTS.getVolatile(_slots, slot);
+            if (current != null && ((char[]) current).length >= buffer.length) {
+                return;
+            }
+        } while (!SLOTS.compareAndSet(_slots, slot, current, buffer));
+    }
+
+    private int _byteSlot(int ix) {
+        return FIRST_BYTE_SLOT + Objects.checkIndex(ix, _byteBufferCount);
+    }
+
+    private int _charSlot(int ix) {
+        return FIRST_BYTE_SLOT + _byteBufferCount + Objects.checkIndex(ix, _charBufferCount);
     }
 
     /*
@@ -242,12 +289,12 @@ public class BufferRecycler
      */
     @Override
     public BufferRecycler withPool(RecyclerPool<BufferRecycler> pool) {
-        if (_pool != null) {
+        if (_slots[POOL_SLOT] != null) {
             throw new IllegalStateException("BufferRecycler already linked to pool: "+pool);
         }
         // assign to pool to which this BufferRecycler belongs in order to release it
         // to the same pool when the work will be completed
-        _pool = Objects.requireNonNull(pool);
+        _slots[POOL_SLOT] = Objects.requireNonNull(pool);
         return this;
     }
 
@@ -258,12 +305,13 @@ public class BufferRecycler
      * @since 2.16
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void releaseToPool() {
-        if (_pool != null) {
-            RecyclerPool<BufferRecycler> tmpPool = _pool;
+        RecyclerPool<BufferRecycler> tmpPool = (RecyclerPool<BufferRecycler>) _slots[POOL_SLOT];
+        if (tmpPool != null) {
             // nullify the reference to the pool in order to avoid the risk of releasing
             // the same BufferRecycler more than once, thus compromising the pool integrity
-            _pool = null;
+            _slots[POOL_SLOT] = null;
             tmpPool.releasePooled(this);
         }
     }

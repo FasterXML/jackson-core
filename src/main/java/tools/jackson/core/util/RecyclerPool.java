@@ -522,6 +522,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * {@code ThreadLocalPoolBase}: not linked, so releasing it does nothing,
      * and it stays with that thread. On a virtual thread it returns an
      * instance from the shared slots, linked to this pool.
+     * {@link #createPooled()} creates only the instances of the shared slots:
+     * the leave-ins come from the {@code ThreadLocalPoolBase}.
      * {@link #acquirePooled()} and {@link #releasePooled} use the shared slots
      * on every thread, so an instance acquired on a virtual thread may be
      * released on a platform thread, and the other way around. Do not pass a

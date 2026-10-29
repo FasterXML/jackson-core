@@ -375,6 +375,12 @@ public final class JsonRecyclerPools
      * Choose this pool over {@link StripedArrayPool} when retaining one
      * instance per platform thread is acceptable: platform threads then
      * acquire without touching shared state.
+     *<p>
+     * Platform threads get their instances from {@link ThreadLocalPool},
+     * which creates them with {@code new BufferRecycler()}. So a subclass
+     * that overrides {@link #createPooled()} changes only the instances of
+     * the shared slots: those of virtual threads, and those that
+     * {@link #acquirePooled()} returns on any thread.
      *
      * @since 3.3
      */

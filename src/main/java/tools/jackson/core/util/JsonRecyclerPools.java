@@ -41,6 +41,14 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  *  every acquire creates a new instance.
  *  </li>
  *</ul>
+ *<p>
+ * Any thread can reuse any instance that a striped or hybrid pool retains.
+ * Size such a pool near the peak number of threads (for the hybrid pool,
+ * virtual threads) that hold an instance at the same time, up to
+ * {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}: beyond its slot
+ * count, acquires create new instances and releases drop them. The shared
+ * instances have {@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY}
+ * slots.
  */
 public final class JsonRecyclerPools
 {
@@ -130,8 +138,8 @@ public final class JsonRecyclerPools
      * instance.
      *
      * @param size Requested number of slots; rounded up to the next power of
-     *   two (so up to almost twice as many values may be pooled; 513 gives
-     *   1024 slots), and clamped to
+     *   two (so up to almost twice as many values may be pooled; 33 gives
+     *   64 slots), and clamped to
      *   {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}
      *
      * @return New instance of {@link StripedArrayPool}
@@ -158,7 +166,7 @@ public final class JsonRecyclerPools
      *
      * @param size Requested number of shared slots; rounded up
      *   to the next power of two (so up to almost twice as many values may be
-     *   pooled; 513 gives 1024 slots), and clamped to
+     *   pooled; 33 gives 64 slots), and clamped to
      *   {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}
      *
      * @return New instance of {@link HybridPool}

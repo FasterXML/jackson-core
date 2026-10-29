@@ -320,9 +320,13 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * {@link RecyclerPool} implementation that uses a fixed-size array of
      * atomic slots for recycling instances: acquire takes a slot with an
      * atomic get-and-clear (so an instance can never be handed to two
-     * acquirers), release stores into the first empty slot with compare-and-set,
-     * and both scans start from a slot derived from the identity hash of the
-     * current thread, which keeps contention and buffer reuse thread-local.
+     * acquirers), and release stores into the first empty slot with
+     * compare-and-set. Both scan every slot: a scan starts at a home slot
+     * derived from the identity hash of the current thread, and wraps around.
+     * Different threads start at different slots, which spreads contention,
+     * and a thread tends to get back the instance it released last. But any
+     * thread can take any retained instance, so a new thread (such as a new
+     * virtual thread) reuses instances that other threads released.
      * Unlike {@link ConcurrentDequePoolBase} no queue node is allocated on
      * release, and unlike {@link BoundedPoolBase} there is no lock on either
      * path.
@@ -332,11 +336,11 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * at most {@link StripedArrayPoolBase#MAX_CAPACITY}; requested counts are
      * rounded up to the next power of two, so unlike {@link BoundedPoolBase}
      * it may retain up to almost twice the requested number).
-     * Each scan looks at no more than half of
-     * {@link StripedArrayPoolBase#DEFAULT_CAPACITY} slots, so its cost does
-     * not grow with the slot count: a release that finds the scanned slots
-     * occupied drops the instance, and an acquire that finds them empty creates a new one,
-     * even if slots outside the scan are empty or occupied.
+     * A release drops the instance only when its scan finds every slot
+     * occupied, and an acquire creates a new one only when its scan finds
+     * every slot empty. Each slot is on its own cache line, so such a scan
+     * reads {@link #capacity()} cache lines (16 by default, at most 64)
+     * before it drops or creates an instance.
      * Special thanks to the Vert.x project for the approach.
      *<p>
      * The slot array is {@code transient} and is not restored on
@@ -357,18 +361,17 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          *<p>
          * Note: requested slot counts are rounded up to the next power of two
          * (required by slot indexing), so a pool may retain up to almost twice
-         * as many instances as requested; e.g. a request for 513 gives 1024
+         * as many instances as requested; e.g. a request for 33 gives 64
          * slots. Use {@link #capacity()} to see the actual count.
          */
         public final static int DEFAULT_CAPACITY = 16;
 
         /**
          * Maximum number of slots: larger requested sizes are clamped to this.
-         * Each slot takes {@code 1 << SLOT_SHIFT} array entries, so this
-         * bounds the memory of a pool and keeps the backing array size from
-         * overflowing.
+         * Acquire and release scan every slot, so this bounds a scan that
+         * finds no instance, or no empty slot, to 64 slot reads.
          */
-        public final static int MAX_CAPACITY = 1024;
+        public final static int MAX_CAPACITY = 64;
 
         /**
          * Spacing between slots in the backing array, as a shift: slots are
@@ -383,14 +386,6 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          * contended throughput of this pool falls below no pooling.
          */
         private static final int SLOT_SHIFT = 5;
-
-        /**
-         * Maximum number of slots one acquire or release scans: half of
-         * {@link #DEFAULT_CAPACITY}, so that a thread with a new home slot
-         * (such as a new virtual thread) still finds most retained instances,
-         * while the cost of a scan stays bounded for large pools.
-         */
-        private static final int MAX_PROBE = DEFAULT_CAPACITY / 2;
 
         /**
          * Slot {@code i} is at index {@code (i + 1) << SLOT_SHIFT}: the
@@ -412,8 +407,6 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          */
         private final transient int _hashShift;
 
-        private final transient int _probeLength;
-
         // // // Life-cycle (constructors, factory methods)
 
         protected StripedArrayPoolBase(int capacityAsId) {
@@ -422,7 +415,6 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             _slots = new AtomicReferenceArray<>((capacity + 1) << SLOT_SHIFT);
             _mask = capacity - 1;
             _hashShift = Integer.numberOfLeadingZeros(capacity) + 1;
-            _probeLength = Math.min(capacity, MAX_PROBE);
         }
 
         private static int _powerOfTwoCapacity(int capacityAsId) {
@@ -455,7 +447,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         private P _acquire(Thread thread) {
             final int home = _homeSlot(thread);
-            for (int i = 0; i < _probeLength; ++i) {
+            for (int i = 0; i <= _mask; ++i) {
                 final int ix = _index(home + i);
                 if (_slots.get(ix) != null) {
                     P pooled = _slots.getAndSet(ix, null);
@@ -469,13 +461,13 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         private void _release(P pooled, Thread thread) {
             final int home = _homeSlot(thread);
-            for (int i = 0; i < _probeLength; ++i) {
+            for (int i = 0; i <= _mask; ++i) {
                 final int ix = _index(home + i);
                 if ((_slots.get(ix) == null) && _slots.compareAndSet(ix, null, pooled)) {
                     return;
                 }
             }
-            // Scanned slots occupied: drop the instance. This is the retention
+            // All slots occupied: drop the instance. This is the retention
             // bound that keeps the pool from growing without limit.
         }
 

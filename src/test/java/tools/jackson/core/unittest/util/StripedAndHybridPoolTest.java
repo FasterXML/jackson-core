@@ -6,8 +6,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +37,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class StripedAndHybridPoolTest extends JacksonCoreTestBase
 {
+    private static final int MAX_CAPACITY = RecyclerPool.StripedArrayPoolBase.MAX_CAPACITY;
+
     /*
     /**********************************************************************
     /* StripedArrayPool: bounds, capacity, clear
@@ -68,48 +73,20 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertEquals(4, pool.pooledCount());
     }
 
-    // A release scans at most 8 slots from the thread's home slot, so one
-    // thread fills at most 8 of a larger pool
+    // Each task runs on a new thread, so its scans start from a new home
+    // slot; they must find the one retained instance instead of creating
+    // another one each time
     @Test
-    void stripedPoolReleaseScanIsBounded() {
-        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newStripedArrayPool(64);
-
-        List<BufferRecycler> burst = new ArrayList<>();
-        for (int i = 0; i < 20; ++i) {
-            burst.add(pool.acquirePooled());
-        }
-        for (BufferRecycler br : burst) {
-            pool.releasePooled(br);
-        }
-        assertEquals(8, pool.pooledCount());
+    void stripedPoolTaskPerThreadRetainsOneInstance() throws Exception {
+        assertTaskPerThreadRetainsOneInstance(
+                JsonRecyclerPools.newStripedArrayPool(MAX_CAPACITY), false);
     }
 
-    // An acquire scans at most 8 slots from the thread's home slot, so threads
-    // whose scans do not overlap that of the releasing thread find nothing
+    // Instances acquired on many threads and released by one other thread
+    // must fill the slots, and acquires on new threads must find them all
     @Test
-    void stripedPoolAcquireScanIsBounded() throws Exception {
-        final int max = RecyclerPool.StripedArrayPoolBase.MAX_CAPACITY;
-        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newStripedArrayPool(max);
-
-        List<BufferRecycler> burst = new ArrayList<>();
-        for (int i = 0; i < 8; ++i) {
-            burst.add(pool.acquirePooled());
-        }
-        for (BufferRecycler br : burst) {
-            pool.releasePooled(br);
-        }
-        assertEquals(8, pool.pooledCount());
-
-        // Each new thread has a random home slot: with 1024 slots, its scan
-        // overlaps the 8 filled ones with probability 15/1024, so 16 threads
-        // take about 0.2 of them on average, and all 8 only with an
-        // unbounded scan
-        for (int i = 0; i < 16; ++i) {
-            Thread t = new Thread(pool::acquirePooled);
-            t.start();
-            t.join();
-        }
-        assertTrue(pool.pooledCount() > 0, "acquire scanned beyond its probe limit");
+    void stripedPoolReusesInstancesAcrossThreads() throws Exception {
+        assertReusedAcrossThreads(JsonRecyclerPools.newStripedArrayPool(MAX_CAPACITY), false);
     }
 
     @Test
@@ -301,6 +278,70 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertSame(acquired[0], acquired[1]);
     }
 
+    @Test
+    void hybridPoolTaskPerVirtualThreadRetainsOneInstance() throws Exception {
+        Assumptions.assumeTrue(VIRTUAL_THREADS_AVAILABLE, "virtual threads unavailable");
+        assertTaskPerThreadRetainsOneInstance(
+                JsonRecyclerPools.newHybridPool(MAX_CAPACITY), true);
+    }
+
+    // Virtual threads acquire and one platform thread releases, as with an
+    // executor handoff
+    @Test
+    void hybridPoolReusesInstancesAcrossThreads() throws Exception {
+        Assumptions.assumeTrue(VIRTUAL_THREADS_AVAILABLE, "virtual threads unavailable");
+        assertReusedAcrossThreads(JsonRecyclerPools.newHybridPool(MAX_CAPACITY), true);
+    }
+
+    /*
+    /**********************************************************************
+    /* Reuse across threads
+    /**********************************************************************
+     */
+
+    private static void assertTaskPerThreadRetainsOneInstance(RecyclerPool<BufferRecycler> pool,
+            boolean virtual) throws Exception
+    {
+        for (int i = 0; i < 2000; ++i) {
+            runInNewThread(virtual, () -> pool.acquireAndLinkPooled().releaseToPool());
+            assertEquals(1, pool.pooledCount(), "retained instances after task "+i);
+        }
+    }
+
+    private static void assertReusedAcrossThreads(RecyclerPool<BufferRecycler> pool,
+            boolean virtual) throws Exception
+    {
+        final int capacity = capacityOf(pool);
+        List<BufferRecycler> acquired = acquireOnNewThreads(pool, capacity, virtual);
+        for (BufferRecycler br : acquired) {
+            br.releaseToPool();
+        }
+        assertEquals(capacity, pool.pooledCount(), "releases on one thread must fill every slot");
+
+        List<BufferRecycler> reacquired = acquireOnNewThreads(pool, capacity, virtual);
+        assertEquals(0, pool.pooledCount(), "acquires on new threads must take every instance");
+        assertEquals(identitySet(acquired), identitySet(reacquired));
+    }
+
+    // One new thread per acquire, run one at a time
+    private static List<BufferRecycler> acquireOnNewThreads(RecyclerPool<BufferRecycler> pool,
+            int count, boolean virtual) throws Exception
+    {
+        List<BufferRecycler> acquired = new ArrayList<>();
+        BufferRecycler[] holder = new BufferRecycler[1];
+        for (int i = 0; i < count; ++i) {
+            runInNewThread(virtual, () -> holder[0] = pool.acquireAndLinkPooled());
+            acquired.add(holder[0]);
+        }
+        return acquired;
+    }
+
+    private static Set<BufferRecycler> identitySet(List<BufferRecycler> instances) {
+        Set<BufferRecycler> set = Collections.newSetFromMap(new IdentityHashMap<>());
+        set.addAll(instances);
+        return set;
+    }
+
     /*
     /**********************************************************************
     /* Double-lease stress
@@ -474,7 +515,7 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
 
     /*
     /**********************************************************************
-    /* Virtual-thread reflection helpers (JDK 17 source level)
+    /* Thread helpers (virtual threads by reflection: JDK 17 source level)
     /**********************************************************************
      */
 
@@ -494,29 +535,43 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
     private static Thread startVirtualThread(Runnable r, Queue<Throwable> failures)
         throws Exception
     {
-        Runnable wrapped = () -> {
+        return (Thread) START_VIRTUAL_THREAD.invoke(null, recordingFailures(r, failures));
+    }
+
+    private static void runInVirtualThread(Runnable r) throws Exception {
+        runInNewThread(true, r);
+    }
+
+    // Runs `r` in a new virtual or platform thread, and waits for it to finish
+    private static void runInNewThread(boolean virtual, Runnable r) throws Exception {
+        Queue<Throwable> failures = new ConcurrentLinkedQueue<>();
+        Thread t;
+        if (virtual) {
+            t = startVirtualThread(r, failures);
+        } else {
+            t = new Thread(recordingFailures(r, failures));
+            t.start();
+        }
+        t.join(TimeUnit.SECONDS.toMillis(30));
+        assertFalse(t.isAlive(), "thread did not finish");
+        assertNoFailures(failures);
+    }
+
+    private static Runnable recordingFailures(Runnable r, Queue<Throwable> failures) {
+        return () -> {
             try {
                 r.run();
             } catch (Throwable t) {
                 failures.add(t);
             }
         };
-        return (Thread) START_VIRTUAL_THREAD.invoke(null, wrapped);
-    }
-
-    private static void runInVirtualThread(Runnable r) throws Exception {
-        Queue<Throwable> failures = new ConcurrentLinkedQueue<>();
-        Thread t = startVirtualThread(r, failures);
-        t.join(TimeUnit.SECONDS.toMillis(30));
-        assertFalse(t.isAlive(), "virtual thread did not finish");
-        assertNoFailures(failures);
     }
 
     private static void assertNoFailures(Queue<Throwable> failures) {
         Throwable first = failures.peek();
         if (first != null) {
             AssertionError e = new AssertionError(failures.size()
-                    +" virtual thread(s) failed; first: "+first, first);
+                    +" thread(s) failed; first: "+first, first);
             failures.stream().skip(1).forEach(e::addSuppressed);
             throw e;
         }

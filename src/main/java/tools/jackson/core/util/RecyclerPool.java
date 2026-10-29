@@ -537,8 +537,9 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      *<p>
      * The virtual-thread check goes through a {@link MethodHandle} resolved
      * once per JVM, so this class also runs where {@code Thread.isVirtual()}
-     * does not exist (JDK before 19, Android); every thread is then a
-     * platform thread.
+     * does not exist (JDK before 19, Android) or cannot be looked up (such as
+     * a native image without reflection metadata for it). Every thread is
+     * then a platform thread.
      *<p>
      * Pool state is {@code transient} and not restored on deserialization:
      * concrete subclasses must implement {@code readResolve}, as
@@ -553,7 +554,9 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         /**
          * {@code Thread#isVirtual()} when the runtime has it, {@code null} when
-         * it does not (JDK before 19, Android).
+         * it does not (JDK before 19, Android) or when the lookup fails, for
+         * example with the {@link LinkageError} that a native image throws
+         * for a method without reflection metadata.
          */
         private static final MethodHandle IS_VIRTUAL = _findIsVirtual();
 
@@ -561,7 +564,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             try {
                 return MethodHandles.publicLookup().findVirtual(Thread.class,
                         "isVirtual", MethodType.methodType(boolean.class));
-            } catch (ReflectiveOperationException | RuntimeException e) {
+            } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
                 return null;
             }
         }

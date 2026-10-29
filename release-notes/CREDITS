@@ -141,6 +141,9 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
   (3.3.0)
+ * Contributed #xxxx: Pad `BufferRecycler` buffer slots and pool link to avoid
+   false sharing with other objects
+  (3.3.0)
 
 @youdie006
  * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a

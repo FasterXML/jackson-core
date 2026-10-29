@@ -44,7 +44,7 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  *  </li>
  *</ul>
  *<p>
- * Any thread can reuse any instance that a striped or hybrid pool retains.
+ * Any thread can reuse any instance in the slots of a striped or hybrid pool.
  * Size such a pool near the peak number of threads (for the hybrid pool,
  * virtual threads) that hold an instance at the same time, up to
  * {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}: beyond its slot

@@ -116,6 +116,27 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertEquals(max, capacityOf(JsonRecyclerPools.newHybridPool(Integer.MAX_VALUE)));
     }
 
+    // At capacity 1 the hash shift is 32, which Java reduces to 0: the home
+    // slot is then the whole hash, and only the mask maps it to slot 0
+    @Test
+    void stripedPoolCapacityOneAndTwo() throws Exception {
+        for (int capacity = 1; capacity <= 2; ++capacity) {
+            RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newStripedArrayPool(capacity);
+            assertEquals(capacity, capacityOf(pool));
+            assertReusedAcrossThreads(pool, false);
+            assertTaskPerThreadRetainsOneInstance(pool, false);
+
+            List<BufferRecycler> burst = new ArrayList<>();
+            for (int i = 0; i < capacity + 2; ++i) {
+                burst.add(pool.acquirePooled());
+            }
+            for (BufferRecycler br : burst) {
+                pool.releasePooled(br);
+            }
+            assertEquals(capacity, pool.pooledCount());
+        }
+    }
+
     private static int capacityOf(RecyclerPool<BufferRecycler> pool) {
         if (pool instanceof RecyclerPool.HybridPoolBase<BufferRecycler> hybrid) {
             return hybrid.capacity();
@@ -198,6 +219,45 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertFalse(pool.clear());
         assertEquals(0, pool.pooledCount());
         assertEquals(16, capacityOf(pool));
+    }
+
+    // Concurrent first releases race to allocate the shared slots: every
+    // release must land in the one allocation that wins
+    @Test
+    void hybridPoolFirstReleasesRace() throws Exception {
+        final int capacity = 4;
+        for (int threads : new int[] { capacity - 1, 2 * capacity }) {
+            ExecutorService exec = Executors.newFixedThreadPool(threads);
+            try {
+                for (int round = 0; round < 200; ++round) {
+                    assertFirstReleasesRace(exec, capacity, threads);
+                }
+            } finally {
+                exec.shutdownNow();
+            }
+        }
+    }
+
+    private static void assertFirstReleasesRace(ExecutorService exec, int capacity,
+            int threads) throws Exception
+    {
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newHybridPool(capacity);
+        AtomicInteger arrived = new AtomicInteger();
+        List<Future<?>> futures = new ArrayList<>();
+        for (int i = 0; i < threads; ++i) {
+            BufferRecycler br = pool.acquirePooled();
+            futures.add(exec.submit(() -> {
+                arrived.incrementAndGet();
+                while (arrived.get() < threads) {
+                    Thread.onSpinWait();
+                }
+                pool.releasePooled(br);
+            }));
+        }
+        for (Future<?> f : futures) {
+            f.get(30, TimeUnit.SECONDS);
+        }
+        assertEquals(Math.min(threads, capacity), pool.pooledCount());
     }
 
     @Test
@@ -497,6 +557,8 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertNotSame(orig, copy);
         assertEquals(8, capacityOf(copy));
         assertNotNull(copy.acquireAndLinkPooled());
+        copy.releasePooled(copy.acquirePooled());
+        assertEquals(1, copy.pooledCount());
     }
 
     @SuppressWarnings("unchecked")

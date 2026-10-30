@@ -68,7 +68,7 @@ class StringWriterReadConstraintsTest extends AsyncTestBase
     }
 
     @Test
-    void numbersAndNamesKeepTheirOwnLimits() throws Exception {
+    void namesExemptButNumbersCheckedLikeGetText() throws Exception {
         JsonFactory f = factory(19);
         String name = repeat('a', 20);
         // Escape forces Reader name decoding through TextBuffer.getTextBuffer().
@@ -81,9 +81,11 @@ class StringWriterReadConstraintsTest extends AsyncTestBase
             assertEquals(name, w.toString());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(-1234567890123456789L, p.getLongValue());
+            // 20-char number text exceeds maxStringLength: rejected same as getText()
             w.getBuffer().setLength(0);
-            assertEquals(20, p.parser().getText(w));
-            assertEquals("-1234567890123456789", w.toString());
+            assertThrows(StreamConstraintsException.class, () -> p.parser().getText(w));
+            assertEquals("", w.toString());
+            assertThrows(StreamConstraintsException.class, () -> p.currentText());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
         });
     }

@@ -416,7 +416,6 @@ public abstract class NonBlockingJsonParserBase
     {
         JsonToken t = _currToken;
         if (t == JsonToken.VALUE_STRING) {
-            _streamReadConstraints.validateStringLength(_textBuffer.size());
             return _textBuffer.contentsToWriter(writer);
         }
         if (t == JsonToken.FIELD_NAME) {

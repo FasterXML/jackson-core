@@ -758,6 +758,8 @@ public class TextBuffer
             w.write(_resultString);
             return _resultString.length();
         }
+        // Same check as contentsAsString(), done before anything is written
+        validateStringLength(size());
         // Do we use shared array?
         if (_inputStart >= 0) {
             final int len = _inputLen;

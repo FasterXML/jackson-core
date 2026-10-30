@@ -214,7 +214,7 @@ David Nault (dnault@github)
   * Reported #531: Non-blocking parser reports incorrect locations when fed with
    non-zero offset
   (2.10.0)
-  * Reported 1412: More cases of Non-blocking parser reporting incorrect locations
+  * Reported #1412: More cases of Non-blocking parser reporting incorrect locations
    when fed with non-zero offset
   (2.19.0)
 
@@ -483,6 +483,22 @@ Rohan Nagendra (@rohan-repos)
  * Reported #1555: Enforce StreamReadConstraints.maxNumberLength for non-blocking (async) parser
   (2.18.6)
 
+Revanth Meesala (@revanthmeesala)
+ * Contributed #1642: Fix maxDocumentLength bypass in async parser single-feedInput()
+   case [GHSA-2c4j-63jj-9fqr]
+  (2.18.10)
+
+@tinyb0y
+ * Contributed #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser
+   [GHSA-649p-m576-vr99]
+  (2.18.10)
+
+@Dongnyoung
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getText(Writer)`
+  (2.18.13)
+
 Yanming Zhou (@quaff)
  * Requested #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
   (2.19.0)
@@ -506,3 +522,4 @@ Fawzi Essam (@iifawzi)
 
 Ilenia Salvadori (@isalvadori)
  * Requested #1421: Make `JsonReadContext` non-final
+  (2.19.0)

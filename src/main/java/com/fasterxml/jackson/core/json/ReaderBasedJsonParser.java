@@ -1841,6 +1841,15 @@ public class ReaderBasedJsonParser
          */
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
+        // 28-Jul-2026, tinyb0y: [core#1643] Track total length accumulated so far so we
+        //   can validate against `maxNameLength` incrementally, same as byte-based
+        //   parsers already do via `ParserBase._growNameDecodeBuffer()`. Without this,
+        //   only the much larger `maxStringLength` bound (enforced inside
+        //   `TextBuffer.finishCurrentSegment()`) applies until the whole name has
+        //   already been buffered.
+        //   Note: only updated when segment gets full (at which point `outPtr` is
+        //   always exactly `outBuf.length`), to keep the per-character loop tight.
+        int totalLen = 0;
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -1872,6 +1881,8 @@ public class ReaderBasedJsonParser
 
             // Need more room?
             if (outPtr >= outBuf.length) {
+                totalLen += outBuf.length;
+                _streamReadConstraints.validateNameLength(totalLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -2102,6 +2113,9 @@ public class ReaderBasedJsonParser
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
         final int maxCode = codes.length;
+        // 28-Jul-2026, tinyb0y: [core#1643] Same incremental `maxNameLength` check as
+        //   `_parseName2()` needs to apply to unquoted ("odd") names as well
+        int totalLen = 0;
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -2125,6 +2139,8 @@ public class ReaderBasedJsonParser
 
             // Need more room?
             if (outPtr >= outBuf.length) {
+                totalLen += outBuf.length;
+                _streamReadConstraints.validateNameLength(totalLen);
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
             }
@@ -3002,6 +3018,7 @@ public class ReaderBasedJsonParser
          * nothing fancy here.
          */
         StringBuilder sb = new StringBuilder(matchedPart);
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while ((_inputPtr < _inputEnd) || _loadMore()) {
             char c = _inputBuffer[_inputPtr];
             if (!Character.isJavaIdentifierPart(c)) {
@@ -3009,7 +3026,7 @@ public class ReaderBasedJsonParser
             }
             ++_inputPtr;
             sb.append(c);
-            if (sb.length() >= _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+            if (sb.length() >= maxTokenLength) {
                 sb.append("...");
                 break;
             }

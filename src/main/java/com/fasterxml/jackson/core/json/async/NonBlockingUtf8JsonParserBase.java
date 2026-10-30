@@ -1236,6 +1236,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
     protected JsonToken _finishErrorToken() throws IOException
     {
+        final int maxTokenLength = _ioContext.errorReportConfiguration().getMaxErrorTokenLength();
         while (_inputPtr < _inputEnd) {
             int i = getNextSignedByteFromBuffer();
 
@@ -1247,7 +1248,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 // 11-Jan-2016, tatu: note: we will fully consume the character,
                 // included or not, so if recovery was possible, it'd be off-by-one...
                 _textBuffer.append(ch);
-                if (_textBuffer.size() < _ioContext.errorReportConfiguration().getMaxErrorTokenLength()) {
+                if (_textBuffer.size() < maxTokenLength) {
                     continue;
                 }
             }
@@ -1325,6 +1326,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (++_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
+                _setIntLength(outPtr);
                 return _updateTokenToNA();
             }
             ch = getByteFromBuffer(_inputPtr) & 0xFF;
@@ -1391,6 +1393,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (++_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
+                _setIntLength(outPtr-1);
                 return _updateTokenToNA();
             }
             ch = getByteFromBuffer(_inputPtr) & 0xFF;
@@ -1463,6 +1466,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (++_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
+                _setIntLength(outPtr-1);
                 return _updateTokenToNA();
             }
             ch = getByteFromBuffer(_inputPtr) & 0xFF;
@@ -1694,6 +1698,10 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
+                // [core#1556]: validate accumulated integer length so far before yielding
+                // NOT_AVAILABLE; otherwise a stream of digit-only chunks can grow the buffer
+                // past `StreamReadConstraints.maxNumberLength` (sibling of #1555).
+                _setIntLength(outPtr + negMod);
                 return _updateTokenToNA();
             }
             int ch = getByteFromBuffer(_inputPtr) & 0xFF;

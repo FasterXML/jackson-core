@@ -489,3 +489,9 @@ Revanth Meesala (@revanthmeesala)
  * Contributed #1643: Enforce maxNameLength incrementally in ReaderBasedJsonParser
    [GHSA-649p-m576-vr99]
   (2.18.10)
+
+@Dongnyoung
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getText(Writer)`
+  (2.18.13)

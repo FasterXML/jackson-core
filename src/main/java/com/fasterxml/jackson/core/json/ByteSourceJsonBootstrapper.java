@@ -241,7 +241,7 @@ public final class ByteSourceJsonBootstrapper
                         // when processing small inputs up to 8KiB.
                         return new StringReader(new String(_inputBuffer, _inputPtr, length, enc.getJavaName()));
                     }
-                    in = new ByteArrayInputStream(_inputBuffer, _inputPtr, _inputEnd);
+                    in = new ByteArrayInputStream(_inputBuffer, _inputPtr, length);
                 } else {
                     // Also, if we have any read but unused input (usually true),
                     // need to merge that input in:

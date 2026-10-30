@@ -340,7 +340,11 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * occupied, and an acquire creates a new one only when its scan finds
      * every slot empty. Each slot is on its own cache line, so such a scan
      * reads {@link #capacity()} cache lines (16 by default, at most 64)
-     * before it drops or creates an instance.
+     * before it drops or creates an instance. So when more instances are in
+     * use at the same time than there are slots, as when many virtual threads
+     * hold one while blocked on I/O, acquires and releases pay for a full
+     * scan without recycling, and the pool can be slower than not pooling;
+     * {@link ConcurrentDequePoolBase} has no such limit.
      * Special thanks to the Vert.x project for the approach.
      *<p>
      * The slot array is {@code transient} and is not restored on
@@ -367,7 +371,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         public final static int DEFAULT_CAPACITY = 16;
 
         /**
-         * Maximum number of slots: larger requested sizes are clamped to this.
+         * Maximum number of slots: larger requested sizes are silently
+         * clamped to this.
          * Acquire and release scan every slot, so this bounds a scan that
          * finds no instance, or no empty slot, to 64 slot reads.
          */
@@ -523,7 +528,9 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * and it stays with that thread. On a virtual thread it returns an
      * instance from the shared slots, linked to this pool.
      * {@link #createPooled()} creates only the instances of the shared slots:
-     * the leave-ins come from the {@code ThreadLocalPoolBase}.
+     * the leave-ins come from the {@code ThreadLocalPoolBase} given to the
+     * constructor, so customizing them takes a {@code ThreadLocalPoolBase}
+     * implementation that keeps its own per-thread instances.
      * {@link #acquirePooled()} and {@link #releasePooled} use the shared slots
      * on every thread, so an instance acquired on a virtual thread may be
      * released on a platform thread, and the other way around. Do not pass a

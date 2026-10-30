@@ -47,8 +47,11 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  * Any thread can reuse any instance in the slots of a striped or hybrid pool.
  * Size such a pool near the peak number of threads (for the hybrid pool,
  * virtual threads) that hold an instance at the same time, up to
- * {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}: beyond its slot
- * count, acquires create new instances and releases drop them.
+ * {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY} (64; larger sizes
+ * are silently clamped). Beyond its slot count, every acquire and release
+ * scans all slots before creating or dropping an instance, which can be
+ * slower than {@link #nonRecyclingPool()}: where more instances are held at
+ * once, as by many virtual threads blocked on I/O, use {@link #defaultPool()}.
  * {@link #sharedStripedArrayPool()} and {@link #sharedHybridPool()} have
  * {@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY} slots.
  */
@@ -379,10 +382,15 @@ public final class JsonRecyclerPools
      * acquire without touching shared state.
      *<p>
      * Platform threads get their instances from {@link ThreadLocalPool},
-     * which creates them with {@code new BufferRecycler()}. So a subclass
-     * that overrides {@link #createPooled()} changes only the instances of
-     * the shared slots: those of virtual threads, and those that
-     * {@link #acquirePooled()} returns on any thread.
+     * which creates them with {@code new BufferRecycler()} and shares them
+     * with {@link #threadLocalPool()} and every other {@code HybridPool}.
+     * So a subclass that overrides {@link #createPooled()} changes only the
+     * instances of the shared slots: those of virtual threads, and those that
+     * {@link #acquirePooled()} returns on any thread. To customize the
+     * instances of platform threads too, extend
+     * {@link RecyclerPool.HybridPoolBase} directly, passing a
+     * {@link RecyclerPool.ThreadLocalPoolBase} implementation that keeps its
+     * own per-thread instances.
      *
      * @since 3.3
      */

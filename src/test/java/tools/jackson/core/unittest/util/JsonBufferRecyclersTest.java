@@ -54,7 +54,7 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
     // Platform threads use per-thread leave-in, not the shared slots
     @Test
     void parserWithHybridPool() throws Exception {
-        _testParser(JsonRecyclerPools.newHybridPool(5), 0, 0);
+        _testParser(JsonRecyclerPools.newHybridPool(5), -1, -1);
         _testParser(JsonRecyclerPools.sharedHybridPool(), null, null);
     }
 
@@ -130,7 +130,7 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
     // Platform threads use per-thread leave-in, not the shared slots
     @Test
     void generatorWithHybridPool() throws Exception {
-        _testGenerator(JsonRecyclerPools.newHybridPool(5), 0, 0);
+        _testGenerator(JsonRecyclerPools.newHybridPool(5), -1, -1);
         _testGenerator(JsonRecyclerPools.sharedHybridPool(), null, null);
     }
 

@@ -25,9 +25,9 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  *  {@link #threadLocalPool()}; virtual threads share bounded striped slots.
  *  </li>
  * <li>{@link #newStripedArrayPool(int)} ({@link StripedArrayPool}): bounded,
- *  with no per-thread state. It replaces the default where per-thread
- *  retention is not wanted (large or changing thread pools, or many
- *  short-lived threads).
+ *  with no per-thread state. Unlike the default, it caps retained instances
+ *  and allocates no queue nodes; unlike {@link #newHybridPool(int)}, it
+ *  suits large or changing thread pools, or many short-lived threads.
  *  </li>
  * <li>{@link #threadLocalPool()} ({@link ThreadLocalPool}): one instance per
  *  thread, held by a {@link SoftReference}, never shared between threads;

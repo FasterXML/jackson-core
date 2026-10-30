@@ -531,7 +531,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * while it is still in use.
      *<p>
      * {@link #capacity()} and {@link #pooledCount()} describe the shared slots
-     * only, and leave-ins are not counted. {@link #clear()} empties the shared
+     * only, and leave-ins are not counted; {@link #pooledCount()} is {@code -1}
+     * until the shared slots are allocated. {@link #clear()} empties the shared
      * slots and returns {@code false}, because leave-ins cannot be dropped.
      * The shared slots are allocated by the first release into them, so a pool
      * that only platform threads use through {@link #acquireAndLinkPooled()},
@@ -539,9 +540,10 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      *<p>
      * The virtual-thread check goes through a {@link MethodHandle} resolved
      * once, when this class is initialized, so this class also runs where
-     * {@code Thread.isVirtual()} does not exist (JDK before 19, Android) or
+     * {@code Thread.isVirtual()} does not exist (JDK before 19, Android),
      * cannot be looked up (such as a native image without reflection
-     * metadata for it). Every thread is then a platform thread.
+     * metadata for it) or cannot be invoked. Every thread is then a platform
+     * thread.
      *<p>
      * Pool state is {@code transient} and not restored on deserialization:
      * concrete subclasses must implement {@code readResolve}, as
@@ -571,18 +573,18 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
             }
         }
 
-        @IgnoreJRERequirement
+        // Treats the thread as a platform thread if the call fails (such as
+        // in a native image that cannot invoke the handle)
         private static boolean _isVirtual(Thread thread) {
             if (IS_VIRTUAL == null) {
                 return false;
             }
             try {
                 return (boolean) IS_VIRTUAL.invokeExact(thread);
-            } catch (RuntimeException | Error e) {
+            } catch (VirtualMachineError e) {
                 throw e;
             } catch (Throwable t) {
-                // Cannot happen: Thread.isVirtual() throws no checked exceptions
-                throw new IllegalStateException(t);
+                return false;
             }
         }
 
@@ -652,7 +654,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         @Override
         public int pooledCount() {
             final StripedArrayPoolBase<P> shared = _shared;
-            return (shared == null) ? 0 : shared.pooledCount();
+            return (shared == null) ? -1 : shared.pooledCount();
         }
 
         /**

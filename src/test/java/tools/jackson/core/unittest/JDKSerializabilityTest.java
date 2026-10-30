@@ -168,10 +168,12 @@ class JDKSerializabilityTest
                 _testRecyclerPoolNonShared(JsonRecyclerPools.newStripedArrayPool(32));
         assertEquals(32, striped.capacity());
         _testRecyclerPoolUsable(striped);
+        _testRecyclerPoolRetains(striped);
         hybrid = (JsonRecyclerPools.HybridPool)
                 _testRecyclerPoolNonShared(JsonRecyclerPools.newHybridPool(32));
         assertEquals(32, hybrid.capacity());
         _testRecyclerPoolUsable(hybrid);
+        _testRecyclerPoolRetains(hybrid);
     }
 
     // Transient state (slots, per-thread holder) must be rebuilt on deserialization
@@ -179,6 +181,12 @@ class JDKSerializabilityTest
         BufferRecycler br = pool.acquireAndLinkPooled();
         assertNotNull(br);
         br.releaseToPool();
+    }
+
+    // Shared slots of a non-shared copy must start empty and retain a release
+    private void _testRecyclerPoolRetains(RecyclerPool<BufferRecycler> pool) {
+        pool.releasePooled(pool.acquirePooled());
+        assertEquals(1, pool.pooledCount());
     }
 
     private <T extends RecyclerPool<?>> T _testRecyclerPoolGlobal(T pool) throws Exception {

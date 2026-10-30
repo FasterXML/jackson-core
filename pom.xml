@@ -387,15 +387,11 @@ tools.jackson.core.*;version=${project.version}
             -->
           <ignores>
             <ignore>java.lang.invoke.VarHandle</ignore>
+            <!-- 29-Oct-2026, tatu: [core#1687] MethodHandle.invokeExact is signature-polymorphic
+                 too (MethodHandle exists in Android API 26+)
+              -->
+            <ignore>java.lang.invoke.MethodHandle</ignore>
           </ignores>
-          <!-- 28-Oct-2026, stevenschlansker: [core#1687] MethodHandle.invokeExact is
-               signature-polymorphic too: the call site references a descriptor that
-               no signature file has, although MethodHandle is in the Android API
-               (26+). Methods with this annotation skip the check.
-            -->
-          <annotations>
-            <annotation>tools.jackson.core.util.IgnoreJRERequirement</annotation>
-          </annotations>
         </configuration>
       </plugin>
     </plugins>

@@ -1,9 +1,5 @@
 package tools.jackson.core.unittest.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -175,8 +171,8 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         br.releaseToPool(); // no-op
         assertSame(br, pool.acquireAndLinkPooled(),
                 "same platform thread must get its leave-in instance back");
-        // Leave-in instances are not tracked by the shared slots
-        assertEquals(0, pool.pooledCount());
+        // Leave-in instances are not tracked, and shared slots not yet allocated
+        assertEquals(-1, pool.pooledCount());
         // clear() drops the shared slots but cannot drop leave-ins: false
         assertFalse(pool.clear());
         assertSame(br, pool.acquireAndLinkPooled());
@@ -212,7 +208,7 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertEquals(16, capacityOf(pool));
 
         pool.acquireAndLinkPooled();
-        assertEquals(0, pool.pooledCount());
+        assertEquals(-1, pool.pooledCount());
         BufferRecycler br = pool.acquirePooled();
         pool.releasePooled(br);
         assertEquals(1, pool.pooledCount());
@@ -523,56 +519,6 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
             return true;
         }
         return false;
-    }
-
-    /*
-    /**********************************************************************
-    /* JDK serialization
-    /**********************************************************************
-     */
-
-    @Test
-    void stripedPoolSerialization() throws Exception {
-        // Shared instance resolves back to the global one
-        assertSame(JsonRecyclerPools.sharedStripedArrayPool(),
-                jdkRoundTrip(JsonRecyclerPools.sharedStripedArrayPool()));
-
-        // Non-shared resolves to a fresh, working pool with the same capacity
-        RecyclerPool<BufferRecycler> orig = JsonRecyclerPools.newStripedArrayPool(8);
-        RecyclerPool<BufferRecycler> copy = jdkRoundTrip(orig);
-        assertNotSame(orig, copy);
-        assertEquals(8, capacityOf(copy));
-        BufferRecycler br = copy.acquireAndLinkPooled();
-        br.releaseToPool();
-        assertEquals(1, copy.pooledCount());
-    }
-
-    @Test
-    void hybridPoolSerialization() throws Exception {
-        assertSame(JsonRecyclerPools.sharedHybridPool(),
-                jdkRoundTrip(JsonRecyclerPools.sharedHybridPool()));
-
-        RecyclerPool<BufferRecycler> orig = JsonRecyclerPools.newHybridPool(8);
-        RecyclerPool<BufferRecycler> copy = jdkRoundTrip(orig);
-        assertNotSame(orig, copy);
-        assertEquals(8, capacityOf(copy));
-        assertNotNull(copy.acquireAndLinkPooled());
-        copy.releasePooled(copy.acquirePooled());
-        assertEquals(1, copy.pooledCount());
-    }
-
-    @SuppressWarnings("unchecked")
-    private static RecyclerPool<BufferRecycler> jdkRoundTrip(RecyclerPool<BufferRecycler> pool)
-        throws Exception
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        try (ObjectOutputStream out = new ObjectOutputStream(bytes)) {
-            out.writeObject(pool);
-        }
-        try (ObjectInputStream in = new ObjectInputStream(
-                new ByteArrayInputStream(bytes.toByteArray()))) {
-            return (RecyclerPool<BufferRecycler>) in.readObject();
-        }
     }
 
     /*

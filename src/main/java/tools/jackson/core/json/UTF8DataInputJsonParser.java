@@ -93,11 +93,16 @@ public class UTF8DataInputJsonParser
      */
     protected int _nextByte = -1;
 
+    // Includes bytes consumed during bootstrapping and any buffered lookahead.
+    long _inputBytesProcessed;
+
     /**
      * Row at which current property name starts: needed since value following
      * name is parsed along with it (and {@code _tokenInputRow} refers to value)
      */
     private int _nameStartRow;
+
+    private long _nameStartByteOffset;
 
     /*
     /**********************************************************************
@@ -114,6 +119,7 @@ public class UTF8DataInputJsonParser
         _symbols = sym;
         _inputData = inputData;
         _nextByte = firstByte;
+        _inputBytesProcessed = (firstByte < 0) ? 0 : 1;
     }
 
     /*
@@ -153,7 +159,9 @@ public class UTF8DataInputJsonParser
      * @since 3.2
      */
     protected int readUnsignedByte() throws IOException {
-        return _inputData.readUnsignedByte();
+        int value = _inputData.readUnsignedByte();
+        ++_inputBytesProcessed;
+        return value;
     }
 
     /**
@@ -626,6 +634,7 @@ public class UTF8DataInputJsonParser
         // clear any data retained so far
         _binaryValue = null;
         _tokenInputRow = _currInputRow;
+        _tokenInputTotal = _inputBytesProcessed - 1;
 
         // Closing scope?
         if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
@@ -640,6 +649,7 @@ public class UTF8DataInputJsonParser
             }
             i = _skipWS(false);
             _tokenInputRow = _currInputRow;
+            _tokenInputTotal = _inputBytesProcessed - 1;
 
             // Was that a trailing comma?
             if (isEnabled(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
@@ -664,7 +674,9 @@ public class UTF8DataInputJsonParser
 
         i = _skipColon();
         _nameStartRow = _tokenInputRow;
+        _nameStartByteOffset = _tokenInputTotal;
         _tokenInputRow = _currInputRow;
+        _tokenInputTotal = _inputBytesProcessed - 1;
 
         // Ok: we must have a value... what is it? Strings are very common, check first:
         if (i == INT_QUOTE) {
@@ -835,6 +847,7 @@ public class UTF8DataInputJsonParser
         }
         _binaryValue = null;
         _tokenInputRow = _currInputRow;
+        _tokenInputTotal = _inputBytesProcessed - 1;
 
         if ((i | 0x20) == INT_RCURLY) { // ~ '}]'
             _closeScope(i);
@@ -848,6 +861,7 @@ public class UTF8DataInputJsonParser
             }
             i = _skipWS(false);
             _tokenInputRow = _currInputRow;
+            _tokenInputTotal = _inputBytesProcessed - 1;
 
             // Was that a trailing comma?
             if (isEnabled(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
@@ -869,7 +883,9 @@ public class UTF8DataInputJsonParser
 
         i = _skipColon();
         _nameStartRow = _tokenInputRow;
+        _nameStartByteOffset = _tokenInputTotal;
         _tokenInputRow = _currInputRow;
+        _tokenInputTotal = _inputBytesProcessed - 1;
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
             _nextToken = JsonToken.VALUE_STRING;
@@ -3175,25 +3191,24 @@ public class UTF8DataInputJsonParser
 
     @Override
     public TokenStreamLocation currentLocation() {
-        // No column tracking since we do not have pointers, DataInput has no offset
-        final int col = -1;
-        return new TokenStreamLocation(_contentReference(), -1L, -1L,
-                _currInputRow, col);
+        long offset = _inputBytesProcessed - ((_nextByte < 0) ? 0 : 1);
+        return new TokenStreamLocation(_contentReference(), offset, -1L,
+                _currInputRow, -1);
     }
 
-    // Since we only know row, may as well return currentLocation()
     @Override // @since 2.17
     protected TokenStreamLocation _currentLocationMinusOne() {
-        return currentLocation();
+        long offset = Math.max(0L, currentLocation().getByteOffset() - 1);
+        return new TokenStreamLocation(_contentReference(), offset, -1L,
+                _currInputRow, -1);
     }
 
     @Override
     public TokenStreamLocation currentTokenLocation() {
-        // No column tracking since we do not have pointers, DataInput has no offset
-        // 23-Oct-2026, tatu: [core#1795] Value after name is parsed along with name,
-        //   so `_tokenInputRow` refers to value while PROPERTY_NAME is current token
-        final int row = (_currToken == JsonToken.PROPERTY_NAME) ? _nameStartRow : _tokenInputRow;
-        return new TokenStreamLocation(_contentReference(), -1L, -1L, row, -1);
+        boolean propertyName = (_currToken == JsonToken.PROPERTY_NAME);
+        long offset = propertyName ? _nameStartByteOffset : _tokenInputTotal;
+        int row = propertyName ? _nameStartRow : _tokenInputRow;
+        return new TokenStreamLocation(_contentReference(), offset, -1L, row, -1);
     }
 
     /*

@@ -445,19 +445,30 @@ public class JsonFactory
     {
         // Also: while we can't do full bootstrapping (due to read-ahead limitations), should
         // at least handle possible UTF-8 BOM
-        int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
+        int firstByte;
+        try {
+            firstByte = input.readUnsignedByte();
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        int bytesProcessed = (firstByte == 0xEF) ? 4 : 1;
+        firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input, firstByte);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChildOrPlaceholder(_factoryFeatures);
+        UTF8DataInputJsonParser parser;
         // [core#1575]: Support max doc length constraints with separate impl
         if (_streamReadConstraints.hasMaxDocumentLength()) {
-            return new UTF8DataInputWithDocLengthJsonParser(readCtxt, ioCtxt,
+            parser = new UTF8DataInputWithDocLengthJsonParser(readCtxt, ioCtxt,
+                    readCtxt.getStreamReadFeatures(_streamReadFeatures),
+                    readCtxt.getFormatReadFeatures(_formatReadFeatures),
+                    input, can, firstByte);
+        } else {
+            parser = new UTF8DataInputJsonParser(readCtxt, ioCtxt,
                     readCtxt.getStreamReadFeatures(_streamReadFeatures),
                     readCtxt.getFormatReadFeatures(_formatReadFeatures),
                     input, can, firstByte);
         }
-        return new UTF8DataInputJsonParser(readCtxt, ioCtxt,
-                readCtxt.getStreamReadFeatures(_streamReadFeatures),
-                readCtxt.getFormatReadFeatures(_formatReadFeatures),
-                input, can, firstByte);
+        parser._inputBytesProcessed = bytesProcessed;
+        return parser;
     }
 
     /*

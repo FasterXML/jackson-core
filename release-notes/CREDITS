@@ -70,6 +70,10 @@ Lee Dongnyoung (@DongNyoung)
  * Reported #1724: Use target exception's original message and type when wrapping
    `InvocationTargetException` with path information
   (3.1.8)
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getString(Writer)`
+  (3.1.9)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

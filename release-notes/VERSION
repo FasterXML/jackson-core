@@ -166,6 +166,10 @@ No changes since 3.2.0
 #1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
   in String values (and comments, except for non-blocking parser)
  (fix by @pjfanning)
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getString(Writer)`
+ (reported by @DongNyoung)
+ (fix by @DongNyoung)
 #1795: `UTF8DataInputJsonParser` accepts any control character as white space
   between tokens (also: CR-LF and token line numbers; Record Separator no longer
   accepted directly after root-level number or comment, same as other parsers)

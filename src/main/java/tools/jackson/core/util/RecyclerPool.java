@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReferenceArray;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
  * API for object pools that control creation and possible reuse of
@@ -538,12 +537,8 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * while it is still in use.
      *<p>
      * {@link #capacity()} and {@link #pooledCount()} describe the shared slots
-     * only, and leave-ins are not counted; {@link #pooledCount()} is {@code -1}
-     * until the shared slots are allocated. {@link #clear()} empties the shared
+     * only, and leave-ins are not counted. {@link #clear()} empties the shared
      * slots and returns {@code false}, because leave-ins cannot be dropped.
-     * The shared slots are allocated by the first release into them, so a pool
-     * that only platform threads use through {@link #acquireAndLinkPooled()},
-     * as Jackson uses it, never allocates them.
      *<p>
      * The virtual-thread check goes through a {@link MethodHandle} resolved
      * once, when this class is initialized, so this class also runs where
@@ -597,15 +592,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
 
         private final transient ThreadLocalPoolBase<P> _platformPool;
 
-        /**
-         * Shared slots; {@code null} until the first release into them.
-         */
-        private transient volatile StripedArrayPoolBase<P> _shared;
-
-        @SuppressWarnings("rawtypes")
-        private static final AtomicReferenceFieldUpdater<HybridPoolBase, StripedArrayPoolBase> SHARED_UPDATER
-            = AtomicReferenceFieldUpdater.newUpdater(HybridPoolBase.class,
-                    StripedArrayPoolBase.class, "_shared");
+        private final transient StripedArrayPoolBase<P> _shared;
 
         // // // Life-cycle (constructors, factory methods)
 
@@ -618,6 +605,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         protected HybridPoolBase(int capacityAsId, ThreadLocalPoolBase<P> platformPool) {
             super(capacityAsId);
             _platformPool = Objects.requireNonNull(platformPool);
+            _shared = new SharedSlots<>(capacityAsId, this);
         }
 
         // // // Actual API implementation
@@ -626,42 +614,24 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
         public P acquireAndLinkPooled() {
             final Thread thread = Thread.currentThread();
             if (_isVirtual(thread)) {
-                return _acquireShared(thread).withPool(this);
+                return _shared._acquire(thread).withPool(this);
             }
             return _platformPool.acquireAndLinkPooled();
         }
 
         @Override
         public P acquirePooled() {
-            return _acquireShared(Thread.currentThread());
-        }
-
-        private P _acquireShared(Thread thread) {
-            final StripedArrayPoolBase<P> shared = _shared;
-            return (shared == null) ? createPooled() : shared._acquire(thread);
+            return _shared._acquire(Thread.currentThread());
         }
 
         @Override
         public void releasePooled(P pooled) {
-            StripedArrayPoolBase<P> shared = _shared;
-            if (shared == null) {
-                shared = _allocateShared();
-            }
-            shared._release(pooled, Thread.currentThread());
-        }
-
-        private StripedArrayPoolBase<P> _allocateShared() {
-            final StripedArrayPoolBase<P> created = new SharedSlots<>(_serialization, this);
-            if (SHARED_UPDATER.compareAndSet(this, null, created)) {
-                return created;
-            }
-            return _shared;
+            _shared._release(pooled, Thread.currentThread());
         }
 
         @Override
         public int pooledCount() {
-            final StripedArrayPoolBase<P> shared = _shared;
-            return (shared == null) ? -1 : shared.pooledCount();
+            return _shared.pooledCount();
         }
 
         /**
@@ -670,10 +640,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          */
         @Override
         public boolean clear() {
-            final StripedArrayPoolBase<P> shared = _shared;
-            if (shared != null) {
-                shared.clear();
-            }
+            _shared.clear();
             return false;
         }
 
@@ -684,7 +651,7 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
          *    power of two, at most {@link StripedArrayPoolBase#MAX_CAPACITY}
          */
         public int capacity() {
-            return StripedArrayPoolBase._powerOfTwoCapacity(_serialization);
+            return _shared.capacity();
         }
 
         private static final class SharedSlots<P extends WithPool<P>>

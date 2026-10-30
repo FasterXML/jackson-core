@@ -171,8 +171,8 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         br.releaseToPool(); // no-op
         assertSame(br, pool.acquireAndLinkPooled(),
                 "same platform thread must get its leave-in instance back");
-        // Leave-in instances are not tracked, and shared slots not yet allocated
-        assertEquals(-1, pool.pooledCount());
+        // Leave-in instances are not tracked by the shared slots
+        assertEquals(0, pool.pooledCount());
         // clear() drops the shared slots but cannot drop leave-ins: false
         assertFalse(pool.clear());
         assertSame(br, pool.acquireAndLinkPooled());
@@ -208,52 +208,13 @@ class StripedAndHybridPoolTest extends JacksonCoreTestBase
         assertEquals(16, capacityOf(pool));
 
         pool.acquireAndLinkPooled();
-        assertEquals(-1, pool.pooledCount());
+        assertEquals(0, pool.pooledCount());
         BufferRecycler br = pool.acquirePooled();
         pool.releasePooled(br);
         assertEquals(1, pool.pooledCount());
         assertFalse(pool.clear());
         assertEquals(0, pool.pooledCount());
         assertEquals(16, capacityOf(pool));
-    }
-
-    // Concurrent first releases race to allocate the shared slots: every
-    // release must land in the one allocation that wins
-    @Test
-    void hybridPoolFirstReleasesRace() throws Exception {
-        final int capacity = 4;
-        for (int threads : new int[] { capacity - 1, 2 * capacity }) {
-            ExecutorService exec = Executors.newFixedThreadPool(threads);
-            try {
-                for (int round = 0; round < 200; ++round) {
-                    assertFirstReleasesRace(exec, capacity, threads);
-                }
-            } finally {
-                exec.shutdownNow();
-            }
-        }
-    }
-
-    private static void assertFirstReleasesRace(ExecutorService exec, int capacity,
-            int threads) throws Exception
-    {
-        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newHybridPool(capacity);
-        AtomicInteger arrived = new AtomicInteger();
-        List<Future<?>> futures = new ArrayList<>();
-        for (int i = 0; i < threads; ++i) {
-            BufferRecycler br = pool.acquirePooled();
-            futures.add(exec.submit(() -> {
-                arrived.incrementAndGet();
-                while (arrived.get() < threads) {
-                    Thread.onSpinWait();
-                }
-                pool.releasePooled(br);
-            }));
-        }
-        for (Future<?> f : futures) {
-            f.get(30, TimeUnit.SECONDS);
-        }
-        assertEquals(Math.min(threads, capacity), pool.pooledCount());
     }
 
     @Test

@@ -129,7 +129,8 @@ JSON library.
 #1802: Pad `BufferRecycler` buffer slots and pool link to avoid false sharing
   with other objects (removes protected `_byteBuffers` and `_charBuffers`,
   adds about 200 bytes per recycler with compressed oops; new protected
-  `BufferRecycler(int, int, boolean)` constructor allows disabling padding)
+  constructors `BufferRecycler(boolean)` and `BufferRecycler(int, int, boolean)`
+  allow disabling padding)
  (contributed by @stevenschlansker, w/ Claude code)
 
 3.2.5 (not yet released)

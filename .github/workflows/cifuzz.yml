@@ -1,8 +1,8 @@
 name: CIFuzz
 on:
-  pull_request:
-    branches: # Only works for 2.x, due package renaming in 3.0 (master)
-    - "2.18"
+  # 23-Oct-2026, tatu: Disabled for 2.x: OSS-Fuzz fuzzers now target 3.x API
+  #   (JacksonException etc), fail to compile against 2.x. Manual trigger only.
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:

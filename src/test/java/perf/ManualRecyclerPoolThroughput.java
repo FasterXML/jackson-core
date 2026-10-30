@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -64,6 +63,10 @@ public class ManualRecyclerPoolThroughput
         final int threads = (args.length > 0) ? Integer.parseInt(args[0]) : 4;
         final int warmupSecs = (args.length > 1) ? Integer.parseInt(args[1]) : 5;
         final int measureSecs = (args.length > 2) ? Integer.parseInt(args[2]) : 10;
+        if (threads < 1 || warmupSecs < 0 || measureSecs < 1) {
+            throw new IllegalArgumentException(
+                    "Need threads >= 1, warmupSecs >= 0, measureSecs >= 1");
+        }
         new ManualRecyclerPoolThroughput(threads, warmupSecs, measureSecs).run();
     }
 
@@ -119,7 +122,6 @@ public class ManualRecyclerPoolThroughput
     {
         final long endMsecs = System.currentTimeMillis()
                 + TimeUnit.SECONDS.toMillis(seconds);
-        final CountDownLatch done = new CountDownLatch(_threadCount);
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < _threadCount; ++i) {
             Runnable work = () -> {
@@ -148,14 +150,11 @@ public class ManualRecyclerPoolThroughput
                     Thread.currentThread().interrupt();
                 } catch (Exception e) {
                     System.err.println("ERROR: worker failed: "+e);
-                } finally {
-                    done.countDown();
                 }
             };
             threads.add((lifecycle == Lifecycle.VIRTUAL_LONG_LIVED)
                     ? startVirtualThread(work) : startPlatformThread(work));
         }
-        done.await();
         for (Thread t : threads) {
             t.join();
         }

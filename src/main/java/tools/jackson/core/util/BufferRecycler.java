@@ -196,8 +196,8 @@ public class BufferRecycler
 
     public void releaseByteBuffer(int ix, byte[] buffer) {
         // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial.
-        // 21-Apr-2026, pjfanning: [core#1598] Update the slot atomically, to
-        // avoid the TOCTOU race of a non-atomic get+conditional-set sequence.
+        // [core#1598] Update the slot atomically, avoiding the TOCTOU race
+        // of a non-atomic get+conditional-set sequence.
         final int slot = _byteSlot(ix);
         Object current;
         do {
@@ -232,8 +232,8 @@ public class BufferRecycler
 
     public void releaseCharBuffer(int ix, char[] buffer) {
         // 13-Jan-2024, tatu: [core#1186] Replace only if beneficial.
-        // 21-Apr-2026, pjfanning: [core#1598] Update the slot atomically, to
-        // avoid the TOCTOU race of a non-atomic get+conditional-set sequence.
+        // [core#1598] Update the slot atomically, avoiding the TOCTOU race
+        // of a non-atomic get+conditional-set sequence.
         final int slot = _charSlot(ix);
         Object current;
         do {

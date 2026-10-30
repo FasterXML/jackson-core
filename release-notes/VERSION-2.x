@@ -68,6 +68,13 @@ No changes since 2.19.1
  (requested by Ilenia S)
  (fixed by @pjfanning)
 
+2.18.13 (not yet released)
+
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getText(Writer)`
+ (reported by @Dongnyoung)
+ (fix by @Dongnyoung)
+
 2.18.12 (17-Oct-2026)
 
 No changes since 2.18.11

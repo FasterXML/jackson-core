@@ -141,7 +141,7 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
   (3.3.0)
- * Contributed #xxxx: Pad `BufferRecycler` buffer slots and pool link to avoid
+ * Contributed #1802: Pad `BufferRecycler` buffer slots and pool link to avoid
    false sharing with other objects
   (3.3.0)
 

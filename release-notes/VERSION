@@ -126,7 +126,7 @@ JSON library.
  (fix by @ItsDeadlyProgrammer)
 #1798: `BinaryNameMatcher` does not pad partial quads: binary parsers match
   NUL-containing names to known properties (add optional padding)
-#xxxx: Pad `BufferRecycler` buffer slots and pool link to avoid false sharing
+#1802: Pad `BufferRecycler` buffer slots and pool link to avoid false sharing
   with other objects (removes protected `_byteBuffers` and `_charBuffers`,
   adds about 200 bytes per recycler with compressed oops)
  (contributed by @stevenschlansker, w/ Claude code)

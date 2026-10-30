@@ -119,6 +119,10 @@ JSON library.
   containing 0xFF bytes
  (reported by @un5h4d0w)
  (fix by @pjfanning)
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getString(Writer)`
+ (reported by @DongNyoung)
+ (fix by @DongNyoung)
 #1795: `UTF8DataInputJsonParser` accepts any control character as white space
   between tokens (also: CR-LF and token line numbers; Record Separator no longer
   accepted directly after root-level number or comment, same as other parsers)

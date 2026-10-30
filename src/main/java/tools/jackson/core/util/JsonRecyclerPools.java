@@ -48,10 +48,10 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  * Size such a pool near the peak number of threads (for the hybrid pool,
  * virtual threads) that hold an instance at the same time, up to
  * {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY} (64; larger sizes
- * are silently clamped). Beyond its slot count, every acquire and release
- * scans all slots before creating or dropping an instance, which can be
- * slower than {@link #nonRecyclingPool()}: where more instances are held at
- * once, as by many virtual threads blocked on I/O, use {@link #defaultPool()}.
+ * are silently clamped). The slots only need to absorb changes in how many
+ * instances are in use, not hold every instance in use: when that number
+ * rises or falls by more than the slot count, some acquires create new
+ * instances and some releases drop them.
  * {@link #sharedStripedArrayPool()} and {@link #sharedHybridPool()} have
  * {@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY} slots.
  */

@@ -339,11 +339,10 @@ public interface RecyclerPool<P extends RecyclerPool.WithPool<P>> extends Serial
      * occupied, and an acquire creates a new one only when its scan finds
      * every slot empty. Each slot is on its own cache line, so such a scan
      * reads {@link #capacity()} cache lines (16 by default, at most 64)
-     * before it drops or creates an instance. So when more instances are in
-     * use at the same time than there are slots, as when many virtual threads
-     * hold one while blocked on I/O, acquires and releases pay for a full
-     * scan without recycling, and the pool can be slower than not pooling;
-     * {@link ConcurrentDequePoolBase} has no such limit.
+     * before it drops or creates an instance. The slots only need to absorb
+     * changes in the number of instances in use, not hold every instance in
+     * use, so this happens only when that number rises or falls by more than
+     * the slot count.
      * Special thanks to the Vert.x project for the approach.
      *<p>
      * The slot array is {@code transient} and is not restored on

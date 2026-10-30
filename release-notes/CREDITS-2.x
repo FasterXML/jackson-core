@@ -534,6 +534,10 @@ Mike Pedersen (@mpdncrwd)
 DongNyoung Lee (@Dongnyoung)
  * Contributed #1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
   (2.21.6)
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getText(Writer)`
+  (2.18.13)
 
 Patrick Strawderman (@kilink)
  * Requested #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer

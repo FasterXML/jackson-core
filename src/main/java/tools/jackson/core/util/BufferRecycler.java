@@ -121,18 +121,28 @@ public class BufferRecycler
     private final Object[] _slots;
 
     /**
-     * Index of the pool link in {@link #_slots}; byte buffers follow it.
+     * Index of the pool link in {@link #_slots}.
      */
     private final int _poolSlot;
+
+    /**
+     * Index of the first byte buffer in {@link #_slots}.
+     */
+    private final int _byteSlotBase;
+
+    /**
+     * Index of the first char buffer in {@link #_slots}.
+     */
+    private final int _charSlotBase;
 
     private final int _byteBufferCount;
 
     private final int _charBufferCount;
 
     /*
-    /**********************************************************
+    /***********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /***********************************************************************
      */
 
     /**
@@ -140,7 +150,16 @@ public class BufferRecycler
      * implementation.
      */
     public BufferRecycler() {
-        this(4, 4);
+        this(true);
+    }
+
+    /**
+     * @param padded Whether to pad slots; see {@link #BufferRecycler(int, int, boolean)}
+     *
+     * @since 3.3
+     */
+    protected BufferRecycler(boolean padded) {
+        this(4, 4, padded);
     }
 
     /**
@@ -155,15 +174,24 @@ public class BufferRecycler
     }
 
     /**
+     * Alternate constructor to be used by sub-classes, to allow customization
+     * of number of low-level buffers in use, and of slot padding.
+     *
+     * @param bbCount Number of {@code byte[]} buffers to allocate
+     * @param cbCount Number of {@code char[]} buffers to allocate
      * @param padded Whether to pad slots against false sharing: only useful
      *   for instances that are kept and reused, not for one-off ones.
+     *
+     * @since 3.3
      */
-    BufferRecycler(int bbCount, int cbCount, boolean padded) {
+    protected BufferRecycler(int bbCount, int cbCount, boolean padded) {
         if (bbCount < 0 || cbCount < 0) {
             throw new IllegalArgumentException("Negative buffer count: bbCount="+bbCount+", cbCount="+cbCount);
         }
         final int padding = padded ? SLOT_PADDING : 0;
         _poolSlot = padding;
+        _byteSlotBase = padding + 1;
+        _charSlotBase = _byteSlotBase + bbCount;
         _slots = new Object[padding + 1 + bbCount + cbCount + padding];
         _byteBufferCount = bbCount;
         _charBufferCount = cbCount;
@@ -180,9 +208,9 @@ public class BufferRecycler
     }
 
     /*
-    /**********************************************************
+    /***********************************************************************
     /* Public API, byte buffers
-    /**********************************************************
+    /***********************************************************************
      */
 
     /**
@@ -223,9 +251,9 @@ public class BufferRecycler
     }
 
     /*
-    /**********************************************************
+    /***********************************************************************
     /* Public API, char buffers
-    /**********************************************************
+    /***********************************************************************
      */
 
     public final char[] allocCharBuffer(int ix) {
@@ -260,17 +288,17 @@ public class BufferRecycler
     }
 
     private int _byteSlot(int ix) {
-        return _poolSlot + 1 + Objects.checkIndex(ix, _byteBufferCount);
+        return _byteSlotBase + Objects.checkIndex(ix, _byteBufferCount);
     }
 
     private int _charSlot(int ix) {
-        return _poolSlot + 1 + _byteBufferCount + Objects.checkIndex(ix, _charBufferCount);
+        return _charSlotBase + Objects.checkIndex(ix, _charBufferCount);
     }
 
     /*
-    /**********************************************************
+    /***********************************************************************
     /* Overridable helper methods
-    /**********************************************************
+    /***********************************************************************
      */
 
     protected int byteBufferLength(int ix) {
@@ -282,18 +310,18 @@ public class BufferRecycler
     }
 
     /*
-    /**********************************************************
+    /***********************************************************************
     /* Actual allocations separated for easier debugging/profiling
-    /**********************************************************
+    /***********************************************************************
      */
 
     protected byte[] balloc(int size) { return new byte[size]; }
     protected char[] calloc(int size) { return new char[size]; }
 
     /*
-    /**********************************************************
+    /***********************************************************************
     /* WithPool implementation
-    /**********************************************************
+    /***********************************************************************
      */
 
     /**

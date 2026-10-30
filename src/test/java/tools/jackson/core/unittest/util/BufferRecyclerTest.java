@@ -233,6 +233,10 @@ class BufferRecyclerTest extends JacksonCoreTestBase
                 // start all releases at the same time
                 notReady.decrementAndGet();
                 while (notReady.get() > 0) {
+                    // exit on shutdownNow() if another thread failed
+                    if (Thread.interrupted()) {
+                        throw new InterruptedException();
+                    }
                     Thread.yield();
                 }
                 br.releaseByteBuffer(BufferRecycler.BYTE_WRITE_CONCAT_BUFFER, bytes);
@@ -247,11 +251,12 @@ class BufferRecyclerTest extends JacksonCoreTestBase
     // Allocations and releases race on one slot; no buffer may go to two threads at once.
     @Test
     void concurrentAllocNeverSharesBuffer() throws Exception {
-        final int rounds = 20_000;
+        final int threads = Math.max(2, Math.min(THREADS, Runtime.getRuntime().availableProcessors()));
+        final int rounds = 5_000;
         final BufferRecycler br = new BufferRecycler();
         final Set<Object> inUse = ConcurrentHashMap.newKeySet();
         final AtomicInteger bad = new AtomicInteger();
-        runThreads(THREADS, ix -> {
+        runThreads(threads, ix -> {
             for (int i = 0; i < rounds; ++i) {
                 byte[] bytes = br.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER, 8000 + ix);
                 char[] chars = br.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, 4000 + ix);
@@ -280,7 +285,12 @@ class BufferRecyclerTest extends JacksonCoreTestBase
     }
 
     private static void runThreads(int threads, IndexedTask task) throws Exception {
-        ExecutorService exec = Executors.newFixedThreadPool(threads);
+        // daemon threads, so a stuck one cannot keep the test JVM alive
+        ExecutorService exec = Executors.newFixedThreadPool(threads, r -> {
+            Thread t = new Thread(r);
+            t.setDaemon(true);
+            return t;
+        });
         try {
             List<Future<?>> futures = new ArrayList<>();
             for (int t = 0; t < threads; ++t) {

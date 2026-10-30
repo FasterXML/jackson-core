@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import org.junit.jupiter.api.Test;
 
@@ -210,7 +211,19 @@ class TextBufferTest
         textBuffer.finishCurrentSegment();
         textBuffer.resetWith('q');
 
-        assertEquals(2, textBuffer.size());
+        assertEquals(1, textBuffer.size());
+    }
+
+    @Test
+    void sizeAfterResetWithChar() throws Exception {
+        TextBuffer textBuffer = new TextBuffer(null);
+        textBuffer.resetWith('q');
+
+        assertEquals(1, textBuffer.size());
+        assertArrayEquals(new char[] { 'q' }, textBuffer.contentsAsArray());
+        StringWriter w = new StringWriter();
+        assertEquals(1, textBuffer.contentsToWriter(w));
+        assertEquals("q", w.toString());
     }
 
     public void testContentsAsFloat() throws IOException {

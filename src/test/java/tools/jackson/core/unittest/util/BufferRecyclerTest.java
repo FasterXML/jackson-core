@@ -81,6 +81,33 @@ class BufferRecyclerTest extends JacksonCoreTestBase
         assertNull(slots[SLOT_PADDING]);
     }
 
+    // Non-recycling pool hands out one-off recyclers, which need no padding
+    @Test
+    void nonRecyclingPoolSlotsAreNotPadded() throws Exception {
+        BufferRecycler br = JsonRecyclerPools.nonRecyclingPool().acquireAndLinkPooled();
+        Field f = BufferRecycler.class.getDeclaredField("_slots");
+        f.setAccessible(true);
+        Object[] slots = (Object[]) f.get(br);
+        // pool link, 4 byte buffers, 4 char buffers
+        assertEquals(1 + 4 + 4, slots.length);
+        // not linked by this pool; link to another to check the pool slot
+        assertFalse(br.isLinkedWithPool());
+        CountingPool pool = new CountingPool();
+        br.withPool(pool);
+        assertSame(pool, slots[0]);
+
+        byte[] bytes = br.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER);
+        char[] chars = br.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER);
+        br.releaseByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER, bytes);
+        br.releaseCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, chars);
+        assertSame(bytes, br.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER));
+        assertSame(chars, br.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER));
+
+        br.releaseToPool();
+        assertNull(slots[0]);
+        assertEquals(1, pool.released.get());
+    }
+
     @Test
     void byteAndCharSlotsDoNotOverlap() {
         BufferRecycler br = new CustomCountRecycler();
@@ -228,12 +255,19 @@ class BufferRecyclerTest extends JacksonCoreTestBase
             for (int i = 0; i < rounds; ++i) {
                 byte[] bytes = br.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER, 8000 + ix);
                 char[] chars = br.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, 4000 + ix);
-                if (!inUse.add(bytes) || !inUse.add(chars)
+                // Track both buffers, and only remove what this thread added
+                final boolean ownBytes = inUse.add(bytes);
+                final boolean ownChars = inUse.add(chars);
+                if (!ownBytes || !ownChars
                         || bytes.length < 8000 + ix || chars.length < 4000 + ix) {
                     bad.incrementAndGet();
                 }
-                inUse.remove(bytes);
-                inUse.remove(chars);
+                if (ownBytes) {
+                    inUse.remove(bytes);
+                }
+                if (ownChars) {
+                    inUse.remove(chars);
+                }
                 br.releaseByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER, bytes);
                 br.releaseCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, chars);
             }

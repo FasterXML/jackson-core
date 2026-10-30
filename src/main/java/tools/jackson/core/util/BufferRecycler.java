@@ -111,17 +111,19 @@ public class BufferRecycler
      */
     private final static int SLOT_PADDING = 32;
 
-    private final static int POOL_SLOT = SLOT_PADDING;
-
-    private final static int FIRST_BYTE_SLOT = POOL_SLOT + 1;
-
     private final static VarHandle SLOTS = MethodHandles.arrayElementVarHandle(Object[].class);
 
     /**
      * Pool link, then the byte buffers, then the char buffers, with
-     * {@link #SLOT_PADDING} unused slots before and after them.
+     * {@link #SLOT_PADDING} unused slots before and after them
+     * (none if not padded, see constructor).
      */
     private final Object[] _slots;
+
+    /**
+     * Index of the pool link in {@link #_slots}; byte buffers follow it.
+     */
+    private final int _poolSlot;
 
     private final int _byteBufferCount;
 
@@ -149,10 +151,20 @@ public class BufferRecycler
      * @param cbCount Number of {@code char[]} buffers to allocate
      */
     protected BufferRecycler(int bbCount, int cbCount) {
+        this(bbCount, cbCount, true);
+    }
+
+    /**
+     * @param padded Whether to pad slots against false sharing: only useful
+     *   for instances that are kept and reused, not for one-off ones.
+     */
+    BufferRecycler(int bbCount, int cbCount, boolean padded) {
         if (bbCount < 0 || cbCount < 0) {
             throw new IllegalArgumentException("Negative buffer count: bbCount="+bbCount+", cbCount="+cbCount);
         }
-        _slots = new Object[FIRST_BYTE_SLOT + bbCount + cbCount + SLOT_PADDING];
+        final int padding = padded ? SLOT_PADDING : 0;
+        _poolSlot = padding;
+        _slots = new Object[padding + 1 + bbCount + cbCount + padding];
         _byteBufferCount = bbCount;
         _charBufferCount = cbCount;
     }
@@ -164,7 +176,7 @@ public class BufferRecycler
      * @since 2.17
      */
     public boolean isLinkedWithPool() {
-        return _slots[POOL_SLOT] != null;
+        return _slots[_poolSlot] != null;
     }
 
     /*
@@ -187,7 +199,9 @@ public class BufferRecycler
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
-        byte[] buffer = (byte[]) SLOTS.getAndSet(_slots, _byteSlot(ix), null);
+        // Object-typed arguments and result match the VarHandle access mode exactly
+        final Object old = SLOTS.getAndSet(_slots, _byteSlot(ix), (Object) null);
+        byte[] buffer = (byte[]) old;
         if (buffer == null || buffer.length < minSize) {
             buffer = balloc(minSize);
         }
@@ -205,7 +219,7 @@ public class BufferRecycler
             if (current != null && ((byte[]) current).length >= buffer.length) {
                 return;
             }
-        } while (!SLOTS.compareAndSet(_slots, slot, current, buffer));
+        } while (!SLOTS.compareAndSet(_slots, slot, current, (Object) buffer));
     }
 
     /*
@@ -223,7 +237,8 @@ public class BufferRecycler
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
-        char[] buffer = (char[]) SLOTS.getAndSet(_slots, _charSlot(ix), null);
+        final Object old = SLOTS.getAndSet(_slots, _charSlot(ix), (Object) null);
+        char[] buffer = (char[]) old;
         if (buffer == null || buffer.length < minSize) {
             buffer = calloc(minSize);
         }
@@ -241,15 +256,15 @@ public class BufferRecycler
             if (current != null && ((char[]) current).length >= buffer.length) {
                 return;
             }
-        } while (!SLOTS.compareAndSet(_slots, slot, current, buffer));
+        } while (!SLOTS.compareAndSet(_slots, slot, current, (Object) buffer));
     }
 
     private int _byteSlot(int ix) {
-        return FIRST_BYTE_SLOT + Objects.checkIndex(ix, _byteBufferCount);
+        return _poolSlot + 1 + Objects.checkIndex(ix, _byteBufferCount);
     }
 
     private int _charSlot(int ix) {
-        return FIRST_BYTE_SLOT + _byteBufferCount + Objects.checkIndex(ix, _charBufferCount);
+        return _poolSlot + 1 + _byteBufferCount + Objects.checkIndex(ix, _charBufferCount);
     }
 
     /*
@@ -289,12 +304,12 @@ public class BufferRecycler
      */
     @Override
     public BufferRecycler withPool(RecyclerPool<BufferRecycler> pool) {
-        if (_slots[POOL_SLOT] != null) {
+        if (_slots[_poolSlot] != null) {
             throw new IllegalStateException("BufferRecycler already linked to pool: "+pool);
         }
         // assign to pool to which this BufferRecycler belongs in order to release it
         // to the same pool when the work will be completed
-        _slots[POOL_SLOT] = Objects.requireNonNull(pool);
+        _slots[_poolSlot] = Objects.requireNonNull(pool);
         return this;
     }
 
@@ -307,11 +322,11 @@ public class BufferRecycler
     @Override
     @SuppressWarnings("unchecked")
     public void releaseToPool() {
-        RecyclerPool<BufferRecycler> tmpPool = (RecyclerPool<BufferRecycler>) _slots[POOL_SLOT];
+        RecyclerPool<BufferRecycler> tmpPool = (RecyclerPool<BufferRecycler>) _slots[_poolSlot];
         if (tmpPool != null) {
             // nullify the reference to the pool in order to avoid the risk of releasing
             // the same BufferRecycler more than once, thus compromising the pool integrity
-            _slots[POOL_SLOT] = null;
+            _slots[_poolSlot] = null;
             tmpPool.releasePooled(this);
         }
     }

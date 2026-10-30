@@ -244,7 +244,7 @@ public final class JsonRecyclerPools
 
         @Override
         public BufferRecycler acquirePooled() {
-            return new BufferRecycler();
+            return new BufferRecycler(4, 4, false);
         }
         
         // // // JDK serialization support

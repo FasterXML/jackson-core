@@ -108,8 +108,8 @@ class StringWriterReadConstraintsTest extends AsyncTestBase
     private void runCheck(String desc, AsyncReaderWrapper p, ParserCheck check) throws Exception {
         try {
             check.check(p);
-        } catch (AssertionError e) {
-            throw new AssertionError("Failed for " + desc + ": " + e.getMessage(), e);
+        } catch (AssertionError | Exception e) {
+            throw new AssertionError("Failed for " + desc + ": " + e, e);
         }
     }
 

@@ -229,7 +229,8 @@ public class TextBuffer
             _currentSegment = buf(1);
         }
         _currentSegment[0] = ch; // lgtm [java/dereferenced-value-may-be-null]
-        _currentSize = _segmentSize = 1;
+        _currentSize = 1;
+        _segmentSize = 0;
     }
 
     /**

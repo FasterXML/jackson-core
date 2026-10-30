@@ -70,6 +70,13 @@ a pure JSON library.
 
 No changes since 2.21
 
+2.21.9 (not yet released)
+
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getText(Writer)`
+ (reported by @Dongnyoung)
+ (fix by @Dongnyoung)
+
 2.21.8 (17-Oct-2026)
 
 #1683: JSON`\uXXXX` escape accepts lone surrogates in field names for

@@ -493,12 +493,6 @@ Revanth Meesala (@revanthmeesala)
    [GHSA-649p-m576-vr99]
   (2.18.10)
 
-@Dongnyoung
- * Reported, contributed fix for #1792: Validate final string length against
-   `StreamReadConstraints.maxStringLength` before writing string values through
-   `JsonParser.getText(Writer)`
-  (2.18.13)
-
 Yanming Zhou (@quaff)
  * Requested #633: Allow skipping `RS` CTRL-CHAR to support JSON Text Sequences
   (2.19.0)
@@ -540,6 +534,10 @@ Mike Pedersen (@mpdncrwd)
 DongNyoung Lee (@Dongnyoung)
  * Contributed #1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
   (2.21.6)
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getText(Writer)`
+  (2.18.13)
 
 @hdimitrieski
  * Reported #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom

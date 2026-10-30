@@ -40,9 +40,7 @@ class StringWriterReadConstraintsTest extends AsyncTestBase
             for (String value : new String[] { repeat('x', limit - 1), repeat('x', limit) }) {
                 forAllParsers(f, q(value), p -> {
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                    StringWriter w = new StringWriter();
-                    assertEquals(value.length(), p.parser().getText(w));
-                    assertEquals(value, w.toString());
+                    assertEquals(value, p.currentTextViaWriter());
                     assertEquals(value, p.currentText());
                 });
             }

@@ -212,3 +212,7 @@ Ubeddulla Khan (@ubeddulla)
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value
   (3.1.9, 3.2.5)
+
+@wendigo
+ * Contributed #1805: Add `JsonParser.readUtf8String(OutputStream)`
+  (3.3.0)

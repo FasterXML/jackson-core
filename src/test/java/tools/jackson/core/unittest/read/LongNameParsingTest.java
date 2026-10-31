@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * {@code ArrayIndexOutOfBoundsException} when parsing JSON with long names
  * (longer than 64 characters).
  */
-public class LongName1516Test
+public class LongNameParsingTest
     extends JacksonCoreTestBase
 {
     /**
@@ -283,6 +283,84 @@ public class LongName1516Test
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(4, p.getIntValue());
     
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Long name scanning in UTF8StreamJsonParser (#1778)
+    /**********************************************************************
+     */
+
+    // All lengths, to end the name at every byte position within a quad
+    @Test
+    void longNamesAllLengths() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            for (int len = 9; len <= 150; ++len) {
+                _verifyLongName(mode, _longName(len), _longName(len));
+            }
+        }
+    }
+
+    @Test
+    void longNamesEscapeAtAnyOffset() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            for (int len = 9; len <= 100; ++len) {
+                String plain = _longName(len);
+                for (int at = 0; at < len; ++at) {
+                    String json = plain.substring(0, at) + "\\n" + plain.substring(at + 1);
+                    String exp = plain.substring(0, at) + "\n" + plain.substring(at + 1);
+                    _verifyLongName(mode, json, exp);
+                }
+            }
+        }
+    }
+
+    // Name straddling the end of the (8000 byte) input buffer: scanning loop exits
+    // with bytes remaining, so the pointer must be synced before the offline call
+    @Test
+    void longNamesSplitAtInputBufferEnd() throws Exception
+    {
+        for (int mode : new int[] { MODE_INPUT_STREAM, MODE_DATA_INPUT }) {
+            for (int len : new int[] { 13, 27, 40, 66, 90 }) {
+                String name = _longName(len);
+                for (int pad = 7900; pad < 8000; ++pad) {
+                    _verifyLongName(mode, " ".repeat(pad), name, name);
+                }
+            }
+        }
+    }
+
+    private String _longName(int len) {
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; ++i) {
+            sb.append((char) ('a' + (i % 26)));
+        }
+        return sb.toString();
+    }
+
+    private void _verifyLongName(int mode, String rawName, String expName) throws Exception {
+        _verifyLongName(mode, "", rawName, expName);
+    }
+
+    private void _verifyLongName(int mode, String padding, String rawName, String expName)
+        throws Exception
+    {
+        // second property verifies the input pointer is correct after the name
+        String doc = "{" + padding + "\"" + rawName + "\":1,\"x\":2}";
+        try (JsonParser p = createParser(mode, doc)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals(expName, p.currentName(), "mode "+mode+", name "+rawName);
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(1, p.getIntValue());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals("x", p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(2, p.getIntValue());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
         }
     }

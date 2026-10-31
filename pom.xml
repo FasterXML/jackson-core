@@ -150,9 +150,11 @@ tools.jackson.core.*;version=${project.version}
         <configuration>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
           <!-- 14-Aug-2026, pjfanning: [core#1652] Need to open up XJB to unit tests -->
+          <!-- BufferRecyclerTest reads the padded slot array of core.util by reflection -->
           <argLine>@{argLine}
             --add-exports tools.jackson.core/tools.jackson.core.io.xjb=tools.jackson.core.unittest
             --add-opens tools.jackson.core/tools.jackson.core.json=tools.jackson.core.unittest
+            --add-opens tools.jackson.core/tools.jackson.core.util=tools.jackson.core.unittest
            </argLine>
         </configuration>
       </plugin>
@@ -383,10 +385,15 @@ tools.jackson.core.*;version=${project.version}
           </signature>
           <!-- 12-Aug-2026, pjfanning: [core#1652] XJBWriter calls signature-polymorphic
                VarHandle.get/set, which animal-sniffer cannot match against signatures
-               (VarHandle exists in Android API 33+)
+               (VarHandle exists in Android API 33+). BufferRecycler also uses VarHandle
+               for its slots.
             -->
           <ignores>
             <ignore>java.lang.invoke.VarHandle</ignore>
+            <!-- 29-Oct-2026, tatu: [core#1687] MethodHandle.invokeExact is signature-polymorphic
+                 too (MethodHandle exists in Android API 26+)
+              -->
+            <ignore>java.lang.invoke.MethodHandle</ignore>
           </ignores>
         </configuration>
       </plugin>

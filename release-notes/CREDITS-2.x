@@ -524,6 +524,10 @@ Mike Pedersen (@mpdncrwd)
 DongNyoung Lee (@Dongnyoung)
  * Contributed #1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
   (2.21.6)
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getText(Writer)`
+  (2.18.13)
 
 Patrick Strawderman (@kilink)
  * Requested #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
@@ -574,7 +578,15 @@ Elankumaran Srinivasan (@elang2)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (2.21.8)
+ * Reported, contributed fix for #1795: `UTF8DataInputJsonParser` accepts any control
+   character as white space between tokens
+  (2.23.0)
 
 @Marcono1234
  * Reported #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
+  (2.23.0)
+
+@un5h4d0w
+ * Reported #1784: UTF-8 parsers may return wrong cached property name for names
+   containing 0xFF bytes
   (2.23.0)

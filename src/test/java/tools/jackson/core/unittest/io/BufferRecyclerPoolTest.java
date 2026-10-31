@@ -46,6 +46,18 @@ class BufferRecyclerPoolTest extends JacksonCoreTestBase
     }
 
     @Test
+    void stripedArray() throws Exception {
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newStripedArrayPool(4), true, true);
+    }
+
+    @Test
+    void hybrid() throws Exception {
+        // clear() returns false: the platform-thread leave-in instances cannot
+        // be dropped (same as the ThreadLocal pool)
+        checkBufferRecyclerPoolImpl(JsonRecyclerPools.newHybridPool(4), true, false);
+    }
+
+    @Test
     void boundedPoolDoesNotExceedCapacity() {
         RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newBoundedPool(2);
 
@@ -85,6 +97,20 @@ class BufferRecyclerPoolTest extends JacksonCoreTestBase
         recycler.releaseToPool();
 
         assertEquals(1, pool.pooledCount());
+    }
+
+    // An instance from acquireAndLinkPooled() is released with releaseToPool(),
+    // which unlinks it; releasePooled() leaves it linked, so the next acquire fails
+    @Test
+    void linkedRecyclerMustBeReleasedWithReleaseToPool() {
+        RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newBoundedPool(1);
+
+        BufferRecycler br = pool.acquireAndLinkPooled();
+        br.releaseToPool();
+        assertSame(br, pool.acquireAndLinkPooled());
+
+        pool.releasePooled(br);
+        assertThrows(IllegalStateException.class, pool::acquireAndLinkPooled);
     }
 
     // NOTE: parser/generator close() releasing the recycler exactly once is covered

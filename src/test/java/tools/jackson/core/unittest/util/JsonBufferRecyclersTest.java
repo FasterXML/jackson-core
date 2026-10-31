@@ -45,6 +45,19 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
         _testParser(JsonRecyclerPools.sharedBoundedPool(), null, null);
     }
 
+    @Test
+    void parserWithStripedArrayPool() throws Exception {
+        _testParser(JsonRecyclerPools.newStripedArrayPool(5), 0, 1);
+        _testParser(JsonRecyclerPools.sharedStripedArrayPool(), null, null);
+    }
+
+    // Platform threads use per-thread leave-in, not the shared slots
+    @Test
+    void parserWithHybridPool() throws Exception {
+        _testParser(JsonRecyclerPools.newHybridPool(5), 0, 0);
+        _testParser(JsonRecyclerPools.sharedHybridPool(), null, null);
+    }
+
     private void _testParser(RecyclerPool<BufferRecycler> pool,
             Integer expSizeBefore, Integer expSizeAfter) throws Exception
     {
@@ -108,6 +121,19 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
         _testGenerator(JsonRecyclerPools.sharedBoundedPool(), null, null);
     }
 
+    @Test
+    void generatorWithStripedArrayPool() throws Exception {
+        _testGenerator(JsonRecyclerPools.newStripedArrayPool(5), 0, 1);
+        _testGenerator(JsonRecyclerPools.sharedStripedArrayPool(), null, null);
+    }
+
+    // Platform threads use per-thread leave-in, not the shared slots
+    @Test
+    void generatorWithHybridPool() throws Exception {
+        _testGenerator(JsonRecyclerPools.newHybridPool(5), 0, 0);
+        _testGenerator(JsonRecyclerPools.sharedHybridPool(), null, null);
+    }
+
     private void _testGenerator(RecyclerPool<BufferRecycler> pool,
             Integer expSizeBefore, Integer expSizeAfter) throws Exception
     {
@@ -165,6 +191,18 @@ class JsonBufferRecyclersTest extends JacksonCoreTestBase
     void copyWithBoundedPool() throws Exception {
         _testCopy(JsonRecyclerPools.newBoundedPool(5));
         _testCopy(JsonRecyclerPools.sharedBoundedPool());
+    }
+
+    @Test
+    void copyWithStripedArrayPool() throws Exception {
+        _testCopy(JsonRecyclerPools.newStripedArrayPool(5));
+        _testCopy(JsonRecyclerPools.sharedStripedArrayPool());
+    }
+
+    @Test
+    void copyWithHybridPool() throws Exception {
+        _testCopy(JsonRecyclerPools.newHybridPool(5));
+        _testCopy(JsonRecyclerPools.sharedHybridPool());
     }
 
     private void _testCopy(RecyclerPool<BufferRecycler> pool) throws Exception

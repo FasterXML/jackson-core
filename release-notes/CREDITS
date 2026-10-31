@@ -95,6 +95,10 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1766: `ReaderBasedJsonParser` undercounts number length when
    fraction or exponent is absent
   (3.3.0)
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getString(Writer)`
+  (3.1.9)
  * Reported, fixed #1803: Consider validating async decimal number lengths
    before buffer expansion
   (3.3.0)
@@ -138,8 +142,14 @@ Burak KALAYCI (@kalayciburak)
   (3.3.0)
 
 Steven Schlansker (@stevenschlansker)
+ * Contributed #1687: Add `StripedArrayPool` and virtual-thread-aware `HybridPool`
+   recycler pools
+  (3.3.0)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
+  (3.3.0)
+ * Contributed #1802: Pad `BufferRecycler` buffer slots and pool link to avoid
+   false sharing with other objects
   (3.3.0)
 
 @youdie006
@@ -175,3 +185,16 @@ David R. MacIver (@DRMacIver)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (3.1.8)
+ * Reported, contributed fix for #1795: `UTF8DataInputJsonParser` accepts any control
+   character as white space between tokens
+  (3.1.9, 3.2.5)
+
+@un5h4d0w
+ * Reported #1784: UTF-8 parsers may return wrong cached property name for names
+   containing 0xFF bytes
+  (3.1.9)
+
+Francesco Nigro (@franz1981)
+ * Reported, contributed fix for #1680: Avoid per-character escape-table load in
+   JSON generator String fast loops
+  (3.3.0)

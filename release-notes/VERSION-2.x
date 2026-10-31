@@ -23,9 +23,27 @@ a pure JSON library.
 #1748: Unquoted non-ASCII property names fail in UTF-8 byte parsers with
   `ALLOW_UNQUOTED_FIELD_NAMES`
  (fix by @pjfanning)
+#1784: UTF-8 parsers may return wrong cached property name for names
+  containing 0xFF bytes
+ (reported by @un5h4d0w)
+ (fix by @pjfanning)
+#1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
+  in String values (and comments, except for non-blocking parser)
+ (fix by @pjfanning)
 #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
  (reported by @Marcono1234)
  (fix by @pjfanning)
+#1795: `UTF8DataInputJsonParser` accepts any control character as white space
+  between tokens (also: CR-LF and token line numbers; Record Separator no longer
+  accepted directly after root-level number or comment, same as other parsers)
+ (reported, fix by @ItsDeadlyProgrammer)
+
+2.22.5 (not yet released)
+
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getText(Writer)`
+ (reported by @Dongnyoung)
+ (fix by @Dongnyoung)
 
 2.22.4 (17-Oct-2026)
 
@@ -82,6 +100,13 @@ a pure JSON library.
 2.22.0 (03-Jun-2026)
 
 No changes since 2.21
+
+2.21.9 (not yet released)
+
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getText(Writer)`
+ (reported by @Dongnyoung)
+ (fix by @Dongnyoung)
 
 2.21.8 (17-Oct-2026)
 

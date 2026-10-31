@@ -37,11 +37,15 @@ JSON library.
  (contributed by @pjfanning, w/ Claude code)
 #1675: Allocate ByteArrayBuilder past-block list lazily
  (contributed by @pjfanning, w/ Claude code)
+#1680: Avoid per-character escape-table load in JSON generator String fast loops
+ (reported, fix by @franz1981)
 #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from 500 to 200 characters
  (reported, fix by DongNyoung L)
 #1686: Synchronous decimal number parsing buffers oversized values before
   `maxNumberLength` validation
  (reported, fix by DongNyoung L)
+#1687: Add `StripedArrayPool` and virtual-thread-aware `HybridPool` recycler pools
+ (contributed by @stevenschlansker, w/ Claude code)
 #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property name match
   plus value token advance
  (contributed by @stevenschlansker)
@@ -106,6 +110,51 @@ JSON library.
  (fix by @pjfanning, w/ Claude code)
 #1771: `ByteArrayBuilder.write(byte[], int, int)` does not validate `off`/`len`
  (fix by @pjfanning, w/ Claude code)
+#1778: Use local pointer in `UTF8StreamJsonParser` long-name scanning loops
+ (contributed by @pjfanning)
+#1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
+  in String values (and comments, except for non-blocking parser)
+ (fix by @pjfanning)
+#1784: UTF-8 parsers may return wrong cached property name for names
+  containing 0xFF bytes
+ (reported by @un5h4d0w)
+ (fix by @pjfanning)
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getString(Writer)`
+ (reported by @DongNyoung)
+ (fix by @DongNyoung)
+#1795: `UTF8DataInputJsonParser` accepts any control character as white space
+  between tokens (also: CR-LF and token line numbers; Record Separator no longer
+  accepted directly after root-level number or comment, same as other parsers)
+ (reported by @ItsDeadlyProgrammer)
+ (fix by @ItsDeadlyProgrammer)
+#1798: `BinaryNameMatcher` does not pad partial quads: binary parsers match
+  NUL-containing names to known properties (add optional padding)
+#1802: Pad `BufferRecycler` buffer slots and pool link to avoid false sharing
+  with other objects (removes protected `_byteBuffers` and `_charBuffers`,
+  adds about 200 bytes per recycler with compressed oops; new protected
+  constructors `BufferRecycler(boolean)` and `BufferRecycler(int, int, boolean)`
+  allow disabling padding)
+ (contributed by @stevenschlansker, w/ Claude code)
+
+3.2.5 (not yet released)
+
+#1784: UTF-8 parsers may return wrong cached property name for names
+  containing 0xFF bytes
+ (reported by @un5h4d0w)
+ (fix by @pjfanning)
+#1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
+  in String values (and comments, except for non-blocking parser)
+ (fix by @pjfanning)
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getString(Writer)`
+ (reported by @DongNyoung)
+ (fix by @DongNyoung)
+#1795: `UTF8DataInputJsonParser` accepts any control character as white space
+  between tokens (also: CR-LF and token line numbers; Record Separator no longer
+  accepted directly after root-level number or comment, same as other parsers)
+ (reported by @ItsDeadlyProgrammer)
+ (fix by @ItsDeadlyProgrammer)
 #1803: Consider validating async decimal number lengths before buffer expansion
  (reported, fix by DongNyoung L)
 
@@ -235,6 +284,25 @@ No changes since 3.2.0
  (implemented by @cowtowncoder, w/ Claude code)
 #1598: Possible TOCTOU timing bug in `BufferRecycler`
  (implemented by @pjfanning)
+
+3.1.9 (not yet released)
+
+#1784: UTF-8 parsers may return wrong cached property name for names
+  containing 0xFF bytes
+ (reported by @un5h4d0w)
+ (fix by @pjfanning)
+#1782: Reject invalid (overlong, surrogate, beyond U+10FFFF) UTF-8 sequences
+  in String values (and comments, except for non-blocking parser)
+ (fix by @pjfanning)
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getString(Writer)`
+ (reported by @DongNyoung)
+ (fix by @DongNyoung)
+#1795: `UTF8DataInputJsonParser` accepts any control character as white space
+  between tokens (also: CR-LF and token line numbers; Record Separator no longer
+  accepted directly after root-level number or comment, same as other parsers)
+ (reported by @ItsDeadlyProgrammer)
+ (fix by @ItsDeadlyProgrammer)
 
 3.1.8 (17-Oct-2026)
 

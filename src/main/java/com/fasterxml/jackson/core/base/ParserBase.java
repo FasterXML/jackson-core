@@ -1346,6 +1346,10 @@ public abstract class ParserBase extends ParserMinimalBase
             } catch (NumberFormatException nex) {
                 _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
             }
+            // Decode a deferred double before discarding its textual representation.
+            if ((_numTypesValid & NR_DOUBLE) != 0) {
+                _numberDouble = _getNumberDouble();
+            }
             _numberString = null;
         }
         return _numberFloat;

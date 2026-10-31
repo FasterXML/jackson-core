@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.StreamReadFeature;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -106,6 +107,29 @@ class NumberDeferredReadTest
         _testDeferredFloatingPoint(MODE_INPUT_STREAM_THROTTLED);
         _testDeferredFloatingPoint(MODE_READER);
         _testDeferredFloatingPoint(MODE_DATA_INPUT);
+    }
+
+    @Test
+    void deferredDoubleAfterFloat() throws Exception
+    {
+        for (boolean useFastParser : new boolean[] { false, true }) {
+            JsonFactory f = JsonFactory.builder()
+                    .configure(StreamReadFeature.USE_FAST_DOUBLE_PARSER, useFastParser)
+                    .build();
+            for (int mode : ALL_MODES) {
+                for (String value : new String[] { "1.25", "1.199999988079071" }) {
+                    try (JsonParser p = createParser(f, mode, " " + value + " ")) {
+                        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                        assertEquals(NumberType.DOUBLE, p.getNumberType());
+                        assertEquals(Float.parseFloat(value), p.getFloatValue());
+                        assertEquals(Double.parseDouble(value), p.getDoubleValue());
+                        assertEquals(Float.parseFloat(value), p.getFloatValue());
+                        assertEquals(Double.parseDouble(value), p.getDoubleValue());
+                        assertNull(p.nextToken());
+                    }
+                }
+            }
+        }
     }
 
     private void _testDeferredFloatingPoint(int mode) throws Exception

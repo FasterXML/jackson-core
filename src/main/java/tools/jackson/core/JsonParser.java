@@ -1008,6 +1008,40 @@ public abstract class JsonParser
     }
 
     /**
+     * Writes the textual value of the current token as unquoted UTF-8 bytes.
+     * JSON escapes are decoded. Unpaired surrogates are replaced with
+     * {@code '?'}, matching {@code getString().getBytes(StandardCharsets.UTF_8)}.
+     *<p>
+     * Implementations may consume string contents without materializing a
+     * {@link String}. Subsequent text access is not guaranteed; this method
+     * does not advance to the next token. The default implementation buffers
+     * the value. The output is neither flushed nor closed, and may contain
+     * partial output if an error occurs. Non-blocking parsers do not support
+     * this operation.
+     *
+     * @param output Destination for UTF-8 bytes
+     * @return Number of bytes written, or zero if there is no current token
+     * @throws JacksonIOException if writing to the destination fails
+     * @since 3.3
+     */
+    public long readUtf8String(OutputStream output) throws JacksonException {
+        String value = getString();
+        if (value == null) {
+            return 0;
+        }
+        if (currentToken() == JsonToken.VALUE_STRING) {
+            streamReadConstraints().validateStringLength(value.length());
+        }
+        byte[] bytes = value.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try {
+            output.write(bytes);
+        } catch (IOException e) {
+            throw JacksonIOException.construct(e, this);
+        }
+        return bytes.length;
+    }
+
+    /**
      * Method similar to {@link #getString()}, but that will return
      * underlying (unmodifiable) character array that contains
      * textual value, instead of constructing a String object

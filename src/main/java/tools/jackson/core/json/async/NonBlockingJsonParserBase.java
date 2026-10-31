@@ -504,6 +504,13 @@ public abstract class NonBlockingJsonParserBase
 "`readString(Writer)` not supported for non-blocking parsers: content availability is unpredictable and `java.io.Writer` itself blocking");
     }
 
+    @Override
+    public long readUtf8String(java.io.OutputStream output) throws JacksonException
+    {
+        throw new UnsupportedOperationException(
+                "readUtf8String(OutputStream) not supported for non-blocking parsers");
+    }
+
     // // // Let's override default impls for improved performance
 
     @Override

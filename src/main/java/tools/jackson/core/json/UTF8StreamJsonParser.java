@@ -347,6 +347,71 @@ public class UTF8StreamJsonParser
         return getString(writer);
     }
 
+    @Override
+    public long readUtf8String(OutputStream output) throws JacksonException
+    {
+        if (_currToken != JsonToken.VALUE_STRING || !_tokenIncomplete) {
+            return super.readUtf8String(output);
+        }
+        final byte[] input = _inputBuffer;
+        final int start = _inputPtr;
+        final int end = _inputEnd;
+        int ptr = start;
+        int extraBytes = 0;
+        while (ptr < end) {
+            int c = input[ptr] & 0xFF;
+            int code = _icUTF8[c];
+            if (code == 0) {
+                ++ptr;
+                continue;
+            }
+            if (code == 2 && c >= 0xC2 && end - ptr >= 2 && (input[ptr + 1] & 0xC0) == 0x80) {
+                ptr += 2;
+                ++extraBytes;
+                continue;
+            }
+            if (code == 3 && end - ptr >= 3) {
+                int second = input[ptr + 1] & 0xFF;
+                if ((second & 0xC0) == 0x80 && (input[ptr + 2] & 0xC0) == 0x80
+                        && (c != 0xE0 || second >= 0xA0)
+                        && (c != 0xED || second < 0xA0)) {
+                    ptr += 3;
+                    extraBytes += 2;
+                    continue;
+                }
+            }
+            if (code == 4 && c <= 0xF4 && end - ptr >= 4) {
+                int second = input[ptr + 1] & 0xFF;
+                if ((second & 0xC0) == 0x80 && (input[ptr + 2] & 0xC0) == 0x80
+                        && (input[ptr + 3] & 0xC0) == 0x80
+                        && (c != 0xF0 || second >= 0x90)
+                        && (c != 0xF4 || second <= 0x8F)) {
+                    ptr += 4;
+                    extraBytes += 2;
+                    continue;
+                }
+            }
+            break;
+        }
+
+        if (ptr < end && input[ptr] == INT_QUOTE) {
+            int length = ptr - start;
+            _streamReadConstraints.validateStringLength(length - extraBytes);
+            try {
+                output.write(input, start, length);
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
+            _inputPtr = ptr + 1;
+            _tokenIncomplete = false;
+            _textBuffer.resetWithEmpty();
+            return length;
+        }
+        // Keep the cursor unchanged so escapes, refills and unusual byte
+        // sequences retain the existing decoder's behavior.
+        return super.readUtf8String(output);
+    }
+
     // // // Let's override default impls for improved performance
 
     @Override

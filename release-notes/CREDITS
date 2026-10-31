@@ -216,3 +216,7 @@ Ubeddulla Khan (@ubeddulla)
 Sai Gokul N V (@nvsaigokul-sudo)
  * Contributed #1817: Non-blocking parser: `isNaN()` always returns `false`
   (3.4.0)
+
+@wendigo
+ * Contributed #1805: Add `JsonParser.readUTF8String(OutputStream)`
+  (3.4.0)

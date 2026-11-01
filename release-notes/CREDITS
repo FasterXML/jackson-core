@@ -95,6 +95,10 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1766: `ReaderBasedJsonParser` undercounts number length when
    fraction or exponent is absent
   (3.3.0)
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getString(Writer)`
+  (3.1.9)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
@@ -135,8 +139,14 @@ Burak KALAYCI (@kalayciburak)
   (3.3.0)
 
 Steven Schlansker (@stevenschlansker)
+ * Contributed #1687: Add `StripedArrayPool` and virtual-thread-aware `HybridPool`
+   recycler pools
+  (3.3.0)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
+  (3.3.0)
+ * Contributed #1802: Pad `BufferRecycler` buffer slots and pool link to avoid
+   false sharing with other objects
   (3.3.0)
 
 @youdie006

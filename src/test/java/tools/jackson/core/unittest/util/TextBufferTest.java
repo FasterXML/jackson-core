@@ -2,6 +2,8 @@ package tools.jackson.core.unittest.util;
 
 import java.nio.charset.StandardCharsets;
 
+import java.io.StringWriter;
+
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.util.BufferRecycler;
@@ -237,7 +239,19 @@ class TextBufferTest
         textBuffer.finishCurrentSegment();
         textBuffer.resetWith('q');
 
-        assertEquals(2, textBuffer.size());
+        assertEquals(1, textBuffer.size());
+    }
+
+    @Test
+    void sizeAfterResetWithChar() throws Exception {
+        TextBuffer textBuffer = new TextBuffer(null);
+        textBuffer.resetWith('q');
+
+        assertEquals(1, textBuffer.size());
+        assertArrayEquals(new char[] { 'q' }, textBuffer.contentsAsArray());
+        StringWriter w = new StringWriter();
+        assertEquals(1, textBuffer.contentsToWriter(w));
+        assertEquals("q", w.toString());
     }
 
     @Test

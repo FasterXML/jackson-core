@@ -213,6 +213,7 @@ class JsonFactoryTest
         }
     }
 
+    @SuppressWarnings("deprecation") // tests deprecated createParser(URL)
     @Test
     void jsonWithFiles() throws Exception
     {

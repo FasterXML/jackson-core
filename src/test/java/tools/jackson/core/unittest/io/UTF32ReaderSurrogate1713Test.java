@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.io.UTF32Reader;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.unittest.JacksonCoreTestBase;
@@ -85,10 +86,10 @@ class UTF32ReaderSurrogate1713Test extends JacksonCoreTestBase
             String value = sb.toString();
             String doc = "[\""+value+"\"]";
             for (boolean bigEndian : new boolean[] { true, false }) {
-                try (JsonParser p = f.createParser(utf32(doc, bigEndian))) {
+                try (JsonParser p = f.createParser(ObjectReadContext.empty(), utf32(doc, bigEndian))) {
                     assertToken(JsonToken.START_ARRAY, p.nextToken());
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                    final String text = p.getText();
+                    final String text = p.getString();
                     final String msg = "prefixLen="+prefixLen+", bigEndian="+bigEndian;
                     // Compare tail first to keep failure messages readable
                     assertEquals(value.substring(prefixLen - 5),

@@ -81,14 +81,14 @@ public class JacksonTestFailureExpectedInterceptor
      */
     private ExpectedPassingTestCasePredicate findzExpectedPassingTestCasePredicate(
             ReflectiveInvocationContext<Method> invocationContext)
-            throws InstantiationException, IllegalAccessException
+            throws ReflectiveOperationException
     {
         JacksonTestFailureExpected annotation = invocationContext.getExecutable().getAnnotation(JacksonTestFailureExpected.class);
         Class<? extends ExpectedPassingTestCasePredicate> predicate = annotation.expectedPassingTestCasePredicate();
         if (ExpectedPassingTestCasePredicate.class.equals(predicate)) {
             return null;
         } else {
-            return predicate.newInstance();
+            return predicate.getDeclaredConstructor().newInstance();
         }
     }
 

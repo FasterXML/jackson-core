@@ -68,11 +68,13 @@ public class BinaryNameHashTest extends JacksonCoreTestBase
                 11, 0, 0, 0);
     }
 
+    @Test
     public void testMisc5() {
         _testSpillEfficiency(Arrays.asList("uri", "title", "width", "height", "size"),
                 5, 0, 0, 0);
     }
 
+    @Test
     public void testMisc2() {
         _testSpillEfficiency(Arrays.asList("content", "images"),
                 2, 0, 0, 0);

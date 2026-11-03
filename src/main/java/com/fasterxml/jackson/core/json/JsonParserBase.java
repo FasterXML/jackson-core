@@ -107,6 +107,20 @@ public abstract class JsonParserBase
         return NumberTypeFP.UNKNOWN;
     }
 
+    /**
+     * JSON number token text is retained in {@link #_textBuffer} until the next
+     * token, so it can be used for exact conversions (except for "NaN" values).
+     *
+     * @since 2.23
+     */
+    @Override
+    protected String _floatNumberText() throws IOException {
+        if ((_currToken != JsonToken.VALUE_NUMBER_FLOAT) || _numberIsNaN || _closed) {
+            return null;
+        }
+        return (_numberString == null) ? _textBuffer.contentsAsString() : _numberString;
+    }
+
     /*
     /**********************************************************************
     /* Location handling

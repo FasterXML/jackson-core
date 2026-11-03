@@ -1555,6 +1555,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (outPtr >= outBuf.length) {
                 // NOTE: must expand to ensure contents all in a single buffer (to keep
                 // other parts of parsing simpler)
+                _streamReadConstraints.validateIntegerLength(outPtr);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -1625,6 +1626,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             if (outPtr >= outBuf.length) {
                 // NOTE: must expand, to ensure contiguous buffer, outPtr is the length
+                _streamReadConstraints.validateIntegerLength(outPtr - 1);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -2021,6 +2023,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (outPtr >= outBuf.length) {
                 // NOTE: must expand to ensure contents all in a single buffer (to keep
                 // other parts of parsing simpler)
+                _streamReadConstraints.validateIntegerLength(outPtr + negMod);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -2059,6 +2062,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                     break;
                 }
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(_intLength + fractLen);
                     outBuf = _textBuffer.expandCurrentSegment();
                 }
                 outBuf[outPtr++] = (char) ch;
@@ -2095,6 +2099,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             while (ch >= INT_0 && ch <= INT_9) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(_intLength + _fractLength + expLen);
                     outBuf = _textBuffer.expandCurrentSegment();
                 }
                 outBuf[outPtr++] = (char) ch;
@@ -2131,6 +2136,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (ch >= INT_0 && ch <= INT_9) {
             ++fractLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateFPLength(_intLength + fractLen);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -2195,6 +2201,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (ch >= INT_0 && ch <= INT_9) {
             ++expLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateFPLength(_intLength + _fractLength + expLen);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;

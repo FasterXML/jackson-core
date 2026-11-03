@@ -14,7 +14,14 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.21.8 (not yet released)
+2.21.9 (not yet released)
+
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getText(Writer)`
+ (reported by @Dongnyoung)
+ (fix by @Dongnyoung)
+
+2.21.8 (17-Oct-2026)
 
 #1683: JSON`\uXXXX` escape accepts lone surrogates in field names for
   `ReaderBasedJsonParser`
@@ -198,6 +205,17 @@ No changes since 2.19.1
 #1421: Make `JsonReadContext` non-final
  (requested by Ilenia S)
  (fixed by @pjfanning)
+
+2.18.13 (not yet released)
+
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getText(Writer)`
+ (reported by @Dongnyoung)
+ (fix by @Dongnyoung)
+
+2.18.12 (17-Oct-2026)
+
+No changes since 2.18.11
 
 2.18.11 (20-Sep-2026)
 

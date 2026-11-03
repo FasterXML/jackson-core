@@ -805,7 +805,9 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberBigInt = BigInteger.valueOf(_numberInt);
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             if (_numberString != null) {
-                _numberBigInt = _convertBigDecimalToBigInteger(_getBigDecimal());
+                // 03-Nov-2026, tatu: [core#1815] decode from text, not possibly stale cached value
+                convertNumberToBigDecimal();
+                _numberBigInt = _convertBigDecimalToBigInteger(_numberBigDecimal);
             } else {
                 _numberBigInt = _convertBigDecimalToBigInteger(BigDecimal.valueOf(_getNumberDouble()));
             }
@@ -966,7 +968,10 @@ public abstract class ParserBase extends ParserMinimalBase
         } catch (NumberFormatException nex) {
             throw _constructReadException("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
         }
-        _numberString = null;
+        // 03-Nov-2026, tatu: [core#1815] retain text if double still deferred (as with [core#1813])
+        if ((_numTypesValid & NR_DOUBLE) == 0) {
+            _numberString = null;
+        }
         return _numberBigDecimal;
     }
 
@@ -978,13 +983,21 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected double _getNumberDouble() {
         if (_numberString != null) {
+            // 03-Nov-2026, tatu: [core#1815] Non-null text with NR_BIGINT means BigInteger
+            //   still deferred: must retain text. Double already decoded if marked valid
+            final boolean bigIntDeferred = _isBigIntegerDeferred();
+            if (bigIntDeferred && (_numTypesValid & NR_DOUBLE) != 0) {
+                return _numberDouble;
+            }
             try {
                 _numberDouble = NumberInput.parseDouble(_numberString,
                         isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             } catch (NumberFormatException nex) {
                 throw _constructReadException("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
             }
-            _numberString = null;
+            if (!bigIntDeferred) {
+                _numberString = null;
+            }
         }
         return _numberDouble;
     }
@@ -1001,8 +1014,10 @@ public abstract class ParserBase extends ParserMinimalBase
         if (_numberString != null) {
             // 03-Nov-2026, tatu: [core#1813] Non-null text with NR_DOUBLE means double
             //   still deferred: must retain text. Float already decoded if marked valid
-            final boolean doubleDeferred = (_numTypesValid & NR_DOUBLE) != 0;
-            if (doubleDeferred && (_numTypesValid & NR_FLOAT) != 0) {
+            //   [core#1815] Same for deferred BigInteger
+            final boolean textNeeded = ((_numTypesValid & NR_DOUBLE) != 0)
+                    || _isBigIntegerDeferred();
+            if (textNeeded && (_numTypesValid & NR_FLOAT) != 0) {
                 return _numberFloat;
             }
             try {
@@ -1011,11 +1026,15 @@ public abstract class ParserBase extends ParserMinimalBase
             } catch (NumberFormatException nex) {
                 throw _constructReadException("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
             }
-            if (!doubleDeferred) {
+            if (!textNeeded) {
                 _numberString = null;
             }
         }
         return _numberFloat;
+    }
+
+    private boolean _isBigIntegerDeferred() {
+        return ((_numTypesValid & NR_BIGINT) != 0) && (_numberBigInt == null);
     }
 
     /*

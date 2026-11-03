@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.unittest.*;
 
@@ -106,6 +107,54 @@ class NumberDeferredReadTest
         _testDeferredFloatingPoint(MODE_INPUT_STREAM_THROTTLED);
         _testDeferredFloatingPoint(MODE_READER);
         _testDeferredFloatingPoint(MODE_DATA_INPUT);
+    }
+
+    // [core#1813]: deferred double must survive float access
+    @Test
+    void deferredDoubleAfterFloat1813() throws Exception
+    {
+        for (boolean useFastParser : new boolean[] { false, true }) {
+            JsonFactory f = JsonFactory.builder()
+                    .configure(StreamReadFeature.USE_FAST_DOUBLE_PARSER, useFastParser)
+                    .build();
+            for (int mode : ALL_MODES) {
+                // second and third values round differently as float and double
+                for (String value : new String[] { "1.25", "1.199999988079071", "-2.5e-3" }) {
+                    final float expF = Float.parseFloat(value);
+                    final double expD = Double.parseDouble(value);
+                    try (JsonParser p = createParser(f, mode, " " + value + " ")) {
+                        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                        assertEquals(NumberType.DOUBLE, p.getNumberType());
+                        assertEquals(expF, p.getFloatValue());
+                        assertEquals(expF, p.getFloatValue());
+                        assertEquals(expD, p.getNumberValueDeferred());
+                        assertEquals(expD, p.getDoubleValue());
+                        assertEquals(expF, p.getFloatValue());
+                        assertEquals(expD, p.getDoubleValue());
+                        assertNull(p.nextToken());
+                    }
+                    // text retained after float access, so BigDecimal is exact
+                    try (JsonParser p = createParser(f, mode, " " + value + " ")) {
+                        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                        assertEquals(NumberType.DOUBLE, p.getNumberType());
+                        assertEquals(expF, p.getFloatValue());
+                        assertEquals(new BigDecimal(value), p.getDecimalValue());
+                        assertEquals(expD, p.getDoubleValue());
+                        assertNull(p.nextToken());
+                    }
+                    // ... and float may be decoded after BigDecimal, double still deferred
+                    try (JsonParser p = createParser(f, mode, " " + value + " ")) {
+                        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                        assertEquals(NumberType.DOUBLE, p.getNumberType());
+                        assertEquals(new BigDecimal(value), p.getDecimalValue());
+                        assertEquals(expF, p.getFloatValue());
+                        assertEquals(expF, p.getFloatValue());
+                        assertEquals(expD, p.getDoubleValue());
+                        assertNull(p.nextToken());
+                    }
+                }
+            }
+        }
     }
 
     private void _testDeferredFloatingPoint(int mode) throws Exception

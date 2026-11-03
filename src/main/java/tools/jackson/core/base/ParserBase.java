@@ -999,13 +999,21 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected float _getNumberFloat() {
         if (_numberString != null) {
+            // 03-Nov-2026, tatu: [core#1813] Non-null text with NR_DOUBLE means double
+            //   still deferred: must retain text. Float already decoded if marked valid
+            final boolean doubleDeferred = (_numTypesValid & NR_DOUBLE) != 0;
+            if (doubleDeferred && (_numTypesValid & NR_FLOAT) != 0) {
+                return _numberFloat;
+            }
             try {
                 _numberFloat = NumberInput.parseFloat(_numberString,
                         isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             } catch (NumberFormatException nex) {
                 throw _constructReadException("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
             }
-            _numberString = null;
+            if (!doubleDeferred) {
+                _numberString = null;
+            }
         }
         return _numberFloat;
     }

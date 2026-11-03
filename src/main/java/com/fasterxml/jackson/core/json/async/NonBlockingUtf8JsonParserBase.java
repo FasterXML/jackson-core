@@ -139,7 +139,7 @@ public abstract class NonBlockingUtf8JsonParserBase
 
         // No: fresh new token; may or may not have existing one
         _numTypesValid = NR_UNKNOWN;
-        // [core#1815]: clear cached number values from previous token
+        // 03-Nov-2026, tatu: [core#1815] clear cached number values from previous token
         _numberString = null;
         _numberBigInt = null;
         _numberBigDecimal = null;

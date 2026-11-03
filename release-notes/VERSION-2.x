@@ -20,6 +20,9 @@ a pure JSON library.
   before writing string values through `JsonParser.getText(Writer)`
  (reported by @Dongnyoung)
  (fix by @Dongnyoung)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
 
 2.21.8 (17-Oct-2026)
 

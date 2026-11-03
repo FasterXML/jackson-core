@@ -151,4 +151,4 @@ PJ Fanning (@pjfanning)
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value
-  (3.1.9)
+  (3.1.9, 3.2.5)

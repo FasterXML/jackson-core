@@ -33,6 +33,9 @@ JSON library.
   accepted directly after root-level number or comment, same as other parsers)
  (reported by @ItsDeadlyProgrammer)
  (fix by @ItsDeadlyProgrammer)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
 
 3.1.8 (17-Oct-2026)
 

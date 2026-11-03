@@ -41,7 +41,8 @@ a pure JSON library.
   floating-point value
  (contributed by @vera-rubin)
 #1814: `getBigIntegerValue()` fails after `getNumberType()`, `getDoubleValue()`/
-  `getFloatValue()` for big integer
+  `getFloatValue()` for big integer (also: number accessor results no longer
+  depend on order of access)
  (fix by @cowtowncoder)
 #1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
   after `getNumberType()`

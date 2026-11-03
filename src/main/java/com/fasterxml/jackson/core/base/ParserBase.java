@@ -216,12 +216,12 @@ public abstract class ParserBase extends ParserMinimalBase
     protected String _numberString;
 
     /**
-     * Whether {@link #_numberDouble} is yet to be decoded from {@link #_numberString}
-     * (only meaningful if latter is non-null)
+     * Whether {@link #_numberDouble} is yet to be decoded from {@link #_numberString}:
+     * must be cleared along with {@link #_numberString}.
      *
      * @since 2.23
      */
-    private boolean _numberDoubleDeferred;
+    protected boolean _numberDoubleDeferred;
 
     /**
      * Marker for explicit "Not a Number" (NaN) values that may be read
@@ -605,6 +605,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _expLength = 0;
         _numTypesValid = NR_UNKNOWN; // to force decoding
         _numberString = null;
+        _numberDoubleDeferred = false;
         return JsonToken.VALUE_NUMBER_INT;
     }
 
@@ -620,6 +621,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _expLength = expLen;
         _numTypesValid = NR_UNKNOWN; // to force decoding
         _numberString = null;
+        _numberDoubleDeferred = false;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
@@ -631,6 +633,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _numTypesValid = NR_DOUBLE;
         _numberIsNaN = true;
         _numberString = null;
+        _numberDoubleDeferred = false;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
@@ -1060,8 +1063,17 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected void convertNumberToInt() throws IOException
     {
+        // 03-Nov-2026, tatu: [core#1814] FP value: use exact double, not possibly
+        //   rounded or truncated other representations
+        final String fpText = _floatNumberText();
+        if (fpText != null) {
+            final double d = _exactDouble(fpText);
+            if (d < MIN_INT_D || d > MAX_INT_D) {
+                reportOverflowInt();
+            }
+            _numberInt = (int) d;
         // First, converting from long ought to be easy
-        if ((_numTypesValid & NR_LONG) != 0) {
+        } else if ((_numTypesValid & NR_LONG) != 0) {
             // Let's verify its lossless conversion by simple roundtrip
             int result = (int) _numberLong;
             if (result != _numberLong) {
@@ -1103,7 +1115,16 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected void convertNumberToLong() throws IOException
     {
-        if ((_numTypesValid & NR_INT) != 0) {
+        // 03-Nov-2026, tatu: [core#1814] FP value: use exact double, not possibly
+        //   rounded or truncated other representations
+        final String fpText = _floatNumberText();
+        if (fpText != null) {
+            final double d = _exactDouble(fpText);
+            if (d < MIN_LONG_D || d > MAX_LONG_D) {
+                reportOverflowLong();
+            }
+            _numberLong = (long) d;
+        } else if ((_numTypesValid & NR_INT) != 0) {
             _numberLong = _numberInt;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             final BigInteger bigInteger = _getBigInteger();
@@ -1140,18 +1161,24 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected void convertNumberToBigInteger() throws IOException
     {
-        if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
+        // 03-Nov-2026, tatu: [core#1814] FP value: truncate exact BigDecimal
+        final String fpText = _floatNumberText();
+        if (fpText != null) {
+            if ((_numTypesValid & NR_BIGDECIMAL) == 0) {
+                convertNumberToBigDecimal();
+            }
+            _numberBigInt = _convertBigDecimalToBigInteger(_getBigDecimal());
+        } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             // here it'll just get truncated, no exceptions thrown
             _numberBigInt = _convertBigDecimalToBigInteger(_getBigDecimal());
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberLong);
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberInt);
-        } else if ((_numTypesValid & (NR_DOUBLE | NR_FLOAT)) != 0) {
-            // 03-Nov-2026, tatu: [core#1815] decode from text, not possibly stale cached value
-            //   [core#1814] for both double and float
-            convertNumberToBigDecimal();
-            _numberBigInt = _convertBigDecimalToBigInteger(_numberBigDecimal);
+        } else if ((_numTypesValid & NR_DOUBLE) != 0) {
+            _numberBigInt = _convertBigDecimalToBigInteger(BigDecimal.valueOf(_getNumberDouble()));
+        } else if ((_numTypesValid & NR_FLOAT) != 0) {
+            _numberBigInt = _convertBigDecimalToBigInteger(BigDecimal.valueOf(_getNumberFloat()));
         } else {
             _throwInternal();
         }
@@ -1167,13 +1194,18 @@ public abstract class ParserBase extends ParserMinimalBase
          */
 
         // 03-Nov-2026, tatu: [core#1814] Retained text is the original representation
-        if (_numberString != null) {
-            _numberDouble = _parseDoubleText();
+        final String fpText = _floatNumberText();
+        if (fpText != null) {
+            _numberDouble = _parseDouble(fpText);
+        } else if (_numberString != null) {
+            _numberDouble = _parseDouble(_numberString);
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             _numberDouble = _getBigDecimal().doubleValue();
-        } else if (((_numTypesValid & NR_FLOAT) != 0)
-                && (_currToken == JsonToken.VALUE_NUMBER_FLOAT)) {
+        } else if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
             // [core#1814] integral representations of FP value are truncated
+            if ((_numTypesValid & NR_FLOAT) == 0) {
+                _throwInternal();
+            }
             _numberDouble = _getNumberFloat();
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberDouble = _getBigInteger().doubleValue();
@@ -1181,8 +1213,6 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberDouble = _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberDouble = _numberInt;
-        } else if ((_numTypesValid & NR_FLOAT) != 0) {
-            _numberDouble = _getNumberFloat();
         } else {
             _throwInternal();
         }
@@ -1198,13 +1228,18 @@ public abstract class ParserBase extends ParserMinimalBase
          */
 
         // 03-Nov-2026, tatu: [core#1814] Retained text is the original representation
-        if (_numberString != null) {
-            _numberFloat = _parseFloatText();
+        final String fpText = _floatNumberText();
+        if (fpText != null) {
+            _numberFloat = _parseFloat(fpText);
+        } else if (_numberString != null) {
+            _numberFloat = _parseFloat(_numberString);
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             _numberFloat = _getBigDecimal().floatValue();
-        } else if (((_numTypesValid & NR_DOUBLE) != 0)
-                && (_currToken == JsonToken.VALUE_NUMBER_FLOAT)) {
+        } else if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
             // [core#1814] integral representations of FP value are truncated
+            if ((_numTypesValid & NR_DOUBLE) == 0) {
+                _throwInternal();
+            }
             _numberFloat = (float) _getNumberDouble();
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberFloat = _getBigInteger().floatValue();
@@ -1212,8 +1247,6 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberFloat = _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberFloat = _numberInt;
-        } else if ((_numTypesValid & NR_DOUBLE) != 0) {
-            _numberFloat = (float) _getNumberDouble();
         } else {
             _throwInternal();
         }
@@ -1231,7 +1264,10 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & (NR_DOUBLE | NR_FLOAT)) != 0) {
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
-            final String numStr = _numberString == null ? getText() : _numberString;
+            String numStr = _floatNumberText();
+            if (numStr == null) {
+                numStr = (_numberString == null) ? getText() : _numberString;
+            }
             _numberBigDecimal = NumberInput.parseBigDecimal(
                     numStr,
                     isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
@@ -1245,6 +1281,32 @@ public abstract class ParserBase extends ParserMinimalBase
             _throwInternal();
         }
         _numTypesValid |= NR_BIGDECIMAL;
+    }
+
+    /**
+     * Accessor for exact textual representation of the current floating-point
+     * number token, if available, used for conversions so that results do not
+     * depend on order of access. Default implementation returns text
+     * retained for deferred decoding, if any.
+     *
+     * @return Textual representation of the current floating-point number token,
+     *    if available; {@code null} otherwise
+     *
+     * @throws IOException If accessing text fails
+     *
+     * @since 2.23
+     */
+    protected String _floatNumberText() throws IOException {
+        return (_currToken == JsonToken.VALUE_NUMBER_FLOAT) ? _numberString : null;
+    }
+
+    // [core#1814] exact double value of FP token, decoded from text if not yet done
+    private double _exactDouble(String fpText) throws JsonParseException {
+        if ((_numTypesValid & NR_DOUBLE) == 0) {
+            _numberDouble = _parseDouble(fpText);
+            _numTypesValid |= NR_DOUBLE;
+        }
+        return _getNumberDouble();
     }
 
     // @since 2.15
@@ -1325,8 +1387,8 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected double _getNumberDouble() throws JsonParseException {
         // 03-Nov-2026, tatu: [core#1814] text retained until next token: decode just once
-        if (_numberDoubleDeferred && (_numberString != null)) {
-            _numberDouble = _parseDoubleText();
+        if (_numberDoubleDeferred) {
+            _numberDouble = _parseDouble(_numberString);
             _numberDoubleDeferred = false;
         }
         return _numberDouble;
@@ -1347,22 +1409,22 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberFloat;
     }
 
-    private double _parseDoubleText() throws JsonParseException {
+    private double _parseDouble(String numStr) throws JsonParseException {
         try {
-            return NumberInput.parseDouble(_numberString,
+            return NumberInput.parseDouble(numStr,
                     isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
         } catch (NumberFormatException nex) {
-            _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
             return 0.0; // never gets here
         }
     }
 
-    private float _parseFloatText() throws JsonParseException {
+    private float _parseFloat(String numStr) throws JsonParseException {
         try {
-            return NumberInput.parseFloat(_numberString,
+            return NumberInput.parseFloat(numStr,
                     isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
         } catch (NumberFormatException nex) {
-            _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
             return 0.0f; // never gets here
         }
     }

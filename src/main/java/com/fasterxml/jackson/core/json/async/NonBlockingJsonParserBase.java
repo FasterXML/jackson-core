@@ -757,12 +757,14 @@ public abstract class NonBlockingJsonParserBase
     final JsonToken _valueCompleteNumber(JsonToken t) throws IOException
     {
         _numberString = null;
+        _numberDoubleDeferred = false;
         return _valueComplete(t);
     }
 
     protected final JsonToken _valueCompleteInt(int value, String asText) throws IOException
     {
         _numberString = null;
+        _numberDoubleDeferred = false;
         _textBuffer.resetWithString(asText);
         _intLength = asText.length();
         _numTypesValid = NR_INT; // to force parsing
@@ -781,6 +783,7 @@ public abstract class NonBlockingJsonParserBase
                     tokenStr);
         }
         _numberString = null;
+        _numberDoubleDeferred = false;
         _intLength = 0;
         _numTypesValid = NR_DOUBLE;
         _numberDouble = NON_STD_TOKEN_VALUES[type];

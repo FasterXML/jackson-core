@@ -20,10 +20,12 @@ class NumberDeferredAccess1814Test extends JUnit5TestBase
     private final static String BIG_INT_STR = "123456789012345678901234567890";
     private final static BigInteger BIG_INT = new BigInteger(BIG_INT_STR);
 
-    // Floating-point values exactly representable as float, to avoid
-    // differences from float-to-double widening
     private final static String[] VALUES = {
-            "1.5", "-2.5e2", "0.25", "7", "-3000000000", BIG_INT_STR
+            "1.5", "-2.5e2", "0.25", "7", "-3000000000", BIG_INT_STR,
+            // values not exactly representable as float and/or double
+            "0.1", "-0.0", "123456789.0", "2147483647.0", "2147483647.5",
+            "1.00000017881393432617187499", "12345678901234567.25",
+            "1e20", "3.4e39", "2.5e-50", "1e400"
     };
 
     private final static String[] OPS = {
@@ -89,6 +91,25 @@ class NumberDeferredAccess1814Test extends JUnit5TestBase
                 assertEquals(BigInteger.ONE, p.getBigIntegerValue());
                 assertEquals(new BigDecimal("1.5"), p.getDecimalValue());
                 assertEquals(1.5, p.getDoubleValue());
+            }
+            // conversions from cached float must not lose precision
+            try (JsonParser p = createParser(F, mode, "123456789.0 ")) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(123456789.0f, p.getFloatValue());
+                assertEquals(123456789L, p.getLongValue());
+                assertEquals(123456789, p.getIntValue());
+                assertEquals(BigInteger.valueOf(123456789L), p.getBigIntegerValue());
+            }
+            try (JsonParser p = createParser(F, mode, "0.1 ")) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(0.1f, p.getFloatValue());
+                assertEquals(0.1, p.getDoubleValue());
+            }
+            // and from cached double (no double rounding)
+            try (JsonParser p = createParser(F, mode, "1.00000017881393432617187499 ")) {
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(1.0000001788139343, p.getDoubleValue());
+                assertEquals(1.0000001f, p.getFloatValue());
             }
         }
     }

@@ -36,6 +36,9 @@ JSON library.
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 3.2.4 (18-Oct-2026)
 

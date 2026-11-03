@@ -22,6 +22,7 @@ class NumberStaleValue1815Test extends JUnit5TestBase
             .build();
 
     private final static BigInteger BIG_INT = new BigInteger("12345678901234567890123");
+    private final static String NAN_DOC = "[1.5, NaN, 2.5, 7, 3.5, 0]";
     private final static String BIG_INT_DOC = "[1.5, "+BIG_INT+", "+BIG_INT+", "+BIG_INT+"]";
 
     @Test
@@ -45,11 +46,36 @@ class NumberStaleValue1815Test extends JUnit5TestBase
         }
     }
 
+    // Root-level values: last number completed at end-of-input
+    @Test
+    void staleValuesAtEOFAsync() throws Exception
+    {
+        for (int bytesPerRead : new int[] { 1, 99 }) {
+            try (AsyncReaderWrapper w = AsyncTestBase.asyncForBytes(F, bytesPerRead, utf8Bytes("2.5 7"), 0)) {
+                JsonParser p = w.parser();
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, w.nextToken());
+                assertEquals(NumberType.DOUBLE, p.getNumberType());
+                assertToken(JsonToken.VALUE_NUMBER_INT, w.nextToken());
+                assertEquals(7.0, p.getDoubleValue());
+                assertEquals(7.0, p.getDoubleValue());
+                assertNull(w.nextToken());
+            }
+            try (AsyncReaderWrapper w = AsyncTestBase.asyncForBytes(F, bytesPerRead, utf8Bytes("1.5 NaN"), 0)) {
+                JsonParser p = w.parser();
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, w.nextToken());
+                assertEquals(NumberType.DOUBLE, p.getNumberType());
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, w.nextToken());
+                assertTrue(Double.isNaN(p.getDoubleValue()));
+                assertNull(w.nextToken());
+            }
+        }
+    }
+
     @Test
     void staleNumberStringBeforeNaN() throws Exception
     {
         for (int mode : ALL_MODES) {
-            try (JsonParser p = createParser(F, mode, "[1.5, NaN]")) {
+            try (JsonParser p = createParser(F, mode, NAN_DOC)) {
                 _testStaleNumberStringBeforeNaN(p, p::nextToken);
             }
         }
@@ -58,10 +84,10 @@ class NumberStaleValue1815Test extends JUnit5TestBase
     @Test
     void staleNumberStringBeforeNaNAsync() throws Exception
     {
-        try (AsyncReaderWrapper w = AsyncTestBase.asyncForBytes(F, 1, utf8Bytes("[1.5, NaN]"), 0)) {
+        try (AsyncReaderWrapper w = AsyncTestBase.asyncForBytes(F, 1, utf8Bytes(NAN_DOC), 0)) {
             _testStaleNumberStringBeforeNaN(w.parser(), w::nextToken);
         }
-        try (AsyncReaderWrapper w = AsyncTestBase.asyncForByteBuffer(F, 1, utf8Bytes("[1.5, NaN]"), 0)) {
+        try (AsyncReaderWrapper w = AsyncTestBase.asyncForByteBuffer(F, 1, utf8Bytes(NAN_DOC), 0)) {
             _testStaleNumberStringBeforeNaN(w.parser(), w::nextToken);
         }
     }
@@ -107,6 +133,18 @@ class NumberStaleValue1815Test extends JUnit5TestBase
         assertEquals(NumberType.DOUBLE, p.getNumberType());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, src.nextToken());
         assertTrue(Double.isNaN(p.getDoubleValue()));
+        // and same for regular ints
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, src.nextToken());
+        assertEquals(NumberType.DOUBLE, p.getNumberType());
+        assertToken(JsonToken.VALUE_NUMBER_INT, src.nextToken());
+        assertEquals(7.0, p.getDoubleValue());
+        assertEquals(7.0, p.getDoubleValue());
+        assertEquals(7.0f, p.getFloatValue());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, src.nextToken());
+        assertEquals(NumberType.DOUBLE, p.getNumberType());
+        assertToken(JsonToken.VALUE_NUMBER_INT, src.nextToken());
+        assertEquals(0.0, p.getDoubleValue());
+        assertEquals(0.0, p.getDoubleValue());
         assertToken(JsonToken.END_ARRAY, src.nextToken());
     }
 

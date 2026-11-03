@@ -590,3 +590,8 @@ Elankumaran Srinivasan (@elang2)
  * Reported #1784: UTF-8 parsers may return wrong cached property name for names
    containing 0xFF bytes
   (2.23.0)
+
+@vera-rubin
+ * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
+   deferred floating-point value
+  (2.21.9)

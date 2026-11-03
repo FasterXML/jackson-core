@@ -40,6 +40,9 @@ a pure JSON library.
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 2.22.5 (not yet released)
 
@@ -50,6 +53,9 @@ a pure JSON library.
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 2.22.4 (17-Oct-2026)
 
@@ -116,6 +122,9 @@ No changes since 2.21
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 2.21.8 (17-Oct-2026)
 

@@ -229,7 +229,8 @@ public class TextBuffer
             _currentSegment = buf(1);
         }
         _currentSegment[0] = ch; // lgtm [java/dereferenced-value-may-be-null]
-        _currentSize = _segmentSize = 1;
+        _currentSize = 1;
+        _segmentSize = 0;
     }
 
     /**
@@ -758,6 +759,12 @@ public class TextBuffer
             w.write(_resultString);
             return _resultString.length();
         }
+        // Same checks as contentsAsString(), done before anything is written
+        final int size = size();
+        if (size < 0) {
+            _reportBufferOverflow(_segmentSize, _currentSize);
+        }
+        validateStringLength(size);
         // Do we use shared array?
         if (_inputStart >= 0) {
             final int len = _inputLen;

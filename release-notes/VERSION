@@ -138,6 +138,9 @@ JSON library.
  (contributed by @stevenschlansker, w/ Claude code)
 #1803: Consider validating async decimal number lengths before buffer expansion
  (reported, fix by DongNyoung L)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
 
 3.2.5 (not yet released)
 

@@ -119,6 +119,7 @@ class AsyncParserNamesTest extends AsyncTestBase
         p.close();
     }
 
+    @Test
     public void testSymbolTableWithIntern() throws IOException
     {
         JsonFactory internF = JsonFactory.builder()

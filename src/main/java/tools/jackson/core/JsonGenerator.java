@@ -1945,7 +1945,7 @@ public abstract class JsonGenerator
      * skipped. It is usually only called for generators that return
      * <code>false</code> from {@link #canOmitProperties()}.
      *<p>
-     * Default implementation does nothing; method is overriden by some format
+     * Default implementation does nothing; method is overridden by some format
      * backends.
      *
      * @param propertyName Name of the property that is being omitted

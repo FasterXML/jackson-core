@@ -12,6 +12,48 @@ import tools.jackson.core.util.RecyclerPool.ConcurrentDequePoolBase;
  * Set of {@link RecyclerPool} implementations to be used by the default
  * JSON-backed {@link JsonFactory} for recycling {@link BufferRecycler}
  * containers.
+ *<p>
+ * Choosing a pool:
+ *<ul>
+ * <li>{@link #defaultPool()} ({@link ConcurrentDequePool}): a new pool on each
+ *  call. It is unbounded and has no per-thread state: all threads that use
+ *  it contend on the ends of one queue, and each release allocates a queue
+ *  node.
+ *  </li>
+ * <li>{@link #newHybridPool(int)} ({@link HybridPool}): when per-thread retention
+ *  is acceptable. Platform threads keep one instance each, as with
+ *  {@link #threadLocalPool()}; virtual threads share bounded striped slots.
+ *  </li>
+ * <li>{@link #newStripedArrayPool(int)} ({@link StripedArrayPool}): bounded,
+ *  with no per-thread state. Unlike the default, it caps retained instances
+ *  and allocates no queue nodes; unlike {@link #newHybridPool(int)}, it
+ *  suits large or changing thread pools, or many short-lived threads.
+ *  </li>
+ * <li>{@link #threadLocalPool()} ({@link ThreadLocalPool}): one instance per
+ *  thread, held by a {@link SoftReference}, never shared between threads;
+ *  poor for virtual threads, which each abandon their instance.
+ *  </li>
+ * <li>{@link #newBoundedPool(int)} ({@link BoundedPool}): bounded, with no
+ *  per-thread state. Its {@link ArrayBlockingQueue} of fixed size takes one
+ *  lock on each acquire and release. A release drops the instance when the
+ *  queue is full, and an acquire creates one when the queue is empty, so
+ *  neither waits.
+ *  </li>
+ * <li>{@link #nonRecyclingPool()} ({@link NonRecyclingPool}): no recycling;
+ *  every acquire creates a new instance.
+ *  </li>
+ *</ul>
+ *<p>
+ * Any thread can reuse any instance in the slots of a striped or hybrid pool.
+ * Size such a pool near the peak number of threads (for the hybrid pool,
+ * virtual threads) that hold an instance at the same time, up to
+ * {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY} (64; larger sizes
+ * are silently clamped). The slots only need to absorb changes in how many
+ * instances are in use, not hold every instance in use: when that number
+ * rises or falls by more than the slot count, some acquires create new
+ * instances and some releases drop them.
+ * {@link #sharedStripedArrayPool()} and {@link #sharedHybridPool()} have
+ * {@link RecyclerPool.StripedArrayPoolBase#DEFAULT_CAPACITY} slots.
  */
 public final class JsonRecyclerPools
 {
@@ -85,6 +127,61 @@ public final class JsonRecyclerPools
         return BoundedPool.construct(size);
     }
 
+    /**
+     * Accessor for getting the shared/global {@link StripedArrayPool} instance.
+     *
+     * @return Globally shared instance of {@link StripedArrayPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> sharedStripedArrayPool() {
+        return StripedArrayPool.GLOBAL;
+    }
+
+    /**
+     * Accessor for constructing a new, non-shared {@link StripedArrayPool}
+     * instance.
+     *
+     * @param size Requested number of slots; rounded up to the next power of
+     *   two (so up to almost twice as many values may be pooled; 33 gives
+     *   64 slots), and clamped to
+     *   {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}
+     *
+     * @return New instance of {@link StripedArrayPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> newStripedArrayPool(int size) {
+        return StripedArrayPool.construct(size);
+    }
+
+    /**
+     * Accessor for getting the shared/global {@link HybridPool} instance.
+     *
+     * @return Globally shared instance of {@link HybridPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> sharedHybridPool() {
+        return HybridPool.GLOBAL;
+    }
+
+    /**
+     * Accessor for constructing a new, non-shared {@link HybridPool} instance.
+     *
+     * @param size Requested number of shared slots; rounded up
+     *   to the next power of two (so up to almost twice as many values may be
+     *   pooled; 33 gives 64 slots), and clamped to
+     *   {@link RecyclerPool.StripedArrayPoolBase#MAX_CAPACITY}
+     *
+     * @return New instance of {@link HybridPool}
+     *
+     * @since 3.3
+     */
+    public static RecyclerPool<BufferRecycler> newHybridPool(int size) {
+        return HybridPool.construct(size);
+    }
+
     /*
     /**********************************************************************
     /* Concrete RecyclerPool implementations for recycling BufferRecyclers
@@ -147,7 +244,7 @@ public final class JsonRecyclerPools
 
         @Override
         public BufferRecycler acquirePooled() {
-            return new BufferRecycler();
+            return new BufferRecycler(false);
         }
         
         // // // JDK serialization support
@@ -214,6 +311,106 @@ public final class JsonRecyclerPools
                 throw new IllegalArgumentException("capacity must be > 0, was: "+capacity);
             }
             return new BoundedPool(capacity);
+        }
+
+        @Override
+        public BufferRecycler createPooled() {
+            return new BufferRecycler();
+        }
+
+        // // // JDK serialization support
+
+        // Make sure to re-link to global/shared or non-shared.
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> construct(_serialization));
+        }
+    }
+
+    /**
+     * {@link RecyclerPool} implementation that uses a fixed array of atomic
+     * slots for recycling {@link BufferRecycler} instances:
+     * see {@link RecyclerPool.StripedArrayPoolBase} for full explanation
+     * of functioning.
+     *<p>
+     * Choose this pool over {@link HybridPool} when instances must not be
+     * retained per thread: its slot count bounds all retention.
+     *
+     * @since 3.3
+     */
+    public static class StripedArrayPool extends RecyclerPool.StripedArrayPoolBase<BufferRecycler>
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected static final StripedArrayPool GLOBAL = new StripedArrayPool(SERIALIZATION_SHARED);
+
+        // // // Life-cycle (constructors, factory methods)
+
+        protected StripedArrayPool(int capacityAsId) {
+            super(capacityAsId);
+        }
+
+        public static StripedArrayPool construct(int capacity) {
+            if (capacity <= 0) {
+                throw new IllegalArgumentException("capacity must be > 0, was: "+capacity);
+            }
+            return new StripedArrayPool(capacity);
+        }
+
+        @Override
+        public BufferRecycler createPooled() {
+            return new BufferRecycler();
+        }
+
+        // // // JDK serialization support
+
+        // Make sure to re-link to global/shared or non-shared.
+        protected Object readResolve() {
+            return _resolveToShared(GLOBAL).orElseGet(() -> construct(_serialization));
+        }
+    }
+
+    /**
+     * {@link RecyclerPool} implementation that recycles
+     * {@link BufferRecycler} instances through {@link ThreadLocalPool} for
+     * platform threads (so a platform thread uses the same instance as with
+     * {@link #threadLocalPool()}) and shared atomic slots for virtual threads:
+     * see {@link RecyclerPool.HybridPoolBase} for full explanation
+     * of functioning.
+     *<p>
+     * Choose this pool over {@link StripedArrayPool} when retaining one
+     * instance per platform thread is acceptable: platform threads then
+     * acquire without touching shared state.
+     *<p>
+     * Platform threads get their instances from {@link ThreadLocalPool},
+     * which creates them with {@code new BufferRecycler()} and shares them
+     * with {@link #threadLocalPool()} and every other {@code HybridPool}.
+     * So a subclass that overrides {@link #createPooled()} changes only the
+     * instances of the shared slots: those of virtual threads, and those that
+     * {@link #acquirePooled()} returns on any thread. To customize the
+     * instances of platform threads too, extend
+     * {@link RecyclerPool.HybridPoolBase} directly, passing a
+     * {@link RecyclerPool.ThreadLocalPoolBase} implementation that keeps its
+     * own per-thread instances.
+     *
+     * @since 3.3
+     */
+    public static class HybridPool extends RecyclerPool.HybridPoolBase<BufferRecycler>
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected static final HybridPool GLOBAL = new HybridPool(SERIALIZATION_SHARED);
+
+        // // // Life-cycle (constructors, factory methods)
+
+        protected HybridPool(int capacityAsId) {
+            super(capacityAsId, ThreadLocalPool.GLOBAL);
+        }
+
+        public static HybridPool construct(int capacity) {
+            if (capacity <= 0) {
+                throw new IllegalArgumentException("capacity must be > 0, was: "+capacity);
+            }
+            return new HybridPool(capacity);
         }
 
         @Override

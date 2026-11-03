@@ -142,6 +142,16 @@ class NumberDeferredReadTest
                         assertEquals(expD, p.getDoubleValue());
                         assertNull(p.nextToken());
                     }
+                    // ... and float may be decoded after BigDecimal, double still deferred
+                    try (JsonParser p = createParser(f, mode, " " + value + " ")) {
+                        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                        assertEquals(NumberType.DOUBLE, p.getNumberType());
+                        assertEquals(new BigDecimal(value), p.getDecimalValue());
+                        assertEquals(expF, p.getFloatValue());
+                        assertEquals(expF, p.getFloatValue());
+                        assertEquals(expD, p.getDoubleValue());
+                        assertNull(p.nextToken());
+                    }
                 }
             }
         }

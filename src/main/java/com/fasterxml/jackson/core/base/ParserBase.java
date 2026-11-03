@@ -1341,19 +1341,18 @@ public abstract class ParserBase extends ParserMinimalBase
     protected float _getNumberFloat() throws JsonParseException {
         if (_numberString != null) {
             // 03-Nov-2026, tatu: [core#1813] Non-null text with NR_DOUBLE means double
-            //   still deferred: must retain text for it. Float is then decoded once,
-            //   before being marked valid (by convertNumberToFloat())
-            final boolean retainText = (_numTypesValid & NR_DOUBLE) != 0;
-            final boolean floatDecoded = retainText && (_numTypesValid & NR_FLOAT) != 0;
-            if (!floatDecoded) {
-                try {
-                    _numberFloat = NumberInput.parseFloat(_numberString,
-                            isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                } catch (NumberFormatException nex) {
-                    _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
-                }
+            //   still deferred: must retain text. Float already decoded if marked valid
+            final boolean doubleDeferred = (_numTypesValid & NR_DOUBLE) != 0;
+            if (doubleDeferred && (_numTypesValid & NR_FLOAT) != 0) {
+                return _numberFloat;
             }
-            if (!retainText) {
+            try {
+                _numberFloat = NumberInput.parseFloat(_numberString,
+                        isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (NumberFormatException nex) {
+                _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
+            }
+            if (!doubleDeferred) {
                 _numberString = null;
             }
         }

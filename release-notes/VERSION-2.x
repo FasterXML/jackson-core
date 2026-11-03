@@ -37,6 +37,9 @@ a pure JSON library.
   between tokens (also: CR-LF and token line numbers; Record Separator no longer
   accepted directly after root-level number or comment, same as other parsers)
  (reported, fix by @ItsDeadlyProgrammer)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
 
 2.22.5 (not yet released)
 

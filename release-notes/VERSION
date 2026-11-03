@@ -136,6 +136,8 @@ JSON library.
   constructors `BufferRecycler(boolean)` and `BufferRecycler(int, int, boolean)`
   allow disabling padding)
  (contributed by @stevenschlansker, w/ Claude code)
+#1803: Consider validating async decimal number lengths before buffer expansion
+ (reported, fix by DongNyoung L)
 
 3.2.5 (not yet released)
 
@@ -155,8 +157,6 @@ JSON library.
   accepted directly after root-level number or comment, same as other parsers)
  (reported by @ItsDeadlyProgrammer)
  (fix by @ItsDeadlyProgrammer)
-#1803: Consider validating async decimal number lengths before buffer expansion
- (reported, fix by DongNyoung L)
 
 3.2.4 (18-Oct-2026)
 

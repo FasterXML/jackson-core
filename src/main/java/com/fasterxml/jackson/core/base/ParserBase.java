@@ -597,6 +597,9 @@ public abstract class ParserBase extends ParserMinimalBase
         _expLength = 0;
         _numTypesValid = NR_UNKNOWN; // to force decoding
         _numberString = null;
+        // [core#1815]: must clear cached values from earlier tokens
+        _numberBigInt = null;
+        _numberBigDecimal = null;
         return JsonToken.VALUE_NUMBER_INT;
     }
 
@@ -612,6 +615,9 @@ public abstract class ParserBase extends ParserMinimalBase
         _expLength = expLen;
         _numTypesValid = NR_UNKNOWN; // to force decoding
         _numberString = null;
+        // [core#1815]: must clear cached values from earlier tokens
+        _numberBigInt = null;
+        _numberBigDecimal = null;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
@@ -623,6 +629,8 @@ public abstract class ParserBase extends ParserMinimalBase
         _numTypesValid = NR_DOUBLE;
         _numberIsNaN = true;
         _numberString = null;
+        _numberBigInt = null;
+        _numberBigDecimal = null;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
 
@@ -1301,7 +1309,10 @@ public abstract class ParserBase extends ParserMinimalBase
         } catch (NumberFormatException nex) {
             _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
         }
-        _numberString = null;
+        // [core#1815]: retain text if double still deferred (as with [core#1813])
+        if ((_numTypesValid & NR_DOUBLE) == 0) {
+            _numberString = null;
+        }
         return _numberBigDecimal;
     }
 

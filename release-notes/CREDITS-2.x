@@ -572,4 +572,4 @@ Elankumaran Srinivasan (@elang2)
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value
-  (2.21.8)
+  (2.21.9)

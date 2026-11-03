@@ -20,6 +20,9 @@ a pure JSON library.
   before writing string values through `JsonParser.getText(Writer)`
  (reported by @Dongnyoung)
  (fix by @Dongnyoung)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
 
 2.21.8 (17-Oct-2026)
 
@@ -45,9 +48,6 @@ a pure JSON library.
 #1756: Non-blocking parser does not decode multi-byte UTF-8 character after
   backslash escape
  (contributed by @ItsDeadlyProgrammer)
-#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
-  floating-point value
- (contributed by @vera-rubin)
 
 2.21.7 (21-Sep-2026)
 

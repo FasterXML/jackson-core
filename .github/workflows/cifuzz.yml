@@ -1,8 +1,8 @@
 name: CIFuzz
 on:
-  pull_request:
-    branches: # Only works for 2.x, due package renaming in 3.0
-    - "2.19"
+  # 23-Oct-2026, tatu: Disabled for 2.x: OSS-Fuzz fuzzers now target 3.x API
+  #   (JacksonException etc), fail to compile against 2.x. Manual trigger only.
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -27,7 +27,7 @@ jobs:
         dry-run: false
         language: jvm
     - name: Upload Crash
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts

@@ -564,3 +564,8 @@ Elankumaran Srinivasan (@elang2)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (2.21.8)
+
+@vera-rubin
+ * Contributed #1779: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
+   deferred floating-point value
+  (2.21.8)

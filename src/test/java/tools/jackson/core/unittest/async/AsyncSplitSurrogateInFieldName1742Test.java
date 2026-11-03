@@ -100,7 +100,7 @@ class AsyncSplitSurrogateInFieldName1742Test extends AsyncTestBase
     private String _blockingTokens(JsonFactory f, byte[] doc) throws Exception
     {
         StringBuilder sb = new StringBuilder();
-        try (JsonParser p = f.createParser(doc)) {
+        try (JsonParser p = f.createParser(ObjectReadContext.empty(), doc)) {
             JsonToken t;
             while ((t = p.nextToken()) != null) {
                 sb.append(t).append(':').append(p.getString()).append('|');

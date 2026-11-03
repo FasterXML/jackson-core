@@ -25,7 +25,7 @@ public class NextNameWithMatcherTest
 
     private final PropertyNameMatcher MATCHER_CS_1 = JSON_F.constructNameMatcher(NAMED_LIST_1, true);
     private final PropertyNameMatcher MATCHER_CI_1 = JSON_F.constructCINameMatcher(NAMED_LIST_1, true,
-            new Locale("en", "US"));
+            Locale.US);
 
     private final String DOC_1 = """
             { "a" : 4, "enabled" : true, "longerName" : "Billy-Bob Burger", "extra" : [ 0], "otherStuff3" : 0.25 }""";

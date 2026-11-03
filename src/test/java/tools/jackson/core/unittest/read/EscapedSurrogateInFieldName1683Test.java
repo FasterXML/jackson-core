@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
@@ -122,13 +123,13 @@ class EscapedSurrogateInFieldName1683Test extends JacksonCoreTestBase
             try (JsonParser p = open(f, mode, doc)) {
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                assertEquals("\uD800", p.getText(), "mode=" + mode);
+                assertEquals("\uD800", p.getString(), "mode=" + mode);
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                assertEquals("\uDC00", p.getText(), "mode=" + mode);
+                assertEquals("\uDC00", p.getString(), "mode=" + mode);
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                assertEquals("\uDC00\uD800", p.getText(), "mode=" + mode);
+                assertEquals("\uDC00\uD800", p.getString(), "mode=" + mode);
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                assertEquals("\uD800\uDC00", p.getText(), "mode=" + mode);
+                assertEquals("\uD800\uDC00", p.getString(), "mode=" + mode);
                 assertToken(JsonToken.END_ARRAY, p.nextToken());
             }
         }
@@ -224,7 +225,7 @@ class EscapedSurrogateInFieldName1683Test extends JacksonCoreTestBase
 
     private JsonParser open(JsonFactory f, int mode, String doc) throws Exception {
         if (mode == MODE_STRING) {
-            return f.createParser(doc);
+            return f.createParser(ObjectReadContext.empty(), doc);
         }
         return createParser(f, mode, doc);
     }

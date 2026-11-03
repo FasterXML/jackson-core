@@ -116,7 +116,7 @@ class UTF8Overlong1782Test extends JacksonCoreTestBase
                         assertToken(JsonToken.START_OBJECT, p.nextToken());
                         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
                         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                        p.getText();
+                        p.getString();
                         fail("Should not pass for mode " + mode + ", sequence " + hex(seq));
                     } catch (StreamReadException e) {
                         verifyException(e, INVALID_MSG[i]);
@@ -159,7 +159,7 @@ class UTF8Overlong1782Test extends JacksonCoreTestBase
                     assertToken(JsonToken.START_OBJECT, p.nextToken());
                     assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                    p.getText();
+                    p.getString();
                     fail("Should not pass for mode " + mode + ", sequence " + hex(seq));
                 } catch (StreamReadException e) {
                     verifyException(e, INVALID_MSG[i]);
@@ -198,7 +198,7 @@ class UTF8Overlong1782Test extends JacksonCoreTestBase
                 try (JsonParser p = createParser(FACTORY, mode, doc)) {
                     assertToken(JsonToken.START_ARRAY, p.nextToken());
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                    assertEquals(VALID_DECODED[i], p.getText());
+                    assertEquals(VALID_DECODED[i], p.getString());
                     // second one skipped
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
                     assertToken(JsonToken.END_ARRAY, p.nextToken());

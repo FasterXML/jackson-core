@@ -218,6 +218,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Whether {@link #_numberDouble} is yet to be decoded from {@link #_numberString}
      * (only meaningful if latter is non-null)
+     *
+     * @since 2.23
      */
     private boolean _numberDoubleDeferred;
 

@@ -38,7 +38,7 @@ a pure JSON library.
 #1756: Non-blocking parser does not decode multi-byte UTF-8 character after
   backslash escape
  (contributed by @ItsDeadlyProgrammer)
-#1779: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)
 

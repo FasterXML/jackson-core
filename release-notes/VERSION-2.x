@@ -40,6 +40,9 @@ a pure JSON library.
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)
+#1814: `getBigIntegerValue()` fails after `getNumberType()`, `getDoubleValue()`/
+  `getFloatValue()` for big integer
+ (fix by @cowtowncoder)
 #1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
   after `getNumberType()`
  (fix by @cowtowncoder)

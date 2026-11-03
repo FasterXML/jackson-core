@@ -409,7 +409,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 }
                 _setIntLength(len);
             }
-            return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+            return _valueCompleteNumber(JsonToken.VALUE_NUMBER_INT);
 
         case MINOR_NUMBER_FRACTION_DIGITS:
             // 09-Oct-2026, tatu: [core#1746] input may end right after decimal point
@@ -417,12 +417,12 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportInvalidEOF(": Decimal point not followed by a digit", JsonToken.VALUE_NUMBER_FLOAT);
             }
             _expLength = 0;
-            return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+            return _valueCompleteNumber(JsonToken.VALUE_NUMBER_FLOAT);
         case MINOR_NUMBER_EXPONENT_DIGITS:
             if (_expLength == 0) {
                 _reportInvalidEOF(": was expecting digits after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
             }
-            return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+            return _valueCompleteNumber(JsonToken.VALUE_NUMBER_FLOAT);
 
         case MINOR_NUMBER_PLUS:
         case MINOR_NUMBER_MINUS:
@@ -1474,7 +1474,7 @@ public abstract class NonBlockingUtf8JsonParserBase
     // instead completed in `_finishTokenWithEOF()` (no separator check needed)
     private JsonToken _numberComplete(JsonToken t) throws IOException {
         _verifyRootSpaceAfterNumber();
-        return _valueComplete(t);
+        return _valueCompleteNumber(t);
     }
 
     // 09-Oct-2026, tatu: "-0" retains sign in text, but not in integer-part length

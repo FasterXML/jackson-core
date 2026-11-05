@@ -570,6 +570,5 @@ Elankumaran Srinivasan (@elang2)
   (2.21.8)
 
 Ubeddulla Khan (@ubeddulla)
- * Contributed #1800: Don't read past end of `byte[]` slice for UTF-16 input in
-   `ByteSourceJsonBootstrapper`
+ * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
   (2.21.9)

@@ -1107,6 +1107,50 @@ public abstract class ParserBase extends ParserMinimalBase
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Maximum amount of input (in bytes or chars) to decode as Base64 between
+     * verifications of {@link StreamReadConstraints#getMaxStringLength()}.
+     *
+     * @since 2.18.13
+     */
+    protected final static int BASE64_CHECK_INTERVAL = 8000;
+
+    /**
+     * Method for calculating maximum decoded length of Base64 content that does not
+     * exceed {@link StreamReadConstraints#getMaxStringLength()}. Character count is
+     * {@code ceil(4n/3)} for {@code n} decoded bytes: this is exact for unpadded content,
+     * and up to 2 characters short for padded content. White space is not included.
+     *
+     * @return Maximum number of decoded bytes allowed
+     *
+     * @since 2.18.13
+     */
+    protected final int _base64MaxDecodedLength() {
+        return (int) (_streamReadConstraints.getMaxStringLength() * 3L / 4L);
+    }
+
+    /**
+     * Method called when decoded Base64 content exceeds {@link #_base64MaxDecodedLength()}.
+     *<p>
+     * Current token is cleared so that decoding can not be retried from the middle of
+     * the value. Token is still marked as incomplete by parser so that
+     * {@code nextToken()} can skip the rest of the value.
+     *
+     * @param builder Builder that contains content decoded so far
+     *
+     * @throws StreamConstraintsException Always
+     *
+     * @since 2.18.13
+     */
+    protected final void _reportBase64LengthExceeded(ByteArrayBuilder builder) throws StreamConstraintsException
+    {
+        clearCurrentToken();
+        // Only know length of what has been decoded so far, hence "at least"
+        throw new StreamConstraintsException(String.format(
+                "String value length (at least %d) exceeds the maximum allowed (%d, from `StreamReadConstraints.getMaxStringLength()`)",
+                (builder.size() * 4L + 2L) / 3L, _streamReadConstraints.getMaxStringLength()));
+    }
+
     protected final int _decodeBase64Escape(Base64Variant b64variant, int ch, int index)
         throws JacksonException
     {

@@ -2833,11 +2833,8 @@ public class ReaderBasedJsonParser
     protected byte[] _decodeBase64(Base64Variant b64variant) throws IOException
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
-        // 19-Oct-2026, ubeddulla: decoded content is materialized, so `maxStringLength`
-        //   has to apply as it does for `getText()`: count Base64 characters consumed
-        //   (4 per quartet, whitespace excluded) and verify before decoding further
-        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
-        long totalLen = 0;
+        // 04-Nov-2026: `maxStringLength` verified on input buffer reload and at end,
+        //   not for every quartet (see `_verifyBase64Length()`)
 
         //main_loop:
         while (true) {
@@ -2845,32 +2842,26 @@ public class ReaderBasedJsonParser
             char ch;
             do {
                 if (_inputPtr >= _inputEnd) {
-                    _loadMoreGuaranteed();
+                    _loadMoreForBase64(builder);
                 }
                 ch = _inputBuffer[_inputPtr++];
             } while (ch <= INT_SPACE);
             int bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 if (ch == '"') { // reached the end, fair and square?
-                    return builder.toByteArray();
+                    return _finishBase64(builder);
                 }
                 bits = _decodeBase64Escape(b64variant, ch, 0);
                 if (bits < 0) { // white space to skip
                     continue;
                 }
             }
-            // Quartets counted so far were complete (4 chars each; one cut short by the
-            // closing quote returns), so count can not exceed actual String length
-            if (totalLen > maxStringLen) {
-                _streamReadConstraints.validateStringLength((int) Math.min(totalLen, Integer.MAX_VALUE));
-            }
-            totalLen += 4;
             int decodedData = bits;
 
             // then second base64 char; can't get padding yet, nor ws
 
             if (_inputPtr >= _inputEnd) {
-                _loadMoreGuaranteed();
+                _loadMoreForBase64(builder);
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -2881,7 +2872,7 @@ public class ReaderBasedJsonParser
 
             // third base64 char; can be padding, but not ws
             if (_inputPtr >= _inputEnd) {
-                _loadMoreGuaranteed();
+                _loadMoreForBase64(builder);
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -2897,14 +2888,14 @@ public class ReaderBasedJsonParser
                             --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
-                        return builder.toByteArray();
+                        return _finishBase64(builder);
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 2);
                 }
                 if (bits == Base64Variant.BASE64_VALUE_PADDING) {
                     // Ok, must get more padding chars, then
                     if (_inputPtr >= _inputEnd) {
-                        _loadMoreGuaranteed();
+                        _loadMoreForBase64(builder);
                     }
                     ch = _inputBuffer[_inputPtr++];
                     if (!b64variant.usesPaddingChar(ch)) {
@@ -2923,7 +2914,7 @@ public class ReaderBasedJsonParser
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
             if (_inputPtr >= _inputEnd) {
-                _loadMoreGuaranteed();
+                _loadMoreForBase64(builder);
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -2937,7 +2928,7 @@ public class ReaderBasedJsonParser
                             --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
-                        return builder.toByteArray();
+                        return _finishBase64(builder);
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 3);
                 }
@@ -2957,6 +2948,20 @@ public class ReaderBasedJsonParser
             decodedData = (decodedData << 6) | bits;
             builder.appendThreeBytes(decodedData);
         }
+    }
+
+    // Closing quote consumed: nothing left to skip even if verification fails
+    private byte[] _finishBase64(ByteArrayBuilder builder) throws IOException {
+        _tokenIncomplete = false;
+        _verifyBase64Length(builder);
+        return builder.toByteArray();
+    }
+
+    // Input buffer boundaries are where `maxStringLength` gets checked while decoding:
+    // limits cost to the slow path, and memory use to about one more buffer's worth
+    private void _loadMoreForBase64(ByteArrayBuilder builder) throws IOException {
+        _verifyBase64Length(builder);
+        _loadMoreGuaranteed();
     }
 
     /*

@@ -1466,6 +1466,31 @@ public abstract class ParserBase extends ParserMinimalBase
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Method for verifying that Base64 content decoded so far does not exceed
+     * {@link StreamReadConstraints#getMaxStringLength()}. Length in characters is derived
+     * from the decoded length, as {@code ceil(4n/3)}: this is exact for unpadded content,
+     * and up to 2 characters short for padded content. White space is not included.
+     *<p>
+     * On failure current token is cleared so that decoding can not be retried from
+     * the middle of the value. Token is still marked as incomplete by parser so that
+     * {@code nextToken()} can skip the rest of the value.
+     *
+     * @param builder Builder that contains content decoded so far
+     *
+     * @throws StreamConstraintsException If length exceeds maximum
+     *
+     * @since 2.18.13
+     */
+    protected final void _verifyBase64Length(ByteArrayBuilder builder) throws StreamConstraintsException
+    {
+        final int len = (int) Math.min((builder.size() * 4L + 2L) / 3L, Integer.MAX_VALUE);
+        if (len > _streamReadConstraints.getMaxStringLength()) {
+            clearCurrentToken();
+            _streamReadConstraints.validateStringLength(len);
+        }
+    }
+
     protected final int _decodeBase64Escape(Base64Variant b64variant, int ch, int index) throws IOException
     {
         // 17-May-2011, tatu: As per [JACKSON-xxx], need to handle escaped chars

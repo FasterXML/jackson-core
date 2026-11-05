@@ -2837,11 +2837,9 @@ public class UTF8DataInputJsonParser
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws IOException
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
-        // 19-Oct-2026, ubeddulla: decoded content is materialized, so `maxStringLength`
-        //   has to apply as it does for `getText()`: count Base64 characters consumed
-        //   (4 per quartet, whitespace excluded) and verify before decoding further
-        final int maxStringLen = _streamReadConstraints.getMaxStringLength();
-        long totalLen = 0;
+        // 04-Nov-2026: no input buffer boundaries to check `maxStringLength` on, so verify
+        //   per quartet: cheap compared to reading input one byte at a time
+        final int maxDecodedLen = (int) (_streamReadConstraints.getMaxStringLength() * 3L / 4);
 
         //main_loop:
         while (true) {
@@ -2853,19 +2851,16 @@ public class UTF8DataInputJsonParser
             int bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) { // reached the end, fair and square?
                 if (ch == INT_QUOTE) {
-                    return builder.toByteArray();
+                    return _finishBase64(builder);
                 }
                 bits = _decodeBase64Escape(b64variant, ch, 0);
                 if (bits < 0) { // white space to skip
                     continue;
                 }
             }
-            // Quartets counted so far were complete (4 chars each; one cut short by the
-            // closing quote returns), so count can not exceed actual String length
-            if (totalLen > maxStringLen) {
-                _streamReadConstraints.validateStringLength((int) Math.min(totalLen, Integer.MAX_VALUE));
+            if (builder.size() > maxDecodedLen) {
+                _verifyBase64Length(builder);
             }
-            totalLen += 4;
             int decodedData = bits;
 
             // then second base64 char; can't get padding yet, nor ws
@@ -2889,7 +2884,7 @@ public class UTF8DataInputJsonParser
                         if (b64variant.requiresPaddingOnRead()) {
                             _handleBase64MissingPadding(b64variant);
                         }
-                        return builder.toByteArray();
+                        return _finishBase64(builder);
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 2);
                 }
@@ -2921,7 +2916,7 @@ public class UTF8DataInputJsonParser
                         if (b64variant.requiresPaddingOnRead()) {
                             _handleBase64MissingPadding(b64variant);
                         }
-                        return builder.toByteArray();
+                        return _finishBase64(builder);
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 3);
                 }
@@ -2941,6 +2936,13 @@ public class UTF8DataInputJsonParser
             decodedData = (decodedData << 6) | bits;
             builder.appendThreeBytes(decodedData);
         }
+    }
+
+    // Closing quote consumed: nothing left to skip even if verification fails
+    private byte[] _finishBase64(ByteArrayBuilder builder) throws IOException {
+        _tokenIncomplete = false;
+        _verifyBase64Length(builder);
+        return builder.toByteArray();
     }
 
     /*

@@ -22,6 +22,12 @@ a pure JSON library.
  (fix by @Dongnyoung)
 #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
  (contributed by @ubeddulla)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 2.21.8 (17-Oct-2026)
 

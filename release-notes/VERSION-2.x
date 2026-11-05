@@ -33,6 +33,10 @@ a pure JSON library.
 #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
  (reported by @Marcono1234)
  (fix by @pjfanning)
+#1794: `maxStringLength` not enforced by `getBinaryValue()` when decoding
+  Base64 directly from input
+ (reported by @ubeddulla)
+ (fix by @ubeddulla)
 #1795: `UTF8DataInputJsonParser` accepts any control character as white space
   between tokens (also: CR-LF and token line numbers; Record Separator no longer
   accepted directly after root-level number or comment, same as other parsers)
@@ -56,6 +60,10 @@ a pure JSON library.
   before writing string values through `JsonParser.getText(Writer)`
  (reported by @Dongnyoung)
  (fix by @Dongnyoung)
+#1794: `maxStringLength` not enforced by `getBinaryValue()` when decoding
+  Base64 directly from input
+ (reported by @ubeddulla)
+ (fix by @ubeddulla)
 #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
  (contributed by @ubeddulla)
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
@@ -127,6 +135,10 @@ No changes since 2.21
   before writing string values through `JsonParser.getText(Writer)`
  (reported by @Dongnyoung)
  (fix by @Dongnyoung)
+#1794: `maxStringLength` not enforced by `getBinaryValue()` when decoding
+  Base64 directly from input
+ (reported by @ubeddulla)
+ (fix by @ubeddulla)
 #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
  (contributed by @ubeddulla)
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred

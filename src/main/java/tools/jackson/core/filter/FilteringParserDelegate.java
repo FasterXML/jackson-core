@@ -1,6 +1,7 @@
 package tools.jackson.core.filter;
 
 import tools.jackson.core.*;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.sym.PropertyNameMatcher;
 import tools.jackson.core.util.JsonParserDelegate;
@@ -1050,6 +1051,19 @@ public class FilteringParserDelegate extends JsonParserDelegate
             return PropertyNameMatcher.MATCH_END_OBJECT;
         }
         return PropertyNameMatcher.MATCH_ODD_TOKEN;
+    }
+
+    @Override
+    public byte[] getBinaryValue(Base64Variant b64variant) throws JacksonException {
+        try {
+            return delegate.getBinaryValue(b64variant);
+        } catch (StreamConstraintsException e) {
+            // Delegate clears its token on failure: cached one must not remain visible
+            if (delegate.currentToken() == null) {
+                clearCurrentToken();
+            }
+            throw e;
+        }
     }
 
     /*

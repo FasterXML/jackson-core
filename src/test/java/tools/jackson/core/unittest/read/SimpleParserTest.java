@@ -865,6 +865,31 @@ class SimpleParserTest extends JacksonCoreTestBase
         }
     }
 
+    // Used to fail with NPE: encoding not set on IOContext when not detected
+    @Test
+    void noCharsetDetectionNoCanonicalization() {
+        JsonFactory factory = JsonFactory.builder()
+                .disable(JsonFactory.Feature.CHARSET_DETECTION)
+                .disable(JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES)
+                .build();
+        final byte[] doc = utf8Bytes("[1]");
+        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), doc)) {
+            _verifySingleIntArray(p);
+        }
+        try (JsonParser p = factory.createParser(ObjectReadContext.empty(),
+                new ByteArrayInputStream(doc))) {
+            _verifySingleIntArray(p);
+        }
+    }
+
+    private void _verifySingleIntArray(JsonParser p) {
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(1, p.getIntValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
+    }
+
     /*
     /**********************************************************
     /* Helper methods

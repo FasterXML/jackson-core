@@ -37,6 +37,8 @@ a pure JSON library.
   between tokens (also: CR-LF and token line numbers; Record Separator no longer
   accepted directly after root-level number or comment, same as other parsers)
  (reported, fix by @ItsDeadlyProgrammer)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)
@@ -54,6 +56,8 @@ a pure JSON library.
   before writing string values through `JsonParser.getText(Writer)`
  (reported by @Dongnyoung)
  (fix by @Dongnyoung)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)
@@ -123,6 +127,8 @@ No changes since 2.21
   before writing string values through `JsonParser.getText(Writer)`
  (reported by @Dongnyoung)
  (fix by @Dongnyoung)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
 #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
   floating-point value
  (contributed by @vera-rubin)

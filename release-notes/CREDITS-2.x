@@ -527,3 +527,8 @@ Ilenia Salvadori (@isalvadori)
 Vitor Pamplona (@vitorpamplona)
  * Contributed fix for #1473: Bug with Surrogates + Segments in the `UTF8JsonGenerator`
   (2.20.1)
+
+ubeddulla khan (@ubeddulla)
+ * Reported, contributed fix for #1794: `maxStringLength` not enforced by
+   `getBinaryValue()` when decoding Base64 directly from input
+  (2.18.13)

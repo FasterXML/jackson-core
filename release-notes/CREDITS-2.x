@@ -569,6 +569,10 @@ Elankumaran Srinivasan (@elang2)
    after backslash escape
   (2.21.8)
 
+Ubeddulla Khan (@ubeddulla)
+ * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+  (2.21.9)
+
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value

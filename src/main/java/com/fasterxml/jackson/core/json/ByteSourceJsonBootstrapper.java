@@ -241,7 +241,7 @@ public final class ByteSourceJsonBootstrapper
                         // when processing small inputs up to 8KiB.
                         return new StringReader(new String(_inputBuffer, _inputPtr, length, enc.getJavaName()));
                     }
-                    in = new ByteArrayInputStream(_inputBuffer, _inputPtr, _inputEnd);
+                    in = new ByteArrayInputStream(_inputBuffer, _inputPtr, length);
                 } else {
                     // Also, if we have any read but unused input (usually true),
                     // need to merge that input in:
@@ -263,7 +263,14 @@ public final class ByteSourceJsonBootstrapper
             int factoryFeatures) throws IOException
     {
         int prevInputPtr = _inputPtr;
-        JsonEncoding enc = JsonFactory.Feature.CHARSET_DETECTION.enabledIn(factoryFeatures) ? detectEncoding() : JsonEncoding.UTF8;
+        JsonEncoding enc;
+        if (JsonFactory.Feature.CHARSET_DETECTION.enabledIn(factoryFeatures)) {
+            enc = detectEncoding();
+        } else {
+            enc = JsonEncoding.UTF8;
+            // constructReader() gets encoding from context
+            _context.setEncoding(enc);
+        }
         int bytesProcessed = _inputPtr - prevInputPtr;
 
         if (enc == JsonEncoding.UTF8) {

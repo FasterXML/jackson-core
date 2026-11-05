@@ -745,6 +745,30 @@ class SimpleParserTest extends JUnit5TestBase
         }
     }
 
+    // Used to fail with NPE: encoding not set on IOContext when not detected
+    @Test
+    void noCharsetDetectionNoCanonicalization() throws IOException {
+        JsonFactory factory = new JsonFactoryBuilder()
+                .disable(JsonFactory.Feature.CHARSET_DETECTION)
+                .disable(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES)
+                .build();
+        final byte[] doc = utf8Bytes("[1]");
+        try (JsonParser p = factory.createParser(doc)) {
+            _verifySingleIntArray(p);
+        }
+        try (JsonParser p = factory.createParser(new ByteArrayInputStream(doc))) {
+            _verifySingleIntArray(p);
+        }
+    }
+
+    private void _verifySingleIntArray(JsonParser p) throws IOException {
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(1, p.getIntValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
+    }
+
     /*
     /**********************************************************
     /* Helper methods

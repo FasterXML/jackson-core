@@ -20,6 +20,9 @@ a pure JSON library.
   before writing string values through `JsonParser.getText(Writer)`
  (reported by @Dongnyoung)
  (fix by @Dongnyoung)
+#1800: Don't read past end of `byte[]` slice for UTF-16 input in
+  `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
 
 2.21.8 (17-Oct-2026)
 

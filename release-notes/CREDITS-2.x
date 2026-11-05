@@ -568,3 +568,8 @@ Elankumaran Srinivasan (@elang2)
  * Contributed #1756: Non-blocking parser does not decode multi-byte UTF-8 character
    after backslash escape
   (2.21.8)
+
+Ubeddulla Khan (@ubeddulla)
+ * Contributed #1800: Don't read past end of `byte[]` slice for UTF-16 input in
+   `ByteSourceJsonBootstrapper`
+  (2.21.9)

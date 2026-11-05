@@ -131,12 +131,26 @@ JSON library.
  (fix by @ItsDeadlyProgrammer)
 #1798: `BinaryNameMatcher` does not pad partial quads: binary parsers match
   NUL-containing names to known properties (add optional padding)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
 #1802: Pad `BufferRecycler` buffer slots and pool link to avoid false sharing
   with other objects (removes protected `_byteBuffers` and `_charBuffers`,
   adds about 200 bytes per recycler with compressed oops; new protected
   constructors `BufferRecycler(boolean)` and `BufferRecycler(int, int, boolean)`
   allow disabling padding)
  (contributed by @stevenschlansker, w/ Claude code)
+#1803: Consider validating async decimal number lengths before buffer expansion
+ (reported, fix by DongNyoung L)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
+#1814: `getBigIntegerValue()` fails after `getNumberType()`, `getDoubleValue()`/
+  `getFloatValue()` for big integer (also: number accessor results no longer
+  depend on order of access)
+ (fix by @cowtowncoder)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 3.2.5 (not yet released)
 
@@ -156,6 +170,18 @@ JSON library.
   accepted directly after root-level number or comment, same as other parsers)
  (reported by @ItsDeadlyProgrammer)
  (fix by @ItsDeadlyProgrammer)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
+#1814: `getBigIntegerValue()` fails after `getNumberType()`, `getDoubleValue()`/
+  `getFloatValue()` for big integer (also: number accessor results no longer
+  depend on order of access)
+ (fix by @cowtowncoder)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 3.2.4 (18-Oct-2026)
 
@@ -302,6 +328,18 @@ No changes since 3.2.0
   accepted directly after root-level number or comment, same as other parsers)
  (reported by @ItsDeadlyProgrammer)
  (fix by @ItsDeadlyProgrammer)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
+#1814: `getBigIntegerValue()` fails after `getNumberType()`, `getDoubleValue()`/
+  `getFloatValue()` for big integer (also: number accessor results no longer
+  depend on order of access)
+ (fix by @cowtowncoder)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 3.1.8 (17-Oct-2026)
 

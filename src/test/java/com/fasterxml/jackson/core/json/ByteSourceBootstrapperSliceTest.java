@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // decoded via StringReader) must not be read past offset + length
 class ByteSourceBootstrapperSliceTest extends JUnit5TestBase
 {
-    private final static String BOM = "﻿";
+    private final static String BOM = "\uFEFF";
 
     private final JsonFactory JSON_F = newStreamFactory();
 

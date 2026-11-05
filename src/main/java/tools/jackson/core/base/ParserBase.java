@@ -1108,7 +1108,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * Maximum amount of input (in bytes or chars) to decode as Base64 between
      * verifications of {@link StreamReadConstraints#getMaxStringLength()}.
      *
-     * @since 2.18.13
+     * @since 3.1.9
      */
     protected final static int BASE64_CHECK_INTERVAL = 8000;
 
@@ -1120,7 +1120,7 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @return Maximum number of decoded bytes allowed
      *
-     * @since 2.18.13
+     * @since 3.1.9
      */
     protected final int _base64MaxDecodedLength() {
         return (int) (_streamReadConstraints.getMaxStringLength() * 3L / 4L);
@@ -1137,7 +1137,7 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @throws StreamConstraintsException Always
      *
-     * @since 2.18.13
+     * @since 3.1.9
      */
     protected final void _reportBase64LengthExceeded(ByteArrayBuilder builder) throws StreamConstraintsException
     {

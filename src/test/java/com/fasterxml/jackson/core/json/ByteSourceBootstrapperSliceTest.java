@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.json;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -61,25 +62,19 @@ class ByteSourceBootstrapperSliceTest extends JUnit5TestBase
         // Incomplete document in slice; remainder is outside of it
         final char[] padding = new char[9000];
         Arrays.fill(padding, ' ');
-        final String doc = prefix + "[" + new String(padding) + "1";
         final byte[] pre = "[0,".getBytes(cs);
-        final byte[] slice = doc.getBytes(cs);
-        final byte[] post = ",2]".getBytes(cs);
-        final byte[] buf = new byte[pre.length + slice.length + post.length];
-        System.arraycopy(pre, 0, buf, 0, pre.length);
-        System.arraycopy(slice, 0, buf, pre.length, slice.length);
-        System.arraycopy(post, 0, buf, pre.length + slice.length, post.length);
+        final byte[] slice = (prefix + "[" + new String(padding) + "1").getBytes(cs);
+        final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        buf.write(pre);
+        buf.write(slice);
+        buf.write(",2]".getBytes(cs));
 
-        try (JsonParser p = f.createParser(buf, pre.length, slice.length)) {
+        try (JsonParser p = f.createParser(buf.toByteArray(), pre.length, slice.length)) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(1, p.getIntValue());
-            try {
-                p.nextToken();
-                fail("Should not read beyond end of slice");
-            } catch (StreamReadException e) {
-                verifyException(e, "Unexpected end-of-input");
-            }
+            StreamReadException e = assertThrows(StreamReadException.class, p::nextToken);
+            verifyException(e, "Unexpected end-of-input");
         }
     }
 }

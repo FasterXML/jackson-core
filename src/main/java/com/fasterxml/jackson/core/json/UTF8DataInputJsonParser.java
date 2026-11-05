@@ -374,10 +374,8 @@ public class UTF8DataInputJsonParser
             } catch (IllegalArgumentException iae) {
                 throw _constructError("Failed to decode VALUE_STRING as base64 ("+b64variant+"): "+iae.getMessage());
             }
-            /* let's clear incomplete only now; allows for accessing other
-             * textual content in error cases
-             */
-            _tokenIncomplete = false;
+            // Incomplete cleared by `_decodeBase64()` only when reaching end of value;
+            // allows for accessing other textual content in error cases
         } else { // may actually require conversion...
             if (_binaryValue == null) {
                 @SuppressWarnings("resource")
@@ -725,7 +723,9 @@ public class UTF8DataInputJsonParser
 
     @Override
     public void finishToken() throws IOException {
-        if (_tokenIncomplete) {
+        // No current token if Base64 decoding failed on `maxStringLength`: may be in the
+        // middle of value, to be skipped by `nextToken()`
+        if (_tokenIncomplete && (_currToken != null)) {
             _tokenIncomplete = false;
             _finishString(); // only strings can be incomplete
         }

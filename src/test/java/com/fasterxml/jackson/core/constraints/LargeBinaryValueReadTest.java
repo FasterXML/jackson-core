@@ -202,6 +202,33 @@ class LargeBinaryValueReadTest extends JUnit5TestBase
         }
     }
 
+    // No current token after failure, so nothing to finish: must not start reading
+    // from the middle of the value, leaving `nextToken()` unable to skip the rest
+    @Test
+    void finishTokenAfterFailure() throws Exception
+    {
+        final String doc = "[\"" + Base64Variants.getDefaultVariant().encode(_binary(30_000)) + "\",123]";
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(JSON_F_STRING_1000, mode, doc)) {
+                _verifyFinishTokenAfterFailure(p);
+            }
+        }
+        try (JsonParser p = JSON_F_STRING_1000.createParser(doc.getBytes("UTF-8"))) {
+            _verifyFinishTokenAfterFailure(p);
+        }
+    }
+
+    private void _verifyFinishTokenAfterFailure(JsonParser p) throws Exception {
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertThrows(StreamConstraintsException.class, () -> p.getBinaryValue());
+        p.finishToken();
+        assertNull(p.currentToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(123, p.getIntValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+    }
+
     // Limit must fire well before end of value: invalid character at the end would
     // otherwise be hit first. In-memory input has no input buffer reloads to check on.
     @Test

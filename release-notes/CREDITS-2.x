@@ -495,3 +495,8 @@ Revanth Meesala (@revanthmeesala)
    `StreamReadConstraints.maxStringLength` before writing string values through
    `JsonParser.getText(Writer)`
   (2.18.13)
+
+ubeddulla khan (@ubeddulla)
+ * Reported, contributed fix for #1794: `maxStringLength` not enforced by
+   `getBinaryValue()` when decoding Base64 directly from input
+  (2.18.13)

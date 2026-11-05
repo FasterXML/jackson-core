@@ -519,8 +519,8 @@ public class UTF8StreamJsonParser
             } catch (IllegalArgumentException iae) {
                 throw _constructError("Failed to decode VALUE_STRING as base64 ("+b64variant+"): "+iae.getMessage());
             }
-            // let's clear incomplete only now; allows for accessing other textual content in error cases
-            _tokenIncomplete = false;
+            // Incomplete cleared by `_decodeBase64()` only when reaching end of value;
+            // allows for accessing other textual content in error cases
         } else { // may actually require conversion...
             if (_binaryValue == null) {
                 @SuppressWarnings("resource")
@@ -886,7 +886,9 @@ public class UTF8StreamJsonParser
 
     @Override
     public void finishToken() throws IOException {
-        if (_tokenIncomplete) {
+        // No current token if Base64 decoding failed on `maxStringLength`: may be in the
+        // middle of value, to be skipped by `nextToken()`
+        if (_tokenIncomplete && (_currToken != null)) {
             _tokenIncomplete = false;
             _finishString(); // only strings can be incomplete
         }
@@ -3657,22 +3659,28 @@ public class UTF8StreamJsonParser
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws IOException
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
+        // 04-Nov-2026: `maxStringLength` verified periodically and at end, not for every
+        //   quartet: `checkEnd` takes the place of `_inputEnd` for the end-of-input check.
+        //   Decoding of escapes may reload input, so must force a check after it
+        final int maxDecodedLen = _base64MaxDecodedLength();
+        int checkEnd = _inputPtr;
 
         while (true) {
             // first, we'll skip preceding white space, if any
             int ch;
             do {
-                if (_inputPtr >= _inputEnd) {
-                    _loadMoreGuaranteed();
+                if (_inputPtr >= checkEnd) {
+                    checkEnd = _loadMoreForBase64(builder, maxDecodedLen);
                 }
                 ch = _inputBuffer[_inputPtr++] & 0xFF;
             } while (ch <= INT_SPACE);
             int bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) { // reached the end, fair and square?
                 if (ch == INT_QUOTE) {
-                    return builder.toByteArray();
+                    return _finishBase64(builder, maxDecodedLen);
                 }
                 bits = _decodeBase64Escape(b64variant, ch, 0);
+                checkEnd = _inputPtr;
                 if (bits < 0) { // white space to skip
                     continue;
                 }
@@ -3681,19 +3689,20 @@ public class UTF8StreamJsonParser
 
             // then second base64 char; can't get padding yet, nor ws
 
-            if (_inputPtr >= _inputEnd) {
-                _loadMoreGuaranteed();
+            if (_inputPtr >= checkEnd) {
+                checkEnd = _loadMoreForBase64(builder, maxDecodedLen);
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
             bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 bits = _decodeBase64Escape(b64variant, ch, 1);
+                checkEnd = _inputPtr;
             }
             decodedData = (decodedData << 6) | bits;
 
             // third base64 char; can be padding, but not ws
-            if (_inputPtr >= _inputEnd) {
-                _loadMoreGuaranteed();
+            if (_inputPtr >= checkEnd) {
+                checkEnd = _loadMoreForBase64(builder, maxDecodedLen);
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
             bits = b64variant.decodeBase64Char(ch);
@@ -3709,20 +3718,22 @@ public class UTF8StreamJsonParser
                             --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
-                        return builder.toByteArray();
+                        return _finishBase64(builder, maxDecodedLen);
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 2);
+                    checkEnd = _inputPtr;
                 }
                 if (bits == Base64Variant.BASE64_VALUE_PADDING) {
                     // Ok, must get padding
-                    if (_inputPtr >= _inputEnd) {
-                        _loadMoreGuaranteed();
+                    if (_inputPtr >= checkEnd) {
+                        checkEnd = _loadMoreForBase64(builder, maxDecodedLen);
                     }
                     ch = _inputBuffer[_inputPtr++] & 0xFF;
                     if (!b64variant.usesPaddingChar(ch)) {
                         if (_decodeBase64Escape(b64variant, ch, 3) != Base64Variant.BASE64_VALUE_PADDING) {
                             throw reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
                         }
+                        checkEnd = _inputPtr;
                     }
                     // Got 12 bits, only need 8, need to shift
                     decodedData >>= 4;
@@ -3733,8 +3744,8 @@ public class UTF8StreamJsonParser
             // Nope, 2 or 3 bytes
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
-            if (_inputPtr >= _inputEnd) {
-                _loadMoreGuaranteed();
+            if (_inputPtr >= checkEnd) {
+                checkEnd = _loadMoreForBase64(builder, maxDecodedLen);
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
             bits = b64variant.decodeBase64Char(ch);
@@ -3748,9 +3759,10 @@ public class UTF8StreamJsonParser
                             --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
-                        return builder.toByteArray();
+                        return _finishBase64(builder, maxDecodedLen);
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 3);
+                    checkEnd = _inputPtr;
                 }
                 if (bits == Base64Variant.BASE64_VALUE_PADDING) {
                     // With padding we only get 2 bytes; but we have to shift it
@@ -3765,6 +3777,27 @@ public class UTF8StreamJsonParser
             decodedData = (decodedData << 6) | bits;
             builder.appendThreeBytes(decodedData);
         }
+    }
+
+    // Closing quote consumed: nothing left to skip even if verification fails
+    private byte[] _finishBase64(ByteArrayBuilder builder, int maxDecodedLen) throws IOException {
+        _tokenIncomplete = false;
+        if (builder.size() > maxDecodedLen) {
+            _reportBase64LengthExceeded(builder);
+        }
+        return builder.toByteArray();
+    }
+
+    // Called when reaching `checkEnd`: input buffer end, or `BASE64_CHECK_INTERVAL` from
+    // previous check, so that in-memory input (no reloads) is covered as well
+    private int _loadMoreForBase64(ByteArrayBuilder builder, int maxDecodedLen) throws IOException {
+        if (builder.size() > maxDecodedLen) {
+            _reportBase64LengthExceeded(builder);
+        }
+        if (_inputPtr >= _inputEnd) {
+            _loadMoreGuaranteed();
+        }
+        return _inputPtr + Math.min(_inputEnd - _inputPtr, BASE64_CHECK_INTERVAL);
     }
 
     /*

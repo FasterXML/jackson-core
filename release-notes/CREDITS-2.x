@@ -523,3 +523,8 @@ Fawzi Essam (@iifawzi)
 Ilenia Salvadori (@isalvadori)
  * Requested #1421: Make `JsonReadContext` non-final
   (2.19.0)
+
+ubeddulla khan (@ubeddulla)
+ * Reported, contributed fix for #1794: `maxStringLength` not enforced by
+   `getBinaryValue()` when decoding Base64 directly from input
+  (2.18.13)

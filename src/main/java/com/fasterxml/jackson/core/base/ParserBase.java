@@ -1467,6 +1467,14 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /**
+     * Maximum amount of input (in bytes or chars) to decode as Base64 between
+     * verifications of {@link StreamReadConstraints#getMaxStringLength()}.
+     *
+     * @since 2.18.13
+     */
+    protected final static int BASE64_CHECK_INTERVAL = 8000;
+
+    /**
      * Method for verifying that Base64 content decoded so far does not exceed
      * {@link StreamReadConstraints#getMaxStringLength()}. Length in characters is derived
      * from the decoded length, as {@code ceil(4n/3)}: this is exact for unpadded content,
@@ -1487,7 +1495,10 @@ public abstract class ParserBase extends ParserMinimalBase
         final int len = (int) Math.min((builder.size() * 4L + 2L) / 3L, Integer.MAX_VALUE);
         if (len > _streamReadConstraints.getMaxStringLength()) {
             clearCurrentToken();
-            _streamReadConstraints.validateStringLength(len);
+            // Only know length of what has been decoded so far, hence "at least"
+            throw new StreamConstraintsException(String.format(
+                    "String value length (at least %d) exceeds the maximum allowed (%d, from `StreamReadConstraints.getMaxStringLength()`)",
+                    len, _streamReadConstraints.getMaxStringLength()));
         }
     }
 

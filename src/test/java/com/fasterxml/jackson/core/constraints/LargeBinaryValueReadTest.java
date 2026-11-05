@@ -4,9 +4,12 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
+import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
+import com.fasterxml.jackson.core.filter.TokenFilter;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -190,6 +193,93 @@ class LargeBinaryValueReadTest extends JUnit5TestBase
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
                 assertEquals(encoded, p.getText());
                 assertArrayEquals(binary, p.getBinaryValue());
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+            }
+        }
+    }
+
+    // Limit must fire well before end of value: invalid character at the end would
+    // otherwise be hit first. In-memory input has no input buffer reloads to check on.
+    @Test
+    void failsBeforeEndOfValue() throws Exception
+    {
+        final String doc = "[\"" + Base64Variants.getDefaultVariant().encode(_binary(30_000)) + "!\"]";
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(JSON_F_STRING_1000, mode, doc)) {
+                _verifyFailsOnLimit(p);
+            }
+        }
+        try (JsonParser p = JSON_F_STRING_1000.createParser(doc.getBytes("UTF-8"))) {
+            _verifyFailsOnLimit(p);
+        }
+        try (JsonParser p = JSON_F_STRING_1000.createParser(doc.toCharArray())) {
+            _verifyFailsOnLimit(p);
+        }
+    }
+
+    private void _verifyFailsOnLimit(JsonParser p) throws Exception {
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        StreamConstraintsException e = assertThrows(StreamConstraintsException.class,
+                () -> p.getBinaryValue());
+        verifyException(e, "String value length (at least ");
+        verifyException(e, "exceeds the maximum allowed (1000");
+    }
+
+    // Decoding of an escape may reload input (buffers of varying size with throttled
+    // modes), which must not confuse tracking of where to check next
+    @Test
+    void binaryWithEscapesAcrossBuffers() throws Exception
+    {
+        final byte[] binary = _binary(100_000);
+        final String encoded = Base64Variants.getDefaultVariant().encode(binary);
+        final StringBuilder sb = new StringBuilder("[\"");
+        final int last = encoded.length() - 1;
+        for (int i = 0; i <= last; ++i) {
+            // to get all positions within quartets; and escaped padding at the end
+            if ((i % 7) == 0 || i == last) {
+                sb.append(String.format("\\u%04X", (int) encoded.charAt(i)));
+            } else {
+                sb.append(encoded.charAt(i));
+            }
+        }
+        final String doc = sb.append("\"]").toString();
+        final JsonFactory f = new JsonFactory();
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(f, mode, doc)) {
+                _verifyBinaryRead(p, binary);
+            }
+        }
+        try (JsonParser p = f.createParser(doc.getBytes("UTF-8"))) {
+            _verifyBinaryRead(p, binary);
+        }
+        try (JsonParser p = f.createParser(doc.toCharArray())) {
+            _verifyBinaryRead(p, binary);
+        }
+    }
+
+    private void _verifyBinaryRead(JsonParser p, byte[] expected) throws Exception {
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertArrayEquals(expected, p.getBinaryValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+    }
+
+    @Test
+    void filteredParserAfterFailure() throws Exception
+    {
+        final String doc = _doc(_binary(30_000));
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = new FilteringParserDelegate(
+                    createParser(JSON_F_STRING_1000, mode, doc),
+                    TokenFilter.INCLUDE_ALL, TokenFilter.Inclusion.INCLUDE_ALL_AND_PATH, true)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                assertThrows(StreamConstraintsException.class, () -> p.getBinaryValue());
+                assertNull(p.currentToken());
+                assertFalse(p.hasCurrentToken());
+                assertNull(p.getText());
+                assertThrows(JsonParseException.class, () -> p.getBinaryValue());
                 assertToken(JsonToken.END_ARRAY, p.nextToken());
             }
         }

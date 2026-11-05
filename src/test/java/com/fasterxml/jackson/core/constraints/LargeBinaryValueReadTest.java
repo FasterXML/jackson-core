@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.core.constraints;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
@@ -58,7 +61,8 @@ class LargeBinaryValueReadTest extends JUnit5TestBase
         }
     }
 
-    // Limit must be exact, not off by up to a quartet
+    // Limit must not be off by up to a quartet (padded values, however, can get
+    // up to 2 characters over: length is derived from decoded length)
     @Test
     void binaryJustOverLimit() throws Exception
     {
@@ -224,6 +228,36 @@ class LargeBinaryValueReadTest extends JUnit5TestBase
                 () -> p.getBinaryValue());
         verifyException(e, "String value length (at least ");
         verifyException(e, "exceeds the maximum allowed (1000");
+    }
+
+    // Input reload within an escape must not prevent checks: backslash placed as the
+    // last character of every input buffer (default sizes of 8000 bytes, 4000 chars),
+    // so that no reload happens outside of escape decoding
+    @Test
+    void failsWithEscapesStraddlingBuffers() throws Exception
+    {
+        final String byteDoc = _docWithEscapesAtBoundaries(8000);
+        try (JsonParser p = JSON_F_STRING_1000.createParser(
+                new ByteArrayInputStream(byteDoc.getBytes("UTF-8")))) {
+            _verifyFailsOnLimit(p);
+        }
+        final String charDoc = _docWithEscapesAtBoundaries(4000);
+        try (JsonParser p = JSON_F_STRING_1000.createParser(new StringReader(charDoc))) {
+            _verifyFailsOnLimit(p);
+        }
+    }
+
+    // Invalid character at the end, to fail if limit is not hit before it
+    private static String _docWithEscapesAtBoundaries(int bufferLen) {
+        final StringBuilder sb = new StringBuilder("[\"");
+        while (sb.length() < (bufferLen * 20)) {
+            final int boundary = ((sb.length() / bufferLen) + 1) * bufferLen;
+            while (sb.length() < (boundary - 1)) {
+                sb.append('A');
+            }
+            sb.append("\\u0041");
+        }
+        return sb.append("!\"]").toString();
     }
 
     // Decoding of an escape may reload input (buffers of varying size with throttled

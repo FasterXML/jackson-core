@@ -126,6 +126,10 @@ David R. MacIver (@DRMacIver)
    containing 0xFF bytes
   (3.1.9)
 
+Ubeddulla Khan (@ubeddulla)
+ * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+  (3.1.9)
+
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value

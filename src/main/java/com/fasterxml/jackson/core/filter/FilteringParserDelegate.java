@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
@@ -1134,7 +1135,17 @@ public class FilteringParserDelegate extends JsonParserDelegate
      */
 
     @Override public Object getEmbeddedObject() throws IOException { return delegate.getEmbeddedObject(); }
-    @Override public byte[] getBinaryValue(Base64Variant b64variant) throws IOException { return delegate.getBinaryValue(b64variant); }
+    @Override public byte[] getBinaryValue(Base64Variant b64variant) throws IOException {
+        try {
+            return delegate.getBinaryValue(b64variant);
+        } catch (StreamConstraintsException e) {
+            // Delegate clears its token on failure: cached one must not remain visible
+            if (delegate.currentToken() == null) {
+                clearCurrentToken();
+            }
+            throw e;
+        }
+    }
     @Override public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException { return delegate.readBinaryValue(b64variant, out); }
 
     /*

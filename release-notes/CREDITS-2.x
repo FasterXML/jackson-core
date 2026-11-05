@@ -570,6 +570,9 @@ Elankumaran Srinivasan (@elang2)
   (2.21.8)
 
 Ubeddulla Khan (@ubeddulla)
+ * Reported, contributed fix for #1794: `maxStringLength` not enforced by
+   `getBinaryValue()` when decoding Base64 directly from input
+  (2.18.13)
  * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
   (2.21.9)
 

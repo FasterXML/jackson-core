@@ -45,6 +45,10 @@ JSON library.
 #1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
   after `getNumberType()`
  (fix by @cowtowncoder)
+#1817: Non-blocking parsers return `false` from `isNaN()` for `NaN` and
+  `Infinity` tokens, unlike blocking parsers
+ (reported by @cowtowncoder)
+ (fix by @Sanjays2402)
 
 3.1.8 (17-Oct-2026)
 

@@ -83,6 +83,42 @@ class AsyncNaNHandlingTest extends AsyncTestBase
         p.close();
     }
 
+    // [core#1817]: non-blocking parsers must report `isNaN()` like the
+    // blocking ones, and a regular number following a non-standard one
+    // must not inherit the flag
+    @Test
+    void nonStdNumbersReportIsNaN() throws Exception {
+        JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+                .build();
+        _testNonStdIsNaN(f, 99);
+        _testNonStdIsNaN(f, 1);
+    }
+
+    private void _testNonStdIsNaN(JsonFactory f, int readBytes) throws Exception {
+        final String JSON = "[NaN, 1.5, Infinity, 2, -Infinity]";
+        AsyncReaderWrapper p = createParser(f, JSON, readBytes);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertTrue(p.parser().isNaN());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertFalse(p.parser().isNaN());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertTrue(p.parser().isNaN());
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertFalse(p.parser().isNaN());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertTrue(p.parser().isNaN());
+
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
+    }
+
     @Test
     void disallowInf() throws Exception
     {

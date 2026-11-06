@@ -33,10 +33,45 @@ a pure JSON library.
 #1787: `CharTypes#charToHex` handles non-ASCII incorrectly
  (reported by @Marcono1234)
  (fix by @pjfanning)
+#1794: `maxStringLength` not enforced by `getBinaryValue()` when decoding
+  Base64 directly from input
+ (reported by @ubeddulla)
+ (fix by @ubeddulla)
 #1795: `UTF8DataInputJsonParser` accepts any control character as white space
   between tokens (also: CR-LF and token line numbers; Record Separator no longer
   accepted directly after root-level number or comment, same as other parsers)
  (reported, fix by @ItsDeadlyProgrammer)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
+#1814: `getBigIntegerValue()` fails after `getNumberType()`, `getDoubleValue()`/
+  `getFloatValue()` for big integer (also: number accessor results no longer
+  depend on order of access)
+ (fix by @cowtowncoder)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
+
+2.22.5 (not yet released)
+
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getText(Writer)`
+ (reported by @Dongnyoung)
+ (fix by @Dongnyoung)
+#1794: `maxStringLength` not enforced by `getBinaryValue()` when decoding
+  Base64 directly from input
+ (reported by @ubeddulla)
+ (fix by @ubeddulla)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 2.22.4 (17-Oct-2026)
 
@@ -93,6 +128,25 @@ a pure JSON library.
 2.22.0 (03-Jun-2026)
 
 No changes since 2.21
+
+2.21.9 (not yet released)
+
+#1792: Validate final string length against `StreamReadConstraints.maxStringLength`
+  before writing string values through `JsonParser.getText(Writer)`
+ (reported by @Dongnyoung)
+ (fix by @Dongnyoung)
+#1794: `maxStringLength` not enforced by `getBinaryValue()` when decoding
+  Base64 directly from input
+ (reported by @ubeddulla)
+ (fix by @ubeddulla)
+#1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+ (contributed by @ubeddulla)
+#1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for deferred
+  floating-point value
+ (contributed by @vera-rubin)
+#1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
+  after `getNumberType()`
+ (fix by @cowtowncoder)
 
 2.21.8 (17-Oct-2026)
 

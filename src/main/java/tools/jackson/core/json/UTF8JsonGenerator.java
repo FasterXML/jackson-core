@@ -29,6 +29,9 @@ public class UTF8JsonGenerator
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;
 
+    // [core#1680]: minimum String segment length for scan-then-bulk-copy fast path
+    private final static int MIN_SEGMENT_FOR_BULK_COPY = 32;
+
     private final static byte[] HEX_BYTES_UPPER = CharTypes.copyHexBytes(true);
     private final static byte[] HEX_BYTES_LOWER = CharTypes.copyHexBytes(false);
 
@@ -1561,11 +1564,17 @@ public class UTF8JsonGenerator
         int outputPtr = _outputTail;
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
+        // 01-Sep-2026, franz1981: [core#1680] For the standard table the test is expressible
+        //   with constants; C2 unswitches on this flag so that clone has no per-character
+        //   table load. A custom quote char, escaped slashes or CharacterEscapes give a
+        //   different array and fall back to the lookup below.
+        final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
 
         while (offset < len) {
             int ch = cbuf[offset];
             // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
+            if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                    : (ch > 0x7F || escCodes[ch] != 0)) {
                 break;
             }
             outputBuffer[outputPtr++] = (byte) ch;
@@ -1587,23 +1596,31 @@ public class UTF8JsonGenerator
     private final void _writeStringSegment(String text, int offset, int len) throws JacksonException
     {
         // note: caller MUST ensure (via flushing) there's room for ASCII only
-        // Fast+tight loop for ASCII-only, no-escaping-needed output
         len += offset; // becomes end marker, then
 
-        int outputPtr = _outputTail;
-        final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
+        if ((len - offset) >= MIN_SEGMENT_FOR_BULK_COPY) {
+            offset = _writeUnescapedAsciiBulk(text, offset, len);
+        } else {
+            // Fast+tight loop for ASCII-only, no-escaping-needed output
+            int outputPtr = _outputTail;
+            final byte[] outputBuffer = _outputBuffer;
+            final int[] escCodes = _outputEscapes;
+            // [core#1680]: For the standard table the test is expressible with constants;
+            //   C2 unswitches on this flag so that clone has no per-character table load.
+            final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
 
-        while (offset < len) {
-            int ch = text.charAt(offset);
-            // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
-                break;
+            while (offset < len) {
+                int ch = text.charAt(offset);
+                // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
+                if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                        : (ch > 0x7F || escCodes[ch] != 0)) {
+                    break;
+                }
+                outputBuffer[outputPtr++] = (byte) ch;
+                ++offset;
             }
-            outputBuffer[outputPtr++] = (byte) ch;
-            ++offset;
+            _outputTail = outputPtr;
         }
-        _outputTail = outputPtr;
         if (offset < len) {
             if (_characterEscapes != null) {
                 _writeCustomStringSegment2(text, offset, len);
@@ -1613,6 +1630,31 @@ public class UTF8JsonGenerator
                 _writeStringSegmentASCII2(text, offset, len);
             }
         }
+    }
+
+    // 15-Oct-2026, pjfanning: [core#1680] For longer segments, scanning first and then
+    //   bulk-copying is faster than the fused check-and-copy loop: `String.getBytes()` is
+    //   an array copy for Latin-1 Strings. Low-byte copy is exact as scanned chars are ASCII.
+    //   Kept separate so that the short-segment path stays compact.
+    @SuppressWarnings("deprecation")
+    private final int _writeUnescapedAsciiBulk(String text, int offset, final int end)
+    {
+        final int[] escCodes = _outputEscapes;
+        final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
+        final int start = offset;
+        while (offset < end) {
+            int ch = text.charAt(offset);
+            if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                    : (ch > 0x7F || escCodes[ch] != 0)) {
+                break;
+            }
+            ++offset;
+        }
+        if (offset > start) {
+            text.getBytes(start, offset, _outputBuffer, _outputTail);
+            _outputTail += (offset - start);
+        }
+        return offset;
     }
 
     /**

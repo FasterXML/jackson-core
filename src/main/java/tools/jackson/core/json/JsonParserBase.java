@@ -355,6 +355,7 @@ public abstract class JsonParserBase
             //    deferring some typing?
             _numberDouble = 0.0;
             _numberString = _textBuffer.contentsAsString();
+            _numberDoubleDeferred = true;
             _numTypesValid = NR_DOUBLE;
         }
     }
@@ -466,15 +467,27 @@ public abstract class JsonParserBase
         if ((expType == NR_INT) || (expType == NR_LONG)) {
             _reportTooLongIntegral(expType, numStr);
         }
-        if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-            _numberString = numStr;
-            _numTypesValid = NR_DOUBLE;
-        } else {
-            // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
-            _numberBigInt = null;
-            _numberString = numStr;
-            _numTypesValid = NR_BIGINT;
+        // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
+        // 03-Nov-2026, tatu: [core#1815] Defer as BigInteger even if double/float requested,
+        //   to retain exact value; double/float decoded from text as needed
+        _numberBigInt = null;
+        _numberString = numStr;
+        _numberDoubleDeferred = false;
+        _numTypesValid = NR_BIGINT;
+    }
+
+    /**
+     * JSON number token text is retained in {@link #_textBuffer} until the next
+     * token, so it can be used for exact conversions (except for "NaN" values).
+     *
+     * @since 3.1.9
+     */
+    @Override
+    protected String _floatNumberText() throws JacksonException {
+        if ((_currToken != JsonToken.VALUE_NUMBER_FLOAT) || _numberIsNaN || _closed) {
+            return null;
         }
+        return (_numberString == null) ? _textBuffer.contentsAsString() : _numberString;
     }
 
     protected void _reportTooLongIntegral(int expType, String rawNum) throws JacksonException

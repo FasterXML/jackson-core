@@ -95,6 +95,13 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1766: `ReaderBasedJsonParser` undercounts number length when
    fraction or exponent is absent
   (3.3.0)
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getString(Writer)`
+  (3.1.9)
+ * Reported, fixed #1803: Consider validating async decimal number lengths
+   before buffer expansion
+  (3.3.0)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
@@ -141,6 +148,9 @@ Steven Schlansker (@stevenschlansker)
  * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
    name match plus value token advance
   (3.3.0)
+ * Contributed #1802: Pad `BufferRecycler` buffer slots and pool link to avoid
+   false sharing with other objects
+  (3.3.0)
 
 @youdie006
  * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a
@@ -182,13 +192,23 @@ David R. MacIver (@DRMacIver)
 @un5h4d0w
  * Reported #1784: UTF-8 parsers may return wrong cached property name for names
    containing 0xFF bytes
-  (3.1.9)
+  (3.1.9, 3.2.5)
 
 Francesco Nigro (@franz1981)
  * Reported, contributed fix for #1680: Avoid per-character escape-table load in
    JSON generator String fast loops
   (3.3.0)
 
-@ubeddulla
+Ubeddulla Khan (@ubeddulla)
+ * Reported, contributed fix for #1794: `maxStringLength` not enforced by
+   `getBinaryValue()` when decoding Base64 directly from input
+  (3.1.9, 3.2.5)
+ * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+  (3.1.9, 3.2.5)
  * Contributed #1801: Reject surrogate code points in `UTF32Reader`
   (3.3.0)
+
+@vera-rubin
+ * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
+   deferred floating-point value
+  (3.1.9, 3.2.5)

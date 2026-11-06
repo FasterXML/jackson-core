@@ -185,7 +185,7 @@ class EscapedSurrogateInFieldName1744Test extends JacksonCoreTestBase
         try (JsonParser p = parser) {
             while (p.nextToken() != null) {
                 if (p.currentToken() == JsonToken.VALUE_STRING) {
-                    p.getText();
+                    p.getString();
                 }
             }
             fail("Should not pass, mode " + mode);

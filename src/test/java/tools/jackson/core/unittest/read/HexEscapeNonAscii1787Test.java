@@ -57,7 +57,7 @@ class HexEscapeNonAscii1787Test extends JacksonCoreTestBase
             try (JsonParser p = createParser(FACTORY, mode, doc)) {
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                p.getText();
+                p.getString();
                 fail("Should not pass for mode " + mode);
             } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('\u00E2' (code 226)): expected a hex-digit");
@@ -86,7 +86,7 @@ class HexEscapeNonAscii1787Test extends JacksonCoreTestBase
                 assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
                 assertEquals("\u00e9", p.currentName());
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                assertEquals("\uABCD", p.getText());
+                assertEquals("\uABCD", p.getString());
                 assertToken(JsonToken.END_OBJECT, p.nextToken());
             }
         }
@@ -98,7 +98,7 @@ class HexEscapeNonAscii1787Test extends JacksonCoreTestBase
             for (String doc : new String[] { "[\"" + escape + "\"]", "{\"" + escape + "\":1}" }) {
                 try (JsonParser p = createParser(FACTORY, mode, doc)) {
                     while (p.nextToken() != null) {
-                        p.getText();
+                        p.getString();
                     }
                     fail("Should not pass for mode " + mode + ", doc: " + doc);
                 } catch (StreamReadException e) {
@@ -120,7 +120,7 @@ class HexEscapeNonAscii1787Test extends JacksonCoreTestBase
                     _bytes("{\"\\u", badBytes, "\":1}") }) {
                 try (JsonParser p = createParser(FACTORY, mode, doc)) {
                     while (p.nextToken() != null) {
-                        p.getText();
+                        p.getString();
                     }
                     fail("Should not pass for mode " + mode);
                 } catch (StreamReadException e) {
@@ -136,7 +136,7 @@ class HexEscapeNonAscii1787Test extends JacksonCoreTestBase
         try (JsonParser p = createParser(FACTORY, mode, doc)) {
             assertToken(JsonToken.START_ARRAY, p.nextToken());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            p.getText();
+            p.getString();
             fail("Should not pass for mode " + mode + ", doc: " + doc);
             return null;
         } catch (StreamReadException e) {

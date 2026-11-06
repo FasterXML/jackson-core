@@ -783,8 +783,19 @@ public abstract class NonBlockingJsonParserBase
         return _updateToken(t);
     }
 
+    // 03-Nov-2026, tatu: [core#1815] Number tokens must clear text of earlier deferred
+    //   number (otherwise considered still deferred): all completions go via methods below
+    final JsonToken _valueCompleteNumber(JsonToken t) throws JacksonException
+    {
+        _numberString = null;
+        _numberDoubleDeferred = false;
+        return _valueComplete(t);
+    }
+
     protected final JsonToken _valueCompleteInt(int value, String asText) throws JacksonException
     {
+        _numberString = null;
+        _numberDoubleDeferred = false;
         _textBuffer.resetWithString(asText);
         _intLength = asText.length();
         _numTypesValid = NR_INT; // to force parsing
@@ -811,6 +822,8 @@ public abstract class NonBlockingJsonParserBase
             _reportError("Non-standard token '%s': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow",
                     tokenStr);
         }
+        _numberString = null;
+        _numberDoubleDeferred = false;
         _intLength = 0;
         _numTypesValid = NR_DOUBLE;
         _numberDouble = NON_STD_TOKEN_VALUES[type];

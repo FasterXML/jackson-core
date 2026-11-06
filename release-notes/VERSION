@@ -126,6 +126,8 @@ JSON library.
  (fix by @ItsDeadlyProgrammer)
 #1798: `BinaryNameMatcher` does not pad partial quads: binary parsers match
   NUL-containing names to known properties (add optional padding)
+#1801: Reject surrogate code points in `UTF32Reader`
+ (contributed by @ubeddulla)
 
 3.2.5 (not yet released)
 

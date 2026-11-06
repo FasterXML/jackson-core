@@ -1,5 +1,8 @@
 package tools.jackson.core.unittest.read;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JacksonException;
@@ -8,6 +11,7 @@ import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.unittest.*;
+import tools.jackson.core.unittest.testutil.ThrottledInputStream;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -58,7 +62,8 @@ class UTF32ParseTest extends JacksonCoreTestBase
             parser.nextToken();
             fail("Should not pass");
         } catch (JacksonException e) {
-            verifyException(e, "Invalid UTF-32 character 0xfefe0001");
+            verifyException(e, "Invalid UTF-32 character 0xfeff0001");
+            verifyException(e, "byte #4");
         }
         parser.close();
     }
@@ -74,7 +79,7 @@ class UTF32ParseTest extends JacksonCoreTestBase
                 0x00, 0x00, (byte) 0xDE, 0x00,
                 0x00, 0x00, 0x00, '"'
         };
-        _verifySurrogateFail(data, "Invalid UTF-32 character 0xd83d");
+        _verifySurrogateFail(data, "Invalid UTF-32 character 0xd83d", "byte #4");
 
         // and lone low surrogate in UTF-32LE
         data = new byte[] {
@@ -82,18 +87,70 @@ class UTF32ParseTest extends JacksonCoreTestBase
                 0x00, (byte) 0xDC, 0x00, 0x00,
                 '"', 0x00, 0x00, 0x00
         };
-        _verifySurrogateFail(data, "Invalid UTF-32 character 0xdc00");
+        _verifySurrogateFail(data, "Invalid UTF-32 character 0xdc00", "byte #4");
     }
 
-    private void _verifySurrogateFail(byte[] data, String msg) throws Exception
+    @Test
+    void surrogateInPropertyName() throws Exception
     {
-        try (JsonParser parser = FACTORY.createParser(ObjectReadContext.empty(), data)) {
-            parser.nextToken();
-            parser.getString();
+        // {"<D800>":1} in UTF-32BE
+        byte[] data = utf32BE("{\"", 0xD800, "\":1}");
+        _verifySurrogateFail(data, "Invalid UTF-32 character 0xd800", "byte #8");
+    }
+
+    // Surrogate after buffer refill(s)
+    @Test
+    void surrogateAfterLongPrefix() throws Exception
+    {
+        final int prefixLen = 5000;
+        byte[] data = utf32BE("\"" + "a".repeat(prefixLen), 0xDFFF, "\"");
+        _verifySurrogateFail(data, "Invalid UTF-32 character 0xdfff",
+                "byte #" + (4 * (prefixLen + 1)));
+    }
+
+    private void _verifySurrogateFail(byte[] data, String... msgs) throws Exception
+    {
+        _verifySurrogateFail(FACTORY.createParser(ObjectReadContext.empty(), data), msgs);
+        _verifySurrogateFail(FACTORY.createParser(ObjectReadContext.empty(),
+                new ByteArrayInputStream(data)), msgs);
+        _verifySurrogateFail(FACTORY.createParser(ObjectReadContext.empty(),
+                new ThrottledInputStream(data, 1)), msgs);
+        _verifySurrogateFail(FACTORY.createParser(ObjectReadContext.empty(),
+                new ThrottledInputStream(data, 3)), msgs);
+    }
+
+    private void _verifySurrogateFail(JsonParser p, String... msgs) throws Exception
+    {
+        try (JsonParser parser = p) {
+            while (parser.nextToken() != null) {
+                parser.getString();
+            }
             fail("Should not pass");
         } catch (JacksonException e) {
-            verifyException(e, msg);
+            for (String msg : msgs) {
+                verifyException(e, msg);
+            }
         }
+    }
+
+    private static byte[] utf32BE(String prefix, int codeUnit, String suffix)
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        for (char c : prefix.toCharArray()) {
+            _writeBE(out, c);
+        }
+        _writeBE(out, codeUnit);
+        for (char c : suffix.toCharArray()) {
+            _writeBE(out, c);
+        }
+        return out.toByteArray();
+    }
+
+    private static void _writeBE(ByteArrayOutputStream out, int ch) {
+        out.write(ch >> 24);
+        out.write(ch >> 16);
+        out.write(ch >> 8);
+        out.write(ch);
     }
 
     @Test

@@ -168,7 +168,7 @@ public class UTF32Reader extends Reader
                 hi &= 0xFFFF; // since it may be sign extended
                 int ch = ((hi - 1) << 16) | lo; // ch -= 0x10000; to normalize starting with 0x0
                 if (hi > 0x10) { // last valid is 0x10FFFF
-                    reportInvalid(ch, outPtr-start,
+                    reportInvalid((hi << 16) | lo, outPtr-start,
                             String.format(" (above 0x%08x)", LAST_VALID_UNICODE_CHAR));
                 }
                 cbuf[outPtr++] = (char) (0xD800 + (ch >> 10));
@@ -202,7 +202,8 @@ public class UTF32Reader extends Reader
     }
 
     private void reportInvalid(int value, int offset, String msg) throws IOException {
-        int bytePos = _byteCount + _ptr - 1, charPos = _charCount + offset;
+        // `_ptr` already advanced past the 4-byte unit: report its first byte
+        int bytePos = _byteCount + _ptr - 4, charPos = _charCount + offset;
 
         throw new CharConversionException("Invalid UTF-32 character 0x"+Integer.toHexString(value)+msg+" at char #"+charPos+", byte #"+bytePos+")");
     }

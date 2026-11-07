@@ -789,6 +789,9 @@ public abstract class NonBlockingJsonParserBase
     {
         _numberString = null;
         _numberDoubleDeferred = false;
+        // [core#1817]: regular numbers must not inherit the flag set
+        //   for a preceding non-standard number token
+        _numberIsNaN = false;
         return _valueComplete(t);
     }
 
@@ -796,6 +799,8 @@ public abstract class NonBlockingJsonParserBase
     {
         _numberString = null;
         _numberDoubleDeferred = false;
+        // [core#1817]: see `_valueCompleteNumber` above
+        _numberIsNaN = false;
         _textBuffer.resetWithString(asText);
         _intLength = asText.length();
         _numTypesValid = NR_INT; // to force parsing
@@ -827,6 +832,10 @@ public abstract class NonBlockingJsonParserBase
         _intLength = 0;
         _numTypesValid = NR_DOUBLE;
         _numberDouble = NON_STD_TOKEN_VALUES[type];
+        // [core#1817]: blocking parsers mark non-standard numbers via
+        //   `resetAsNaN()`; without this `isNaN()` always returned `false`
+        //   for async parsers
+        _numberIsNaN = true;
         _majorState = _majorStateAfterValue;
         return _updateToken(JsonToken.VALUE_NUMBER_FLOAT);
     }

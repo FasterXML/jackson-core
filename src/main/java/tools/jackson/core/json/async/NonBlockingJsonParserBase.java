@@ -505,10 +505,10 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public long readUtf8String(java.io.OutputStream output) throws JacksonException
+    public long readUTF8String(java.io.OutputStream output) throws JacksonException
     {
         throw new UnsupportedOperationException(
-                "readUtf8String(OutputStream) not supported for non-blocking parsers");
+                "readUTF8String(OutputStream) not supported for non-blocking parsers");
     }
 
     // // // Let's override default impls for improved performance

@@ -348,10 +348,10 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public long readUtf8String(OutputStream output) throws JacksonException
+    public long readUTF8String(OutputStream output) throws JacksonException
     {
         if (_currToken != JsonToken.VALUE_STRING || !_tokenIncomplete) {
-            return super.readUtf8String(output);
+            return super.readUTF8String(output);
         }
         final byte[] input = _inputBuffer;
         final int start = _inputPtr;
@@ -409,7 +409,7 @@ public class UTF8StreamJsonParser
         }
         // Keep the cursor unchanged so escapes, refills and unusual byte
         // sequences retain the existing decoder's behavior.
-        return super.readUtf8String(output);
+        return super.readUTF8String(output);
     }
 
     // // // Let's override default impls for improved performance

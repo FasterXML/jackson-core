@@ -184,7 +184,7 @@ public class JsonParserDelegate extends JsonParser
     @Override public int getStringOffset() { return delegate.getStringOffset(); }
     @Override public int getString(Writer writer) { return delegate.getString(writer);  }
     @Override public long readString(Writer writer) { return delegate.readString(writer);  }
-    @Override public long readUtf8String(OutputStream output) { return delegate.readUtf8String(output); }
+    @Override public long readUTF8String(OutputStream output) { return delegate.readUTF8String(output); }
 
     /*
     /**********************************************************************

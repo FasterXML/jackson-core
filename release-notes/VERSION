@@ -17,7 +17,7 @@ JSON library.
 
 3.3.0 (not yet released)
 
-#1805: Add `JsonParser.readUtf8String(OutputStream)` for UTF-8 string output
+#1805: Add `JsonParser.readUTF8String(OutputStream)` for UTF-8 string output
  (contributed by @wendigo)
 
 #1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match

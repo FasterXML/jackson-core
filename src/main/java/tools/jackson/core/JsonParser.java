@@ -1024,13 +1024,10 @@ public abstract class JsonParser
      * @throws JacksonIOException if writing to the destination fails
      * @since 3.3
      */
-    public long readUtf8String(OutputStream output) throws JacksonException {
+    public long readUTF8String(OutputStream output) throws JacksonException {
         String value = getString();
         if (value == null) {
             return 0;
-        }
-        if (currentToken() == JsonToken.VALUE_STRING) {
-            streamReadConstraints().validateStringLength(value.length());
         }
         byte[] bytes = value.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         try {

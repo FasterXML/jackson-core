@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ReadUtf8StringTest extends JacksonCoreTestBase
+class ReadUTF8StringTest extends JacksonCoreTestBase
 {
     private final JsonFactory factory = new JsonFactory();
 
@@ -45,7 +45,7 @@ class ReadUtf8StringTest extends JacksonCoreTestBase
                     assertToken(JsonToken.VALUE_STRING, parser.nextToken());
                     ByteArrayOutputStream output = new ByteArrayOutputStream();
                     byte[] expected = entry[1].getBytes(UTF_8);
-                    assertEquals(expected.length, parser.readUtf8String(output));
+                    assertEquals(expected.length, parser.readUTF8String(output));
                     assertArrayEquals(expected, output.toByteArray());
                     assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
                     assertEquals(42, parser.getIntValue());
@@ -64,7 +64,7 @@ class ReadUtf8StringTest extends JacksonCoreTestBase
                     assertEquals("é日😀", parser.getString());
                 }
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                assertEquals(9, parser.readUtf8String(output));
+                assertEquals(9, parser.readUTF8String(output));
                 assertArrayEquals("é日😀".getBytes(UTF_8), output.toByteArray());
             }
         }
@@ -77,12 +77,12 @@ class ReadUtf8StringTest extends JacksonCoreTestBase
         for (int mode : ALL_MODES) {
             try (JsonParser parser = createParser(limited, mode, "\"é日😀\"")) {
                 parser.nextToken();
-                assertEquals(9, parser.readUtf8String(new ByteArrayOutputStream()));
+                assertEquals(9, parser.readUTF8String(new ByteArrayOutputStream()));
             }
             try (JsonParser parser = createParser(limited, mode, "\"é日😀x\"")) {
                 parser.nextToken();
                 assertThrows(StreamConstraintsException.class,
-                        () -> parser.readUtf8String(new ByteArrayOutputStream()));
+                        () -> parser.readUTF8String(new ByteArrayOutputStream()));
             }
         }
     }
@@ -100,7 +100,7 @@ class ReadUtf8StringTest extends JacksonCoreTestBase
             try (JsonParser parser = createParser(factory, mode, "\"value\"")) {
                 parser.nextToken();
                 JacksonIOException thrown = assertThrows(JacksonIOException.class,
-                        () -> parser.readUtf8String(output));
+                        () -> parser.readUTF8String(output));
                 assertSame(failure, thrown.getCause());
             }
         }
@@ -110,19 +110,19 @@ class ReadUtf8StringTest extends JacksonCoreTestBase
     void nonBlockingParserRejectsOutput() throws Exception {
         try (JsonParser parser = factory.createNonBlockingByteArrayParser(ObjectReadContext.empty())) {
             assertThrows(UnsupportedOperationException.class,
-                    () -> parser.readUtf8String(new ByteArrayOutputStream()));
+                    () -> parser.readUTF8String(new ByteArrayOutputStream()));
         }
     }
 
     @Test
     void nonStringTokens() throws Exception {
         try (JsonParser parser = factory.createParser("[true,1.25,null]")) {
-            assertEquals(0, parser.readUtf8String(new ByteArrayOutputStream()));
+            assertEquals(0, parser.readUTF8String(new ByteArrayOutputStream()));
             parser.nextToken();
             for (String expected : new String[] {"true", "1.25", "null"}) {
                 parser.nextToken();
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                assertEquals(expected.length(), parser.readUtf8String(output));
+                assertEquals(expected.length(), parser.readUTF8String(output));
                 assertEquals(expected, output.toString(UTF_8));
             }
         }
@@ -144,7 +144,7 @@ class ReadUtf8StringTest extends JacksonCoreTestBase
                 try (JsonParser parser = factory.createParser(json)) {
                     assertThrows(failure.getClass(), () -> {
                         parser.nextToken();
-                        parser.readUtf8String(new ByteArrayOutputStream());
+                        parser.readUTF8String(new ByteArrayOutputStream());
                     });
                 }
                 continue;
@@ -152,7 +152,7 @@ class ReadUtf8StringTest extends JacksonCoreTestBase
             try (JsonParser parser = factory.createParser(json)) {
                 parser.nextToken();
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                assertEquals(expected.length, parser.readUtf8String(output));
+                assertEquals(expected.length, parser.readUTF8String(output));
                 assertArrayEquals(expected, output.toByteArray());
             }
         }

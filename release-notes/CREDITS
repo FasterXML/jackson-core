@@ -214,5 +214,5 @@ Ubeddulla Khan (@ubeddulla)
   (3.1.9, 3.2.5)
 
 @wendigo
- * Contributed #1805: Add `JsonParser.readUtf8String(OutputStream)`
+ * Contributed #1805: Add `JsonParser.readUTF8String(OutputStream)`
   (3.3.0)

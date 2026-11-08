@@ -15,7 +15,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-3.3.0 (not yet released)
+3.3.0 (07-Nov-2026)
 
 #601: Track byte offsets for DataInput-backed parsers
  (reported by @fabienrenaud)

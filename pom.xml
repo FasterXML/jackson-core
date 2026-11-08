@@ -41,7 +41,7 @@
     <connection>scm:git:https://github.com/FasterXML/jackson-core.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-core.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-core</url>    
-    <tag>HEAD</tag>
+    <tag>jackson-core-3.3.0</tag>
   </scm>
 
   <properties>
@@ -68,7 +68,7 @@ tools.jackson.core.*;version=${project.version}
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2026-06-08T23:00:50Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-11-08T02:08:55Z</project.build.outputTimestamp>
 
     <!-- for validation of JaCoCo execution -->
     <jacocoStrict>false</jacocoStrict>

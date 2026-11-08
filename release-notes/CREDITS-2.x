@@ -524,6 +524,10 @@ Mike Pedersen (@mpdncrwd)
 DongNyoung Lee (@Dongnyoung)
  * Contributed #1651: Fix Object context handling for buffered `INCLUDE_NON_NULL` tokens
   (2.21.6)
+ * Reported, contributed fix for #1792: Validate final string length against
+   `StreamReadConstraints.maxStringLength` before writing string values through
+   `JsonParser.getText(Writer)`
+  (2.18.13)
 
 Patrick Strawderman (@kilink)
  * Requested #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
@@ -586,3 +590,15 @@ Elankumaran Srinivasan (@elang2)
  * Reported #1784: UTF-8 parsers may return wrong cached property name for names
    containing 0xFF bytes
   (2.23.0)
+
+Ubeddulla Khan (@ubeddulla)
+ * Reported, contributed fix for #1794: `maxStringLength` not enforced by
+   `getBinaryValue()` when decoding Base64 directly from input
+  (2.18.13)
+ * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
+  (2.21.9)
+
+@vera-rubin
+ * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
+   deferred floating-point value
+  (2.21.9)

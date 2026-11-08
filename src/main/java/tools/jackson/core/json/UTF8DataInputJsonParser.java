@@ -427,10 +427,8 @@ public class UTF8DataInputJsonParser
             } catch (IOException e) {
                 throw _wrapIOFailure(e);
             }
-            /* let's clear incomplete only now; allows for accessing other
-             * textual content in error cases
-             */
-            _tokenIncomplete = false;
+            // Incomplete cleared by `_decodeBase64()` only when reaching end of value;
+            // allows for accessing other textual content in error cases
         } else { // may actually require conversion...
             if (_binaryValue == null) {
                 @SuppressWarnings("resource")
@@ -801,7 +799,9 @@ public class UTF8DataInputJsonParser
 
     @Override
     public void finishToken() throws JacksonException {
-        if (_tokenIncomplete) {
+        // No current token if Base64 decoding failed on `maxStringLength`: may be in the
+        // middle of value, to be skipped by `nextToken()`
+        if (_tokenIncomplete && (_currToken != null)) {
             _tokenIncomplete = false;
             _finishString(); // only strings can be incomplete
         }
@@ -3088,6 +3088,9 @@ public class UTF8DataInputJsonParser
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws IOException
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
+        // 04-Nov-2026: no input buffer boundaries to check `maxStringLength` on, so verify
+        //   per quartet: cheap compared to reading input one byte at a time
+        final int maxDecodedLen = _base64MaxDecodedLength();
 
         //main_loop:
         while (true) {
@@ -3099,12 +3102,15 @@ public class UTF8DataInputJsonParser
             int bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) { // reached the end, fair and square?
                 if (ch == INT_QUOTE) {
-                    return builder.toByteArray();
+                    return _finishBase64(builder, maxDecodedLen);
                 }
                 bits = _decodeBase64Escape(b64variant, ch, 0);
                 if (bits < 0) { // white space to skip
                     continue;
                 }
+            }
+            if (builder.size() > maxDecodedLen) {
+                _reportBase64LengthExceeded(builder);
             }
             int decodedData = bits;
 
@@ -3129,7 +3135,7 @@ public class UTF8DataInputJsonParser
                         if (b64variant.requiresPaddingOnRead()) {
                             _handleBase64MissingPadding(b64variant);
                         }
-                        return builder.toByteArray();
+                        return _finishBase64(builder, maxDecodedLen);
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 2);
                 }
@@ -3161,7 +3167,7 @@ public class UTF8DataInputJsonParser
                         if (b64variant.requiresPaddingOnRead()) {
                             _handleBase64MissingPadding(b64variant);
                         }
-                        return builder.toByteArray();
+                        return _finishBase64(builder, maxDecodedLen);
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 3);
                 }
@@ -3181,6 +3187,15 @@ public class UTF8DataInputJsonParser
             decodedData = (decodedData << 6) | bits;
             builder.appendThreeBytes(decodedData);
         }
+    }
+
+    // Closing quote consumed: nothing left to skip even if verification fails
+    private byte[] _finishBase64(ByteArrayBuilder builder, int maxDecodedLen) throws JacksonException {
+        _tokenIncomplete = false;
+        if (builder.size() > maxDecodedLen) {
+            _reportBase64LengthExceeded(builder);
+        }
+        return builder.toByteArray();
     }
 
     /*

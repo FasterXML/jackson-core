@@ -13,7 +13,7 @@
 
   <properties>
     <!-- jackson-core version to benchmark: install it first with `./mvnw install -DskipTests` -->
-    <jackson.version>3.3.0-SNAPSHOT</jackson.version>
+    <jackson.version>3.4.0-SNAPSHOT</jackson.version>
     <jmh.version>1.37</jmh.version>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

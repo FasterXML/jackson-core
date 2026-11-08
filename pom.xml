@@ -49,15 +49,6 @@
     <javac.src.version>17</javac.src.version>
     <javac.target.version>17</javac.target.version>
 
-    <!-- Baseline Android SDK compatibility:
-
-         * 3.0, 3.1: Android SDK 26+
-         * 3.2+:      Android SDK 34+
-      -->
-    <version.android.sdk>34</version.android.sdk>
-    <version.android.sdk.signature>0.12.0</version.android.sdk.signature>
-    <version.plugin.animal-sniffer>1.27</version.plugin.animal-sniffer>
-
     <osgi.export>tools.jackson.core;version=${project.version},
 tools.jackson.core.*;version=${project.version}
     </osgi.export>
@@ -376,13 +367,8 @@ tools.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>${version.plugin.animal-sniffer}</version>
+        <!-- version, signature (Android SDK level) from jackson-base -->
         <configuration>
-          <signature>
-            <groupId>com.toasttab.android</groupId>
-            <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
-            <version>${version.android.sdk.signature}</version>
-          </signature>
           <!-- 12-Aug-2026, pjfanning: [core#1652] XJBWriter calls signature-polymorphic
                VarHandle.get/set, which animal-sniffer cannot match against signatures
                (VarHandle exists in Android API 33+). BufferRecycler also uses VarHandle

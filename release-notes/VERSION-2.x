@@ -14,7 +14,7 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.23.0 (not yet released)
+2.23.0 (07-Nov-2026)
 
 #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
   based on supplied length

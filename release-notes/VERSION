@@ -15,6 +15,12 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.3.1 (not yet released)
+
+#1824: Concurrent `BufferRecycler.releaseToPool()` calls can return the same
+  recycler more than once
+ (reported, fix by DongNyoung L)
+
 3.3.0 (07-Nov-2026)
 
 #1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match

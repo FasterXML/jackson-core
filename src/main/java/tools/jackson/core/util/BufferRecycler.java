@@ -204,7 +204,7 @@ public class BufferRecycler
      * @since 2.17
      */
     public boolean isLinkedWithPool() {
-        return _slots[_poolSlot] != null;
+        return SLOTS.getVolatile(_slots, _poolSlot) != null;
     }
 
     /*
@@ -332,12 +332,10 @@ public class BufferRecycler
      */
     @Override
     public BufferRecycler withPool(RecyclerPool<BufferRecycler> pool) {
-        if (_slots[_poolSlot] != null) {
+        Objects.requireNonNull(pool);
+        if (!SLOTS.compareAndSet(_slots, _poolSlot, (Object) null, (Object) pool)) {
             throw new IllegalStateException("BufferRecycler already linked to pool: "+pool);
         }
-        // assign to pool to which this BufferRecycler belongs in order to release it
-        // to the same pool when the work will be completed
-        _slots[_poolSlot] = Objects.requireNonNull(pool);
         return this;
     }
 
@@ -350,11 +348,9 @@ public class BufferRecycler
     @Override
     @SuppressWarnings("unchecked")
     public void releaseToPool() {
-        RecyclerPool<BufferRecycler> tmpPool = (RecyclerPool<BufferRecycler>) _slots[_poolSlot];
+        RecyclerPool<BufferRecycler> tmpPool = (RecyclerPool<BufferRecycler>)
+                SLOTS.getAndSet(_slots, _poolSlot, (Object) null);
         if (tmpPool != null) {
-            // nullify the reference to the pool in order to avoid the risk of releasing
-            // the same BufferRecycler more than once, thus compromising the pool integrity
-            _slots[_poolSlot] = null;
             tmpPool.releasePooled(this);
         }
     }

@@ -102,6 +102,9 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1803: Consider validating async decimal number lengths
    before buffer expansion
   (3.3.0)
+ * Reported, fixed #1824: Concurrent `BufferRecycler.releaseToPool()` calls can
+   return the same recycler more than once
+  (3.3.1)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`

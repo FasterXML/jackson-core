@@ -32,7 +32,7 @@ class PerfBigDecimalToInteger968Test
                 fail("Should not pass");
             } catch (StreamConstraintsException e) {
                 assertThat(e.getMessage())
-                    .startsWith("BigDecimal scale (-25000000) magnitude exceeds the maximum allowed (100000)");
+                    .startsWith("BigDecimal scale (-25000000) magnitude exceeds the maximum allowed (100000, from `StreamReadConstraints.getMaxBigIntegerScale()`)");
             }
         }
     }
@@ -49,7 +49,7 @@ class PerfBigDecimalToInteger968Test
                 fail("Should not pass");
             } catch (StreamConstraintsException e) {
                 assertThat(e.getMessage())
-                    .startsWith("BigDecimal scale (25000000) magnitude exceeds the maximum allowed (100000)");
+                    .startsWith("BigDecimal scale (25000000) magnitude exceeds the maximum allowed (100000, from `StreamReadConstraints.getMaxBigIntegerScale()`)");
             }
         }
     }

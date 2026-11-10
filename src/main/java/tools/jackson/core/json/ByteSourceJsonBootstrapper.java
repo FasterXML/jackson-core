@@ -175,16 +175,12 @@ public final class ByteSourceJsonBootstrapper
         if (!foundEncoding) {
             enc = JsonEncoding.UTF8;
         } else {
-            switch (_bytesPerChar) {
-            case 1: enc = JsonEncoding.UTF8;
-                break;
-            case 2: enc = _bigEndian ? JsonEncoding.UTF16_BE : JsonEncoding.UTF16_LE;
-                break;
-            case 4: enc = _bigEndian ? JsonEncoding.UTF32_BE : JsonEncoding.UTF32_LE;
-                break;
-            default:
-                return VersionUtil.throwInternalReturnAny();
-            }
+            enc = switch (_bytesPerChar) {
+            case 1 -> JsonEncoding.UTF8;
+            case 2 -> _bigEndian ? JsonEncoding.UTF16_BE : JsonEncoding.UTF16_LE;
+            case 4 -> _bigEndian ? JsonEncoding.UTF32_BE : JsonEncoding.UTF32_LE;
+            default -> VersionUtil.throwInternalReturnAny();
+            };
         }
         _context.setEncoding(enc);
         return enc;
@@ -259,6 +255,9 @@ public final class ByteSourceJsonBootstrapper
                     // need to merge that input in:
                     if (_inputPtr < _inputEnd) {
                         in = new MergedStream(_context, in, _inputBuffer, _inputPtr, _inputEnd);
+                    } else if (_bufferRecyclable) {
+                        // 13-Oct-2026, tatu: [core#1768] nothing to merge, release buffer
+                        _context.releaseReadIOBuffer(_inputBuffer);
                     }
                 }
                 try {

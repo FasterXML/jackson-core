@@ -74,9 +74,29 @@ class AsyncRootNumberSeparationTest extends AsyncTestBase
     @Test
     void unexpectedCharAfterRootNumber() throws Exception
     {
-        for (String json : new String[] { "1.5.5 ", "1.5f ", "1.5D ", "0x ", "-0x ", "0a ", "0]" }) {
+        for (String json : new String[] { "1.5f ", "1.5D ", "0a ", "0]" }) {
             _testFailsOnFirstToken(json, "Expected space separating root-level values");
         }
+    }
+
+    // [core#679]: second decimal point fails on the number itself
+    @Test
+    void secondDecimalPoint() throws Exception
+    {
+        _testFailsOnFirstToken("1.5.5 ", "more than one decimal point");
+        _testFailsOnSecondToken("[1.5.5]", "more than one decimal point");
+        _testFailsOnSecondToken("[-.5.5]", "more than one decimal point");
+    }
+
+    // [core#707]: hex literal without feature enabled fails on the number itself
+    @Test
+    void hexWithoutFeature() throws Exception
+    {
+        for (String json : new String[] { "0x ", "-0x " }) {
+            _testFailsOnFirstToken(json, "hexadecimal number literals require enabling");
+        }
+        _testFailsOnSecondToken("[0x]", "hexadecimal number literals require enabling");
+        _testFailsOnSecondToken("[-0x]", "hexadecimal number literals require enabling");
     }
 
     // Inside Arrays/Objects, as with blocking parsers, unexpected character ends
@@ -84,12 +104,8 @@ class AsyncRootNumberSeparationTest extends AsyncTestBase
     @Test
     void unexpectedCharAfterNumberInArray() throws Exception
     {
-        _testFailsAfterNumber("[1.5.5]", JsonToken.VALUE_NUMBER_FLOAT, "1.5");
         _testFailsAfterNumber("[1.5f]", JsonToken.VALUE_NUMBER_FLOAT, "1.5");
         _testFailsAfterNumber("[1.5D]", JsonToken.VALUE_NUMBER_FLOAT, "1.5");
-        _testFailsAfterNumber("[-.5.5]", JsonToken.VALUE_NUMBER_FLOAT, "-.5");
-        _testFailsAfterNumber("[0x]", JsonToken.VALUE_NUMBER_INT, "0");
-        _testFailsAfterNumber("[-0x]", JsonToken.VALUE_NUMBER_INT, "-0");
         _testFailsAfterNumber("[1e5f]", JsonToken.VALUE_NUMBER_FLOAT, "1e5");
     }
 

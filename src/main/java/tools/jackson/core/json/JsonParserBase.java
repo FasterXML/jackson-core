@@ -1,10 +1,13 @@
 package tools.jackson.core.json;
 
+import java.math.BigInteger;
+
 import tools.jackson.core.*;
 import tools.jackson.core.base.ParserBase;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.io.CharTypes;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -50,6 +53,19 @@ public abstract class JsonParserBase
      * follows {@link JsonToken#PROPERTY_NAME}, for example.
      */
     protected JsonToken _nextToken;
+
+    /**
+     * Marker for integer values read using JSON5 hexadecimal notation
+     * ({@code 0x} / {@code 0X} prefix), enabled via
+     * {@link JsonReadFeature#ALLOW_HEXADECIMAL_NUMBERS}.
+     * When {@code true}, the textual representation buffered for the current
+     * token is the original hex literal (including any sign and the
+     * {@code 0x}/{@code 0X} prefix) and {@link #_intLength} records the
+     * number of hexadecimal digits (excluding sign and prefix).
+     *
+     * @since 3.2
+     */
+    protected boolean _numberIsHex;
 
     /*
     /**********************************************************************
@@ -188,12 +204,52 @@ public abstract class JsonParserBase
     /**********************************************************************
      */
 
+    // Overridden to also clear the JSON-only `_numberIsHex` flag, so a
+    // subsequent regular integer is not mis-decoded as hex. Hex literals go
+    // through `resetIntHex` instead, which sets the flag.
+    @Override
+    protected JsonToken resetInt(boolean negative, int intLen)
+        throws JacksonException
+    {
+        _numberIsHex = false;
+        return super.resetInt(negative, intLen);
+    }
+
+    /**
+     * Variant of {@link #resetInt} used for integer values read in JSON5
+     * hexadecimal notation ({@code 0x...}). {@code hexDigitLen} is the
+     * number of hexadecimal digits (excluding sign and {@code 0x}/{@code 0X}
+     * prefix); the textual representation buffered by the caller is expected
+     * to contain the original literal including sign and prefix.
+     *
+     * @since 3.2
+     */
+    protected final JsonToken resetIntHex(boolean negative, int hexDigitLen)
+        throws JacksonException
+    {
+        // May throw StreamConstraintsException:
+        _streamReadConstraints.validateIntegerLength(hexDigitLen);
+        _numberNegative = negative;
+        _numberIsNaN = false;
+        _numberIsHex = true;
+        _intLength = hexDigitLen;
+        _fractLength = 0;
+        _expLength = 0;
+        _numTypesValid = NR_UNKNOWN; // to force decoding
+        _numberString = null;
+        return JsonToken.VALUE_NUMBER_INT;
+    }
+
     @Override
     protected void _parseNumericValue(int expType)
         throws JacksonException, InputCoercionException
     {
         // Int or float?
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            if (_numberIsHex) {
+                _parseHexInt(expType);
+                return;
+            }
             int len = _intLength;
             // First: optimization for simple int
             if (len <= 9) {
@@ -254,7 +310,9 @@ public abstract class JsonParserBase
     {
         // Inlined variant of: _parseNumericValue(NR_INT)
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
-            if (_intLength <= 9) {
+            // Hex integers go through the generic path so the base-16 decode is
+            // applied (the base-10 fast path below would mis-read the literal):
+            if (_intLength <= 9 && !_numberIsHex) {
                 int i = _textBuffer.contentsAsInt(_numberNegative);
                 _numberInt = i;
                 _numTypesValid = NR_INT;
@@ -299,6 +357,106 @@ public abstract class JsonParserBase
             _numberString = _textBuffer.contentsAsString();
             _numberDoubleDeferred = true;
             _numTypesValid = NR_DOUBLE;
+        }
+    }
+
+    /**
+     * Decode a JSON5 hexadecimal integer that was buffered as the original
+     * textual literal (sign + {@code 0x}/{@code 0X} prefix + hex digits).
+     * {@link #_intLength} holds the count of hex digits.
+     *
+     * @since 3.2
+     */
+    private void _parseHexInt(int expType) throws JacksonException
+    {
+        final int hexLen = _intLength;
+        final char[] buf = _textBuffer.getTextBuffer();
+        // Locate the first hex digit: skip optional sign and "0x" / "0X" prefix
+        int idx = _textBuffer.getTextOffset();
+        final char first = buf[idx];
+        if (first == '-' || first == '+') {
+            ++idx;
+        }
+        idx += 2; // skip "0x" / "0X"
+
+        // Up to 7 hex digits always fit in a positive signed int (<= 0x0FFFFFFF).
+        // 8 hex digits may overflow signed int (e.g. 0x80000000), so we defer to
+        // the long path which handles range checks uniformly.
+        if (hexLen <= 7) {
+            int v = 0;
+            for (int i = 0; i < hexLen; ++i) {
+                v = (v << 4) | CharTypes.charToHex(buf[idx + i]);
+            }
+            _numberInt = _numberNegative ? -v : v;
+            _numTypesValid = NR_INT;
+            return;
+        }
+        // 9..15 hex digits always fit in a positive long (63 bits used at most)
+        if (hexLen <= 15) {
+            long v = 0L;
+            for (int i = 0; i < hexLen; ++i) {
+                v = (v << 4) | CharTypes.charToHex(buf[idx + i]);
+            }
+            _numberLong = _numberNegative ? -v : v;
+            _numTypesValid = NR_LONG;
+            return;
+        }
+        // 16 hex digits: may or may not fit in signed long, depending on top bit
+        if (hexLen == 16) {
+            int topNibble = CharTypes.charToHex(buf[idx]);
+            if (topNibble < 0x8) { // fits in positive signed long
+                long v = topNibble;
+                for (int i = 1; i < 16; ++i) {
+                    v = (v << 4) | CharTypes.charToHex(buf[idx + i]);
+                }
+                _numberLong = _numberNegative ? -v : v;
+                _numTypesValid = NR_LONG;
+                return;
+            }
+            // else fall through to BigInteger path
+        }
+        // Larger values -> BigInteger. We must eagerly decode here (the lazy
+        // base-10 path via _numberString would mis-read hex digits). Pass the
+        // char[] slice directly so the fast path avoids an intermediate String.
+        BigInteger bi = NumberInput.parseBigIntegerWithRadix(buf, idx, hexLen, 16,
+                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        if (_numberNegative) {
+            bi = bi.negate();
+        }
+        _numberBigInt = bi;
+        _numberString = null;
+        _numTypesValid = NR_BIGINT;
+        if ((expType == NR_INT) || (expType == NR_LONG)) {
+            // Force the overflow path to surface a meaningful error
+            _reportTooLongIntegral(expType, _textBuffer.contentsAsString());
+        }
+    }
+
+    /**
+     * Standard error message used by all JSON parser variants when a
+     * {@code 0x}/{@code 0X} hex prefix is not followed by any hex digit.
+     *
+     * @since 3.2
+     */
+    protected static String _hexPrefixNotFollowedMessage(char prefixChar) {
+        return "Hexadecimal number prefix '0" + prefixChar
+                + "' must be followed by at least one hex digit (0-9, a-f, A-F)";
+    }
+
+    /**
+     * Called after seeing the {@code 'x'} or {@code 'X'} that follows a leading
+     * {@code '0'} in a number literal. Returns silently if
+     * {@link JsonReadFeature#ALLOW_HEXADECIMAL_NUMBERS} is enabled; otherwise
+     * throws a {@link StreamReadException} naming the feature that must be
+     * enabled, so the user gets a specific actionable error instead of a
+     * generic "unexpected character".
+     *
+     * @since 3.2
+     */
+    protected void _checkHexNumbersAllowed(int prefixChar) throws StreamReadException {
+        if (!isEnabled(JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS)) {
+            _reportUnexpectedChar(prefixChar,
+                    "hexadecimal number literals require enabling `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`");
         }
     }
 
@@ -511,6 +669,25 @@ public abstract class JsonParserBase
     // @since 3.1.8
     protected void _reportLeadingPlusSignNotAllowed() throws StreamReadException {
         _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+    }
+
+    // [core#1728], [core#1753]: for a 4-byte UTF-8 sequence, lead byte (3 bits) plus
+    //   first continuation byte (6 bits) must be within [0x010, 0x10F]: above would
+    //   exceed U+10FFFF, below is an overlong encoding (of a code point below U+10000)
+    // @since 3.3
+    protected void _verifyUtf8_4Range(int c) throws StreamReadException {
+        _verifyUtf8_4Range(c, _inputPtr);
+    }
+
+    // As above, but with input pointer (for error location) only updated if check fails
+    // @since 3.3
+    protected void _verifyUtf8_4Range(int c, int ptr) throws StreamReadException {
+        if (c < 0x010 || c > 0x10F) {
+            _inputPtr = ptr;
+            _reportError(String.format("Invalid UTF-8 4-byte sequence (0x%02X 0x%02X ...): %s",
+                    0xF0 | (c >> 6), 0x80 | (c & 0x3F),
+                    (c < 0x010) ? "overlong encoding" : "code point exceeds U+10FFFF"));
+        }
     }
 
     // 09-Oct-2026, tatu: [core#1748] Byte-based parsers accept all multi-byte UTF-8

@@ -18,7 +18,8 @@ class JsonPointerGeneratorFilteringTest extends tools.jackson.core.unittest.Jack
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    final String SIMPLE_INPUT = a2q("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
+    final String SIMPLE_INPUT = """
+            {"a":1,"b":[1,2,3],"c":{"d":{"a":true}},"d":null}""";
 
     @Test
     void simplePropertyWithPath() throws Exception

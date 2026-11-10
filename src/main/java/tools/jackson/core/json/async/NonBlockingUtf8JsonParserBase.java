@@ -272,6 +272,12 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_NUMBER_EXPONENT_DIGITS:
             return _finishFloatExponent(false, getNextUnsignedByteFromBuffer());
 
+        // [core#707] JSON5 hex resumption
+        case MINOR_NUMBER_HEX_PREFIX:
+            return _finishHexDigits(true);
+        case MINOR_NUMBER_HEX_DIGITS:
+            return _finishHexDigits(false);
+
         case MINOR_VALUE_STRING:
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_2:
@@ -321,13 +327,12 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_COMMENT_LEADING_SLASH:
             return _startSlashComment(_pending32);
         case MINOR_COMMENT_CLOSING_ASTERISK:
-            return _finishCComment(_pending32, true);
+            return _finishCComment(_pending32, true, _pendingBytes);
         case MINOR_COMMENT_C:
-            return _finishCComment(_pending32, false);
+            return _finishCComment(_pending32, false, _pendingBytes);
         case MINOR_COMMENT_CPP:
-            return _finishCppComment(_pending32);
         case MINOR_COMMENT_YAML:
-            return _finishHashComment(_pending32);
+            return _resumeLineComment(_pending32, _minorState, _pendingBytes);
         }
         VersionUtil.throwInternal();
         return null;
@@ -389,7 +394,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             return _finishKeywordTokenWithEOF("false", _pending32, JsonToken.VALUE_FALSE);
         case MINOR_VALUE_TOKEN_NON_STD:
             return _finishNonStdTokenWithEOF(_nonStdTokenType, _pending32);
-        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
+        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need to tokenize for error
             return _finishErrorTokenWithEOF();
 
         // Number-parsing states; valid stopping points, more explicit errors
@@ -430,6 +435,14 @@ public abstract class NonBlockingUtf8JsonParserBase
             return null; // never gets here
         case MINOR_NUMBER_EXPONENT_MARKER:
             _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
+
+        // [core#707] JSON5 hex EOF handling
+        case MINOR_NUMBER_HEX_PREFIX:
+            _reportInvalidEOF(": expected at least one hexadecimal digit after '0x'/'0X' prefix",
+                    JsonToken.VALUE_NUMBER_INT);
+        case MINOR_NUMBER_HEX_DIGITS:
+            // Suspended with at least one hex digit accumulated; finalize.
+            return _completeHexNumber();
 
             // How about comments?
             // Inside C-comments; not legal
@@ -1035,17 +1048,20 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCppComment(int fromMinorState) throws JacksonException
+    // Resumption only: comment feature already verified when comment started
+    private final JsonToken _resumeLineComment(int fromMinorState, int commentState,
+            int utf8Lead) throws JacksonException
     {
-        if (!_skipCppComment(fromMinorState)) {
+        if (!_skipLineComment(fromMinorState, commentState, utf8Lead)) {
             return _updateTokenToNA();
         }
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws JacksonException
+    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar,
+            int utf8Lead) throws JacksonException
     {
-        if (!_skipCComment(fromMinorState, gotStar)) {
+        if (!_skipCComment(fromMinorState, gotStar, utf8Lead)) {
             return _updateTokenToNA();
         }
         return _startAfterComment(fromMinorState);
@@ -1066,7 +1082,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
         int ch = getNextSignedByteFromBuffer();
         if (ch == INT_ASTERISK) { // c-style
-            return _skipCComment(fromMinorState, false);
+            return _skipCComment(fromMinorState, false, 0);
         }
         if (ch == INT_SLASH) { // c++-style
             return _skipCppComment(fromMinorState);
@@ -1081,23 +1097,27 @@ public abstract class NonBlockingUtf8JsonParserBase
         if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
-        return _skipLineComment(fromMinorState, MINOR_COMMENT_YAML);
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_YAML, 0);
     }
 
     private final boolean _skipCppComment(int fromMinorState) throws JacksonException
     {
-        return _skipLineComment(fromMinorState, MINOR_COMMENT_CPP);
+        return _skipLineComment(fromMinorState, MINOR_COMMENT_CPP, 0);
     }
 
-    private final boolean _skipLineComment(int fromMinorState, int commentState) throws JacksonException
+    // @param utf8Lead 4-byte UTF-8 lead byte from previous chunk, if any (0 if none)
+    private final boolean _skipLineComment(int fromMinorState, int commentState,
+            int utf8Lead) throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = commentState;
                 _pending32 = fromMinorState;
+                _pendingBytes = utf8Lead;
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
+            utf8Lead = (ch < 0x80) ? 0 : _checkUtf8_4InComment(utf8Lead, ch);
             if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
@@ -1114,15 +1134,19 @@ public abstract class NonBlockingUtf8JsonParserBase
         }
     }
 
-    private final boolean _skipCComment(int fromMinorState, boolean gotStar) throws JacksonException
+    // @param utf8Lead 4-byte UTF-8 lead byte from previous chunk, if any (0 if none)
+    private final boolean _skipCComment(int fromMinorState, boolean gotStar,
+            int utf8Lead) throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 _minorState = gotStar ? MINOR_COMMENT_CLOSING_ASTERISK : MINOR_COMMENT_C;
                 _pending32 = fromMinorState;
+                _pendingBytes = utf8Lead;
                 return false;
             }
             int ch = getNextUnsignedByteFromBuffer();
+            utf8Lead = (ch < 0x80) ? 0 : _checkUtf8_4InComment(utf8Lead, ch);
             if (ch < 0x020) {
                 if (ch == INT_LF) {
                     ++_currInputRow;
@@ -1143,6 +1167,17 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             gotStar = false;
         }
+    }
+
+    // 10-Oct-2026, tatu: [core#1753] Comment contents are not otherwise UTF-8 decoded,
+    //   but 4-byte sequences are range checked like blocking parsers do
+    // @return `ch` if it is a 4-byte UTF-8 lead byte (to check against next byte); 0 if not
+    private final int _checkUtf8_4InComment(int utf8Lead, int ch) throws JacksonException
+    {
+        if ((utf8Lead != 0) && ((ch & 0xC0) == 0x80)) {
+            _verifyUtf8_4Range(((utf8Lead & 0x07) << 6) | (ch & 0x3F));
+        }
+        return ((ch & 0xF8) == 0xF0) ? ch : 0;
     }
 
     private final JsonToken _startAfterComment(int fromMinorState) throws JacksonException
@@ -1520,6 +1555,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (outPtr >= outBuf.length) {
                 // NOTE: must expand to ensure contents all in a single buffer (to keep
                 // other parts of parsing simpler)
+                _streamReadConstraints.validateIntegerLength(outPtr);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -1590,6 +1626,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             }
             if (outPtr >= outBuf.length) {
                 // NOTE: must expand, to ensure contiguous buffer, outPtr is the length
+                _streamReadConstraints.validateIntegerLength(outPtr - 1);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -1688,6 +1725,12 @@ public abstract class NonBlockingUtf8JsonParserBase
                 outBuf[0] = '0';
                 return _startFloat(outBuf, 1, ch);
             }
+            // [core#707] JSON5 hexadecimal literal?
+            if (ch == 'x' || ch == 'X') {
+                _inputPtr = ptr; // consume the 'x'/'X'
+                _checkHexNumbersAllowed(ch);
+                return _startHexNumber(false, (char) ch);
+            }
             // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
             //    reported as missing separator (root) or missing comma (otherwise)
         } else { // leading zero case (zero followed by a digit)
@@ -1771,6 +1814,11 @@ public abstract class NonBlockingUtf8JsonParserBase
                     _intLength = 1;
                     return _startFloat(outBuf, 1, ch);
                 }
+                // [core#707] JSON5 hexadecimal literal?
+                if (ch == 'x' || ch == 'X') {
+                    _checkHexNumbersAllowed(ch);
+                    return _startHexNumber(false, (char) ch);
+                }
                 // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
                 //    reported as missing separator (root) or missing comma (otherwise)
             } else { // Number between 0 and 9
@@ -1806,7 +1854,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                // [core#1614]: separate state for "+0" to retain '+' on resumption
+                // Use MINOR_NUMBER_PLUSZERO for explicit-plus paths so the sign is
+                // preserved on resumption (callers reach here via
+                // _finishNumberLeadingPosZeroes / _finishNumberLeadingNegZeroes only).
                 _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_PLUSZERO;
                 return _updateTokenToNA();
             }
@@ -1826,6 +1876,11 @@ public abstract class NonBlockingUtf8JsonParserBase
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
+                }
+                // [core#707] JSON5 hexadecimal literal?
+                if (ch == 'x' || ch == 'X') {
+                    _checkHexNumbersAllowed(ch);
+                    return _startHexNumberWithSign(negative, (char) ch);
                 }
                 // 09-Oct-2026, tatu: As with blocking parsers, anything else ends the number;
                 //    reported as missing separator (root) or missing comma (otherwise)
@@ -1848,6 +1903,88 @@ public abstract class NonBlockingUtf8JsonParserBase
             --_inputPtr;
             return _numberCompleteZero(negative ? "-0" : "+0");
         }
+    }
+
+    // [core#707] JSON5 hex helpers - start collecting digits after detecting
+    // the '0x'/'0X' prefix. Two entry points differ only by whether a sign char
+    // ('-' / '+') needs to be prepended to the buffered literal.
+    //
+    // @since 3.2
+    protected JsonToken _startHexNumber(boolean negative, char prefixChar) throws JacksonException {
+        _numberNegative = negative;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        int outPtr = 0;
+        if (negative) {
+            outBuf[outPtr++] = '-';
+        }
+        outBuf[outPtr++] = '0';
+        outBuf[outPtr++] = prefixChar;
+        _textBuffer.setCurrentLength(outPtr);
+        return _finishHexDigits(true);
+    }
+
+    protected JsonToken _startHexNumberWithSign(boolean negative, char prefixChar) throws JacksonException {
+        _numberNegative = negative;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = negative ? '-' : '+';
+        outBuf[1] = '0';
+        outBuf[2] = prefixChar;
+        _textBuffer.setCurrentLength(3);
+        return _finishHexDigits(true);
+    }
+
+    protected JsonToken _finishHexDigits(boolean requireFirst) throws JacksonException {
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        // Sign-prefixed buffers carry '+'/'-' at index 0, so prefix length is 3;
+        // otherwise it is 2 ("0x"/"0X").
+        final boolean hasSignChar = (outBuf[0] == '-' || outBuf[0] == '+');
+        final int prefixLen = hasSignChar ? 3 : 2;
+
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _minorState = requireFirst ? MINOR_NUMBER_HEX_PREFIX : MINOR_NUMBER_HEX_DIGITS;
+                _textBuffer.setCurrentLength(outPtr);
+                // [core#1765]: validate accumulated hex digit length so far before yielding
+                _streamReadConstraints.validateIntegerLength(outPtr - prefixLen);
+                return _updateTokenToNA();
+            }
+            int ch = getByteFromBuffer(_inputPtr) & 0xFF;
+            if (CharTypes.charToHex(ch) < 0) {
+                if (requireFirst) {
+                    return _reportUnexpectedNumberChar(ch,
+                            _hexPrefixNotFollowedMessage(outBuf[prefixLen - 1]));
+                }
+                break;
+            }
+            ++_inputPtr;
+            if (outPtr >= outBuf.length) {
+                // Validate accumulated digit length at every segment boundary so
+                // that a pathological hex literal (e.g. millions of digits) is
+                // rejected early rather than after full buffering.
+                _streamReadConstraints.validateIntegerLength(outPtr - prefixLen);
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            requireFirst = false;
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        final int hexLen = outPtr - prefixLen;
+        resetIntHex(_numberNegative, hexLen);
+        // As per #105, need separating space between root values (checked by
+        // `_numberComplete()`); `_inputPtr` points AT the terminator
+        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
+    }
+
+    // Called from _finishTokenWithEOF when input ends while collecting hex digits.
+    private JsonToken _completeHexNumber() throws JacksonException {
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        final boolean hasSignChar = (outBuf[0] == '-' || outBuf[0] == '+');
+        final int prefixLen = hasSignChar ? 3 : 2;
+        final int hexLen = outPtr - prefixLen;
+        resetIntHex(_numberNegative, hexLen);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws JacksonException {
@@ -1886,6 +2023,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             if (outPtr >= outBuf.length) {
                 // NOTE: must expand to ensure contents all in a single buffer (to keep
                 // other parts of parsing simpler)
+                _streamReadConstraints.validateIntegerLength(outPtr + negMod);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -1917,9 +2055,14 @@ public abstract class NonBlockingUtf8JsonParserBase
                     // character ends the number, as with blocking parsers (and
                     // regardless of where input chunk boundaries fall)
                     _verifyFractionDigits(fractLen, _intLength, ch);
+                    // [core#679]: no second decimal point
+                    if ((fractLen > 0) && (ch == INT_PERIOD)) {
+                        _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
+                    }
                     break;
                 }
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(_intLength + fractLen);
                     outBuf = _textBuffer.expandCurrentSegment();
                 }
                 outBuf[outPtr++] = (char) ch;
@@ -1956,6 +2099,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             while (ch >= INT_0 && ch <= INT_9) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
+                    _streamReadConstraints.validateFPLength(_intLength + _fractLength + expLen);
                     outBuf = _textBuffer.expandCurrentSegment();
                 }
                 outBuf[outPtr++] = (char) ch;
@@ -1992,6 +2136,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (ch >= INT_0 && ch <= INT_9) {
             ++fractLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateFPLength(_intLength + fractLen);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -2007,6 +2152,10 @@ public abstract class NonBlockingUtf8JsonParserBase
         ch &= 0xFF; // mask to unsigned 8-bit, as with `_startFloat()`
         // must be followed by sequence of ints, one minimum (same as `_startFloat()`)
         _verifyFractionDigits(fractLen, _intLength, ch);
+        // [core#679]: no second decimal point (same as `_startFloat()`)
+        if ((fractLen > 0) && (ch == INT_PERIOD)) {
+            _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
+        }
         _setFractLength(fractLen);
         _textBuffer.setCurrentLength(outPtr);
 
@@ -2052,6 +2201,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         while (ch >= INT_0 && ch <= INT_9) {
             ++expLen;
             if (outPtr >= outBuf.length) {
+                _streamReadConstraints.validateFPLength(_intLength + _fractLength + expLen);
                 outBuf = _textBuffer.expandCurrentSegment();
             }
             outBuf[outPtr++] = (char) ch;
@@ -3144,6 +3294,7 @@ public abstract class NonBlockingUtf8JsonParserBase
                 _reportInvalidOther(next & 0xFF, _inputPtr);
             }
             prev = (prev << 6) | (next & 0x3F);
+            _verifyUtf8_4Range(prev);
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_VALUE_STRING_UTF8_4;
                 _pending32 = prev;
@@ -3153,6 +3304,8 @@ public abstract class NonBlockingUtf8JsonParserBase
             prevCount = 2;
             next = getNextSignedByteFromBuffer();
         }
+        // 10-Oct-2026, tatu: [core#1753] If suspended with `prevCount` of 2 or 3,
+        //   range was already verified above
         if (prevCount == 2) {
             if ((next & 0xC0) != 0x080) {
                 _reportInvalidOther(next & 0xFF, _inputPtr);
@@ -3316,7 +3469,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _handleEscapedUTF8Char(value);
     }
 
-    // `ptr` points past the whole sequence (for error location)
+    // 10-Oct-2026, tatu: [core#1753] `ptr` (end of sequence) passed separately as
+    //   fast-path callers do not sync `_inputPtr`; only set for error reporting, to
+    //   point right after offending byte (same as blocking and split-input decoding)
     private final int _decodeUTF8_2(int c, int d, int ptr) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
@@ -3348,6 +3503,7 @@ public abstract class NonBlockingUtf8JsonParserBase
             _reportInvalidOther(d & 0xFF, ptr - 2);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
+        _verifyUtf8_4Range(c, ptr - 2);
         if ((e & 0xC0) != 0x080) {
             _reportInvalidOther(e & 0xFF, ptr - 1);
         }

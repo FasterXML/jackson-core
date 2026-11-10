@@ -27,10 +27,6 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
-        //    the number, then fails as missing comma
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals("0", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -49,10 +45,6 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
-        //    the number, then fails as missing comma
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals("0", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -71,10 +63,6 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
-        //    the number, then fails as missing comma
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals("-0", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -136,10 +124,6 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        // 09-Oct-2026, tatu: as with blocking parsers, unexpected character ends
-        //    the number, then fails as missing comma
-        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        assertEquals("-0.123", p.currentText());
         try {
             p.nextToken();
             fail("Expected exception");
@@ -256,6 +240,10 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(0.123, p.getDoubleValue());
             assertEquals("0.123", p.getDecimalValue().toString());
+            // The async parser now retains the leading '+' here too, matching the
+            // blocking parsers and the sibling leadingPlusSignInDecimalEnabled test
+            // for "+123". Previously the explicit '+' followed by leading zero was
+            // lost on the byte-by-byte resumption path.
             assertEquals("+0.123", p.currentText());
         } finally {
             p.close();
@@ -275,6 +263,48 @@ class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             assertEquals(123.123, p.getDoubleValue());
             assertEquals("123.123", p.getDecimalValue().toString());
             assertEquals("+123.123", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
+    // Root-level "+0" / "-0" / "0" terminated by end-of-input: exercises the
+    // MINOR_NUMBER_PLUSZERO / MINOR_NUMBER_MINUSZERO / MINOR_NUMBER_ZERO branches
+    // of `_finishTokenWithEOF`. Previously the sign was discarded here even when
+    // the byte-by-byte resumption path preserved it.
+    @Test
+    void rootPlusZeroAtEOF() throws Exception {
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS).build();
+        AsyncReaderWrapper p = createParser(jsonFactory, "+0", 1);
+        try {
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(0, p.getIntValue());
+            assertEquals("+0", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
+    @Test
+    void rootMinusZeroAtEOF() throws Exception {
+        AsyncReaderWrapper p = createParser(DEFAULT_F, "-0", 1);
+        try {
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(0, p.getIntValue());
+            assertEquals("-0", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
+    @Test
+    void rootPlainZeroAtEOF() throws Exception {
+        AsyncReaderWrapper p = createParser(DEFAULT_F, "0", 1);
+        try {
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(0, p.getIntValue());
+            assertEquals("0", p.currentText());
         } finally {
             p.close();
         }

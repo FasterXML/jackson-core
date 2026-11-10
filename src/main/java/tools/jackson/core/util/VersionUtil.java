@@ -75,7 +75,7 @@ public class VersionUtil
      */
     public static Version parseVersion(String s, String groupId, String artifactId)
     {
-        if (s != null && (s = s.trim()).length() > 0) {
+        if (s != null && !(s = s.trim()).isEmpty()) {
             String[] parts = V_SEP.split(s);
             return new Version(parseVersionPart(parts[0]),
                     (parts.length > 1) ? parseVersionPart(parts[1]) : 0,
@@ -102,11 +102,11 @@ public class VersionUtil
     /**********************************************************************
      */
 
-    public final static void throwInternal() {
+    public static void throwInternal() {
         throw new IllegalStateException("Internal error: this code path should never get executed");
     }
 
-    public final static <T> T throwInternalReturnAny() {
+    public static <T> T throwInternalReturnAny() {
         throw new IllegalStateException("Internal error: this code path should never get executed");
     }
 }

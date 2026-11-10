@@ -1,6 +1,7 @@
 package tools.jackson.core.io;
 
 import java.io.*;
+import java.util.Objects;
 
 /**
  * Simple {@link InputStream} implementation that is used to "unwind" some
@@ -28,6 +29,10 @@ public final class MergedStream extends InputStream
         _b = buf;
         _ptr = start;
         _end = end;
+        // 12-Oct-2026, pjfanning: empty pushback range must not be read from
+        if (start >= end) {
+            _free();
+        }
     }
 
     @Override
@@ -69,6 +74,8 @@ public final class MergedStream extends InputStream
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
+        Objects.requireNonNull(b, "b");
+        Objects.checkFromIndexSize(off, len, b.length);
         if (_b != null) {
             int avail = _end - _ptr;
             if (len > avail) {
@@ -91,6 +98,9 @@ public final class MergedStream extends InputStream
 
     @Override
     public long skip(long n) throws IOException {
+        if (n <= 0L) {
+            return 0L;
+        }
         long count = 0L;
 
         if (_b != null) {

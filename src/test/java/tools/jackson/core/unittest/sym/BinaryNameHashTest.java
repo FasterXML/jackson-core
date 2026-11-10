@@ -68,11 +68,13 @@ public class BinaryNameHashTest extends JacksonCoreTestBase
                 11, 0, 0, 0);
     }
 
+    @Test
     public void testMisc5() {
         _testSpillEfficiency(Arrays.asList("uri", "title", "width", "height", "size"),
                 5, 0, 0, 0);
     }
 
+    @Test
     public void testMisc2() {
         _testSpillEfficiency(Arrays.asList("content", "images"),
                 2, 0, 0, 0);
@@ -110,9 +112,9 @@ public class BinaryNameHashTest extends JacksonCoreTestBase
     }
 
     private BinaryNameMatcher _construct(List<String> names) {
-        return BinaryNameMatcher.construct(names);
+        return BinaryNameMatcher.construct(names, false);
         /*
-        BinaryNameMatcher m = BinaryNameMatcher.construct(names);
+        BinaryNameMatcher m = BinaryNameMatcher.construct(names, false);
         System.err.println("DEBUG: matcher == "+m);
         for (String n : names) {
             System.err.println(" '"+n+"'");

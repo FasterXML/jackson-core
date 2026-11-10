@@ -109,6 +109,11 @@ public enum StreamReadFeature
      *<p>
      * This setting is enabled by default (since 3.0) so that {@code FastDoubleParser}
      * implementation is used.
+     *<p>
+     * NOTE: disabling this feature does not fully avoid {@code FastDoubleParser} for
+     * {@code BigDecimal}: values of 200 characters or longer (500 before Jackson 3.3)
+     * are always decoded with it, since the JDK parser is much slower for such values.
+     * {@code BigInteger} decoding has no such exception.
      */
     USE_FAST_BIG_NUMBER_PARSER(true),
 

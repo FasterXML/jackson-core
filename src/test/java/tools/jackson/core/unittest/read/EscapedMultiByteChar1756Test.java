@@ -88,7 +88,7 @@ class EscapedMultiByteChar1756Test extends JacksonCoreTestBase
             for (String doc : new String[] { "{\"\\" + ch + "\":1}", "[\"\\" + ch + "\"]" }) {
                 try (JsonParser p = createParser(f, mode, utf8Bytes(doc))) {
                     while (p.nextToken() != null) {
-                        p.getText();
+                        p.getString();
                     }
                     fail("Should not pass for mode " + mode);
                 } catch (StreamReadException e) {
@@ -105,7 +105,7 @@ class EscapedMultiByteChar1756Test extends JacksonCoreTestBase
     {
         try (JsonParser p = createParser(f, mode, doc)) {
             while (p.nextToken() != null) {
-                p.getText();
+                p.getString();
             }
             fail("Should not pass for mode " + mode);
         } catch (StreamReadException e) {

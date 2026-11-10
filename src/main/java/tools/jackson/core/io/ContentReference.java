@@ -144,8 +144,8 @@ public class ContentReference
             Object rawContent)
     {
         // Just to avoid russian-doll-nesting, let's:
-        if (rawContent instanceof ContentReference) {
-            return (ContentReference) rawContent;
+        if (rawContent instanceof ContentReference contentReference) {
+            return contentReference;
         }
         return new ContentReference(isContentTextual, rawContent,
                 ErrorReportConfiguration.defaults());
@@ -242,8 +242,8 @@ public class ContentReference
             return sb;
         }
         // First, figure out what name to use as source type
-        Class<?> srcType = (srcRef instanceof Class<?>) ?
-                ((Class<?>) srcRef) : srcRef.getClass();
+        Class<?> srcType = (srcRef instanceof Class<?> clz) ?
+                clz : srcRef.getClass();
         String tn = srcType.getName();
         // standard JDK types without package
         if (tn.startsWith("java.")) {
@@ -265,12 +265,12 @@ public class ContentReference
             final int maxLen = maxRawContentLength();
             int[] offsets = new int[] { contentOffset(), contentLength() };
 
-            if (srcRef instanceof CharSequence) {
-                trimmed = _truncate((CharSequence) srcRef, offsets, maxLen);
-            } else if (srcRef instanceof char[]) {
-                trimmed = _truncate((char[]) srcRef, offsets, maxLen);
-            } else if (srcRef instanceof byte[]) {
-                trimmed = _truncate((byte[]) srcRef, offsets, maxLen);
+            if (srcRef instanceof CharSequence cs) {
+                trimmed = _truncate(cs, offsets, maxLen);
+            } else if (srcRef instanceof char[] carray) {
+                trimmed = _truncate(carray, offsets, maxLen);
+            } else if (srcRef instanceof byte[] barray) {
+                trimmed = _truncate(barray, offsets, maxLen);
                 unitStr = " bytes";
             } else {
                 trimmed = null;
@@ -283,11 +283,11 @@ public class ContentReference
             }
         } else {
             // What should we do with binary content? Indicate length, if possible
-            if (srcRef instanceof byte[]) {
+            if (srcRef instanceof byte[] barray) {
                 int length = contentLength();
                 // -1 is marker for "till the end" (should we consider offset then, too?)
                 if (length < 0) {
-                    length = ((byte[]) srcRef).length;
+                    length = barray.length;
                 }
                 sb.append('[')
                     .append(length)
@@ -381,33 +381,33 @@ public class ContentReference
     {
         if (other == this) return true;
         if (other == null) return false;
-        if (!(other instanceof ContentReference)) return false;
-        ContentReference otherSrc = (ContentReference) other;
+        if (other instanceof ContentReference otherSrc) {
+            // 16-Jan-2022, tatu: First ensure offset/length the same
+            if ((_offset != otherSrc._offset)
+                    || (_length != otherSrc._length)) {
+                return false;
+            }
 
-        // 16-Jan-2022, tatu: First ensure offset/length the same
-        if ((_offset != otherSrc._offset)
-                || (_length != otherSrc._length)) {
-            return false;
+            // 16-Jan-2022, tatu: As per [core#739] we'll want to consider some
+            //   but not all content cases with real equality: the concern here is
+            //   to avoid expensive comparisons and/or possible security issues
+            final Object otherRaw = otherSrc._rawContent;
+
+            if (_rawContent == null) {
+                return (otherRaw == null);
+            } else if (otherRaw == null) {
+                return false;
+            }
+
+            if ((_rawContent instanceof File)
+                    || (_rawContent instanceof URL)
+                    || (_rawContent instanceof URI)
+            ) {
+                return _rawContent.equals(otherRaw);
+            }
+            return _rawContent == otherSrc._rawContent;
         }
-
-        // 16-Jan-2022, tatu: As per [core#739] we'll want to consider some
-        //   but not all content cases with real equality: the concern here is
-        //   to avoid expensive comparisons and/or possible security issues
-        final Object otherRaw = otherSrc._rawContent;
-
-        if (_rawContent == null) {
-            return (otherRaw == null);
-        } else if (otherRaw == null) {
-            return false;
-        }
-
-        if ((_rawContent instanceof File)
-                || (_rawContent instanceof URL)
-                || (_rawContent instanceof URI)
-        ) {
-            return _rawContent.equals(otherRaw);
-        }
-        return _rawContent == otherSrc._rawContent;
+        return false;
     }
 
     // Just to appease LGTM...

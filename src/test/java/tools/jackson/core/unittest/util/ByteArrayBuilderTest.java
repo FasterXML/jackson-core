@@ -86,6 +86,36 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
         byteArrayBuilder.close();
     }
 
+    // Content spanning multiple blocks, then reuse of the same builder: exercises
+    // the lazily-created past-block list, including reset() before it exists
+    @Test
+    void testMultipleBlocksAndReuse() throws Exception
+    {
+        ByteArrayBuilder b = new ByteArrayBuilder(null, 10);
+
+        // First round: single block only, no overflow
+        b.write(new byte[] { 1, 2, 3 });
+        assertArrayEquals(new byte[] { 1, 2, 3 }, b.toByteArray());
+
+        // Second round: enough to overflow into several blocks
+        b.reset();
+        byte[] input = new byte[5000];
+        for (int i = 0; i < input.length; ++i) {
+            input[i] = (byte) i;
+        }
+        b.write(input);
+        assertEquals(input.length, b.size());
+        assertArrayEquals(input, b.toByteArray());
+
+        // Third round: back to a single block; past blocks must not linger
+        b.reset();
+        b.append(42);
+        assertArrayEquals(new byte[] { 42 }, b.toByteArray());
+
+        b.release();
+        b.close();
+    }
+
     // [core#1195]: Try to verify that BufferRecycler instance is indeed reused
     @Test
     void testBufferRecyclerReuse() throws Exception
@@ -118,5 +148,40 @@ public class ByteArrayBuilderTest extends JacksonCoreTestBase
         // only explicit release does
         br.releaseToPool();
         assertFalse(br.isLinkedWithPool());
+    }
+
+    @Test
+    void writeInvalidBounds() throws Exception
+    {
+        ByteArrayBuilder bab = new ByteArrayBuilder(10);
+        byte[] src = new byte[25];
+        for (int i = 0; i < src.length; ++i) {
+            src[i] = (byte) i;
+        }
+        assertThrows(NullPointerException.class, () -> bab.write(null));
+        assertThrows(NullPointerException.class, () -> bab.write(null, 0, 1));
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, -1, 5));
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 0, -1));
+        // offset past end, even with zero length
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 26, 0));
+        // `off + len` overflows int
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 1, Integer.MAX_VALUE));
+        // spans more than one block: must fail before anything is written
+        assertThrows(IndexOutOfBoundsException.class, () -> bab.write(src, 5, 21));
+        assertEquals(0, bab.size());
+
+        // valid edge cases
+        bab.write(src, 25, 0);
+        assertEquals(0, bab.size());
+        bab.write(src, 5, 20);
+        assertEquals(20, bab.size());
+        bab.write(src);
+        assertEquals(45, bab.size());
+
+        byte[] exp = new byte[45];
+        System.arraycopy(src, 5, exp, 0, 20);
+        System.arraycopy(src, 0, exp, 20, 25);
+        assertArrayEquals(exp, bab.toByteArray());
+        bab.release();
     }
 }

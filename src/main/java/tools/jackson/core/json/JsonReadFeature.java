@@ -106,6 +106,38 @@ public enum JsonReadFeature
 
     /**
      * Feature that determines whether parser will allow
+     * JSON integer numbers to be expressed in hexadecimal
+     * notation as defined by the
+     * <a href="https://spec.json5.org/#numbers">JSON5 specification</a>:
+     * a {@code 0x} or {@code 0X} prefix followed by one or more
+     * hexadecimal digits ({@code [0-9a-fA-F]}), optionally preceded
+     * by a single {@code +} or {@code -} sign
+     * (with {@link #ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS} additionally
+     * required for the {@code +} variant).
+     * When enabled, tokens such as {@code 0xC0FFEE} or {@code -0x10} are
+     * accepted as {@link JsonToken#VALUE_NUMBER_INT}. The textual
+     * representation returned by {@link JsonParser#getString()} preserves
+     * the original literal (including the {@code 0x} / {@code 0X} prefix
+     * and any sign), while numeric accessors such as
+     * {@link JsonParser#getIntValue()}, {@link JsonParser#getLongValue()}
+     * and {@link JsonParser#getBigIntegerValue()} return the decoded value.
+     *<p>
+     * This feature is independent of
+     * {@link #ALLOW_LEADING_ZEROS_FOR_NUMBERS}: leading zeros in the
+     * hexadecimal digit sequence (for example {@code 0x007F}) are always
+     * permitted when this feature is enabled, regardless of the state of
+     * {@code ALLOW_LEADING_ZEROS_FOR_NUMBERS}, since the JSON5 grammar
+     * allows them.
+     *<p>
+     * Since JSON specification does not allow hexadecimal numbers,
+     * this is a non-standard feature, and disabled by default.
+     *
+     * @since 3.2
+     */
+    ALLOW_HEXADECIMAL_NUMBERS(false),
+
+    /**
+     * Feature that determines whether parser will allow
      * JSON decimal numbers to start with a decimal point
      * (like: {@code .123}). If enabled, no exception is thrown, and the number
      * is parsed as though a leading 0 had been present.

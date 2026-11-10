@@ -55,9 +55,26 @@ Revanth Meesala (@revanthmeesala)
    [GHSA-649p-m576-vr99]
   (3.1.6)
 
-Lee Dongnyoung (@DongNyoung)
+DongNyoung Lee (@Dongnyoung)
  * Contributed #1651: Fix object context handling for buffered `INCLUDE_NON_NULL` tokens
   (3.1.6)
+ * Contributed #1667: `JsonParser.willInternPropertyNames()` returns `true` even when
+   `CANONICALIZE_PROPERTY_NAMES` is disabled
+  (3.2.3)
+ * Reported, fixed #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write
+   already-consumed bytes
+  (3.3.0)
+ * Reported, fixed #1664: UTF-8 byte-backed parsers report raw byte instead of
+   decoded character for invalid root-value separator
+  (3.3.0)
+ * Reported #1654: Stale symbol table child can replace a newer root table
+  (3.3.0)
+ * Reported, fixed #1685: Lower `BigDecimalParser` FastDoubleParser cutoff from
+   500 to 200 characters
+  (3.3.0)
+ * Reported, fixed #1686: Synchronous decimal number parsing buffers oversized
+   values before `maxNumberLength` validation
+  (3.3.0)
  * Reported, fixed #1703: Validate name length in `UTF8DataInputJsonParser` before
    quad buffer growth
   (3.1.7)
@@ -67,10 +84,43 @@ Lee Dongnyoung (@DongNyoung)
  * Reported #1724: Use target exception's original message and type when wrapping
    `InvocationTargetException` with path information
   (3.1.8)
+ * Fixed #1727: UTF-8 surrogate code points not rejected when skipping String values
+  (3.3.0)
+ * Reported, fixed #1752: `UTF8DataInputJsonParser` should preserve I/O failures
+   during invalid token reporting
+  (3.3.0)
+ * Reported, fixed #1753: Reject 4-byte UTF-8 sequences exceeding U+10FFFF in
+   String values of `UTF8StreamJsonParser`
+  (3.3.0)
+ * Reported, fixed #1766: `ReaderBasedJsonParser` undercounts number length when
+   fraction or exponent is absent
+  (3.3.0)
  * Reported, contributed fix for #1792: Validate final string length against
    `StreamReadConstraints.maxStringLength` before writing string values through
    `JsonParser.getString(Writer)`
   (3.1.9)
+ * Reported, fixed #1803: Consider validating async decimal number lengths
+   before buffer expansion
+  (3.3.0)
+
+seonwoojung (@seonwooj0810)
+ * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
+   for JSON5-style hexadecimal integer literals
+  (3.2.0)
+
+Max Paulus (@maxpaulus43)
+ * Contributed #1211: Add `JsonParser.willInternPropertyNames()` to check whether
+   property name interning is enabl
+  (3.2.0)
+
+Antonin Janec (@xtonik)
+ * Contributed #1576: Use Java 17 intrinstics for long multiplication
+  (3.2.0)
+
+Scott Lewis (@scottslewis)
+ * Contributed #1637: Add `JsonPointer.startsWith(JsonPointer)` to check
+   prefix match
+  (3.3.0)
 
 @hdimitrieski
  * Reported #1668: `WriterBasedJsonGenerator` AIOOBE when a zero-length custom
@@ -87,6 +137,20 @@ Burak KALAYCI (@kalayciburak)
  * Contributed #1728: Quote supplementary code points in unexpected-character
    messages
   (3.1.8)
+ * Contributed #1731: `FilteringGeneratorDelegate` UTF-8 string writes used
+   `includeRawValue()` instead of `includeString()`
+  (3.3.0)
+
+Steven Schlansker (@stevenschlansker)
+ * Contributed #1687: Add `StripedArrayPool` and virtual-thread-aware `HybridPool`
+   recycler pools
+  (3.3.0)
+ * Contributed #1688: Add `JsonParser.nextNameMatchAndToken()`, fused property
+   name match plus value token advance
+  (3.3.0)
+ * Contributed #1802: Pad `BufferRecycler` buffer slots and pool link to avoid
+   false sharing with other objects
+  (3.3.0)
 
 @youdie006
  * Reported #1713: `UTF32Reader` corrupts or drops the low surrogate when a
@@ -102,6 +166,10 @@ Burak KALAYCI (@kalayciburak)
  * Reported #1728: Unexpected-character messages drop the high bits of a
    supplementary code point
   (3.1.8)
+
+Westin Miller (@westinrm)
+ * Requested #1652: No-allocation DoubleToDecimal / FloatToDecimal
+  (3.3.0)
 
 Elankumaran Srinivasan (@elang2)
  * Contributed #1683: `ReaderBasedJsonParser` should reject JSON-escaped lone
@@ -119,21 +187,32 @@ David R. MacIver (@DRMacIver)
   (3.1.8)
  * Reported, contributed fix for #1795: `UTF8DataInputJsonParser` accepts any control
    character as white space between tokens
-  (3.1.9)
+  (3.1.9, 3.2.5)
 
 @un5h4d0w
  * Reported #1784: UTF-8 parsers may return wrong cached property name for names
    containing 0xFF bytes
-  (3.1.9)
+  (3.1.9, 3.2.5)
+
+Francesco Nigro (@franz1981)
+ * Reported, contributed fix for #1680: Avoid per-character escape-table load in
+   JSON generator String fast loops
+  (3.3.0)
 
 Ubeddulla Khan (@ubeddulla)
  * Reported, contributed fix for #1794: `maxStringLength` not enforced by
    `getBinaryValue()` when decoding Base64 directly from input
-  (3.1.9)
+  (3.1.9, 3.2.5)
  * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
-  (3.1.9)
+  (3.1.9, 3.2.5)
+ * Contributed #1801: Reject surrogate code points in `UTF32Reader`
+  (3.3.0)
 
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value
-  (3.1.9)
+  (3.1.9, 3.2.5)
+
+Sai Gokul N V (@nvsaigokul-sudo)
+ * Contributed #1817: Non-blocking parser: `isNaN()` always returns `false`
+  (3.4.0)

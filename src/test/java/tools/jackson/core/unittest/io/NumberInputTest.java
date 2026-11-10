@@ -1,6 +1,7 @@
 package tools.jackson.core.unittest.io;
 
 import java.math.BigInteger;
+import java.time.Duration;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
@@ -63,6 +64,61 @@ class NumberInputTest
         BigInteger expected = new BigInteger(val, radix);
         assertEquals(expected, NumberInput.parseBigIntegerWithRadix(val, radix, true));
         assertEquals(expected, NumberInput.parseBigIntegerWithRadix(val, radix, false));
+    }
+
+    @Test
+    void bigIntegerWithRadixFromCharArray()
+    {
+        final int radix = 16;
+        final BigInteger expected = new BigInteger("1ABCDEF", radix);
+
+        // 1) offset=0, length spans the entire array.
+        char[] exact = "1ABCDEF".toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(exact, 0, exact.length, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(exact, 0, exact.length, radix, false));
+
+        // 2) offset=0, length deliberately shorter than the array (ignore trailing chars).
+        char[] trailing = "1ABCDEFzz".toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(trailing, 0, 7, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(trailing, 0, 7, radix, false));
+
+        // 3) offset>0, length skips both leading and trailing chars.
+        char[] padded = ("xx" + "1ABCDEF" + "yy").toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(padded, 2, 7, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(padded, 2, 7, radix, false));
+    }
+
+    @Test
+    void bigIntegerWithRadixFromCharArrayNegative()
+    {
+        final int radix = 16;
+        final BigInteger expected = new BigInteger("-1ABCDEF", radix);
+
+        // offset=0, full array.
+        char[] exact = "-1ABCDEF".toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(exact, 0, exact.length, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(exact, 0, exact.length, radix, false));
+
+        // offset=0, length truncates trailing chars.
+        char[] trailing = "-1ABCDEFzz".toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(trailing, 0, 8, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(trailing, 0, 8, radix, false));
+
+        // offset>0, slice in the middle of a larger buffer.
+        char[] padded = ("xx" + "-1ABCDEF" + "yy").toCharArray();
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(padded, 2, 8, radix, true));
+        assertEquals(expected, NumberInput.parseBigIntegerWithRadix(padded, 2, 8, radix, false));
+    }
+
+    @Test
+    void bigIntegerWithRadixFromCharArrayInvalid()
+    {
+        // Non-hex characters -> NFE on both paths.
+        char[] bad = "GHIJ".toCharArray();
+        assertThrows(NumberFormatException.class,
+                () -> NumberInput.parseBigIntegerWithRadix(bad, 0, bad.length, 16, true));
+        assertThrows(NumberFormatException.class,
+                () -> NumberInput.parseBigIntegerWithRadix(bad, 0, bad.length, 16, false));
     }
 
     @Test
@@ -191,6 +247,48 @@ class NumberInputTest
                         prefix + c, remainingLength - 1);
             }
         }
+    }
+
+    // [core#1649]: `null` check is the first branch of the hand-rolled scanner;
+    // the exhaustive comparison above only generates non-null Strings
+    @Test
+    void looksLikeValidNumberNull()
+    {
+        assertFalse(NumberInput.looksLikeValidNumber(null));
+    }
+
+    // [core#1649]: digits are tested as `c >= '0' && c <= '9'`, matching the
+    // `[0-9]` of the Regexp that used to do this. `Character.isDigit()` would
+    // accept the following, which `parseDouble()`/`parseLong()` then reject
+    @Test
+    void looksLikeValidNumberNonAsciiDigits()
+    {
+        assertFalse(NumberInput.looksLikeValidNumber("\u0661\u0662\u0663")); // Arabic-Indic 123
+        assertFalse(NumberInput.looksLikeValidNumber("\uFF11\uFF12\uFF13")); // Full-width 123
+        assertFalse(NumberInput.looksLikeValidNumber("\u0967\u0968\u0969")); // Devanagari 123
+        // ... including mixed with ASCII digits, on either side
+        assertFalse(NumberInput.looksLikeValidNumber("1\u0662"));
+        assertFalse(NumberInput.looksLikeValidNumber("\u06601"));
+        assertFalse(NumberInput.looksLikeValidNumber("1.\u0662"));
+        assertFalse(NumberInput.looksLikeValidNumber("1e\u0662"));
+    }
+
+    // [core#1649]: the Regexp implementation this replaced had adjacent
+    // `[0-9]*` and `[0-9]+` over the same character class, so a failing match
+    // had to try every split point between them -- quadratic. Worst case is a
+    // long digit run whose only invalid character is the last one; at 1M chars
+    // that took minutes, where the scan takes ~1 msec.
+    @Test
+    void looksLikeValidNumberLongInput()
+    {
+        final String digits = "9".repeat(1_000_000);
+
+        assertTimeoutPreemptively(Duration.ofSeconds(10), () -> {
+            assertTrue(NumberInput.looksLikeValidNumber(digits));
+            assertTrue(NumberInput.looksLikeValidNumber("-"+digits+"."+digits+"e"+digits));
+            assertFalse(NumberInput.looksLikeValidNumber(digits+"x"));
+            assertFalse(NumberInput.looksLikeValidNumber(digits+"."+digits+"x"));
+        });
     }
 
     @Test

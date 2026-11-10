@@ -29,6 +29,9 @@ public class UTF8JsonGenerator
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;
 
+    // [core#1680]: minimum String segment length for scan-then-bulk-copy fast path
+    private final static int MIN_SEGMENT_FOR_BULK_COPY = 32;
+
     private final static byte[] HEX_BYTES_UPPER = CharTypes.copyHexBytes(true);
     private final static byte[] HEX_BYTES_LOWER = CharTypes.copyHexBytes(false);
 
@@ -941,7 +944,11 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
-        byte[] encodingBuffer = _ioContext.allocBase64Buffer();
+        // [core#1622]: when length is known, size the read buffer accordingly
+        //   (capped) so large content needs fewer InputStream reads
+        byte[] encodingBuffer = (dataLength > 0)
+                ? _ioContext.allocBase64Buffer(Math.min(dataLength, MAX_BASE64_ENCODE_BUFFER_LENGTH))
+                : _ioContext.allocBase64Buffer();
         int bytes;
         try {
             if (dataLength < 0) { // length unknown
@@ -1054,9 +1061,9 @@ public class UTF8JsonGenerator
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
-            _writeQuotedRaw(value.toString());
+            _writeQuotedAscii(value.toString());
         } else {
-            writeRaw(value.toString());
+            _writeRawAscii(value.toString());
         }
         return this;
     }
@@ -1068,12 +1075,37 @@ public class UTF8JsonGenerator
         if (_cfgNumbersAsStrings ||
             (NumberOutput.notFinite(d)
                     && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            writeString(NumberOutput.toString(d, useFast));
+            _writeQuotedDouble(d, useFast);
             return this;
         }
-        // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
-        return writeRaw(NumberOutput.toString(d, useFast));
+        if (useFast) {
+            if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES) > _outputEnd) {
+                _flushBuffer();
+            }
+            _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
+            return this;
+        }
+        _writeRawAscii(NumberOutput.toString(d, useFast));
+        return this;
+    }
+
+    // Number text is all ASCII and needs no escaping, so write it out raw, same as
+    // other quoted-number paths (see _writeQuotedAscii()); fast variant can further
+    // write straight into the output buffer, without intermediate String.
+    private final void _writeQuotedDouble(double d, boolean useFast) throws JacksonException
+    {
+        _verifyValueWrite(WRITE_STRING);
+        if (!useFast) {
+            _writeQuotedAscii(NumberOutput.toString(d, useFast));
+            return;
+        }
+        if ((_outputTail + NumberOutput.MAX_DOUBLE_BYTES + 2) > _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        _outputTail = NumberOutput.outputDouble(d, _outputBuffer, _outputTail);
+        _outputBuffer[_outputTail++] = _quoteChar;
     }
 
     @Override
@@ -1083,12 +1115,34 @@ public class UTF8JsonGenerator
         if (_cfgNumbersAsStrings ||
             (NumberOutput.notFinite(f)
                     && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            writeString(NumberOutput.toString(f, useFast));
+            _writeQuotedFloat(f, useFast);
             return this;
         }
-        // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
-        return writeRaw(NumberOutput.toString(f, useFast));
+        if (useFast) {
+            if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES) > _outputEnd) {
+                _flushBuffer();
+            }
+            _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
+            return this;
+        }
+        _writeRawAscii(NumberOutput.toString(f, useFast));
+        return this;
+    }
+
+    private final void _writeQuotedFloat(float f, boolean useFast) throws JacksonException
+    {
+        _verifyValueWrite(WRITE_STRING);
+        if (!useFast) {
+            _writeQuotedAscii(NumberOutput.toString(f, useFast));
+            return;
+        }
+        if ((_outputTail + NumberOutput.MAX_FLOAT_BYTES + 2) > _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        _outputTail = NumberOutput.outputFloat(f, _outputBuffer, _outputTail);
+        _outputBuffer[_outputTail++] = _quoteChar;
     }
 
     @Override
@@ -1099,9 +1153,9 @@ public class UTF8JsonGenerator
         if (value == null) {
             _writeNull();
         } else  if (_cfgNumbersAsStrings) {
-            _writeQuotedRaw(_asString(value));
+            _writeQuotedAscii(_asString(value));
         } else {
-            writeRaw(_asString(value));
+            _writeRawAscii(_asString(value));
         }
         return this;
     }
@@ -1129,6 +1183,46 @@ public class UTF8JsonGenerator
             writeRaw(encodedValueBuffer, offset, length);
         }
         return this;
+    }
+
+    // Number text is pure ASCII: copy straight into the output byte[] instead of
+    // going through writeRaw(String), which runs the UTF-8 encoding loop (with 3x
+    // room reservation) over it. Content is copied via String.getChars() (an
+    // intrinsic) rather than scanned with String.charAt(), whose JVM-wide branch
+    // profile is polluted by any non-Latin1 String use elsewhere (see [core#1680]).
+    private final void _writeRawAscii(String text) throws JacksonException
+    {
+        final char[] cbuf = _charBuffer;
+        final int totalLen = text.length();
+        int offset = 0;
+        while (offset < totalLen) {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            // Chunking only ever kicks in for very long BigInteger/BigDecimal text
+            int len = Math.min(totalLen - offset, Math.min(_charBufferLength, _outputEnd - _outputTail));
+            text.getChars(offset, offset + len, cbuf, 0);
+            final byte[] buf = _outputBuffer;
+            int ptr = _outputTail;
+            for (int i = 0; i < len; ++i) {
+                buf[ptr++] = (byte) cbuf[i];
+            }
+            _outputTail = ptr;
+            offset += len;
+        }
+    }
+
+    private final void _writeQuotedAscii(String value) throws JacksonException
+    {
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        _writeRawAscii(value);
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
     }
 
     private final void _writeQuotedRaw(String value) throws JacksonException
@@ -1470,11 +1564,17 @@ public class UTF8JsonGenerator
         int outputPtr = _outputTail;
         final byte[] outputBuffer = _outputBuffer;
         final int[] escCodes = _outputEscapes;
+        // 01-Sep-2026, franz1981: [core#1680] For the standard table the test is expressible
+        //   with constants; C2 unswitches on this flag so that clone has no per-character
+        //   table load. A custom quote char, escaped slashes or CharacterEscapes give a
+        //   different array and fall back to the lookup below.
+        final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
 
         while (offset < len) {
             int ch = cbuf[offset];
             // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
+            if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                    : (ch > 0x7F || escCodes[ch] != 0)) {
                 break;
             }
             outputBuffer[outputPtr++] = (byte) ch;
@@ -1496,23 +1596,31 @@ public class UTF8JsonGenerator
     private final void _writeStringSegment(String text, int offset, int len) throws JacksonException
     {
         // note: caller MUST ensure (via flushing) there's room for ASCII only
-        // Fast+tight loop for ASCII-only, no-escaping-needed output
         len += offset; // becomes end marker, then
 
-        int outputPtr = _outputTail;
-        final byte[] outputBuffer = _outputBuffer;
-        final int[] escCodes = _outputEscapes;
+        if ((len - offset) >= MIN_SEGMENT_FOR_BULK_COPY) {
+            offset = _writeUnescapedAsciiBulk(text, offset, len);
+        } else {
+            // Fast+tight loop for ASCII-only, no-escaping-needed output
+            int outputPtr = _outputTail;
+            final byte[] outputBuffer = _outputBuffer;
+            final int[] escCodes = _outputEscapes;
+            // [core#1680]: For the standard table the test is expressible with constants;
+            //   C2 unswitches on this flag so that clone has no per-character table load.
+            final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
 
-        while (offset < len) {
-            int ch = text.charAt(offset);
-            // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
-            if (ch > 0x7F || escCodes[ch] != 0) {
-                break;
+            while (offset < len) {
+                int ch = text.charAt(offset);
+                // note: here we know that (ch > 0x7F) will cover case of escaping non-ASCII too:
+                if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                        : (ch > 0x7F || escCodes[ch] != 0)) {
+                    break;
+                }
+                outputBuffer[outputPtr++] = (byte) ch;
+                ++offset;
             }
-            outputBuffer[outputPtr++] = (byte) ch;
-            ++offset;
+            _outputTail = outputPtr;
         }
-        _outputTail = outputPtr;
         if (offset < len) {
             if (_characterEscapes != null) {
                 _writeCustomStringSegment2(text, offset, len);
@@ -1522,6 +1630,31 @@ public class UTF8JsonGenerator
                 _writeStringSegmentASCII2(text, offset, len);
             }
         }
+    }
+
+    // 15-Oct-2026, pjfanning: [core#1680] For longer segments, scanning first and then
+    //   bulk-copying is faster than the fused check-and-copy loop: `String.getBytes()` is
+    //   an array copy for Latin-1 Strings. Low-byte copy is exact as scanned chars are ASCII.
+    //   Kept separate so that the short-segment path stays compact.
+    @SuppressWarnings("deprecation")
+    private final int _writeUnescapedAsciiBulk(String text, int offset, final int end)
+    {
+        final int[] escCodes = _outputEscapes;
+        final boolean stdEsc = (escCodes == DEFAULT_OUTPUT_ESCAPES);
+        final int start = offset;
+        while (offset < end) {
+            int ch = text.charAt(offset);
+            if (stdEsc ? (ch < 0x20 || ch > 0x7F || ch == '"' || ch == '\\')
+                    : (ch > 0x7F || escCodes[ch] != 0)) {
+                break;
+            }
+            ++offset;
+        }
+        if (offset > start) {
+            text.getBytes(start, offset, _outputBuffer, _outputTail);
+            _outputTail += (offset - start);
+        }
+        return offset;
     }
 
     /**
@@ -2176,12 +2309,12 @@ public class UTF8JsonGenerator
             int maxRead) throws JacksonException
     {
         // anything to shift to front?
-        int i = 0;
-        while (inputPtr < inputEnd) {
-            readBuffer[i++]  = readBuffer[inputPtr++];
+        int available = inputEnd - inputPtr;
+        if (inputPtr > 0 && available > 0) {
+            System.arraycopy(readBuffer, inputPtr, readBuffer, 0, available);
         }
         inputPtr = 0;
-        inputEnd = i;
+        inputEnd = available;
         maxRead = Math.min(maxRead, readBuffer.length);
 
         do {

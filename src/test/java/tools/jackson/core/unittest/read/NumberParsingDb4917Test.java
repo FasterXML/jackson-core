@@ -17,7 +17,8 @@ class NumberParsingDb4917Test extends JacksonCoreTestBase
 {
     private TokenStreamFactory JSON_F = newStreamFactory();
 
-    final String INPUT_JSON = a2q("{'decimalHolder':100.00,'number':50}");
+    final String INPUT_JSON = """
+            {"decimalHolder":100.00,"number":50}""";
 
     // [jackson-databind#4917]
     @Test

@@ -92,7 +92,7 @@ public class PropertyNameMatchersTest extends JacksonCoreTestBase
 
     private void _testCaseInsensitive(List<String> names)
     {
-        final Locale locale = new Locale("en", "US");
+        final Locale locale = Locale.US;
         PropertyNameMatcher matcher = SimpleNameMatcher.constructCaseInsensitive(locale, named(names), true);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);

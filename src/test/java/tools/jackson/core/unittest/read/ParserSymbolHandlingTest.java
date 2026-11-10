@@ -33,7 +33,8 @@ class ParserSymbolHandlingTest
 
     private void _testSymbolsWithNull(JsonFactory f, boolean useBytes) throws Exception
     {
-        final String INPUT = "{\"\\u0000abc\" : 1, \"abc\":2}";
+        final String INPUT = """
+            {"\\u0000abc" : 1, "abc":2}""";
         JsonParser parser = useBytes ? f.createParser(ObjectReadContext.empty(), INPUT.getBytes("UTF-8"))
                 : f.createParser(ObjectReadContext.empty(), INPUT);
 
@@ -90,11 +91,12 @@ class ParserSymbolHandlingTest
         final String NAME_4 = NAME_3 + NAME_1;
         final String QUOTED_NULL = "\\u0000";
 
-        final String INPUT = a2q(String.format("{'%s':1, '%s':2, '%s':3, '%s':4}",
+        final String INPUT = """
+                {"%s":1, "%s":2, "%s":3, "%s":4}""".formatted(
                 QUOTED_NULL, QUOTED_NULL + QUOTED_NULL,
                 QUOTED_NULL + QUOTED_NULL + QUOTED_NULL,
                 QUOTED_NULL + QUOTED_NULL + QUOTED_NULL + QUOTED_NULL
-                ));
+                );
         try (JsonParser p = useBytes ? f.createParser(ObjectReadContext.empty(), INPUT.getBytes("UTF-8"))
                 : f.createParser(ObjectReadContext.empty(), INPUT)) {
 

@@ -127,6 +127,33 @@ class TestRootValues
         p.close();
     }
 
+    // [core#1664]: byte-backed parsers must decode multi-byte UTF-8 character
+    // before reporting missing root-level separator
+    @Test
+    void missingRootSeparatorUTF8() throws Exception
+    {
+        // 2-byte sequence: NBSP (U+00A0)
+        _testMissingRootSeparatorUTF8(new byte[] { '1', (byte) 0xC2, (byte) 0xA0 }, "code 160");
+        // 3-byte sequence: LINE SEPARATOR (U+2028)
+        _testMissingRootSeparatorUTF8(new byte[] { '1', (byte) 0xE2, (byte) 0x80, (byte) 0xA8 },
+                "code 8232");
+        // and if input ends mid-sequence, lead byte is reported as-is (not EOF failure)
+        _testMissingRootSeparatorUTF8(new byte[] { '1', (byte) 0xC2 }, "code 194");
+    }
+
+    private void _testMissingRootSeparatorUTF8(byte[] doc, String expCode) throws Exception
+    {
+        for (int mode : ALL_BINARY_MODES) {
+            try (JsonParser p = createParser(mode, doc)) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (StreamReadException e) {
+                verifyException(e, expCode);
+                verifyException(e, "Expected space separating root-level values");
+            }
+        }
+    }
+
     @Test
     void simpleBooleans() throws Exception {
         // can't do DataInput so

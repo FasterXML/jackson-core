@@ -45,6 +45,17 @@ class BigDecimalParserTest extends JacksonCoreTestBase
     }
 
     @Test
+    void validLongDecimalParse() {
+        final int length = 250;
+        String num = genLongValidString(length -3);
+        final BigDecimal exp = new BigDecimal(num);
+
+        assertEquals(length, num.length());
+        assertEquals(exp, BigDecimalParser.parse(num));
+        assertEquals(exp, BigDecimalParser.parse(num.toCharArray(), 0, num.length()));
+    }
+
+    @Test
     void longValidStringFastParse() {
         String num = genLongValidString(500);
         final BigDecimal EXP = new BigDecimal(num);

@@ -260,6 +260,20 @@ public abstract class JsonParser
     public boolean canParseAsync() { return false; }
 
     /**
+     * Introspection method that can be called to check whether this parser
+     * is configured to intern parsed field names (property names) using
+     * {@link String#intern()} or not.
+     *<p>
+     * Default implementation returns {@code false}; JSON-backed parsers
+     * override to check the state of the underlying symbol table.
+     *
+     * @return {@code True} if this parser interns field names; {@code false} if not
+     *
+     * @since 3.2
+     */
+    public boolean willInternPropertyNames() { return false; }
+
+    /**
      * Method that will either return a feeder instance (if parser uses
      * non-blocking, aka asynchronous access); or <code>null</code> for
      * parsers that use blocking I/O.
@@ -541,6 +555,50 @@ public abstract class JsonParser
      * @since 3.0
      */
     public abstract int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException;
+
+    /**
+     * Combined form of {@link #nextNameMatch(PropertyNameMatcher)} and
+     * {@link #nextToken()}: matches the next Object property name against the
+     * given matcher and, when the match succeeds (non-negative index), also
+     * advances the stream so that the current token is the property's value
+     * token. On a negative result the stream is left exactly as
+     * {@link #nextNameMatch(PropertyNameMatcher)} leaves it.
+     *<p>
+     * Callers that dispatch on the returned index and then read the value can
+     * use this instead of the two-call sequence: format backends may implement
+     * it as a single fused scan.
+     *<p>
+     * NOTE: with non-blocking (async) parsers the value token may not be
+     * available even when the name matched: the current token will then be
+     * {@link JsonToken#NOT_AVAILABLE}, and the value only becomes readable
+     * after more input is fed and {@link #nextToken()} called again.
+     * Callers of such parsers must check {@link #currentToken()} instead of
+     * assuming a non-negative result means the value is ready.
+     *<p>
+     * NOTE to subclass implementors: the default implementation calls
+     * {@link #nextNameMatch(PropertyNameMatcher)} and {@link #nextToken()} on this
+     * instance, so overrides of either are honored. Subclasses overriding this method
+     * (to provide a fused scan) must keep it equivalent to that two-call sequence;
+     * delegating or filtering parsers should NOT forward it directly to the wrapped
+     * parser, as that would bypass their own overrides.
+     *
+     * @param matcher Matcher that will handle actual matching
+     *
+     * @return Index of the matched property name, if non-negative, or a negative error
+     *   code otherwise (see {@link PropertyNameMatcher} for details)
+     *
+     * @throws JacksonIOException for low-level read issues
+     * @throws tools.jackson.core.exc.StreamReadException for decoding problems
+     *
+     * @since 3.3
+     */
+    public int nextNameMatchAndToken(PropertyNameMatcher matcher) throws JacksonException {
+        int match = nextNameMatch(matcher);
+        if (match >= 0) {
+            nextToken();
+        }
+        return match;
+    }
 
     /**
      * Method that verifies that the current token (see {@link #currentToken}) is

@@ -35,6 +35,8 @@ class SymbolTableMergingTest
     }
 
     final static String JSON = "{ \"a\" : 3, \"aaa\" : 4, \"_a\" : 0 }";
+    final static String STALE_SMALL_DOC = a2q("{'a':1}");
+    final static String STALE_LARGE_DOC = a2q("{'a':1,'b':2,'c':3}");
 
     @Test
     void byteSymbolsWithClose() throws Exception
@@ -88,6 +90,18 @@ class SymbolTableMergingTest
         assertEquals(3, f.charSymbolCount());
     }
 
+    @Test
+    void staleByteSymbolsWithClose() throws Exception
+    {
+        _testStaleSymbolsWithClose(true);
+    }
+
+    @Test
+    void staleCharSymbolsWithClose() throws Exception
+    {
+        _testStaleSymbolsWithClose(false);
+    }
+
     /*
     /**********************************************************
     /* Helper methods
@@ -111,11 +125,28 @@ class SymbolTableMergingTest
         assertEquals(2, useBytes ? f.byteSymbolCount() : f.charSymbolCount());
     }
 
+    private void _testStaleSymbolsWithClose(boolean useBytes) throws IOException
+    {
+        MyJsonFactory f = new MyJsonFactory();
+
+        JsonParser smaller = _getParser(f, STALE_SMALL_DOC, useBytes);
+        assertToken(JsonToken.START_OBJECT, smaller.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, smaller.nextToken());
+
+        JsonParser larger = _getParser(f, STALE_LARGE_DOC, useBytes);
+        while (larger.nextToken() != null) { }
+        larger.close();
+        assertEquals(3, useBytes ? f.byteSymbolCount() : f.charSymbolCount());
+
+        smaller.close();
+        assertEquals(3, useBytes ? f.byteSymbolCount() : f.charSymbolCount());
+    }
+
     private JsonParser _getParser(MyJsonFactory f, String doc, boolean useBytes) throws IOException
     {
         JsonParser p;
         if (useBytes) {
-            p = f.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"));
+            p = f.createParser(ObjectReadContext.empty(), utf8Bytes(doc));
             assertEquals(UTF8StreamJsonParser.class, p.getClass());
             assertEquals(0, f.byteSymbolCount());
         } else {

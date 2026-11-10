@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  *<p>
  * See also {@code AsyncEscapedSurrogateInFieldName1541Test} for async parser tests.
  */
-class EscapedSurrogateInFieldName1541Test extends JacksonCoreTestBase
+class EscapedSurrogateInFieldName1541Test
+    extends JacksonCoreTestBase
 {
     private final JsonFactory FACTORY = newStreamFactory();
 

@@ -238,12 +238,34 @@ public abstract class ParserMinimalBase extends JsonParser
      * @param readCtxt Context for databinding
      */
     protected ParserMinimalBase(ObjectReadContext readCtxt) {
+        this(readCtxt, readCtxt.streamReadConstraints());
+    }
+
+    /**
+     * Alternate constructor for cases where there is no real {@link IOContext}
+     * in use (see {@link #ParserMinimalBase(ObjectReadContext)}) AND constraints
+     * to apply come from a source other than the {@link ObjectReadContext} given.
+     * This is the case for content buffered from another parser -- such as
+     * jackson-databind {@code TokenBuffer} -- where constraints of the parser
+     * content was read from need to be retained for replay.
+     *<p>
+     * Note that constraints given are used both by {@link #streamReadConstraints()}
+     * and by token count validation, so passing
+     * {@code readCtxt.streamReadConstraints()} is equivalent to calling
+     * {@link #ParserMinimalBase(ObjectReadContext)}.
+     *
+     * @param readCtxt Context for databinding
+     * @param src Constraints to apply
+     *
+     * @since 3.3
+     */
+    protected ParserMinimalBase(ObjectReadContext readCtxt, StreamReadConstraints src) {
         super();
         _objectReadContext = readCtxt;
         _ioContext = null;
         _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
-        _streamReadConstraints = readCtxt.streamReadConstraints();
-        _trackMaxTokenCount = _streamReadConstraints.hasMaxTokenCount();
+        _streamReadConstraints = src;
+        _trackMaxTokenCount = src.hasMaxTokenCount();
     }
     
     /*
@@ -656,8 +678,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 return false;
             case ID_EMBEDDED_OBJECT:
                 Object value = getEmbeddedObject();
-                if (value instanceof Boolean) {
-                    return (Boolean) value;
+                if (value instanceof Boolean bool) {
+                    return bool;
                 }
                 break;
             default:
@@ -700,8 +722,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 return 0;
             case ID_EMBEDDED_OBJECT:
                 Object value = getEmbeddedObject();
-                if (value instanceof Number) {
-                    return ((Number) value).intValue();
+                if (value instanceof Number num) {
+                    return num.intValue();
                 }
             }
         }
@@ -740,8 +762,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 return 0L;
             case ID_EMBEDDED_OBJECT:
                 Object value = getEmbeddedObject();
-                if (value instanceof Number) {
-                    return ((Number) value).longValue();
+                if (value instanceof Number num) {
+                    return num.longValue();
                 }
             }
         }
@@ -771,8 +793,8 @@ public abstract class ParserMinimalBase extends JsonParser
                 return 0.0;
             case ID_EMBEDDED_OBJECT:
                 Object value = getEmbeddedObject();
-                if (value instanceof Number) {
-                    return ((Number) value).doubleValue();
+                if (value instanceof Number num) {
+                    return num.doubleValue();
                 }
             }
         }

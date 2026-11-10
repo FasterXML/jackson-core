@@ -59,10 +59,10 @@ class UTF8Overlong1782Test extends JacksonCoreTestBase
         "Invalid UTF-8: overlong 3-byte encoding of 0x7ff",
         "Invalid UTF-8: Illegal surrogate character 0xd800",
         "Invalid UTF-8: Illegal surrogate character 0xdfff",
-        "Invalid UTF-8: overlong 4-byte encoding of 0x2f",
-        "Invalid UTF-8: overlong 4-byte encoding of 0xffff",
-        "Invalid UTF-8: overlong 4-byte encoding of 0xd800",
-        "Invalid UTF-8: code point 0x110000 beyond U+10FFFF",
+        "Invalid UTF-8 4-byte sequence (0xF0 0x80 ...): overlong encoding",
+        "Invalid UTF-8 4-byte sequence (0xF0 0x8F ...): overlong encoding",
+        "Invalid UTF-8 4-byte sequence (0xF0 0x8D ...): overlong encoding",
+        "Invalid UTF-8 4-byte sequence (0xF4 0x90 ...): code point exceeds U+10FFFF",
         "Invalid UTF-8 start byte 0xf5",
         "Invalid UTF-8 start byte 0xf7",
     };
@@ -116,7 +116,7 @@ class UTF8Overlong1782Test extends JacksonCoreTestBase
                         assertToken(JsonToken.START_OBJECT, p.nextToken());
                         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
                         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                        p.getText();
+                        p.getString();
                         fail("Should not pass for mode " + mode + ", sequence " + hex(seq));
                     } catch (StreamReadException e) {
                         verifyException(e, INVALID_MSG[i]);
@@ -159,7 +159,7 @@ class UTF8Overlong1782Test extends JacksonCoreTestBase
                     assertToken(JsonToken.START_OBJECT, p.nextToken());
                     assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                    p.getText();
+                    p.getString();
                     fail("Should not pass for mode " + mode + ", sequence " + hex(seq));
                 } catch (StreamReadException e) {
                     verifyException(e, INVALID_MSG[i]);
@@ -198,7 +198,7 @@ class UTF8Overlong1782Test extends JacksonCoreTestBase
                 try (JsonParser p = createParser(FACTORY, mode, doc)) {
                     assertToken(JsonToken.START_ARRAY, p.nextToken());
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
-                    assertEquals(VALID_DECODED[i], p.getText());
+                    assertEquals(VALID_DECODED[i], p.getString());
                     // second one skipped
                     assertToken(JsonToken.VALUE_STRING, p.nextToken());
                     assertToken(JsonToken.END_ARRAY, p.nextToken());

@@ -36,4 +36,21 @@ public final class BigIntegerParser
                     ", reason: " + nfe.getMessage());
         }
     }
+
+    /**
+     * @since 3.2
+     */
+    public static BigInteger parseWithFastParser(final char[] ch, final int offset,
+            final int length, final int radix) {
+        try {
+            return JavaBigIntegerParser.parseBigInteger(ch, offset, length, radix);
+        } catch (NumberFormatException nfe) {
+            final String reportNum = length <= MAX_CHARS_TO_REPORT
+                    ? new String(ch, offset, length)
+                    : new String(ch, offset, MAX_CHARS_TO_REPORT) + " [truncated]";
+            throw new NumberFormatException("Value \"" + reportNum
+                    + "\" cannot be represented as `java.math.BigInteger` with radix " + radix +
+                    ", reason: " + nfe.getMessage());
+        }
+    }
 }

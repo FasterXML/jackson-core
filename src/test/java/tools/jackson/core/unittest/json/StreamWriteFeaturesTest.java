@@ -59,19 +59,37 @@ class GeneratorFeaturesTest
     @Test
     void nonNumericQuoting() throws IOException
     {
-        JsonFactory f = new JsonFactory();
-        // by default, quoting should be enabled
-        assertTrue(f.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
-        _testNonNumericQuoting(f, true);
-        // can disable it
-        f = f.rebuild().disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+        JsonFactory f = JsonFactory.builder()
+                .disable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
                 .build();
-        _testNonNumericQuoting(f, false);
-        // and (re)enable:
-        f = f.rebuild()
-                .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+        _testNonNumericQuoting(f);
+    }
+
+    @Test
+    void nonNumericQuotingFastWriter() throws IOException
+    {
+        JsonFactory f = JsonFactory.builder()
+                .enable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
                 .build();
-        _testNonNumericQuoting(f, true);
+        _testNonNumericQuoting(f);
+    }
+
+    @Test
+    void nonNumericQuotingUtf8() throws IOException
+    {
+        JsonFactory f = JsonFactory.builder()
+                .disable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
+                .build();
+        _testNonNumericQuotingUtf8(f);
+    }
+
+    @Test
+    void nonNumericQuotingFastWriterUtf8() throws IOException
+    {
+        JsonFactory f = JsonFactory.builder()
+                .enable(StreamWriteFeature.USE_FAST_DOUBLE_WRITER)
+                .build();
+        _testNonNumericQuotingUtf8(f);
     }
 
     /**
@@ -297,6 +315,23 @@ class GeneratorFeaturesTest
             assertEquals("{foo:1}", result);
         }
     }
+
+    private void _testNonNumericQuoting(JsonFactory f)
+    {
+        // by default, quoting should be enabled
+        assertTrue(f.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
+        _testNonNumericQuoting(f, true);
+        // can disable it
+        f = f.rebuild().disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        _testNonNumericQuoting(f, false);
+        // and (re)enable:
+        f = f.rebuild()
+                .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        _testNonNumericQuoting(f, true);
+    }
+
     private void _testNonNumericQuoting(JsonFactory f, boolean quoted)
     {
         StringWriter sw = new StringWriter();
@@ -316,6 +351,46 @@ class GeneratorFeaturesTest
             assertEquals("{\"double\":\"NaN\"} {\"float\":\"NaN\"}", result);
         } else {
             assertEquals("{\"double\":NaN} {\"float\":NaN}", result);
+        }
+    }
+
+    private void _testNonNumericQuotingUtf8(JsonFactory f) throws IOException
+    {
+        // by default, quoting should be enabled
+        assertTrue(f.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
+        _testNonNumericQuotingUtf8(f, true);
+        // can disable it
+        f = f.rebuild().disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        _testNonNumericQuotingUtf8(f, false);
+        // and (re)enable:
+        f = f.rebuild()
+                .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
+        _testNonNumericQuotingUtf8(f, true);
+    }
+
+    private void _testNonNumericQuotingUtf8(JsonFactory f, boolean quoted) throws IOException
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
+        g.writeStartObject();
+        g.writeName("double");
+        g.writeNumber(Double.NaN);
+        g.writeName("float");
+        g.writeNumber(Float.NaN);
+        g.writeName("inf");
+        g.writeNumber(Double.POSITIVE_INFINITY);
+        g.writeName("negInf");
+        g.writeNumber(Double.NEGATIVE_INFINITY);
+        g.writeEndObject();
+        g.close();
+
+        String result = bytes.toString("UTF-8");
+        if (quoted) {
+            assertEquals("{\"double\":\"NaN\",\"float\":\"NaN\",\"inf\":\"Infinity\",\"negInf\":\"-Infinity\"}", result);
+        } else {
+            assertEquals("{\"double\":NaN,\"float\":NaN,\"inf\":Infinity,\"negInf\":-Infinity}", result);
         }
     }
 

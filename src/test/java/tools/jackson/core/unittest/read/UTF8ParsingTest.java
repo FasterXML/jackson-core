@@ -13,7 +13,8 @@ class UTF8ParsingTest
     private TokenStreamFactory JSON_F = newStreamFactory();
 
     final String testValue = createTestString();
-    final String INPUT_JSON = a2q("{ 'value': '" + testValue + "' }");
+    final String INPUT_JSON = """
+        { "value": "%s" }""".formatted(testValue);
 
     // https://github.com/FasterXML/jackson-dataformats-text/issues/497
     @Test

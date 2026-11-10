@@ -88,9 +88,9 @@ class SupplementaryCharDesc1728Test extends JacksonCoreTestBase
     void codePointAboveMaxReportedAsInvalidUtf8() throws Exception
     {
         _assertError(new byte[] { (byte) 0xF5, (byte) 0x80, (byte) 0x80, (byte) 0x80, ' ' },
-                "Invalid UTF-8 start byte 0xf5");
+                "Invalid UTF-8 4-byte sequence (0xF5 0x80 ...): code point exceeds U+10FFFF");
         _assertError(new byte[] { (byte) 0xF4, (byte) 0x90, (byte) 0x80, (byte) 0x80, ' ' },
-                "Invalid UTF-8 middle byte 0x90");
+                "Invalid UTF-8 4-byte sequence (0xF4 0x90 ...): code point exceeds U+10FFFF");
         // but U+10FFFF itself is valid
         _assertError(new byte[] { (byte) 0xF4, (byte) 0x8F, (byte) 0xBF, (byte) 0xBF, ' ' },
                 "Unexpected character ('" + new String(Character.toChars(0x10FFFF))

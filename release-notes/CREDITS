@@ -212,3 +212,7 @@ Ubeddulla Khan (@ubeddulla)
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value
   (3.1.9, 3.2.5)
+
+Sai Gokul N V (@nvsaigokul-sudo)
+ * Contributed #1817: Non-blocking parser: `isNaN()` always returns `false`
+  (3.4.0)

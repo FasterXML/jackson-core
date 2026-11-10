@@ -15,6 +15,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.4.0 (not yet released)
+
+#1817: Non-blocking parser: `isNaN()` always returns `false`
+ (fix by @nvsaigokul-sudo)
+
 3.3.0 (07-Nov-2026)
 
 #1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match

@@ -1969,10 +1969,11 @@ public abstract class NonBlockingUtf8JsonParserBase
             requireFirst = false;
         }
         _textBuffer.setCurrentLength(outPtr);
-        // As per #105, need separating space between root values;
-        // `_inputPtr` points AT the terminator
+        // Validate length (in `resetIntHex()`) before separator; as per #105, need
+        // separating space between root values (`_inputPtr` points AT the terminator)
+        resetIntHex(_numberNegative, outPtr - prefixLen);
         _verifyRootSpaceAfterNumber();
-        return _valueCompleteHexNumber(outPtr - prefixLen);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     // Called from _finishTokenWithEOF when input ends while collecting hex digits.
@@ -1981,7 +1982,8 @@ public abstract class NonBlockingUtf8JsonParserBase
         int outPtr = _textBuffer.getCurrentSegmentSize();
         final boolean hasSignChar = (outBuf[0] == '-' || outBuf[0] == '+');
         final int prefixLen = hasSignChar ? 3 : 2;
-        return _valueCompleteHexNumber(outPtr - prefixLen);
+        resetIntHex(_numberNegative, outPtr - prefixLen);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws JacksonException {

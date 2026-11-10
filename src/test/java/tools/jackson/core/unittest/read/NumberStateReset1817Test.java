@@ -68,6 +68,41 @@ class NumberStateReset1817Test extends AsyncTestBase
         }
     }
 
+    // Root-level: hex values ended by separator (not end-of-input), followed by regular ints;
+    // trailing space needed for DataInput (cannot detect end of root-level number)
+    private final static String ROOT_DOC = "0x10 12345 -0x20 7 ";
+
+    @Test
+    void rootLevelHexThenIntBlocking() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(F, mode, ROOT_DOC)) {
+                _verifyInt(p, p.nextToken(), 0x10);
+                _verifyInt(p, p.nextToken(), 12345);
+                _verifyInt(p, p.nextToken(), -0x20);
+                _verifyInt(p, p.nextToken(), 7);
+                assertNull(p.nextToken());
+            }
+        }
+    }
+
+    @Test
+    void rootLevelHexThenIntAsync() throws Exception
+    {
+        for (int readSize : new int[] { 1, 2, 3, 1000 }) {
+            for (boolean bb : new boolean[] { false, true }) {
+                try (AsyncReaderWrapper r = _asyncParser(ROOT_DOC, readSize, bb)) {
+                    final JsonParser p = r.parser();
+                    _verifyInt(p, r.nextToken(), 0x10);
+                    _verifyInt(p, r.nextToken(), 12345);
+                    _verifyInt(p, r.nextToken(), -0x20);
+                    _verifyInt(p, r.nextToken(), 7);
+                    assertNull(r.nextToken());
+                }
+            }
+        }
+    }
+
     // Deferred decoding state of a floating-point value must not leak into
     // following hex value; root-level so that last hex value ends at end-of-input
     private final static String DEFERRED_DOC = "1.25 0x10 2.5 0x20";
@@ -110,16 +145,19 @@ class NumberStateReset1817Test extends AsyncTestBase
                 : asyncForBytes(F, readSize, _jsonDoc(doc), 0);
     }
 
-    // Leaves decoding of `double` deferred
+    // `getNumberType()` leaves decoding of `double` deferred
     private void _verifyDeferred(JsonParser p, JsonToken t, String exp) {
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
-        assertEquals(exp, String.valueOf(p.getNumberValueDeferred()));
+        assertEquals(JsonParser.NumberType.DOUBLE, p.getNumberType());
+        assertEquals(exp, p.getString());
     }
 
     private void _verifyInt(JsonParser p, JsonToken t, int exp) {
         assertToken(JsonToken.VALUE_NUMBER_INT, t);
         assertFalse(p.isNaN());
         assertEquals(exp, p.getIntValue());
+        assertEquals((double) exp, p.getDoubleValue());
+        // second call uses cached `double` (must not be stale deferred state)
         assertEquals((double) exp, p.getDoubleValue());
     }
 

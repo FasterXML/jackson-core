@@ -786,7 +786,7 @@ public abstract class NonBlockingJsonParserBase
     // 03-Nov-2026, tatu: [core#1815] Number tokens must clear text of earlier deferred
     //   number (otherwise considered still deferred): all completions go via methods below
     // 09-Nov-2026, tatu: [core#1817] ... same for `_numberIsNaN` and `_numberIsHex` flags;
-    //   hex numbers are the exception, completed via `_valueCompleteHexNumber()`
+    //   hex numbers are the exception: `resetIntHex()` sets their state
     final JsonToken _valueCompleteNumber(JsonToken t) throws JacksonException
     {
         _resetNumberState();
@@ -802,13 +802,6 @@ public abstract class NonBlockingJsonParserBase
         _numberInt = value;
         _majorState = _majorStateAfterValue;
         return _updateToken(JsonToken.VALUE_NUMBER_INT);
-    }
-
-    // Hex number state is fully set by `resetIntHex()`, nothing to clear
-    protected final JsonToken _valueCompleteHexNumber(int hexDigitLen) throws JacksonException
-    {
-        resetIntHex(_numberNegative, hexDigitLen);
-        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     // Clears per-number state that may be left over from the preceding number token
@@ -833,7 +826,6 @@ public abstract class NonBlockingJsonParserBase
     protected final JsonToken _valueNonStdNumberComplete(int type) throws JacksonException
     {
         String tokenStr = NON_STD_TOKENS[type];
-        _textBuffer.resetWithString(tokenStr);
         if (!isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
             _reportError("Non-standard token '%s': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow",
                     tokenStr);

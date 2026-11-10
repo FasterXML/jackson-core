@@ -17,8 +17,7 @@ JSON library.
 
 3.4.0 (not yet released)
 
-#1817: Non-blocking parser: `isNaN()` always returns `false` (also: integer
-  after hex number with `ALLOW_HEXADECIMAL_NUMBERS` decoded as hex)
+#1817: Non-blocking parser: `isNaN()` always returns `false`
  (fix by @nvsaigokul-sudo)
 
 3.3.0 (07-Nov-2026)

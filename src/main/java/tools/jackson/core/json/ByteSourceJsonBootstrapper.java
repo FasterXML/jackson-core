@@ -199,7 +199,16 @@ public final class ByteSourceJsonBootstrapper
     public static int skipUTF8BOM(DataInput input) throws JacksonException
     {
         try {
-            int b = input.readUnsignedByte();
+            return skipUTF8BOM(input, input.readUnsignedByte());
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+    }
+
+    static int skipUTF8BOM(DataInput input, int firstByte) throws JacksonException
+    {
+        try {
+            int b = firstByte;
             if (b != 0xEF) {
                 return b;
             }

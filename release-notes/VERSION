@@ -17,6 +17,8 @@ JSON library.
 
 3.4.0 (not yet released)
 
+#1805: Add `JsonParser.readUTF8String(OutputStream)` for UTF-8 string output
+ (contributed by @wendigo)
 #1817: Non-blocking parser: `isNaN()` always returns `false`
  (fix by @nvsaigokul-sudo)
 

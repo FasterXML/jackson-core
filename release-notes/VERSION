@@ -22,6 +22,8 @@ JSON library.
 
 3.3.0 (07-Nov-2026)
 
+#1557: Parsing for non-root number values fails lazily
+ (fix by @seonwooj0810)
 #1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match
  (contributed by @scottslewis)
 #1646: Non-blocking ByteBuffer parser `releaseBuffered()` can write

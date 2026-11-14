@@ -5,6 +5,8 @@ import java.io.*;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.SerializableString;
+import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -115,6 +117,49 @@ class CustomQuoteCharTest
         _writeArray(g, "It's a sin");
         g.close();
         assertEquals("['It\\'s a sin']", out.toString("UTF-8"));
+    }
+
+    // Custom CharacterEscapes must not drop escaping of the quote character
+    @Test
+    void aposQuotingWithCustomEscapes() throws Exception
+    {
+        final JsonFactory f = streamFactoryBuilder()
+                .quoteChar('\'')
+                .characterEscapes(new HtmlEscapes())
+                .build();
+
+        StringWriter w = new StringWriter();
+        JsonGenerator g = createGenerator(f, w);
+        _writeObject(g, "it's", "x', 'admin': 'true");
+        g.close();
+        assertEquals("{'it\\'s':'x\\', \\'admin\\': \\'true'}", w.toString());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        g = createGenerator(f, out);
+        _writeObject(g, "it's", "x', 'admin': 'true");
+        g.close();
+        assertEquals("{'it\\'s':'x\\', \\'admin\\': \\'true'}", out.toString("UTF-8"));
+    }
+
+    @SuppressWarnings("serial")
+    static class HtmlEscapes extends CharacterEscapes
+    {
+        private final int[] _asciiEscapes;
+
+        HtmlEscapes() {
+            _asciiEscapes = standardAsciiEscapesForJSON();
+            _asciiEscapes['<'] = CharacterEscapes.ESCAPE_STANDARD;
+        }
+
+        @Override
+        public int[] getEscapeCodesForAscii() {
+            return _asciiEscapes;
+        }
+
+        @Override
+        public SerializableString getEscapeSequence(int ch) {
+            return null;
+        }
     }
 
     private void _writeObject(JsonGenerator g, String key, String value) throws Exception {

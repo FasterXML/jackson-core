@@ -170,7 +170,7 @@ public class UTF8JsonGenerator
             _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar,
                     JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
         } else {
-            _outputEscapes = esc.getEscapeCodesForAscii();
+            _outputEscapes = _escapesWithQuoteChar(esc.getEscapeCodesForAscii(), _quoteChar);
         }
         return this;
     }

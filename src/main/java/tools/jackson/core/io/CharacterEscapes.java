@@ -13,6 +13,10 @@ import tools.jackson.core.SerializableString;
 public abstract class CharacterEscapes
     implements java.io.Serializable // since 2.1
 {
+    // 15-Nov-2026, tatu: [core#1827] Pinned to value computed for 3.3, to keep
+    //   compatibility after addition of (transient) `_requiredEscapes`
+    private static final long serialVersionUID = 7770734693665626086L;
+
     /**
      * Value used for lookup tables to indicate that matching characters
      * do not need to be escaped.
@@ -35,10 +39,22 @@ public abstract class CharacterEscapes
     public final static int ESCAPE_CUSTOM = -2;
 
     /**
+     * Cached escape table derived from {@link #getEscapeCodesForAscii()} by
+     * {@link CharTypes#get7BitOutputEscapes(CharacterEscapes, int, boolean)},
+     * to avoid re-creating it for every generator.
+     *
+     * @since 3.4
+     */
+    transient volatile CharTypes.RequiredEscapes _requiredEscapes;
+
+    /**
      * Method generators can call to get lookup table for determining
      * escape handling for first 128 characters of Unicode (ASCII
      * characters. Caller is not to modify contents of this array, since
      * this is expected to be a shared copy.
+     * Implementations should not modify contents either, once in use:
+     * generators may cache a derived copy (see
+     * {@link CharTypes#get7BitOutputEscapes(CharacterEscapes, int, boolean)}).
      *
      * @return Array with size of at least 128, where first 128 entries
      *    have either one of <code>ESCAPE_xxx</code> constants, or non-zero positive

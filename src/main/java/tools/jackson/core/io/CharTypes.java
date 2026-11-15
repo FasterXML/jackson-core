@@ -251,6 +251,62 @@ public final class CharTypes
         return AltQuoteEscapes.instance.altEscapesFor(quoteChar, escapeSlash);
     }
 
+    /**
+     * Alternative to {@link #get7BitOutputEscapes(int, boolean)} when custom
+     * {@link CharacterEscapes} may be used: if {@code esc} is {@code null},
+     * standard escapes are returned; otherwise its escape table, with escapes
+     * for {@code quoteChar} (and forward slash, if requested) added if missing.
+     * In latter case, any modified copy is cached on the {@link CharacterEscapes}
+     * instance, to be reused as long as the same table and settings are used.
+     *
+     * @param esc Custom character escapes to use, if any; {@code null} for standard
+     * @param quoteChar Character used for quoting textual values and property names
+     * @param escapeSlash Whether forward slash ({@code "/"}) is to be escaped
+     *
+     * @return 128-entry {@code int[]} that contains escape definitions
+     *
+     * @since 3.4
+     */
+    public static int[] get7BitOutputEscapes(CharacterEscapes esc, int quoteChar,
+            boolean escapeSlash)
+    {
+        if (esc == null) {
+            return get7BitOutputEscapes(quoteChar, escapeSlash);
+        }
+        final int[] source = esc.getEscapeCodesForAscii();
+        final RequiredEscapes cached = esc._requiredEscapes;
+        if ((cached != null) && cached.matches(source, quoteChar, escapeSlash)) {
+            return cached.result();
+        }
+        final int[] result = _withRequiredEscapes(source, quoteChar, escapeSlash);
+        // Only worth caching if a copy was needed
+        if (result != source) {
+            esc._requiredEscapes = new RequiredEscapes(source, quoteChar, escapeSlash, result);
+        }
+        return result;
+    }
+
+    // Helper method for ensuring that given escape table escapes the quote
+    // character (and forward slash, if requested): returns modified copy if
+    // changes are needed, otherwise passed-in table as-is.
+    private static int[] _withRequiredEscapes(int[] escapes, int quoteChar, boolean escapeSlash)
+    {
+        final boolean addQuote = (quoteChar < escapes.length) && (escapes[quoteChar] == 0);
+        final boolean addSlash = escapeSlash && ('/' < escapes.length) && (escapes['/'] == 0);
+        if (addQuote || addSlash) {
+            escapes = Arrays.copyOf(escapes, escapes.length);
+            if (addQuote) {
+                // Use "natural" escape for apostrophe (and double-quote) if possible
+                escapes[quoteChar] = (quoteChar == '\'' || quoteChar == '"') ? quoteChar
+                        : CharacterEscapes.ESCAPE_STANDARD;
+            }
+            if (addSlash) {
+                escapes['/'] = '/';
+            }
+        }
+        return escapes;
+    }
+
     public static int charToHex(int ch)
     {
         // 08-Nov-2019, tatu: As per [core#540] and [core#578], callers may pass
@@ -316,6 +372,18 @@ public final class CharTypes
     }
 
     /**
+     * Immutable holder for an escape table derived from a custom
+     * {@link CharacterEscapes} table, cached on that instance.
+     *
+     * @since 3.4
+     */
+    record RequiredEscapes(int[] source, int quoteChar, boolean escapeSlash, int[] result) {
+        boolean matches(int[] src, int qc, boolean slash) {
+            return (src == source) && (qc == quoteChar) && (slash == escapeSlash);
+        }
+    }
+
+    /**
      * Helper used for lazy initialization of alternative escape (quoting)
      * table, used for escaping content that uses non-standard quote
      * character (usually apostrophe).
@@ -334,25 +402,8 @@ public final class CharTypes
                     ? _altEscapesWithSlash[quoteChar]
                     : _altEscapesNoSlash[quoteChar];
             if (esc == null) {
-                esc = escapeSlash
-                        ? sOutputEscapes128WithSlash
-                        : sOutputEscapes128NoSlash;
-                esc = Arrays.copyOf(esc, esc.length);
-                // Only add escape setting if character does not already have it
-                if (esc[quoteChar] == 0) {
-                    // And try to use "natural" escape for apos
-                    int quoteStyle;
-                    switch (quoteChar) {
-                    case '\'':
-                    case '"':
-                        quoteStyle = quoteChar;
-                        break;
-                    default:
-                        quoteStyle = CharacterEscapes.ESCAPE_STANDARD;
-                    }
-                    esc[quoteChar] = quoteStyle;
-                }
-               if (escapeSlash) {
+                esc = _withRequiredEscapes(sOutputEscapes128NoSlash, quoteChar, escapeSlash);
+                if (escapeSlash) {
                     _altEscapesWithSlash[quoteChar] = esc;
                 } else {
                     _altEscapesNoSlash[quoteChar] = esc;

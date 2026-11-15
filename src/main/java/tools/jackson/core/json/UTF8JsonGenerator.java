@@ -175,8 +175,7 @@ public class UTF8JsonGenerator
         if (esc == null) {
             _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar, escapeSlash);
         } else {
-            _outputEscapes = CharTypes.withRequiredEscapes(esc.getEscapeCodesForAscii(),
-                    _quoteChar, escapeSlash);
+            _outputEscapes = CharTypes.withRequiredEscapes(esc, _quoteChar, escapeSlash);
         }
         return this;
     }

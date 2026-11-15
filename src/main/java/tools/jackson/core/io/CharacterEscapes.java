@@ -35,6 +35,13 @@ public abstract class CharacterEscapes
     public final static int ESCAPE_CUSTOM = -2;
 
     /**
+     * Cached escape table derived from {@link #getEscapeCodesForAscii()} by
+     * {@link CharTypes#withRequiredEscapes(CharacterEscapes, int, boolean)},
+     * to avoid re-creating it for every generator.
+     */
+    transient volatile CharTypes.RequiredEscapes _requiredEscapes;
+
+    /**
      * Method generators can call to get lookup table for determining
      * escape handling for first 128 characters of Unicode (ASCII
      * characters. Caller is not to modify contents of this array, since

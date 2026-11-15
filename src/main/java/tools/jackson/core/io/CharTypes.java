@@ -285,6 +285,37 @@ public final class CharTypes
         return escapes;
     }
 
+    /**
+     * Variant of {@link #withRequiredEscapes(int[], int, boolean)} that takes
+     * escape table from {@link CharacterEscapes#getEscapeCodesForAscii()}, and
+     * caches the result (if a modified copy is needed) on the
+     * {@link CharacterEscapes} instance, to be reused as long as the same
+     * table instance and settings are used.
+     *
+     * @param esc Custom character escapes to use as the base
+     * @param quoteChar Character used for quoting textual values and property names
+     * @param escapeSlash Whether forward slash ({@code "/"}) is to be escaped
+     *
+     * @return Escape table that escapes {@code quoteChar} (and slash if requested)
+     *
+     * @since 3.4
+     */
+    public static int[] withRequiredEscapes(CharacterEscapes esc, int quoteChar,
+            boolean escapeSlash)
+    {
+        final int[] source = esc.getEscapeCodesForAscii();
+        final RequiredEscapes cached = esc._requiredEscapes;
+        if ((cached != null) && cached.matches(source, quoteChar, escapeSlash)) {
+            return cached._result;
+        }
+        final int[] result = withRequiredEscapes(source, quoteChar, escapeSlash);
+        // Only worth caching if a copy was needed
+        if (result != source) {
+            esc._requiredEscapes = new RequiredEscapes(source, quoteChar, escapeSlash, result);
+        }
+        return result;
+    }
+
     public static int charToHex(int ch)
     {
         // 08-Nov-2019, tatu: As per [core#540] and [core#578], callers may pass
@@ -347,6 +378,29 @@ public final class CharTypes
 
     public static byte[] copyHexBytes(boolean uppercase) {
         return (uppercase) ? HB.clone() : HBlower.clone();
+    }
+
+    /**
+     * Immutable holder for an escape table derived from a custom
+     * {@link CharacterEscapes} table, cached on that instance.
+     */
+    static final class RequiredEscapes {
+        private final int[] _source;
+        private final int _quoteChar;
+        private final boolean _escapeSlash;
+        final int[] _result;
+
+        RequiredEscapes(int[] source, int quoteChar, boolean escapeSlash, int[] result) {
+            _source = source;
+            _quoteChar = quoteChar;
+            _escapeSlash = escapeSlash;
+            _result = result;
+        }
+
+        boolean matches(int[] source, int quoteChar, boolean escapeSlash) {
+            return (source == _source) && (quoteChar == _quoteChar)
+                    && (escapeSlash == _escapeSlash);
+        }
     }
 
     /**

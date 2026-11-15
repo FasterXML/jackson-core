@@ -1505,8 +1505,8 @@ public abstract class NonBlockingUtf8JsonParserBase
     }
 
     // Number completion, when the byte that ended number is available: all such
-    // completions go via these two methods. Numbers ended by end-of-input are
-    // instead completed in `_finishTokenWithEOF()` (no separator check needed)
+    // completions (except hex numbers) go via these two methods. Numbers ended by
+    // end-of-input are instead completed in `_finishTokenWithEOF()` (no separator check needed)
     private JsonToken _numberComplete(JsonToken t) throws JacksonException {
         _verifyRootSpaceAfterNumber();
         return _valueCompleteNumber(t);
@@ -1969,11 +1969,11 @@ public abstract class NonBlockingUtf8JsonParserBase
             requireFirst = false;
         }
         _textBuffer.setCurrentLength(outPtr);
-        final int hexLen = outPtr - prefixLen;
-        resetIntHex(_numberNegative, hexLen);
-        // As per #105, need separating space between root values (checked by
-        // `_numberComplete()`); `_inputPtr` points AT the terminator
-        return _numberComplete(JsonToken.VALUE_NUMBER_INT);
+        // Validate length (in `resetIntHex()`) before separator; as per #105, need
+        // separating space between root values (`_inputPtr` points AT the terminator)
+        resetIntHex(_numberNegative, outPtr - prefixLen);
+        _verifyRootSpaceAfterNumber();
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     // Called from _finishTokenWithEOF when input ends while collecting hex digits.
@@ -1982,8 +1982,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         int outPtr = _textBuffer.getCurrentSegmentSize();
         final boolean hasSignChar = (outBuf[0] == '-' || outBuf[0] == '+');
         final int prefixLen = hasSignChar ? 3 : 2;
-        final int hexLen = outPtr - prefixLen;
-        resetIntHex(_numberNegative, hexLen);
+        resetIntHex(_numberNegative, outPtr - prefixLen);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 

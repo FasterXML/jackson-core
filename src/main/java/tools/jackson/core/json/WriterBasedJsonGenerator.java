@@ -118,12 +118,14 @@ public class WriterBasedJsonGenerator
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
     {
         _characterEscapes = esc;
-        if (esc == null) {
-            _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar,
-                    JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
-        } else {
-            _outputEscapes = esc.getEscapeCodesForAscii();
+        // 15-Nov-2026, tatu: [core#1827] Base class constructor calls this before
+        //   our fields (incl. `_quoteChar`) are set; skip, as our constructor calls again.
+        //   (`_outputBuffer` is only null before construction completes, or after close)
+        if (_outputBuffer == null) {
+            return this;
         }
+        _outputEscapes = CharTypes.get7BitOutputEscapes(esc, _quoteChar,
+                JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
         _stdOutputEscapes = (_outputEscapes == DEFAULT_OUTPUT_ESCAPES);
         return this;
     }

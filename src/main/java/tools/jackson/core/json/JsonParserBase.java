@@ -237,6 +237,8 @@ public abstract class JsonParserBase
         _expLength = 0;
         _numTypesValid = NR_UNKNOWN; // to force decoding
         _numberString = null;
+        // 09-Nov-2026, tatu: [core#1817] Must not inherit deferred state of preceding number
+        _numberDoubleDeferred = false;
         return JsonToken.VALUE_NUMBER_INT;
     }
 

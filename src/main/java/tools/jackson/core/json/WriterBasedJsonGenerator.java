@@ -118,11 +118,12 @@ public class WriterBasedJsonGenerator
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
     {
         _characterEscapes = esc;
+        final boolean escapeSlash = JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures);
         if (esc == null) {
-            _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar,
-                    JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
+            _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar, escapeSlash);
         } else {
-            _outputEscapes = _escapesWithQuoteChar(esc.getEscapeCodesForAscii(), _quoteChar);
+            _outputEscapes = _withRequiredEscapes(esc.getEscapeCodesForAscii(),
+                    _quoteChar, escapeSlash);
         }
         _stdOutputEscapes = (_outputEscapes == DEFAULT_OUTPUT_ESCAPES);
         return this;

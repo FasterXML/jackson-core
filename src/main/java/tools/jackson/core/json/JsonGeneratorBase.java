@@ -325,17 +325,26 @@ public abstract class JsonGeneratorBase extends GeneratorBase
 
     /**
      * Helper method for making sure that ASCII escape codes from custom
-     * {@link CharacterEscapes} still escape the quote character in use,
-     * if the custom definitions do not already do so.
+     * {@link CharacterEscapes} still escape the quote character in use
+     * (and forward slash, if {@link JsonWriteFeature#ESCAPE_FORWARD_SLASHES}
+     * is enabled), if the custom definitions do not already do so.
      *
      * @since 3.4
      */
-    protected static int[] _escapesWithQuoteChar(int[] escapes, int quoteChar)
+    protected static int[] _withRequiredEscapes(int[] escapes, int quoteChar,
+            boolean escapeSlash)
     {
-        if ((quoteChar < escapes.length) && (escapes[quoteChar] == 0)) {
+        final boolean addQuote = (quoteChar < escapes.length) && (escapes[quoteChar] == 0);
+        final boolean addSlash = escapeSlash && ('/' < escapes.length) && (escapes['/'] == 0);
+        if (addQuote || addSlash) {
             escapes = Arrays.copyOf(escapes, escapes.length);
-            escapes[quoteChar] = (quoteChar == '\'' || quoteChar == '"') ? quoteChar
-                    : CharacterEscapes.ESCAPE_STANDARD;
+            if (addQuote) {
+                escapes[quoteChar] = (quoteChar == '\'' || quoteChar == '"') ? quoteChar
+                        : CharacterEscapes.ESCAPE_STANDARD;
+            }
+            if (addSlash) {
+                escapes['/'] = '/';
+            }
         }
         return escapes;
     }

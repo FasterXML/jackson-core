@@ -5,6 +5,7 @@ import java.io.*;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.SerializableString;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.json.JsonFactory;
@@ -127,18 +128,20 @@ class CustomQuoteCharTest
                 .quoteChar('\'')
                 .characterEscapes(new HtmlEscapes())
                 .build();
+        _verifyAllOutputs(f, "it's", "x', 'admin': 'true",
+                "{'it\\'s':'x\\', \\'admin\\': \\'true'}");
+    }
 
-        StringWriter w = new StringWriter();
-        JsonGenerator g = createGenerator(f, w);
-        _writeObject(g, "it's", "x', 'admin': 'true");
-        g.close();
-        assertEquals("{'it\\'s':'x\\', \\'admin\\': \\'true'}", w.toString());
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        g = createGenerator(f, out);
-        _writeObject(g, "it's", "x', 'admin': 'true");
-        g.close();
-        assertEquals("{'it\\'s':'x\\', \\'admin\\': \\'true'}", out.toString("UTF-8"));
+    // ... and quote chars without "natural" escape get standard escape
+    @Test
+    void backtickQuotingWithCustomEscapes() throws Exception
+    {
+        final JsonFactory f = streamFactoryBuilder()
+                .quoteChar('`')
+                .characterEscapes(new HtmlEscapes())
+                .build();
+        _verifyAllOutputs(f, "a`b", "x`y",
+                "{`a\\u0060b`:`x\\u0060y`}");
     }
 
     @SuppressWarnings("serial")
@@ -160,6 +163,30 @@ class CustomQuoteCharTest
         public SerializableString getEscapeSequence(int ch) {
             return null;
         }
+    }
+
+    // Verify output via Writer, OutputStream and DataOutput backed generators
+    private void _verifyAllOutputs(JsonFactory f, String key, String value, String exp)
+        throws Exception
+    {
+        StringWriter w = new StringWriter();
+        try (JsonGenerator g = createGenerator(f, w)) {
+            _writeObject(g, key, value);
+        }
+        assertEquals(exp, w.toString());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator g = createGenerator(f, out)) {
+            _writeObject(g, key, value);
+        }
+        assertEquals(exp, out.toString("UTF-8"));
+
+        out = new ByteArrayOutputStream();
+        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(),
+                (DataOutput) new DataOutputStream(out))) {
+            _writeObject(g, key, value);
+        }
+        assertEquals(exp, out.toString("UTF-8"));
     }
 
     private void _writeObject(JsonGenerator g, String key, String value) throws Exception {

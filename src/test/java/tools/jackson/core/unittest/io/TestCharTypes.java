@@ -43,30 +43,34 @@ class TestCharTypes
     // Custom escapes need quote char (and slash, if enabled) added; result
     // is cached on CharacterEscapes instance
     @Test
-    void withRequiredEscapesCached()
+    void outputEscapesWithCustomEscapes()
     {
         final CharacterEscapes esc = new StdBasedEscapes();
         final int[] base = esc.getEscapeCodesForAscii();
 
+        // No custom escapes: standard tables
+        assertSame(CharTypes.get7BitOutputEscapes('"', true),
+                CharTypes.get7BitOutputEscapes(null, '"', true));
+
         // Already escapes '"', no slash: no copy needed
-        assertSame(base, CharTypes.withRequiredEscapes(esc, '"', false));
+        assertSame(base, CharTypes.get7BitOutputEscapes(esc, '"', false));
 
         // Slash escaping needed: copy, then reused
-        int[] withSlash = CharTypes.withRequiredEscapes(esc, '"', true);
+        int[] withSlash = CharTypes.get7BitOutputEscapes(esc, '"', true);
         assertNotSame(base, withSlash);
         assertEquals('/', withSlash['/']);
         assertEquals(0, base['/']);
-        assertSame(withSlash, CharTypes.withRequiredEscapes(esc, '"', true));
+        assertSame(withSlash, CharTypes.get7BitOutputEscapes(esc, '"', true));
 
         // Different settings: new table
-        int[] apos = CharTypes.withRequiredEscapes(esc, '\'', false);
+        int[] apos = CharTypes.get7BitOutputEscapes(esc, '\'', false);
         assertNotSame(withSlash, apos);
         assertEquals('\'', apos['\'']);
         assertEquals(0, apos['/']);
-        assertSame(apos, CharTypes.withRequiredEscapes(esc, '\'', false));
+        assertSame(apos, CharTypes.get7BitOutputEscapes(esc, '\'', false));
 
         // Non-"natural" quote char gets standard escape
-        int[] backtick = CharTypes.withRequiredEscapes(esc, '`', true);
+        int[] backtick = CharTypes.get7BitOutputEscapes(esc, '`', true);
         assertEquals(CharacterEscapes.ESCAPE_STANDARD, backtick['`']);
         assertEquals('/', backtick['/']);
     }

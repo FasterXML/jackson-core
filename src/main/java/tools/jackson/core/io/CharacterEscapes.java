@@ -40,7 +40,7 @@ public abstract class CharacterEscapes
 
     /**
      * Cached escape table derived from {@link #getEscapeCodesForAscii()} by
-     * {@link CharTypes#withRequiredEscapes(CharacterEscapes, int, boolean)},
+     * {@link CharTypes#get7BitOutputEscapes(CharacterEscapes, int, boolean)},
      * to avoid re-creating it for every generator.
      *
      * @since 3.4
@@ -54,7 +54,7 @@ public abstract class CharacterEscapes
      * this is expected to be a shared copy.
      * Implementations should not modify contents either, once in use:
      * generators may cache a derived copy (see
-     * {@link CharTypes#withRequiredEscapes(CharacterEscapes, int, boolean)}).
+     * {@link CharTypes#get7BitOutputEscapes(CharacterEscapes, int, boolean)}).
      *
      * @return Array with size of at least 128, where first 128 entries
      *    have either one of <code>ESCAPE_xxx</code> constants, or non-zero positive

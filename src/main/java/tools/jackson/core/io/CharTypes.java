@@ -252,22 +252,44 @@ public final class CharTypes
     }
 
     /**
-     * Helper method for ensuring that given ASCII escape table escapes
-     * the quote character in use (and forward slash, if requested),
-     * if it does not already do so. If changes are needed, a modified copy is
-     * returned; otherwise the passed-in table as-is.
+     * Alternative to {@link #get7BitOutputEscapes(int, boolean)} when custom
+     * {@link CharacterEscapes} may be used: if {@code esc} is {@code null},
+     * standard escapes are returned; otherwise its escape table, with escapes
+     * for {@code quoteChar} (and forward slash, if requested) added if missing.
+     * In latter case, any modified copy is cached on the {@link CharacterEscapes}
+     * instance, to be reused as long as the same table and settings are used.
      *
-     * @param escapes Base escape table (128 entries, like one from
-     *    {@link #get7BitOutputEscapes()} or
-     *    {@link CharacterEscapes#getEscapeCodesForAscii()})
+     * @param esc Custom character escapes to use, if any; {@code null} for standard
      * @param quoteChar Character used for quoting textual values and property names
      * @param escapeSlash Whether forward slash ({@code "/"}) is to be escaped
      *
-     * @return Escape table that escapes {@code quoteChar} (and slash if requested)
+     * @return 128-entry {@code int[]} that contains escape definitions
      *
      * @since 3.4
      */
-    public static int[] withRequiredEscapes(int[] escapes, int quoteChar, boolean escapeSlash)
+    public static int[] get7BitOutputEscapes(CharacterEscapes esc, int quoteChar,
+            boolean escapeSlash)
+    {
+        if (esc == null) {
+            return get7BitOutputEscapes(quoteChar, escapeSlash);
+        }
+        final int[] source = esc.getEscapeCodesForAscii();
+        final RequiredEscapes cached = esc._requiredEscapes;
+        if ((cached != null) && cached.matches(source, quoteChar, escapeSlash)) {
+            return cached.result();
+        }
+        final int[] result = _withRequiredEscapes(source, quoteChar, escapeSlash);
+        // Only worth caching if a copy was needed
+        if (result != source) {
+            esc._requiredEscapes = new RequiredEscapes(source, quoteChar, escapeSlash, result);
+        }
+        return result;
+    }
+
+    // Helper method for ensuring that given escape table escapes the quote
+    // character (and forward slash, if requested): returns modified copy if
+    // changes are needed, otherwise passed-in table as-is.
+    private static int[] _withRequiredEscapes(int[] escapes, int quoteChar, boolean escapeSlash)
     {
         final boolean addQuote = (quoteChar < escapes.length) && (escapes[quoteChar] == 0);
         final boolean addSlash = escapeSlash && ('/' < escapes.length) && (escapes['/'] == 0);
@@ -283,37 +305,6 @@ public final class CharTypes
             }
         }
         return escapes;
-    }
-
-    /**
-     * Variant of {@link #withRequiredEscapes(int[], int, boolean)} that takes
-     * escape table from {@link CharacterEscapes#getEscapeCodesForAscii()}, and
-     * caches the result (if a modified copy is needed) on the
-     * {@link CharacterEscapes} instance, to be reused as long as the same
-     * table instance and settings are used.
-     *
-     * @param esc Custom character escapes to use as the base
-     * @param quoteChar Character used for quoting textual values and property names
-     * @param escapeSlash Whether forward slash ({@code "/"}) is to be escaped
-     *
-     * @return Escape table that escapes {@code quoteChar} (and slash if requested)
-     *
-     * @since 3.4
-     */
-    public static int[] withRequiredEscapes(CharacterEscapes esc, int quoteChar,
-            boolean escapeSlash)
-    {
-        final int[] source = esc.getEscapeCodesForAscii();
-        final RequiredEscapes cached = esc._requiredEscapes;
-        if ((cached != null) && cached.matches(source, quoteChar, escapeSlash)) {
-            return cached.result();
-        }
-        final int[] result = withRequiredEscapes(source, quoteChar, escapeSlash);
-        // Only worth caching if a copy was needed
-        if (result != source) {
-            esc._requiredEscapes = new RequiredEscapes(source, quoteChar, escapeSlash, result);
-        }
-        return result;
     }
 
     public static int charToHex(int ch)
@@ -411,7 +402,7 @@ public final class CharTypes
                     ? _altEscapesWithSlash[quoteChar]
                     : _altEscapesNoSlash[quoteChar];
             if (esc == null) {
-                esc = withRequiredEscapes(sOutputEscapes128NoSlash, quoteChar, escapeSlash);
+                esc = _withRequiredEscapes(sOutputEscapes128NoSlash, quoteChar, escapeSlash);
                 if (escapeSlash) {
                     _altEscapesWithSlash[quoteChar] = esc;
                 } else {

@@ -124,12 +124,8 @@ public class WriterBasedJsonGenerator
         if (_outputBuffer == null) {
             return this;
         }
-        final boolean escapeSlash = JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures);
-        if (esc == null) {
-            _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar, escapeSlash);
-        } else {
-            _outputEscapes = CharTypes.withRequiredEscapes(esc, _quoteChar, escapeSlash);
-        }
+        _outputEscapes = CharTypes.get7BitOutputEscapes(esc, _quoteChar,
+                JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
         _stdOutputEscapes = (_outputEscapes == DEFAULT_OUTPUT_ESCAPES);
         return this;
     }

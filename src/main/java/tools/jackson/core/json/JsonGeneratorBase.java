@@ -327,6 +327,8 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      * Helper method for making sure that ASCII escape codes from custom
      * {@link CharacterEscapes} still escape the quote character in use,
      * if the custom definitions do not already do so.
+     *
+     * @since 3.4
      */
     protected static int[] _escapesWithQuoteChar(int[] escapes, int quoteChar)
     {

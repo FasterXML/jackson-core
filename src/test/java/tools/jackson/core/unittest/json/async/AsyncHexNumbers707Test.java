@@ -218,6 +218,21 @@ class AsyncHexNumbers707Test extends AsyncTestBase
         }
     }
 
+    // [core#1817]: length constraint must be reported before missing root-level separator
+    @Test
+    void hexLengthValidatedBeforeRootSeparator() throws Exception {
+        byte[] doc = _jsonDoc("0x" + "a".repeat(150) + "x ");
+        for (boolean bb : new boolean[] { false, true }) {
+            try (AsyncReaderWrapper r = bb ? asyncForByteBuffer(HEX_MAX100_F, 1000, doc, 0)
+                    : asyncForBytes(HEX_MAX100_F, 1000, doc, 0)) {
+                r.nextToken();
+                fail("Should not pass: hex number longer than maxNumberLength");
+            } catch (StreamConstraintsException e) {
+                verifyException(e, "Number value length (150) exceeds the maximum allowed (100");
+            }
+        }
+    }
+
     private void _verifyHexTooLong(AsyncReaderWrapper r, int readSize) throws Exception
     {
         try (r) {

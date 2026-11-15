@@ -1,7 +1,5 @@
 package tools.jackson.core.json;
 
-import java.util.Arrays;
-
 import tools.jackson.core.*;
 import tools.jackson.core.base.GeneratorBase;
 import tools.jackson.core.io.CharTypes;
@@ -321,31 +319,5 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     {
         throw _constructWriteException("Cannot %s, expecting a property name (context: %s)",
                 typeMsg, _streamWriteContext.typeDesc());
-    }
-
-    /**
-     * Helper method for making sure that ASCII escape codes from custom
-     * {@link CharacterEscapes} still escape the quote character in use
-     * (and forward slash, if {@link JsonWriteFeature#ESCAPE_FORWARD_SLASHES}
-     * is enabled), if the custom definitions do not already do so.
-     *
-     * @since 3.4
-     */
-    protected static int[] _withRequiredEscapes(int[] escapes, int quoteChar,
-            boolean escapeSlash)
-    {
-        final boolean addQuote = (quoteChar < escapes.length) && (escapes[quoteChar] == 0);
-        final boolean addSlash = escapeSlash && ('/' < escapes.length) && (escapes['/'] == 0);
-        if (addQuote || addSlash) {
-            escapes = Arrays.copyOf(escapes, escapes.length);
-            if (addQuote) {
-                escapes[quoteChar] = (quoteChar == '\'' || quoteChar == '"') ? quoteChar
-                        : CharacterEscapes.ESCAPE_STANDARD;
-            }
-            if (addSlash) {
-                escapes['/'] = '/';
-            }
-        }
-        return escapes;
     }
 }

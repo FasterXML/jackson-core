@@ -122,7 +122,7 @@ public class WriterBasedJsonGenerator
         if (esc == null) {
             _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar, escapeSlash);
         } else {
-            _outputEscapes = _withRequiredEscapes(esc.getEscapeCodesForAscii(),
+            _outputEscapes = CharTypes.withRequiredEscapes(esc.getEscapeCodesForAscii(),
                     _quoteChar, escapeSlash);
         }
         _stdOutputEscapes = (_outputEscapes == DEFAULT_OUTPUT_ESCAPES);

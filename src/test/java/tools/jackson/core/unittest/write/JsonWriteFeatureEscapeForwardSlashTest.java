@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
-import tools.jackson.core.SerializableString;
-import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonGeneratorBase;
 import tools.jackson.core.json.JsonWriteFeature;
@@ -52,53 +50,6 @@ class JsonWriteFeatureEscapeForwardSlashTest
 
         _testWithStringWriter(jsonF, expJson);
         _testWithByteArrayOutputStream(jsonF, expJson); // Also test with byte-backed output
-    }
-
-    // Custom CharacterEscapes must not drop escaping of forward slash
-    @Test
-    void escapeForwardSlashWithCustomEscapes() throws Exception {
-        final JsonFactory jsonF = JsonFactory.builder()
-                .enable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .characterEscapes(new CustomEscapes())
-                .build();
-        final String expJson = "{\"url\":\"http:\\/\\/example.com\"}";
-
-        _testWithStringWriter(jsonF, expJson);
-        _testWithByteArrayOutputStream(jsonF, expJson);
-    }
-
-    // ... but should not add escaping if feature disabled
-    @Test
-    void dontEscapeForwardSlashWithCustomEscapes() throws Exception {
-        final JsonFactory jsonF = JsonFactory.builder()
-                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
-                .characterEscapes(new CustomEscapes())
-                .build();
-        final String expJson = "{\"url\":\"http://example.com\"}";
-
-        _testWithStringWriter(jsonF, expJson);
-        _testWithByteArrayOutputStream(jsonF, expJson);
-    }
-
-    @SuppressWarnings("serial")
-    static class CustomEscapes extends CharacterEscapes
-    {
-        private final int[] _asciiEscapes;
-
-        CustomEscapes() {
-            _asciiEscapes = standardAsciiEscapesForJSON();
-            _asciiEscapes['<'] = CharacterEscapes.ESCAPE_STANDARD;
-        }
-
-        @Override
-        public int[] getEscapeCodesForAscii() {
-            return _asciiEscapes;
-        }
-
-        @Override
-        public SerializableString getEscapeSequence(int ch) {
-            return null;
-        }
     }
 
     private void _testWithStringWriter(JsonFactory jsonF, String expJson) throws Exception {

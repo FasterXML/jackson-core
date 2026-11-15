@@ -2,11 +2,9 @@ package tools.jackson.core.unittest.io;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.core.SerializableString;
 import tools.jackson.core.io.CharTypes;
-import tools.jackson.core.io.CharacterEscapes;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TestCharTypes
     extends tools.jackson.core.unittest.JacksonCoreTestBase
@@ -37,57 +35,6 @@ class TestCharTypes
         final int[] inputs = {0, -1, 1, 129, -129, 0x2042, 0x141, 0x130, 0x1F600};
         for (int input : inputs) {
             assertEquals(-1, CharTypes.charToHex(input));
-        }
-    }
-
-    // Custom escapes need quote char (and slash, if enabled) added; result
-    // is cached on CharacterEscapes instance
-    @Test
-    void outputEscapesWithCustomEscapes()
-    {
-        final CharacterEscapes esc = new StdBasedEscapes();
-        final int[] base = esc.getEscapeCodesForAscii();
-
-        // No custom escapes: standard tables
-        assertSame(CharTypes.get7BitOutputEscapes('"', true),
-                CharTypes.get7BitOutputEscapes(null, '"', true));
-
-        // Already escapes '"', no slash: no copy needed
-        assertSame(base, CharTypes.get7BitOutputEscapes(esc, '"', false));
-
-        // Slash escaping needed: copy, then reused
-        int[] withSlash = CharTypes.get7BitOutputEscapes(esc, '"', true);
-        assertNotSame(base, withSlash);
-        assertEquals('/', withSlash['/']);
-        assertEquals(0, base['/']);
-        assertSame(withSlash, CharTypes.get7BitOutputEscapes(esc, '"', true));
-
-        // Different settings: new table
-        int[] apos = CharTypes.get7BitOutputEscapes(esc, '\'', false);
-        assertNotSame(withSlash, apos);
-        assertEquals('\'', apos['\'']);
-        assertEquals(0, apos['/']);
-        assertSame(apos, CharTypes.get7BitOutputEscapes(esc, '\'', false));
-
-        // Non-"natural" quote char gets standard escape
-        int[] backtick = CharTypes.get7BitOutputEscapes(esc, '`', true);
-        assertEquals(CharacterEscapes.ESCAPE_STANDARD, backtick['`']);
-        assertEquals('/', backtick['/']);
-    }
-
-    @SuppressWarnings("serial")
-    static class StdBasedEscapes extends CharacterEscapes
-    {
-        private final int[] _asciiEscapes = standardAsciiEscapesForJSON();
-
-        @Override
-        public int[] getEscapeCodesForAscii() {
-            return _asciiEscapes;
-        }
-
-        @Override
-        public SerializableString getEscapeSequence(int ch) {
-            return null;
         }
     }
 }

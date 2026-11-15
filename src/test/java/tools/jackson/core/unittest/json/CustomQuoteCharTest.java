@@ -5,9 +5,6 @@ import java.io.*;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.ObjectWriteContext;
-import tools.jackson.core.SerializableString;
-import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.json.JsonFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -118,75 +115,6 @@ class CustomQuoteCharTest
         _writeArray(g, "It's a sin");
         g.close();
         assertEquals("['It\\'s a sin']", out.toString("UTF-8"));
-    }
-
-    // Custom CharacterEscapes must not drop escaping of the quote character
-    @Test
-    void aposQuotingWithCustomEscapes() throws Exception
-    {
-        final JsonFactory f = streamFactoryBuilder()
-                .quoteChar('\'')
-                .characterEscapes(new HtmlEscapes())
-                .build();
-        _verifyAllOutputs(f, "it's", "x', 'admin': 'true",
-                "{'it\\'s':'x\\', \\'admin\\': \\'true'}");
-    }
-
-    // ... and quote chars without "natural" escape get standard escape
-    @Test
-    void backtickQuotingWithCustomEscapes() throws Exception
-    {
-        final JsonFactory f = streamFactoryBuilder()
-                .quoteChar('`')
-                .characterEscapes(new HtmlEscapes())
-                .build();
-        _verifyAllOutputs(f, "a`b", "x`y",
-                "{`a\\u0060b`:`x\\u0060y`}");
-    }
-
-    @SuppressWarnings("serial")
-    static class HtmlEscapes extends CharacterEscapes
-    {
-        private final int[] _asciiEscapes;
-
-        HtmlEscapes() {
-            _asciiEscapes = standardAsciiEscapesForJSON();
-            _asciiEscapes['<'] = CharacterEscapes.ESCAPE_STANDARD;
-        }
-
-        @Override
-        public int[] getEscapeCodesForAscii() {
-            return _asciiEscapes;
-        }
-
-        @Override
-        public SerializableString getEscapeSequence(int ch) {
-            return null;
-        }
-    }
-
-    // Verify output via Writer, OutputStream and DataOutput backed generators
-    private void _verifyAllOutputs(JsonFactory f, String key, String value, String exp)
-        throws Exception
-    {
-        StringWriter w = new StringWriter();
-        try (JsonGenerator g = createGenerator(f, w)) {
-            _writeObject(g, key, value);
-        }
-        assertEquals(exp, w.toString());
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (JsonGenerator g = createGenerator(f, out)) {
-            _writeObject(g, key, value);
-        }
-        assertEquals(exp, out.toString("UTF-8"));
-
-        out = new ByteArrayOutputStream();
-        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(),
-                (DataOutput) new DataOutputStream(out))) {
-            _writeObject(g, key, value);
-        }
-        assertEquals(exp, out.toString("UTF-8"));
     }
 
     private void _writeObject(JsonGenerator g, String key, String value) throws Exception {

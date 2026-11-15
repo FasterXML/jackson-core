@@ -118,6 +118,11 @@ public class WriterBasedJsonGenerator
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
     {
         _characterEscapes = esc;
+        // 15-Nov-2026, tatu: [core#1827] Base class constructor calls this before
+        //   our fields (incl. `_quoteChar`) are set; skip, as our constructor calls again
+        if (_writer == null) {
+            return this;
+        }
         final boolean escapeSlash = JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures);
         if (esc == null) {
             _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar, escapeSlash);

@@ -306,7 +306,7 @@ public final class CharTypes
         final int[] source = esc.getEscapeCodesForAscii();
         final RequiredEscapes cached = esc._requiredEscapes;
         if ((cached != null) && cached.matches(source, quoteChar, escapeSlash)) {
-            return cached._result;
+            return cached.result();
         }
         final int[] result = withRequiredEscapes(source, quoteChar, escapeSlash);
         // Only worth caching if a copy was needed
@@ -386,22 +386,9 @@ public final class CharTypes
      *
      * @since 3.4
      */
-    static final class RequiredEscapes {
-        private final int[] _source;
-        private final int _quoteChar;
-        private final boolean _escapeSlash;
-        final int[] _result;
-
-        RequiredEscapes(int[] source, int quoteChar, boolean escapeSlash, int[] result) {
-            _source = source;
-            _quoteChar = quoteChar;
-            _escapeSlash = escapeSlash;
-            _result = result;
-        }
-
-        boolean matches(int[] source, int quoteChar, boolean escapeSlash) {
-            return (source == _source) && (quoteChar == _quoteChar)
-                    && (escapeSlash == _escapeSlash);
+    record RequiredEscapes(int[] source, int quoteChar, boolean escapeSlash, int[] result) {
+        boolean matches(int[] src, int qc, boolean slash) {
+            return (src == source) && (qc == quoteChar) && (slash == escapeSlash);
         }
     }
 

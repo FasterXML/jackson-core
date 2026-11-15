@@ -383,6 +383,8 @@ public final class CharTypes
     /**
      * Immutable holder for an escape table derived from a custom
      * {@link CharacterEscapes} table, cached on that instance.
+     *
+     * @since 3.4
      */
     static final class RequiredEscapes {
         private final int[] _source;

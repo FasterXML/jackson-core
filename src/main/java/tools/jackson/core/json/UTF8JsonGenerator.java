@@ -167,8 +167,9 @@ public class UTF8JsonGenerator
     {
         _characterEscapes = esc;
         // 15-Nov-2026, tatu: [core#1827] Base class constructor calls this before
-        //   our fields (incl. `_quoteChar`) are set; skip, as our constructor calls again
-        if (_outputStream == null) {
+        //   our fields (incl. `_quoteChar`) are set; skip, as our constructor calls again.
+        //   (`_outputBuffer` is only null before construction completes, or after close)
+        if (_outputBuffer == null) {
             return this;
         }
         final boolean escapeSlash = JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures);

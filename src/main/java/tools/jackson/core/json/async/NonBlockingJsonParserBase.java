@@ -768,6 +768,7 @@ public abstract class NonBlockingJsonParserBase
     //   number (otherwise considered still deferred): all completions go via methods below
     final JsonToken _valueCompleteNumber(JsonToken t) throws JacksonException
     {
+        _numberIsNaN = false; // [core#1828]
         _numberString = null;
         _numberDoubleDeferred = false;
         return _valueComplete(t);
@@ -775,6 +776,7 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _valueCompleteInt(int value, String asText) throws JacksonException
     {
+        _numberIsNaN = false; // [core#1828]
         _numberString = null;
         _numberDoubleDeferred = false;
         _textBuffer.resetWithString(asText);
@@ -808,6 +810,7 @@ public abstract class NonBlockingJsonParserBase
         _intLength = 0;
         _numTypesValid = NR_DOUBLE;
         _numberDouble = NON_STD_TOKEN_VALUES[type];
+        _numberIsNaN = true; // [core#1828]
         _majorState = _majorStateAfterValue;
         return _updateToken(JsonToken.VALUE_NUMBER_FLOAT);
     }

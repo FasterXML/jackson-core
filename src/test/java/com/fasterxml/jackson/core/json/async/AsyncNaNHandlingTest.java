@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
@@ -66,8 +67,9 @@ class AsyncNaNHandlingTest extends AsyncTestBase
         try {
             /*BigDecimal dec =*/ p.getDecimalValue();
             fail("Should fail when trying to access NaN as BigDecimal");
-        } catch (NumberFormatException e) {
-            verifyException(e, "can not be deserialized as `java.math.BigDecimal`");
+        } catch (StreamReadException e) {
+            // [core#1828]: wrapped, no longer raw `NumberFormatException`
+            verifyException(e, "Cannot convert non-numeric value (NaN) to `java.math.BigDecimal`");
         }
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());

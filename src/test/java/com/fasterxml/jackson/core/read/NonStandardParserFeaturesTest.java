@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.read;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -195,8 +196,9 @@ class NonStandardParserFeaturesTest
         try {
             /*BigDecimal dec =*/ p.getDecimalValue();
             fail("Should fail when trying to access NaN as BigDecimal");
-        } catch (NumberFormatException e) {
-            verifyException(e, "can not be deserialized as `java.math.BigDecimal`");
+        } catch (StreamReadException e) {
+            // [core#1828]: wrapped, no longer raw `NumberFormatException`
+            verifyException(e, "Cannot convert non-numeric value (NaN) to `java.math.BigDecimal`");
         }
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());

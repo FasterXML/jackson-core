@@ -354,6 +354,10 @@ No changes since 3.2.0
 #1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
   after `getNumberType()`
  (fix by @cowtowncoder)
+#1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
+  out-of-range exponent (instead of `StreamReadException`)
+ (reported by @Mengxi-Xu)
+ (fix by @cowtowncoder)
 
 3.1.8 (17-Oct-2026)
 

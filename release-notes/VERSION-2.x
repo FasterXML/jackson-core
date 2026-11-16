@@ -18,6 +18,7 @@ a pure JSON library.
 
 #1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
   out-of-range exponent (instead of `StreamReadException`)
+ (reported by @Mengxi-Xu)
 
 2.23.0 (07-Nov-2026)
 

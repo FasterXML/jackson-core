@@ -1013,8 +1013,7 @@ public abstract class ParserBase extends ParserMinimalBase
             try {
                 _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             } catch (NumberFormatException nex) {
-                // [core#1828]: e.g. exponent out of `BigDecimal` scale range
-                _wrapError("Malformed numeric value ("+_longNumberDesc(_textBuffer.contentsAsString())+")", nex);
+                _reportBigDecimalFailure(nex);
             }
             _numTypesValid = NR_BIGDECIMAL;
         } else if (expType == NR_DOUBLE) {
@@ -1166,6 +1165,9 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected void convertNumberToBigInteger() throws IOException
     {
+        if (_numberIsNaN) { // [core#1828]
+            _reportNonNumericConversion(BigInteger.class);
+        }
         // 03-Nov-2026, tatu: [core#1814] FP value: truncate exact BigDecimal
         final String fpText = _floatNumberText();
         if (fpText != null) {
@@ -1266,6 +1268,9 @@ public abstract class ParserBase extends ParserMinimalBase
          *   requested)
          */
 
+        if (_numberIsNaN) { // [core#1828]
+            _reportNonNumericConversion(BigDecimal.class);
+        }
         if ((_numTypesValid & (NR_DOUBLE | NR_FLOAT)) != 0) {
             // Let's actually parse from String representation, to avoid
             // rounding errors that non-decimal floating operations could incur
@@ -1273,14 +1278,7 @@ public abstract class ParserBase extends ParserMinimalBase
             if (numStr == null) {
                 numStr = (_numberString == null) ? getText() : _numberString;
             }
-            try {
-                _numberBigDecimal = NumberInput.parseBigDecimal(
-                        numStr,
-                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-            } catch (NumberFormatException nex) {
-                // [core#1828]: e.g. exponent out of `BigDecimal` scale range
-                _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
-            }
+            _numberBigDecimal = _parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
         } else if ((_numTypesValid & NR_LONG) != 0) {
@@ -1373,14 +1371,8 @@ public abstract class ParserBase extends ParserMinimalBase
         if (_numberString == null) {
             throw new IllegalStateException("cannot get BigDecimal from current parser state");
         }
-        try {
-            // NOTE! Length of number string has been validated earlier
-            _numberBigDecimal = NumberInput.parseBigDecimal(
-                    _numberString,
-                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
-        } catch (NumberFormatException nex) {
-            _wrapError("Malformed numeric value ("+_longNumberDesc(_numberString)+")", nex);
-        }
+        // NOTE! Length of number string has been validated earlier
+        _numberBigDecimal = _parseBigDecimal(_numberString);
         // 03-Nov-2026, tatu: [core#1814] retain text for other deferred types
         return _numberBigDecimal;
     }
@@ -1417,6 +1409,29 @@ public abstract class ParserBase extends ParserMinimalBase
     protected float _getNumberFloat() throws JsonParseException {
         // 03-Nov-2026, tatu: [core#1814] never deferred: decoded when marked valid
         return _numberFloat;
+    }
+
+    private BigDecimal _parseBigDecimal(String numStr) throws JsonParseException {
+        try {
+            return NumberInput.parseBigDecimal(numStr,
+                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+        } catch (NumberFormatException nex) {
+            _reportBigDecimalFailure(nex);
+            return null; // never gets here
+        }
+    }
+
+    // 16-Nov-2026, tatu: [core#1828] Value is valid JSON but may not be representable
+    //   (like exponent out of `int` range): report reason, not "malformed"
+    private void _reportBigDecimalFailure(NumberFormatException nex) throws JsonParseException {
+        // NOTE: message from `BigDecimalParser` includes (truncated) value and reason
+        _wrapError(nex.getMessage(), nex);
+    }
+
+    // [core#1828]: NaN, Infinity cannot be represented as BigDecimal/BigInteger
+    private void _reportNonNumericConversion(Class<?> targetType) throws IOException {
+        _reportError(String.format("Cannot convert non-numeric value (%s) to `%s`",
+                getText(), targetType.getName()));
     }
 
     private double _parseDouble(String numStr) throws JsonParseException {

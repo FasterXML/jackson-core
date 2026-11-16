@@ -216,4 +216,4 @@ Ubeddulla Khan (@ubeddulla)
 @Mengxi-Xu
  * Reported #1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
    out-of-range exponent (instead of `StreamReadException`)
-  (3.1.9)
+  (3.1.9, 3.3.1)

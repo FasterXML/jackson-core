@@ -14,6 +14,11 @@ a pure JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.24.0 (not yet released)
+
+#1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
+  out-of-range exponent (instead of `StreamReadException`)
+
 2.23.0 (07-Nov-2026)
 
 #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer

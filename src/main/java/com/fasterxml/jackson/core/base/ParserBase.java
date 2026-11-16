@@ -1010,7 +1010,12 @@ public abstract class ParserBase extends ParserMinimalBase
             //    value is actually needed.
             // 24-Jun-2024, tatu: No; we shouldn't have to defer unless specifically
             //    request w/ `getNumberValueDeferred()` or so
-            _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+            try {
+                _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+            } catch (NumberFormatException nex) {
+                // [core#1828]: e.g. exponent out of `BigDecimal` scale range
+                _wrapError("Malformed numeric value ("+_longNumberDesc(_textBuffer.contentsAsString())+")", nex);
+            }
             _numTypesValid = NR_BIGDECIMAL;
         } else if (expType == NR_DOUBLE) {
             _numberDouble = _textBuffer.contentsAsDouble(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
@@ -1268,9 +1273,14 @@ public abstract class ParserBase extends ParserMinimalBase
             if (numStr == null) {
                 numStr = (_numberString == null) ? getText() : _numberString;
             }
-            _numberBigDecimal = NumberInput.parseBigDecimal(
-                    numStr,
-                    isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+            try {
+                _numberBigDecimal = NumberInput.parseBigDecimal(
+                        numStr,
+                        isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+            } catch (NumberFormatException nex) {
+                // [core#1828]: e.g. exponent out of `BigDecimal` scale range
+                _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
+            }
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
         } else if ((_numTypesValid & NR_LONG) != 0) {

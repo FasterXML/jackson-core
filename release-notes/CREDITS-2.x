@@ -602,3 +602,8 @@ Ubeddulla Khan (@ubeddulla)
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value
   (2.21.9)
+
+@Mengxi-Xu
+ * Reported #1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
+   out-of-range exponent (instead of `StreamReadException`)
+  (2.24.0)

@@ -343,7 +343,11 @@ public abstract class JsonParserBase
             //    value is actually needed.
             // 24-Jun-2024, tatu: No; we shouldn't have to defer unless specifically
             //    request w/ `getNumberValueDeferred()` or so
-            _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+            try {
+                _numberBigDecimal = _textBuffer.contentsAsDecimal(isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+            } catch (NumberFormatException nex) { // [core#1828]
+                _reportBigDecimalFailure(nex);
+            }
             _numTypesValid = NR_BIGDECIMAL;
         } else if (expType == NR_DOUBLE) {
             _numberDouble = _textBuffer.contentsAsDouble(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));

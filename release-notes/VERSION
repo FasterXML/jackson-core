@@ -23,6 +23,13 @@ JSON library.
   (and of forward slash with `ESCAPE_FORWARD_SLASHES`)
  (reported, fix by @ubeddulla)
 
+3.3.1 (not yet released)
+
+#1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
+  out-of-range exponent (instead of `StreamReadException`)
+ (reported by @Mengxi-Xu)
+ (fix by @cowtowncoder)
+
 3.3.0 (07-Nov-2026)
 
 #1637: Add `JsonPointer.startsWith(JsonPointer)` to check prefix match
@@ -361,6 +368,10 @@ No changes since 3.2.0
  (fix by @cowtowncoder)
 #1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
   after `getNumberType()`
+ (fix by @cowtowncoder)
+#1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
+  out-of-range exponent (instead of `StreamReadException`)
+ (reported by @Mengxi-Xu)
  (fix by @cowtowncoder)
 
 3.1.8 (17-Oct-2026)

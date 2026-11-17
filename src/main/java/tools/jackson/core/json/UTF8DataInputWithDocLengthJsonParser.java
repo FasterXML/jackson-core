@@ -38,7 +38,7 @@ public class UTF8DataInputWithDocLengthJsonParser
     @Override
     protected int readUnsignedByte() throws IOException {
         ++_bytesRead;
-        return _inputData.readUnsignedByte();
+        return super.readUnsignedByte();
     }
 
     @Override

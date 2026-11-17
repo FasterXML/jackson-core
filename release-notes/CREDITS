@@ -199,6 +199,10 @@ Francesco Nigro (@franz1981)
    JSON generator String fast loops
   (3.3.0)
 
+@subotac
+ * Contributed #601: Track byte offsets for DataInput-backed parsers
+  (3.3.0)
+
 Ubeddulla Khan (@ubeddulla)
  * Reported, contributed fix for #1794: `maxStringLength` not enforced by
    `getBinaryValue()` when decoding Base64 directly from input

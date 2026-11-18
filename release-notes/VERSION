@@ -17,6 +17,9 @@ JSON library.
 
 3.3.1 (not yet released)
 
+#1824: Concurrent `BufferRecycler.releaseToPool()` calls can return the same
+  recycler more than once
+ (reported, fix by DongNyoung L)
 #1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
   out-of-range exponent (instead of `StreamReadException`)
  (reported by @Mengxi-Xu)

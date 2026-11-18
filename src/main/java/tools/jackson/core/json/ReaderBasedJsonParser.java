@@ -1948,12 +1948,16 @@ public class ReaderBasedJsonParser
 
         while (ptr < _inputEnd) {
             int ch = _inputBuffer[ptr];
-            if (ch < codes.length && codes[ch] != 0) {
-                if (ch == '"') {
-                    final int start = _inputPtr;
-                    _inputPtr = ptr+1; // to skip the quote
-                    return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
+            if (ch < codes.length) {
+                if (codes[ch] != 0) {
+                    if (ch == '"') {
+                        final int start = _inputPtr;
+                        _inputPtr = ptr+1; // to skip the quote
+                        return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
+                    }
+                    break;
                 }
+            } else if (ch >= 0xD800 && ch <= 0xDFFF) {
                 break;
             }
             hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
@@ -2038,6 +2042,39 @@ public class ReaderBasedJsonParser
                     }
                     if (i < INT_SPACE) {
                         _throwUnquotedSpace(i, "name");
+                    }
+                }
+            } else {
+                // 07-Nov-2026, nvsaigokul-sudo: [core#1705] Validate raw (non-escaped)
+                //   UTF-16 surrogates in property names, mirroring the JSON-escaped
+                //   surrogate validation added for [core#1683]. A valid supplementary
+                //   character (high + low surrogate pair) is accepted; lone surrogates
+                //   are rejected with a descriptive error.
+                if (c >= 0xD800 && c <= 0xDFFF) {
+                    if (c < 0xDC00) { // high surrogate: must be followed by low surrogate
+                        char hi = c;
+                        if (_inputPtr >= _inputEnd) {
+                            if (!_loadMore()) {
+                                _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
+                            }
+                        }
+                        char lo = _inputBuffer[_inputPtr];
+                        if (lo < 0xDC00 || lo > 0xDFFF) {
+                            _reportBrokenSurrogatePair(lo, "property name");
+                        }
+                        ++_inputPtr;
+                        // Write the high surrogate first; advance buffer if needed.
+                        hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + hi;
+                        outBuf[outPtr++] = hi;
+                        if (outPtr >= outBuf.length) {
+                            totalLen += outBuf.length;
+                            _streamReadConstraints.validateNameLength(totalLen);
+                            outBuf = _textBuffer.finishCurrentSegment();
+                            outPtr = 0;
+                        }
+                        c = lo; // fall through to write the low surrogate below
+                    } else { // lone low surrogate
+                        _reportUnexpectedLowSurrogate(c, "property name");
                     }
                 }
             }
@@ -2144,7 +2181,11 @@ public class ReaderBasedJsonParser
                     _inputPtr = ptr+1; // to skip the quote
                     return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                 }
-                if (ch < maxCode && codes[ch] != 0) {
+                if (ch < maxCode) {
+                    if (codes[ch] != 0) {
+                        break;
+                    }
+                } else if (ch >= 0xD800 && ch <= 0xDFFF) {
                     break;
                 }
                 hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
@@ -2259,6 +2300,32 @@ public class ReaderBasedJsonParser
                         _handleInvalidStringChar(i);
                     }
                 }
+            } else {
+                // 07-Nov-2026, nvsaigokul-sudo: [core#1705] Raw surrogate validation.
+                if (c >= 0xD800 && c <= 0xDFFF) {
+                    if (c < 0xDC00) { // high surrogate: must be followed by low surrogate
+                        char hi = c;
+                        if (_inputPtr >= _inputEnd) {
+                            if (!_loadMore()) {
+                                _reportInvalidEOF(": was expecting closing quote for a string value",
+                                        JsonToken.VALUE_STRING);
+                            }
+                        }
+                        char lo = _inputBuffer[_inputPtr];
+                        if (lo < 0xDC00 || lo > 0xDFFF) {
+                            _reportBrokenSurrogatePair(lo, "string value");
+                        }
+                        ++_inputPtr;
+                        if (outPtr >= outBuf.length) {
+                            outBuf = _textBuffer.finishCurrentSegment();
+                            outPtr = 0;
+                        }
+                        outBuf[outPtr++] = hi;
+                        c = lo;
+                    } else {
+                        _reportUnexpectedLowSurrogate(c, "string value");
+                    }
+                }
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -2334,13 +2401,17 @@ public class ReaderBasedJsonParser
 
             do {
                 int ch = _inputBuffer[ptr];
-                if (ch < maxCode && codes[ch] != 0) {
-                    if (ch == '"') {
-                        _textBuffer.resetWithShared(_inputBuffer, _inputPtr, (ptr-_inputPtr));
-                        _inputPtr = ptr+1;
-                        // Yes, we got it all
-                        return;
+                if (ch < maxCode) {
+                    if (codes[ch] != 0) {
+                        if (ch == '"') {
+                            _textBuffer.resetWithShared(_inputBuffer, _inputPtr, (ptr-_inputPtr));
+                            _inputPtr = ptr+1;
+                            // Yes, we got it all
+                            return;
+                        }
+                        break;
                     }
+                } else if (ch >= 0xD800 && ch <= 0xDFFF) {
                     break;
                 }
                 ++ptr;
@@ -2381,6 +2452,37 @@ public class ReaderBasedJsonParser
                 } else if (i < INT_SPACE) {
                     _handleInvalidStringChar(i);
                 } // anything else?
+            } else {
+                // 07-Nov-2026, nvsaigokul-sudo: [core#1705] Validate raw (non-escaped)
+                //   UTF-16 surrogates in string values. Only checked on the raw-char
+                //   path (the else branch); JSON-escaped surrogates (\\uXXXX) are
+                //   intentionally left as-is to match the existing pass-through
+                //   behaviour established by [core#1683].
+                if (c >= 0xD800 && c <= 0xDFFF) {
+                    if (c < 0xDC00) { // high surrogate: must be followed by low surrogate
+                        char hi = c;
+                        if (_inputPtr >= _inputEnd) {
+                            if (!_loadMore()) {
+                                _reportInvalidEOF(": was expecting closing quote for a string value",
+                                        JsonToken.VALUE_STRING);
+                            }
+                        }
+                        char lo = _inputBuffer[_inputPtr];
+                        if (lo < 0xDC00 || lo > 0xDFFF) {
+                            _reportBrokenSurrogatePair(lo, "string value");
+                        }
+                        ++_inputPtr;
+                        // Write the high surrogate; fall through to write the low surrogate.
+                        if (outPtr >= outBuf.length) {
+                            outBuf = _textBuffer.finishCurrentSegment();
+                            outPtr = 0;
+                        }
+                        outBuf[outPtr++] = hi;
+                        c = lo;
+                    } else { // lone low surrogate
+                        _reportUnexpectedLowSurrogate(c, "string value");
+                    }
+                }
             }
             // Need more room?
             if (outPtr >= outBuf.length) {
@@ -2440,6 +2542,28 @@ public class ReaderBasedJsonParser
                         inPtr = _inputPtr;
                         inLen = _inputEnd;
                     }
+                }
+            } else {
+                // 07-Nov-2026, nvsaigokul-sudo: [core#1705] Raw surrogate validation.
+                if (c >= 0xD800 && c <= 0xDFFF) {
+                    _inputPtr = inPtr;
+                    if (c < 0xDC00) { // high surrogate: must be followed by low surrogate
+                        if (_inputPtr >= _inputEnd) {
+                            if (!_loadMore()) {
+                                _reportInvalidEOF(": was expecting closing quote for a string value",
+                                        JsonToken.VALUE_STRING);
+                            }
+                        }
+                        char lo = _inputBuffer[_inputPtr];
+                        if (lo < 0xDC00 || lo > 0xDFFF) {
+                            _reportBrokenSurrogatePair(lo, "string value");
+                        }
+                        ++_inputPtr; // consume the low surrogate
+                    } else {
+                        _reportUnexpectedLowSurrogate(c, "string value");
+                    }
+                    inPtr = _inputPtr;
+                    inLen = _inputEnd;
                 }
             }
         }
@@ -2511,6 +2635,49 @@ public class ReaderBasedJsonParser
                         inPtr = _inputPtr;
                         inLen = _inputEnd;
                     }
+                }
+            } else {
+                // 07-Nov-2026, nvsaigokul-sudo: [core#1705] Raw surrogate validation.
+                if (c >= 0xD800 && c <= 0xDFFF) {
+                    _inputPtr = inPtr;
+                    if (c < 0xDC00) { // high surrogate: must be followed by low surrogate
+                        if (_inputPtr >= _inputEnd) {
+                            if (!_loadMore()) {
+                                _reportInvalidEOF(": was expecting closing quote for a string value",
+                                        JsonToken.VALUE_STRING);
+                            }
+                        }
+                        char lo = _inputBuffer[_inputPtr];
+                        if (lo < 0xDC00 || lo > 0xDFFF) {
+                            _reportBrokenSurrogatePair(lo, "string value");
+                        }
+                        ++_inputPtr;
+                        inPtr = _inputPtr;
+                        inLen = _inputEnd;
+                        // Write the high surrogate; fall through to write the low.
+                        if (outPtr >= outBuf.length) {
+                            writer.write(outBuf, 0, outPtr);
+                            totalLen += outPtr;
+                            outPtr = 0;
+                            if (totalLen > maxStringLen) {
+                                _streamReadConstraints.validateStringLengthLong(totalLen);
+                            }
+                        }
+                        outBuf[outPtr++] = c;
+                        if (outPtr >= outBuf.length) {
+                            writer.write(outBuf, 0, outPtr);
+                            totalLen += outPtr;
+                            outPtr = 0;
+                            if (totalLen > maxStringLen) {
+                                _streamReadConstraints.validateStringLengthLong(totalLen);
+                            }
+                        }
+                        c = lo;
+                    } else {
+                        _reportUnexpectedLowSurrogate(c, "string value");
+                    }
+                    inPtr = _inputPtr;
+                    inLen = _inputEnd;
                 }
             }
             // Accumulate character in intermediate buffer

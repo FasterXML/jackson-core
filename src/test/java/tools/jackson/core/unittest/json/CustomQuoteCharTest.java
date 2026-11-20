@@ -5,7 +5,11 @@ import java.io.*;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.PrettyPrinter;
+import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.util.MinimalPrettyPrinter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -115,6 +119,37 @@ class CustomQuoteCharTest
         _writeArray(g, "It's a sin");
         g.close();
         assertEquals("['It\\'s a sin']", out.toString("UTF-8"));
+    }
+
+    // SerializableString names/values must also escape the custom quote char
+    @Test
+    void aposQuotingWithSerializableString() throws Exception
+    {
+        final String EXP = "{'it\\'s':'x\\', \\'admin\\': \\'true'}";
+        final ObjectWriteContext ppCtxt = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() { return new MinimalPrettyPrinter(); }
+        };
+        for (ObjectWriteContext ctxt : new ObjectWriteContext[] { ObjectWriteContext.empty(), ppCtxt }) {
+            StringWriter w = new StringWriter();
+            try (JsonGenerator g = JSON_F.createGenerator(ctxt, w)) {
+                _writeSerializableObject(g, "it's", "x', 'admin': 'true");
+            }
+            assertEquals(EXP, w.toString());
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try (JsonGenerator g = JSON_F.createGenerator(ctxt, out)) {
+                _writeSerializableObject(g, "it's", "x', 'admin': 'true");
+            }
+            assertEquals(EXP, out.toString("UTF-8"));
+        }
+    }
+
+    private void _writeSerializableObject(JsonGenerator g, String key, String value) throws Exception {
+        g.writeStartObject();
+        g.writeName(new SerializedString(key));
+        g.writeString(new SerializedString(value));
+        g.writeEndObject();
     }
 
     private void _writeObject(JsonGenerator g, String key, String value) throws Exception {

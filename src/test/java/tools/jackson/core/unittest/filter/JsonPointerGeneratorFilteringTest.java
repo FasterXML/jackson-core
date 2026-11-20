@@ -123,6 +123,59 @@ class JsonPointerGeneratorFilteringTest extends tools.jackson.core.unittest.Jack
         _assert("[{'id':1,'stuff':[1,2,3]},{'id':2,'stuff':[4,5,6]},{'id':3,'stuff':[7,8,9]}]", "/2/stuff/2", Inclusion.INCLUDE_ALL_AND_PATH, "[{'stuff':[9]}]", true);
     }
 
+    // Object in an Array element excluded by the filter must be skipped,
+    // not matched against the filter of the enclosing Array
+    @Test
+    void objectInExcludedArrayElement() throws Exception
+    {
+        _assert("[{'b':1}]", "/b", Inclusion.INCLUDE_ALL_AND_PATH, "", false);
+        _assert("[{'b':1}]", "/b", Inclusion.ONLY_INCLUDE_ALL, "", false);
+        _assert("{'a':[{'b':1},{'b':2}]}", "/a/b", Inclusion.INCLUDE_ALL_AND_PATH, "", true);
+        _assert("{'a':[{'b':1},{'b':2}]}", "/a/b", Inclusion.ONLY_INCLUDE_ALL, "", true);
+    }
+
+    @Test
+    void objectInExcludedArrayElementWithoutObject() throws Exception {
+        _testObjectInExcludedArrayElement(0);
+    }
+
+    @Test
+    void objectInExcludedArrayElementWithObject() throws Exception {
+        _testObjectInExcludedArrayElement(1);
+    }
+
+    @Test
+    void objectInExcludedArrayElementWithSize() throws Exception {
+        _testObjectInExcludedArrayElement(2);
+    }
+
+    private void _testObjectInExcludedArrayElement(int mode) throws Exception
+    {
+        StringWriter output = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                JSON_F.createGenerator(ObjectWriteContext.empty(), output),
+                new JsonPointerBasedFilter("/b"), Inclusion.INCLUDE_ALL_AND_PATH, true);
+        final Object value = new Object();
+
+        gen.writeStartArray();
+        switch (mode) {
+        case 0:
+            gen.writeStartObject();
+            break;
+        case 1:
+            gen.writeStartObject(value);
+            break;
+        default:
+            gen.writeStartObject(value, 1);
+        }
+        gen.writeStringProperty("b", "secret");
+        gen.writeEndObject();
+        gen.writeEndArray();
+        gen.close();
+
+        assertEquals("", output.toString());
+    }
+
     private void _assert(String input, String pathExpr, Inclusion tokenFilterInclusion, String exp, boolean allowMultipleMatches)
         throws Exception
     {

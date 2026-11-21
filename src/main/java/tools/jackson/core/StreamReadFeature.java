@@ -87,7 +87,8 @@ public enum StreamReadFeature
      * with reference to source or not. If source reference is included, its type and contents
      * are included when `toString()` method is called (most notably when printing out parse
      * exception with that location information). If feature is disabled, no source reference
-     * is passed and source is only indicated as "REDACTED".
+     * is passed and source is only indicated as "REDACTED", unless
+     * {@link #INCLUDE_SOURCE_IN_LOCATION_NOTE} is also disabled.
      *<p>
      * Most common reason for disabling this feature is to avoid leaking
      * internal information; this may be done for security reasons.
@@ -126,6 +127,20 @@ public enum StreamReadFeature
      * implementation is used.
      */
     USE_FAST_DOUBLE_PARSER(true),
+
+    /**
+     * Feature that determines whether locations include a note explaining that
+     * source information was redacted when {@link #INCLUDE_SOURCE_IN_LOCATION}
+     * is disabled. Disabling this feature omits the entire source description
+     * from the location's textual representation, leaving its offsets.
+     * This does not affect source information explicitly included by enabling
+     * {@code INCLUDE_SOURCE_IN_LOCATION}.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 3.4
+     */
+    INCLUDE_SOURCE_IN_LOCATION_NOTE(true),
     ;
 
     /**

@@ -246,9 +246,10 @@ public class TokenStreamLocation
         }
         final String srcDesc = sourceDescription();
         StringBuilder sb = new StringBuilder(40 + srcDesc.length())
-                .append("[Source: ")
-                .append(srcDesc)
-                .append("; ");
+                .append('[');
+        if (!srcDesc.isEmpty()) {
+            sb.append("Source: ").append(srcDesc).append("; ");
+        }
         return appendOffsetDescription(sb)
                 .append(']')
                 .toString();
@@ -259,9 +260,11 @@ public class TokenStreamLocation
         if (this == NA) {
             return sb.append(NO_LOCATION_DESC);
         }
-        sb.append("[Source: ")
-                .append(sourceDescription())
-                .append("; ");
+        final String srcDesc = sourceDescription();
+        sb.append('[');
+        if (!srcDesc.isEmpty()) {
+            sb.append("Source: ").append(srcDesc).append("; ");
+        }
         return appendOffsetDescription(sb)
                 .append(']');
     }

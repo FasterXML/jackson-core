@@ -41,6 +41,9 @@ public class ContentReference
     protected final static ContentReference REDACTED_CONTENT =
             new ContentReference(false, null, ErrorReportConfiguration.defaults());
 
+    private final static ContentReference SUPPRESSED_CONTENT =
+            new ContentReference(false, null, ErrorReportConfiguration.defaults());
+
     /**
      * Reference to the actual underlying content.
      */
@@ -114,6 +117,19 @@ public class ContentReference
      */
     public static ContentReference redacted() {
         return REDACTED_CONTENT;
+    }
+
+    /**
+     * Variant of {@link #redacted()} that can also omit the redaction note.
+     *
+     * @param includeDescription Whether the source description should explain redaction
+     *
+     * @return Placeholder without a raw source reference
+     *
+     * @since 3.4
+     */
+    public static ContentReference redacted(boolean includeDescription) {
+        return includeDescription ? REDACTED_CONTENT : SUPPRESSED_CONTENT;
     }
 
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
@@ -231,6 +247,9 @@ public class ContentReference
      */
     public StringBuilder appendSourceDescription(StringBuilder sb)
     {
+        if (this == SUPPRESSED_CONTENT) {
+            return sb;
+        }
         final Object srcRef = getRawContent();
 
         if (srcRef == null) {

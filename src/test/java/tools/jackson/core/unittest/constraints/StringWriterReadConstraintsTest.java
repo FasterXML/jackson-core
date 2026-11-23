@@ -96,7 +96,7 @@ class StringWriterReadConstraintsTest extends AsyncTestBase
     void oversizedStringInRecycledSegmentRejected() throws Exception {
         RecyclerPool<BufferRecycler> pool = JsonRecyclerPools.newConcurrentDequePool();
         JsonFactory lenient = JsonFactory.builder().recyclerPool(pool).build();
-        // Escape forces copy into TextBuffer, so segment grows to fit the value
+        // Escape forces copy into TextBuffer; last (big) segment gets recycled
         String bigDoc = "\"" + repeat('y', 50_000) + "\\n\"";
         try (JsonParser p = lenient.createParser(testObjectReadContext(), bigDoc)) {
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -105,6 +105,18 @@ class StringWriterReadConstraintsTest extends AsyncTestBase
 
         JsonFactory f = factory(SHORT_LIMIT, pool);
         String value = repeat('x', 2_000);
+        // Verify that byte-based parsers do get recycled segment big enough to
+        // hold the whole value (char-based ones may use shared input buffer instead)
+        byte[] shortDoc = utf8Bytes(q("abc"));
+        for (int mode : ALL_BINARY_MODES) {
+            try (AsyncReaderWrapper p = syncWrapper(createParser(f, mode, shortDoc))) {
+                assertRecycledSegment(p, value.length());
+            }
+        }
+        try (AsyncReaderWrapper p = asyncForBytes(f, Integer.MAX_VALUE, shortDoc, 0)) {
+            assertRecycledSegment(p, value.length());
+        }
+
         forAllParsers(f, q(value), p -> {
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             assertThrows(StreamConstraintsException.class,
@@ -183,6 +195,14 @@ class StringWriterReadConstraintsTest extends AsyncTestBase
                 return _streamReader.nextToken();
             }
         };
+    }
+
+    private void assertRecycledSegment(AsyncReaderWrapper p, int minLength) {
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(3, p.parser().getStringLength());
+        int len = p.parser().getStringCharacters().length;
+        assertTrue(len >= minLength, "Expected recycled segment of at least " + minLength
+                + " chars, got " + len + " for " + p.parser().getClass().getSimpleName());
     }
 
     private String copyCurrentEvent(JsonParser p) {

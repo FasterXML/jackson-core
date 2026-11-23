@@ -512,7 +512,8 @@ public class TextBuffer
      * or the single current segment.
      * Validation only enforced by {@link ReadConstrainedTextBuffer}.
      *
-     * @return Aggregated {@code char[]} that contains all buffered content
+     * @return Buffer that contains content: may be shared (input buffer or current segment),
+     *    so must be accessed using {@link #getTextOffset()} and {@link #size()}
      * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
      *
      * @since 3.4

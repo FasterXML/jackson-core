@@ -1281,13 +1281,16 @@ public abstract class ParserBase extends ParserMinimalBase
      * and source information is <b>NOT</b> to be included
      * ({@code StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION} disabled).
      *<p>
-     * Default implementation selects a redacted reference according to
-     * {@link StreamReadFeature#INCLUDE_SOURCE_IN_LOCATION_NOTE}.
+     * Default implementation returns {@link ContentReference#redacted()}, or
+     * {@link ContentReference#redactedWithoutNote()} if
+     * {@link StreamReadFeature#INCLUDE_REDACTION_NOTE_IN_LOCATION} is disabled.
      *
      * @return ContentReference object to use when source is not to be included
      */
     protected ContentReference _contentReferenceRedacted() {
-        return ContentReference.redacted(isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION_NOTE));
+        return isEnabled(StreamReadFeature.INCLUDE_REDACTION_NOTE_IN_LOCATION)
+                ? ContentReference.redacted()
+                : ContentReference.redactedWithoutNote();
     }
 
     /* Helper method called by name-decoding methods that require storage

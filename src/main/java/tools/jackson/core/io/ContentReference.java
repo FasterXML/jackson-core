@@ -41,7 +41,13 @@ public class ContentReference
     protected final static ContentReference REDACTED_CONTENT =
             new ContentReference(false, null, ErrorReportConfiguration.defaults());
 
-    private final static ContentReference SUPPRESSED_CONTENT =
+    /**
+     * Variant of {@link #REDACTED_CONTENT} for which no source description
+     * (not even the "REDACTED" note) is included.
+     *
+     * @since 3.4
+     */
+    protected final static ContentReference REDACTED_CONTENT_NO_NOTE =
             new ContentReference(false, null, ErrorReportConfiguration.defaults());
 
     /**
@@ -120,16 +126,16 @@ public class ContentReference
     }
 
     /**
-     * Variant of {@link #redacted()} that can also omit the redaction note.
+     * Variant of {@link #redacted()} whose source description is empty,
+     * so that no "REDACTED" note is included in location descriptions.
      *
-     * @param includeDescription Whether the source description should explain redaction
-     *
-     * @return Placeholder without a raw source reference
+     * @return Placeholder instance to use when reference is explicitly blocked
+     *   and its redaction is not to be noted
      *
      * @since 3.4
      */
-    public static ContentReference redacted(boolean includeDescription) {
-        return includeDescription ? REDACTED_CONTENT : SUPPRESSED_CONTENT;
+    public static ContentReference redactedWithoutNote() {
+        return REDACTED_CONTENT_NO_NOTE;
     }
 
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
@@ -247,7 +253,7 @@ public class ContentReference
      */
     public StringBuilder appendSourceDescription(StringBuilder sb)
     {
-        if (this == SUPPRESSED_CONTENT) {
+        if (this == REDACTED_CONTENT_NO_NOTE) {
             return sb;
         }
         final Object srcRef = getRawContent();

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SourceLocationNote1158Test extends AsyncTestBase
 {
     private final JsonFactory FACTORY = JsonFactory.builder()
-            .disable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION_NOTE)
+            .disable(StreamReadFeature.INCLUDE_REDACTION_NOTE_IN_LOCATION)
             .build();
 
     @Test
@@ -55,7 +55,7 @@ class SourceLocationNote1158Test extends AsyncTestBase
     {
         JsonFactory defaults = JsonFactory.builder().build();
         JsonFactory restored = FACTORY.rebuild()
-                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION_NOTE).build();
+                .enable(StreamReadFeature.INCLUDE_REDACTION_NOTE_IN_LOCATION).build();
         for (JsonFactory f : new JsonFactory[] { defaults, FACTORY, restored, defaults }) {
             try (JsonParser p = createParser(f, MODE_READER, "[1]")) {
                 assertToken(JsonToken.START_ARRAY, p.nextToken());

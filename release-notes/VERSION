@@ -17,7 +17,7 @@ JSON library.
 
 3.4.0 (not yet released)
 
-#1158: Add `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION_NOTE` to allow
+#1158: Add `StreamReadFeature.INCLUDE_REDACTION_NOTE_IN_LOCATION` to allow
   omitting the source-redaction note from locations
  (requested by @jamesagnew)
  (contributed by @wozhenbang2004)

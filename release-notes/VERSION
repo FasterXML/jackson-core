@@ -55,6 +55,9 @@ JSON library.
  (fix by @cowtowncoder)
 #1835: Don't merge symbol table that failed on hash collisions into root table
  (contributed by @ubeddulla)
+#1836: Non-default `quoteChar` not escaped by `writeName(SerializableString)`,
+  `writeString(SerializableString)`
+ (contributed by @ubeddulla)
 
 3.1.8 (17-Oct-2026)
 

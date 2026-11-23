@@ -9,6 +9,7 @@ import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.PrettyPrinter;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.core.util.MinimalPrettyPrinter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -143,6 +144,39 @@ class CustomQuoteCharTest
             }
             assertEquals(EXP, out.toString("UTF-8"));
         }
+    }
+
+    // Same with unquoted property names: escaping must match the String overloads
+    @Test
+    void aposQuotingWithSerializableStringUnquotedNames() throws Exception
+    {
+        final JsonFactory f = streamFactoryBuilder()
+                .quoteChar('\'')
+                .disable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
+                .build();
+        final String EXP = "{it\\'s:'x\\', \\'admin\\': \\'true'}";
+
+        StringWriter w = new StringWriter();
+        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), w)) {
+            _writeSerializableObject(g, "it's", "x', 'admin': 'true");
+        }
+        assertEquals(EXP, w.toString());
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), out)) {
+            _writeSerializableObject(g, "it's", "x', 'admin': 'true");
+        }
+        assertEquals(EXP, out.toString("UTF-8"));
+
+        // and verify String overloads produce identical output
+        w = new StringWriter();
+        try (JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), w)) {
+            g.writeStartObject();
+            g.writeName("it's");
+            g.writeString("x', 'admin': 'true");
+            g.writeEndObject();
+        }
+        assertEquals(EXP, w.toString());
     }
 
     private void _writeSerializableObject(JsonGenerator g, String key, String value) throws Exception {

@@ -249,6 +249,10 @@ public class UTF8JsonGenerator
     @Override
     public JsonGenerator writeName(SerializableString name) throws JacksonException
     {
+        // Pre-quoted form only escapes the default quote char
+        if (_quoteChar != '"') {
+            return writeName(name.getValue());
+        }
         if (_prettyPrinter != null) {
             _writePPName(name);
             return this;
@@ -623,6 +627,10 @@ public class UTF8JsonGenerator
     @Override
     public JsonGenerator writeString(SerializableString text) throws JacksonException
     {
+        // Pre-quoted form only escapes the default quote char
+        if (_quoteChar != '"') {
+            return writeString(text.getValue());
+        }
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();

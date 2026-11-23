@@ -134,6 +134,9 @@ Ubeddulla Khan (@ubeddulla)
   (3.1.9)
  * Contributed #1835: Don't merge symbol table that failed on hash collisions into root table
   (3.1.9)
+ * Contributed #1838: Non-default `quoteChar` not escaped by `writeName(SerializableString)`,
+   `writeString(SerializableString)`
+  (3.1.9)
 
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for

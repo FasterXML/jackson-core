@@ -400,8 +400,7 @@ public final class ByteQuadsCanonicalizer
         // 28-Jul-2019, tatu: From [core#548]: do not share if immediate rehash needed
         // 18-Nov-2026, ubeddulla: nor if spill-over area is full (failed due to hash collisions),
         //   as all later child tables would inherit it
-        if ((_parent != null) && maybeDirty()
-                && ((_spilloverEnd + 4) < (_hashSize << 3))) {
+        if ((_parent != null) && maybeDirty() && !_spilloverFull()) {
             _parent.mergeChild(new TableInfo(this));
             // Let's also mark this instance as dirty, so that just in
             // case release was too early, there's no corruption of possibly shared data.
@@ -1057,13 +1056,9 @@ public final class ByteQuadsCanonicalizer
         // one caveat: in the unlikely event if spill-over filling up,
         // check if that could be considered a DoS attack; handle appropriately
         // (NOTE: approximate for now; we could verify details if that becomes necessary)
-        /* 31-Jul-2015, tatu: Note that spillover area does NOT end at end of array,
-         *   since "long names" area follows. Instead, need to calculate from hash size.
-         */
         // 18-Nov-2026, ubeddulla: Do not advance `_spilloverEnd` past the end when failing,
         //   to keep table state consistent (release() also skips merging tables this full)
-        final int end = (_hashSize << 3);
-        if ((offset + 4) >= end) {
+        if (_spilloverFull()) {
             if (_failOnDoS) {
                 _reportTooManyCollisions();
             }
@@ -1365,6 +1360,19 @@ public final class ByteQuadsCanonicalizer
         // So basically multiply by 7
         int offset = _hashSize;
         return (offset << 3) - offset;
+    }
+
+    /**
+     * Helper method that checks whether spill-over area has no room for
+     * more entries (note: last slot is left unused).
+     * Used both for detecting likely DoS attacks when adding names, and for
+     * avoiding merging of such tables into the root table.
+     */
+    private final boolean _spilloverFull() {
+        /* 31-Jul-2015, tatu: Note that spillover area does NOT end at end of array,
+         *   since "long names" area follows. Instead, need to calculate from hash size.
+         */
+        return (_spilloverEnd + 4) >= (_hashSize << 3);
     }
 
     protected void _reportTooManyCollisions() throws StreamConstraintsException

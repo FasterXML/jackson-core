@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -23,6 +24,12 @@ class SymbolTableSpilloverMergeTest
     extends JUnit5TestBase
 {
     private final static String[] PREFIXES = { "x0__________", "x1__________" };
+
+    @SuppressWarnings("serial")
+    static class SymbolCountingJsonFactory extends JsonFactory
+    {
+        int charSymbolCount() { return _rootCharSymbols.size(); }
+    }
 
     // ByteQuadsCanonicalizer: byte-backed blocking parsers
     @Test
@@ -60,10 +67,28 @@ class SymbolTableSpilloverMergeTest
         for (int mode : ALL_TEXT_MODES) {
             final JsonFactory f = new JsonFactory();
             for (String prefix : PREFIXES) {
-                byte[] doc = _doc(_charCollidingNames(prefix));
+                byte[] doc = _doc(_charCollidingNames(prefix, 512));
                 assertThrows(StreamConstraintsException.class, () -> _parseAll(f, mode, doc));
             }
             _parseAll(f, mode, _validDoc());
+        }
+    }
+
+    // CharsToNameCanonicalizer: nor should table with overflowed (but not failed)
+    // collision chain be merged
+    @Test
+    void overflowedCharSymbolTableNotMerged() throws Exception
+    {
+        for (int mode : ALL_TEXT_MODES) {
+            final SymbolCountingJsonFactory f = new SymbolCountingJsonFactory();
+            // enough names to overflow collision chain once, but not twice
+            _parseAll(f, mode, _doc(_charCollidingNames(PREFIXES[0],
+                    CharsToNameCanonicalizer.MAX_COLL_CHAIN_LENGTH + 50)));
+            assertEquals(0, f.charSymbolCount());
+
+            // but other tables still are
+            _parseAll(f, mode, _doc(Arrays.asList("a", "b", "c")));
+            assertEquals(3, f.charSymbolCount());
         }
     }
 
@@ -108,10 +133,10 @@ class SymbolTableSpilloverMergeTest
 
     // "Ab" and "BA" hash the same (65*33+98 == 66*33+65), so all equal-length
     // sequences of them collide, regardless of seed
-    private List<String> _charCollidingNames(String prefix)
+    private List<String> _charCollidingNames(String prefix, int count)
     {
         List<String> result = new ArrayList<>();
-        for (int i = 0; i < 512; ++i) {
+        for (int i = 0; i < count; ++i) {
             StringBuilder sb = new StringBuilder(prefix);
             for (int bit = 0; bit < 9; ++bit) {
                 sb.append(((i >> bit) & 1) == 0 ? "Ab" : "BA");

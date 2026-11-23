@@ -26,6 +26,8 @@ JSON library.
 #1827: Custom `CharacterEscapes` drop escaping of non-default `quoteChar`
   (and of forward slash with `ESCAPE_FORWARD_SLASHES`)
  (reported, fix by @ubeddulla)
+#1837: `maxStringLength` not enforced by `JsonParser.getStringCharacters()`
+ (contributed by @ubeddulla)
 
 3.3.1 (not yet released)
 
@@ -36,6 +38,8 @@ JSON library.
   out-of-range exponent (instead of `StreamReadException`)
  (reported by @Mengxi-Xu)
  (fix by @cowtowncoder)
+#1835: Don't merge symbol table that failed on hash collisions into root table
+ (contributed by @ubeddulla)
 
 3.3.0 (07-Nov-2026)
 
@@ -380,6 +384,8 @@ No changes since 3.2.0
   out-of-range exponent (instead of `StreamReadException`)
  (reported by @Mengxi-Xu)
  (fix by @cowtowncoder)
+#1835: Don't merge symbol table that failed on hash collisions into root table
+ (contributed by @ubeddulla)
 
 3.1.8 (17-Oct-2026)
 

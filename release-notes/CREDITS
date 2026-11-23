@@ -214,7 +214,7 @@ Ubeddulla Khan (@ubeddulla)
   (3.1.9, 3.3.1)
  * Contributed #1838: Non-default `quoteChar` not escaped by `writeName(SerializableString)`,
    `writeString(SerializableString)`
-  (3.1.9)
+  (3.1.9, 3.3.1)
 
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for

@@ -8,49 +8,89 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Verifies that a document rejected for filling up the spill-over area of
- * {@code ByteQuadsCanonicalizer} does not leave the shared root symbol table
- * in a corrupt state for later parsers.
+ * Verifies that a document rejected for hash collisions in a symbol table
+ * does not leave the shared root symbol table in a corrupt state for later parsers.
+ * [core#1835]
  */
 class SymbolTableSpilloverMergeTest
     extends JUnit5TestBase
 {
+    private final static String[] PREFIXES = { "x0__________", "x1__________" };
+
+    // ByteQuadsCanonicalizer: byte-backed blocking parsers
     @Test
-    void spilloverFailureDoesNotCorruptRootTable() throws Exception
+    void failedByteSymbolTableNotMerged() throws Exception
     {
-        final JsonFactory f = new JsonFactory();
-
-        // Names that only differ by order of quads 4-9 have same hash, regardless of seed
-        for (String prefix : new String[] { "x0__________", "x1__________" }) {
-            byte[] doc = _doc(_collidingNames(prefix, 700));
-            assertThrows(StreamConstraintsException.class, () -> _parseAll(f, doc));
+        for (int mode : ALL_BINARY_MODES) {
+            final JsonFactory f = new JsonFactory();
+            for (String prefix : PREFIXES) {
+                byte[] doc = _doc(_quadCollidingNames(prefix));
+                assertThrows(StreamConstraintsException.class, () -> _parseAll(f, mode, doc));
+            }
+            _parseAll(f, mode, _validDoc());
         }
-
-        List<String> names = new ArrayList<>();
-        for (int i = 0; i < 3000; ++i) {
-            names.add("field" + i);
-        }
-        _parseAll(f, _doc(names));
     }
 
-    private void _parseAll(JsonFactory f, byte[] doc) throws Exception
+    // ByteQuadsCanonicalizer: non-blocking parser
+    @Test
+    void failedByteSymbolTableNotMergedAsync() throws Exception
     {
-        try (JsonParser p = f.createParser(doc)) {
+        for (int bytesPerRead : new int[] { 1, 1000 }) {
+            final JsonFactory f = new JsonFactory();
+            for (String prefix : PREFIXES) {
+                byte[] doc = _doc(_quadCollidingNames(prefix));
+                assertThrows(StreamConstraintsException.class,
+                        () -> _parseAllAsync(f, bytesPerRead, doc));
+            }
+            _parseAllAsync(f, bytesPerRead, _validDoc());
+        }
+    }
+
+    // CharsToNameCanonicalizer: char-backed parsers
+    @Test
+    void failedCharSymbolTableNotMerged() throws Exception
+    {
+        for (int mode : ALL_TEXT_MODES) {
+            final JsonFactory f = new JsonFactory();
+            for (String prefix : PREFIXES) {
+                byte[] doc = _doc(_charCollidingNames(prefix));
+                assertThrows(StreamConstraintsException.class, () -> _parseAll(f, mode, doc));
+            }
+            _parseAll(f, mode, _validDoc());
+        }
+    }
+
+    private void _parseAll(JsonFactory f, int mode, byte[] doc) throws Exception
+    {
+        try (JsonParser p = createParser(f, mode, doc)) {
             while (p.nextToken() != null) { }
         }
     }
 
-    private List<String> _collidingNames(String prefix, int count)
+    private void _parseAllAsync(JsonFactory f, int bytesPerRead, byte[] doc) throws Exception
+    {
+        AsyncReaderWrapper r = AsyncTestBase.asyncForBytes(f, bytesPerRead, doc, 0);
+        try {
+            while (r.nextToken() != null) { }
+        } finally {
+            r.close();
+        }
+    }
+
+    // Names that only differ by order of quads 4-9 have same hash, regardless of seed
+    private List<String> _quadCollidingNames(String prefix)
     {
         List<String> result = new ArrayList<>();
         _permute(new ArrayList<>(Arrays.asList("aaaa", "bbbb", "cccc", "dddd", "eeee", "ffff")),
                 0, prefix, result);
-        return result.subList(0, count);
+        return result.subList(0, 700);
     }
 
     private void _permute(List<String> quads, int index, String prefix, List<String> result)
@@ -64,6 +104,30 @@ class SymbolTableSpilloverMergeTest
             _permute(quads, index + 1, prefix, result);
             Collections.swap(quads, index, i);
         }
+    }
+
+    // "Ab" and "BA" hash the same (65*33+98 == 66*33+65), so all equal-length
+    // sequences of them collide, regardless of seed
+    private List<String> _charCollidingNames(String prefix)
+    {
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < 512; ++i) {
+            StringBuilder sb = new StringBuilder(prefix);
+            for (int bit = 0; bit < 9; ++bit) {
+                sb.append(((i >> bit) & 1) == 0 ? "Ab" : "BA");
+            }
+            result.add(sb.toString());
+        }
+        return result;
+    }
+
+    private byte[] _validDoc()
+    {
+        List<String> names = new ArrayList<>();
+        for (int i = 0; i < 3000; ++i) {
+            names.add("field" + i);
+        }
+        return _doc(names);
     }
 
     private byte[] _doc(List<String> names)

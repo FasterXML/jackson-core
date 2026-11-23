@@ -1060,8 +1060,8 @@ public final class ByteQuadsCanonicalizer
         /* 31-Jul-2015, tatu: Note that spillover area does NOT end at end of array,
          *   since "long names" area follows. Instead, need to calculate from hash size.
          */
-        // 18-Nov-2026, ubeddulla: Must not advance `_spilloverEnd` before failing: a child table
-        //   that throws here is still merged into the root by release()
+        // 18-Nov-2026, ubeddulla: Do not advance `_spilloverEnd` past the end when failing,
+        //   to keep table state consistent (release() also skips merging tables this full)
         final int end = (_hashSize << 3);
         if ((offset + 4) >= end) {
             if (_failOnDoS) {

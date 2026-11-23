@@ -607,12 +607,13 @@ public final class CharsToNameCanonicalizer
         } else {
             if (_overflows.get(bucketIndex)) {
                 // Has happened once already for this bucket index, so probably not coincidental...
+                // Stop canonicalizing as safety measure (so as not to cause problems with PermGen).
+                // 22-Nov-2026, tatu: [core#1835] Must be done before failing as well, so that
+                //   release() won't merge this (inconsistent) table into the root
+                _canonicalize = false;
                 if (JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(_factoryFeatures)) {
                     _reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
                 }
-                // but even if we don't fail, we will stop canonicalizing as safety measure
-                // (so as not to cause problems with PermGen)
-                _canonicalize = false;
             } else {
                 _overflows.set(bucketIndex);
             }

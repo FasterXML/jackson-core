@@ -1,4 +1,4 @@
-package tools.jackson.core.unittest;
+package tools.jackson.core.unittest.read.loc;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,8 +1,10 @@
 package tools.jackson.core.unittest;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataInput;
 import java.io.File;
 import java.io.InputStream;
+import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,9 +14,11 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.TokenStreamLocation;
+import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.unittest.testutil.MockDataInput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -142,7 +146,83 @@ class TokenStreamLocationTest
         verifyException(e, "unrecognized token");
         TokenStreamLocation loc = e.getLocation();
         assertNull(loc.contentReference().getRawContent());
+        assertTrue(loc.contentReference().hasTextualContent());
         assertThat(loc.sourceDescription()).startsWith("REDACTED");
+        assertEquals("line: 1, column: 3", loc.offsetDescription());
+    }
+
+    // for [jackson-core#1833]
+    @Test
+    void redactedLocationPreservesTextualLineAndColumn() throws Exception
+    {
+        final String DOC = "{\n  \"a\": 1,\n  \"b\": x\n}";
+        final JsonFactory fDisabled = JsonFactory.builder()
+                .disable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+                .build();
+        final JsonFactory fEnabled = JsonFactory.builder()
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
+                .build();
+
+        // Textual inputs (String, char[], Reader, byte[], InputStream) should report line & column
+        // regardless of whether INCLUDE_SOURCE_IN_LOCATION is enabled or disabled
+        for (JsonFactory f : new JsonFactory[] { fDisabled, fEnabled }) {
+            boolean incl = f.isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION);
+            _verifyTextualErrorLocation(f.createParser(ObjectReadContext.empty(), DOC),
+                    incl, "line: 3, column: 8");
+            _verifyTextualErrorLocation(f.createParser(ObjectReadContext.empty(), DOC.toCharArray()),
+                    incl, "line: 3, column: 8");
+            _verifyTextualErrorLocation(f.createParser(ObjectReadContext.empty(), new StringReader(DOC)),
+                    incl, "line: 3, column: 8");
+            _verifyTextualErrorLocation(f.createParser(ObjectReadContext.empty(), utf8Bytes(DOC)),
+                    incl, "line: 3, column: 8");
+            _verifyTextualErrorLocation(f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(utf8Bytes(DOC))),
+                    incl, "line: 3, column: 8");
+            _verifyTextualErrorLocation(f.createParser(ObjectReadContext.empty(), (DataInput) new MockDataInput(DOC)),
+                    incl, "line: 3, column: UNKNOWN");
+
+            // Non-blocking parser too
+            JsonParser asyncP = f.createNonBlockingByteArrayParser(ObjectReadContext.empty());
+            ByteArrayFeeder feeder = (ByteArrayFeeder) asyncP.nonBlockingInputFeeder();
+            byte[] bytes = utf8Bytes(DOC);
+            feeder.feedInput(bytes, 0, bytes.length);
+            feeder.endOfInput();
+            _verifyTextualErrorLocation(asyncP, incl, "line: 3, column: 8");
+        }
+
+        // Also check direct ContentReference.redacted(boolean)
+        ContentReference binaryRedacted = ContentReference.redacted(false);
+        assertSame(ContentReference.redacted(), binaryRedacted);
+        assertFalse(binaryRedacted.hasTextualContent());
+        assertThat(binaryRedacted.buildSourceDescription()).startsWith("REDACTED");
+        assertEquals("[Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #19]",
+                new TokenStreamLocation(binaryRedacted, 19L, -1L, -1, -1).toString());
+
+        ContentReference textualRedacted = ContentReference.redacted(true);
+        assertTrue(textualRedacted.hasTextualContent());
+        assertThat(textualRedacted.buildSourceDescription()).startsWith("REDACTED");
+        assertEquals("[Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 3, column: 8]",
+                new TokenStreamLocation(textualRedacted, 19L, 19L, 3, 8).toString());
+    }
+
+    private void _verifyTextualErrorLocation(JsonParser p, boolean includeSource, String expectedOffsetDesc)
+    {
+        try (p) {
+            while (p.nextToken() != null) { }
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            TokenStreamLocation loc = e.getLocation();
+            assertTrue(loc.contentReference().hasTextualContent());
+            assertEquals(3, loc.getLineNr());
+            assertEquals(expectedOffsetDesc, loc.offsetDescription());
+            if (includeSource) {
+                assertThat(loc.sourceDescription()).doesNotStartWith("REDACTED");
+            } else {
+                assertNull(loc.contentReference().getRawContent());
+                assertThat(loc.sourceDescription()).startsWith("REDACTED");
+                assertThat(e.getMessage()).contains("REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); "
+                        + expectedOffsetDesc);
+            }
+        }
     }
 
     // for [jackson-core#739]: try to support equality

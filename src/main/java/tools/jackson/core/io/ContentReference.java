@@ -36,7 +36,9 @@ public class ContentReference
      * As content will be redacted by default in Jackson 2.16 and later,
      * we'll use a new marker reference for slightly different description
      * from "unknown", to indicate explicit removal of source/content reference
-     * (as opposed to it missing from not being available or so)
+     * (as opposed to it missing from not being available or so).
+     *<p>
+     * Constant used for non-textual (binary) content.
      */
     protected final static ContentReference REDACTED_CONTENT =
             new ContentReference(false, null, ErrorReportConfiguration.defaults());
@@ -49,6 +51,24 @@ public class ContentReference
      */
     protected final static ContentReference REDACTED_CONTENT_NO_NOTE =
             new ContentReference(false, null, ErrorReportConfiguration.defaults());
+
+    /**
+     * Marker reference similar to {@link #REDACTED_CONTENT}, used when redacted
+     * content is known to be textual so that line and column offset description
+     * is preserved (see [core#1833]).
+     *
+     * @since 3.4
+     */
+    protected final static ContentReference REDACTED_TEXTUAL_CONTENT =
+            new ContentReference(true, null, ErrorReportConfiguration.defaults());
+
+    /**
+     * Textual variant of {@link #REDACTED_CONTENT_NO_NOTE}.
+     *
+     * @since 3.4
+     */
+    protected final static ContentReference REDACTED_TEXTUAL_CONTENT_NO_NOTE =
+            new ContentReference(true, null, ErrorReportConfiguration.defaults());
 
     /**
      * Reference to the actual underlying content.
@@ -136,6 +156,38 @@ public class ContentReference
      */
     public static ContentReference redactedWithoutNote() {
         return REDACTED_CONTENT_NO_NOTE;
+    }
+
+    /**
+     * Accessor for getting a placeholder when actual content is not to be
+     * exposed, preserving whether the underlying content is textual or binary.
+     *
+     * @param isContentTextual Whether the redacted content is textual ({@code true})
+     *   or binary ({@code false})
+     *
+     * @return Placeholder instance to use in cases where reference is explicitly
+     *   blocked, usually for security reasons.
+     *
+     * @since 3.4
+     */
+    public static ContentReference redacted(boolean isContentTextual) {
+        return isContentTextual ? REDACTED_TEXTUAL_CONTENT : REDACTED_CONTENT;
+    }
+
+    /**
+     * Variant of {@link #redacted(boolean)} whose source description is empty,
+     * so that no "REDACTED" note is included in location descriptions.
+     *
+     * @param isContentTextual Whether the redacted content is textual ({@code true})
+     *   or binary ({@code false})
+     *
+     * @return Placeholder instance to use when reference is explicitly blocked
+     *   and its redaction is not to be noted
+     *
+     * @since 3.4
+     */
+    public static ContentReference redactedWithoutNote(boolean isContentTextual) {
+        return isContentTextual ? REDACTED_TEXTUAL_CONTENT_NO_NOTE : REDACTED_CONTENT_NO_NOTE;
     }
 
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
@@ -253,13 +305,13 @@ public class ContentReference
      */
     public StringBuilder appendSourceDescription(StringBuilder sb)
     {
-        if (this == REDACTED_CONTENT_NO_NOTE) {
+        if ((this == REDACTED_CONTENT_NO_NOTE) || (this == REDACTED_TEXTUAL_CONTENT_NO_NOTE)) {
             return sb;
         }
         final Object srcRef = getRawContent();
 
         if (srcRef == null) {
-            if (this == REDACTED_CONTENT) { // ugly but...
+            if ((this == REDACTED_CONTENT) || (this == REDACTED_TEXTUAL_CONTENT)) { // ugly but...
                 sb.append("REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled)");
             } else {
                 sb.append("UNKNOWN");

@@ -17,6 +17,10 @@ JSON library.
 
 3.4.0 (not yet released)
 
+#1158: Add `StreamReadFeature.INCLUDE_REDACTION_NOTE_IN_LOCATION` to allow
+  omitting the source-redaction note from locations
+ (requested by @jamesagnew)
+ (contributed by @wozhenbang2004)
 #1817: Non-blocking parser: `isNaN()` always returns `false`
  (fix by @nvsaigokul-sudo)
 #1827: Custom `CharacterEscapes` drop escaping of non-default `quoteChar`

@@ -224,3 +224,11 @@ Sai Gokul N V (@nvsaigokul-sudo)
  * Reported #1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
    out-of-range exponent (instead of `StreamReadException`)
   (3.1.9, 3.3.1)
+
+@jamesagnew
+ * Requested #1158: Allow suppressing the source-redaction note from locations
+  (3.4.0)
+
+Kayokoi (@wozhenbang2004)
+ * Contributed #1158: Allow suppressing the source-redaction note from locations
+  (3.4.0)

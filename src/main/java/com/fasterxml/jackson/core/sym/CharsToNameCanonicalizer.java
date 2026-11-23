@@ -234,6 +234,12 @@ public final class CharsToNameCanonicalizer
      */
     protected BitSet _overflows;
 
+    /**
+     * Flag set if any collision bucket has overflowed: unlike {@link #_overflows},
+     * not cleared on rehash. Tables with overflows are not merged into the root.
+     */
+    private boolean _hadOverflow;
+
     /*
     /**********************************************************
     /* Life-cycle: constructors
@@ -399,7 +405,10 @@ public final class CharsToNameCanonicalizer
         if (!maybeDirty()) { return; }
 
         // we will try to merge if child table has new entries
-        if (_parent != null && _canonicalize) { // canonicalize set to false if max size was reached
+        // (canonicalize set to false if max size was reached)
+        // 23-Nov-2026, tatu: [core#1835] nor if collision chain overflowed: would leave
+        //   long collision chain in root, inherited by all later tables
+        if (_parent != null && _canonicalize && !_hadOverflow) {
             _parent.mergeChild(new TableInfo(this));
             // Let's also mark this instance as dirty, so that just in
             // case release was too early, there's no corruption of possibly shared data.
@@ -572,7 +581,6 @@ public final class CharsToNameCanonicalizer
         if (JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(_factoryFeatures)) {
             newSymbol = InternCache.instance.intern(newSymbol);
         }
-        ++_size;
         // Ok; do we need to add primary entry, or a bucket?
         if (_symbols[index] == null) {
             _symbols[index] = newSymbol;
@@ -589,6 +597,9 @@ public final class CharsToNameCanonicalizer
                 _longestCollisionList = Math.max(collLen, _longestCollisionList);
             }
         }
+        // 23-Nov-2026, tatu: [core#1835] Increment only after possible failure
+        //   in `_handleSpillOverflow()`, to keep `_size` consistent
+        ++_size;
         return newSymbol;
     }
 
@@ -601,18 +612,20 @@ public final class CharsToNameCanonicalizer
      */
     private void _handleSpillOverflow(int bucketIndex, Bucket newBucket, int mainIndex) throws IOException
     {
+        _hadOverflow = true;
         if (_overflows == null) {
             _overflows = new BitSet();
             _overflows.set(bucketIndex);
         } else {
             if (_overflows.get(bucketIndex)) {
                 // Has happened once already for this bucket index, so probably not coincidental...
+                // Stop canonicalizing as safety measure (so as not to cause problems with PermGen).
+                // 22-Nov-2026, tatu: [core#1835] Must be done before failing as well, so that
+                //   release() won't merge this (inconsistent) table into the root
+                _canonicalize = false;
                 if (JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(_factoryFeatures)) {
                     _reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
                 }
-                // but even if we don't fail, we will stop canonicalizing as safety measure
-                // (so as not to cause problems with PermGen)
-                _canonicalize = false;
             } else {
                 _overflows.set(bucketIndex);
             }

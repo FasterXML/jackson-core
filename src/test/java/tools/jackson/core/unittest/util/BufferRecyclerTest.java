@@ -204,6 +204,80 @@ class BufferRecyclerTest extends JacksonCoreTestBase
         assertFalse(br.isLinkedWithPool());
     }
 
+    @Test
+    void concurrentPoolReleaseReturnsRecyclerOnce() throws Exception {
+        final int trials = 50_000;
+        final BufferRecycler br = new BufferRecycler();
+        final CountingPool pool = new CountingPool();
+        final AtomicInteger bad = new AtomicInteger();
+        final Phaser phases = new Phaser(2) {
+            @Override
+            protected boolean onAdvance(int phase, int registeredParties) {
+                if ((phase & 1) == 0) {
+                    pool.released.set(0);
+                    br.withPool(pool);
+                } else if (pool.released.get() != 1 || br.isLinkedWithPool()) {
+                    bad.incrementAndGet();
+                }
+                return false;
+            }
+        };
+
+        runThreads(2, ix -> {
+            for (int i = 0; i < trials; ++i) {
+                phases.awaitAdvanceInterruptibly(phases.arrive(), 5, TimeUnit.SECONDS);
+                br.releaseToPool();
+                phases.awaitAdvanceInterruptibly(phases.arrive(), 5, TimeUnit.SECONDS);
+            }
+        });
+
+        assertEquals(0, bad.get(), "Each pool link must be released exactly once");
+    }
+
+    @Test
+    void concurrentPoolLinkHasOneOwner() throws Exception {
+        final int trials = 50_000;
+        final BufferRecycler br = new BufferRecycler();
+        final CountingPool[] pools = { new CountingPool(), new CountingPool() };
+        final AtomicInteger linked = new AtomicInteger();
+        final AtomicInteger bad = new AtomicInteger();
+        final Phaser phases = new Phaser(2) {
+            @Override
+            protected boolean onAdvance(int phase, int registeredParties) {
+                if ((phase & 1) == 0) {
+                    linked.set(0);
+                    for (CountingPool pool : pools) {
+                        pool.released.set(0);
+                    }
+                } else {
+                    if (linked.get() != 1 || !br.isLinkedWithPool()) {
+                        bad.incrementAndGet();
+                    }
+                    br.releaseToPool();
+                    if (pools[0].released.get() + pools[1].released.get() != 1) {
+                        bad.incrementAndGet();
+                    }
+                }
+                return false;
+            }
+        };
+
+        runThreads(2, ix -> {
+            for (int i = 0; i < trials; ++i) {
+                phases.awaitAdvanceInterruptibly(phases.arrive(), 5, TimeUnit.SECONDS);
+                try {
+                    br.withPool(pools[ix]);
+                    linked.incrementAndGet();
+                } catch (IllegalStateException e) {
+                    // Only one caller may acquire the pool link.
+                }
+                phases.awaitAdvanceInterruptibly(phases.arrive(), 5, TimeUnit.SECONDS);
+            }
+        });
+
+        assertEquals(0, bad.get(), "Only one pool may own each link");
+    }
+
     // Releases of different sizes race into one empty slot; the slot must keep the largest.
     @Test
     void concurrentReleaseKeepsLargestBuffer() throws Exception {

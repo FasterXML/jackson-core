@@ -398,7 +398,10 @@ public final class ByteQuadsCanonicalizer
     {
         // we will try to merge if child table has new entries
         // 28-Jul-2019, tatu: From [core#548]: do not share if immediate rehash needed
-        if ((_parent != null) && maybeDirty()) {
+        // 18-Nov-2026, ubeddulla: nor if spill-over area is full (failed due to hash collisions),
+        //   as all later child tables would inherit it
+        if ((_parent != null) && maybeDirty()
+                && ((_spilloverEnd + 4) < (_hashSize << 3))) {
             _parent.mergeChild(new TableInfo(this));
             // Let's also mark this instance as dirty, so that just in
             // case release was too early, there's no corruption of possibly shared data.
@@ -1048,7 +1051,6 @@ public final class ByteQuadsCanonicalizer
 
         // and if even tertiary full, append at the end of spill area
         offset = _spilloverEnd;
-        _spilloverEnd += 4;
 
 //System.err.printf(" SPIll-over at x%X; start x%X; end x%X, hash %X\n", offset, _spilloverStart(), _hashArea.length, (hash & 0x7F));
 
@@ -1058,13 +1060,16 @@ public final class ByteQuadsCanonicalizer
         /* 31-Jul-2015, tatu: Note that spillover area does NOT end at end of array,
          *   since "long names" area follows. Instead, need to calculate from hash size.
          */
+        // 18-Nov-2026, ubeddulla: Must not advance `_spilloverEnd` before failing: a child table
+        //   that throws here is still merged into the root by release()
         final int end = (_hashSize << 3);
-        if (_spilloverEnd >= end) {
+        if ((offset + 4) >= end) {
             if (_failOnDoS) {
                 _reportTooManyCollisions();
             }
             return _resizeAndFindOffsetForAdd(hash);
         }
+        _spilloverEnd = offset + 4;
         return offset;
     }
 

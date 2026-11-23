@@ -215,6 +215,8 @@ No changes since 3.2.0
   out-of-range exponent (instead of `StreamReadException`)
  (reported by @Mengxi-Xu)
  (fix by @cowtowncoder)
+#1835: Don't merge symbol table that failed on hash collisions into root table
+ (contributed by @ubeddulla)
 
 3.1.8 (17-Oct-2026)
 

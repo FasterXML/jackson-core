@@ -154,6 +154,8 @@ Ubeddulla Khan (@ubeddulla)
   (3.1.9, 3.2.5)
  * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
   (3.1.9, 3.2.5)
+ * Contributed #1835: Don't merge symbol table that failed on hash collisions into root table
+  (3.1.9)
 
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for

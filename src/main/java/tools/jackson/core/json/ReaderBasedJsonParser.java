@@ -428,6 +428,10 @@ public class ReaderBasedJsonParser
                 // fall through
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
+                // 23-Nov-2026, ubeddulla: same `maxStringLength` check as `getString()`:
+                //   buffer may be shared input (String/char[] source) or a single segment
+                //   bigger than the limit, neither of which `TextBuffer` validates
+                _streamReadConstraints.validateStringLength(_textBuffer.size());
                 return _textBuffer.getTextBuffer();
             default:
                 return _currToken.asCharArray();

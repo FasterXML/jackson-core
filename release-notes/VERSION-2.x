@@ -147,6 +147,8 @@ No changes since 2.21
 #1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
   after `getNumberType()`
  (fix by @cowtowncoder)
+#1835: Don't merge symbol table that failed on hash collisions into root table
+ (contributed by @ubeddulla)
 
 2.21.8 (17-Oct-2026)
 

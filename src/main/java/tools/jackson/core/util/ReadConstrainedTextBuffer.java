@@ -3,8 +3,8 @@ package tools.jackson.core.util;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
 
-public final class ReadConstrainedTextBuffer extends TextBuffer {
-
+public final class ReadConstrainedTextBuffer extends TextBuffer
+{
     private final StreamReadConstraints _streamReadConstraints;
 
     public ReadConstrainedTextBuffer(StreamReadConstraints streamReadConstraints, BufferRecycler bufferRecycler) {
@@ -22,8 +22,7 @@ public final class ReadConstrainedTextBuffer extends TextBuffer {
      * {@inheritDoc}
      */
     @Override
-    protected void validateStringLength(int length) throws StreamConstraintsException
-    {
+    protected void validateStringLength(int length) throws StreamConstraintsException {
         _streamReadConstraints.validateStringLength(length);
     }
 }

@@ -506,6 +506,23 @@ public class TextBuffer
         return contentsAsArray();
     }
 
+    /**
+     * Variant of {@link #getTextBuffer()} that also validates the length of contents,
+     * which {@link #getTextBuffer()} does not do if returning shared input buffer
+     * or the single current segment.
+     * Validation only enforced by {@link ReadConstrainedTextBuffer}.
+     *
+     * @return Aggregated {@code char[]} that contains all buffered content
+     * @throws JacksonException if the text is too large (only thrown by {@link ReadConstrainedTextBuffer}; see {@link tools.jackson.core.StreamReadConstraints.Builder#maxStringLength(int)})
+     *
+     * @since 3.4
+     */
+    public char[] getTextBufferValidated() throws JacksonException
+    {
+        validateStringLength(size());
+        return getTextBuffer();
+    }
+
     /*
     /**********************************************************************
     /* Other accessors

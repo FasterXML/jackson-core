@@ -542,11 +542,8 @@ public abstract class NonBlockingJsonParserBase
                 // fall through
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
-                // 23-Nov-2026, ubeddulla: [core#1837] same `maxStringLength` check as `getString()`:
-                //   value may fit in a single (recycled) segment bigger than the limit,
-                //   which `TextBuffer` does not validate
-                _streamReadConstraints.validateStringLength(_textBuffer.size());
-                return _textBuffer.getTextBuffer();
+                // 23-Nov-2026, ubeddulla: [core#1837] validate `maxStringLength`, same as `getString()`
+                return _textBuffer.getTextBufferValidated();
 
             default:
                 return _currToken.asCharArray();

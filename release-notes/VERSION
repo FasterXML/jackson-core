@@ -26,6 +26,8 @@ JSON library.
 #1827: Custom `CharacterEscapes` drop escaping of non-default `quoteChar`
   (and of forward slash with `ESCAPE_FORWARD_SLASHES`)
  (reported, fix by @ubeddulla)
+#1837: `maxStringLength` not enforced by `JsonParser.getStringCharacters()`
+ (contributed by @ubeddulla)
 
 3.3.1 (not yet released)
 

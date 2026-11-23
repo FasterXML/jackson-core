@@ -453,13 +453,13 @@ public class UTF8StreamJsonParser
                     _tokenIncomplete = false;
                     _finishString(); // only strings can be incomplete
                 }
+                // fall through
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
                 // 23-Nov-2026, ubeddulla: [core#1837] same `maxStringLength` check as `getString()`:
                 //   value may fit in a single (recycled) segment bigger than the limit,
                 //   which `TextBuffer` does not validate
                 _streamReadConstraints.validateStringLength(_textBuffer.size());
-                // fall through
-            case ID_NUMBER_INT:
-            case ID_NUMBER_FLOAT:
                 return _textBuffer.getTextBuffer();
 
             default:

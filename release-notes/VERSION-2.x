@@ -89,7 +89,7 @@ a pure JSON library.
 
 No changes since 2.21
 
-2.21.9 (not yet released)
+2.21.9 (24-Nov-2026)
 
 #1792: Validate final string length against `StreamReadConstraints.maxStringLength`
   before writing string values through `JsonParser.getText(Writer)`

@@ -168,6 +168,10 @@ public class WriterBasedJsonGenerator
     @Override
     public JsonGenerator writeName(SerializableString name) throws JacksonException
     {
+        // Pre-quoted form only escapes the default quote char
+        if (_quoteChar != '"') {
+            return writeName(name.getValue());
+        }
         // Object is a value, need to verify it's allowed
         int status = _streamWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
@@ -534,6 +538,10 @@ public class WriterBasedJsonGenerator
     @Override
     public JsonGenerator writeString(SerializableString sstr) throws JacksonException
     {
+        // Pre-quoted form only escapes the default quote char
+        if (_quoteChar != '"') {
+            return writeString(sstr.getValue());
+        }
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();

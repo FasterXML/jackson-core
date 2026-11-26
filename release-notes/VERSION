@@ -19,7 +19,7 @@ JSON library.
 
 #1839: `FilteringGeneratorDelegate` writes Objects in Array elements
   excluded by filter
- (fix by @ubeddulla)
+ (contributed by @ubeddulla)
 
 3.1.9 (24-Nov-2026)
 

@@ -17,7 +17,7 @@ import tools.jackson.core.ErrorReportConfiguration;
  * messages.
  */
 public class ContentReference
-    // sort of: we will read back as "UNKNOWN" (or "REDACTED") marker
+    // sort of: we will read back as one of marker instances (via proxy)
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -235,11 +235,22 @@ public class ContentReference
     /**********************************************************************
      */
 
-    // For JDK serialization: can/should not retain raw content, so only
-    // serialize which marker instance to resolve back to (via proxy)
+    // 25-Nov-2026, tatu: [core#1833] Raw content is not to be serialized: only
+    //    which marker instance to resolve back to (via proxy), to retain
+    //    textual-ness (line/column) and redaction note
 
-    // 25-Nov-2026, tatu: [core#1833] Retain textual-ness and redaction marker
-    //    so that deserialized locations still describe line/column
+    /**
+     * Marker instances that a deserialized reference resolves to: index is
+     * the serialized form, so order must not change.
+     *
+     * @since 3.4
+     */
+    private final static ContentReference[] SER_MARKERS = {
+        UNKNOWN_CONTENT, UNKNOWN_TEXTUAL_CONTENT,
+        REDACTED_CONTENT, REDACTED_TEXTUAL_CONTENT,
+        REDACTED_CONTENT_NO_NOTE, REDACTED_TEXTUAL_CONTENT_NO_NOTE
+    };
+
     /**
      * Replaces this reference with a serialization proxy that resolves back
      * to the matching marker instance.
@@ -249,36 +260,22 @@ public class ContentReference
      * @since 3.4
      */
     protected Object writeReplace() {
-        int kind;
-        if ((this == REDACTED_CONTENT) || (this == REDACTED_TEXTUAL_CONTENT)) {
-            kind = SerializedForm.KIND_REDACTED;
-        } else if ((this == REDACTED_CONTENT_NO_NOTE) || (this == REDACTED_TEXTUAL_CONTENT_NO_NOTE)) {
-            kind = SerializedForm.KIND_REDACTED_NO_NOTE;
-        } else {
-            kind = SerializedForm.KIND_UNKNOWN;
+        for (int i = 0; i < SER_MARKERS.length; ++i) {
+            if (this == SER_MARKERS[i]) {
+                return new SerializedForm(i);
+            }
         }
-        if (_isContentTextual) {
-            kind |= SerializedForm.FLAG_TEXTUAL;
-        }
-        return new SerializedForm(kind);
+        // Not a marker: raw content not serialized, resolve to "unknown"
+        return new SerializedForm(_isContentTextual ? 1 : 0);
     }
 
+    // Only proxy is ever serialized
     private void readObject(ObjectInputStream in) throws IOException {
-        // nop: but must override the method
-    }
-
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        // nop: but must override the method
-    }
-
-    // Only reached for content serialized by versions prior to 3.4
-    protected Object readResolve() {
-        return UNKNOWN_CONTENT;
+        throw new InvalidObjectException("Serialization proxy required");
     }
 
     /**
-     * Serialization proxy for {@link ContentReference}: resolves back to
-     * one of the shared marker instances.
+     * Serialization proxy for {@link ContentReference}.
      *
      * @since 3.4
      */
@@ -286,27 +283,15 @@ public class ContentReference
     {
         private static final long serialVersionUID = 1L;
 
-        final static int KIND_UNKNOWN = 0;
-        final static int KIND_REDACTED = 1;
-        final static int KIND_REDACTED_NO_NOTE = 2;
-        final static int FLAG_TEXTUAL = 0x10;
+        private final int _index;
 
-        private final int _kind;
-
-        SerializedForm(int kind) {
-            _kind = kind;
+        SerializedForm(int index) {
+            _index = index;
         }
 
         private Object readResolve() {
-            final boolean textual = (_kind & FLAG_TEXTUAL) != 0;
-            switch (_kind & ~FLAG_TEXTUAL) {
-            case KIND_REDACTED:
-                return textual ? REDACTED_TEXTUAL_CONTENT : REDACTED_CONTENT;
-            case KIND_REDACTED_NO_NOTE:
-                return textual ? REDACTED_TEXTUAL_CONTENT_NO_NOTE : REDACTED_CONTENT_NO_NOTE;
-            default:
-                return textual ? UNKNOWN_TEXTUAL_CONTENT : UNKNOWN_CONTENT;
-            }
+            return ((_index >= 0) && (_index < SER_MARKERS.length))
+                    ? SER_MARKERS[_index] : UNKNOWN_CONTENT;
         }
     }
 

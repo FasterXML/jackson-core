@@ -560,8 +560,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         _updateTokenLocation();
         if (ch != INT_QUOTE) {
             if (ch == INT_RCURLY) {
-                // 17-Nov-2026, ubeddulla: also resumed here after a comma, if input ended
-                //   (or white space/comment followed) right after it: then '}' is a trailing comma
+                // 17-Nov-2026, ubeddulla: [core#1831] also resumed here after a comma, if
+                //   input ended (or white space/comment followed) right after it: then '}'
+                //   is a trailing comma
                 if ((_streamReadContext.currentName() == null)
                         || (_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                     return _closeObjectScope();
@@ -704,8 +705,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         case '{':
             return _startObjectScope();
         case INT_RCURLY:
-            // 17-Nov-2026, ubeddulla: also resumed here after a colon, if input ended
-            //   (or white space/comment followed) right after it: then value is missing
+            // 17-Nov-2026, ubeddulla: [core#1831] also resumed here after a colon, if
+            //   input ended (or white space/comment followed) right after it: then value
+            //   is missing
             if (_streamReadContext.inObject()) {
                 break;
             }

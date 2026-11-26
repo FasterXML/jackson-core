@@ -191,7 +191,6 @@ class TokenStreamLocationTest
 
         // Also check direct ContentReference.redacted(boolean)
         ContentReference binaryRedacted = ContentReference.redacted(false);
-        assertSame(ContentReference.redacted(), binaryRedacted);
         assertFalse(binaryRedacted.hasTextualContent());
         assertThat(binaryRedacted.buildSourceDescription()).startsWith("REDACTED");
         assertEquals("[Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #19]",

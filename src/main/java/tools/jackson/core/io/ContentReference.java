@@ -153,7 +153,10 @@ public class ContentReference
      *
      * @return Placeholder instance to use in cases where reference is explicitly
      *   blocked, usually for security reasons.
+     *
+     * @deprecated Since 3.4 use {@link #redacted(boolean)} instead
      */
+    @Deprecated // since 3.4
     public static ContentReference redacted() {
         return REDACTED_CONTENT;
     }

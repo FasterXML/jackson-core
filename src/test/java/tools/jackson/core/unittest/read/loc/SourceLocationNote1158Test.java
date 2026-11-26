@@ -106,7 +106,7 @@ class SourceLocationNote1158Test extends AsyncTestBase
                 assertEquals(expected.offsetDescription(), actual.offsetDescription());
             }
         }
-        assertTrue(ContentReference.redacted().buildSourceDescription().startsWith("REDACTED"));
+        assertTrue(ContentReference.redacted(false).buildSourceDescription().startsWith("REDACTED"));
         assertFalse(ContentReference.redactedWithoutNote(false).hasTextualContent());
         assertTrue(ContentReference.redactedWithoutNote(true).hasTextualContent());
         assertEquals("", ContentReference.redactedWithoutNote(true).buildSourceDescription());

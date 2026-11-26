@@ -286,6 +286,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, null, true);
             delegate.writeStartObject();
         } else { // filter out
+            _itemFilter = f;
             _filterContext = _filterContext.createChildObjectContext(f, null, false);
         }
         return this;
@@ -323,6 +324,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, currValue, true);
             delegate.writeStartObject(currValue);
         } else { // filter out
+            _itemFilter = f;
             _filterContext = _filterContext.createChildObjectContext(f, currValue, false);
         }
         return this;
@@ -360,6 +362,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, currValue, true);
             delegate.writeStartObject(currValue, size);
         } else { // filter out
+            _itemFilter = f;
             _filterContext = _filterContext.createChildObjectContext(f, currValue, false);
         }
         return this;

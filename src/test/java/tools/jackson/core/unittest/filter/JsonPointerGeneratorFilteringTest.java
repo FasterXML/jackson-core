@@ -8,6 +8,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.filter.FilteringGeneratorDelegate;
 import tools.jackson.core.filter.JsonPointerBasedFilter;
+import tools.jackson.core.filter.TokenFilter;
 import tools.jackson.core.filter.TokenFilter.Inclusion;
 import tools.jackson.core.json.JsonFactory;
 
@@ -123,10 +124,10 @@ class JsonPointerGeneratorFilteringTest extends tools.jackson.core.unittest.Jack
         _assert("[{'id':1,'stuff':[1,2,3]},{'id':2,'stuff':[4,5,6]},{'id':3,'stuff':[7,8,9]}]", "/2/stuff/2", Inclusion.INCLUDE_ALL_AND_PATH, "[{'stuff':[9]}]", true);
     }
 
-    // Object in an Array element excluded by the filter must be skipped,
+    // [core#1839]: Object in an Array element excluded by the filter must be skipped,
     // not matched against the filter of the enclosing Array
     @Test
-    void objectInExcludedArrayElement() throws Exception
+    void objectInExcludedArrayElement1839() throws Exception
     {
         _assert("[{'b':1}]", "/b", Inclusion.INCLUDE_ALL_AND_PATH, "", false);
         _assert("[{'b':1}]", "/b", Inclusion.ONLY_INCLUDE_ALL, "", false);
@@ -135,29 +136,79 @@ class JsonPointerGeneratorFilteringTest extends tools.jackson.core.unittest.Jack
     }
 
     @Test
-    void objectInExcludedArrayElementWithoutObject() throws Exception {
-        _testObjectInExcludedArrayElement(0);
+    void objectInExcludedArrayElement1839WithoutObject() throws Exception {
+        _testObjectInExcludedArrayElement1839(0);
     }
 
     @Test
-    void objectInExcludedArrayElementWithObject() throws Exception {
-        _testObjectInExcludedArrayElement(1);
+    void objectInExcludedArrayElement1839WithObject() throws Exception {
+        _testObjectInExcludedArrayElement1839(1);
     }
 
     @Test
-    void objectInExcludedArrayElementWithSize() throws Exception {
-        _testObjectInExcludedArrayElement(2);
+    void objectInExcludedArrayElement1839WithSize() throws Exception {
+        _testObjectInExcludedArrayElement1839(2);
     }
 
-    private void _testObjectInExcludedArrayElement(int mode) throws Exception
+    private void _testObjectInExcludedArrayElement1839(int mode) throws Exception
+    {
+        // Excluded element: neither its properties nor native ids may reach delegate
+        assertEquals("", _writeExcludedElement(new JsonPointerBasedFilter("/b"), mode));
+        // ... and following sibling element must still be included
+        assertEquals("[2]", _writeExcludedElement(new JsonPointerBasedFilter("/1"), mode));
+        // Same when Object is excluded by `filterStartObject()` instead
+        TokenFilter noObjects = new TokenFilter() {
+            @Override
+            public TokenFilter filterStartObject() { return null; }
+        };
+        assertEquals("[2]", _writeExcludedElement(noObjects, mode));
+    }
+
+    // Writes `[{'b':"secret"},2]`, with Type Id (not supported by JSON
+    // generator, so would fail if passed) for the Object
+    private String _writeExcludedElement(TokenFilter filter, int mode)
+        throws Exception
     {
         StringWriter output = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(
                 JSON_F.createGenerator(ObjectWriteContext.empty(), output),
-                new JsonPointerBasedFilter("/b"), Inclusion.INCLUDE_ALL_AND_PATH, true);
-        final Object value = new Object();
-
+                filter, Inclusion.INCLUDE_ALL_AND_PATH, true);
         gen.writeStartArray();
+        _writeStartObject(gen, mode);
+        gen.writeTypeId("type");
+        gen.writeOmittedProperty("x");
+        gen.writeStringProperty("b", "secret");
+        gen.writeEndObject();
+        gen.writeNumber(2);
+        gen.writeEndArray();
+        gen.close();
+        return output.toString();
+    }
+
+    // [core#1839]: `writeStartObject(Object, int)` must handle INCLUDE_NON_NULL
+    // same as other overloads
+    @Test
+    void includeNonNullObject1839() throws Exception
+    {
+        for (int mode = 0; mode < 3; ++mode) {
+            StringWriter output = new StringWriter();
+            JsonGenerator gen = new FilteringGeneratorDelegate(
+                    JSON_F.createGenerator(ObjectWriteContext.empty(), output),
+                    new JsonPointerBasedFilter("/a/x"), Inclusion.INCLUDE_NON_NULL, true);
+            gen.writeStartObject();
+            gen.writeName("a");
+            _writeStartObject(gen, mode);
+            gen.writeNumberProperty("y", 1);
+            gen.writeEndObject();
+            gen.writeEndObject();
+            gen.close();
+            assertEquals(a2q("{'a':{}}"), output.toString(), "mode " + mode);
+        }
+    }
+
+    private void _writeStartObject(JsonGenerator gen, int mode)
+    {
+        final Object value = new Object();
         switch (mode) {
         case 0:
             gen.writeStartObject();
@@ -168,12 +219,6 @@ class JsonPointerGeneratorFilteringTest extends tools.jackson.core.unittest.Jack
         default:
             gen.writeStartObject(value, 1);
         }
-        gen.writeStringProperty("b", "secret");
-        gen.writeEndObject();
-        gen.writeEndArray();
-        gen.close();
-
-        assertEquals("", output.toString());
     }
 
     private void _assert(String input, String pathExpr, Inclusion tokenFilterInclusion, String exp, boolean allowMultipleMatches)

@@ -15,6 +15,12 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+3.1.10 (not yet released)
+
+#1839: `FilteringGeneratorDelegate` writes Objects in Array elements
+  excluded by filter
+ (fix by @ubeddulla)
+
 3.1.9 (24-Nov-2026)
 
 #1784: UTF-8 parsers may return wrong cached property name for names

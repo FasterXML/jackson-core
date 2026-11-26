@@ -20,6 +20,11 @@ a pure JSON library.
   out-of-range exponent (instead of `StreamReadException`)
  (reported by @Mengxi-Xu)
 
+2.23.1 (not yet released)
+
+#1835: Don't merge symbol table that failed on hash collisions into root table
+ (contributed by @ubeddulla)
+
 2.23.0 (07-Nov-2026)
 
 #1622: `UTF8JsonGenerator.writeBinary()` should allocate buffer
@@ -153,6 +158,8 @@ No changes since 2.21
 #1815: Stale `BigDecimal` from previous token returned by `getBigIntegerValue()`
   after `getNumberType()`
  (fix by @cowtowncoder)
+#1835: Don't merge symbol table that failed on hash collisions into root table
+ (contributed by @ubeddulla)
 
 2.21.8 (17-Oct-2026)
 

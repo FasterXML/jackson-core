@@ -17,18 +17,36 @@ JSON library.
 
 3.4.0 (not yet released)
 
+#1158: Add `StreamReadFeature.INCLUDE_REDACTION_NOTE_IN_LOCATION` to allow
+  omitting the source-redaction note from locations
+ (requested by @jamesagnew)
+ (contributed by @wozhenbang2004)
 #1817: Non-blocking parser: `isNaN()` always returns `false`
  (fix by @nvsaigokul-sudo)
 #1827: Custom `CharacterEscapes` drop escaping of non-default `quoteChar`
   (and of forward slash with `ESCAPE_FORWARD_SLASHES`)
  (reported, fix by @ubeddulla)
+#1833: With `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled (default),
+  3.x error locations lose line/column for textual input
+  (also: non-blocking JSON parsers now report line/column instead of byte offset)
+ (fix by @barthollomew)
+#1837: `maxStringLength` not enforced by `JsonParser.getStringCharacters()`
+ (contributed by @ubeddulla)
 
 3.3.1 (not yet released)
 
+#1824: Concurrent `BufferRecycler.releaseToPool()` calls can return the same
+  recycler more than once
+ (reported, fix by DongNyoung L)
 #1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
   out-of-range exponent (instead of `StreamReadException`)
  (reported by @Mengxi-Xu)
  (fix by @cowtowncoder)
+#1835: Don't merge symbol table that failed on hash collisions into root table
+ (contributed by @ubeddulla)
+#1838: Non-default `quoteChar` not escaped by `writeName(SerializableString)`,
+  `writeString(SerializableString)`
+ (contributed by @ubeddulla)
 
 3.3.0 (07-Nov-2026)
 
@@ -335,7 +353,7 @@ No changes since 3.2.0
 #1598: Possible TOCTOU timing bug in `BufferRecycler`
  (implemented by @pjfanning)
 
-3.1.9 (not yet released)
+3.1.9 (24-Nov-2026)
 
 #1784: UTF-8 parsers may return wrong cached property name for names
   containing 0xFF bytes
@@ -373,6 +391,11 @@ No changes since 3.2.0
   out-of-range exponent (instead of `StreamReadException`)
  (reported by @Mengxi-Xu)
  (fix by @cowtowncoder)
+#1835: Don't merge symbol table that failed on hash collisions into root table
+ (contributed by @ubeddulla)
+#1838: Non-default `quoteChar` not escaped by `writeName(SerializableString)`,
+  `writeString(SerializableString)`
+ (contributed by @ubeddulla)
 
 3.1.8 (17-Oct-2026)
 

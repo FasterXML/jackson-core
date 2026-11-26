@@ -213,6 +213,8 @@ Ubeddulla Khan (@ubeddulla)
  * Reported, contributed fix for #1827: Custom `CharacterEscapes` drop escaping of
    non-default `quoteChar`
   (3.4.0)
+ * Contributed #1831: Non-blocking parser accepts `}` after `:` or `,` at a feed boundary
+  (3.4.0)
  * Contributed #1835: Don't merge symbol table that failed on hash collisions into root table
   (3.1.9, 3.3.1)
  * Contributed #1837: `maxStringLength` not enforced by `JsonParser.getStringCharacters()`

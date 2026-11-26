@@ -47,6 +47,9 @@ JSON library.
 #1838: Non-default `quoteChar` not escaped by `writeName(SerializableString)`,
   `writeString(SerializableString)`
  (contributed by @ubeddulla)
+#1839: `FilteringGeneratorDelegate` writes Objects in Array elements
+  excluded by filter
+ (contributed by @ubeddulla)
 
 3.3.0 (07-Nov-2026)
 

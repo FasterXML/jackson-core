@@ -26,6 +26,8 @@ JSON library.
 #1827: Custom `CharacterEscapes` drop escaping of non-default `quoteChar`
   (and of forward slash with `ESCAPE_FORWARD_SLASHES`)
  (reported, fix by @ubeddulla)
+#1831: Non-blocking parser accepts `}` after `:` or `,` at a feed boundary
+ (contributed by @ubeddulla)
 #1833: With `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled (default),
   3.x error locations lose line/column for textual input
   (also: non-blocking JSON parsers now report line/column instead of byte offset)

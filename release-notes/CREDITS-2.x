@@ -597,8 +597,15 @@ Ubeddulla Khan (@ubeddulla)
   (2.18.13)
  * Contributed #1800: Don't read past end of `byte[]` in `ByteSourceJsonBootstrapper`
   (2.21.9)
+ * Contributed #1835: Don't merge symbol table that failed on hash collisions into root table
+  (2.21.9)
 
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
    deferred floating-point value
   (2.21.9)
+
+@Mengxi-Xu
+ * Reported #1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
+   out-of-range exponent (instead of `StreamReadException`)
+  (2.24.0)

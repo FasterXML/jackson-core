@@ -102,6 +102,9 @@ DongNyoung Lee (@Dongnyoung)
  * Reported, fixed #1803: Consider validating async decimal number lengths
    before buffer expansion
   (3.3.0)
+ * Reported, fixed #1824: Concurrent `BufferRecycler.releaseToPool()` calls can
+   return the same recycler more than once
+  (3.3.1)
 
 seonwoojung (@seonwooj0810)
  * Contributed #707: Add `JsonReadFeature.ALLOW_HEXADECIMAL_NUMBERS`
@@ -207,6 +210,16 @@ Ubeddulla Khan (@ubeddulla)
   (3.1.9, 3.2.5)
  * Contributed #1801: Reject surrogate code points in `UTF32Reader`
   (3.3.0)
+ * Reported, contributed fix for #1827: Custom `CharacterEscapes` drop escaping of
+   non-default `quoteChar`
+  (3.4.0)
+ * Contributed #1835: Don't merge symbol table that failed on hash collisions into root table
+  (3.1.9, 3.3.1)
+ * Contributed #1837: `maxStringLength` not enforced by `JsonParser.getStringCharacters()`
+  (3.4.0)
+ * Contributed #1838: Non-default `quoteChar` not escaped by `writeName(SerializableString)`,
+   `writeString(SerializableString)`
+  (3.1.9, 3.3.1)
 
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for
@@ -219,4 +232,22 @@ Sai Gokul N V (@nvsaigokul-sudo)
 
 @wendigo
  * Contributed #1805: Add `JsonParser.readUTF8String(OutputStream)`
+  (3.4.0)
+
+@Mengxi-Xu
+ * Reported #1828: `JsonParser.getDecimalValue()` throws raw `NumberFormatException` for
+   out-of-range exponent (instead of `StreamReadException`)
+  (3.1.9, 3.3.1)
+
+@jamesagnew
+ * Requested #1158: Allow suppressing the source-redaction note from locations
+  (3.4.0)
+
+Kayokoi (@wozhenbang2004)
+ * Contributed #1158: Allow suppressing the source-redaction note from locations
+  (3.4.0)
+
+Nathan (@barthollomew)
+ * Contributed #1833: With `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled (default),
+   3.x error locations lose line/column for textual input
   (3.4.0)

@@ -118,12 +118,14 @@ public class WriterBasedJsonGenerator
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
     {
         _characterEscapes = esc;
-        if (esc == null) {
-            _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar,
-                    JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
-        } else {
-            _outputEscapes = esc.getEscapeCodesForAscii();
+        // 15-Nov-2026, tatu: [core#1827] Base class constructor calls this before
+        //   our fields (incl. `_quoteChar`) are set; skip, as our constructor calls again.
+        //   (`_outputBuffer` is only null before construction completes, or after close)
+        if (_outputBuffer == null) {
+            return this;
         }
+        _outputEscapes = CharTypes.get7BitOutputEscapes(esc, _quoteChar,
+                JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
         _stdOutputEscapes = (_outputEscapes == DEFAULT_OUTPUT_ESCAPES);
         return this;
     }
@@ -166,6 +168,10 @@ public class WriterBasedJsonGenerator
     @Override
     public JsonGenerator writeName(SerializableString name) throws JacksonException
     {
+        // Pre-quoted form only escapes the default quote char
+        if (_quoteChar != '"') {
+            return writeName(name.getValue());
+        }
         // Object is a value, need to verify it's allowed
         int status = _streamWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
@@ -532,6 +538,10 @@ public class WriterBasedJsonGenerator
     @Override
     public JsonGenerator writeString(SerializableString sstr) throws JacksonException
     {
+        // Pre-quoted form only escapes the default quote char
+        if (_quoteChar != '"') {
+            return writeString(sstr.getValue());
+        }
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();

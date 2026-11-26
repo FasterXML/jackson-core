@@ -428,7 +428,8 @@ public class ReaderBasedJsonParser
                 // fall through
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
-                return _textBuffer.getTextBuffer();
+                // 23-Nov-2026, ubeddulla: [core#1837] validate `maxStringLength`, same as `getString()`
+                return _textBuffer.getTextBufferValidated();
             default:
                 return _currToken.asCharArray();
             }

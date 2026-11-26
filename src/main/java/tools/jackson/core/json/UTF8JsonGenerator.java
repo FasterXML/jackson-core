@@ -166,12 +166,14 @@ public class UTF8JsonGenerator
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
     {
         _characterEscapes = esc;
-        if (esc == null) {
-            _outputEscapes = CharTypes.get7BitOutputEscapes(_quoteChar,
-                    JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
-        } else {
-            _outputEscapes = esc.getEscapeCodesForAscii();
+        // 15-Nov-2026, tatu: [core#1827] Base class constructor calls this before
+        //   our fields (incl. `_quoteChar`) are set; skip, as our constructor calls again.
+        //   (`_outputBuffer` is only null before construction completes, or after close)
+        if (_outputBuffer == null) {
+            return this;
         }
+        _outputEscapes = CharTypes.get7BitOutputEscapes(esc, _quoteChar,
+                JsonWriteFeature.ESCAPE_FORWARD_SLASHES.enabledIn(_formatWriteFeatures));
         return this;
     }
 
@@ -249,6 +251,10 @@ public class UTF8JsonGenerator
     @Override
     public JsonGenerator writeName(SerializableString name) throws JacksonException
     {
+        // Pre-quoted form only escapes the default quote char
+        if (_quoteChar != '"') {
+            return writeName(name.getValue());
+        }
         if (_prettyPrinter != null) {
             _writePPName(name);
             return this;
@@ -623,6 +629,10 @@ public class UTF8JsonGenerator
     @Override
     public JsonGenerator writeString(SerializableString text) throws JacksonException
     {
+        // Pre-quoted form only escapes the default quote char
+        if (_quoteChar != '"') {
+            return writeString(text.getValue());
+        }
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();

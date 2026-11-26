@@ -17,7 +17,7 @@ import tools.jackson.core.ErrorReportConfiguration;
  * messages.
  */
 public class ContentReference
-    // sort of: we will read back as "UNKNOWN"
+    // sort of: we will read back as one of marker instances (via proxy)
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -36,10 +36,48 @@ public class ContentReference
      * As content will be redacted by default in Jackson 2.16 and later,
      * we'll use a new marker reference for slightly different description
      * from "unknown", to indicate explicit removal of source/content reference
-     * (as opposed to it missing from not being available or so)
+     * (as opposed to it missing from not being available or so).
+     *<p>
+     * Constant used for non-textual (binary) content.
      */
     protected final static ContentReference REDACTED_CONTENT =
             new ContentReference(false, null, ErrorReportConfiguration.defaults());
+
+    /**
+     * Variant of {@link #REDACTED_CONTENT} for which no source description
+     * (not even the "REDACTED" note) is included.
+     *
+     * @since 3.4
+     */
+    protected final static ContentReference REDACTED_CONTENT_NO_NOTE =
+            new ContentReference(false, null, ErrorReportConfiguration.defaults());
+
+    /**
+     * Marker reference similar to {@link #REDACTED_CONTENT}, used when redacted
+     * content is known to be textual so that line and column offset description
+     * is preserved (see [core#1833]).
+     *
+     * @since 3.4
+     */
+    protected final static ContentReference REDACTED_TEXTUAL_CONTENT =
+            new ContentReference(true, null, ErrorReportConfiguration.defaults());
+
+    /**
+     * Textual variant of {@link #REDACTED_CONTENT_NO_NOTE}.
+     *
+     * @since 3.4
+     */
+    protected final static ContentReference REDACTED_TEXTUAL_CONTENT_NO_NOTE =
+            new ContentReference(true, null, ErrorReportConfiguration.defaults());
+
+    /**
+     * Textual variant of {@link #UNKNOWN_CONTENT}: only used as the JDK-deserialized
+     * form of references to textual content (raw content is not serialized).
+     *
+     * @since 3.4
+     */
+    private final static ContentReference UNKNOWN_TEXTUAL_CONTENT =
+            new ContentReference(true, null, ErrorReportConfiguration.defaults());
 
     /**
      * Reference to the actual underlying content.
@@ -108,12 +146,51 @@ public class ContentReference
      * Accessor for getting a placeholder when actual content
      * is not to be exposed: different from {@link #unknown()} where
      * content is not available to be referenced.
+     *<p>
+     * NOTE: returned instance is for binary content, so locations using it
+     * describe byte offset, not line/column: for textual content use
+     * {@link #redacted(boolean)} instead.
      *
      * @return Placeholder instance to use in cases where reference is explicitly
      *   blocked, usually for security reasons.
+     *
+     * @deprecated Since 3.4 use {@link #redacted(boolean)} instead
      */
+    @Deprecated // since 3.4
     public static ContentReference redacted() {
         return REDACTED_CONTENT;
+    }
+
+    /**
+     * Accessor for getting a placeholder when actual content is not to be
+     * exposed, preserving whether the underlying content is textual or binary.
+     *
+     * @param isContentTextual Whether the redacted content is textual ({@code true})
+     *   or binary ({@code false})
+     *
+     * @return Placeholder instance to use in cases where reference is explicitly
+     *   blocked, usually for security reasons.
+     *
+     * @since 3.4
+     */
+    public static ContentReference redacted(boolean isContentTextual) {
+        return isContentTextual ? REDACTED_TEXTUAL_CONTENT : REDACTED_CONTENT;
+    }
+
+    /**
+     * Variant of {@link #redacted(boolean)} whose source description is empty,
+     * so that no "REDACTED" note is included in location descriptions.
+     *
+     * @param isContentTextual Whether the redacted content is textual ({@code true})
+     *   or binary ({@code false})
+     *
+     * @return Placeholder instance to use when reference is explicitly blocked
+     *   and its redaction is not to be noted
+     *
+     * @since 3.4
+     */
+    public static ContentReference redactedWithoutNote(boolean isContentTextual) {
+        return isContentTextual ? REDACTED_TEXTUAL_CONTENT_NO_NOTE : REDACTED_CONTENT_NO_NOTE;
     }
 
     public static ContentReference construct(boolean isContentTextual, Object rawContent,
@@ -161,19 +238,64 @@ public class ContentReference
     /**********************************************************************
      */
 
-    // For JDK serialization: can/should not retain raw content, so need
-    // not read or write anything
+    // 25-Nov-2026, tatu: [core#1833] Raw content is not to be serialized: only
+    //    which marker instance to resolve back to (via proxy), to retain
+    //    textual-ness (line/column) and redaction note
 
+    /**
+     * Marker instances that a deserialized reference resolves to: index is
+     * the serialized form, so order must not change.
+     *
+     * @since 3.4
+     */
+    private final static ContentReference[] SER_MARKERS = {
+        UNKNOWN_CONTENT, UNKNOWN_TEXTUAL_CONTENT,
+        REDACTED_CONTENT, REDACTED_TEXTUAL_CONTENT,
+        REDACTED_CONTENT_NO_NOTE, REDACTED_TEXTUAL_CONTENT_NO_NOTE
+    };
+
+    /**
+     * Replaces this reference with a serialization proxy that resolves back
+     * to the matching marker instance.
+     *
+     * @return Serialization proxy to write instead of this instance
+     *
+     * @since 3.4
+     */
+    protected Object writeReplace() {
+        for (int i = 0; i < SER_MARKERS.length; ++i) {
+            if (this == SER_MARKERS[i]) {
+                return new SerializedForm(i);
+            }
+        }
+        // Not a marker: raw content not serialized, resolve to "unknown"
+        return new SerializedForm(_isContentTextual ? 1 : 0);
+    }
+
+    // Only proxy is ever serialized
     private void readObject(ObjectInputStream in) throws IOException {
-        // nop: but must override the method
+        throw new InvalidObjectException("Serialization proxy required");
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        // nop: but must override the method
-    }
+    /**
+     * Serialization proxy for {@link ContentReference}.
+     *
+     * @since 3.4
+     */
+    private static final class SerializedForm implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
 
-    protected Object readResolve() {
-        return UNKNOWN_CONTENT;
+        private final int _index;
+
+        SerializedForm(int index) {
+            _index = index;
+        }
+
+        private Object readResolve() {
+            return ((_index >= 0) && (_index < SER_MARKERS.length))
+                    ? SER_MARKERS[_index] : UNKNOWN_CONTENT;
+        }
     }
 
     /*
@@ -231,10 +353,13 @@ public class ContentReference
      */
     public StringBuilder appendSourceDescription(StringBuilder sb)
     {
+        if ((this == REDACTED_CONTENT_NO_NOTE) || (this == REDACTED_TEXTUAL_CONTENT_NO_NOTE)) {
+            return sb;
+        }
         final Object srcRef = getRawContent();
 
         if (srcRef == null) {
-            if (this == REDACTED_CONTENT) { // ugly but...
+            if ((this == REDACTED_CONTENT) || (this == REDACTED_TEXTUAL_CONTENT)) { // ugly but...
                 sb.append("REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled)");
             } else {
                 sb.append("UNKNOWN");
@@ -385,6 +510,11 @@ public class ContentReference
             // 16-Jan-2022, tatu: First ensure offset/length the same
             if ((_offset != otherSrc._offset)
                     || (_length != otherSrc._length)) {
+                return false;
+            }
+            // 25-Nov-2026, tatu: [core#1833] textual-ness affects location
+            //   description (line/column vs byte offset) so must match too
+            if (_isContentTextual != otherSrc._isContentTextual) {
                 return false;
             }
 

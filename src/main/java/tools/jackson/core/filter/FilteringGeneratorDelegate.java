@@ -270,7 +270,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, null, false);
+            _itemFilter = null;
+            _filterContext = _filterContext.createChildObjectContext(null, null, false);
             return this;
         }
 
@@ -286,6 +287,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, null, true);
             delegate.writeStartObject();
         } else { // filter out
+            _itemFilter = f;
             _filterContext = _filterContext.createChildObjectContext(f, null, false);
         }
         return this;
@@ -306,7 +308,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, false);
+            _itemFilter = null;
+            _filterContext = _filterContext.createChildObjectContext(null, currValue, false);
             return this;
         }
 
@@ -322,6 +325,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, currValue, true);
             delegate.writeStartObject(currValue);
         } else { // filter out
+            _itemFilter = f;
             _filterContext = _filterContext.createChildObjectContext(f, currValue, false);
         }
         return this;
@@ -342,7 +346,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, false);
+            _itemFilter = null;
+            _filterContext = _filterContext.createChildObjectContext(null, currValue, false);
             return this;
         }
 
@@ -353,7 +358,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, currValue, true);
             delegate.writeStartObject(currValue, size);
+        } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+            _checkParentPath(false /* isMatch */);
+            _filterContext = _filterContext.createChildObjectContext(f, currValue, true);
+            delegate.writeStartObject(currValue, size);
         } else { // filter out
+            _itemFilter = f;
             _filterContext = _filterContext.createChildObjectContext(f, currValue, false);
         }
         return this;

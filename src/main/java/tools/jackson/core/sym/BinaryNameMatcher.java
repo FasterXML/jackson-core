@@ -721,7 +721,8 @@ public final class BinaryNameMatcher
         for (int i = 3; i < qlen; ++i) {
             int next = q[i];
             next = next ^ (next >> 21);
-            hash += next;
+            // 26-Nov-2026: order-dependent, same as `ByteQuadsCanonicalizer`
+            hash = (hash * MULT3) + next;
         }
         hash *= MULT2;
 

@@ -243,7 +243,7 @@ Kayokoi (@wozhenbang2004)
  * Contributed #1158: Allow suppressing the source-redaction note from locations
   (3.4.0)
 
-@barthollomew
+Nathan (@barthollomew)
  * Contributed #1833: With `StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled (default),
    3.x error locations lose line/column for textual input
   (3.4.0)

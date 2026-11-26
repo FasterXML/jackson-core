@@ -118,6 +118,10 @@ class JDKSerializabilityTest
 
         assertEquals(loc.getLineNr(), loc2.getLineNr());
         assertEquals(loc.getColumnNr(), loc2.getColumnNr());
+        // [core#1833]: textual redacted reference retained
+        assertSame(loc.contentReference(), loc2.contentReference());
+        assertEquals(loc.offsetDescription(), loc2.offsetDescription());
+        assertEquals(loc.sourceDescription(), loc2.sourceDescription());
         jp.close();
     }
 
@@ -130,7 +134,28 @@ class JDKSerializabilityTest
         byte[] stuff = jdkSerialize(ref);
         ContentReference ref2 = jdkDeserialize(stuff);
         assertNotNull(ref2);
-        assertSame(ref2, ContentReference.unknown());
+        // Raw content not serialized, but textual-ness is retained
+        assertTrue(ref2.hasTextualContent());
+        assertNull(ref2.getRawContent());
+        assertEquals("UNKNOWN", ref2.buildSourceDescription());
+
+        ref = ContentReference.construct(false, new byte[1],
+                ErrorReportConfiguration.defaults());
+        assertSame(ContentReference.unknown(), jdkDeserialize(jdkSerialize(ref)));
+        assertSame(ContentReference.unknown(),
+                jdkDeserialize(jdkSerialize(ContentReference.unknown())));
+    }
+
+    // [core#1833]
+    @Test
+    void redactedSourceReference() throws Exception
+    {
+        for (boolean textual : new boolean[] { true, false }) {
+            ContentReference ref = ContentReference.redacted(textual);
+            assertSame(ref, jdkDeserialize(jdkSerialize(ref)));
+            ref = ContentReference.redactedWithoutNote(textual);
+            assertSame(ref, jdkDeserialize(jdkSerialize(ref)));
+        }
     }
 
     /*
@@ -229,6 +254,10 @@ class JDKSerializabilityTest
         byte[] stuff = jdkSerialize(exc);
         StreamReadException result = jdkDeserialize(stuff);
         assertNotNull(result);
+        // [core#1833]: line/column retained for (redacted) textual content
+        assertEquals(exc.getLocation().offsetDescription(),
+                result.getLocation().offsetDescription());
+        assertEquals(exc.getMessage(), result.getMessage());
     }
 
     @Test

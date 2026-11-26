@@ -17,7 +17,7 @@ import tools.jackson.core.ErrorReportConfiguration;
  * messages.
  */
 public class ContentReference
-    // sort of: we will read back as "UNKNOWN"
+    // sort of: we will read back as "UNKNOWN" (or "REDACTED") marker
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -68,6 +68,15 @@ public class ContentReference
      * @since 3.4
      */
     protected final static ContentReference REDACTED_TEXTUAL_CONTENT_NO_NOTE =
+            new ContentReference(true, null, ErrorReportConfiguration.defaults());
+
+    /**
+     * Textual variant of {@link #UNKNOWN_CONTENT}: only used as the JDK-deserialized
+     * form of references to textual content (raw content is not serialized).
+     *
+     * @since 3.4
+     */
+    private final static ContentReference UNKNOWN_TEXTUAL_CONTENT =
             new ContentReference(true, null, ErrorReportConfiguration.defaults());
 
     /**
@@ -137,25 +146,16 @@ public class ContentReference
      * Accessor for getting a placeholder when actual content
      * is not to be exposed: different from {@link #unknown()} where
      * content is not available to be referenced.
+     *<p>
+     * NOTE: returned instance is for binary content, so locations using it
+     * describe byte offset, not line/column: for textual content use
+     * {@link #redacted(boolean)} instead.
      *
      * @return Placeholder instance to use in cases where reference is explicitly
      *   blocked, usually for security reasons.
      */
     public static ContentReference redacted() {
         return REDACTED_CONTENT;
-    }
-
-    /**
-     * Variant of {@link #redacted()} whose source description is empty,
-     * so that no "REDACTED" note is included in location descriptions.
-     *
-     * @return Placeholder instance to use when reference is explicitly blocked
-     *   and its redaction is not to be noted
-     *
-     * @since 3.4
-     */
-    public static ContentReference redactedWithoutNote() {
-        return REDACTED_CONTENT_NO_NOTE;
     }
 
     /**
@@ -235,8 +235,33 @@ public class ContentReference
     /**********************************************************************
      */
 
-    // For JDK serialization: can/should not retain raw content, so need
-    // not read or write anything
+    // For JDK serialization: can/should not retain raw content, so only
+    // serialize which marker instance to resolve back to (via proxy)
+
+    // 25-Nov-2026, tatu: [core#1833] Retain textual-ness and redaction marker
+    //    so that deserialized locations still describe line/column
+    /**
+     * Replaces this reference with a serialization proxy that resolves back
+     * to the matching marker instance.
+     *
+     * @return Serialization proxy to write instead of this instance
+     *
+     * @since 3.4
+     */
+    protected Object writeReplace() {
+        int kind;
+        if ((this == REDACTED_CONTENT) || (this == REDACTED_TEXTUAL_CONTENT)) {
+            kind = SerializedForm.KIND_REDACTED;
+        } else if ((this == REDACTED_CONTENT_NO_NOTE) || (this == REDACTED_TEXTUAL_CONTENT_NO_NOTE)) {
+            kind = SerializedForm.KIND_REDACTED_NO_NOTE;
+        } else {
+            kind = SerializedForm.KIND_UNKNOWN;
+        }
+        if (_isContentTextual) {
+            kind |= SerializedForm.FLAG_TEXTUAL;
+        }
+        return new SerializedForm(kind);
+    }
 
     private void readObject(ObjectInputStream in) throws IOException {
         // nop: but must override the method
@@ -246,8 +271,43 @@ public class ContentReference
         // nop: but must override the method
     }
 
+    // Only reached for content serialized by versions prior to 3.4
     protected Object readResolve() {
         return UNKNOWN_CONTENT;
+    }
+
+    /**
+     * Serialization proxy for {@link ContentReference}: resolves back to
+     * one of the shared marker instances.
+     *
+     * @since 3.4
+     */
+    private static final class SerializedForm implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        final static int KIND_UNKNOWN = 0;
+        final static int KIND_REDACTED = 1;
+        final static int KIND_REDACTED_NO_NOTE = 2;
+        final static int FLAG_TEXTUAL = 0x10;
+
+        private final int _kind;
+
+        SerializedForm(int kind) {
+            _kind = kind;
+        }
+
+        private Object readResolve() {
+            final boolean textual = (_kind & FLAG_TEXTUAL) != 0;
+            switch (_kind & ~FLAG_TEXTUAL) {
+            case KIND_REDACTED:
+                return textual ? REDACTED_TEXTUAL_CONTENT : REDACTED_CONTENT;
+            case KIND_REDACTED_NO_NOTE:
+                return textual ? REDACTED_TEXTUAL_CONTENT_NO_NOTE : REDACTED_CONTENT_NO_NOTE;
+            default:
+                return textual ? UNKNOWN_TEXTUAL_CONTENT : UNKNOWN_CONTENT;
+            }
+        }
     }
 
     /*
@@ -462,6 +522,11 @@ public class ContentReference
             // 16-Jan-2022, tatu: First ensure offset/length the same
             if ((_offset != otherSrc._offset)
                     || (_length != otherSrc._length)) {
+                return false;
+            }
+            // 25-Nov-2026, tatu: [core#1833] textual-ness affects location
+            //   description (line/column vs byte offset) so must match too
+            if (_isContentTextual != otherSrc._isContentTextual) {
                 return false;
             }
 

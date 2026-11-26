@@ -254,6 +254,15 @@ class TokenStreamLocationTest
                 5L, 0L, 1, 2);
         assertNotEquals(loc1, loc2);
         assertNotEquals(loc2, loc1);
+
+        // [core#1833]: textual vs binary must also match
+        assertNotEquals(ContentReference.redacted(true), ContentReference.redacted(false));
+        assertNotEquals(_rawSourceRef(true, src1), _rawSourceRef(false, src1));
+        loc1 = new TokenStreamLocation(ContentReference.redacted(true), 19L, 19L, 3, 8);
+        loc2 = new TokenStreamLocation(ContentReference.redacted(false), 19L, 19L, 3, 8);
+        assertNotEquals(loc1.offsetDescription(), loc2.offsetDescription());
+        assertNotEquals(loc1, loc2);
+        assertNotEquals(loc2, loc1);
     }
 
     private ContentReference _sourceRef(String rawSrc) {

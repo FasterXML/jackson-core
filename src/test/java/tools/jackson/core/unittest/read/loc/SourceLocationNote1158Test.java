@@ -29,6 +29,10 @@ class SourceLocationNote1158Test extends AsyncTestBase
                 _verifySuppressed(e.getLocation());
                 assertFalse(e.getMessage().contains("Source:"));
                 assertTrue(e.getMessage().contains(e.getLocation().offsetDescription()));
+                // [core#1833]: textual content retains line/column
+                assertTrue(e.getLocation().contentReference().hasTextualContent());
+                assertTrue(e.getLocation().offsetDescription().startsWith("line: 1, column: "),
+                        e.getLocation().offsetDescription());
             }
         }
     }
@@ -102,7 +106,10 @@ class SourceLocationNote1158Test extends AsyncTestBase
                 assertEquals(expected.offsetDescription(), actual.offsetDescription());
             }
         }
-        assertTrue(ContentReference.redacted().buildSourceDescription().startsWith("REDACTED"));
+        assertTrue(ContentReference.redacted(false).buildSourceDescription().startsWith("REDACTED"));
+        assertFalse(ContentReference.redactedWithoutNote(false).hasTextualContent());
+        assertTrue(ContentReference.redactedWithoutNote(true).hasTextualContent());
+        assertEquals("", ContentReference.redactedWithoutNote(true).buildSourceDescription());
         assertEquals("UNKNOWN", ContentReference.unknown().buildSourceDescription());
         assertEquals("[No location information]", TokenStreamLocation.NA.toString());
     }

@@ -373,7 +373,7 @@ public class JsonFactory
         return new IOContext(_streamReadConstraints, _streamWriteConstraints,
                 _errorReportConfiguration,
                 _getBufferRecycler(),
-                ContentReference.rawReference(srcRef), false, JsonEncoding.UTF8);
+                _createContentReference(srcRef), false, JsonEncoding.UTF8);
     }
 
     /*

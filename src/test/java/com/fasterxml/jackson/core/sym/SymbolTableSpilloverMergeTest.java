@@ -7,7 +7,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,23 +30,56 @@ class SymbolTableSpilloverMergeTest
     static class SymbolCountingJsonFactory extends JsonFactory
     {
         int charSymbolCount() { return _rootCharSymbols.size(); }
+        int byteSymbolSeed() { return _byteSymbolCanonicalizer.hashSeed(); }
+
+        // needed for non-blocking and DataInput parsers to be allowed for sub-class
+        @Override
+        public String getFormatName() { return FORMAT_NAME_JSON; }
     }
 
-    // ByteQuadsCanonicalizer: a child whose spill-over area is exhausted must fail,
-    // and must not be merged back into the shared root table.
-    //
-    // Exercised directly against the canonicalizer with a fixed seed: unlike the
-    // CharsToNameCanonicalizer case, same-bucket byte collisions are seed-specific,
-    // so they are generated here by searching rather than relying on a seed-
-    // independent construction.
+    // ByteQuadsCanonicalizer: byte-backed blocking parsers
     @Test
     void failedByteSymbolTableNotMerged() throws Exception
+    {
+        for (int mode : ALL_BINARY_MODES) {
+            final SymbolCountingJsonFactory f = new SymbolCountingJsonFactory();
+            for (String prefix : PREFIXES) {
+                byte[] doc = _doc(_sameBucketNames(f.byteSymbolSeed(), prefix));
+                assertThrows(StreamConstraintsException.class, () -> _parseAll(f, mode, doc));
+            }
+            _parseAll(f, mode, _validDoc());
+        }
+    }
+
+    // ByteQuadsCanonicalizer: non-blocking parser
+    @Test
+    void failedByteSymbolTableNotMergedAsync() throws Exception
+    {
+        for (int bytesPerRead : new int[] { 1, 1000 }) {
+            final SymbolCountingJsonFactory f = new SymbolCountingJsonFactory();
+            for (String prefix : PREFIXES) {
+                byte[] doc = _doc(_sameBucketNames(f.byteSymbolSeed(), prefix));
+                assertThrows(StreamConstraintsException.class,
+                        () -> _parseAllAsync(f, bytesPerRead, doc));
+            }
+            _parseAllAsync(f, bytesPerRead, _validDoc());
+        }
+    }
+
+    // ByteQuadsCanonicalizer: same, but directly against the symbol table
+    @Test
+    void failedByteSymbolTableNotMergedDirect() throws Exception
     {
         final ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot(SEED);
 
         final ByteQuadsCanonicalizer failing =
                 root.makeChild(JsonFactory.Feature.collectDefaults());
-        assertThrows(StreamConstraintsException.class, () -> _fillSpillover(root, failing));
+        assertThrows(StreamConstraintsException.class, () -> {
+            for (String name : _sameBucketNames(SEED, PREFIXES[0])) {
+                int[] q = calcQuads(name);
+                failing.addName(name, q, q.length);
+            }
+        });
         // Released failing table must not corrupt (or even reach) the root:
         failing.release();
         assertEquals(0, root.size());
@@ -58,24 +93,6 @@ class SymbolTableSpilloverMergeTest
         }
         ok.release();
         assertEquals(3, root.size());
-    }
-
-    // Adds names that all fall into the same primary bucket (sharing the low hash
-    // bits), forcing the shared spill-over area to fill up and trip the guard.
-    private void _fillSpillover(ByteQuadsCanonicalizer hasher, ByteQuadsCanonicalizer target)
-            throws Exception
-    {
-        final int mask = 0x7FF; // low 11 bits -> same bucket up to a 2048-slot table
-        int added = 0;
-        for (int i = 0; added < 50_000; ++i) {
-            // keep names long enough to be multi-quad (4+ quads)
-            String name = "coll_" + Integer.toString(i, 36) + "____________";
-            int[] q = calcQuads(name);
-            if ((hasher.calcHash(q, q.length) & mask) == 0) {
-                target.addName(name, q, q.length);
-                ++added;
-            }
-        }
     }
 
     // CharsToNameCanonicalizer: char-backed parsers
@@ -115,6 +132,33 @@ class SymbolTableSpilloverMergeTest
         try (JsonParser p = createParser(f, mode, doc)) {
             while (p.nextToken() != null) { }
         }
+    }
+
+    private void _parseAllAsync(JsonFactory f, int bytesPerRead, byte[] doc) throws Exception
+    {
+        AsyncReaderWrapper r = AsyncTestBase.asyncForBytes(f, bytesPerRead, doc, 0);
+        try {
+            while (r.nextToken() != null) { }
+        } finally {
+            r.close();
+        }
+    }
+
+    // Names (of 4+ quads) that share low bits of hash for given seed, and so
+    // end up in the same primary bucket, eventually filling the spill-over area
+    private List<String> _sameBucketNames(int seed, String prefix)
+    {
+        final ByteQuadsCanonicalizer hasher = ByteQuadsCanonicalizer.createRoot(seed);
+        final int mask = 0x7FF; // same bucket for tables of up to 2048 slots
+        List<String> result = new ArrayList<>();
+        for (int i = 0; result.size() < 700; ++i) {
+            String name = prefix + Integer.toString(i, 36);
+            int[] q = calcQuads(name);
+            if ((hasher.calcHash(q, q.length) & mask) == 0) {
+                result.add(name);
+            }
+        }
+        return result;
     }
 
     // "Ab" and "BA" hash the same (65*33+98 == 66*33+65), so all equal-length

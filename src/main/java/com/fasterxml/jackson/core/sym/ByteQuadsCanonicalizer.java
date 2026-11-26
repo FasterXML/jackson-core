@@ -1231,10 +1231,13 @@ public final class ByteQuadsCanonicalizer
         hash ^= q[2];
         hash += (hash >>> 4);
 
+        // 26-Nov-2026: combine tail quads order-dependently (instead of a plain
+        //   sum) so that different orderings of the same quads hash differently,
+        //   improving distribution for longer property names.
         for (int i = 3; i < qlen; ++i) {
             int next = q[i];
             next = next ^ (next >> 21);
-            hash += next;
+            hash = (hash * MULT3) + next;
         }
         hash *= MULT2;
 

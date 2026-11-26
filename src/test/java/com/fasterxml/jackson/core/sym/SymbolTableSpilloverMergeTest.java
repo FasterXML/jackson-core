@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.sym;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -25,10 +24,17 @@ class SymbolTableSpilloverMergeTest
 {
     private final static String[] PREFIXES = { "x0__________", "x1__________" };
 
+    private final static int SEED = 33333;
+
     @SuppressWarnings("serial")
     static class SymbolCountingJsonFactory extends JsonFactory
     {
         int charSymbolCount() { return _rootCharSymbols.size(); }
+        int byteSymbolSeed() { return _byteSymbolCanonicalizer.hashSeed(); }
+
+        // needed for non-blocking and DataInput parsers to be allowed for sub-class
+        @Override
+        public String getFormatName() { return FORMAT_NAME_JSON; }
     }
 
     // ByteQuadsCanonicalizer: byte-backed blocking parsers
@@ -36,9 +42,9 @@ class SymbolTableSpilloverMergeTest
     void failedByteSymbolTableNotMerged() throws Exception
     {
         for (int mode : ALL_BINARY_MODES) {
-            final JsonFactory f = new JsonFactory();
+            final SymbolCountingJsonFactory f = new SymbolCountingJsonFactory();
             for (String prefix : PREFIXES) {
-                byte[] doc = _doc(_quadCollidingNames(prefix));
+                byte[] doc = _doc(_sameBucketNames(f.byteSymbolSeed(), prefix));
                 assertThrows(StreamConstraintsException.class, () -> _parseAll(f, mode, doc));
             }
             _parseAll(f, mode, _validDoc());
@@ -50,14 +56,43 @@ class SymbolTableSpilloverMergeTest
     void failedByteSymbolTableNotMergedAsync() throws Exception
     {
         for (int bytesPerRead : new int[] { 1, 1000 }) {
-            final JsonFactory f = new JsonFactory();
+            final SymbolCountingJsonFactory f = new SymbolCountingJsonFactory();
             for (String prefix : PREFIXES) {
-                byte[] doc = _doc(_quadCollidingNames(prefix));
+                byte[] doc = _doc(_sameBucketNames(f.byteSymbolSeed(), prefix));
                 assertThrows(StreamConstraintsException.class,
                         () -> _parseAllAsync(f, bytesPerRead, doc));
             }
             _parseAllAsync(f, bytesPerRead, _validDoc());
         }
+    }
+
+    // ByteQuadsCanonicalizer: same, but directly against the symbol table
+    @Test
+    void failedByteSymbolTableNotMergedDirect() throws Exception
+    {
+        final ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot(SEED);
+
+        final ByteQuadsCanonicalizer failing =
+                root.makeChild(JsonFactory.Feature.collectDefaults());
+        assertThrows(StreamConstraintsException.class, () -> {
+            for (String name : _sameBucketNames(SEED, PREFIXES[0])) {
+                int[] q = calcQuads(name);
+                failing.addName(name, q, q.length);
+            }
+        });
+        // Released failing table must not corrupt (or even reach) the root:
+        failing.release();
+        assertEquals(0, root.size());
+
+        // ... and the root stays usable: a normal child still merges
+        final ByteQuadsCanonicalizer ok =
+                root.makeChild(JsonFactory.Feature.collectDefaults());
+        for (String name : Arrays.asList("a", "b", "c")) {
+            int[] q = calcQuads(name);
+            ok.addName(name, q, q.length);
+        }
+        ok.release();
+        assertEquals(3, root.size());
     }
 
     // CharsToNameCanonicalizer: char-backed parsers
@@ -109,26 +144,21 @@ class SymbolTableSpilloverMergeTest
         }
     }
 
-    // Names that only differ by order of quads 4-9 have same hash, regardless of seed
-    private List<String> _quadCollidingNames(String prefix)
+    // Names (of 4+ quads) that share low bits of hash for given seed, and so
+    // end up in the same primary bucket, eventually filling the spill-over area
+    private List<String> _sameBucketNames(int seed, String prefix)
     {
+        final ByteQuadsCanonicalizer hasher = ByteQuadsCanonicalizer.createRoot(seed);
+        final int mask = 0x7FF; // same bucket for tables of up to 2048 slots
         List<String> result = new ArrayList<>();
-        _permute(new ArrayList<>(Arrays.asList("aaaa", "bbbb", "cccc", "dddd", "eeee", "ffff")),
-                0, prefix, result);
-        return result.subList(0, 700);
-    }
-
-    private void _permute(List<String> quads, int index, String prefix, List<String> result)
-    {
-        if (index == quads.size()) {
-            result.add(prefix + String.join("", quads));
-            return;
+        for (int i = 0; result.size() < 700; ++i) {
+            String name = prefix + Integer.toString(i, 36);
+            int[] q = calcQuads(name);
+            if ((hasher.calcHash(q, q.length) & mask) == 0) {
+                result.add(name);
+            }
         }
-        for (int i = index; i < quads.size(); ++i) {
-            Collections.swap(quads, index, i);
-            _permute(quads, index + 1, prefix, result);
-            Collections.swap(quads, index, i);
-        }
+        return result;
     }
 
     // "Ab" and "BA" hash the same (65*33+98 == 66*33+65), so all equal-length

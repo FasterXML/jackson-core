@@ -2,15 +2,12 @@ package com.fasterxml.jackson.core.sym;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
-import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,38 +22,59 @@ class SymbolTableSpilloverMergeTest
 {
     private final static String[] PREFIXES = { "x0__________", "x1__________" };
 
+    private final static int SEED = 33333;
+
     @SuppressWarnings("serial")
     static class SymbolCountingJsonFactory extends JsonFactory
     {
         int charSymbolCount() { return _rootCharSymbols.size(); }
     }
 
-    // ByteQuadsCanonicalizer: byte-backed blocking parsers
+    // ByteQuadsCanonicalizer: a child whose spill-over area is exhausted must fail,
+    // and must not be merged back into the shared root table.
+    //
+    // Exercised directly against the canonicalizer with a fixed seed: unlike the
+    // CharsToNameCanonicalizer case, same-bucket byte collisions are seed-specific,
+    // so they are generated here by searching rather than relying on a seed-
+    // independent construction.
     @Test
     void failedByteSymbolTableNotMerged() throws Exception
     {
-        for (int mode : ALL_BINARY_MODES) {
-            final JsonFactory f = new JsonFactory();
-            for (String prefix : PREFIXES) {
-                byte[] doc = _doc(_quadCollidingNames(prefix));
-                assertThrows(StreamConstraintsException.class, () -> _parseAll(f, mode, doc));
-            }
-            _parseAll(f, mode, _validDoc());
+        final ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot(SEED);
+
+        final ByteQuadsCanonicalizer failing =
+                root.makeChild(JsonFactory.Feature.collectDefaults());
+        assertThrows(StreamConstraintsException.class, () -> _fillSpillover(root, failing));
+        // Released failing table must not corrupt (or even reach) the root:
+        failing.release();
+        assertEquals(0, root.size());
+
+        // ... and the root stays usable: a normal child still merges
+        final ByteQuadsCanonicalizer ok =
+                root.makeChild(JsonFactory.Feature.collectDefaults());
+        for (String name : Arrays.asList("a", "b", "c")) {
+            int[] q = calcQuads(name);
+            ok.addName(name, q, q.length);
         }
+        ok.release();
+        assertEquals(3, root.size());
     }
 
-    // ByteQuadsCanonicalizer: non-blocking parser
-    @Test
-    void failedByteSymbolTableNotMergedAsync() throws Exception
+    // Adds names that all fall into the same primary bucket (sharing the low hash
+    // bits), forcing the shared spill-over area to fill up and trip the guard.
+    private void _fillSpillover(ByteQuadsCanonicalizer hasher, ByteQuadsCanonicalizer target)
+            throws Exception
     {
-        for (int bytesPerRead : new int[] { 1, 1000 }) {
-            final JsonFactory f = new JsonFactory();
-            for (String prefix : PREFIXES) {
-                byte[] doc = _doc(_quadCollidingNames(prefix));
-                assertThrows(StreamConstraintsException.class,
-                        () -> _parseAllAsync(f, bytesPerRead, doc));
+        final int mask = 0x7FF; // low 11 bits -> same bucket up to a 2048-slot table
+        int added = 0;
+        for (int i = 0; added < 50_000; ++i) {
+            // keep names long enough to be multi-quad (4+ quads)
+            String name = "coll_" + Integer.toString(i, 36) + "____________";
+            int[] q = calcQuads(name);
+            if ((hasher.calcHash(q, q.length) & mask) == 0) {
+                target.addName(name, q, q.length);
+                ++added;
             }
-            _parseAllAsync(f, bytesPerRead, _validDoc());
         }
     }
 
@@ -96,38 +114,6 @@ class SymbolTableSpilloverMergeTest
     {
         try (JsonParser p = createParser(f, mode, doc)) {
             while (p.nextToken() != null) { }
-        }
-    }
-
-    private void _parseAllAsync(JsonFactory f, int bytesPerRead, byte[] doc) throws Exception
-    {
-        AsyncReaderWrapper r = AsyncTestBase.asyncForBytes(f, bytesPerRead, doc, 0);
-        try {
-            while (r.nextToken() != null) { }
-        } finally {
-            r.close();
-        }
-    }
-
-    // Names that only differ by order of quads 4-9 have same hash, regardless of seed
-    private List<String> _quadCollidingNames(String prefix)
-    {
-        List<String> result = new ArrayList<>();
-        _permute(new ArrayList<>(Arrays.asList("aaaa", "bbbb", "cccc", "dddd", "eeee", "ffff")),
-                0, prefix, result);
-        return result.subList(0, 700);
-    }
-
-    private void _permute(List<String> quads, int index, String prefix, List<String> result)
-    {
-        if (index == quads.size()) {
-            result.add(prefix + String.join("", quads));
-            return;
-        }
-        for (int i = index; i < quads.size(); ++i) {
-            Collections.swap(quads, index, i);
-            _permute(quads, index + 1, prefix, result);
-            Collections.swap(quads, index, i);
         }
     }
 

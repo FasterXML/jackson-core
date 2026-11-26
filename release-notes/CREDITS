@@ -159,6 +159,9 @@ Ubeddulla Khan (@ubeddulla)
  * Contributed #1838: Non-default `quoteChar` not escaped by `writeName(SerializableString)`,
    `writeString(SerializableString)`
   (3.1.9)
+ * Contributed #1839: `FilteringGeneratorDelegate` writes Objects in Array elements
+   excluded by filter
+  (3.1.10)
 
 @vera-rubin
  * Contributed #1813: `getDoubleValue()` returns `0.0` after `getFloatValue()` for

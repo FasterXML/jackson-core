@@ -1,6 +1,7 @@
 package tools.jackson.core.unittest.constraints;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
@@ -18,10 +19,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // Tests to verify that `maxStringLength` is applied when a String value is
-// decoded straight from input as Base64 (`getBinaryValue()`), without
-// being accessed as a String first
+// decoded straight from input as Base64 (`getBinaryValue()`, `readBinaryValue()`),
+// without being accessed as a String first
 class LargeBinaryValueReadTest extends JacksonCoreTestBase
 {
     private final static int MAX_STRING_LEN = 1000;
@@ -343,6 +345,66 @@ class LargeBinaryValueReadTest extends JacksonCoreTestBase
                 assertFalse(p.hasCurrentToken());
                 assertNull(p.getString());
                 assertThrows(StreamReadException.class, () -> p.getBinaryValue());
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+            }
+        }
+    }
+
+    // `readBinaryValue()` streams decoded content to the caller, but must apply
+    // the same limit, and never pass more than allowed to the `OutputStream`
+    @Test
+    void readBinaryValueWithSmallLimit() throws Exception
+    {
+        final String doc = "[\"" + Base64Variants.getDefaultVariant().encode(_binary(30_000)) + "\",123]";
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(JSON_F_STRING_1000, mode, doc)) {
+                _verifyReadBinaryFailsOnLimit(p);
+            }
+        }
+        try (JsonParser p = JSON_F_STRING_1000.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"))) {
+            _verifyReadBinaryFailsOnLimit(p);
+        }
+        try (JsonParser p = JSON_F_STRING_1000.createParser(ObjectReadContext.empty(), doc.toCharArray())) {
+            _verifyReadBinaryFailsOnLimit(p);
+        }
+    }
+
+    private void _verifyReadBinaryFailsOnLimit(JsonParser p) throws Exception {
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        StreamConstraintsException e = assertThrows(StreamConstraintsException.class,
+                () -> p.readBinaryValue(bytes));
+        verifyException(e, "String value length (at least ");
+        verifyException(e, "exceeds the maximum allowed (1000");
+        assertTrue(bytes.size() <= 750, "Wrote "+bytes.size()+" bytes");
+        assertNull(p.currentToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(123, p.getIntValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+    }
+
+    @Test
+    void readBinaryValueAtAndJustOverLimit() throws Exception
+    {
+        final byte[] atLimit = _binary(750); // 1000 characters
+        final String okDoc = _doc(atLimit);
+        final String tooLongDoc = _doc(_binary(753)); // 1004 characters
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(JSON_F_STRING_1000, mode, okDoc)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                assertEquals(atLimit.length, p.readBinaryValue(bytes));
+                assertArrayEquals(atLimit, bytes.toByteArray());
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+            }
+            try (JsonParser p = createParser(JSON_F_STRING_1000, mode, tooLongDoc)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
+                final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                assertThrows(StreamConstraintsException.class, () -> p.readBinaryValue(bytes));
+                assertTrue(bytes.size() <= 750, "Wrote "+bytes.size()+" bytes");
                 assertToken(JsonToken.END_ARRAY, p.nextToken());
             }
         }

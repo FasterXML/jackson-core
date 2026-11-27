@@ -571,6 +571,8 @@ public class UTF8StreamJsonParser
         int outputPtr = 0;
         final int outputEnd = buffer.length - 3;
         int outputCount = 0;
+        // `maxStringLength` verified before each write to `out`, and at the end
+        final int maxDecodedLen = _base64MaxDecodedLength();
 
         while (true) {
             // first, we'll skip preceding white space, if any
@@ -595,6 +597,9 @@ public class UTF8StreamJsonParser
             // enough room? If not, flush
             if (outputPtr > outputEnd) {
                 outputCount += outputPtr;
+                if (outputCount > maxDecodedLen) {
+                    _reportBase64LengthExceeded(outputCount);
+                }
                 out.write(buffer, 0, outputPtr);
                 outputPtr = 0;
             }
@@ -694,9 +699,13 @@ public class UTF8StreamJsonParser
             buffer[outputPtr++] = (byte) (decodedData >> 8);
             buffer[outputPtr++] = (byte) decodedData;
         }
+        // Closing quote consumed: nothing left to skip even if verification fails
         _tokenIncomplete = false;
+        outputCount += outputPtr;
+        if (outputCount > maxDecodedLen) {
+            _reportBase64LengthExceeded(outputCount);
+        }
         if (outputPtr > 0) {
-            outputCount += outputPtr;
             out.write(buffer, 0, outputPtr);
         }
         return outputCount;

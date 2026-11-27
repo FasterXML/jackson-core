@@ -1164,11 +1164,29 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected final void _reportBase64LengthExceeded(ByteArrayBuilder builder) throws StreamConstraintsException
     {
+        _reportBase64LengthExceeded(builder.size());
+    }
+
+    /**
+     * Method called when decoded Base64 content exceeds {@link #_base64MaxDecodedLength()}.
+     *<p>
+     * Current token is cleared so that decoding can not be retried from the middle of
+     * the value. Token is still marked as incomplete by parser so that
+     * {@code nextToken()} can skip the rest of the value.
+     *
+     * @param decodedLength Number of bytes decoded so far
+     *
+     * @throws StreamConstraintsException Always
+     *
+     * @since 3.4
+     */
+    protected final void _reportBase64LengthExceeded(int decodedLength) throws StreamConstraintsException
+    {
         clearCurrentToken();
         // Only know length of what has been decoded so far, hence "at least"
         throw new StreamConstraintsException(String.format(
                 "String value length (at least %d) exceeds the maximum allowed (%d, from `StreamReadConstraints.getMaxStringLength()`)",
-                (builder.size() * 4L + 2L) / 3L, _streamReadConstraints.getMaxStringLength()));
+                (decodedLength * 4L + 2L) / 3L, _streamReadConstraints.getMaxStringLength()));
     }
 
     protected final int _decodeBase64Escape(Base64Variant b64variant, int ch, int index)

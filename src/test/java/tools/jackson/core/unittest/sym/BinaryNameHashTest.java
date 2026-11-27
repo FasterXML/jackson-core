@@ -38,8 +38,7 @@ public class BinaryNameHashTest extends JacksonCoreTestBase
 
     @Test
     public void testSuffix5() {
-        // similarly, not so great...
-        _testSpillEfficiency(generate("SlartiBartFast#", 3000), 1112, 761, 897, 230);
+        _testSpillEfficiency(generate("SlartiBartFast#", 3000), 2122, 605, 273, 0);
     }
 
     @Test

@@ -34,6 +34,8 @@ JSON library.
  (fix by @barthollomew)
 #1837: `maxStringLength` not enforced by `JsonParser.getStringCharacters()`
  (contributed by @ubeddulla)
+#1844: Reduce initial buffer allocation for small Base64 inputs
+ (contributed by DongNyoung L)
 
 3.3.1 (not yet released)
 

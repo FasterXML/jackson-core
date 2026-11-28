@@ -684,7 +684,10 @@ public final class Base64Variant
      */
     public byte[] decode(String input) throws IllegalArgumentException
     {
-        try (ByteArrayBuilder b = new ByteArrayBuilder()) {
+        // Bound the decoded size, retaining the default initial size for large inputs.
+        // Widen before multiplying to avoid overflow for very long input Strings.
+        int initialSize = (int) Math.min(500L, (input.length() * 3L) / 4L);
+        try (ByteArrayBuilder b = new ByteArrayBuilder(initialSize)) {
             decode(input, b);
             return b.toByteArray();
         }
